@@ -1,3 +1,3 @@
-# Statistics Canon V1.0
+# Statistics Canon
 
-This is the README for the Statistics Canon framework, detailing its modules and usage.
+This document serves as an introduction to the Statistics Canon, outlining its purpose and scope.
