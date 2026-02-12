@@ -10,7 +10,7 @@ This directory contains training datasets and models for computer science-relate
 ## Uploading Training Files
 
 ### Prerequisites
-- Ensure your data complies with the schema defined in `/computer_science/training_schema.yaml`
+- Ensure your data complies with the schema defined in `/computer_science/schema/training_schema.yaml`
 - Include proper metadata for provenance tracking
 
 ### Supported File Formats

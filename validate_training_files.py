@@ -45,7 +45,7 @@ def load_schema(subject):
     schema_paths = {
         'chemistry': 'chemistry/schema/training_schema.yaml',
         'mathematics': 'mathematics/schema/training_schema.yaml',
-        'computer_science': 'computer_science/training_schema.yaml'
+        'computer_science': 'computer_science/schema/training_schema.yaml'
     }
     
     schema_path = schema_paths.get(subject)
