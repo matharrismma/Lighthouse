@@ -110,9 +110,11 @@ def validate_file_formats(subject, metadata_path, schema):
     if not metadata_dir:
         metadata_dir = '.'
     
+    # Exclude metadata and documentation files from format check
+    excluded_files = ['metadata.yaml', 'README.md', 'LICENSE', 'CHANGELOG.md']
     data_files = [f for f in os.listdir(metadata_dir) 
                   if os.path.isfile(os.path.join(metadata_dir, f)) 
-                  and f != 'metadata.yaml' and not f.startswith('.')]
+                  and f not in excluded_files and not f.startswith('.')]
     
     for file in data_files:
         ext = file.split('.')[-1].lower()

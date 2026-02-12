@@ -1,0 +1,21 @@
+dataset_name: "Example Molecular Properties Dataset"
+author: "Lighthouse Contributors"
+creation_date: "2026-02-12"
+description: |
+  This is a small example dataset demonstrating the format for uploading
+  molecular property data. It contains synthetic data for demonstration purposes.
+  
+  The dataset includes:
+  - Molecular identifiers (SMILES notation)
+  - Molecular weight
+  - LogP (partition coefficient)
+  - Number of hydrogen bond donors/acceptors
+source: "Generated for Lighthouse demonstration"
+license: "CC0-1.0"
+version: "1.0"
+
+provenance:
+  data_source: "Synthetically generated for demonstration"
+  collection_method: "RDKit calculations on example molecules"
+  validation_status: "Validated"
+  last_updated: "2026-02-12"
