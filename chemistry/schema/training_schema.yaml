@@ -1,0 +1,33 @@
+# Training Data Schema for Chemistry
+# Defines the structure and metadata for chemistry training files
+
+schema_version: 1.0
+data_types:
+  - molecular_structures
+  - reaction_data
+  - spectroscopy_data
+  - thermodynamic_properties
+
+file_formats:
+  - csv
+  - json
+  - sdf
+  - mol2
+  - pdb
+
+metadata_required:
+  - dataset_name
+  - author
+  - creation_date
+  - description
+  - source
+  - license
+  - version
+
+provenance:
+  required: true
+  fields:
+    - data_source
+    - collection_method
+    - validation_status
+    - last_updated
