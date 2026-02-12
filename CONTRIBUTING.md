@@ -29,7 +29,7 @@ Each subject has a training schema that defines:
 Schema locations:
 - Chemistry: `/chemistry/schema/training_schema.yaml`
 - Mathematics: `/mathematics/schema/training_schema.yaml`
-- Computer Science: `/computer_science/training_schema.yaml`
+- Computer Science: `/computer_science/schema/training_schema.yaml`
 
 ## Upload Process
 
