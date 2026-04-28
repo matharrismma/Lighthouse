@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "concordance-engine"
 version = "1.0.4"
-description = "Four-Gates packet validation engine (RED/FLOOR/BROTHERS/GOD) with cross-disciplinary computational verifiers and an MCP server for AI assistant integration."
+description = "Four-Gates packet validation engine with cross-disciplinary computational verifiers and MCP server for AI assistant integration."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -26,15 +26,15 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-
-[project.urls]
-Repository = "https://github.com/matharrismma/Lighthouse"
-"Bug Tracker" = "https://github.com/matharrismma/Lighthouse/issues"
 dependencies = [
   "sympy>=1.12",
   "numpy>=1.26",
   "scipy>=1.11",
 ]
+
+[project.urls]
+Repository = "https://github.com/matharrismma/Lighthouse"
+"Bug Tracker" = "https://github.com/matharrismma/Lighthouse/issues"
 
 [project.optional-dependencies]
 schema = ["jsonschema>=4.21.0"]
@@ -49,3 +49,6 @@ dev = [
 [project.scripts]
 concordance = "concordance_engine.cli:main"
 concordance-mcp = "concordance_engine.mcp_server.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
