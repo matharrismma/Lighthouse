@@ -9,6 +9,27 @@ description = "Four-Gates packet validation engine (RED/FLOOR/BROTHERS/GOD) with
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
+keywords = [
+  "validation", "verification", "mcp", "ai-tools", "decision-engine",
+  "four-gates", "computational-verification", "authority-validation",
+  "chemistry", "physics", "mathematics", "statistics", "governance"
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/matharrismma/Lighthouse"
+"Bug Tracker" = "https://github.com/matharrismma/Lighthouse/issues"
 dependencies = [
   "sympy>=1.12",
   "numpy>=1.26",

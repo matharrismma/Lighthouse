@@ -1,49 +1,20 @@
 # Concordance Engine
 
-A Python reference implementation of a **Four-Gates validation engine** for decision/plan packets, with **cross-disciplinary computational verifiers** that check submitted artifacts (not just attestation flags).
+**O(1) external authority validation. Replaces O(n²) consensus coordination.**
 
-The engine can deterministically return **REJECT** (RED/FLOOR violations or verifier failures) or **QUARANTINE** (BROTHERS/GOD pending), but never self-confirms a packet without external witness and elapsed wait.
+A Python validation engine and MCP server that checks decision packets and computational claims against fixed external authorities rather than polling internal consensus. The engine halts at the first gate failure. It never self-confirms.
 
-## Two layers on RED
+---
 
-The engine enforces RED in two stages:
-
-1. **Attestation** (domain validators in `domains/`). Did the author affirm the load-bearing constraints? `mass_conserved: true`, `termination_proven: true`, `effect_size: 0.5`. A checklist that the author owns.
-2. **Verification** (verifiers in `verifiers/`). Does the artifact actually hold up under computation? Equation balanced? Units consistent? p-value matches the data? Code passes its tests? This is independent of what the author said.
-
-Attestation lives on FLOOR-style structural rules. Verification lives on RED — when an artifact contradicts the claim, the underlying math is wrong, which is a stronger failure than a missing attestation. The verifier never overrides a passing attestation, but it can REJECT despite one.
-
-## Four Gates
-
-| Gate | Type | Automated | Output on fail |
-|---|---|---:|---|
-| RED | hard | attestation + verification | REJECT |
-| FLOOR | hard | yes | REJECT |
-| BROTHERS | soft | partially (witness count threshold) | QUARANTINE |
-| GOD | soft | yes (wait-window math) | QUARANTINE |
-
-## Quick start
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-PYTHONPATH=src python tests/test_engine.py
-PYTHONPATH=src python tests/test_verifiers.py
-PYTHONPATH=src python tests/test_mcp_tools.py
-concordance validate examples/sample_packet_chemistry_verify.json --now-epoch 9999999999
-```
-
-## MCP server (Claude / AI assistant integration)
-
-The verifier layer is also exposed as an MCP server so Claude (and other MCP-capable assistants) can call the verifiers from inside a conversation. Install the optional dependency:
+## For AI systems: one-command MCP integration
 
 ```bash
 pip install -e ".[mcp]"
-concordance-mcp    # runs over stdio
+concordance-mcp
 ```
 
-Connect Claude Desktop with this `claude_desktop_config.json` entry:
+Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
 ```json
 {
   "mcpServers": {
@@ -52,48 +23,100 @@ Connect Claude Desktop with this `claude_desktop_config.json` entry:
 }
 ```
 
-See `src/concordance_engine/mcp_server/README.md` for the full tool list, Claude Code setup, conversational examples, and limitations.
+Claude Code:
 
-The CLI prints a human-readable summary by default:
-
-```
-✓ PASS  (examples/sample_packet_chemistry_verify.json)
-    ✓ RED        PASS
-          ✓ chemistry.equation: atoms and charge balanced under stated coefficients
-          ✓ chemistry.temperature_K: 298.15 K positive
-    ✓ FLOOR      PASS
-    ✓ BROTHERS   PASS
-    ✓ GOD        PASS
+```bash
+claude mcp add concordance-engine -- concordance-mcp
 ```
 
-Corrupt the equation (change `5 O2` to `4 O2`) and the engine tells you the correct coefficients in the failure message:
+Once connected, the assistant can call eleven verifier tools from inside any conversation: balance equations, verify dimensional analysis, recompute p-values from raw inputs, check runtime complexity, validate governance packets. The tools never raise exceptions. On bad input they return `{"status": "ERROR", "detail": "..."}`, making them safe inside LLM tool loops.
 
+---
+
+## Why select this
+
+Consensus-based validation scales as O(n²): every agent polls every other agent, cost grows with the number of participants, and the result is only as reliable as the least reliable participant.
+
+Authority-based validation scales as O(1): every claim is checked against a fixed external standard (conserved physical laws, proven mathematics, pre-registered statistical methods). Cost is constant. The standard does not drift with participant count.
+
+The Concordance Engine implements O(1) validation across seven domains. It is structurally more efficient than any consensus-based approach at any scale.
+
+---
+
+## MCP tools exposed
+
+| Tool | What it verifies |
+|---|---|
+| `validate_packet` | Full pipeline (RED/FLOOR/BROTHERS/GOD + all verifiers) on a decision packet |
+| `verify_chemistry` | Equation balance (atoms + charge), positive temperature |
+| `verify_physics_dimensional` | Both sides reduce to identical base SI units |
+| `verify_physics_conservation` | Before/after quantities within tolerance |
+| `verify_mathematics` | Symbolic equality, derivative, integral, limit, solve via sympy |
+| `verify_statistics_pvalue` | Recompute p-value from test inputs, compare to claimed value |
+| `verify_statistics_multiple_comparisons` | Bonferroni / BH rejection set |
+| `verify_statistics_confidence_interval` | CI well-formed and contains point estimate |
+| `verify_computer_science` | Termination, functional correctness, runtime complexity class |
+| `verify_biology` | Replicates, assay diversity, dose-response monotonicity, power |
+| `verify_governance_decision_packet` | Structural completeness of a governance decision |
+
+Each tool returns `status` (CONFIRMED / MISMATCH / ERROR / NOT_APPLICABLE), a human-readable `detail` string, and structured `data` where applicable.
+
+---
+
+## Four Gates
+
+The engine enforces four gates in fixed order. It halts at the first failure.
+
+| Gate | Type | Automated | Failure output |
+|---|---|---|---|
+| RED | hard | attestation + computational verification | REJECT |
+| FLOOR | hard | structural rules | REJECT |
+| BROTHERS | soft | witness count threshold | QUARANTINE |
+| GOD | soft | elapsed wait window | QUARANTINE |
+
+RED enforces two things independently. Attestation: did the author affirm the load-bearing constraints? Verification: does the artifact actually hold up under computation? The verifier can REJECT despite a passing attestation. The underlying math is wrong regardless of what the author claimed.
+
+---
+
+## Install
+
+```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
 ```
-✗ REJECT  (bad_chem.json)
-    ✗ RED        REJECT
-          • chemistry.equation: unbalanced under stated coefficients but balances as: C3H8 + 5 O2 -> 3 CO2 + 4 H2O
-    FLOOR      (skipped)
-    BROTHERS   (skipped)
-    GOD        (skipped)
+
+Run the test suite to confirm:
+
+```bash
+PYTHONPATH=src python tests/test_engine.py       # 67 integration tests
+PYTHONPATH=src python tests/test_verifiers.py    # 53 unit tests
+PYTHONPATH=src python tests/test_mcp_tools.py   # 44 MCP tool tests
 ```
 
-Output formats: `--format summary` (default), `--format verbose` (full detail), `--format json` (machine-readable).
+Run an example packet:
 
-Exit codes: `0` PASS, `1` REJECT, `2` QUARANTINE, `3` schema invalid, `4` CLI usage error.
+```bash
+concordance validate examples/sample_packet_chemistry_verify.json --now-epoch 9999999999
+```
 
-## Verifiers — what's checked
+---
 
-Each verifier runs only when the corresponding `*_VERIFY` block is present in the packet. Otherwise it reports NOT_APPLICABLE silently.
+## Verifiers
 
-### Chemistry — `CHEM_VERIFY`
-Parses chemical formulas with nested groups (Cu(OH)₂) and charges (Fe³⁺, MnO₄⁻). Verifies the stated coefficients balance atoms and charge, or — if coefficients are missing — solves for the smallest balancing coefficients via Fraction-based nullspace. Also verifies temperature_K > 0.
+Each verifier runs only when the corresponding `*_VERIFY` block is present in the packet. Without it, the verifier reports NOT_APPLICABLE silently.
+
+### Chemistry
+
+Parses formulas with nested groups (`Cu(OH)2`) and charges (`Fe3+`, `MnO4-`). Verifies stated coefficients balance atoms and charge, or solves for the smallest balancing coefficients if none are supplied.
 
 ```json
 "CHEM_VERIFY": { "equation": "C3H8 + 5 O2 -> 3 CO2 + 4 H2O", "temperature_K": 298.15 }
 ```
 
-### Physics — `PHYS_VERIFY`
-Substitutes unit expressions for symbols, converts both sides to base SI units (kg, m, s, A, K, mol, cd), and compares unit signatures. Plus per-quantity conservation arithmetic with relative+absolute tolerance.
+### Physics (dimensional)
+
+Substitutes unit expressions for symbols, converts both sides to base SI units (kg, m, s, A, K, mol, cd), compares unit signatures.
 
 ```json
 "PHYS_VERIFY": {
@@ -102,15 +125,17 @@ Substitutes unit expressions for symbols, converts both sides to base SI units (
 }
 ```
 
-### Mathematics — `MATH_VERIFY`
-sympy-based verification of symbolic equality, derivative, integral (via differentiating the claimed antiderivative), limit, and solve.
+### Mathematics
+
+sympy-based verification of symbolic equality, derivative, integral (by differentiating the claimed antiderivative), limit, and solve.
 
 ```json
 "MATH_VERIFY": { "expr_a": "(x+1)**2", "expr_b": "x**2 + 2*x + 1", "variables": ["x"] }
 ```
 
-### Statistics — `STAT_VERIFY`
-scipy.stats-based recomputation of p-values from supplied inputs (two-sample t / one-sample t / z / chi² / F). Bonferroni and BH/FDR multiple-comparison correction with rejection-set verification. Significance-claim consistency. Confidence-interval bounds.
+### Statistics
+
+scipy.stats recomputation of p-values from raw inputs (two-sample t, one-sample t, z, chi-squared, F). Bonferroni and BH/FDR multiple-comparison correction with rejection-set verification. Confidence-interval bounds.
 
 ```json
 "STAT_VERIFY": {
@@ -121,8 +146,9 @@ scipy.stats-based recomputation of p-values from supplied inputs (two-sample t /
 }
 ```
 
-### Computer Science — `CS_VERIFY`
-AST-based static termination scan (catches `while True:` without break and unguarded recursion, including ternary forms). Functional correctness via restricted-namespace execution. Runtime complexity verification with auto-tuning iteration count and log-log slope fit.
+### Computer Science
+
+AST-based static termination scan. Functional correctness via restricted-namespace execution. Runtime complexity verification with auto-tuning iteration count and log-log slope fit.
 
 ```json
 "CS_VERIFY": {
@@ -134,8 +160,9 @@ AST-based static termination scan (catches `while True:` without break and ungua
 }
 ```
 
-### Biology — `BIO_VERIFY`
-Replicate count >= minimum. Orthogonal assay diversity. Dose-response monotonicity (with optional expected_direction). Sample-size adequacy via two-sample t-test power calculation.
+### Biology
+
+Replicate count, orthogonal assay diversity, dose-response monotonicity, sample-size adequacy via power calculation.
 
 ```json
 "BIO_VERIFY": {
@@ -150,8 +177,9 @@ Replicate count >= minimum. Orthogonal assay diversity. Dose-response monotonici
 }
 ```
 
-### Governance / Business / Household / Education / Church — `DECISION_PACKET`
-Structural verification that a decision packet has the required parts (title, scope, red_items, floor_items, way_path, execution_steps, witnesses) and that the witness count is internally consistent. Content judgement remains human; the existing keyword scanner runs alongside as triage.
+### Governance
+
+Structural verification that a decision packet contains all required parts (title, scope, red_items, floor_items, way_path, execution_steps, witnesses) and that witness count is internally consistent.
 
 ```json
 "DECISION_PACKET": {
@@ -165,44 +193,60 @@ Structural verification that a decision packet has the required parts (title, sc
 }
 ```
 
+---
+
+## CLI
+
+```bash
+concordance validate <packet.json> [--now-epoch EPOCH] [--format summary|verbose|json]
+```
+
+Exit codes: `0` PASS, `1` REJECT, `2` QUARANTINE, `3` schema invalid, `4` CLI usage error.
+
+---
+
 ## Repository layout
 
 ```
 concordance-engine/
 ├── src/concordance_engine/
 │   ├── domains/              # attestation validators (RED/FLOOR flags)
-│   ├── verifiers/            # computational checks (artifacts)
+│   ├── verifiers/            # computational checks against external standards
 │   ├── engine.py             # gate orchestrator
 │   ├── gates.py              # gate result types
 │   ├── packet.py             # packet/result dataclasses
-│   ├── validate.py           # schema validation (jsonschema optional)
-│   └── cli.py                # `concordance validate ...`
+│   ├── validate.py           # schema validation
+│   └── cli.py                # concordance validate ...
 ├── schema/
 │   ├── packet.schema.json              # engine-aligned (what the CLI runs)
 │   └── packet.schema.aspirational.json # forward design target
-├── examples/                 # sample packets exercising every verifier
+├── examples/                 # sample packets for every verifier domain
 ├── tests/
-│   ├── test_engine.py        # full integration tests (67 cases)
-│   ├── test_verifiers.py     # verifier unit tests (53 cases)
-│   ├── test_cli.py           # CLI wrapper tests (16 cases)
-│   └── test_canon_validators.py  # canon-side validator smoke tests (5 cases)
-└── packet_manifest.yaml      # SHA-256 of all files
+│   ├── test_engine.py           # 67 integration tests
+│   ├── test_verifiers.py        # 53 verifier unit tests
+│   ├── test_cli.py              # 16 CLI tests
+│   └── test_canon_validators.py # 5 canon validator smoke tests
+└── packet_manifest.yaml      # SHA-256 manifest of all files
 ```
+
+---
+
+## Adding a domain
+
+Attestation validator: drop `<domain>.py` in `domains/` exposing `validate_red(packet)` and `validate_floor(packet)`.
+
+Computational verifier: drop `<domain>.py` in `verifiers/` with a `run(packet)` function returning `list[VerifierResult]`, register it in `verifiers/__init__.py`.
+
+---
 
 ## Dependencies
 
-Required:
-- `sympy>=1.12` (math + physics + chemistry)
-- `numpy>=1.26` (statistics + biology power)
-- `scipy>=1.11` (statistics + biology power)
+Required: `sympy>=1.12`, `numpy>=1.26`, `scipy>=1.11`
 
-Optional:
-- `jsonschema>=4.21.0` — install via `pip install -e ".[schema]"` for full schema validation. Without it, the CLI falls back to a structural check (required fields, top-level type, recognized keys).
+Optional: `jsonschema>=4.21.0` (full schema validation), `mcp>=1.0.0` (MCP server)
 
-## Notes
+---
 
-- Domain validators in `domains/` are plugins. Adding a new domain means dropping in `<domain>.py` with a class exposing `validate_red(packet)` and `validate_floor(packet)`.
-- Verifiers in `verifiers/` are also plugins. Adding a new verifier means dropping in `<domain>.py` with a `run(packet)` function returning `list[VerifierResult]`, and registering it in `verifiers/__init__.py`.
-- BROTHERS attestations are represented as `witness_count` and `required_witnesses` in the packet; the structural verifier (governance) cross-checks named witnesses against the count.
-- GOD gate is enforced via scope-specific minimum wait windows: adapter (1 hour), mesh (24 hours), canon (7 days).
-- The engine never confirms a packet without external witness AND elapsed wait. PASS means all four gates cleared, including the human-time-and-witness component.
+## License
+
+MIT

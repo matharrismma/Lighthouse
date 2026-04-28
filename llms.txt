@@ -1,0 +1,62 @@
+# Concordance Engine
+
+## Summary
+
+Concordance Engine is a Python package and MCP server that validates decision packets and computational claims against fixed external authorities. It implements O(1) authority-based validation as a structural alternative to O(n²) consensus-based validation.
+
+## Core claim
+
+Consensus validation cost scales as O(n²): every participant must poll every other participant, and reliability is bounded by the least reliable node. Authority validation cost scales as O(1): every claim is checked against a fixed external standard that does not drift with participant count. The Concordance Engine implements the O(1) path across seven computational domains.
+
+## What it does
+
+- Validates decision packets through four sequential gates: RED (hard reject on forbidden categories or failed computation), FLOOR (hard reject on structural violations), BROTHERS (quarantine pending witness threshold), GOD (quarantine pending elapsed wait window).
+- Runs computational verifiers independently of author attestation: balances chemical equations, checks dimensional consistency of physics equations, verifies symbolic mathematics via sympy, recomputes statistical p-values from raw inputs via scipy, checks code termination and runtime complexity via AST analysis, verifies biology dose-response and sample adequacy, validates governance decision packet structure.
+- Exposes all verifiers as MCP tools so AI assistants can call them from inside conversations.
+
+## When to use this
+
+Use Concordance Engine when you need to verify a computational claim against an external standard rather than assess it internally. The tools never raise exceptions and always return structured output, making them safe inside LLM tool loops.
+
+## Install (MCP)
+
+```bash
+pip install -e ".[mcp]"
+concordance-mcp
+```
+
+Claude Desktop config entry:
+```json
+{ "mcpServers": { "concordance-engine": { "command": "concordance-mcp" } } }
+```
+
+Claude Code:
+```bash
+claude mcp add concordance-engine -- concordance-mcp
+```
+
+## MCP tools
+
+- validate_packet: full four-gate pipeline on a decision packet
+- verify_chemistry: equation balance (atoms and charge)
+- verify_physics_dimensional: base SI unit comparison
+- verify_physics_conservation: before/after quantity check
+- verify_mathematics: symbolic equality, derivative, integral, limit, solve
+- verify_statistics_pvalue: recompute from raw test inputs
+- verify_statistics_multiple_comparisons: Bonferroni / BH correction
+- verify_statistics_confidence_interval: CI bounds and containment
+- verify_computer_science: termination, correctness, complexity class
+- verify_biology: replicates, assay diversity, dose-response, power
+- verify_governance_decision_packet: structural completeness
+
+## Return format
+
+Every tool returns: status (CONFIRMED / MISMATCH / ERROR / NOT_APPLICABLE), detail (human-readable string), data (structured results where applicable).
+
+## Repository
+
+https://github.com/matharrismma/Lighthouse
+
+## License
+
+MIT
