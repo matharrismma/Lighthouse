@@ -28,9 +28,11 @@ Attestation lives on FLOOR-style structural rules. Verification lives on RED —
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-PYTHONPATH=src python tests/test_engine.py
-PYTHONPATH=src python tests/test_verifiers.py
-PYTHONPATH=src python tests/test_mcp_tools.py
+PYTHONPATH=src python tests/test_engine.py            # 70 integration tests
+PYTHONPATH=src python tests/test_verifiers.py         # 53 verifier unit tests
+PYTHONPATH=src python tests/test_cli.py               # 16 CLI tests
+PYTHONPATH=src python tests/test_canon_validators.py  # 5 canon-validator smoke tests
+# tests/test_mcp_tools.py currently fails on import; see ../../KNOWN_ISSUES.md
 concordance validate examples/sample_packet_chemistry_verify.json --now-epoch 9999999999
 ```
 
@@ -182,9 +184,10 @@ concordance-engine/
 │   └── packet.schema.aspirational.json # forward design target
 ├── examples/                 # sample packets exercising every verifier
 ├── tests/
-│   ├── test_engine.py        # full integration tests (67 cases)
+│   ├── test_engine.py        # full integration tests (70 cases)
 │   ├── test_verifiers.py     # verifier unit tests (53 cases)
 │   ├── test_cli.py           # CLI wrapper tests (16 cases)
+│   ├── test_mcp_tools.py     # MCP tool tests (currently broken — see KNOWN_ISSUES.md)
 │   └── test_canon_validators.py  # canon-side validator smoke tests (5 cases)
 └── packet_manifest.yaml      # SHA-256 of all files
 ```

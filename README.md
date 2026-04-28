@@ -89,10 +89,12 @@ pip install -e ".[dev]"
 Run the test suite to confirm:
 
 ```bash
-PYTHONPATH=src python tests/test_engine.py       # 67 integration tests
-PYTHONPATH=src python tests/test_verifiers.py    # 53 unit tests
-PYTHONPATH=src python tests/test_mcp_tools.py   # 44 MCP tool tests
+PYTHONPATH=src python tests/test_engine.py       # 74 integration tests
+PYTHONPATH=src python tests/test_verifiers.py    # 64 unit tests
+PYTHONPATH=src python tests/test_cli.py          # 16 CLI tests
 ```
+
+154 tests; ~10 s total. (`tests/test_mcp_tools.py` is currently failing on import and is being repaired — track in `KNOWN_ISSUES.md`.)
 
 Run an example packet:
 
@@ -222,10 +224,11 @@ concordance-engine/
 │   └── packet.schema.aspirational.json # forward design target
 ├── examples/                 # sample packets for every verifier domain
 ├── tests/
-│   ├── test_engine.py           # 67 integration tests
-│   ├── test_verifiers.py        # 53 verifier unit tests
+│   ├── test_engine.py           # 74 integration tests
+│   ├── test_verifiers.py        # 64 verifier unit tests
 │   ├── test_cli.py              # 16 CLI tests
-│   └── test_canon_validators.py # 5 canon validator smoke tests
+│   ├── test_mcp_tools.py        # MCP tool tests (currently broken — see KNOWN_ISSUES.md)
+│   └── test_canon_validators.py # 5 canon validator smoke tests (run from lw/01_engine layout)
 └── packet_manifest.yaml      # SHA-256 manifest of all files
 ```
 

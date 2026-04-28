@@ -108,13 +108,15 @@ Each tool returns a dict with `status` (CONFIRMED / MISMATCH / ERROR / NOT_APPLI
 
 ## Testing without MCP
 
-The tool functions are plain Python and can be tested without the MCP SDK installed:
+The tool functions are plain Python and can be exercised directly without the MCP SDK installed. Each function in `concordance_engine.mcp_server.tools` (`validate_packet`, `verify_chemistry`, etc.) takes a plain dict argument and returns `{"status": ..., "detail": ..., "data": ...}`.
 
-```bash
-PYTHONPATH=src python tests/test_mcp_tools.py
+```python
+from concordance_engine.mcp_server.tools import verify_chemistry
+print(verify_chemistry(equation="C3H8 + 5 O2 -> 3 CO2 + 4 H2O"))
+# {'status': 'CONFIRMED', 'detail': 'balanced', 'data': {...}}
 ```
 
-(44 tests; runs in a few seconds; covers every tool plus error paths.)
+> **Note:** `tests/test_mcp_tools.py` is currently failing on import (it expects an `ALL_TOOLS` symbol that no longer exists in `tools.py`). See repository `KNOWN_ISSUES.md`. The tool functions themselves work — they are exercised end-to-end by `tests/test_engine.py` through the engine.
 
 ## Conversational examples
 

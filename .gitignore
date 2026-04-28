@@ -5,3 +5,17 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+
+# private / sensitive material — never push
+hutcheson_contract.docx
+*_contract.docx
+*_contract.pdf
+
+# frozen distribution snapshot — kept locally, not tracked
+concordance_engine-1.0.4/
+
+# pytest cache
+.pytest_cache/
+
+# Claude Code local settings
+.claude/

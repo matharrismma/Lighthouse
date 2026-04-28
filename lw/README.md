@@ -10,7 +10,7 @@ This package contains three things in one tree. A strategic vision for a wealth 
 
 `08_docs/lighthouse_strategy/` holds the three companion documents describing the strategic architecture. Wealth management for the 99 percent. Floor raising at population scale. Four phases across decades. Multi-generational horizon. JDA-anchored Phase 1. The .docx originals are authoritative. The .md extractions are searchable.
 
-`01_engine/concordance-engine/` holds the validation engine. Four gates (RED, FLOOR, BROTHERS, GOD). Computational verifiers across chemistry, physics, mathematics, statistics, computer science, biology, and governance. 67 integration tests pass. 53 unit tests pass. 44 MCP tool tests pass. The CLI works. The MCP server works. The README and walkthrough are written.
+`01_engine/concordance-engine/` holds the validation engine. Four gates (RED, FLOOR, BROTHERS, GOD). Computational verifiers across chemistry, physics, mathematics, statistics, computer science, biology, and governance. 70 integration tests pass. 53 unit tests pass. 16 CLI tests pass. 5 canon-validator smoke tests pass. The CLI works. The MCP server works. The README and walkthrough are written. (The MCP-tool unit tests are currently failing on import; see `../KNOWN_ISSUES.md`.)
 
 The MCP server is the keystone for the AI tooling use case. Once installed and connected to Claude Desktop or Claude Code, the assistant can call the verifiers from inside a conversation. Claude balances its own equations, checks its own statistics, runs its own code. See `01_engine/concordance-engine/src/concordance_engine/mcp_server/README.md`.
 
@@ -84,7 +84,7 @@ If you have these and want them folded in, send them.
 
 ## Where the work currently sits
 
-Captured: the strategic foundation, the engine (with 120 tests passing), the Phase 1 fund decision packet (drafted and validating clean), the NHANES study (pre-registered, frozen).
+Captured: the strategic foundation, the engine (with 144 tests passing — engine, verifiers, CLI, canon validators), the Phase 1 fund decision packet (drafted and validating clean), the NHANES study (pre-registered, frozen).
 
 In stewardship rather than execution: the actual JDA fund deployment waits on commissioner appropriations. The LoRA comparison waits for the writing season. The Hutcheson site plan sits with parties beyond the architect at this stage. Phase 2 mandate engagement is years away.
 
