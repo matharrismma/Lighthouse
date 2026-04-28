@@ -1,0 +1,63 @@
+module:
+  id: systems_biology_control
+  name: Systems Biology + Control — Networks, Feedback, Homeostasis
+  version: '1.0'
+  status: CANONICAL
+  authority_inheritance:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+ontology:
+  network:
+    nodes:
+    - genes
+    - proteins
+    - metabolites
+    - cells
+    edges:
+    - activation
+    - inhibition
+    - transport
+    - conversion
+  feedback:
+    types:
+    - negative
+    - positive
+    - feedforward
+  timescales:
+    fast: seconds-minutes (binding/signaling)
+    medium: minutes-hours (translation)
+    slow: hours-days (transcription/adaptation)
+way:
+  homeostasis_lane:
+    rule: stable phenotype typically requires negative feedback (integral-like control
+      common)
+  oscillation_lane:
+    rule: delays + negative feedback can yield oscillations
+  robustness_lane:
+    rule: robustness implies compensation; single perturbations may fail
+diagnostics:
+- id: drug_effect_fades
+  trigger: acute_effect_present_then_fades == true
+  diagnosis: ADAPTATION_OR_FEEDBACK_COMPENSATION
+  action:
+  - measure compensatory pathways
+  - pulse dosing
+  - combination perturbations
+- id: oscillations_unexpected
+  trigger: oscillations_observed == true
+  diagnosis: DELAYED_FEEDBACK_OR_LIMIT_CYCLE
+  action:
+  - map delays
+  - identify negative feedback loop
+  - fit simple ODE model
+interfaces:
+  PHYS_CONSTRAINTS:
+    fields:
+    - noise_limits
+    - transport_constraints
+  ENG_DEPLOYMENT:
+    fields:
+    - control_design
+    - stability_margins

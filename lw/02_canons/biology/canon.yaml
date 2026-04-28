@@ -1,0 +1,73 @@
+domain: biology
+canon:
+  name: Concordance Canon — Biology Domain Theory
+  version: '1.0'
+  status: CANONICAL_TECHNICAL_DOCUMENT
+  release_date: '2026-02-07'
+  authority: Master Architect design constraints
+  hierarchy:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+  entrypoints:
+    core: core/biology_core.yaml
+    schema: schema/biology_schema.yaml
+  module_registry:
+  - id: molecular_cell
+    path: modules/molecular_cell.yaml
+    status: CANONICAL
+    triggers:
+    - cell
+    - membrane
+    - organelle
+    - gene expression
+    - translation
+    - transcription
+  - id: biochemistry_metabolism
+    path: modules/biochemistry_metabolism.yaml
+    status: CANONICAL
+    triggers:
+    - ATP
+    - glycolysis
+    - TCA
+    - metabolism
+    - enzyme
+    - NADH
+    - redox
+  - id: genetics_inheritance
+    path: modules/genetics_inheritance.yaml
+    status: CANONICAL
+    triggers:
+    - inheritance
+    - mutation
+    - genotype
+    - phenotype
+    - Mendel
+    - allele
+    - variant
+  - id: systems_biology_control
+    path: modules/systems_biology_control.yaml
+    status: CANONICAL
+    triggers:
+    - feedback
+    - homeostasis
+    - network
+    - signaling
+    - robustness
+    - oscillation
+  - id: evolution_ecology
+    path: modules/evolution_ecology.yaml
+    status: CANONICAL
+    triggers:
+    - selection
+    - fitness
+    - population
+    - ecosystem
+    - adaptation
+    - drift
+  validation_gates:
+  - RED
+  - FLOOR
+  - BROTHERS
+  - GOD

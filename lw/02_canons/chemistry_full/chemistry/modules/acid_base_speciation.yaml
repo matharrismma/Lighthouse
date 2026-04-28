@@ -1,0 +1,56 @@
+module: acid_base_speciation_canon
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Compute pH, buffers, titrations, and full speciation for mono/polyprotic systems using Ka stepwise and mass/charge
+    balance.
+  includes:
+  - mono/polyprotic acids and bases
+  - titrations
+  - buffer capacity
+  - alpha-fraction speciation diagrams
+  - amphiprotic species
+  excludes:
+  - "high-ionic-strength advanced models beyond chosen \u03B3 model (can be extended)"
+frozen_nouns_extensions:
+- noun: ACID_DISSOCIATION_CONSTANT
+  meaning: Ka stepwise; defined via activities.
+- noun: ALPHA_FRACTION
+  meaning: Fractional distribution of a polyprotic system among protonation states vs pH.
+red_constraints:
+- Charge balance must hold; pH defined by a_H+ (activity).
+- Ka relations must be stepwise and consistent with species definitions.
+floor_checks:
+- Declare whether pH uses activity or concentration approximation.
+- For buffers, state total analytical concentrations.
+- Check electroneutrality residual.
+way_methods:
+- Use full mass/charge balance with Ka ladder; avoid single-equation shortcuts except in justified asymptotic regimes.
+- Use Gran method / buffer capacity where appropriate.
+execution:
+  inputs:
+  - analytical_totals
+  - Ka_values
+  - temperature_K
+  - ionic_strength_model
+  - added_strong_acid_base_if_any
+  steps:
+  - Define species set (e.g., H2A, HA-, A2-) and write stepwise Ka expressions in activities.
+  - "Write mass balance for total acid/base: C_T = \u03A3 c_species."
+  - "Write charge balance: \u03A3 z_i c_i + c_H+ - c_OH- = 0 (include strong electrolytes)."
+  - 'Relate Kw (water autoprotolysis) at temperature: a_H+ * a_OH- = Kw.'
+  - "Choose activity model for \u03B3 (or assume \u03B3=1 for dilute) and convert between activities and concentrations."
+  - Solve for pH (a_H+) and all species concentrations numerically for general case.
+  - "Compute alpha fractions \u03B1_i = c_i / C_T for speciation; generate points for diagram if requested."
+  outputs:
+  - pH
+  - species_concentrations
+  - alpha_fractions
+  - buffer_capacity_if_requested
+diagnostics:
+  electroneutrality_fail:
+    signal: Charge balance residual exceeds tolerance.
+    fix: Include missing ions/counterions; correct Ka/Kw; check units.
+  wrong_regime:
+    signal: "Assuming \u03B3=1 but ionic strength is not dilute."
+    fix: "Apply Davies/extended Debye-H\xFCckel or Pitzer extension module."

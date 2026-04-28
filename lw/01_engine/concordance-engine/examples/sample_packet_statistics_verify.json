@@ -1,0 +1,31 @@
+{
+  "domain": "statistics",
+  "id": "stat-verify-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "STAT_INFERENCE": {
+    "test_specified": true,
+    "assumptions_tested": true,
+    "p_value": 0.0003,
+    "alpha": 0.05,
+    "effect_size": 1.0,
+    "effect_size_type": "cohen_d",
+    "confidence_interval": [0.5, 1.5],
+    "claimed_significance": "significant",
+    "hypothesis_pre_specified": true,
+    "multiple_comparisons_corrected": true
+  },
+  "STAT_VERIFY": {
+    "test": "two_sample_t",
+    "n1": 30,
+    "n2": 30,
+    "mean1": 5.0,
+    "mean2": 4.0,
+    "sd1": 1.0,
+    "sd2": 1.0,
+    "tail": "two-sided",
+    "claimed_p": 0.0003
+  }
+}

@@ -1,0 +1,49 @@
+MATH_SETUP:
+  problem_type: "proof"
+  objects:
+    - {name: "A", type: "matrix", field: "R"}
+    - {name: "v", type: "vector", space: "R^n"}
+  symbols:
+    - {symbol: "∀", type: "quantifier", meaning: "for all"}
+    - {symbol: "∃", type: "quantifier", meaning: "there exists"}
+  assumptions:
+    - {class: "axiom", assumption: "scripture_anchor: external authority acknowledged (project-level RED anchor)"}
+    - {class: "hypothesis", assumption: "A is symmetric"}
+  goal_statement: "Prove A has real eigenvalues."
+
+MATH_RED:
+  well_formedness: {symbols_defined: true, quantifiers_scoped: true, domains_declared: true}
+  type_safety: {objects_typed: true, operations_valid: true}
+  definitional_integrity: {no_circular_definitions: true, definitions_total: true}
+  inference_integrity: {rules_named: true, steps_justified: true}
+
+MATH_FLOOR:
+  axioms_selected: ["ZFC", "real_analysis_standard_axioms"]
+  theorem_dependencies: ["Spectral theorem (finite-dimensional)"]
+  validity_conditions: ["A symmetric over R", "finite dimension"]
+  numerical_policy: {tolerance: 1.0e-12, conditioning_reporting: true, stability_checks: true}
+
+MATH_WAY:
+  method_class: "direct_proof"
+  method_steps:
+    - "Invoke spectral theorem under hypotheses."
+    - "Conclude eigenvalues are real."
+  convergence_or_soundness:
+    claim: "Soundness by theorem application"
+    conditions: ["hypotheses satisfied"]
+
+MATH_EXECUTION:
+  implementation: "human_proof"
+  parameters: {}
+  checks:
+    - "Verify hypotheses before applying theorem."
+    - "No unscoped quantifiers."
+
+MATH_DIAGNOSTICS:
+  truth_table_triggers: []
+  failure_modes: []
+  corrective_actions: []
+  diagnostic_trace:
+    root_question: "Is statement well-formed?"
+    path_taken: ["RED"]
+    terminal_diagnosis: "OK"

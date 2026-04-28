@@ -1,0 +1,56 @@
+module: catalysis_canon
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Describe catalytic mechanisms and quantify performance (TOF/TON), selectivity, and deactivation pathways.
+  includes:
+  - homogeneous cycles
+  - heterogeneous surface steps
+  - enzyme kinetics overview
+  - TOF/TON
+  - selectivity
+  - deactivation
+  excludes:
+  - full reactor design (handled in engineering domain)
+frozen_nouns_extensions:
+- noun: TURNOVER_FREQUENCY
+  meaning: TOF = (moles product formed per time) / (moles active sites).
+- noun: TURNOVER_NUMBER
+  meaning: TON = (moles product formed) / (moles active sites) before deactivation.
+- noun: SELECTIVITY
+  meaning: Fraction of reactant converted to desired product (molar basis).
+red_constraints:
+- Catalyst not consumed in net stoichiometry (though it may deactivate irreversibly).
+- Rates must remain nonnegative and respect site balance constraints.
+floor_checks:
+- State definition of 'active site' used for TOF/TON.
+- Report conditions (T, P, solvent, concentrations) with rates.
+- Separate conversion and selectivity.
+way_methods:
+- Use microkinetic or cycle-based step listing; identify rate-determining step only after evidence.
+- For heterogeneous, include adsorption/desorption and site coverage limits.
+execution:
+  inputs:
+  - reaction_network
+  - rate_data
+  - catalyst_loading_or_sites
+  - time_on_stream_if_applicable
+  steps:
+  - Define the catalytic cycle or surface elementary steps; specify catalyst resting state.
+  - Compute conversion X and selectivity S from inlet/outlet (or batch profiles).
+  - Compute TOF using measured rate and active site estimate; compute TON by integrating product formed to deactivation point.
+  - 'Identify deactivation signatures: activity decay vs time, coke formation, sintering, poisoning, leaching.'
+  - Propose mitigation strategies consistent with mechanism (regeneration, ligands, supports, scavengers) as hypotheses.
+  outputs:
+  - cycle_or_step_list
+  - conversion_selectivity
+  - TOF
+  - TON
+  - deactivation_diagnosis
+diagnostics:
+  site_definition_ambiguous:
+    signal: TOF/TON incomparable due to unclear site basis.
+    fix: Declare site counting method; report as 'apparent' if uncertain.
+  mass_transfer_limit:
+    signal: Rate changes with mixing/particle size.
+    fix: Check external/internal diffusion; report intrinsic kinetics separately.

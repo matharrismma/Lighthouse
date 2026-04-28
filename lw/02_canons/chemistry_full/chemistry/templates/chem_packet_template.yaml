@@ -1,0 +1,26 @@
+packet_type: chemistry_problem_packet
+version: "1.0"
+
+fields:
+  problem_statement: ""
+  knowns: []
+  unknowns: []
+  assumptions: []
+  regime: 
+    temperature_K: null
+    pressure_bar: null
+    phase: ""
+    ideality_assumption: "UNSPECIFIED"
+    ionic_strength_M: null
+  safety_flags: []
+  selected_modules: []
+  outputs:
+    results: []
+    checks:
+      red: []
+      floor: []
+      way: []
+    diagnostics: []
+  provenance:
+    sources: []
+    notes: ""

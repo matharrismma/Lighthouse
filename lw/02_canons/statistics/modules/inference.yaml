@@ -1,0 +1,37 @@
+module: inference
+version: "1.0"
+status: CANONICAL
+
+definition: "Drawing conclusions about populations from samples under explicit uncertainty quantification."
+
+frozen_nouns_in_play: [HYPOTHESIS, ESTIMATOR, CONFIDENCE, EFFECT_SIZE, POWER]
+
+red_constraints:
+  - "p-value is not the probability H0 is true; do not interpret it as such."
+  - "Effect size is required; significance alone is not a result."
+  - "Hypothesis must be stated before observing data."
+
+floor_bounds:
+  - "Alpha (Type I error rate) must be stated before testing."
+  - "Power (1 - beta) must be computed for the stated effect size and n."
+  - "Confidence interval must accompany every point estimate."
+
+way_methods:
+  nhst:
+    sequence: ["State H0 and H1", "Choose alpha", "Compute test statistic", "Find p-value", "Compare to alpha", "Report effect size + CI"]
+  confidence_intervals:
+    preference: "Report CI as primary result when possible; conveys both direction and magnitude"
+  effect_sizes:
+    continuous: ["Cohen's d (mean difference)", "Glass delta (when SDs differ)", "Hedge's g (small samples)"]
+    categorical: ["Odds ratio", "Risk ratio", "phi", "Cramer's V"]
+    variance_explained: ["eta-squared", "omega-squared (less biased)", "R-squared"]
+
+truth_tables:
+  - id: significance_without_effect
+    if: "p_significant == true AND effect_size_reported == false"
+    diagnosis: "INCOMPLETE_REPORTING"
+    actions: ["Compute effect size", "Report CI", "Discuss practical significance"]
+  - id: pvalue_misinterpretation
+    if: "pvalue_stated_as_prob_null_true == true"
+    diagnosis: "RED_PVALUE_MISINTERPRETATION"
+    actions: ["Restate: p is P(data|H0), not P(H0|data)", "Report Bayes factor if posterior probability desired"]

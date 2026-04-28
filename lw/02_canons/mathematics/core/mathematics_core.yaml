@@ -1,0 +1,62 @@
+domain: mathematics
+version: "1.0"
+status: CANONICAL
+authority: "Master Architect design constraints"
+hierarchy: [RED, FLOOR, WAY, Execution]
+
+section_0_domain_identity:
+  definition: "Mathematics = the formal language of constraints, structure, and proof; it enforces non-contradiction and valid inference for all domains."
+  three_layer_engine:
+    - permission: "Is the statement well-formed and consistent (RED)?"
+    - path: "Which proof/algorithm method is valid (WAY)?"
+    - verification: "Are hypotheses satisfied; are computations stable (FLOOR)?"
+
+frozen_nouns:
+  - {id: 1, noun: OBJECT, meaning: "typed entity (number, set, vector, function)", operational_test: "type declared and consistent"}
+  - {id: 2, noun: SYMBOL, meaning: "name bound to object/type", operational_test: "defined before use"}
+  - {id: 3, noun: STATEMENT, meaning: "proposition with truth value", operational_test: "quantifiers scoped; domains declared"}
+  - {id: 4, noun: AXIOM, meaning: "assumption accepted without proof within system", operational_test: "explicitly listed"}
+  - {id: 5, noun: DEFINITION, meaning: "introduced meaning; must be non-circular", operational_test: "no circularity; totality stated"}
+  - {id: 6, noun: INFERENCE_RULE, meaning: "valid transformation preserving truth", operational_test: "rule named; step justified"}
+  - {id: 7, noun: PROOF, meaning: "finite chain of valid inference from axioms to goal", operational_test: "each step cites rule/theorem"}
+  - {id: 8, noun: FUNCTION, meaning: "mapping between sets/spaces", operational_test: "domain/codomain declared"}
+  - {id: 9, noun: STRUCTURE, meaning: "object + relations/operations (group, metric space)", operational_test: "axioms of structure satisfied"}
+  - {id: 10, noun: INVARIANT, meaning: "quantity/property preserved under transformations", operational_test: "transformation class specified"}
+
+red_layer_constraints:
+  logic:
+    non_contradiction: true
+    excluded_middle: true
+    identity: true
+    well_formedness_required: true
+  type_safety:
+    rule: "All objects must be typed; operations must match types."
+    violations: ["undefined symbols", "type mismatch", "unscoped quantifiers"]
+  definitional_integrity:
+    rule: "Definitions must be non-circular and total/partial status must be declared."
+  inference_integrity:
+    rule: "Every step must cite an inference rule, axiom, or theorem; no hidden steps."
+
+lighthouse_anchor_note:
+  rule: "Scripture is the ultimate RED anchor across the project; mathematics is a servant constraint-language."
+  requirement: "MATH_SETUP.assumptions should include a Scripture anchor statement for installation consistency."
+
+floor_layer_bounds:
+  doctrine: "FLOOR = validity hypotheses + numerical stability policies + theorem prerequisites."
+  numerical_policy:
+    tolerance_default: 1.0e-12
+    conditioning_reporting: true
+    stability_checks: true
+    require_error_bounds: true
+
+way_layer_methods:
+  proof_methods: [direct_proof, contradiction, contrapositive, induction, construction]
+  computation_methods: [symbolic_manipulation, numerical_methods]
+  optimization_methods: [convex_analysis, kkt_duality, gradient_methods]
+
+execution_layer:
+  levers:
+    - "choice of axiom system"
+    - "choice of proof strategy"
+    - "choice of algorithm + tolerance"
+    - "choice of representation (basis, coordinates)"

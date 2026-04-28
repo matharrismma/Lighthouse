@@ -1,0 +1,30 @@
+{
+  "id": "sample-chemistry-001",
+  "domain": "chemistry",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 2,
+  "witness_count": 2,
+  "CHEM_SETUP": {
+    "temperature_K": 298.15,
+    "pressure_bar": 1.0,
+    "phase": "aqueous"
+  },
+  "CHEM_RED": {
+    "mass_conserved": true,
+    "charge_conserved": true,
+    "dimensional_consistency": true,
+    "state_path_integrity": true,
+    "equilibrium_in_activities": true,
+    "non_negative_concentrations": true
+  },
+  "CHEM_FLOOR": {
+    "units_stated": true,
+    "sign_conventions_declared": true,
+    "significant_figures_consistent": true,
+    "system_boundary_declared": true,
+    "ideality_stated": true,
+    "limiting_cases_checked": true,
+    "hazardous_conditions": false
+  }
+}

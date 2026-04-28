@@ -1,0 +1,52 @@
+module: kinetics
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Model reaction rates and mechanisms; determine rate laws, integrated forms, Arrhenius parameters.
+  includes:
+  - initial rates
+  - integrated rate laws
+  - Arrhenius plots
+  - steady-state / pre-equilibrium approximations
+  - catalyst effects
+  excludes:
+  - detailed CFD transport
+  - spectroscopic assignment
+frozen_nouns_extensions:
+- noun: RATE_LAW
+  meaning: "r = k \u03A0 c_i^{\u03B1_i} (empirical or mechanistic) with k(T)."
+- noun: ACTIVATION_ENERGY
+  meaning: Ea in Arrhenius k = A exp(-Ea/RT).
+red_constraints:
+- Rates cannot predict negative concentrations.
+- Any integrated form must match differential rate law and initial condition.
+floor_checks:
+- State concentration units and k units.
+- Report temperature; k is T-dependent.
+- Check order determination with multiple datasets.
+way_methods:
+- Prefer mechanism-consistent derivations; if empirical, label as such.
+- Use linearization cautiously; fit in original space when possible.
+execution:
+  inputs:
+  - concentration_time_data_or_initial_rates
+  - temperature_K
+  steps:
+  - Propose candidate rate law(s) based on data and plausible mechanism.
+  - Determine reaction order(s) via initial rates or integrated plots (0th/1st/2nd).
+  - Fit k with correct units; validate by residuals and predictive check.
+  - 'If multiple temperatures: fit Arrhenius ln k vs 1/T to obtain Ea and A.'
+  - 'If mechanism: apply steady-state or pre-equilibrium to derive observable rate law; compare to data.'
+  outputs:
+  - rate_law
+  - orders
+  - k_values
+  - Ea_A_if_applicable
+  - mechanism_consistency_assessment
+diagnostics:
+  order_inconsistent:
+    signal: Different methods imply different orders.
+    fix: Check data quality; side reactions; induction periods; mixing limits.
+  transport_limited:
+    signal: Rate depends on stirring/flow or shows diffusion scaling.
+    fix: Model mass transfer limitation; separate intrinsic kinetics.

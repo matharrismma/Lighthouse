@@ -1,0 +1,31 @@
+{
+  "domain": "biology",
+  "id": "bio-verify-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "BIO_RED": {
+    "orthogonal_assays_used": ["qPCR", "western_blot", "imaging"]
+  },
+  "artifacts": {
+    "protocol_id": "PROT-2026-04-01"
+  },
+  "BIO_VERIFY": {
+    "n_replicates": 4,
+    "min_replicates": 3,
+    "assay_classes": ["qPCR", "western_blot", "imaging"],
+    "min_assay_classes": 2,
+    "dose_response": {
+      "doses": [0, 1, 5, 25, 125],
+      "responses": [0.10, 0.30, 0.50, 0.80, 0.95],
+      "expected_direction": "increasing"
+    },
+    "power_analysis": {
+      "effect_size": 0.5,
+      "alpha": 0.05,
+      "n_per_group": 64,
+      "target_power": 0.80
+    }
+  }
+}

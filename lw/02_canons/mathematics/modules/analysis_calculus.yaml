@@ -1,0 +1,29 @@
+module: analysis_calculus
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  limit: "value approached as input tends to point"
+  continuity: "limit exists and equals function value"
+  derivative: "instantaneous rate (limit of difference quotient)"
+  integral: "signed area / accumulation (Riemann or Lebesgue)"
+  measure: "generalized size (length, area, probability)"
+
+red_constraints:
+  - "epsilon-delta definitions required for limits/continuity claims"
+  - "domain must be specified for differentiation/integration"
+
+floor_bounds:
+  - "convergence tests mandatory for series/integrals"
+  - "uniform vs pointwise convergence distinguished"
+
+way_methods:
+  rigorous: ["epsilon-delta", "sequential", "Cauchy criterion"]
+  applied: ["power series", "Fourier", "Laplace", "Green’s identities"]
+  numeric: ["finite difference", "quadrature", "ODE/PDE solvers"]
+
+truth_tables:
+  - id: interchange_failure
+    if: "interchange_limit_integral_derivative_without_justification == true"
+    diagnosis: "INVALID_INTERCHANGE (uniformity / dominated convergence missing)"
+    actions: ["cite theorem", "add uniformity check", "apply dominated convergence or reject interchange"]

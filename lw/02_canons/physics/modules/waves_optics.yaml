@@ -1,0 +1,28 @@
+module: waves_optics
+version: "1.0"
+status: CANONICAL
+
+definition: "Wave propagation, interference/diffraction, Fourier structure, optical limits."
+
+frozen_nouns_in_play: [FIELD, STATE, DYNAMICS, MEASUREMENT, SCALE, NOISE]
+
+red_constraints:
+  - "Causality and finite propagation speed in media"
+
+floor_bounds:
+  - "Sampling must satisfy Nyquist for target bandwidth"
+  - "Detector response function must be modeled when resolution-limited"
+
+way_methods:
+  wave_equation:
+    - generic: "∂²ψ/∂t² = c² ∇²ψ"
+  fourier:
+    - doctrine: "spectral leakage and windowing must be declared"
+  optics:
+    - diffraction_limit: "Δx ~ 0.5 λ/NA"
+
+truth_tables:
+  - id: aliasing
+    if: "sampling_rate < 2*max_signal_frequency"
+    diagnosis: "ALIASING_ARTIFACT"
+    actions: ["increase sampling rate", "apply anti-alias filter", "reduce bandwidth"]

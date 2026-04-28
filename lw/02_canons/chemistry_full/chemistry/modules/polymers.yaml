@@ -1,0 +1,48 @@
+module: polymers
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: 'Model polymerization types and key properties: DP, Mn/Mw, dispersity, Tg/Tm, kinetics basics.'
+  includes:
+  - step-growth
+  - chain-growth (radical/ionic)
+  - Carothers equation
+  - "Mn/Mw/\u0110"
+  - Tg/Tm qualitative trends
+  excludes:
+  - advanced rheology and processing design
+frozen_nouns_extensions:
+- noun: DEGREE_OF_POLYMERIZATION
+  meaning: DP = number-average monomer units per chain.
+- noun: DISPERSITY
+  meaning: "\u0110 = Mw/Mn (formerly PDI)."
+red_constraints:
+- Mass balance must hold; conversion cannot exceed 1.
+- Molecular weight metrics must be defined and not interchanged.
+floor_checks:
+- State whether Mn/Mw are number- or weight-average; report measurement method (GPC, end-group).
+- Declare monomer functionality in step-growth.
+way_methods:
+- Use Carothers for ideal step-growth; include chain transfer/termination for radical polymerization qualitatively unless
+  data provided.
+execution:
+  inputs:
+  - polymerization_type
+  - conversion_or_extent
+  - functionality
+  - rate_data_if_any
+  steps:
+  - 'Classify polymerization: step-growth vs chain-growth; identify key termination mechanisms.'
+  - "For step-growth: compute DP_n \u2248 1/(1-p) for bifunctional; use generalized Carothers with functionality if needed."
+  - "Compute Mn from DP and repeat-unit molar mass (Mn \u2248 DP_n * M0)."
+  - "If Mw or \u0110 provided/needed: relate via distribution assumptions or measurement outputs."
+  - Discuss Tg/Tm trends from chain stiffness, intermolecular forces, and crystallinity (qualitative unless data provided).
+  outputs:
+  - DP_n
+  - Mn_estimate
+  - Mw_or_dispersity_if_applicable
+  - property_trends
+diagnostics:
+  functionality_mismatch:
+    signal: Carothers assumptions violated (branching/gelation).
+    fix: Apply gelation criteria; report that simple DP formula invalid.

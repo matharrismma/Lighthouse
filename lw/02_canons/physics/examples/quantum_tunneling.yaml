@@ -1,0 +1,59 @@
+PHYS_SETUP:
+  problem_type: "prediction"
+  system:
+    description: "1D tunneling through rectangular barrier (WKB sanity check)"
+    scope: "quantum_mechanics"
+    boundaries: {closed_system: false, environment: []}
+  objects:
+    - {name: "E", type: "scalar", value: 0.5, units: "eV", meaning: "particle energy"}
+    - {name: "V0", type: "scalar", value: 1.0, units: "eV", meaning: "barrier height"}
+    - {name: "a", type: "scalar", value: 1e-9, units: "m", meaning: "barrier width"}
+  assumptions:
+    - "scripture_anchor: Jeremiah 33:25"
+    - "WKB validity: barrier smooth enough; action ~ few ħ"
+  initial_conditions: {}
+  objective: {statement: "Estimate transmission T", success_metric: "T between 0 and 1"}
+
+PHYS_CONSTRAINTS:
+  RED:
+    conservation:
+      mass_energy: {required: true}
+      charge: {required: false}
+      momentum_angular_momentum: {required: false}
+    causality: {temporal_ordering_verified: true, no_effect_without_mechanism: true}
+    quantization: {applicable: true}
+    relativity: {c_limit_respected: true}
+    dimensional_consistency: {required: true, verified: true}
+  FLOOR:
+    reference_constants:
+      hbar: {value: 1.054571817e-34, units: "J*s", source: "CODATA", uncertainty: "see CODATA"}
+    validity_bounds: {regime_of_validity: ["non-relativistic QM"]}
+    measurement_bounds: {calibration_required: false, uncertainty_reporting_required: true, orthogonality_required: false}
+
+PHYS_MODEL:
+  ontology: {frozen_nouns_in_play: [STATE, DYNAMICS, MEASUREMENT]}
+  regime: {domain: "quantum", approximations: [{approximation: "WKB", validity_range: "E<V0", expected_error: "order-of-magnitude"}]}
+  governing_equations:
+    - {name: "WKB", form: "T ~ exp(-2 * integral sqrt(2m(V-E))/ħ dx)", type: "approx"}
+  boundary_conditions: []
+  invariants_and_checks:
+    - {invariant: "0<=T<=1", check: "probability bounds"}
+
+PHYS_MEASUREMENTS:
+  observables: []
+  instruments_and_assays: []
+  calibration: {required: false, methods: []}
+  uncertainty: {propagation_method: "monte_carlo", sources: [], final_uncertainty: {CI_95_lower: null, CI_95_upper: null, CV_percent: null}}
+  replication: {repeats: {n_trials: 1, n_cycles_per_trial: 1}}
+  orthogonality: {rule: "N/A", orthogonal_assays_used: [], concordance: {qualitative_agreement: true, quantitative_correlation: null}}
+
+PHYS_EXECUTION:
+  control_levers:
+    - {lever: "barrier height/width", bounds: ">0", effect: "T decreases with higher/wider barrier"}
+
+PHYS_DIAGNOSTICS:
+  truth_table_triggers:
+    - {id: "negative_probability", if: "T < 0 OR T > 1", diagnosis: "RED_VIOLATION", actions: ["check normalization and approximations"]}
+  failure_modes: []
+  corrective_levers: []
+  diagnostic_trace: {root_question: "Is 0<=T<=1?", path_taken: ["RED: probability"], terminal_diagnosis: "SUCCESS"}

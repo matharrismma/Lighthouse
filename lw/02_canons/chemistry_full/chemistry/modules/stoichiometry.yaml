@@ -1,0 +1,54 @@
+module: stoichiometry
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Compute amounts from balanced reactions; limiting reagent, yields, composition.
+  includes:
+  - balancing
+  - moles
+  - mass-mole conversions
+  - limiting reagent
+  - percent yield
+  - empirical/molecular formula
+  excludes:
+  - electrochemistry kinetics
+  - non-ideal equilibrium constants
+frozen_nouns_extensions:
+- noun: AMOUNT_OF_SUBSTANCE
+  meaning: n in mol; proportional to entity count.
+- noun: EXTENT_OF_REACTION
+  meaning: "\u03BE; scalar progress variable consistent with stoichiometry."
+red_constraints:
+- Atom and charge balance required for any stoichiometric computation.
+- All conversions must be unit-consistent.
+floor_checks:
+- State molar masses used; include units.
+- "Check limiting reagent by comparing \u03BE_max across reactants."
+- Report theoretical and actual yields separately.
+way_methods:
+- Prefer extent-of-reaction method for multi-reactant systems.
+- Use composition constraints for mixtures (mass fraction, mole fraction).
+execution:
+  inputs:
+  - balanced_reaction
+  - given_amounts
+  - target_quantity
+  steps:
+  - Convert all givens to moles (mol).
+  - "Compute extent limits: \u03BE_i = n_i/|\u03BD_i| for each reactant with stoichiometric coefficient \u03BD_i (<0)."
+  - "Identify limiting reactant: minimum \u03BE_i."
+  - "Compute moles of products/reactants after reaction using n_final = n_initial + \u03BD*\u03BE_lim."
+  - Convert requested outputs to required units (g, L at stated conditions, molecules).
+  - 'If yield given: percent_yield = actual/theoretical * 100%.'
+  outputs:
+  - limiting_reactant
+  - theoretical_yield
+  - final_amounts
+  - percent_yield_if_applicable
+diagnostics:
+  balance_fail:
+    signal: Atoms/charge do not balance.
+    fix: Rebalance before proceeding.
+  negative_amounts:
+    signal: Computed n_final < 0 for any species.
+    fix: "Extent selection error; re-check \u03BD signs and \u03BE."

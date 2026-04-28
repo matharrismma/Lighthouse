@@ -1,0 +1,39 @@
+module: causal_inference
+version: "1.0"
+status: CANONICAL
+
+definition: "Identification and estimation of causal effects under explicit assumptions about the data-generating process."
+
+frozen_nouns_in_play: [POPULATION, HYPOTHESIS, CONFOUNDER, ESTIMATOR]
+
+red_constraints:
+  - "Correlation does not establish causation without a causal identification strategy."
+  - "Causal graph (DAG) or equivalent structural assumptions must be stated."
+  - "Confounder set must be declared; unmeasured confounders are a threat to validity, not an afterthought."
+
+floor_bounds:
+  - "Identification strategy must be named: RCT, IV, RDD, DiD, synthetic control, etc."
+  - "Estimand must be defined: ATE, ATT, LATE, etc."
+  - "Robustness checks must include sensitivity to unmeasured confounding."
+
+way_methods:
+  experimental:
+    - rct: "Randomization; check balance on observables; CONSORT reporting."
+  quasi_experimental:
+    - iv: "Relevance (F > 10), exclusion restriction, independence — all three required."
+    - rdd: "Continuity assumption; bandwidth selection; McCrary test for manipulation."
+    - did: "Parallel trends — test pre-period; event study plot required."
+  observational:
+    - matching: "Balance check after matching; overlap (positivity) required."
+    - regression_adjustment: "Functional form assumption; linearity tested."
+    - doubly_robust: "Combines propensity score + outcome model; consistent if either correct."
+
+truth_tables:
+  - id: causal_from_correlation
+    if: "causal_language_used == true AND identification_strategy_stated == false"
+    diagnosis: "RED_CAUSAL_OVERREACH"
+    actions: ["Restate as association", "OR state identification strategy", "Run sensitivity analysis (E-value)"]
+  - id: iv_weak_instrument
+    if: "iv_used == true AND first_stage_F < 10"
+    diagnosis: "WEAK_INSTRUMENT"
+    actions: ["Report weak-instrument-robust CI (Anderson-Rubin)", "Find stronger instrument", "Report as underpowered"]

@@ -1,0 +1,28 @@
+module: quantum_mechanics
+version: "1.0"
+status: CANONICAL
+
+definition: "State vectors/operators; quantization, uncertainty, measurement postulates."
+
+frozen_nouns_in_play: [STATE, DYNAMICS, INVARIANT, MEASUREMENT]
+
+red_constraints:
+  - "Probabilities ≥ 0 and sum to 1"
+  - "Hermitian observables → real eigenvalues"
+  - "Uncertainty: ΔxΔp ≥ ħ/2"
+
+floor_bounds:
+  - "Hamiltonian and boundary conditions must be specified"
+  - "Approximations (WKB, perturbation) must declare validity"
+
+way_methods:
+  schrodinger:
+    - time_dependent: "iħ ∂|ψ>/∂t = H|ψ>"
+    - time_independent: "H|ψ> = E|ψ>"
+  tools: ["operator algebra", "spectral decomposition", "perturbation theory", "WKB"]
+
+truth_tables:
+  - id: negative_probability
+    if: "probability < 0"
+    diagnosis: "MODEL_OR_NUMERICAL_ERROR"
+    actions: ["check normalization", "reduce timestep", "use unitary integrator"]

@@ -1,0 +1,31 @@
+module: probability_statistics
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  probability_space: "(Ω, F, P)"
+  random_variable: "measurable function X: Ω → R"
+  expectation: "E[X] = ∫ X dP"
+  variance: "Var(X) = E[(X - E[X])^2]"
+  estimator: "statistic used to infer parameter"
+
+red_constraints:
+  - "probabilities ∈ [0,1] and sum/integrate to 1"
+  - "random variables must be measurable w.r.t. sigma-algebra"
+  - "conditioning requires P(B) > 0"
+
+floor_bounds:
+  - "assumptions stated (iid, normality, independence)"
+  - "confidence intervals require method + coverage claim"
+  - "p-values do not measure effect size; report effect size + uncertainty"
+
+way_methods:
+  inference: ["MLE", "MAP", "Bayesian updating", "bootstrap", "permutation tests"]
+  modeling: ["GLM", "mixed effects", "time series (ARIMA)"]
+  diagnostics: ["residual analysis", "calibration curves", "posterior predictive checks"]
+
+truth_tables:
+  - id: pvalue_overclaim
+    if: "p_value_small == true AND effect_size_unreported == true"
+    diagnosis: "INFERENCE_INCOMPLETE"
+    actions: ["report effect size", "report CI", "check multiple comparisons / FDR"]

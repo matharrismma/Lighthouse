@@ -1,0 +1,23 @@
+{
+  "domain": "physics",
+  "id": "phys-verify-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "conservation_checks": {
+    "dimensional_consistency": {
+      "required": true,
+      "verified": true
+    }
+  },
+  "units": "SI",
+  "PHYS_VERIFY": {
+    "equation": "F = m * a",
+    "symbols": {
+      "F": "newton",
+      "m": "kilogram",
+      "a": "meter/second**2"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+PHYS_SETUP:
+  problem_type: "prediction"
+  system:
+    description: "Series RLC resonance"
+    scope: "electromagnetism"
+    boundaries: {closed_system: false, environment: ["function_generator"]}
+  objects:
+    - {name: "R", type: "scalar", value: 10, units: "ohm", meaning: "resistance"}
+    - {name: "L", type: "scalar", value: 1e-3, units: "H", meaning: "inductance"}
+    - {name: "C", type: "scalar", value: 1e-6, units: "F", meaning: "capacitance"}
+  assumptions:
+    - "scripture_anchor: Jeremiah 33:25"
+    - "lumped_elements_valid (size << wavelength)"
+  initial_conditions: {}
+  objective: {statement: "Compute resonance frequency", success_metric: "f0 in kHz range"}
+
+PHYS_CONSTRAINTS:
+  RED:
+    conservation:
+      mass_energy: {required: true}
+      charge: {required: true}
+      momentum_angular_momentum: {required: false}
+    causality: {temporal_ordering_verified: true, no_effect_without_mechanism: true}
+    quantization: {applicable: false}
+    relativity: {c_limit_respected: true}
+    dimensional_consistency: {required: true, verified: true}
+  FLOOR:
+    reference_constants:
+      c: {value: 299792458, units: "m/s", source: "SI exact", uncertainty: 0}
+    validity_bounds: {regime_of_validity: ["lumped circuit"]}
+    measurement_bounds: {calibration_required: true, uncertainty_reporting_required: true, orthogonality_required: true}
+
+PHYS_MODEL:
+  ontology: {frozen_nouns_in_play: [FIELD, STATE, DYNAMICS, MEASUREMENT]}
+  regime: {domain: "E&M", approximations: []}
+  governing_equations:
+    - {name: "resonance", form: "f0 = (1/(2*pi))*sqrt(1/(L*C))", type: "closed_form"}
+  boundary_conditions: []
+  invariants_and_checks: []
+
+PHYS_MEASUREMENTS:
+  observables:
+    - {name: "f0", type: "proxy", readout: "scope_amplitude_peak", proxy_for: "resonance frequency"}
+  instruments_and_assays:
+    - {assay_name: "oscilloscope", principle: "voltage time series", sampling_rate_Hz: 1e6, dynamic_range: {min: "mV", max: "10V"}, LOD: "noise floor"}
+    - {assay_name: "network_analyzer", principle: "frequency response", sampling_rate_Hz: "sweep", dynamic_range: {min: "-80dB", max: "0dB"}, LOD: "instrument"}
+  calibration: {required: true, methods: ["probe compensation", "timebase check"]}
+  uncertainty: {propagation_method: "analytical", sources: [], final_uncertainty: {CI_95_lower: null, CI_95_upper: null, CV_percent: null}}
+  replication: {repeats: {n_trials: 3, n_cycles_per_trial: 1}}
+  orthogonality: {rule: "Decision-grade claims require ≥2 methods", orthogonal_assays_used: ["oscilloscope", "network_analyzer"], concordance: {qualitative_agreement: true, quantitative_correlation: null}}
+
+PHYS_EXECUTION:
+  control_levers:
+    - {lever: "R", bounds: ">0", effect: "sets Q"}
+    - {lever: "L,C", bounds: ">0", effect: "sets f0"}
+
+PHYS_DIAGNOSTICS:
+  truth_table_triggers:
+    - {id: "lumped_invalid", if: "circuit_size_comparable_to_wavelength == true", diagnosis: "LUMPED_MODEL_INVALID", actions: ["use transmission line model"]}
+  failure_modes: []
+  corrective_levers: []
+  diagnostic_trace: {root_question: "Is lumped valid?", path_taken: ["FLOOR: orthogonality"], terminal_diagnosis: "SUCCESS"}

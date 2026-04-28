@@ -1,0 +1,44 @@
+module:
+  id: genetics_inheritance
+  name: Genetics + Inheritance — Variation, Heritability, Causality
+  version: '1.0'
+  status: CANONICAL
+  authority_inheritance:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+definitions:
+  genotype: variant state in genome
+  phenotype: observable trait
+  heritability:
+    narrow_sense: h2 = VA / VP (context-specific)
+    warning: not a fixed property of trait; depends on environment and population
+way:
+  causal_inference_lane:
+    rule: association != causation; require perturbation or design (randomization,
+      IV, natural experiment)
+  variant_effect_lane:
+    rule: effect sizes are distributional; report CI and population context
+diagnostics:
+- id: GWAS_signal_not_replicating
+  trigger: association_found == true and replication_failed == true
+  diagnosis: POPULATION_STRATIFICATION_OR_BATCH
+  action:
+  - control ancestry
+  - replicate in matched cohort
+  - check QC thresholds
+- id: knockout_has_no_phenotype
+  trigger: KO_confirmed == true and no_change == true
+  diagnosis: REDUNDANCY_COMPENSATION_OR_ENV_DEPENDENCE
+  action:
+  - stress condition
+  - double KO
+  - acute inhibition
+  - measure compensation genes
+interfaces:
+  ENG_DEPLOYMENT:
+    fields:
+    - study_design
+    - power_analysis
+    - confounder_management

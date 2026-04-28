@@ -1,0 +1,97 @@
+domain: chemistry
+version: "1.0"
+status: "CANONICAL"
+
+thesis:
+  chemistry: "Constrained transformation of matter: how composition, structure, and energy landscape determine feasible change."
+
+frozen_nouns:
+  - noun: MATTER
+    meaning: "Substance with mass-energy content; modeled as particles/fields; composed of atoms, ions, molecules, solids, liquids, gases, plasmas."
+  - noun: SPECIES
+    meaning: "A chemically distinguishable entity (atom, ion, molecule, radical, complex) with defined composition and charge."
+  - noun: ELEMENT
+    meaning: "Species class defined by nuclear charge (atomic number Z)."
+  - noun: COMPOUND
+    meaning: "Species composed of >1 element in fixed stoichiometric ratio."
+  - noun: PHASE
+    meaning: "Region of matter with uniform intensive properties and structure (solid/liquid/gas, polymorph, solution)."
+  - noun: REACTION
+    meaning: "Stoichiometric mapping from reactant species to product species conserving atoms and charge."
+  - noun: STOICHIOMETRY
+    meaning: "Quantitative relationships among species amounts in a balanced reaction."
+  - noun: ENERGY
+    meaning: "State function and transfers (work/heat) governing feasibility and direction."
+  - noun: ENTHALPY
+    meaning: "H = U + pV; heat at constant pressure; state function."
+  - noun: ENTROPY
+    meaning: "State function measuring energy dispersal/number of microstates; governs spontaneity with enthalpy."
+  - noun: GIBBS_FREE_ENERGY
+    meaning: "G = H - TS; criterion for spontaneity at constant T,p."
+  - noun: EQUILIBRIUM
+    meaning: "State where macroscopic composition is time-invariant; forward and reverse rates equal."
+  - noun: ACTIVITY
+    meaning: "Effective concentration a_i = γ_i * (c_i/c°) (or fugacity-based for gases) used in equilibrium expressions."
+  - noun: RATE
+    meaning: "Time derivative of extent of reaction; depends on mechanism and conditions."
+  - noun: CATALYST
+    meaning: "Substance that changes rate by providing alternative pathway without net consumption."
+  - noun: OXIDATION_STATE
+    meaning: "Bookkeeping charge assignment to track electron transfer; not always uniquely physical."
+  - noun: ELECTRODE_POTENTIAL
+    meaning: "Free-energy-per-charge measure of redox driving force; relates to ΔG via ΔG = -nFE."
+  - noun: SAFETY
+    meaning: "Constraint set governing permissible operations (toxicity, reactivity, pressure, heat, incompatibilities)."
+
+red_constraints:
+  - "Mass is conserved within the defined system boundary (no atoms created/destroyed in chemical reactions)."
+  - "Charge is conserved in all reaction stoichiometries."
+  - "Dimensional analysis must be consistent in every equation; unit errors invalidate results."
+  - "Thermodynamic state functions (U, H, S, G) are path-independent; do not mix state and path quantities."
+  - "Equilibrium constants are defined in terms of activities; concentration forms are approximations with stated assumptions."
+  - "Kinetic rate laws must respect non-negativity of concentrations and physically admissible rate expressions."
+  - "Temperature is in absolute units for thermodynamic relations (K)."
+
+floor_layer_bounds:
+  - "Always state units, reference states, and sign conventions (ΔH°, ΔG°, E°)."
+  - "Report significant figures consistent with input precision; avoid false precision."
+  - "Declare system boundary (closed/open), phase(s), and whether ideal behavior is assumed."
+  - "Check limiting cases (c→0, high dilution, high pressure) for model sanity."
+  - "Include safety notes for hazardous reagents/conditions when relevant."
+
+way_layer_methods:
+  - "Choose simplest valid model: ideal gas/solution only when justified; otherwise use activities/fugacities."
+  - "Prefer mechanistic explanations that match observed rate laws and intermediates."
+  - "Use tabulated data with temperature corrections when required (van 't Hoff, heat capacity integration)."
+  - "For coupled equilibria, solve with mass/charge balance and equilibrium relations; avoid single-equation shortcuts."
+
+diagnostics:
+  root:
+    question: "Does the proposed result violate conservation of mass or charge, or dimensional consistency?"
+    if_yes:
+      diagnosis: "SPECIFICATION_OR_BALANCING_ERROR"
+      action: "Rebalance reaction; correct units; redefine system boundary."
+    if_no: "proceed_to_regime_check"
+
+  regime_check:
+    question: "Is the chosen model valid in this regime (ideal vs non-ideal, dilute vs concentrated, low vs high pressure)?"
+    if_no:
+      diagnosis: "MODEL_MISMATCH"
+      action: "Switch to activity/fugacity model; state assumptions; obtain γ or φ correlations."
+    if_yes: "proceed_to_data_check"
+
+  data_check:
+    question: "Are the needed constants/data (Ka, Ksp, ΔHf°, E°, Cp) appropriate for the stated T, p, ionic strength?"
+    if_no:
+      diagnosis: "DATA_SCOPE_ERROR"
+      action: "Use temperature/ionic-strength corrections; cite source conditions."
+    if_yes: "proceed_to_sanity_check"
+
+  sanity_check:
+    question: "Do limiting-case checks and magnitude estimates match physical intuition and known bounds?"
+    if_no:
+      diagnosis: "SANITY_FAIL"
+      action: "Recompute; check algebra; check unit conversions; test alternative assumptions."
+    if_yes:
+      diagnosis: "PASS"
+      action: "Proceed to module execution workflow."

@@ -1,0 +1,304 @@
+domain: biology
+version: '1.0'
+status: CANONICAL
+authority: Master Architect design constraints
+hierarchy:
+- RED
+- FLOOR
+- WAY
+- Execution
+section_0_domain_identity:
+  definition: Biology = chemistry and physics operating in open, bounded systems that
+    store information, maintain far-from-equilibrium order, and reproduce with variation
+    under selection.
+  three_layer_engine:
+  - permission: Are energy/mass/information flows sufficient and lawful?
+  - path: Which mechanisms (molecular → cellular → organismal → population) govern
+      dynamics?
+  - measurement: Are outcomes supported with controls, replication, uncertainty, and
+      causal identification?
+frozen_nouns:
+- id: 1
+  noun: CELL
+  meaning: minimal bounded living unit; compartment + metabolism + information processing
+- id: 2
+  noun: COMPARTMENT
+  meaning: bounded region (membrane/organelle/tissue) defining local chemistry and
+    gradients
+- id: 3
+  noun: GENOME
+  meaning: information store encoding heritable programs
+- id: 4
+  noun: EXPRESSION
+  meaning: transcription/translation producing functional molecules
+- id: 5
+  noun: PROTEOME
+  meaning: active functional state-space of proteins (incl. PTMs)
+- id: 6
+  noun: METABOLISM
+  meaning: network of transformations enabling energy conversion + biomass maintenance
+- id: 7
+  noun: SIGNAL
+  meaning: transduced information (ligands, phosphorylation, voltage, second messengers)
+- id: 8
+  noun: FEEDBACK
+  meaning: control structure stabilizing/oscillating outputs
+- id: 9
+  noun: FITNESS
+  meaning: reproductive success conditional on environment; population-level outcome
+- id: 10
+  noun: POPULATION
+  meaning: interacting set of organisms with allele frequencies + ecological constraints
+red_layer_constraints:
+  logic:
+    non_contradiction: true
+  physics_thermo:
+    conservation: mass/charge/energy conserved; biology is open system with explicit
+      boundary fluxes
+    second_law: local order requires entropy export; no perpetual motion; ΔS_total
+      >= 0
+    causality: no effect without mechanism; temporal ordering required
+  chemistry:
+    stoichiometry: elemental/charge balance holds in all biochemical transformations
+  information:
+    non_negativity: probabilities >= 0; information measures must be well-defined
+    channel_limits: noise and bandwidth constraints apply to signaling and sensing
+floor_layer_bounds:
+  reference_conditions:
+    physiology_default:
+      pH: 7.4
+      ionic_strength_M: 0.15
+      temperature_K: 310
+  measurement_standards:
+    doctrine: 'Decision-grade claims require: controls + calibration + uncertainty
+      + replication.'
+  viability_bounds:
+    doctrine: Cell viability and growth constraints bound feasible interventions;
+      outside bounds => toxicity/stress response.
+way_layer_theory_stack:
+  layer_1_energy_and_permission:
+  - energy budget and redox balance sufficient (ATP, gradients, substrates)
+  - mass balance closes with declared feeds/removals
+  layer_2_mechanisms_path:
+    mechanism_families:
+    - binding_and_allostery: ligand binding, cooperativity, conformational switching
+    - gene_regulation: promoters, repressors, transcription factors, epigenetic state
+    - signaling_cascades: kinase/phosphatase networks, second messengers
+    - metabolism_networks: flux balance, pathway control points
+    - development_and_differentiation: state transitions in gene regulatory networks
+  layer_3_control_and_delivery:
+  - transport: diffusion, convection, membrane transport
+  - control: feedback, integral control, robustness, adaptation
+  layer_4_population_and_selection:
+  - evolution: mutation, drift, selection, recombination
+  - ecology: resource limits, competition, predator-prey, carrying capacity
+execution_layer_levers:
+  cellular:
+  - environment:
+    - nutrients
+    - oxygen
+    - pH
+    - osmolarity
+    - temperature
+  - genetic:
+    - knockout
+    - knockdown
+    - overexpression
+    - CRISPR edits
+  - chemical:
+    - ligands
+    - inhibitors
+    - cofactors
+    - antibiotics
+  - physical:
+    - mechanical load
+    - light
+    - electrical stimulation
+  experimental_design:
+    controls:
+    - positive
+    - negative
+    - vehicle
+    - isogenic
+    replication:
+    - biological_replicates
+    - technical_replicates
+    randomization: true
+    blinding: when feasible
+    batch_effect_management:
+    - block design
+    - standard reference samples
+section_10_domain_composability:
+  biology_chemistry:
+    bridges:
+    - enzyme_catalysis: biology uses chemistry kinetics; activity/speciation matters
+    - metabolism: mass balance + thermodynamic permission + kinetic control
+    handoff_rules:
+    - if: ionic_strength_or_pH_sensitive == true
+      then: 'handoff_to: chemistry.activity_models + acid_base_speciation'
+  biology_physics:
+    bridges:
+    - thermodynamics: far-from-equilibrium maintenance requires entropy export
+    - transport: diffusion/flow limits set delivery constraints
+    - information: noise limits sensing/control
+    handoff_rules:
+    - if: transport_limited == true
+      then: 'handoff_to: physics.transport_phenomena'
+  biology_engineering:
+    bridges:
+    - control_theory: homeostasis, robustness, feedback
+    - bioprocess: scale-up, oxygen transfer, mixing
+    handoff_rules:
+    - if: scale_up_or_bioreactor == true
+      then: 'handoff_to: engineering.reactor_design + control'
+  biology_materials_science:
+    bridges:
+    - biomaterials: surface interactions, stiffness, topography
+    - composites: tissue mechanics and ECM structure-property
+    handoff_rules:
+    - if: cell_material_interface == true
+      then: 'handoff_to: materials.structure_property'
+truth_tables:
+- id: phenotype_not_reproducible
+  if: effect_present == true and reproducible == false
+  then:
+    diagnosis: BATCH_EFFECT_OR_CONFOUNDING
+    action:
+    - increase biological replicates
+    - block design
+    - check mycoplasma
+    - verify reagent lots
+- id: intervention_kills_cells
+  if: desired_effect_absent == true and viability_drop_large == true
+  then:
+    diagnosis: TOXICITY_MASKING
+    action:
+    - reduce dose
+    - time-course
+    - use orthogonal perturbation
+    - check stress markers
+- id: knockout_no_effect
+  if: genetic_perturbation_confirmed == true and phenotype_change == false
+  then:
+    diagnosis: REDUNDANCY_OR_COMPENSATION
+    action:
+    - double knockout
+    - acute inhibition
+    - measure pathway compensation
+    - check paralogs
+- id: signaling_fast_effect_claimed_but_is_transcriptional
+  if: effect_timescale_minutes == true and readout_is_gene_expression == true
+  then:
+    diagnosis: TIMESCALE_CATEGORY_ERROR
+    action:
+    - measure proximal signaling (phospho/second messenger)
+    - separate fast vs slow lanes
+- id: metabolism_constraint
+  if: growth_rate_increase_claimed == true and substrate_uptake_not_increased == true
+  then:
+    diagnosis: MASS_ENERGY_BUDGET_VIOLATION_LIKELY
+    action:
+    - measure uptake rates
+    - close mass balance
+    - check oxygen limitation
+    - activate FBA/flux checks
+measurement_doctrine:
+  identity_rule: A biological claim is decision-grade when phenotype and mechanism
+    are supported by at least two orthogonal assay classes.
+  orthogonality_examples:
+  - - qPCR
+    - protein (Western/ELISA)
+  - - flow_cytometry
+    - microscopy
+  - - metabolomics
+    - 13C tracing
+  replication_minimum:
+    biological: n >= 3 unless justified; prefer n >= 5 for noisy phenotypes
+    technical: '>= 2 per biological replicate when feasible'
+  uncertainty_reporting:
+    effect_size: report mean ± CI (95%) and standardized effect where possible
+    flag_rule: if CV > 0.30 => HIGH_VARIANCE (tighten controls/batching)
+  confounding_controls:
+    required_checks:
+    - mycoplasma
+    - cell line authentication
+    - reagent lot tracking
+    - plate position effects
+diagnostics:
+  root:
+    question: observed_within_20pct_of_predicted
+    'yes': SUCCESS
+    'no': layer_1_permission
+  layer_1_permission:
+    question: energy_mass_budget_plausible
+    'no':
+      diagnosis: BUDGET_OR_BOUNDARY_ERROR
+      actions:
+      - declare boundaries
+      - measure uptake/efflux
+      - check oxygen/pH
+      - close mass balance
+    'yes': layer_2_mechanism
+  layer_2_mechanism:
+    question: mechanism_lane_identified
+    'no':
+      diagnosis: MECHANISM_UNSPECIFIED
+      actions:
+      - separate fast vs slow lanes
+      - map pathway
+      - choose proximal readouts
+    'yes': layer_3_delivery_control
+  layer_3_delivery_control:
+    question: transport_or_control_limitation_likely
+    'yes':
+      diagnosis: DELIVERY_OR_CONTROL_LIMIT
+      actions:
+      - check diffusion/flow
+      - check receptor occupancy
+      - check feedback compensation
+      - handoff physics/engineering as needed
+    'no': layer_4_measurement
+  layer_4_measurement:
+    question: controls_calibration_replication_ok
+    'no':
+      diagnosis: EXPERIMENTAL_DESIGN_OR_ARTIFACT
+      actions:
+      - add controls
+      - randomize
+      - block batches
+      - repeat with orthogonal assay
+    'yes': layer_5_bridge
+  layer_5_bridge:
+    question: cross_domain_effect_likely
+    'no':
+      diagnosis: SPECIFICATION_ERROR_UNKNOWN_FACTOR
+      actions:
+      - expand state (hidden variables)
+      - check contamination
+      - literature search
+    'yes':
+      diagnosis: BRIDGE_ESCALATION_REQUIRED
+      actions:
+      - handoff chemistry/physics/engineering/materials based on trigger flags
+scripture_anchors:
+- id: 1
+  theme: Life sourced externally
+  reference: Acts 17:25
+- id: 2
+  theme: Order/ordinance (lawful bounds)
+  reference: Jeremiah 33:25
+- id: 3
+  theme: Held together (coherence)
+  reference: Colossians 1:16-17
+- id: 4
+  theme: Seed/kind (reproduction + constraint)
+  reference: Genesis 1:11-12
+- id: 5
+  theme: Wisdom in design (structure precedes function)
+  reference: Proverbs 8:22-31
+- id: 6
+  theme: Inner/outer (seen vs unseen mechanisms)
+  reference: 2 Corinthians 4:18
+- id: 7
+  theme: Decay/renewal directionality
+  reference: Romans 8:20-22

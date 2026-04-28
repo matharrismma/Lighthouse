@@ -1,0 +1,55 @@
+module: thermodynamics
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: "Relate heat/work, state functions, and spontaneity; compute \u0394G, \u0394H, \u0394S, temperature dependence."
+  includes:
+  - Hess's law
+  - "\u0394G\xB0 from \u0394H\xB0 and \u0394S\xB0"
+  - van 't Hoff relation
+  - heat capacity corrections
+  - phase change energetics
+  excludes:
+  - detailed transport phenomena
+  - quantum chemistry electronic structure
+frozen_nouns_extensions:
+- noun: STANDARD_STATE
+  meaning: Reference state for thermodynamic quantities (often 1 bar, 1 M, specified phase).
+- noun: REACTION_QUOTIENT
+  meaning: "Q expressed in activities; relates to \u0394G = \u0394G\xB0 + RT ln Q."
+red_constraints:
+- Use absolute temperature in all RT and TS terms.
+- State functions cannot depend on chosen path; if they do, calculation is wrong.
+floor_checks:
+- Declare standard state; avoid mixing Kp/Kc without conversion.
+- "Report whether \u0394G\xB0 is for reaction as written."
+- If using tabulated data, keep consistent reference.
+way_methods:
+- "Prefer \u0394G = -RT ln K for equilibrium linkage; use van 't Hoff when \u0394H\xB0 approx constant over range."
+- "Use Cp(T) integration when \u0394T is large."
+execution:
+  inputs:
+  - reaction
+  - thermo_data
+  - temperature_K
+  - reaction_quotient_or_K
+  steps:
+  - "Compute \u0394H\xB0_rxn and \u0394S\xB0_rxn from formation data (sum products - sum reactants)."
+  - "Compute \u0394G\xB0_rxn = \u0394H\xB0_rxn - T*\u0394S\xB0_rxn at specified T."
+  - "If Q known: compute \u0394G = \u0394G\xB0 + R*T*ln(Q)."
+  - "If K needed: K = exp(-\u0394G\xB0/(R*T))."
+  - "For temperature dependence: ln(K2/K1) \u2248 -(\u0394H\xB0/R)*(1/T2 - 1/T1) if \u0394H\xB0 constant."
+  - "If Cp data present and \u0394T large: apply Kirchhoff corrections to \u0394H\xB0(T), \u0394S\xB0(T)."
+  outputs:
+  - "\u0394H\xB0_rxn"
+  - "\u0394S\xB0_rxn"
+  - "\u0394G\xB0_rxn"
+  - "\u0394G_if_Q"
+  - K_if_needed
+diagnostics:
+  unit_mismatch:
+    signal: "\u0394H, \u0394S, R not in compatible units."
+    fix: Convert to consistent J/mol, J/mol-K, K.
+  invalid_standard_state:
+    signal: Standard state not specified but required.
+    fix: Declare standard state for all tabulated quantities.

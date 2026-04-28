@@ -1,0 +1,32 @@
+{
+  "domain": "computer_science",
+  "id": "cs-verify-002-bubble",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "CS_RED": {
+    "termination_proven": true,
+    "memory_safety_addressed": true,
+    "no_undefined_behavior": true,
+    "concurrency_correctness_addressed": true
+  },
+  "CS_COMPLEXITY": {
+    "case": "worst",
+    "time": "O(n**2)",
+    "space": "O(1)"
+  },
+  "CS_VERIFY": {
+    "code": "def bsort(a):\n    a = list(a)\n    n = len(a)\n    for i in range(n):\n        for j in range(n-1-i):\n            if a[j] > a[j+1]:\n                a[j], a[j+1] = a[j+1], a[j]\n    return a",
+    "function_name": "bsort",
+    "test_cases": [
+      {"args": [[3, 1, 2]], "expected": [1, 2, 3]},
+      {"args": [[]], "expected": []},
+      {"args": [[5, 5, 5]], "expected": [5, 5, 5]}
+    ],
+    "input_generator": "def gen(n):\n    return [list(reversed(range(n)))]",
+    "claimed_class": "O(n**2)",
+    "sizes": [50, 100, 200, 400],
+    "tolerance": 0.40
+  }
+}

@@ -1,0 +1,74 @@
+domain: chemistry
+canon:
+  name: "Concordance Canon — Chemistry Domain Theory"
+  version: "1.0"
+  status: "CANONICAL_TECHNICAL_DOCUMENT"
+  release_date: "2026-02-14"
+  hierarchy: ["RED", "FLOOR", "WAY", "Execution"]
+
+entrypoints:
+  core: "core/chemistry_core.yaml"
+  schema: "schema/chemistry_schema.yaml"
+  packet_template: "templates/chem_packet_template.yaml"
+  proof_checklist: "templates/proof_checklist.yaml"
+
+module_registry:
+  - id: stoichiometry
+    path: "modules/stoichiometry.yaml"
+    status: "CANONICAL"
+    triggers: ["mole", "stoichiometry", "limiting reagent", "yield", "percent yield", "empirical formula"]
+
+  - id: thermodynamics
+    path: "modules/thermodynamics.yaml"
+    status: "CANONICAL"
+    triggers: ["enthalpy", "entropy", "gibbs", "ΔG", "ΔH", "ΔS", "equilibrium constant temperature", "heat capacity"]
+
+  - id: kinetics
+    path: "modules/kinetics.yaml"
+    status: "CANONICAL"
+    triggers: ["rate law", "reaction order", "Arrhenius", "activation energy", "mechanism", "catalyst", "half-life"]
+
+  - id: equilibrium
+    path: "modules/equilibrium.yaml"
+    status: "CANONICAL"
+    triggers: ["equilibrium", "Kc", "Kp", "Le Chatelier", "ICE table", "activity", "fugacity"]
+
+  - id: acid_base_speciation_canon
+    path: "modules/acid_base_speciation.yaml"
+    status: "CANONICAL"
+    triggers: ["pH", "pKa", "buffer", "Henderson-Hasselbalch", "polyprotic", "speciation", "titration"]
+
+  - id: redox_electrochemistry_canon
+    path: "modules/redox_electrochemistry.yaml"
+    status: "CANONICAL"
+    triggers: ["redox", "E°", "Nernst", "cell potential", "Pourbaix", "electrode", "overpotential", "Butler-Volmer"]
+
+  - id: catalysis_canon
+    path: "modules/catalysis.yaml"
+    status: "CANONICAL"
+    triggers: ["catalysis", "TOF", "TON", "heterogeneous", "homogeneous", "enzyme", "deactivation"]
+
+  - id: phase_form_separations_canon
+    path: "modules/phase_form_separations.yaml"
+    status: "CANONICAL"
+    triggers: ["phase diagram", "VLE", "LLE", "distillation", "extraction", "crystallization", "separation", "Raoult", "Henry"]
+
+  - id: photochemistry
+    path: "modules/photochemistry.yaml"
+    status: "CANONICAL"
+    triggers: ["photochemistry", "excited state", "fluorescence", "phosphorescence", "quantum yield", "Beer-Lambert"]
+
+  - id: organometallics
+    path: "modules/organometallics.yaml"
+    status: "CANONICAL"
+    triggers: ["organometallic", "oxidative addition", "reductive elimination", "ligand", "catalytic cycle"]
+
+  - id: polymers
+    path: "modules/polymers.yaml"
+    status: "CANONICAL"
+    triggers: ["polymer", "polymerization", "step-growth", "chain-growth", "degree of polymerization", "Tg", "Tm"]
+
+  - id: surface_adsorption_isotherms
+    path: "modules/surface_adsorption_isotherms.yaml"
+    status: "CANONICAL"
+    triggers: ["adsorption", "isotherm", "Langmuir", "BET", "surface area", "chemisorption", "physisorption"]

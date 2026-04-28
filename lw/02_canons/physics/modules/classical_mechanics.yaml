@@ -1,0 +1,38 @@
+module: classical_mechanics
+version: "1.0"
+status: CANONICAL
+
+definition: "Dynamics of objects with v<<c and action S>>ħ."
+
+frozen_nouns_in_play: [OBJECT, STATE, DYNAMICS, INVARIANT, MEASUREMENT, SPACETIME]
+
+red_constraints:
+  - "Dimensional consistency in all equations"
+  - "Energy/momentum conservation when system isolated"
+
+floor_bounds:
+  - "Small-angle and linearization approximations must state error bounds"
+  - "Friction/damping must be declared if present (else treated as missing interaction)"
+
+way_methods:
+  formulations:
+    - newtonian: {when: "forces known", equations: ["F=ma"]}
+    - lagrangian: {when: "constraints", equations: ["d/dt(∂L/∂qdot)-∂L/∂q=0"]}
+    - hamiltonian: {when: "phase space", equations: ["qdot=∂H/∂p, pdot=-∂H/∂q"]}
+
+  canonical_tools:
+    - nondimensionalization
+    - stability_by_linearization
+    - eigenvalue_analysis
+    - energy_methods
+
+diagnostic_inserts:
+  - trigger: "scale_effects_present"
+    diagnosis: "TRANSPORT_OR_BOUNDARY_EFFECTS"
+    action: "escalate to waves/fluids/drag modeling; include dissipation"
+
+truth_tables:
+  - id: energy_drift_isolated
+    if: "system_isolated == true AND energy_drift_percent > 1"
+    diagnosis: "NUMERICAL_INSTABILITY_OR_MISSING_DISSIPATION"
+    actions: ["reduce timestep", "use symplectic integrator", "measure damping", "audit IC constraints"]

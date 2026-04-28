@@ -1,0 +1,27 @@
+module: special_relativity
+version: "1.0"
+status: CANONICAL
+
+definition: "Lorentz invariance in flat spacetime; 4-vectors and invariant intervals."
+
+frozen_nouns_in_play: [SPACETIME, STATE, INVARIANT, DYNAMICS]
+
+red_constraints:
+  - "c is invariant; no superluminal information"
+  - "Invariant interval s^2 preserved under Lorentz transforms"
+
+floor_bounds:
+  - "Velocity regime must be stated (v/c)"
+
+way_methods:
+  lorentz:
+    - gamma: "γ = 1/sqrt(1 - v^2/c^2)"
+    - time_dilation: "Δt = γ Δt0"
+    - length_contraction: "L = L0/γ"
+  four_vectors: ["position", "momentum-energy"]
+
+truth_tables:
+  - id: newtonian_at_high_beta
+    if: "beta = v/c > 0.1 AND model == 'newtonian'"
+    diagnosis: "RELATIVISTIC_REQUIRED"
+    actions: ["use Lorentz kinematics", "recompute energies with γ"]

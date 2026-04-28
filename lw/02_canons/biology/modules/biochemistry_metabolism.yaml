@@ -1,0 +1,58 @@
+module:
+  id: biochemistry_metabolism
+  name: Biochemistry + Metabolism — Energy, Redox, Flux, Enzymes
+  version: '1.0'
+  status: CANONICAL
+  authority_inheritance:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+ontology:
+  currency:
+  - ATP
+  - NADH
+  - NADPH
+  - FADH2
+  - acetyl_CoA
+  pathways:
+  - glycolysis
+  - TCA
+  - OXPHOS
+  - pentose_phosphate
+  - beta_oxidation
+constraints:
+  mass_balance: true
+  redox_balance: true
+way:
+  flux_doctrine:
+    rule: steady-state phenotypes are flux phenotypes; metabolite levels alone can
+      mislead
+  enzyme_control:
+    rule: control points usually at irreversible or highly regulated steps
+diagnostics:
+- id: ATP_low_but_glycolysis_high
+  trigger: ATP_low == true and glycolysis_markers_high == true
+  diagnosis: MITOCHONDRIAL_LIMIT_OR_UNCOUPLING
+  action:
+  - measure oxygen consumption
+  - check membrane potential
+  - check lactate export
+- id: growth_increases_without_energy_sources
+  trigger: growth_up == true and substrate_uptake_not_up == true
+  diagnosis: BUDGET_VIOLATION_OR_MEASUREMENT_ARTIFACT
+  action:
+  - measure uptake/efflux
+  - 13C tracing
+  - close mass balance
+interfaces:
+  CHEM_CONTEXT:
+    fields:
+    - enzyme_catalysis
+    - activity_models
+    - pH_speciation
+  PHYS_CONSTRAINTS:
+    fields:
+    - transport_limits
+    - thermo_bounds
+    - noise_limits

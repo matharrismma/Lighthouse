@@ -1,0 +1,96 @@
+checklist: statistics_analysis
+version: "1.0"
+domain: statistics
+
+purpose: >
+  Walk this checklist before submitting any statistics packet. Every item
+  must be answered. If "no" or "uncertain", the packet is not ready.
+
+# Pre-specification
+- id: P1
+  question: "Is the hypothesis written down before any data are seen?"
+  must: "Pre-register or freeze the analysis plan. Distinguish confirmatory from exploratory."
+
+- id: P2
+  question: "Are primary and secondary endpoints separated?"
+  must: "Multiplicity handling can differ across tiers."
+
+# Population and sampling
+- id: S1
+  question: "Is the target population defined?"
+  must: "State the units to which inference is intended."
+
+- id: S2
+  question: "Is the sampling mechanism stated?"
+  must: "SRS / stratified / cluster / convenience / volunteer."
+
+- id: S3
+  question: "Is selection bias assessed?"
+  must: "Compare sample to population on key covariates; document differences."
+
+# Sample size and power
+- id: N1
+  question: "Is the sample size justified?"
+  must: "Power analysis at the MDE, or pre-registered stopping rule."
+
+- id: N2
+  question: "Are stopping rules specified?"
+  must: "Fixed n, group sequential, or pre-registered adaptive."
+
+# Assumptions
+- id: A1
+  question: "Are distributional assumptions stated?"
+  must: "Normality / homoscedasticity / independence / proportional hazards / link function."
+
+- id: A2
+  question: "Are assumptions tested?"
+  must: "Residual plots, QQ plots, Levene, formal tests; or use robust alternative."
+
+# Inference
+- id: I1
+  question: "Is the effect size reported alongside any significance claim?"
+  must: "Cohen's d, OR, RR, RD, eta-squared, or domain-appropriate."
+
+- id: I2
+  question: "Is the confidence interval reported and interpreted correctly?"
+  must: "95% CI describes the procedure (long-run coverage), not P(parameter in interval)."
+
+- id: I3
+  question: "Is the p-value interpreted correctly?"
+  must: "P(data | H0), not P(H0 | data). State alpha. Decision rule explicit."
+
+# Causality (if claimed)
+- id: C1
+  question: "Is the causal identification strategy stated?"
+  must: "RCT / IV / RDD / DiD / matching+ignorability / IPW / g-computation."
+
+- id: C2
+  question: "Is the DAG drawn and the adjustment set justified?"
+  must: "Distinguish confounders from mediators from colliders."
+
+- id: C3
+  question: "Are negative controls run?"
+  must: "Negative-control outcome and negative-control exposure where feasible."
+
+# Multiplicity
+- id: M1
+  question: "Are multiple comparisons present?"
+  if_yes_must: "Apply Bonferroni / Holm / BH, or pre-register hierarchical gatekeeping."
+
+- id: M2
+  question: "Is the family of hypotheses pre-specified?"
+  must: "Family must be fixed before data; correction depends on family size."
+
+# Missing data
+- id: D1
+  question: "Is the missing-data mechanism declared?"
+  must: "MCAR / MAR / MNAR. State handling: complete case, MI, FIML, IPW."
+
+# Reporting
+- id: R1
+  question: "Are point estimate, SE, CI, and effect-scale interpretation all reported?"
+  must: "Yes for any inferential claim."
+
+- id: R2
+  question: "Is the analysis code available and the data either available or describable?"
+  must: "Reproducibility is a witness condition."

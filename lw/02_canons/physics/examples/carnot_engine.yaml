@@ -1,0 +1,60 @@
+PHYS_SETUP:
+  problem_type: "prediction"
+  system:
+    description: "Carnot engine efficiency bound"
+    scope: "thermodynamics"
+    boundaries: {closed_system: false, environment: ["two_heat_reservoirs"]}
+  objects:
+    - {name: "Th", type: "scalar", value: 600, units: "K", meaning: "hot reservoir"}
+    - {name: "Tc", type: "scalar", value: 300, units: "K", meaning: "cold reservoir"}
+  assumptions:
+    - "scripture_anchor: Jeremiah 33:25"
+    - "reversible_cycle (ideal)"
+  initial_conditions: {}
+  objective:
+    statement: "Compute η_max"
+    success_metric: "η_max <= 0.5"
+
+PHYS_CONSTRAINTS:
+  RED:
+    conservation:
+      mass_energy: {required: true}
+      charge: {required: false}
+      momentum_angular_momentum: {required: false}
+    causality: {temporal_ordering_verified: true, no_effect_without_mechanism: true}
+    quantization: {applicable: false}
+    relativity: {c_limit_respected: true}
+    dimensional_consistency: {required: true, verified: true}
+  FLOOR:
+    reference_constants:
+      kB: {value: 1.380649e-23, units: "J/K", source: "SI exact", uncertainty: 0}
+    validity_bounds: {regime_of_validity: ["equilibrium thermodynamics"]}
+    measurement_bounds: {calibration_required: false, uncertainty_reporting_required: true, orthogonality_required: false}
+
+PHYS_MODEL:
+  ontology: {frozen_nouns_in_play: [STATE, INVARIANT, MEASUREMENT]}
+  regime: {domain: "thermodynamics", approximations: [{approximation: "reversible", validity_range: "ideal", expected_error: "lower bound on irreversibility"}]}
+  governing_equations:
+    - {name: "carnot", form: "eta = 1 - Tc/Th", type: "closed_form"}
+  boundary_conditions: []
+  invariants_and_checks: []
+
+PHYS_MEASUREMENTS:
+  observables: []
+  instruments_and_assays: []
+  calibration: {required: false, methods: []}
+  uncertainty: {propagation_method: "analytical", sources: [], final_uncertainty: {CI_95_lower: null, CI_95_upper: null, CV_percent: null}}
+  replication: {repeats: {n_trials: 1, n_cycles_per_trial: 1}}
+  orthogonality: {rule: "N/A", orthogonal_assays_used: [], concordance: {qualitative_agreement: true, quantitative_correlation: null}}
+
+PHYS_EXECUTION:
+  control_levers:
+    - {lever: "Th", bounds: ">Tc", effect: "η increases with Th"}
+    - {lever: "Tc", bounds: "<Th", effect: "η decreases with Tc"}
+
+PHYS_DIAGNOSTICS:
+  truth_table_triggers:
+    - {id: "eta_gt_carnot", if: "eta_claimed > (1 - Tc/Th)", diagnosis: "RED_VIOLATION", actions: ["audit temperatures in K"]}
+  failure_modes: []
+  corrective_levers: []
+  diagnostic_trace: {root_question: "Is eta <= Carnot?", path_taken: ["RED: 2nd law"], terminal_diagnosis: "SUCCESS"}

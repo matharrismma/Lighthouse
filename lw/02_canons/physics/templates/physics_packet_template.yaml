@@ -1,0 +1,89 @@
+# Physics Packet Template (v1.0)
+
+PHYS_SETUP:
+  problem_type: "diagnosis"  # measurement|prediction|design|diagnosis|simulation
+  system:
+    description: ""
+    scope: ""           # e.g., classical_mechanics
+    boundaries:
+      closed_system: false
+      environment: []
+  objects: []            # list of {name,type,value,units,meaning}
+  assumptions:
+    - "scripture_anchor: Jeremiah 33:25"
+  initial_conditions: {} # include units
+  objective:
+    statement: ""
+    success_metric: ""
+
+PHYS_CONSTRAINTS:
+  RED:
+    conservation:
+      mass_energy: {required: true, notes: ""}
+      charge: {required: false, notes: ""}
+      momentum_angular_momentum: {required: true, notes: ""}
+    causality:
+      temporal_ordering_verified: true
+      no_effect_without_mechanism: true
+    quantization:
+      applicable: false
+      notes: ""
+    relativity:
+      c_limit_respected: true
+      notes: ""
+    dimensional_consistency:
+      required: true
+      verified: false
+
+  FLOOR:
+    reference_constants: {}   # constants with {value, units?, source, uncertainty}
+    validity_bounds:
+      regime_of_validity: []
+    measurement_bounds:
+      calibration_required: true
+      uncertainty_reporting_required: true
+      orthogonality_required: true
+
+PHYS_MODEL:
+  ontology:
+    frozen_nouns_in_play: []
+  regime:
+    domain: ""
+    approximations: []
+  governing_equations: []
+  boundary_conditions: []
+  invariants_and_checks: []
+
+PHYS_MEASUREMENTS:
+  observables: []
+  instruments_and_assays: []
+  calibration:
+    required: true
+    methods: []
+  uncertainty:
+    propagation_method: "analytical"
+    sources: []
+    final_uncertainty: {CI_95_lower: null, CI_95_upper: null, CV_percent: null}
+  replication:
+    repeats: {n_trials: 3, n_cycles_per_trial: 1}
+  orthogonality:
+    rule: "Decision-grade claims require ≥2 independent measurement principles"
+    orthogonal_assays_used: []
+    concordance: {qualitative_agreement: false, quantitative_correlation: null}
+
+PHYS_EXECUTION:
+  control_levers: []
+  computational_execution:
+    solver: ""
+    timestep_policy: ""
+    stability_checks: []
+    units_check: true
+
+PHYS_DIAGNOSTICS:
+  truth_table_triggers: []
+  failure_modes: []
+  corrective_levers: []
+  diagnostic_trace:
+    root_question: ""
+    path_taken: []
+    terminal_diagnosis: ""

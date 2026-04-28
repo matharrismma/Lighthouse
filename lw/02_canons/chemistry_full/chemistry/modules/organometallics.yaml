@@ -1,0 +1,47 @@
+module: organometallics
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: 'Describe organometallic bonding/steps and catalytic cycles: OA/RE, migratory insertion, beta-hydride elimination,
+    ligand effects.'
+  includes:
+  - oxidative addition
+  - reductive elimination
+  - migratory insertion
+  - ligand electronics/sterics
+  - electron counting (basic)
+  excludes:
+  - full quantum calculations and detailed spectroscopic assignment
+frozen_nouns_extensions:
+- noun: OXIDATIVE_ADDITION
+  meaning: "Metal oxidation state and coordination increase; adds X\u2013Y across metal center."
+- noun: REDUCTIVE_ELIMINATION
+  meaning: "Reverse of oxidative addition; forms X\u2013Y and reduces metal center."
+red_constraints:
+- Electron counting must be internally consistent with chosen convention.
+- Proposed cycle must conserve atoms overall and respect plausible oxidation states for metal/ligands.
+floor_checks:
+- State metal, oxidation state, coordination number, and ligand set.
+- Flag sensitive/air-free handling safety when relevant.
+way_methods:
+- Use common mechanistic motifs; justify with known ligand effects (strong-field, bulky ligands, etc.).
+execution:
+  inputs:
+  - proposed_cycle_steps
+  - metal_ligand_set
+  - observations_if_any
+  steps:
+  - List elementary steps (OA/RE/insertion/elimination) with intermediates.
+  - Perform electron counting per intermediate (18e rule heuristics where applicable).
+  - 'Check redox consistency: oxidation state changes match step type.'
+  - Identify likely turnover-limiting step candidates based on sterics/electronics and known trends.
+  - Output a clean cycle summary and testable predictions (rate dependence, intermediate detectability).
+  outputs:
+  - cycle_summary
+  - electron_counts
+  - oxidation_states
+  - testable_predictions
+diagnostics:
+  electron_count_incoherent:
+    signal: Electron counts vary inconsistently with steps.
+    fix: Reassign oxidation states/ligand type; check counting convention.

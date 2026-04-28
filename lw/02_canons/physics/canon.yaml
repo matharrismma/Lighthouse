@@ -1,0 +1,52 @@
+domain: physics
+canon:
+  name: "Concordance Canon — Physics Domain Theory"
+  version: "1.0"
+  status: "CANONICAL_TECHNICAL_DOCUMENT"
+  release_date: "2026-02-08"
+  authority: "Master Architect design constraints"
+  hierarchy: [RED, FLOOR, WAY, Execution]
+
+entrypoints:
+  core: "core/physics_core.yaml"
+  schema: "schema/physics_schema.yaml"
+  packet_template: "templates/physics_packet_template.yaml"
+
+module_registry:
+  - id: classical_mechanics
+    path: "modules/classical_mechanics.yaml"
+    status: CANONICAL
+    triggers: ["force", "newton", "lagrangian", "hamiltonian", "pendulum", "orbit", "rigid body"]
+
+  - id: electromagnetism
+    path: "modules/electromagnetism.yaml"
+    status: CANONICAL
+    triggers: ["electric field", "magnetic field", "maxwell", "circuit", "RLC", "gauss", "faraday"]
+
+  - id: thermodynamics
+    path: "modules/thermodynamics.yaml"
+    status: CANONICAL
+    triggers: ["entropy", "heat engine", "carnot", "free energy", "exergy", "phase"]
+
+  - id: waves_optics
+    path: "modules/waves_optics.yaml"
+    status: CANONICAL
+    triggers: ["wave", "diffraction", "interference", "optics", "fourier", "dispersion", "nyquist"]
+
+  - id: quantum_mechanics
+    path: "modules/quantum_mechanics.yaml"
+    status: CANONICAL
+    triggers: ["hbar", "schrodinger", "tunneling", "wavefunction", "operator", "spin", "spectra"]
+
+  - id: statistical_mechanics
+    path: "modules/statistical_mechanics.yaml"
+    status: CANONICAL
+    triggers: ["partition function", "ensemble", "boltzmann", "fluctuation", "thermodynamic limit"]
+
+  - id: special_relativity
+    path: "modules/special_relativity.yaml"
+    status: CANONICAL
+    triggers: ["lorentz", "gamma", "time dilation", "length contraction", "four-vector", "spacetime"]
+
+validation_gates: [RED, FLOOR, BROTHERS, GOD]
+validation_tool: "tools/validator_physics.py"

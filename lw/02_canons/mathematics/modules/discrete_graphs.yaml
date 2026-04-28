@@ -1,0 +1,28 @@
+module: discrete_graphs
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  graph: "vertices + edges (directed/undirected, weighted)"
+  tree: "connected acyclic graph"
+  DAG: "directed acyclic graph"
+  path_cycle: "walk without repeats / closed walk"
+
+red_constraints:
+  - "adjacency and incidence must be consistently defined"
+  - "coloring/chromatic number claims require proper coloring definition"
+
+floor_bounds:
+  - "complexity class stated (P vs NP-complete)"
+  - "small instances verifiable by hand"
+
+way_methods:
+  traversal: ["DFS", "BFS", "shortest path (Dijkstra, Bellman-Ford)"]
+  optimization: ["min-cut", "max-flow", "TSP", "matching"]
+  structural: ["planarity test", "spectral methods"]
+
+truth_tables:
+  - id: np_claim_on_p_problem
+    if: "problem_claimed_np_hard == true AND known_polynomial_algorithm_exists == true"
+    diagnosis: "COMPLEXITY_MISCLASSIFICATION"
+    actions: ["cite polynomial algorithm", "correct classification"]

@@ -1,0 +1,30 @@
+module: thermodynamics
+version: "1.0"
+status: CANONICAL
+
+definition: "Energy, entropy, work/heat, and efficiency bounds for macroscopic systems."
+
+frozen_nouns_in_play: [STATE, INVARIANT, MEASUREMENT, SCALE]
+
+red_constraints:
+  - "First Law: ΔU = Q - W (with sign convention declared)"
+  - "Second Law: ΔS_universe ≥ 0"
+
+floor_bounds:
+  - "Property data (Cp, ΔHf, EOS params) must cite source/uncertainty"
+  - "Equilibrium assumptions must be stated (local vs global)"
+
+way_methods:
+  engines:
+    - carnot: "η_max = 1 - Tc/Th"
+  free_energy:
+    - helmholtz: "A = U - TS"
+    - gibbs: "G = H - TS"
+  exergy:
+    - definition: "maximum useful work relative to environment"
+
+truth_tables:
+  - id: claimed_efficiency_exceeds_carnot
+    if: "eta_claimed > (1 - Tc/Th)"
+    diagnosis: "RED_VIOLATION_OR_TEMPERATURE_MIS-SPEC"
+    actions: ["verify temperature units (K)", "recompute Th,Tc", "audit heat/work sign convention"]

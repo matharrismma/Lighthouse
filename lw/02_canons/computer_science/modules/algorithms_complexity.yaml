@@ -1,0 +1,37 @@
+module: algorithms_complexity
+version: "1.0"
+status: CANONICAL
+
+definition: "Analysis of algorithm resource usage as a function of input size."
+
+frozen_nouns_in_play: [ALGORITHM, COMPLEXITY, INVARIANT]
+
+red_constraints:
+  - "Input variable n must be defined before stating any O/Omega/Theta bound."
+  - "Claims of optimality (Omega lower bound) require a proof, not just matching upper bound."
+
+floor_bounds:
+  - "State whether bound is worst-case, average-case, or best-case."
+  - "Amortized analysis must specify the potential function or accounting method."
+
+way_methods:
+  recurrences:
+    - master_theorem: "T(n) = aT(n/b) + f(n) — three cases"
+    - substitution: "Guess and verify; prove by induction"
+    - recursion_tree: "Sum contributions level by level"
+  loop_analysis:
+    - count_iterations: "Express iteration count as function of n"
+    - identify_dominant_term: "Drop lower-order terms and constants"
+  lower_bounds:
+    - adversary_argument: "Show any algorithm can be forced to take Omega steps"
+    - reduction: "If B reduces to A in O(f), then A is at least as hard as B"
+
+truth_tables:
+  - id: missing_input_variable
+    if: "complexity_claim_present == true AND input_variable_defined == false"
+    diagnosis: "COMPLEXITY_UNDERSPECIFIED"
+    actions: ["Define n explicitly", "State what the input size measures"]
+  - id: optimality_without_proof
+    if: "optimality_claimed == true AND lower_bound_proven == false"
+    diagnosis: "UNPROVEN_OPTIMALITY"
+    actions: ["Prove Omega lower bound", "Cite known result with reference"]

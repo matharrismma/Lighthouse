@@ -1,0 +1,61 @@
+module: redox_electrochemistry_canon
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Compute redox feasibility and potentials; Nernst equation; Pourbaix (E-pH) logic; kinetic overpotential concepts.
+  includes:
+  - balancing redox half-reactions
+  - Ecell
+  - "\u0394G from E"
+  - Nernst corrections
+  - Pourbaix boundaries
+  - Butler-Volmer qualitative checks
+  excludes:
+  - full electrode kinetics fitting and transport coupling (extendable)
+frozen_nouns_extensions:
+- noun: NERNST_EQUATION
+  meaning: "E = E\xB0 - (RT/nF) ln Q (activities)."
+- noun: OVERPOTENTIAL
+  meaning: "\u03B7 = E_applied - E_eq; driving force for kinetics."
+- noun: POURBAIX_DIAGRAM
+  meaning: "Stability map of species/solids in E\u2013pH space based on thermodynamics."
+red_constraints:
+- Electron balance required; n must match half-reaction stoichiometry.
+- E derived from activities; concentration substitution must be stated.
+- "\u0394G = -n F E for cell reaction as written."
+floor_checks:
+- "Declare reference for E\xB0 (SHE) and temperature."
+- 'Check sign: spontaneous galvanic cell has Ecell > 0 under operating conditions.'
+- State phase and activities.
+way_methods:
+- Use half-reaction method with explicit medium (acidic/basic).
+- For Pourbaix, use line equations derived from Nernst and equilibrium constants.
+execution:
+  inputs:
+  - half_reactions_or_overall
+  - standard_potentials
+  - activities_or_concentrations
+  - temperature_K
+  - pH_if_applicable
+  steps:
+  - Balance half-reactions (atoms and charge) in stated medium (acidic/basic).
+  - Combine half-reactions to overall cell reaction; determine n electrons transferred.
+  - "Compute E\xB0cell = E\xB0cathode - E\xB0anode (consistent reference)."
+  - Compute reaction quotient Q in activities for the overall reaction.
+  - "Compute operating potential via Nernst: E = E\xB0 - (RT/nF) ln Q."
+  - "If asked for \u0394G: compute \u0394G = -n F E (and \u0394G\xB0 = -n F E\xB0)."
+  - 'For Pourbaix boundaries: derive E(pH) lines for relevant equilibria; note stability domains qualitatively.'
+  outputs:
+  - balanced_reaction
+  - n
+  - "E\xB0cell"
+  - E_operating
+  - "\u0394G_if_requested"
+  - Pourbaix_line_equations_if_requested
+diagnostics:
+  sign_error:
+    signal: Computed spontaneity contradicts E sign.
+    fix: Check anode/cathode assignment and reaction direction.
+  activity_needed:
+    signal: High ionic strength or concentrated electrolytes but using concentrations.
+    fix: Apply activity corrections.

@@ -1,0 +1,34 @@
+{
+  "domain": "mathematics",
+  "id": "math-verify-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "MATH_RED": {
+    "well_formedness": {
+      "symbols_defined": true,
+      "quantifiers_scoped": true,
+      "domains_declared": true
+    },
+    "type_safety": {
+      "objects_typed": true,
+      "operations_valid": true
+    },
+    "definitional_integrity": {
+      "no_circular_definitions": true
+    },
+    "inference_integrity": {
+      "rules_named": true,
+      "steps_justified": true
+    }
+  },
+  "artifacts": {
+    "derivation": "expanded by hand"
+  },
+  "MATH_VERIFY": {
+    "expr_a": "(x+1)**2",
+    "expr_b": "x**2 + 2*x + 1",
+    "variables": ["x"]
+  }
+}

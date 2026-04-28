@@ -1,0 +1,32 @@
+schema: cs_packet
+version: "1.0"
+
+required_fields:
+  - domain: "computer_science"
+  - algorithm_name: string
+  - input_domain: string
+  - output_domain: string
+
+optional_structured:
+  CS_RED:
+    termination_proven: bool
+    complexity_variable_defined: bool
+    no_undefined_behavior: bool
+    reduction_direction_stated: bool
+    encoding_bijectivity_stated: bool
+    formal_model_specified: bool
+    consistency_model_cited: bool
+
+  CS_FLOOR:
+    input_output_declared: bool
+    case_analysis_stated: bool       # best/worst/average
+    space_complexity_stated: bool
+    proof_technique_named: bool
+    fault_model_declared: bool       # for distributed systems
+    memory_model_cited: bool         # for concurrent systems
+
+  CS_COMPLEXITY:
+    time_bound: string               # e.g. "O(n log n) worst case"
+    space_bound: string
+    input_variable: string           # what n represents
+    case: string                     # worst/average/best/amortized

@@ -1,0 +1,53 @@
+module:
+  id: evolution_ecology
+  name: Evolution + Ecology — Selection, Drift, Populations, Carrying Capacity
+  version: '1.0'
+  status: CANONICAL
+  authority_inheritance:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+ontology:
+  population:
+    state:
+    - allele_frequencies
+    - population_size
+    - structure
+  ecology:
+    resources:
+    - energy
+    - nutrients
+    - habitat
+    interactions:
+    - competition
+    - predation
+    - mutualism
+way:
+  selection_lane:
+    rule: fitness differences shift allele frequencies; effect depends on Ne and environment
+  drift_lane:
+    rule: finite populations drift; variance ~ 1/(2Ne)
+  carrying_capacity_lane:
+    rule: growth bounded by resources; logistic-like constraints common
+diagnostics:
+- id: trait_increases_then_reverses
+  trigger: trait_rise_then_fall == true
+  diagnosis: ENVIRONMENT_SHIFT_OR_FITNESS_TRADEOFF
+  action:
+  - measure environment variables
+  - check costs
+  - model frequency dependence
+- id: intervention_works_in_lab_not_field
+  trigger: lab_success_field_fail == true
+  diagnosis: ECOLOGICAL_CONTEXT_MISMATCH
+  action:
+  - include competition/predation
+  - test across environments
+  - model carrying capacity
+interfaces:
+  ENG_DEPLOYMENT:
+    fields:
+    - field_trials
+    - deployment_risk
+    - monitoring_plan

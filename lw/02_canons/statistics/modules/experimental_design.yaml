@@ -1,0 +1,80 @@
+module: experimental_design
+version: "1.0"
+status: CANONICAL
+parent: statistics
+
+scope: >
+  The design phase is where the inference is born or killed. A study with
+  inadequate power, biased sampling, or no randomization cannot be rescued
+  by analysis. Design decisions belong to RED and FLOOR before any data
+  are collected.
+
+frozen_nouns:
+  - {noun: TARGET_POPULATION, meaning: "The set of units to which inference is intended"}
+  - {noun: SAMPLING_FRAME, meaning: "The accessible set from which the sample is drawn"}
+  - {noun: RANDOMIZATION, meaning: "Stochastic assignment to treatment that breaks confounding"}
+  - {noun: BLINDING, meaning: "Concealment of treatment from participant, experimenter, or analyst"}
+  - {noun: POWER, meaning: "P(reject H0 | H1 true) at a specified effect size"}
+  - {noun: MDE, meaning: "Minimum detectable effect: smallest effect the design has adequate power to find"}
+  - {noun: SAMPLE_SIZE, meaning: "Number of independent units; design effect required for clustered samples"}
+
+red_constraints:
+  - "The target population must be defined before sampling begins. Convenience samples must be labeled as such; inference to a defined population requires probability sampling or a defended ignorability assumption."
+  - "Sample size cannot be set after data are seen. Power-based or pre-registered."
+  - "Randomization, when used, must be auditable: random seed, allocation log, blinding scheme."
+  - "Stopping rules must be pre-specified. Optional stopping inflates type I error."
+  - "Treatment assignment that depends on the outcome (selection bias) destroys causal inference."
+
+floor_layer_bounds:
+  - "State the sampling mechanism: SRS / stratified / cluster / multistage / convenience / volunteer."
+  - "State the unit of randomization (individual, cluster, period) and the unit of analysis. Mismatch must be modeled."
+  - "Power analysis: state the assumed effect size, alpha, beta, and the resulting n. Reference the source of the effect-size estimate (pilot, prior literature, MCID)."
+  - "State blinding and allocation concealment, or document why neither was feasible."
+  - "For longitudinal designs, declare attrition handling (intention-to-treat vs per-protocol)."
+
+way_layer_methods:
+  randomized:
+    - simple_randomization: "Coin-flip per unit; valid for large n."
+    - blocked_randomization: "Balances treatment within blocks; useful for moderate n."
+    - stratified_randomization: "Balances on prognostic covariates; reduces variance."
+    - cluster_randomization: "Randomize groups; analyze with mixed model or GEE."
+
+  observational:
+    - matching: "Reduces covariate imbalance; specify caliper and replacement."
+    - propensity_score: "Conditioning on P(T|X); valid under no-unmeasured-confounders."
+    - regression_adjustment: "Parametric assumption load; robust to mild misspecification only."
+    - difference_in_differences: "Requires parallel trends; test pre-treatment."
+
+  quasi_experimental:
+    - regression_discontinuity: "Local randomization at threshold; bandwidth choice critical."
+    - instrumental_variable: "Requires relevance, exclusion, monotonicity."
+    - interrupted_time_series: "Counterfactual is pre-period extrapolation; level vs slope changes."
+
+diagnostics:
+  population:
+    question: "Is the target population defined?"
+    if_no:
+      diagnosis: "TARGET_UNDEFINED"
+      action: "Specify the population to which inference is intended; align sampling to it."
+    if_yes: "proceed_to_sampling"
+
+  sampling:
+    question: "Is the sampling mechanism stated?"
+    if_no:
+      diagnosis: "SAMPLING_MISMATCH"
+      action: "Declare SRS / stratified / cluster / convenience and assess selection bias."
+    if_yes: "proceed_to_power"
+
+  power:
+    question: "Is the sample size justified by power analysis or pre-registration?"
+    if_no:
+      diagnosis: "UNDERPOWERED_RISK"
+      action: "Compute power for the MDE; or pre-register a non-inference exploratory design."
+
+scripture_anchors:
+  - theme: "Counting the cost before building"
+    reference: "Luke 14:28"
+  - theme: "Two or three witnesses (replication)"
+    reference: "Deuteronomy 19:15"
+  - theme: "Honest weights"
+    reference: "Proverbs 11:1"

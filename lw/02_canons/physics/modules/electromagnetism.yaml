@@ -1,0 +1,35 @@
+module: electromagnetism
+version: "1.0"
+status: CANONICAL
+
+definition: "Fields and charges governed by Maxwell's equations; circuits as lumped approximations."
+
+frozen_nouns_in_play: [FIELD, OBJECT, STATE, DYNAMICS, INVARIANT, MEASUREMENT, SPACETIME]
+
+red_constraints:
+  - "Charge conservation (continuity equation)"
+  - "No superluminal signal propagation (c-limit)"
+
+floor_bounds:
+  - "Material parameters (ε, μ, σ) must cite source/uncertainty"
+  - "Lumped circuit assumption requires size << wavelength"
+
+way_methods:
+  equations:
+    - gauss_e: "∇·E = ρ/ε"
+    - gauss_b: "∇·B = 0"
+    - faraday: "∇×E = -∂B/∂t"
+    - ampere_maxwell: "∇×B = μJ + με ∂E/∂t"
+  circuit_models:
+    - rlc: "L dI/dt + R I + (1/C)∫I dt = V(t)"
+
+diagnostic_inserts:
+  - trigger: "orthogonal_methods_disagree"
+    diagnosis: "MEASUREMENT_ARTIFACT"
+    action: "add independent probe (Hall vs pickup coil vs oscilloscope)"
+
+truth_tables:
+  - id: lumped_invalid
+    if: "circuit_size_comparable_to_wavelength == true"
+    diagnosis: "LUMPED_MODEL_INVALID"
+    actions: ["use distributed transmission line model", "solve Maxwell boundary value problem"]

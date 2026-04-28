@@ -1,0 +1,80 @@
+module: regression
+version: "1.0"
+status: CANONICAL
+parent: statistics
+
+scope: >
+  Regression models are the workhorse of applied statistics. Their power
+  is also their failure mode: they will produce a coefficient even when
+  the model is wrong. Variable roles, assumptions, and diagnostics
+  determine whether the coefficient means anything.
+
+frozen_nouns:
+  - {noun: PREDICTOR, meaning: "Independent variable used to explain or predict the outcome"}
+  - {noun: OUTCOME, meaning: "Dependent variable; the response being modeled"}
+  - {noun: CONFOUNDER, meaning: "Variable causally affecting both predictor of interest and outcome; must be controlled for causal claims"}
+  - {noun: MEDIATOR, meaning: "Variable on the causal path between predictor and outcome; controlling it blocks the effect being studied"}
+  - {noun: MODERATOR, meaning: "Variable that changes the magnitude or direction of the predictor-outcome relationship; modeled as interaction"}
+  - {noun: COLLIDER, meaning: "Variable causally affected by both predictor and outcome; controlling it induces spurious association"}
+  - {noun: RESIDUAL, meaning: "Observed minus predicted; diagnostic for assumption violations"}
+
+red_constraints:
+  - "Variable roles must be declared before modeling: which are predictors of interest, confounders, mediators, moderators, colliders."
+  - "Adjustment sets must respect causal structure. Including a collider creates bias; including a mediator removes the indirect effect; both are RED if the goal is total causal effect."
+  - "Linearity, additivity, and link-function assumptions must be matched to the data type (linear / logistic / Poisson / Cox / etc.)."
+  - "Independence of residuals must be honored: clustered or longitudinal data require mixed models, GEE, or robust SEs."
+  - "Reporting only the coefficient on the variable of interest while controlling for many others (Table 2 fallacy) is RED if the controls are interpreted causally without their own adjustment sets."
+
+floor_layer_bounds:
+  - "State the model class (OLS, GLM with link, GAM, mixed-effects, Cox, quantile, etc.)."
+  - "State the link function and family for GLMs."
+  - "Run residual diagnostics: linearity, homoscedasticity, normality (where assumed), influence."
+  - "Report coefficient with standard error and 95% CI; report effect size on the response scale (e.g., odds ratio, risk difference)."
+  - "For interaction terms, report main effects and the interaction; interpret on the response scale."
+  - "Report missing-data handling (complete case, multiple imputation, FIML) and its assumption."
+
+way_layer_methods:
+  - "OLS: continuous outcome, linear+homoscedastic+normal residuals."
+  - "Logistic GLM: binary outcome; report ORs with caution as effect sizes (non-collapsibility)."
+  - "Poisson / negative binomial: counts; check overdispersion."
+  - "Cox proportional hazards: time-to-event with proportional hazards; test PH assumption."
+  - "Mixed-effects: clustered/longitudinal data; specify random effects structure."
+  - "GAM: nonlinear smooths; specify basis and effective degrees of freedom."
+  - "Robust SEs (HC0-HC4, sandwich): heteroscedasticity-consistent inference."
+  - "Bootstrap: any model where analytic SEs are doubtful."
+
+diagnostics:
+  variable_roles:
+    question: "Are variable roles declared (predictor / confounder / mediator / collider)?"
+    if_no:
+      diagnosis: "ROLES_UNSTATED"
+      action: "Draw a DAG; classify each covariate; build adjustment set from the DAG."
+    if_yes: "proceed_to_assumptions"
+
+  assumptions:
+    question: "Are model assumptions appropriate to the data and tested?"
+    if_no:
+      diagnosis: "ASSUMPTION_UNSTATED"
+      action: "Run residual / link / dispersion / proportionality diagnostics; switch model or use robust method."
+    if_yes: "proceed_to_independence"
+
+  independence:
+    question: "Is residual independence honored (or modeled if violated)?"
+    if_no:
+      diagnosis: "INDEPENDENCE_VIOLATED"
+      action: "Use mixed model, GEE, cluster-robust SE, or time-series specification."
+    if_yes: "proceed_to_reporting"
+
+  reporting:
+    question: "Are coefficients reported with effect size on the response scale plus CI?"
+    if_no:
+      diagnosis: "REPORTING_INCOMPLETE"
+      action: "Report point estimate, SE, 95% CI, and a response-scale effect size (RD, OR, HR, etc.)."
+
+scripture_anchors:
+  - theme: "Honest weights"
+    reference: "Proverbs 11:1"
+  - theme: "Each in its kind (model class matched to data type)"
+    reference: "Genesis 1:11-12"
+  - theme: "Hidden things made known (residual diagnostics)"
+    reference: "Luke 8:17"

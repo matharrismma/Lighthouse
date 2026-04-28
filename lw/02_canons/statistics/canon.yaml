@@ -1,0 +1,31 @@
+domain: statistics
+version: "1.0"
+status: CANONICAL
+authority: "Master Concordance Registry v1.0"
+
+install_order: [canon, schema, core, templates, modules, tools]
+
+frozen_nouns:
+  - POPULATION
+  - SAMPLE
+  - ESTIMATOR
+  - DISTRIBUTION
+  - HYPOTHESIS
+  - CONFIDENCE
+  - LIKELIHOOD
+  - EFFECT_SIZE
+  - POWER
+  - CONFOUNDER
+
+modules:
+  - descriptive
+  - probability
+  - inference
+  - regression
+  - experimental_design
+  - bayesian
+  - causal_inference
+  - multiple_testing
+
+red_gate: "statistics_core.yaml red_constraints"
+floor_gate: "statistics_core.yaml floor_layer_bounds"

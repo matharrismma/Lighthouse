@@ -1,0 +1,47 @@
+domain: mathematics
+canon:
+  name: "Concordance Canon — Mathematics Domain Theory"
+  version: "1.0"
+  status: "CANONICAL_TECHNICAL_DOCUMENT"
+  release_date: "2026-02-07"
+  authority: "Master Architect design constraints"
+  hierarchy: [RED, FLOOR, WAY, Execution]
+
+entrypoints:
+  core: "core/mathematics_core.yaml"
+  schema: "schema/mathematics_schema.yaml"
+  packet_template: "templates/math_packet_template.yaml"
+  proof_checklist: "templates/proof_checklist.yaml"
+
+module_registry:
+  - id: logic_proof
+    path: "modules/logic_proof.yaml"
+    status: CANONICAL
+    triggers: ["proof", "theorem", "lemma", "logic", "quantifier", "contradiction", "induction"]
+  - id: geometry_topology
+    path: "modules/geometry_topology.yaml"
+    status: CANONICAL
+    triggers: ["geometry", "manifold", "topology", "homeomorphism", "metric", "curvature"]
+  - id: linear_algebra
+    path: "modules/linear_algebra.yaml"
+    status: CANONICAL
+    triggers: ["matrix", "vector", "eigen", "svd", "rank", "linear map"]
+  - id: analysis_calculus
+    path: "modules/analysis_calculus.yaml"
+    status: CANONICAL
+    triggers: ["limit", "derivative", "integral", "series", "measure", "convergence", "pde", "ode"]
+  - id: probability_statistics
+    path: "modules/probability_statistics.yaml"
+    status: CANONICAL
+    triggers: ["probability", "distribution", "bayes", "likelihood", "variance", "confidence", "p-value"]
+  - id: optimization
+    path: "modules/optimization.yaml"
+    status: CANONICAL
+    triggers: ["optimize", "minimize", "maximize", "convex", "kkt", "gradient", "dual"]
+  - id: discrete_graphs
+    path: "modules/discrete_graphs.yaml"
+    status: CANONICAL
+    triggers: ["graph", "tree", "dag", "path", "np", "complexity", "flow", "matching"]
+
+validation_gates: [RED, FLOOR, BROTHERS, GOD]
+validation_tool: "tools/validator_mathematics.py"

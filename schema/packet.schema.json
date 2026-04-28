@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Concordance Engine Packet Schema (v1.0 — engine-aligned)",
+  "description": "Describes the packet shape the engine actually validates. The original long-form schema (packet_type, provenance, claims with claim_id/kind, constraints, hash) is preserved at packet.schema.aspirational.json as a forward design target; it is not the contract the CLI runs against. Update this file when domain validators add new fields.",
+  "type": "object",
+  "required": ["domain"],
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "Routes the packet to a domain validator. Unknown domains pass with a 'no validator registered' note.",
+      "enum": [
+        "mathematics",
+        "physics",
+        "chemistry",
+        "biology",
+        "computer_science",
+        "cs",
+        "statistics",
+        "governance",
+        "business",
+        "household",
+        "education",
+        "church"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "description": "Optional packet identifier. Not enforced by the engine."
+    },
+    "scope": {
+      "type": "string",
+      "description": "Determines the GOD-gate wait window.",
+      "enum": ["adapter", "mesh", "canon"],
+      "default": "adapter"
+    },
+    "created_epoch": {
+      "type": "integer",
+      "description": "Unix epoch seconds when the packet was created. Required for the GOD gate; missing or zero quarantines.",
+      "minimum": 0
+    },
+    "required_witnesses": {
+      "type": "integer",
+      "description": "BROTHERS-gate threshold. 0 disables the witness check.",
+      "minimum": 0,
+      "default": 0
+    },
+    "witness_count": {
+      "type": "integer",
+      "description": "Affirming witnesses present at evaluation time.",
+      "minimum": 0,
+      "default": 0
+    },
+    "text": {
+      "type": "string",
+      "description": "Plain-text decision description. Used by the governance/business/household/education/church validators."
+    },
+    "description": {
+      "type": "string",
+      "description": "Alias for 'text' accepted by the governance validator."
+    },
+    "claims": {
+      "type": "array",
+      "description": "Fallback claims list used when domain-specific RED/FLOOR blocks are absent. Items may be strings or {subject, predicate} dicts.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "subject": { "type": "string" },
+              "predicate": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        ]
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Fallback artifacts map used when domain-specific FLOOR blocks are absent.",
+      "additionalProperties": true
+    },
+    "diagnostics": {
+      "type": "array",
+      "description": "Diagnostic chain entries consumed by domain validators (chemistry, CS, statistics).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "signal": { "type": "string" },
+          "diagnosis": { "type": "string" },
+          "action": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+
+    "MATH_RED": { "type": "object", "additionalProperties": true },
+    "MATH_FLOOR": { "type": "object", "additionalProperties": true },
+    "MATH_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for mathematics. Recognized fields: expr_a/expr_b/variables (symbolic equality); function/variable/claimed_derivative; integrand/variable/claimed_antiderivative; function/variable/point/claimed_limit; equation/variable/claimed_solutions.",
+      "additionalProperties": true
+    },
+
+    "PHYS_CONSERVATION": { "type": "object", "additionalProperties": true },
+    "PHYS_FLOOR": { "type": "object", "additionalProperties": true },
+    "PHYS_CONSTRAINTS": { "type": "object", "additionalProperties": true },
+    "PHYS_MEASUREMENTS": { "type": "object", "additionalProperties": true },
+    "PHYS_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for physics. Recognized fields: equation/symbols (dimensional consistency); before/after/tolerance_relative/tolerance_absolute (conservation arithmetic).",
+      "additionalProperties": true
+    },
+    "conservation_checks": { "type": "object", "additionalProperties": true },
+    "units": { "type": "string", "description": "Unit system declaration (e.g. 'SI'). Satisfies physics FLOOR." },
+
+    "CHEM_SETUP": { "type": "object", "additionalProperties": true },
+    "CHEM_RED": { "type": "object", "additionalProperties": true },
+    "CHEM_FLOOR": { "type": "object", "additionalProperties": true },
+    "CHEM_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for chemistry. Recognized fields: equation (atom/charge balance); temperature_K (positive absolute temperature).",
+      "additionalProperties": true
+    },
+    "regime": { "type": "object", "additionalProperties": true },
+
+    "BIO_RED": { "type": "object", "additionalProperties": true },
+    "BIO_FLOOR": { "type": "object", "additionalProperties": true },
+    "BIO_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for biology. Recognized fields: n_replicates / min_replicates; assay_classes / min_assay_classes; dose_response (doses, responses, expected_direction); power_analysis (effect_size, alpha, n_per_group, target_power).",
+      "additionalProperties": true
+    },
+
+    "CS_RED": { "type": "object", "additionalProperties": true },
+    "CS_FLOOR": { "type": "object", "additionalProperties": true },
+    "CS_COMPLEXITY": { "type": "object", "additionalProperties": true },
+    "CS_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for computer science. Recognized fields: code (Python source); function_name; test_cases; input_generator; claimed_class; sizes; tolerance.",
+      "additionalProperties": true
+    },
+
+    "STAT_RED": { "type": "object", "additionalProperties": true },
+    "STAT_FLOOR": { "type": "object", "additionalProperties": true },
+    "STAT_INFERENCE": { "type": "object", "additionalProperties": true },
+    "STAT_VERIFY": {
+      "type": "object",
+      "description": "Computational verification artifacts for statistics. Recognized fields: test (two_sample_t/one_sample_t/z/chi2/f); test inputs (n, mean, sd, df, statistic); claimed_p; raw_p_values/method/claimed_rejected_indices; estimate/ci_low/ci_high.",
+      "additionalProperties": true
+    },
+
+    "DECISION_PACKET": {
+      "type": "object",
+      "description": "Structured governance / business / household / education / church decision packet. Verifier checks structural completeness (title, scope, red_items, floor_items, way_path, execution_steps, witnesses) and witness_count consistency. Content judgement remains human.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

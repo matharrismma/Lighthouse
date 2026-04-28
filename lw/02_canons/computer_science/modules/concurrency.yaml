@@ -1,0 +1,66 @@
+module: concurrency
+version: "1.0"
+status: CANONICAL
+parent: computer_science
+
+scope: >
+  Multi-threaded and multi-process correctness. Concurrency claims are
+  meaningless without a memory model; race-freedom and progress are
+  separate properties and both must be addressed.
+
+frozen_nouns:
+  - {noun: THREAD, meaning: "Independent execution context sharing address space"}
+  - {noun: RACE, meaning: "Two memory accesses, one a write, unordered by happens-before; undefined behavior in most memory models"}
+  - {noun: HAPPENS_BEFORE, meaning: "Partial order on memory operations defined by program order + synchronization"}
+  - {noun: ATOMIC, meaning: "Operation that appears indivisible to other threads"}
+  - {noun: LOCK, meaning: "Mutual-exclusion primitive; correctness requires deadlock-freedom and starvation analysis"}
+  - {noun: MEMORY_MODEL, meaning: "Specification of legal reorderings and visibility (sequential consistency, TSO, release-acquire, relaxed)"}
+  - {noun: PROGRESS, meaning: "Liveness property: wait-free, lock-free, obstruction-free are increasing strength"}
+
+red_constraints:
+  - "Concurrent claim requires memory model cited (sequential consistency, TSO, x86-TSO, ARMv8, release-acquire, C++11, Java)."
+  - "Data races are undefined behavior in C/C++/Rust/Java/Go memory models; must be ruled out, not assumed absent."
+  - "Lock-based code requires deadlock analysis: acquire order, hold-and-wait, no preemption, circular wait."
+  - "Lock-free claims require proof of progress class (wait-free / lock-free / obstruction-free); 'no locks used' is not the same as 'lock-free'."
+  - "Atomicity claims must specify the granularity (operation, transaction, critical section) and the boundary."
+
+floor_layer_bounds:
+  - "State the synchronization primitives used (mutex, condition variable, atomic, barrier, RCU)."
+  - "Specify whether the algorithm is bounded-wait or unbounded."
+  - "For lock-free structures, cite the correctness condition (linearizability, sequential consistency, serializability)."
+  - "For producer-consumer code, state buffering policy and bounded/unbounded queue semantics."
+
+way_layer_methods:
+  - "Lamport's bakery for software mutex without atomics."
+  - "Compare-and-swap (CAS) for lock-free single-word updates."
+  - "Hazard pointers or epoch-based reclamation for lock-free memory management."
+  - "RCU for read-mostly shared structures."
+  - "Linearization-point arguments for proving linearizability."
+  - "Model checking (TLA+, Spin) for finite-state concurrent protocols."
+
+diagnostics:
+  memory_model:
+    question: "Is the memory model cited?"
+    if_no:
+      diagnosis: "MEMORY_MODEL_UNCITED"
+      action: "Cite SC, TSO, release-acquire, x86, ARMv8, C++11, or Java memory model."
+    if_yes: "proceed_to_races"
+
+  race_check:
+    question: "Are data races ruled out?"
+    if_no:
+      diagnosis: "DATA_RACE_RISK"
+      action: "Add synchronization, use atomics, or apply ThreadSanitizer/RaceFreeDom proof."
+    if_yes: "proceed_to_progress"
+
+  progress_check:
+    question: "Is progress class stated and proven?"
+    if_no:
+      diagnosis: "PROGRESS_UNSPECIFIED"
+      action: "State wait-free / lock-free / obstruction-free and prove."
+
+scripture_anchors:
+  - theme: "Order in the household (no two doing the same task without coordination)"
+    reference: "1 Corinthians 14:40"
+  - theme: "Two or three witnesses (synchronization)"
+    reference: "Deuteronomy 19:15"

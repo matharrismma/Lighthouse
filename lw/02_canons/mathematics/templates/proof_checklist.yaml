@@ -1,0 +1,17 @@
+proof_checklist:
+  RED:
+    - "All symbols defined before use"
+    - "All quantifiers scoped with explicit domains"
+    - "All objects typed"
+    - "No circular definitions"
+    - "Each step cites a rule/theorem"
+  FLOOR:
+    - "All theorems used have hypotheses verified"
+    - "If numerical: tolerance declared; conditioning reported"
+    - "If interchange of limits/integrals: theorem + conditions stated"
+  WAY:
+    - "Proof strategy declared (direct/contradiction/induction/etc.)"
+    - "Key lemmas identified"
+  EXECUTION:
+    - "Final verification: goal statement exactly matched"
+    - "Edge cases checked"

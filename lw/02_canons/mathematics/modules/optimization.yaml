@@ -1,0 +1,28 @@
+module: optimization
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  objective: "function to minimize/maximize"
+  constraint: "equality or inequality restricting domain"
+  feasible_set: "region satisfying all constraints"
+  stationarity: "gradient zero or KKT conditions"
+
+red_constraints:
+  - "convex problems preserve global optimality of local minima"
+  - "constraint qualification required for Lagrange/KKT"
+
+floor_bounds:
+  - "duality gap reported when strong duality not guaranteed"
+  - "numerical tolerance on stationarity and feasibility"
+
+way_methods:
+  unconstrained: ["gradient descent", "Newton", "quasi-Newton"]
+  constrained: ["projected gradient", "interior point", "SQP", "augmented Lagrangian"]
+  convex: ["KKT", "dual ascent", "ADMM"]
+
+truth_tables:
+  - id: kkt_violation
+    if: "stationary_point_claimed == true AND kkt_conditions_unsatisfied == true"
+    diagnosis: "NOT_OPTIMAL_OR_INFEASIBLE"
+    actions: ["check constraint qualification", "tighten feasibility", "switch method"]

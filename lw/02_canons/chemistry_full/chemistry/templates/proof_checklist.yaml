@@ -1,0 +1,20 @@
+checklist: chemistry_proof_checklist
+version: "1.0"
+
+red:
+  - "Balanced reaction conserves atoms and charge."
+  - "All equations dimensionally consistent."
+  - "Thermodynamic relations use absolute temperature where required."
+  - "Equilibrium expressions written in activities (or approximation stated)."
+
+floor:
+  - "Units shown for every quantity; conversions shown for nontrivial steps."
+  - "Sign conventions declared (ΔG, ΔH, Ecell)."
+  - "Significant figures consistent with inputs."
+  - "Boundary conditions stated (closed/open; phase behavior)."
+  - "Safety constraints flagged when applicable."
+
+way:
+  - "Model choice justified (ideal vs nonideal; activity coefficients/fugacity if needed)."
+  - "Data source conditions match problem conditions (T, p, ionic strength)."
+  - "Limiting-case and magnitude sanity checks performed."

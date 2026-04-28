@@ -1,0 +1,56 @@
+# Biology Packet Template (v1.0)
+# Fill all required blocks. Optional blocks used for cross-domain composition.
+
+BIO_SETUP:
+  system: ""
+  boundaries:
+    compartments: []
+    spatial_scale: ""     # e.g., molecular/cell/tissue/organism/population
+    temporal_scale: ""    # e.g., seconds/minutes/hours/days/generations
+    fluxes_declared: false
+  context:
+    organism_or_celltype: ""
+    environment: ""
+  initial_conditions: {}
+
+BIO_CONSTRAINTS:
+  red_constraints:
+    - "mass/charge/energy conserved with explicit boundary fluxes"
+    - "stoichiometry holds"
+    - "ΔS_total >= 0 (entropy export required for local order)"
+  floor_bounds:
+    decision_grade_requirements:
+      controls: ["positive", "negative"]
+      replication:
+        biological_n_min: 3
+        technical_n_min: 2
+      uncertainty: "report mean ± 95% CI"
+
+BIO_MODEL:
+  ontology: []
+  mechanisms: []
+  regime: ""            # e.g., transport-limited / enzyme-limited / feedback-dominated
+  approximations: []
+
+BIO_MEASUREMENTS:
+  observables: []
+  assays: []
+  calibration: ""
+  uncertainty: ""
+  replication:
+    biological: 3
+    technical: 2
+  confounders: []
+  controls: []
+
+BIO_DIAGNOSTICS:
+  truth_table_triggers: []
+  failure_modes: []
+  corrective_levers: []
+  diagnostic_trace: []
+
+# Optional cross-domain blocks
+CHEM_CONTEXT: {}
+PHYS_CONSTRAINTS: {}
+ENG_DEPLOYMENT: {}
+MAT_CONTEXT: {}

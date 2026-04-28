@@ -1,0 +1,60 @@
+module: programming_languages
+version: "1.0"
+status: CANONICAL
+parent: computer_science
+
+scope: >
+  Type systems, semantics, and language design properties. A type system
+  is a load-bearing wall: it either prevents whole classes of error or it
+  doesn't, and the difference must be stated precisely.
+
+frozen_nouns:
+  - {noun: TYPE, meaning: "Set of values and the operations valid on them"}
+  - {noun: TYPE_SYSTEM, meaning: "Set of rules assigning types to expressions; characterized by soundness, completeness, decidability"}
+  - {noun: SOUNDNESS, meaning: "Well-typed programs do not go wrong (Milner): if expression e has type τ and e evaluates to v, then v has type τ"}
+  - {noun: SEMANTICS, meaning: "Mathematical meaning of program constructs (operational, denotational, axiomatic)"}
+  - {noun: PARAMETRICITY, meaning: "Polymorphic functions behave uniformly across types; restricts what they can do"}
+  - {noun: REFERENTIAL_TRANSPARENCY, meaning: "Equal expressions interchangeable in any context; broken by side effects"}
+  - {noun: EFFECT, meaning: "Computation beyond pure value production (IO, state, exception, nondeterminism)"}
+
+red_constraints:
+  - "Type-safety claim requires soundness theorem stated (progress + preservation, or equivalent)."
+  - "Memory-safety claim must distinguish spatial (bounds) from temporal (use-after-free) safety."
+  - "Undefined behavior (UB) in C/C++ semantics is a RED violation when present in production paths."
+  - "Functional purity claims forbid hidden effects (mutable global, exception, IO) without effect-system disclosure."
+  - "Decidability of type checking must be stated (decidable, semi-decidable, undecidable)."
+
+floor_layer_bounds:
+  - "State whether the type system is nominal or structural."
+  - "State whether subtyping is permitted; if so, state variance rules (covariant, contravariant, invariant)."
+  - "For polymorphism, state the form (parametric, ad-hoc, subtype, row)."
+  - "For effect-tracked languages, state the effect lattice and the algebra (commutative, idempotent)."
+  - "For dependent types, state which fragment (Π, Σ, identity types, universes)."
+
+way_layer_methods:
+  - "Progress + preservation for soundness proofs (Wright-Felleisen)."
+  - "Logical relations for parametricity and contextual equivalence."
+  - "Hindley-Milner for principal-type inference in let-polymorphic systems."
+  - "Bidirectional typing for systems with subtyping or dependent types."
+  - "Region-based or borrow-checked memory safety (Rust)."
+  - "Algebraic effects + handlers for tracked side effects."
+
+diagnostics:
+  ub_check:
+    question: "Is the language definition free of undefined behavior in the relevant fragment?"
+    if_no:
+      diagnosis: "UNDEFINED_BEHAVIOR_RISK"
+      action: "Use bounds checks, safe types, or migrate to a memory-safe language; document each UB instance and prove unreachable."
+    if_yes: "proceed_to_soundness"
+
+  soundness:
+    question: "Is the type system claimed sound, and is the proof cited?"
+    if_no:
+      diagnosis: "SOUNDNESS_UNVERIFIED"
+      action: "Cite progress + preservation proof; or state explicitly that the system is unsound and where."
+
+scripture_anchors:
+  - theme: "Faithful in little (correct typing prevents wider failure)"
+    reference: "Luke 16:10"
+  - theme: "No mixing of clean and unclean (effect tracking)"
+    reference: "Leviticus 11:47"

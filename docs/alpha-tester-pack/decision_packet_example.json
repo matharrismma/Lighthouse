@@ -1,0 +1,21 @@
+{
+  "_comment": "Worked example: weekly family budget review. Same logical decision used in training_set.json, but expanded with the fields validate_packet needs.",
+  "domain": "governance",
+  "title": "Adopt weekly family budget review",
+  "scope": "adapter",
+  "created_epoch": 1745712000,
+  "wait_window_seconds": 0,
+  "text": "We will hold a 30-minute family budget review every Sunday evening. Both spouses present. Prior week's transactions printed and compared against category targets. Adjustments for the coming week agreed in writing. We are doing this to prevent debt_increase and hidden_spending and to keep both_spouses_present and a written_record of household finances.",
+  "red_items": ["debt_increase", "hidden_spending"],
+  "floor_items": ["both_spouses_present", "written_record"],
+  "way_path": "Sunday evening, 30 minutes, both present, in writing, with quarterly review",
+  "execution_steps": [
+    "Print prior week's transactions from joint account",
+    "Compare actual spend to category targets",
+    "Agree adjustments for coming week",
+    "Log decisions in shared budget journal"
+  ],
+  "witnesses": ["Matt", "Spouse"],
+  "witness_count": 2,
+  "scripture_anchors": ["Proverbs 27:23"]
+}

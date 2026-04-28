@@ -1,0 +1,62 @@
+module:
+  id: molecular_cell
+  name: Molecular + Cell Biology — Compartments, Expression, Organelles
+  version: '1.0'
+  status: CANONICAL
+  authority_inheritance:
+  - RED
+  - FLOOR
+  - WAY
+  - Execution
+ontology:
+  cell:
+    compartments:
+    - membrane
+    - cytosol
+    - nucleus
+    - mitochondria
+    - ER
+    - Golgi
+    - lysosome
+    macromolecules:
+    - DNA
+    - RNA
+    - proteins
+    - lipids
+    - carbohydrates
+    processes:
+    - transcription
+    - translation
+    - trafficking
+    - turnover:
+      - proteasome
+      - autophagy
+way:
+  central_dogma_lane:
+    DNA_to_RNA_to_protein: true
+  compartment_lane:
+    rule: localization controls function; compartment is a causal variable
+  turnover_lane:
+    rule: steady-state abundance reflects synthesis and degradation
+diagnostics:
+- id: expression_change_no_protein_change
+  trigger: mRNA_up == true and protein_no_change == true
+  diagnosis: POST_TRANSCRIPTIONAL_CONTROL_OR_TURNOVER
+  action:
+  - measure translation rate
+  - measure protein half-life
+  - check miRNA/UTR regulation
+- id: phenotype_only_in_one_cell_line
+  trigger: effect_in_cell_line_A_only == true
+  diagnosis: CONTEXT_DEPENDENCE
+  action:
+  - compare baseline pathway states
+  - check genotype differences
+  - repeat in isogenic background
+interfaces:
+  CHEM_CONTEXT:
+    fields:
+    - pH
+    - ionic_strength
+    - cofactors
+    - activity_models_if_needed

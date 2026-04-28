@@ -1,0 +1,141 @@
+{
+  "kernel_version": "msk_schema_v1",
+  "enums": {
+    "level": [
+      "region",
+      "territory",
+      "cluster",
+      "site"
+    ],
+    "phase": [
+      "Setup",
+      "Positioning",
+      "Conversion"
+    ],
+    "portfolio_status": [
+      "Proposed",
+      "Quarantined",
+      "Validated",
+      "Active",
+      "Completed",
+      "Pruned"
+    ],
+    "project_type": [
+      "industrial_site",
+      "utilities",
+      "transportation",
+      "housing_workforce_support",
+      "marketing",
+      "talent"
+    ],
+    "shock_type": [
+      "failure",
+      "delay",
+      "cost_overrun",
+      "funding_gap",
+      "schedule_slip",
+      "scope_change",
+      "regulatory"
+    ]
+  },
+  "packets": {
+    "identity_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "jurisdiction",
+        "translation_pack",
+        "kernel_version",
+        "checksum"
+      ]
+    },
+    "governance_constraints_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "constraints",
+        "checksum"
+      ]
+    },
+    "portfolio_item_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "project_type",
+        "project_details",
+        "status",
+        "phase",
+        "checksum"
+      ]
+    },
+    "metrics_snapshot_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "phase",
+        "lead_measures",
+        "lag_measures",
+        "checksum"
+      ]
+    },
+    "shock_event_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "shock_type",
+        "shock_impact",
+        "restoration_action",
+        "checksum"
+      ]
+    },
+    "validation_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "validated_packet_ids",
+        "validator",
+        "result",
+        "checksum"
+      ]
+    },
+    "capital_flow_packet_v1": {
+      "required": [
+        "packet_type",
+        "packet_id",
+        "created_at",
+        "level",
+        "seed_id",
+        "starting_cash",
+        "reserve_target",
+        "firstfruits_rate",
+        "min_stability_floor",
+        "approved_spend",
+        "ending_cash",
+        "floor_breached",
+        "checksum"
+      ]
+    }
+  },
+  "checksum": {
+    "algorithm": "sha256",
+    "canonicalization": "UTF-8 JSON, sorted keys, no whitespace, numbers as JSON numbers, null for missing optional fields."
+  }
+}

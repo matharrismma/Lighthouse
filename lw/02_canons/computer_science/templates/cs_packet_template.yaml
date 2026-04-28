@@ -1,0 +1,68 @@
+template: cs_packet_template
+version: "1.0"
+domain: computer_science
+
+description: >
+  Use this template to assemble a CS_RED / CS_FLOOR / CS_COMPLEXITY packet
+  for the concordance engine. Fill all fields. Set true/false honestly; the
+  engine checks attestation, not artifact, so a false attestation is a lie.
+
+example_packet:
+  domain: computer_science
+  scope: adapter
+  created_epoch: 0   # set to actual epoch at submission
+  required_witnesses: 2
+  witness_count: 0   # increment as witnesses affirm
+
+  CS_RED:
+    termination_proven: true
+    complexity_variable_defined: true
+    no_undefined_behavior: true
+    reduction_direction_stated: true   # set false-ack to N/A or omit if not a reduction claim
+    encoding_bijectivity_stated: true   # set false-ack to N/A or omit if not an encoding claim
+    formal_model_specified: true        # set true if making language-class claims
+    consistency_model_cited: true       # set true if making distributed claims
+
+  CS_FLOOR:
+    input_output_declared: true
+    case_analysis_stated: true
+    space_complexity_stated: true
+    proof_technique_named: true
+    fault_model_declared: true          # required if distributed
+    memory_model_cited: true            # required if concurrent
+
+  CS_COMPLEXITY:
+    input_variable: "n = number of input elements"
+    case: "worst"     # worst | average | best | amortized
+    time_bound: "O(n log n)"
+    space_bound: "O(n)"
+    proof_technique: "loop invariant + master theorem"
+
+  diagnostics: []     # populate if running the diagnostic chain
+
+  artifacts:
+    code_ref: "doc://path/to/implementation"
+    proof_ref: "doc://path/to/correctness-proof"
+    test_suite_ref: "doc://path/to/tests"
+
+mandatory_fields:
+  - domain
+  - created_epoch
+  - CS_RED OR CS_COMPLEXITY OR claims[]
+  - witness_count (>= required_witnesses for BROTHERS pass)
+
+optional_blocks:
+  - CS_FLOOR (required if CS_RED.formal_model_specified or distributed/concurrent claims)
+  - CS_COMPLEXITY (required for any complexity claim)
+  - diagnostics
+
+red_failure_modes:
+  - "termination_proven: false → REJECT (add loop variant or classify as non-terminating)"
+  - "no_undefined_behavior: false → REJECT (fix UB before submission)"
+  - "complexity_variable_defined: false → REJECT (state what n is)"
+  - "reduction_direction_stated: false → REJECT (A reduces to B means B is at least as hard)"
+
+floor_failure_modes:
+  - "case_analysis_stated: false → REJECT (worst/average/best/amortized)"
+  - "fault_model_declared: false → REJECT for distributed claims (crash-stop / Byzantine / crash-recovery)"
+  - "memory_model_cited: false → REJECT for concurrent claims (SC / TSO / release-acquire / etc.)"

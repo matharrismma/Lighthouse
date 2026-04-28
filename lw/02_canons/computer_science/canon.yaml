@@ -1,0 +1,31 @@
+domain: computer_science
+version: "1.0"
+status: CANONICAL
+authority: "Master Concordance Registry v1.0"
+
+install_order: [canon, schema, core, templates, modules, tools]
+
+frozen_nouns:
+  - ALGORITHM
+  - DATA_STRUCTURE
+  - COMPLEXITY
+  - AUTOMATON
+  - PROTOCOL
+  - ENCODING
+  - STATE
+  - INVARIANT
+  - REDUCTION
+  - ABSTRACTION
+
+modules:
+  - algorithms_complexity
+  - data_structures
+  - automata_languages
+  - distributed_systems
+  - programming_languages
+  - concurrency
+  - cryptography
+  - computability
+
+red_gate: "cs_core.yaml red_constraints"
+floor_gate: "cs_core.yaml floor_layer_bounds"

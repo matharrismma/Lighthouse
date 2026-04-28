@@ -1,0 +1,103 @@
+domain: physics
+version: "1.0"
+status: CANONICAL
+authority: "Master Architect design constraints"
+hierarchy: [RED, FLOOR, WAY, Execution]
+
+section_0_domain_identity:
+  definition: "Physics = lawful dynamics of objects/fields in spacetime, constrained by invariants and tested by measurement."
+  engine:
+    - permission: "RED constraints: conservation, c-limit, quantization as applicable"
+    - path: "WAY: choose formulation and regime-appropriate approximations"
+    - measurement: "FLOOR: calibrated, uncertainty-aware, orthogonal checks"
+
+frozen_nouns:
+  - {id: 1, noun: OBJECT, meaning: "bounded entity with state variables"}
+  - {id: 2, noun: STATE, meaning: "minimal variables specifying system at an instant"}
+  - {id: 3, noun: FIELD, meaning: "value assigned to spacetime points (scalar/vector/tensor)"}
+  - {id: 4, noun: DYNAMICS, meaning: "law mapping state to state over time"}
+  - {id: 5, noun: INVARIANT, meaning: "quantity preserved under allowed transformations"}
+  - {id: 6, noun: MEASUREMENT, meaning: "mapping from reality to recorded number with uncertainty"}
+  - {id: 7, noun: SYMMETRY, meaning: "transformation leaving laws invariant"}
+  - {id: 8, noun: CONSTANT, meaning: "fixed parameter of nature within uncertainty"}
+  - {id: 9, noun: SCALE, meaning: "characteristic magnitude defining regime"}
+  - {id: 10, noun: NOISE, meaning: "irreducible/random fluctuation limiting inference"}
+  - {id: 11, noun: SPACETIME, meaning: "unified arena with metric; coordinates are representations"}
+
+scripture_anchors:
+  - id: 1
+    reference: "Jeremiah 33:25"
+    tie: "fixed ordinances → constants/conservation (RED)"
+  - id: 2
+    reference: "Colossians 1:16–17"
+    tie: "sustaining order → invariants/holding-together"
+  - id: 3
+    reference: "John 1:1–5"
+    tie: "Word/light/order → wave/field/measurement clarity"
+  - id: 4
+    reference: "1 Corinthians 14:33"
+    tie: "not disorder → stability, coherence, lawful dynamics"
+  - id: 5
+    reference: "Romans 11:36"
+    tie: "source/through/to → boundary definitions, system scope"
+  - id: 6
+    reference: "Hebrews 11:3"
+    tie: "seen from unseen → models/fields; dual descriptions allowed"
+  - id: 7
+    reference: "2 Peter 3:10–12"
+    tie: "elements dissolved/heat → decay/entropy as directional marker (optional eschatological tie)"
+
+red_layer_constraints:
+  conservation:
+    energy: true
+    momentum: true
+    angular_momentum: true
+    charge: "as applicable"
+  causality:
+    temporal_ordering_required: true
+    no_effect_without_mechanism: true
+  relativity:
+    c_limit: true
+  quantization:
+    when_applicable: "action scale ~ ħ; discrete spectra; tunneling"
+  mathematics:
+    dimensional_consistency: true
+    non_contradiction: true
+
+floor_layer_bounds:
+  doctrine: "Constants and reference values must cite source + uncertainty; measurements require calibration + uncertainty + orthogonality for decision-grade claims."
+  reference_constants:
+    c:
+      value: 299792458
+      units: "m/s"
+      source: "SI (exact)"
+      uncertainty: 0
+  measurement_requirements:
+    calibration_required: true
+    uncertainty_reporting_required: true
+    orthogonality_required: true
+
+way_layer:
+  formulations:
+    - newtonian: {when: "forces explicit", equations: ["F=ma"]}
+    - lagrangian: {when: "constraints/generalized coords", equations: ["Euler-Lagrange"]}
+    - hamiltonian: {when: "phase space/quantum foundation", equations: ["Hamilton's equations"]}
+    - field_theory: {when: "continuous media/fields", equations: ["Maxwell/EL for fields"]}
+    - quantum: {when: "S~ħ", equations: ["Schrödinger"]}
+    - relativistic: {when: "v~c", equations: ["Lorentz"]}
+
+  regime_checks:
+    - {id: non_relativistic, condition: "v << c", violation: "use special relativity"}
+    - {id: classical_limit, condition: "S >> ħ", violation: "use quantum"}
+    - {id: geometric_optics, condition: "L >> λ", violation: "use wave optics"}
+    - {id: thermodynamic_limit, condition: "N>>1", violation: "include fluctuations"}
+
+execution_layer:
+  control_levers:
+    - "initial conditions"
+    - "boundary conditions"
+    - "external fields/forces"
+    - "numerical timestep/grid (if simulation)"
+
+# Diagnostics/Failure modes/truth tables and cross-domain bridges
+# are specified in the domain modules and examples; core defines the universal doctrine.

@@ -1,0 +1,29 @@
+module: statistical_mechanics
+version: "1.0"
+status: CANONICAL
+
+definition: "Ensembles, partition functions, fluctuations; bridge to thermodynamics."
+
+frozen_nouns_in_play: [STATE, INVARIANT, SCALE, NOISE]
+
+red_constraints:
+  - "Probability measure axioms (nonnegative, normalized, countable additivity)"
+
+floor_bounds:
+  - "Ensemble choice must match constraints (N,V,E fixed etc.)"
+  - "Thermodynamic limit assumptions must be declared"
+
+way_methods:
+  ensembles:
+    - microcanonical: "(N,V,E)"
+    - canonical: "(N,V,T), Z = Σ exp(-βE)"
+    - grand_canonical: "(μ,V,T)"
+  outputs:
+    - free_energy: "F = -kT ln Z"
+    - expectations: "<A> = Σ A exp(-βE)/Z"
+
+truth_tables:
+  - id: wrong_ensemble
+    if: "constraints_mismatch_ensemble == true"
+    diagnosis: "ENSEMBLE_MIS-SPECIFICATION"
+    actions: ["switch ensemble", "redefine system boundary", "recompute partition function"]

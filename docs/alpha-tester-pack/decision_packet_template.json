@@ -1,0 +1,31 @@
+{
+  "_comment": "Canonical decision packet. Carries every field that EITHER validate_packet OR verify_governance_decision_packet might check. Fill in every <ANGLE_BRACKET> placeholder.",
+  "domain": "governance",
+  "title": "<short imperative title, e.g., 'Adopt weekly family budget review'>",
+  "scope": "<adapter | mesh | canon>",
+  "created_epoch": "<UNIX_SECONDS_INTEGER — when the decision was first proposed>",
+  "wait_window_seconds": "<integer — minimum age before the packet may be enacted. NOTE: validate_packet currently enforces a scope-based floor (adapter ~3600s) regardless of this value. See known_issues.md issue #4.>",
+  "text": "<free-text narrative of the decision and its rationale. validate_packet's RED/FLOOR gates scan this field for forbidden categories and required protections. Don't leave empty.>",
+  "red_items": [
+    "<forbidden category 1, e.g., debt_increase>",
+    "<forbidden category 2, e.g., hidden_spending>"
+  ],
+  "floor_items": [
+    "<required protection 1, e.g., both_spouses_present>",
+    "<required protection 2, e.g., written_record>"
+  ],
+  "way_path": "<one-line description of HOW the decision is carried out>",
+  "execution_steps": [
+    "<step 1>",
+    "<step 2>",
+    "<step 3>"
+  ],
+  "witnesses": [
+    "<name or role 1>",
+    "<name or role 2>"
+  ],
+  "witness_count": "<integer — must equal len(witnesses); used by verify_governance_decision_packet>",
+  "scripture_anchors": [
+    "<optional reference, e.g., 'Proverbs 27:23'>"
+  ]
+}

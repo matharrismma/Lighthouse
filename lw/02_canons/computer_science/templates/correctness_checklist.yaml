@@ -1,0 +1,71 @@
+checklist: cs_correctness
+version: "1.0"
+domain: computer_science
+
+purpose: >
+  Walk this checklist before submitting any CS packet. Each item must be
+  answered. If the answer is "no" or "uncertain", do not submit.
+
+# Termination
+- id: T1
+  question: "Does the algorithm terminate on every valid input?"
+  if_yes_must: "State the termination measure (well-founded ordering, ranking function, structural induction)."
+  if_no_must: "Explicitly classify as non-terminating-by-design (server, event loop) and prove that classification."
+
+- id: T2
+  question: "Are bounds on running time stated?"
+  must: "Define the input variable n. State case (worst/average/best/amortized). Use big-O notation."
+
+# Correctness
+- id: C1
+  question: "Is correctness proven, not just tested?"
+  must: "Cite proof technique (loop invariant, induction, bisimulation, refinement, model check)."
+
+- id: C2
+  question: "Are pre-conditions and post-conditions stated?"
+  must: "Specify input domain, output domain, and the relation between them."
+
+# Undefined behavior
+- id: U1
+  question: "Are out-of-bounds memory accesses ruled out?"
+  must: "Bounds checks, type-safe language, or formal proof of safety."
+
+- id: U2
+  question: "Are null dereferences ruled out?"
+  must: "Option/Maybe types, non-null annotations, or static analysis."
+
+- id: U3
+  question: "Are integer overflows handled?"
+  must: "Wrapping semantics declared, saturating arithmetic, or bigint."
+
+# Concurrency (if applicable)
+- id: K1
+  question: "Is the memory model cited?"
+  must: "SC / TSO / x86-TSO / ARMv8 / release-acquire / C++11 / Java MM."
+
+- id: K2
+  question: "Are data races proven absent?"
+  must: "Synchronization primitives identified; happens-before order established."
+
+- id: K3
+  question: "Is progress class stated?"
+  must: "Wait-free, lock-free, obstruction-free, or blocking — and proven."
+
+# Distributed (if applicable)
+- id: D1
+  question: "Is the consistency model cited?"
+  must: "Linearizable, sequentially consistent, causal, eventual — and proven."
+
+- id: D2
+  question: "Is the fault model declared?"
+  must: "Crash-stop, crash-recovery, omission, or Byzantine."
+
+# Formal language claims (if applicable)
+- id: L1
+  question: "Is the model of computation specified?"
+  must: "DFA / NFA / PDA / TM / LBA / grammar level."
+
+# Reductions (if applicable)
+- id: R1
+  question: "Is the reduction direction explicit and correct?"
+  must: "A ≤ B means B is at least as hard as A. State which direction is being claimed."

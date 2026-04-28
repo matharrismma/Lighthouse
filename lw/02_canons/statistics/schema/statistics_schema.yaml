@@ -1,0 +1,34 @@
+schema: statistics_packet
+version: "1.0"
+
+required_fields:
+  - domain: "statistics"
+  - hypothesis: string
+  - population: string
+
+optional_structured:
+  STAT_RED:
+    hypothesis_prespecified: bool
+    pvalue_interpreted_correctly: bool
+    effect_size_reported: bool
+    causal_identification_stated: bool
+    multiple_comparisons_corrected: bool
+    confidence_interval_interpretation_correct: bool
+
+  STAT_FLOOR:
+    sampling_mechanism_stated: bool
+    distributional_assumptions_tested: bool
+    sample_size_justified: bool
+    missing_data_mechanism_declared: bool
+    prior_justified: bool              # Bayesian only
+    power_computed: bool
+
+  STAT_INFERENCE:
+    test_statistic: string
+    p_value: number
+    effect_size: number
+    effect_size_type: string           # Cohen's d, eta-squared, r, etc.
+    confidence_interval: [number, number]
+    confidence_level: number
+    sample_size: integer
+    alpha: number

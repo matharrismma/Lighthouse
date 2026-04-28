@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "concordance-engine"
+version = "1.0.4"
+description = "Four-Gates packet validation engine (RED/FLOOR/BROTHERS/GOD) with cross-disciplinary computational verifiers and an MCP server for AI assistant integration."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+  "sympy>=1.12",
+  "numpy>=1.26",
+  "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+schema = ["jsonschema>=4.21.0"]
+mcp = ["mcp>=1.0.0"]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.4.0",
+  "jsonschema>=4.21.0",
+  "mcp>=1.0.0",
+]
+
+[project.scripts]
+concordance = "concordance_engine.cli:main"
+concordance-mcp = "concordance_engine.mcp_server.server:main"

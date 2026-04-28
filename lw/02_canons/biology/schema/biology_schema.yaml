@@ -1,0 +1,53 @@
+schema_version: '0.2'
+domain: biology
+objects:
+  biology_packet:
+    required:
+    - BIO_SETUP
+    - BIO_CONSTRAINTS
+    - BIO_MODEL
+    - BIO_MEASUREMENTS
+    - BIO_DIAGNOSTICS
+    optional:
+    - PHYS_CONSTRAINTS
+    - CHEM_CONTEXT
+    - ENG_DEPLOYMENT
+    - MAT_CONTEXT
+    properties:
+      BIO_SETUP:
+        required:
+        - system
+        - boundaries
+        - context
+        - initial_conditions
+      BIO_CONSTRAINTS:
+        required:
+        - red_constraints
+        - floor_bounds
+      BIO_MODEL:
+        required:
+        - ontology
+        - mechanisms
+        - regime
+        - approximations
+      BIO_MEASUREMENTS:
+        required:
+        - observables
+        - assays
+        - calibration
+        - uncertainty
+        - replication
+      BIO_DIAGNOSTICS:
+        required:
+        - truth_table_triggers
+        - failure_modes
+        - corrective_levers
+        - diagnostic_trace
+rules:
+- id: mass_energy_accounting
+  description: 'Biology is open-system chemistry+physics: boundary fluxes must be
+    declared or mismatch is presumed.'
+- id: timescale_separation_declared
+  description: 'Declare timescales: fast (binding), mid (signaling), slow (transcription/selection).'
+- id: confounding_control_required
+  description: Claims require explicit confounders, controls, and replication plan.

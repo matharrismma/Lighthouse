@@ -1,0 +1,298 @@
+{
+  "version": "0.1.0",
+  "generated": "2026-04-27",
+  "engine_commit": "unknown",
+  "notes": "Captured from live engine runs. Each example records the actual output the engine produced; rerun to detect regressions.",
+  "examples": [
+    {
+      "id": "math.derivative.pass.001",
+      "verifier": "verify_mathematics",
+      "category": "happy_path",
+      "input": {
+        "mode": "derivative",
+        "params": {"function": "sin(x**2)", "variable": "x", "claimed_derivative": "2*x*cos(x**2)"}
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "d/dx of sin(x**2) = 2*x*cos(x**2), matches 2*x*cos(x**2)"
+    },
+    {
+      "id": "math.derivative.fail.001",
+      "verifier": "verify_mathematics",
+      "category": "must_catch_wrong_claim",
+      "input": {
+        "mode": "derivative",
+        "params": {"function": "x**3", "variable": "x", "claimed_derivative": "2*x**2"}
+      },
+      "expected_status": "MISMATCH",
+      "actual_status": "MISMATCH",
+      "actual_detail": "d/dx of x**3 = 3*x**2, but claimed 2*x**2"
+    },
+    {
+      "id": "math.integral.pass.001",
+      "verifier": "verify_mathematics",
+      "category": "happy_path",
+      "input": {
+        "mode": "integral",
+        "params": {"integrand": "2*x", "variable": "x", "claimed_antiderivative": "x**2"}
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "d/dx of claimed antiderivative x**2 = 2*x"
+    },
+    {
+      "id": "math.solve.pass.001",
+      "verifier": "verify_mathematics",
+      "category": "happy_path",
+      "input": {
+        "mode": "solve",
+        "params": {"equation": "x**2 - 5*x + 6", "variable": "x", "claimed_solutions": [2, 3]}
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "solutions ['2', '3'] match claim"
+    },
+    {
+      "id": "physics.dimensional.pass.001",
+      "verifier": "verify_physics_dimensional",
+      "category": "happy_path",
+      "input": {
+        "equation": "F = m*a",
+        "symbols": {"F": "newton", "m": "kilogram", "a": "meter/second**2"}
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "both sides reduce to kilogram*meter/second**2"
+    },
+    {
+      "id": "physics.conservation.pass.001",
+      "verifier": "verify_physics_conservation",
+      "category": "happy_path",
+      "input": {
+        "before": {"momentum_x": 5, "energy": 100, "charge": 2},
+        "after": {"momentum_x": 5, "energy": 100, "charge": 2}
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "all 3 quantities conserved"
+    },
+    {
+      "id": "physics.conservation.fail.001",
+      "verifier": "verify_physics_conservation",
+      "category": "must_catch_wrong_claim",
+      "input": {
+        "before": {"momentum_x": 5, "energy": 100},
+        "after": {"momentum_x": 5, "energy": 95}
+      },
+      "expected_status": "MISMATCH",
+      "actual_status": "MISMATCH",
+      "actual_detail": "energy: 100.0 -> 95.0 (rel diff 5.000e-02)"
+    },
+    {
+      "id": "chemistry.balance.pass.001",
+      "verifier": "verify_chemistry",
+      "category": "happy_path",
+      "input": {"equation": "2 H2 + O2 -> 2 H2O"},
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "atoms and charge balanced under stated coefficients"
+    },
+    {
+      "id": "chemistry.balance.fail.001",
+      "verifier": "verify_chemistry",
+      "category": "must_catch_wrong_claim",
+      "input": {"equation": "H2 + O2 -> H2O"},
+      "expected_status": "MISMATCH",
+      "actual_status": "MISMATCH",
+      "actual_detail": "unbalanced under stated coefficients but balances as: 2 H2 + O2 -> 2 H2O",
+      "tester_note": "Engine returns the corrected coefficients in data.balanced_coefficients — useful debugging affordance."
+    },
+    {
+      "id": "biology.checks.pass.001",
+      "verifier": "verify_biology",
+      "category": "happy_path",
+      "input": {
+        "n_replicates": 5,
+        "assay_classes": ["binding_assay", "cell_viability"],
+        "dose_response": {
+          "doses": [0, 1, 5, 10, 50],
+          "responses": [0.1, 0.3, 0.55, 0.7, 0.9],
+          "expected_direction": "increasing"
+        }
+      },
+      "expected_status": "CONFIRMED_ALL",
+      "actual_status": "CONFIRMED_ALL",
+      "actual_detail": "n_replicates=5 >= 3; 2 distinct assay classes; monotonically non-decreasing (4 up, 0 flat)"
+    },
+    {
+      "id": "stats.ci.pass.001",
+      "verifier": "verify_statistics_confidence_interval",
+      "category": "happy_path",
+      "input": {"estimate": 10.5, "ci_low": 9.2, "ci_high": 11.8},
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "estimate 10.5 in [9.2, 11.8]"
+    },
+    {
+      "id": "stats.ci.fail.001",
+      "verifier": "verify_statistics_confidence_interval",
+      "category": "must_catch_wrong_claim",
+      "input": {"estimate": 10.5, "ci_low": 11.0, "ci_high": 12.0},
+      "expected_status": "MISMATCH",
+      "actual_status": "MISMATCH",
+      "actual_detail": "estimate 10.5 not in [11.0, 12.0]"
+    },
+    {
+      "id": "stats.multcomp.fail.001",
+      "verifier": "verify_statistics_multiple_comparisons",
+      "category": "must_catch_wrong_claim",
+      "input": {
+        "raw_p_values": [0.001, 0.01, 0.03, 0.04, 0.5],
+        "method": "bonferroni",
+        "alpha": 0.05,
+        "claimed_rejected_indices": [0]
+      },
+      "expected_status": "MISMATCH",
+      "actual_status": "MISMATCH",
+      "actual_detail": "claimed rejected=[0], computed=[0, 1] (adjusted_p=[0.005, 0.05, 0.15, 0.2, 1.0])"
+    },
+    {
+      "id": "governance.standalone.pass.001",
+      "verifier": "verify_governance_decision_packet",
+      "category": "happy_path",
+      "input": {
+        "decision_packet": {
+          "title": "Adopt weekly family budget review",
+          "scope": "adapter",
+          "red_items": ["debt_increase", "hidden_spending"],
+          "floor_items": ["both_spouses_present", "written_record"],
+          "way_path": "Sunday evening 30-minute review",
+          "execution_steps": ["Print transactions", "Compare to targets", "Agree adjustments", "Log decisions"],
+          "witnesses": ["Matt", "Spouse"],
+          "scripture_anchors": ["Proverbs 27:23"],
+          "wait_window_seconds": 0
+        },
+        "witness_count": 2
+      },
+      "expected_status": "CONFIRMED",
+      "actual_status": "CONFIRMED",
+      "actual_detail": "shape: 2 red, 2 floor, 2 witnesses, 4 steps, scripture present; witness count matches"
+    },
+    {
+      "id": "engine.full_packet.quarantine.001",
+      "verifier": "validate_packet",
+      "category": "known_bug_repro",
+      "linked_issue": "issue-3-schema-mismatch",
+      "input": {
+        "packet": {
+          "domain": "governance",
+          "title": "Adopt weekly family budget review",
+          "scope": "adapter",
+          "red_items": ["debt_increase", "hidden_spending"],
+          "floor_items": ["both_spouses_present", "written_record"],
+          "way_path": "Sunday evening 30-minute review",
+          "execution_steps": ["Print transactions", "Compare to targets", "Agree adjustments", "Log decisions"],
+          "witnesses": ["Matt", "Spouse"],
+          "scripture_anchors": ["Proverbs 27:23"],
+          "wait_window_seconds": 0
+        }
+      },
+      "expected_status": "PASS_after_fix",
+      "actual_status": "QUARANTINE",
+      "actual_detail": "RED PASS (no text to scan); FLOOR PASS (no text to scan); BROTHERS PASS (witnesses: 0, required: 0); GOD QUARANTINE (created_epoch missing)",
+      "tester_note": "Same packet passes verify_governance_decision_packet but quarantines here. See known_issues.md issue #3."
+    },
+    {
+      "id": "cs.testcases.fail.001",
+      "verifier": "verify_computer_science",
+      "category": "known_bug_repro",
+      "linked_issue": "issue-2-args-not-unpacked",
+      "input": {
+        "code": "def add(a, b):\n    return a + b",
+        "function_name": "add",
+        "test_cases": [
+          {"input": [2, 3], "expected": 5},
+          {"input": [-1, 1], "expected": 0},
+          {"input": [0, 0], "expected": 0}
+        ]
+      },
+      "expected_status": "CONFIRMED_after_fix",
+      "actual_status": "MISMATCH",
+      "actual_detail": "case 0: TypeError missing 2 required positional arguments. List-valued input not splatted into positional args.",
+      "tester_note": "See known_issues.md issue #2."
+    },
+    {
+      "id": "stats.pvalue.tail_bug.001",
+      "verifier": "verify_statistics_pvalue",
+      "category": "known_bug_repro",
+      "linked_issue": "issue-1-tail-bug",
+      "input": {
+        "spec": {
+          "test": "two_sample_t",
+          "n1": 30, "n2": 30,
+          "mean1": 5.2, "mean2": 4.8,
+          "sd1": 1.1, "sd2": 1.0,
+          "tail": "two",
+          "claimed_p": 0.15
+        }
+      },
+      "expected_status": "CONFIRMED_after_fix",
+      "actual_status": "MISMATCH",
+      "actual_detail": "claimed p=0.15 (correct), recomputed_p=0.927 (= 1 - one-tailed p, not 2*sf(|t|)). Engine returned wrong region of distribution.",
+      "tester_note": "See known_issues.md issue #1."
+    },
+    {
+      "id": "engine.full_packet.pass.001",
+      "verifier": "validate_packet",
+      "category": "happy_path",
+      "input": {
+        "packet": {
+          "domain": "governance",
+          "title": "Adopt weekly family budget review",
+          "scope": "adapter",
+          "created_epoch": 1745712000,
+          "wait_window_seconds": 0,
+          "text": "Both spouses present. Prevents debt_increase and hidden_spending; maintains both_spouses_present and written_record.",
+          "red_items": ["debt_increase", "hidden_spending"],
+          "floor_items": ["both_spouses_present", "written_record"],
+          "way_path": "Sunday review",
+          "execution_steps": ["Print", "Compare", "Adjust", "Log"],
+          "witnesses": ["Matt", "Spouse"],
+          "witness_count": 2
+        },
+        "now_epoch": 1745715700
+      },
+      "expected_status": "PASS",
+      "actual_status": "PASS",
+      "actual_detail": "RED PASS; FLOOR PASS; BROTHERS PASS (witnesses: 2, required: 0); GOD PASS (elapsed: 3700, required: 3600)",
+      "tester_note": "Canonical full-engine pass. Note: required wait was 3600s despite packet's wait_window_seconds=0 — see known_issues.md issue #4."
+    },
+    {
+      "id": "engine.full_packet.god_quarantine.001",
+      "verifier": "validate_packet",
+      "category": "known_bug_repro",
+      "linked_issue": "issue-4-wait-window-ignored",
+      "input": {
+        "packet": {
+          "domain": "governance",
+          "title": "Adopt weekly family budget review",
+          "scope": "adapter",
+          "created_epoch": 1745712000,
+          "wait_window_seconds": 0,
+          "text": "Both spouses present. Prevents debt_increase and hidden_spending; maintains both_spouses_present and written_record.",
+          "red_items": ["debt_increase", "hidden_spending"],
+          "floor_items": ["both_spouses_present", "written_record"],
+          "way_path": "Sunday review",
+          "execution_steps": ["Print", "Compare", "Adjust", "Log"],
+          "witnesses": ["Matt", "Spouse"],
+          "witness_count": 2
+        },
+        "now_epoch": 1745712100
+      },
+      "expected_status": "PASS_after_fix",
+      "actual_status": "QUARANTINE",
+      "actual_detail": "GOD QUARANTINE: wait 100/3600 seconds. Engine ignored wait_window_seconds=0 and enforced 3600s default for adapter scope.",
+      "tester_note": "See known_issues.md issue #4."
+    }
+  ]
+}

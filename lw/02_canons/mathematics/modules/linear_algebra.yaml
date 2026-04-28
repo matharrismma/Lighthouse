@@ -1,0 +1,29 @@
+module: linear_algebra
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  vector_space: "set + addition + scalar multiplication satisfying axioms"
+  linear_map: "function preserving addition and scalar multiplication"
+  matrix: "representation of linear map wrt chosen bases"
+  eigenvalue: "λ such that Av = λv for v ≠ 0"
+  singular_value: "square root of eigenvalue of AᵀA"
+
+red_constraints:
+  - "linear maps defined only between vector spaces over same field"
+  - "basis change must preserve rank and invariants"
+
+floor_bounds:
+  - "numerical rank determined with tolerance policy"
+  - "condition number reported for ill-conditioned matrices"
+
+way_methods:
+  decomposition: ["SVD", "QR", "Cholesky", "LU", "eigen-decomposition"]
+  solvability: ["direct (Gaussian elim)", "iterative (Krylov)", "pseudoinverse"]
+  invariants: ["trace", "det", "rank", "spectrum", "singular values"]
+
+truth_tables:
+  - id: singular_matrix_inversion_attempt
+    if: "det(A) ≈ 0 AND attempting A_inverse == true"
+    diagnosis: "MATRIX_SINGULAR_OR_NEAR_SINGULAR"
+    actions: ["use pseudoinverse", "report rank deficiency", "add regularization"]

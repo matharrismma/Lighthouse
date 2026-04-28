@@ -1,0 +1,36 @@
+module: logic_proof
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  proposition: "statement with truth value"
+  predicate: "property/function returning truth value"
+  quantifier: "∀ or ∃ with domain"
+  inference_rule: "valid transformation"
+  proof: "finite chain of valid steps"
+
+red_constraints:
+  - "all symbols must be defined before use"
+  - "quantifiers must be scoped with explicit domains"
+  - "no circular definitions"
+  - "each inference step must cite a rule/theorem"
+
+floor_bounds:
+  - "axiom system declared (e.g., ZFC, Peano, type theory)"
+  - "theorem hypotheses verified before use"
+
+way_methods:
+  proof_strategies: ["direct", "contradiction", "contrapositive", "induction", "construction"]
+  common_rules: ["modus ponens", "modus tollens", "universal instantiation", "existential elimination"]
+  diagnostics: ["assumption audit", "goal restatement", "counterexample search"]
+
+truth_tables:
+  - id: undefined_symbol
+    if: "symbol_used_before_definition == true"
+    diagnosis: "RED_UNDEFINED_SYMBOL"
+    actions: ["define symbol", "declare domain/type", "restart proof check"]
+
+  - id: unscoped_quantifier
+    if: "quantifier_present == true AND domain_missing == true"
+    diagnosis: "RED_UNSCOPED_QUANTIFIER"
+    actions: ["declare domain explicitly", "rewrite statement with types"]

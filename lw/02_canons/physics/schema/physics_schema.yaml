@@ -1,0 +1,21 @@
+schema_version: "1.0"
+domain: physics
+
+objects:
+  physics_packet:
+    required: [PHYS_SETUP, PHYS_CONSTRAINTS, PHYS_MODEL, PHYS_MEASUREMENTS, PHYS_EXECUTION, PHYS_DIAGNOSTICS]
+    optional: [CHEM_CONTEXT, BIO_CONTEXT, ENG_DEPLOYMENT, MAT_CONTEXT]
+
+rules:
+  - id: no_RED_override
+    description: "No block may contradict RED constraints"
+    enforcement: "validator"
+  - id: FLOOR_citation_required
+    description: "All FLOOR constants must include source + uncertainty"
+    enforcement: "validator"
+  - id: orthogonality_decision_grade
+    description: "Decision-grade claims require ≥2 orthogonal methods"
+    enforcement: "validator"
+  - id: IC_BC_complete
+    description: "All DOF require IC/BC"
+    enforcement: "validator (best-effort)"

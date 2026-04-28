@@ -1,0 +1,38 @@
+module: distributed_systems
+version: "1.0"
+status: CANONICAL
+
+definition: "Computation across multiple nodes with partial failure and no shared clock."
+
+frozen_nouns_in_play: [PROTOCOL, STATE, INVARIANT, ABSTRACTION]
+
+red_constraints:
+  - "Consistency model must be named: linearizability, sequential consistency, causal consistency, eventual consistency."
+  - "Fault model must be declared: crash-stop, crash-recovery, Byzantine."
+  - "Safety and liveness properties must be stated separately."
+
+floor_bounds:
+  - "Network model must be specified: synchronous, asynchronous, or partially synchronous."
+  - "Failure detector class must be cited when used (Perfect, Eventually Perfect, etc.)."
+  - "CAP tradeoff must be acknowledged for any partition-tolerant claim."
+
+way_methods:
+  consensus:
+    - paxos: "Safety: only one value decided. Liveness: requires majority up."
+    - raft: "Leader election + log replication; easier to reason about than Paxos."
+  consistency_models:
+    - linearizability: "Strongest; every op appears instantaneous; cite Herlihy & Wing."
+    - eventual_consistency: "Weakest; all replicas converge; no timing guarantee."
+  verification:
+    - tla_plus: "Formal spec; model checker for safety properties"
+    - invariant_check: "State every invariant; prove it holds under all transitions"
+
+truth_tables:
+  - id: consistency_undefined
+    if: "distributed_claim == true AND consistency_model_named == false"
+    diagnosis: "CONSISTENCY_UNSPECIFIED"
+    actions: ["Name the consistency model", "Cite formal definition"]
+  - id: cap_ignored
+    if: "partition_tolerant == true AND availability_vs_consistency_not_addressed == true"
+    diagnosis: "CAP_THEOREM_NOT_ACKNOWLEDGED"
+    actions: ["State which of C or A is sacrificed under partition"]

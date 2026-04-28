@@ -1,0 +1,41 @@
+# Biology Proof / Claim Checklist (v1.0)
+
+claim:
+  statement: ""
+  decision_grade: false
+
+red_checks:
+  - name: "Boundary flux declared if open system"
+    pass: false
+  - name: "Mass/charge balance plausibility"
+    pass: false
+  - name: "Thermodynamic permission (no free energy creation)"
+    pass: false
+  - name: "Mechanism temporal ordering"
+    pass: false
+
+floor_checks:
+  - name: "Controls present"
+    pass: false
+  - name: "Calibration documented"
+    pass: false
+  - name: "Replication sufficient"
+    pass: false
+  - name: "Uncertainty reported"
+    pass: false
+  - name: "Confounders considered"
+    pass: false
+
+orthogonality:
+  assays:
+    - class: ""
+      method: ""
+    - class: ""
+      method: ""
+  pass: false
+
+bridge_escalation:
+  needs_chemistry: false
+  needs_physics: false
+  needs_engineering: false
+  needs_materials: false

@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lighthouse Packet Schema (v0)",
+  "type": "object",
+  "required": [
+    "packet_type",
+    "packet_id",
+    "created_at",
+    "provenance",
+    "claims",
+    "constraints",
+    "hash"
+  ],
+  "properties": {
+    "packet_type": {
+      "type": "string",
+      "enum": [
+        "seed",
+        "decision",
+        "summary"
+      ]
+    },
+    "packet_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "author",
+        "toolchain"
+      ],
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "toolchain": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "kind",
+          "ref",
+          "confidence"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "scripture",
+              "document",
+              "observation"
+            ]
+          },
+          "ref": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "hash": {
+            "type": "string",
+            "description": "Optional content hash for referenced material (SHA-256 hex)."
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "kind",
+          "subject",
+          "predicate"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "assert",
+              "forbid",
+              "implies",
+              "equivalent",
+              "preference"
+            ]
+          },
+          "subject": {
+            "type": "string"
+          },
+          "predicate": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "constraint_id",
+          "gate",
+          "priority",
+          "logic",
+          "severity"
+        ],
+        "properties": {
+          "constraint_id": {
+            "type": "string"
+          },
+          "gate": {
+            "type": "string",
+            "enum": [
+              "RED",
+              "FLOOR",
+              "BROTHERS",
+              "GOD",
+              "GENERAL",
+              "WAY"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "logic": {
+            "type": "string",
+            "description": "v0 DSL: small, explicit predicate strings."
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rel",
+          "to_packet_id"
+        ],
+        "properties": {
+          "rel": {
+            "type": "string",
+            "enum": [
+              "supports",
+              "depends_on",
+              "contradicts",
+              "refines"
+            ]
+          },
+          "to_packet_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "decision": {
+      "type": "object",
+      "description": "Only present when packet_type=decision.",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "do",
+            "wait",
+            "defer",
+            "reject"
+          ]
+        },
+        "actor_role": {
+          "type": "string",
+          "description": "Explicit role jurisdiction (typically Shepherd/Scribe/Steward)."
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "Scope boundary for the role (prevents overlap)."
+        },
+        "gate_reason": {
+          "type": "string",
+          "description": "Why this decision is lawful under gates."
+        },
+        "recheck_condition": {
+          "type": "string",
+          "description": "For wait/defer: what condition triggers re-evaluation."
+        }
+      },
+      "additionalProperties": false
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "operator_context": {
+      "type": "object",
+      "description": "Optional operator triad context (Shepherd/Scribe/Steward) and explicit handoffs.",
+      "properties": {
+        "active_roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Roles permitted in this run (e.g., ['Scribe','Shepherd','Steward'])."
+        },
+        "current_role": {
+          "type": "string",
+          "description": "Role currently speaking/acting."
+        },
+        "handoffs": {
+          "type": "array",
+          "description": "Ordered handoff log (explicit transitions).",
+          "items": {
+            "type": "object",
+            "required": [
+              "from_role",
+              "to_role",
+              "reason"
+            ],
+            "properties": {
+              "from_role": {
+                "type": "string"
+              },
+              "to_role": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "at": {
+                "type": "string",
+                "description": "ISO 8601 timestamp (optional)."
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

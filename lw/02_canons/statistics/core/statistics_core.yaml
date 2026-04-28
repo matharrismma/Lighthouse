@@ -1,0 +1,116 @@
+domain: statistics
+version: "1.0"
+status: CANONICAL
+watchmaking_parallel: "Crown and setting — calibration adjusts the system to reality"
+
+thesis:
+  statistics: >
+    Statistics = calibrated inference from finite samples to populations under
+    uncertainty. The inferential gap (sample to population) is never closed by
+    computation alone. Model assumptions are the load-bearing wall; they must be
+    stated and tested before results are interpreted.
+
+frozen_nouns:
+  - noun: POPULATION
+    meaning: "The complete set of units about which inference is sought; must be defined before data collection."
+  - noun: SAMPLE
+    meaning: "Observed subset of the population; sampling mechanism determines what inference is valid."
+  - noun: ESTIMATOR
+    meaning: "Function of the sample that produces an estimate of a population parameter; has bias, variance, and consistency properties."
+  - noun: DISTRIBUTION
+    meaning: "Complete probability assignment over a sample space; must be specified (not assumed) before inference."
+  - noun: HYPOTHESIS
+    meaning: "Falsifiable claim about population parameter(s); must be pre-specified before data collection."
+  - noun: CONFIDENCE
+    meaning: "Long-run coverage property of an interval procedure; not the probability that a specific interval contains the true value."
+  - noun: LIKELIHOOD
+    meaning: "The probability of observed data as a function of model parameters; the bridge between data and parameter inference."
+  - noun: EFFECT_SIZE
+    meaning: "Standardized magnitude of a difference or association; must accompany significance claims."
+  - noun: POWER
+    meaning: "Probability of detecting a true effect of a specified size; determines required sample size."
+  - noun: CONFOUNDER
+    meaning: "Variable that causes both treatment and outcome; must be identified and controlled for causal claims."
+
+red_constraints:
+  - "Probabilities must be non-negative and sum (or integrate) to 1 over the sample space."
+  - "A p-value does not measure the probability that the null hypothesis is true."
+  - "Statistical significance does not imply practical significance; effect size is required."
+  - "Hypotheses must be pre-specified; post-hoc hypothesis generation and testing on the same data is circular."
+  - "Causal claims require causal identification (randomization, instrumental variable, regression discontinuity, etc.); correlation alone is not sufficient."
+  - "Multiple comparisons require correction; uncorrected family-wise error rate inflates false discovery."
+  - "The confidence level (95%) describes the procedure, not the specific interval; do not say 'there is a 95% probability the true value is in this interval.'"
+
+floor_layer_bounds:
+  - "The sampling mechanism must be stated: simple random, stratified, cluster, convenience, etc."
+  - "Distributional assumptions must be stated and diagnostically checked (normality, homoscedasticity, independence)."
+  - "Sample size must be justified by power analysis or pre-registration."
+  - "Effect size and its confidence interval must accompany any significance test."
+  - "Missing data mechanism must be declared: MCAR, MAR, or MNAR."
+  - "For regression models, state which variables are predictors vs confounders vs mediators."
+  - "Bayesian analyses must specify the prior and justify it."
+
+way_layer_methods:
+  frequentist:
+    - null_hypothesis_testing: "State H0, H1, alpha, test statistic, distribution under H0, observed value, p-value, decision."
+    - confidence_intervals: "Preferred over point estimates; report width alongside level."
+    - power_analysis: "Specify effect size, alpha, beta; derive n."
+  bayesian:
+    - prior_specification: "Justify prior; sensitivity analysis to prior choice required for strong claims."
+    - posterior_summary: "Report posterior mean/median/mode and credible interval."
+    - model_comparison: "Bayes factors or LOO-CV; not p-values."
+  causal:
+    - rct: "Gold standard; randomization eliminates confounding."
+    - instrumental_variable: "Requires valid instrument: relevant, exclusive, independent."
+    - regression_discontinuity: "Requires continuity assumption and bandwidth choice justification."
+    - difference_in_differences: "Requires parallel trends assumption; test pre-treatment trends."
+
+diagnostics:
+  root:
+    question: "Is the hypothesis pre-specified?"
+    if_no:
+      diagnosis: "CIRCULAR_INFERENCE"
+      action: "Separate exploration from confirmation; pre-register confirmatory tests; collect new data."
+    if_yes: "proceed_to_sample"
+
+  sample:
+    question: "Is the sampling mechanism declared and appropriate for the target population?"
+    if_no:
+      diagnosis: "SAMPLING_MISMATCH"
+      action: "Define target population; state sampling frame; assess selection bias."
+    if_yes: "proceed_to_assumptions"
+
+  assumptions:
+    question: "Are distributional assumptions stated and tested?"
+    if_no:
+      diagnosis: "ASSUMPTION_UNSTATED"
+      action: "Run diagnostics (QQ-plot, residual plot, Levene test); report or use robust alternative."
+    if_yes: "proceed_to_inference"
+
+  inference:
+    question: "Is effect size reported alongside significance?"
+    if_no:
+      diagnosis: "EFFECT_SIZE_MISSING"
+      action: "Compute Cohen's d, eta-squared, r, or domain-appropriate measure; report CI."
+    if_yes: "proceed_to_multiplicity"
+
+  multiplicity:
+    question: "Are multiple comparisons present and corrected?"
+    if_yes_uncorrected:
+      diagnosis: "MULTIPLICITY_ERROR"
+      action: "Apply Bonferroni, BH, or pre-register planned comparisons."
+    if_corrected:
+      diagnosis: "PASS"
+      action: "Proceed to reporting."
+
+scripture_anchors:
+  - theme: "Uncertain things declared honestly"
+    reference: "Proverbs 27:1"
+  - theme: "False weights (calibration)"
+    reference: "Proverbs 11:1"
+  - theme: "Testing what is good (falsifiability)"
+    reference: "1 Thessalonians 5:21"
+  - theme: "Two or three witnesses (replication)"
+    reference: "Deuteronomy 19:15"
+  - theme: "Do not multiply beyond necessity (parsimony)"
+    reference: "Matthew 5:37"

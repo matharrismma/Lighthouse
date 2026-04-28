@@ -1,0 +1,53 @@
+module: equilibrium
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: Solve chemical equilibria with activities; K relations, ICE tables, coupled equilibria, non-ideality handling.
+  includes:
+  - Kc/Kp
+  - ICE tables
+  - activity coefficients
+  - fugacity
+  - coupled equilibria
+  - solubility equilibria
+  excludes:
+  - detailed electrochemical kinetics
+  - polyprotic titration curves (covered elsewhere)
+frozen_nouns_extensions:
+- noun: EQUILIBRIUM_CONSTANT
+  meaning: K defined in activities; dimensionless by construction.
+- noun: FUGACITY
+  meaning: "Effective pressure f = \u03C6P replacing P in real-gas equilibrium."
+red_constraints:
+- K must be dimensionless; any dimensional K indicates formulation error.
+- Mass and charge balances must be satisfied simultaneously.
+floor_checks:
+- 'Declare approximation level: ideal vs activity-based.'
+- Check that computed equilibrium concentrations are nonnegative.
+- State temperature for K.
+way_methods:
+- "For concentrated electrolytes, use \u03B3 models (Debye-H\xFCckel extended, Davies, Pitzer as needed)."
+- "For gases at high P, use \u03C6 or EOS (Peng-Robinson, SRK)."
+execution:
+  inputs:
+  - reaction_set
+  - initial_conditions
+  - temperature_K
+  - model_choice
+  steps:
+  - "Write equilibrium relations in activities for each independent reaction: K_j = \u03A0 a_i^{\u03BD_ij}."
+  - Write mass balances for each element/total component; write charge balance if electrolytes.
+  - "Select activity/fugacity model; compute \u03B3_i or \u03C6 as needed."
+  - Solve nonlinear system for species amounts (ICE for simple single-equilibrium; numerical for coupled).
+  - 'Validate: nonnegative species, balances satisfied, K satisfied within tolerance.'
+  outputs:
+  - equilibrium_composition
+  - activities_or_coefficients
+  - validation_residuals
+diagnostics:
+  dimensional_K:
+    signal: K expression carries units.
+    fix: Rewrite in activities using standard states to make K dimensionless.
+  multiple_solutions:
+    signal: Solver finds multiple roots.
+    fix: Use physical constraints; try different initial guesses; verify stability.

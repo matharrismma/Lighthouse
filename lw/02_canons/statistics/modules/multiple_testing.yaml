@@ -1,0 +1,64 @@
+module: multiple_testing
+version: "1.0"
+status: CANONICAL
+parent: statistics
+
+scope: >
+  When more than one hypothesis is tested on the same data, the probability
+  of at least one false positive grows. Uncontrolled multiplicity is the
+  most common form of self-deception in empirical work.
+
+frozen_nouns:
+  - {noun: FAMILY, meaning: "Pre-specified set of hypotheses that share a multiplicity correction"}
+  - {noun: FWER, meaning: "Family-wise error rate: P(at least one false positive in family)"}
+  - {noun: FDR, meaning: "False discovery rate: expected proportion of false positives among rejections"}
+  - {noun: BONFERRONI, meaning: "Conservative FWER control: alpha_per_test = alpha / k"}
+  - {noun: BENJAMINI_HOCHBERG, meaning: "FDR control under positive regression dependence"}
+  - {noun: PRE_REGISTRATION, meaning: "Public deposit of analysis plan before data collection or unblinding"}
+
+red_constraints:
+  - "If k hypotheses are tested, multiplicity must be corrected. Reporting raw p-values without correction inflates FWER."
+  - "Hypothesis selection after seeing data (HARKing) is RED. Confirmatory tests must be pre-specified."
+  - "Stopping rules adapted from observed data are RED unless the design is sequential and the boundary is pre-registered."
+  - "Subgroup analyses claimed as confirmatory require pre-registration; otherwise they are exploratory and must be labeled as such."
+
+floor_layer_bounds:
+  - "State the family of hypotheses explicitly. The family determines the correction."
+  - "State the correction method (Bonferroni, Holm, BH, BY, permutation, hierarchical)."
+  - "State whether FWER or FDR control is applied and why."
+  - "Distinguish primary from secondary endpoints. Multiplicity correction may differ across tiers."
+
+way_layer_methods:
+  - "Bonferroni: alpha_per = alpha / k. Conservative, simple, valid under any dependence."
+  - "Holm-Bonferroni: ordered, uniformly more powerful than Bonferroni; controls FWER."
+  - "Benjamini-Hochberg: controls FDR at level q; appropriate when many true effects expected."
+  - "Permutation: data-driven null; valid under exchangeability."
+  - "Pre-registered hierarchical (gatekeeping): test in order; stop on first failure; no correction needed."
+  - "Closure principle: control FWER for all intersection hypotheses simultaneously."
+
+diagnostics:
+  multiplicity:
+    question: "Are k > 1 hypotheses tested in this family?"
+    if_no: "proceed_to_inference"
+    if_yes: "proceed_to_correction"
+
+  correction:
+    question: "Is a correction method declared and applied?"
+    if_no:
+      diagnosis: "MULTIPLICITY_ERROR"
+      action: "Apply Bonferroni / Holm / BH, or pre-register a hierarchical design."
+    if_yes: "proceed_to_prespecification"
+
+  prespecification:
+    question: "Were the k hypotheses pre-specified before data were seen?"
+    if_no:
+      diagnosis: "POSTHOC_FAMILY"
+      action: "Reclassify as exploratory; or pre-register and collect new data for confirmation."
+
+scripture_anchors:
+  - theme: "Two or three witnesses, not many"
+    reference: "Deuteronomy 19:15"
+  - theme: "Honest weights and measures"
+    reference: "Proverbs 11:1"
+  - theme: "Counting the cost before building"
+    reference: "Luke 14:28"

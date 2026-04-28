@@ -1,0 +1,308 @@
+
+region:
+  governance_constraints:
+    12_1_rule:
+      dedicated_to_source: 1
+      growth_focus: 10 grow 2 by 2
+      leads: 1
+      max_subordinates: 12
+      special_assignment_missionary: 1
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  identity:
+    seed_id: NWGAJDA_Region
+    jurisdiction:
+    - Bartow
+    - Catoosa
+    - Chattooga
+    - Dade
+    - Fannin
+    - Floyd
+    - Gilmer
+    - Gordon
+    - Haralson
+    - Murray
+    - Paulding
+    - Pickens
+    - Polk
+    - Walker
+    - Whitfield
+    translation_pack: NIV
+  mission_outcomes:
+    ensure_human_services_capacity_to_stabilize_workforce: true
+    improve_workforce_readiness_attainment:
+      educational_attainment_bachelors_or_higher: 13.8%
+      educational_attainment_high_school_or_higher: 85.6%
+      high_school_graduation_rate: 93.8%
+    increase_ready_industrial_property_capacity: true
+    maintain_alliance_marketing_cadence: true
+    push_transportation_priorities_tied_to_economic_development: true
+  parameters:
+    CAPACITY_THRESHOLD: 0.7
+    COST_SITE: 30000000
+    FIRSTFRUIT_RATE: 0.1
+    MINCAP: 3
+    OPF: 50000000
+    RESF: 150000000
+    RESOURCE_THRESHOLD: 1.7
+    SEED_IN: 20000000
+    SEW_RATE: 0.9
+    SURP_SITE: 5000000
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures:
+    - '# pad-ready acres'
+    - '# RFIs answered'
+    - '# employer visits'
+    - '# permitting blockers cleared'
+    - '# workforce training cohorts'
+    - '# transportation projects advanced'
+    - '# human services programs supported'
+    - '# alliance meetings maintained'
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+territories:
+- identity:
+    jurisdiction: [Bartow, Catoosa, Chattooga, Dade, Fannin, Floyd, Gilmer, Gordon, Haralson, Murray, Paulding, Pickens, Polk, Walker, Whitfield]
+    seed_id: IndustrialReadiness
+    translation_pack: NIV
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {increase_ready_industrial_property_capacity: true}
+  parameters:
+    CAPACITY_THRESHOLD: 0.7
+    COST_SITE: 5000000
+    FIRSTFRUIT_RATE: 0.1
+    MINCAP: 3
+    OPF: 10000000
+    RESF: 25000000
+    RESOURCE_THRESHOLD: 1.7
+    SEED_IN: 3000000
+    SEW_RATE: 0.9
+    SURP_SITE: 800000
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+- identity:
+    jurisdiction: [Bartow, Catoosa, Chattooga, Dade, Fannin, Floyd, Gilmer, Gordon, Haralson, Murray, Paulding, Pickens, Polk, Walker, Whitfield]
+    seed_id: LogisticsCorridors
+    translation_pack: NIV
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {push_transportation_priorities_tied_to_economic_development: true}
+  parameters:
+    CAPACITY_THRESHOLD: 0.7
+    COST_SITE: 5000000
+    FIRSTFRUIT_RATE: 0.1
+    MINCAP: 3
+    OPF: 10000000
+    RESF: 25000000
+    RESOURCE_THRESHOLD: 1.7
+    SEED_IN: 3000000
+    SEW_RATE: 0.9
+    SURP_SITE: 800000
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+- identity:
+    jurisdiction: [Bartow, Catoosa, Chattooga, Dade, Fannin, Floyd, Gilmer, Gordon, Haralson, Murray, Paulding, Pickens, Polk, Walker, Whitfield]
+    seed_id: TalentPipeline
+    translation_pack: NIV
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {improve_workforce_readiness_attainment: true}
+  parameters:
+    CAPACITY_THRESHOLD: 0.7
+    COST_SITE: 5000000
+    FIRSTFRUIT_RATE: 0.1
+    MINCAP: 3
+    OPF: 10000000
+    RESF: 25000000
+    RESOURCE_THRESHOLD: 1.7
+    SEED_IN: 3000000
+    SEW_RATE: 0.9
+    SURP_SITE: 800000
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+clusters:
+- identity: {jurisdiction: [Catoosa], seed_id: Catoosa_Cluster, translation_pack: NIV}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {experimental: 1 experimental wedge (30%), strengths: [1-2 dominant strengths (70%)]}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 750000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 2000000, RESF: 5000000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 500000, SEW_RATE: 0.9, SURP_SITE: 120000}
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+- identity: {jurisdiction: [Chattooga], seed_id: Chattooga_Cluster, translation_pack: NIV}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {experimental: 1 experimental wedge (30%), strengths: [1-2 dominant strengths (70%)]}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 750000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 2000000, RESF: 5000000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 500000, SEW_RATE: 0.9, SURP_SITE: 120000}
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+- identity: {jurisdiction: [Dade], seed_id: Dade_Cluster, translation_pack: NIV}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {experimental: 1 experimental wedge (30%), strengths: [1-2 dominant strengths (70%)]}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 750000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 2000000, RESF: 5000000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 500000, SEW_RATE: 0.9, SURP_SITE: 120000}
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+- identity: {jurisdiction: [Walker], seed_id: Walker_Cluster, translation_pack: NIV}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  mission_outcomes: {experimental: 1 experimental wedge (30%), strengths: [1-2 dominant strengths (70%)]}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 750000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 2000000, RESF: 5000000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 500000, SEW_RATE: 0.9, SURP_SITE: 120000}
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+
+sites:
+- identity: {jurisdiction: [], seed_id: chattooga_county_/_tooga_theater_renovation_project_–_phase_1, translation_pack: NIV}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 25000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 100000, RESF: 250000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 50000, SEW_RATE: 0.9, SURP_SITE: 5000}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+  project_details: {estimated_cost: 1000000, funding: 372000, name: Chattooga County / Tooga Theater Renovation Project – Phase 1}
+
+- identity: {jurisdiction: [], seed_id: city_of_cedartown_/_performing_arts_center_renovation_phase_1, translation_pack: NIV}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 25000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 100000, RESF: 250000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 50000, SEW_RATE: 0.9, SURP_SITE: 5000}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+  project_details: {estimated_cost: 1000000, funding: 806882, name: City of Cedartown / Performing Arts Center Renovation Phase 1}
+
+- identity: {jurisdiction: [], seed_id: lift_youth_center, translation_pack: NIV}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 25000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 100000, RESF: 250000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 50000, SEW_RATE: 0.9, SURP_SITE: 5000}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+  project_details: {estimated_cost: null, funding: 62500, name: LIFT Youth Center}
+
+- identity: {jurisdiction: [], seed_id: cedartown_wastewater_improvement_project, translation_pack: NIV}
+  parameters: {CAPACITY_THRESHOLD: 0.7, COST_SITE: 25000, FIRSTFRUIT_RATE: 0.1, MINCAP: 3, OPF: 100000, RESF: 250000, RESOURCE_THRESHOLD: 1.7, SEED_IN: 50000, SEW_RATE: 0.9, SURP_SITE: 5000}
+  governance_constraints:
+    12_1_rule: {dedicated_to_source: 1, growth_focus: 10 grow 2 by 2, leads: 1, max_subordinates: 12, special_assignment_missionary: 1}
+    70_30_rule: scale strengths; cap experimental bandwidth
+    phase_reporting: [Setup, Positioning, Conversion]
+    quarantine_rule: unknown projects don’t enter the active portfolio until validated
+    reserve_rule_firstfruits: 0.1
+    spending_rule: never spend below minimum stability floor
+    tripartite_structure: mind_body_spirit
+  portfolio_mechanics:
+    capacity_units: one shovel-ready pad or equivalent project unit
+    lag_measures: [jobs created, capital investment]
+    lead_measures: ['# pad-ready acres', '# RFIs answered', '# employer visits', '# permitting blockers cleared', '# workforce training cohorts', '# transportation projects advanced', '# human services programs supported', '# alliance meetings maintained']
+    project_types: [industrial_site, utilities, transportation, housing_workforce_support, marketing, talent]
+    shock_model: {failure_rate: 0.02, shock_frequency: 5, shock_impact: 0.3}
+  project_details: {estimated_cost: 2000000, funding: 254400, name: Cedartown Wastewater Improvement Project}

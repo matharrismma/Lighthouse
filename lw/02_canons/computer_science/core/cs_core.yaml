@@ -1,0 +1,100 @@
+domain: computer_science
+version: "1.0"
+status: CANONICAL
+watchmaking_parallel: "Escapement — regulates computation in valid steps"
+
+thesis:
+  computer_science: >
+    Computation = formal symbol manipulation governed by explicit rules.
+    Correctness, termination, and complexity are provable properties, not
+    empirical approximations. The machine does exactly what the model says,
+    no more and no less.
+
+frozen_nouns:
+  - noun: ALGORITHM
+    meaning: "Finite, deterministic sequence of steps that solves a class of problems; must terminate or be proven non-terminating by design."
+  - noun: DATA_STRUCTURE
+    meaning: "Organization of data enabling specific operations with defined time/space costs."
+  - noun: COMPLEXITY
+    meaning: "Resource usage (time or space) as a function of input size; stated as asymptotic bounds with variable defined."
+  - noun: AUTOMATON
+    meaning: "Abstract machine with states, transitions, and acceptance conditions; defines a class of computable functions."
+  - noun: PROTOCOL
+    meaning: "Formal specification of message exchange rules between agents; correctness properties must be stated (safety, liveness)."
+  - noun: ENCODING
+    meaning: "Mapping from one representation to another; must state whether injective, surjective, or bijective."
+  - noun: STATE
+    meaning: "Complete description of a system at a point in time sufficient to determine future behavior."
+  - noun: INVARIANT
+    meaning: "Property that holds at every step of a computation or across every execution; used to prove correctness."
+  - noun: REDUCTION
+    meaning: "Transformation showing one problem is at least as hard as another; direction must be stated."
+  - noun: ABSTRACTION
+    meaning: "Interface separating specification from implementation; the contract is what is verified, not the internals."
+
+red_constraints:
+  - "An algorithm must terminate within stated bounds, or non-termination must be proven intentional (e.g., event loops, servers)."
+  - "Complexity claims require the input variable to be explicitly defined (n = what)."
+  - "No undefined behavior: out-of-bounds access, null dereference, data races, and type errors are RED violations."
+  - "Reduction direction must be stated and correct: A reduces to B means B is at least as hard as A."
+  - "Encoding claimed bijective must be proven so; one-way functions must not be called encodings without qualification."
+  - "Formal language claims must specify the model of computation (DFA, PDA, TM, etc.)."
+  - "Distributed system claims of consistency (linearizability, serializability) must cite the formal model."
+
+floor_layer_bounds:
+  - "Input and output domains must be declared for every algorithm."
+  - "Asymptotic analysis must state best/worst/average case and which is claimed."
+  - "Distributed systems must declare consistency model (strong, eventual, causal) and availability tradeoff."
+  - "Space complexity must be stated alongside time complexity when memory is a relevant constraint."
+  - "Correctness proofs must name the proof technique (loop invariant, induction, bisimulation, etc.)."
+  - "Concurrency claims must specify the memory model (sequential consistency, TSO, release-acquire, etc.)."
+
+way_layer_methods:
+  - "Prefer reduction to known complexity classes before claiming novel hardness results."
+  - "Use standard data structures before inventing new ones; justify new structures by formal analysis."
+  - "For distributed protocols, specify the fault model (crash-stop, Byzantine) and the guarantee (safety, liveness) separately."
+  - "For recursive algorithms, state the recurrence and solve it (Master Theorem, substitution, etc.)."
+  - "For probabilistic algorithms, state the failure probability and whether it is one-sided or two-sided."
+
+diagnostics:
+  root:
+    question: "Does the algorithm terminate on all valid inputs within stated bounds?"
+    if_no:
+      diagnosis: "TERMINATION_UNPROVEN"
+      action: "Add loop variant; prove well-founded ordering; or reclassify as non-terminating by design."
+    if_yes: "proceed_to_correctness"
+
+  correctness:
+    question: "Is correctness proven (invariant, induction, or reference to verified library)?"
+    if_no:
+      diagnosis: "CORRECTNESS_UNVERIFIED"
+      action: "State invariant; prove base case and inductive step; or cite verified implementation."
+    if_yes: "proceed_to_complexity"
+
+  complexity:
+    question: "Are time and space bounds stated with input variable defined?"
+    if_no:
+      diagnosis: "COMPLEXITY_UNDERSPECIFIED"
+      action: "Define n; state recurrence or counting argument; prove or bound tight."
+    if_yes: "proceed_to_implementation"
+
+  implementation:
+    question: "Are undefined behaviors (races, null dereference, overflow) ruled out?"
+    if_no:
+      diagnosis: "UNDEFINED_BEHAVIOR_RISK"
+      action: "Add bounds checks; use safe types; use formal memory model; run static analysis."
+    if_yes:
+      diagnosis: "PASS"
+      action: "Proceed to deployment."
+
+scripture_anchors:
+  - theme: "Order from rule (lawful computation)"
+    reference: "Proverbs 8:22-31"
+  - theme: "Faithful execution (does exactly what it says)"
+    reference: "Luke 16:10"
+  - theme: "Boundary (defined domain)"
+    reference: "Job 38:10-11"
+  - theme: "Witness (verifiable trace)"
+    reference: "Deuteronomy 19:15"
+  - theme: "Completeness (nothing hidden)"
+    reference: "Luke 8:17"

@@ -1,0 +1,24 @@
+{
+  "domain": "chemistry",
+  "id": "chem-verify-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "required_witnesses": 0,
+  "witness_count": 0,
+  "CHEM_RED": {
+    "mass_conserved": true,
+    "charge_balanced": true,
+    "elements_consistent": true,
+    "phases_specified": true
+  },
+  "CHEM_SETUP": {
+    "reagents": ["C3H8", "O2"],
+    "products": ["CO2", "H2O"],
+    "temperature_K": 298.15,
+    "phase": "gas"
+  },
+  "CHEM_VERIFY": {
+    "equation": "C3H8 + 5 O2 -> 3 CO2 + 4 H2O",
+    "temperature_K": 298.15
+  }
+}

@@ -1,0 +1,59 @@
+module: automata_languages
+version: "1.0"
+status: CANONICAL
+parent: computer_science
+
+scope: >
+  Formal languages and the machines that recognize them. Any claim about a
+  language (regularity, context-freedom, decidability) must specify the model
+  of computation it is grounded in.
+
+frozen_nouns:
+  - {noun: ALPHABET, meaning: "Finite set of symbols Σ"}
+  - {noun: STRING, meaning: "Finite sequence over Σ"}
+  - {noun: LANGUAGE, meaning: "Subset of Σ*"}
+  - {noun: DFA, meaning: "Deterministic finite automaton; recognizes regular languages"}
+  - {noun: NFA, meaning: "Nondeterministic finite automaton; equivalent power to DFA"}
+  - {noun: PDA, meaning: "Pushdown automaton; recognizes context-free languages"}
+  - {noun: TM, meaning: "Turing machine; recognizes recursively enumerable languages"}
+  - {noun: GRAMMAR, meaning: "Generative system; class determines language class"}
+
+red_constraints:
+  - "Language class claim requires model of computation cited (DFA, NFA, PDA, TM, LBA)."
+  - "Pumping lemma application requires the lemma's specific form (regular, context-free) and a witness string."
+  - "Closure-property claims must name the operation (union, intersection, complement, concatenation, Kleene star) and the class."
+  - "Decidability claims must distinguish decidable, semi-decidable (recursively enumerable), and undecidable."
+  - "Reduction-based undecidability proofs must state direction: reducing FROM a known undecidable problem TO the target."
+
+floor_layer_bounds:
+  - "State input alphabet Σ explicitly."
+  - "For nondeterministic machines, state acceptance criterion (existential vs universal)."
+  - "For grammars, state which Chomsky hierarchy level (Type 0, 1, 2, 3)."
+  - "Equivalence claims (DFA = NFA in power) require subset construction or equivalent argument."
+
+way_layer_methods:
+  - "Pumping lemma for regular and context-free non-membership proofs."
+  - "Subset construction for NFA → DFA conversion."
+  - "Myhill-Nerode for minimum DFA / non-regularity."
+  - "CYK for context-free recognition."
+  - "Mapping reductions for decidability."
+
+diagnostics:
+  model_check:
+    question: "Is the model of computation specified?"
+    if_no:
+      diagnosis: "FORMAL_MODEL_UNSPECIFIED"
+      action: "State DFA / PDA / TM / LBA / grammar level explicitly."
+    if_yes: "proceed_to_class"
+
+  class_check:
+    question: "Is the language class claim grounded in the model?"
+    if_no:
+      diagnosis: "CLASS_MODEL_MISMATCH"
+      action: "Match class (regular/CF/CS/RE) to recognizing model."
+
+scripture_anchors:
+  - theme: "Boundary defined (Σ as horizon)"
+    reference: "Job 38:10-11"
+  - theme: "Faithful recognition (machine accepts what it should)"
+    reference: "Luke 16:10"

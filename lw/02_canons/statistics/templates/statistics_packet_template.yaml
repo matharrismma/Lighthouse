@@ -1,0 +1,80 @@
+template: statistics_packet_template
+version: "1.0"
+domain: statistics
+
+description: >
+  Use this template to assemble a STAT_RED / STAT_FLOOR / STAT_INFERENCE
+  packet for the concordance engine. The engine checks attestation, not
+  artifact, so a false attestation is a lie. The NHANES study at
+  06_validation/ is a worked example of these fields filled honestly.
+
+example_packet:
+  domain: statistics
+  scope: adapter
+  created_epoch: 0
+  required_witnesses: 2
+  witness_count: 0
+
+  STAT_RED:
+    probabilities_valid: true
+    pvalue_interpreted_correctly: true
+    effect_size_reported: true
+    hypothesis_prespecified: true
+    causal_identification_stated: true
+    multiple_comparisons_corrected: true
+    confidence_interval_interpretation_correct: true
+
+  STAT_FLOOR:
+    sampling_mechanism_stated: true
+    distributional_assumptions_tested: true
+    sample_size_justified: true
+    missing_data_mechanism_declared: true
+    prior_justified: true   # Bayesian only; set to true / N/A
+    power_computed: true
+
+  STAT_INFERENCE:
+    framework: "frequentist"   # frequentist | bayesian | likelihood
+    p_value: 0.0034
+    alpha: 0.05
+    effect_size_type: "cohens_d"
+    effect_size: 0.42
+    confidence_interval: [0.18, 0.66]
+    confidence_level: 0.95
+    pvalue_is_prob_null: false   # this MUST be false; setting true is a RED violation
+
+  diagnostics: []
+
+  artifacts:
+    analysis_plan_ref: "doc://path/to/preregistered/analysis-plan"
+    data_ref: "doc://path/to/data"
+    code_ref: "doc://path/to/analysis-code"
+    diagnostics_ref: "doc://path/to/residual-and-power-diagnostics"
+
+mandatory_fields:
+  - domain
+  - created_epoch
+  - STAT_RED OR STAT_INFERENCE OR claims[]
+  - witness_count (>= required_witnesses for BROTHERS pass)
+
+optional_blocks:
+  - STAT_FLOOR (required if STAT_INFERENCE is provided)
+  - STAT_INFERENCE (required for any inferential claim)
+  - diagnostics
+
+red_failure_modes:
+  - "pvalue_interpreted_correctly: false → REJECT (p is P(data|H0), not P(H0|data))"
+  - "hypothesis_prespecified: false → REJECT (post-hoc on same data is circular)"
+  - "causal_identification_stated: false → REJECT (correlation is not causation)"
+  - "multiple_comparisons_corrected: false → REJECT (FWER inflation)"
+  - "effect_size_reported: false → REJECT when significance is claimed"
+
+floor_failure_modes:
+  - "sampling_mechanism_stated: false → REJECT"
+  - "sample_size_justified: false → REJECT (power analysis or pre-reg required)"
+  - "distributional_assumptions_tested: false → REJECT"
+  - "effect_size present without confidence_interval → REJECT"
+
+cross_reference: >
+  See 06_validation/framework_validation_v3_final/ANALYSIS_PLAN.md for a
+  worked example of pre-registered hypothesis specification, sampling,
+  effect-size reporting, multiplicity handling, and decision rules.

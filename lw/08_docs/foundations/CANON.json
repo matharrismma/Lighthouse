@@ -1,0 +1,93 @@
+{
+  "version": "canon_v1",
+  "authority_stack": [
+    "GOD",
+    "WORD",
+    "RED",
+    "LAW",
+    "WAY"
+  ],
+  "kernel_nouns": [
+    "WORD",
+    "RED",
+    "LAW",
+    "WAY",
+    "GATE",
+    "FLOOR",
+    "WITNESS",
+    "WAIT",
+    "VESSEL",
+    "RULE",
+    "ACTION",
+    "STATE",
+    "LEDGER"
+  ],
+  "roles": [
+    "KEEPER",
+    "STEWARD",
+    "SHEPHERD",
+    "VESSEL",
+    "LIGHTHOUSE"
+  ],
+  "gates": [
+    {
+      "k": "RED",
+      "hard": true,
+      "refs": [
+        "Jn14:6",
+        "Mt5-7"
+      ]
+    },
+    {
+      "k": "FLOOR",
+      "hard": true,
+      "refs": [
+        "Ex20",
+        "Ps75:3"
+      ]
+    },
+    {
+      "k": "BROTHERS",
+      "hard": false,
+      "refs": [
+        "Dt19:15",
+        "Mt18:16"
+      ]
+    },
+    {
+      "k": "GOD",
+      "hard": false,
+      "refs": [
+        "Ps27:14",
+        "Is40:31"
+      ]
+    }
+  ],
+  "scope_defaults": {
+    "A": {
+      "wmin": 2,
+      "wait_s": 3600
+    },
+    "M": {
+      "wmin": 3,
+      "wait_s": 86400
+    },
+    "C": {
+      "wmin": 7,
+      "wait_s": 604800
+    }
+  },
+  "protocol": {
+    "confession_required": true,
+    "witness_is_attestation": true,
+    "wait_is_mandatory": true,
+    "no_divine_titles_for_software": true
+  },
+  "names_current": {
+    "company": "Lighthouse",
+    "product_family": "Waymaker",
+    "persona": "The Keeper",
+    "device": "Vessel",
+    "record": "Journal"
+  }
+}

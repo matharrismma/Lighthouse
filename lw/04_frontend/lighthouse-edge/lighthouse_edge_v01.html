@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c0e">
+<title>Lighthouse Edge</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTGlnaHRob3VzZSBFZGdlIiwic2hvcnRfbmFtZSI6IkxIIEVkZ2UiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBjMGMwZSIsInRoZW1lX2NvbG9yIjoiIzBjMGMwZSJ9">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#0c0c0e;margin:0;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  input:focus,textarea:focus,select:focus{border-color:#3f3f46!important;outline:none}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#27272a;border-radius:2px}
+  /* Prevent iOS zoom on input focus */
+  input,select,textarea{font-size:16px!important}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-type="module">
+const { useState, useRef, useEffect, useCallback } = React;
+
+// ═══════════════════════════════════════════════════════════════════════
+// CALIBRE ENGINE — Ported from Python (formulas.py + engine.py + model.py)
+// ═══════════════════════════════════════════════════════════════════════
+
+const clamp01 = x => x < 0 ? 0 : x > 1 ? 1 : x;
+
+const flowHealth = (s, m, b) => {
+  s = clamp01(s); m = clamp01(m); b = clamp01(b);
+  const spread = Math.max(s, m, b) - Math.min(s, m, b);
+  const presence = (s + m + b) / 3;
+  return clamp01(0.60 * (1 - spread) + 0.40 * presence);
+};
+
+const beautyScore = (s, m, b) => {
+  s = clamp01(s); m = clamp01(m); b = clamp01(b);
+  const health = flowHealth(s, m, b);
+  const comp = Math.max(s, m, b) - (s + m + b) / 3;
+  const economy = clamp01(1 - comp);
+  return clamp01(health * economy);
+};
+
+const shadowOfLaw = (L, C, P) => {
+  L = clamp01(L); C = clamp01(C); P = clamp01(P);
+  return clamp01(L * Math.max(0, P - C));
+};
+
+const viceIndex = (S, K, D) => {
+  S = clamp01(S); K = clamp01(K); D = clamp01(D);
+  const bypass = D * (1 - K);
+  const falseSrc = (1 - S) * D;
+  return clamp01(0.60 * bypass + 0.40 * falseSrc);
+};
+
+const DEFAULT_RULES = {
+  witnessMin: 1, alignMin: 0.75, chaffMax: 0.35,
+  burnRate: 0.25, burnGain: 0.05, firstfruitsRatio: 0.10,
+  harvestGain: 1.10, wAlign: 0.50, wClean: 0.25,
+  wRumination: 0.30, wGrudge: 0.40, wReplay: 0.25, wShameLock: 0.35,
+  wPeace: 0.25, wObedience: 0.35, wClarity: 0.20,
+  contradictionCap: 0.49, alignStreakRequired: 3, proofStreakRequired: 1,
+};
+
+const INIT_CAL = {
+  tier: "MILK", align: 0, chaff: 0, fruit: 0, firstfruits: 0,
+  access: 0, alignStreak: 0, proofStreak: 0,
+  totalPackets: 0, proceedCount: 0, waitCount: 0, rejectCount: 0, constrainCount: 0,
+};
+
+// --- localStorage persistence ---
+const STORAGE_KEY = "lighthouse_edge_state";
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+function saveState(packets, calibre) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ packets, calibre, savedAt: new Date().toISOString() }));
+  } catch {}
+}
+
+// --- Calibre cycle ---
+function calibrateState(st, sig, r = DEFAULT_RULES) {
+  const s = { ...st };
+  const neg = r.wRumination * clamp01(sig.rumination || 0) + r.wGrudge * clamp01(sig.grudge || 0)
+    + r.wReplay * clamp01(sig.replay || 0) + (sig.shameLock ? r.wShameLock : 0);
+  s.chaff = clamp01(0.70 * s.chaff + 0.30 * clamp01(neg));
+  const pos = r.wPeace * clamp01(sig.peace || 0) + r.wObedience * clamp01(sig.obedience || 0) + r.wClarity * clamp01(sig.clarity || 0);
+  let aRaw = clamp01(0.70 * s.align + 0.30 * clamp01(pos) + 0.15 * (1 - s.chaff));
+  s.align = sig.contradiction ? Math.min(aRaw, r.contradictionCap) : clamp01(aRaw - 0.20 * s.chaff);
+  s.fruit = Math.max(0, s.fruit + Math.max(0, sig.fruitDelta || 0)) * (1 + 0.10 * clamp01(sig.stewardship || 0));
+  return s;
+}
+function burnStep(s, r = DEFAULT_RULES) { return { ...s, chaff: clamp01(s.chaff * (1 - r.burnRate)), align: clamp01(s.align + r.burnGain) }; }
+function ffStep(s, r = DEFAULT_RULES) { return { ...s, firstfruits: s.firstfruits + Math.max(0, s.fruit * r.firstfruitsRatio) }; }
+function harvestStep(s, r = DEFAULT_RULES) { const cl = 1 - s.chaff; return { ...s, fruit: Math.max(0, s.fruit * r.harvestGain * (1 + s.align * r.wAlign + cl * r.wClean)) }; }
+function upgradeCheck(s, r = DEFAULT_RULES) {
+  const o = { ...s };
+  o.alignStreak = (o.align >= r.alignMin && o.chaff <= r.chaffMax) ? o.alignStreak + 1 : 0;
+  if (o.alignStreak >= 1 && o.access < 3) o.access += 1;
+  if (o.access >= 3 && o.alignStreak >= r.alignStreakRequired && o.proofStreak >= r.proofStreakRequired) o.tier = "MEAT";
+  return o;
+}
+function deriveSignals(pkt, gr, cal) {
+  const uMap = { low: 0.8, medium: 0.5, high: 0.2 };
+  const bMap = { none: 0, incomplete: 0.3, adequate: 0.8 };
+  return {
+    peace: uMap[pkt.urgency] || 0.5, obedience: gr.result === "PROCEED" ? 0.7 : gr.result === "WAIT" ? 0.4 : 0.2,
+    clarity: bMap[pkt.sourceBasis] || 0, rumination: 0, grudge: 0, replay: 0, shameLock: false, contradiction: false,
+    fruitDelta: gr.result === "PROCEED" ? 0.15 : 0, stewardship: clamp01(cal.proceedCount / Math.max(1, cal.totalPackets)),
+  };
+}
+function runCalibreCycle(cal, pkt, gr) {
+  const sig = deriveSignals(pkt, gr, cal);
+  let s = { ...cal, totalPackets: cal.totalPackets + 1 };
+  if (gr.result === "PROCEED") s.proceedCount += 1;
+  if (gr.result === "WAIT") s.waitCount += 1;
+  if (gr.result === "REJECT") s.rejectCount += 1;
+  if (gr.result === "CONSTRAIN") s.constrainCount += 1;
+  s.proofStreak = pkt.witnessPresent ? s.proofStreak + 1 : 0;
+  s = calibrateState(s, sig); s = burnStep(s); s = ffStep(s); s = harvestStep(s); s = upgradeCheck(s);
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCRIPTURAL AUTHORITY — WEB (public domain)
+// ═══════════════════════════════════════════════════════════════════════
+
+const GA = {
+  RED: { name: "RED", principle: "You shall not cross this line.", basis: "Proverbs 22:3", text: "A prudent man sees danger and hides himself; but the simple pass on, and suffer for it.", source: "WEB" },
+  FLOOR: { name: "FLOOR", principle: "The foundation must be in place before you build.", basis: "Luke 14:28", text: "For which of you, desiring to build a tower, doesn\u2019t first sit down and count the cost, whether he has enough to complete it?", source: "WEB" },
+  WAY: { name: "WAY", principle: "The path must be lawful, not merely possible.", basis: "Proverbs 4:26\u201327", text: "Make the path of your feet level. Let all of your ways be established. Don\u2019t turn to the right hand nor to the left. Remove your foot from evil.", source: "WEB" },
+  EXECUTION: { name: "EXECUTION", principle: "Proceed faithfully within the bounds you have been given.", basis: "Colossians 3:23", text: "Whatever you do, work heartily, as for the Lord and not for men.", source: "WEB" },
+};
+const RB = {
+  red_c: { basis: "Proverbs 22:3", text: "A prudent man sees danger and hides himself; but the simple pass on, and suffer for it." },
+  red_u: { basis: "Proverbs 27:12", text: "A prudent man sees danger and hides himself. The simple pass on, and suffer for it." },
+  fl_b: { basis: "Luke 14:28\u201330", text: "For which of you, desiring to build a tower, doesn\u2019t first sit down and count the cost, whether he has enough to complete it?" },
+  fl_w: { basis: "Deuteronomy 19:15", text: "One witness shall not rise up against a man for any iniquity, or for any sin that he sins. At the mouth of two witnesses, or at the mouth of three witnesses, shall a matter be established." },
+  way_p: { basis: "Proverbs 4:26\u201327", text: "Make the path of your feet level. Let all of your ways be established. Don\u2019t turn to the right hand nor to the left." },
+  way_a: { basis: "Hebrews 13:17", text: "Obey your leaders and submit to them, for they watch on behalf of your souls, as those who will give account." },
+  ex: { basis: "Micah 6:8", text: "He has shown you, O man, what is good. What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God?" },
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// GATE ENGINE — Tier-influenced
+// ═══════════════════════════════════════════════════════════════════════
+
+function redCheck(p) {
+  if (p.riskLevel === "critical" && p.sourceBasis === "none") return { result: "REJECT", haltGate: "RED", reasons: ["Critical risk with no source basis"], nextStep: "Do not proceed.", gateAuthority: GA.RED, ruleBasis: RB.red_c };
+  if (p.assetId && p.proposedAction.toLowerCase().includes("restart") && p.constraints.some(c => c.toLowerCase().includes("unsafe"))) return { result: "REJECT", haltGate: "RED", reasons: ["Asset marked unsafe for restart"], nextStep: "Keep asset offline and escalate.", gateAuthority: GA.RED, ruleBasis: RB.red_u };
+  return null;
+}
+function floorCheck(p, cal) {
+  if (p.sourceBasis === "none" || p.sourceBasis === "incomplete") return { result: "WAIT", haltGate: "FLOOR", reasons: ["Source basis incomplete"], nextStep: "Gather sufficient basis before proceeding.", gateAuthority: GA.FLOOR, ruleBasis: RB.fl_b };
+  const need = cal.tier === "MILK" ? (p.urgency === "high" && !p.witnessPresent) : (p.urgency === "high" && p.riskLevel !== "low" && !p.witnessPresent);
+  if (need) return { result: "WAIT", haltGate: "FLOOR", reasons: ["High-urgency action requires witness"], nextStep: "Obtain witness and re-evaluate.", gateAuthority: GA.FLOOR, ruleBasis: RB.fl_w };
+  return null;
+}
+function wayCheck(p, cal) {
+  if (p.packetType === "maintenance" && p.proposedAction.toLowerCase().includes("restart") && p.constraints.some(c => c.toLowerCase().includes("inspection only")))
+    return { result: "CONSTRAIN", haltGate: "WAY", reasons: ["Inspection permitted, restart not permitted"], nextStep: "Supervisor confirmation required for restart.", gateAuthority: GA.WAY, ruleBasis: RB.way_p };
+  const ns = p.constraints.some(c => c.toLowerCase().includes("supervisor") || c.toLowerCase().includes("review-only"));
+  if (ns && (cal.tier === "MILK" || cal.align < 0.80))
+    return { result: "CONSTRAIN", haltGate: "WAY", reasons: ["Action requires additional confirmation"], nextStep: "Obtain required confirmation.", gateAuthority: GA.WAY, ruleBasis: RB.way_a };
+  return null;
+}
+function evaluate(p, cal = INIT_CAL) {
+  return redCheck(p) || floorCheck(p, cal) || wayCheck(p, cal) || { result: "PROCEED", haltGate: "EXECUTION", reasons: ["All checks passed"], nextStep: "Proceed within current constraints.", gateAuthority: GA.EXECUTION, ruleBasis: RB.ex };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════
+
+const PTYPES = ["decision", "maintenance", "observation"];
+const DOMS = ["business", "governance", "operations", "field", "household", "education", "other"];
+const NTAGS = [
+  { asset_id: "machine_17", asset_type: "pump", label: "Pump 17" },
+  { asset_id: "gen_03", asset_type: "generator", label: "Generator 03" },
+  { asset_id: "compressor_09", asset_type: "compressor", label: "Compressor 09" },
+  { asset_id: "machine_22", asset_type: "conveyor", label: "Conveyor 22" },
+];
+let ctr = 0;
+const gid = () => { ctr++; return `pkt_${new Date().toISOString().slice(0,10).replace(/-/g,"")}_${String(ctr).padStart(3,"0")}`; };
+const nw = () => new Date().toISOString();
+
+const RC = {
+  REJECT: { bg:"#2a0a0a", border:"#dc2626", color:"#fca5a5", icon:"\u2715", glow:"0 0 20px rgba(220,38,38,0.3)" },
+  WAIT: { bg:"#1a1500", border:"#d97706", color:"#fcd34d", icon:"\u25f7", glow:"0 0 20px rgba(217,119,6,0.3)" },
+  CONSTRAIN: { bg:"#0a1a2a", border:"#2563eb", color:"#93c5fd", icon:"\u25eb", glow:"0 0 20px rgba(37,99,235,0.3)" },
+  PROCEED: { bg:"#0a1a0a", border:"#16a34a", color:"#86efac", icon:"\u2713", glow:"0 0 20px rgba(22,163,74,0.3)" },
+};
+const TC = { MILK: { color:"#fcd34d", bg:"#1a150055", label:"MILK", icon:"\u2727" }, MEAT: { color:"#86efac", bg:"#0a1a0a55", label:"MEAT", icon:"\u2726" } };
+
+// Fonts
+const M = "'JetBrains Mono','Fira Code','SF Mono',monospace";
+const S = "'DM Sans','Segoe UI',system-ui,sans-serif";
+const R = "'Crimson Pro','Georgia','Cambria',serif";
+
+// ═══════════════════════════════════════════════════════════════════════
+// SHARED UI COMPONENTS
+// ═══════════════════════════════════════════════════════════════════════
+
+const Lbl = ({children}) => <div style={{fontFamily:M,fontSize:10,fontWeight:700,color:"#71717a",letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{children}</div>;
+const Back = ({onClick}) => <button style={{background:"none",border:"none",color:"#71717a",cursor:"pointer",fontFamily:M,fontSize:12,letterSpacing:1,padding:"8px 0",marginBottom:12,textTransform:"uppercase"}} onClick={onClick}>{"\u2190"} Back</button>;
+const Title = ({children}) => <div style={{fontFamily:M,fontSize:14,fontWeight:700,color:"#e4e4e7",letterSpacing:2,textTransform:"uppercase",marginBottom:16}}>{children}</div>;
+const Btn1 = ({children, onClick, style:sx}) => <button style={{flex:1,padding:"14px 0",borderRadius:10,border:"none",background:"#e4e4e7",color:"#09090b",fontFamily:M,fontSize:13,fontWeight:700,letterSpacing:1,cursor:"pointer",textTransform:"uppercase",...sx}} onClick={onClick}>{children}</button>;
+const Btn2 = ({children, onClick, style:sx}) => <button style={{flex:1,padding:"14px 0",borderRadius:10,border:"1px solid #27272a",background:"transparent",color:"#a1a1aa",fontFamily:M,fontSize:13,fontWeight:700,letterSpacing:1,cursor:"pointer",textTransform:"uppercase",...sx}} onClick={onClick}>{children}</button>;
+const Panel = ({children, style:sx}) => <div style={{background:"#18181b",borderRadius:10,padding:16,marginBottom:16,border:"1px solid #27272a",...sx}}>{children}</div>;
+const Chip = ({active, children, onClick, style:sx}) => <button style={{padding:"8px 14px",borderRadius:20,border:active?"1px solid #3f3f46":"1px solid #27272a",background:active?"#27272a":"#18181b",color:active?"#e4e4e7":"#71717a",fontFamily:M,fontSize:11,fontWeight:600,cursor:"pointer",letterSpacing:.5,textTransform:"uppercase",...sx}} onClick={onClick}>{children}</button>;
+const Row = ({k,v}) => <div style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:"1px solid #1a1a1e"}}><span style={{fontFamily:M,fontSize:11,color:"#52525b",letterSpacing:1,textTransform:"uppercase"}}>{k}</span><span style={{fontSize:13,color:"#e4e4e7",textAlign:"right",maxWidth:"60%",wordBreak:"break-word"}}>{v}</span></div>;
+const Inp = ({...p}) => <input style={{width:"100%",background:"#18181b",border:"1px solid #27272a",borderRadius:8,padding:"10px 12px",color:"#e4e4e7",fontSize:14,fontFamily:S,outline:"none",boxSizing:"border-box"}} {...p} />;
+const Txt = ({...p}) => <textarea style={{width:"100%",background:"#18181b",border:"1px solid #27272a",borderRadius:8,padding:"10px 12px",color:"#e4e4e7",fontSize:14,fontFamily:S,outline:"none",minHeight:72,resize:"vertical",boxSizing:"border-box"}} {...p} />;
+const Sel = ({children,...p}) => <select style={{width:"100%",background:"#18181b",border:"1px solid #27272a",borderRadius:8,padding:"10px 12px",color:"#e4e4e7",fontSize:14,fontFamily:S,outline:"none",appearance:"none",boxSizing:"border-box"}} {...p}>{children}</select>;
+
+function Scripture({ga, rb, bc}) {
+  if (!ga) return null;
+  return (
+    <div style={{background:"#0d0d10",border:`1px solid ${bc||"#27272a"}`,borderRadius:10,padding:16,marginBottom:16,borderLeft:`3px solid ${bc||"#3f3f46"}`}}>
+      <div style={{fontFamily:M,fontSize:9,fontWeight:700,color:"#52525b",letterSpacing:3,textTransform:"uppercase",marginBottom:10}}>Authority</div>
+      <div style={{fontFamily:R,fontSize:15,color:"#d4d4d8",lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>&ldquo;{rb?.text||ga.text}&rdquo;</div>
+      <div style={{fontFamily:M,fontSize:11,color:"#71717a"}}><span style={{color:"#a1a1aa",fontWeight:600}}>{rb?.basis||ga.basis}</span> &middot; {ga.source}</div>
+      <div style={{marginTop:10,paddingTop:10,borderTop:"1px solid #1a1a1e",fontFamily:M,fontSize:10,color:"#52525b",lineHeight:1.5}}><span style={{color:"#71717a"}}>{ga.name}</span> &mdash; {ga.principle}</div>
+    </div>
+  );
+}
+
+function Meter({label, value, color, max=1}) {
+  const pct = Math.min(100, (value/max)*100);
+  return (
+    <div style={{marginBottom:12}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+        <span style={{fontFamily:M,fontSize:10,color:"#71717a",letterSpacing:1,textTransform:"uppercase"}}>{label}</span>
+        <span style={{fontFamily:M,fontSize:11,color,fontWeight:700}}>{value.toFixed(2)}</span>
+      </div>
+      <div style={{height:6,background:"#1a1a1e",borderRadius:3,overflow:"hidden"}}>
+        <div style={{height:"100%",width:`${pct}%`,background:color,borderRadius:3,transition:"width 0.4s"}} />
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════════════════════════════════════
+
+function Home({nav, n, cal}) {
+  const tc = TC[cal.tier];
+  return (
+    <div>
+      <div style={{textAlign:"center",padding:"28px 0 20px"}}>
+        <div style={{fontSize:48,marginBottom:8,filter:"drop-shadow(0 0 12px rgba(161,161,170,0.3))"}}>{"\u2B21"}</div>
+        <div style={{fontFamily:M,fontSize:20,fontWeight:700,color:"#e4e4e7",letterSpacing:1,marginBottom:4}}>LIGHTHOUSE EDGE</div>
+        <div style={{fontSize:13,color:"#71717a",lineHeight:1.5,maxWidth:300,margin:"0 auto"}}>Offline discernment terminal with Calibre formation engine.</div>
+      </div>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:18}}>
+        <div style={{background:tc.bg,border:`1px solid ${tc.color}33`,borderRadius:20,padding:"5px 14px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}} onClick={()=>nav("calibre")}>
+          <span style={{color:tc.color}}>{tc.icon}</span>
+          <span style={{fontFamily:M,fontSize:11,fontWeight:700,color:tc.color,letterSpacing:2}}>{tc.label}</span>
+          <span style={{fontFamily:M,fontSize:10,color:"#52525b"}}>A:{cal.align.toFixed(2)}</span>
+        </div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        {[
+          {l:"New Packet",i:"\uFF0B",c:"#16a34a",s:"form"},{l:"Scan NFC",i:"\u22A1",c:"#2563eb",s:"nfc"},
+          {l:`Packets${n>0?` (${n})`:""}`,i:"\u2630",c:"#d97706",s:"list"},{l:"Calibre",i:"\u2727",c:"#c4b5fd",s:"calibre"},
+          {l:"Fetch Data",i:"\u21C5",c:"#06b6d4",s:"fetch"},{l:"Export",i:"\u21E5",c:"#a855f7",s:"export"},
+        ].map(b=>(
+          <div key={b.s} style={{background:"#18181b",border:`1px solid ${b.c}22`,borderRadius:10,padding:"18px 14px",display:"flex",flexDirection:"column",alignItems:"center",gap:8,cursor:"pointer",transition:"all 0.2s",textAlign:"center"}}
+            onClick={()=>nav(b.s)} onTouchStart={e=>e.currentTarget.style.transform="scale(0.97)"} onTouchEnd={e=>e.currentTarget.style.transform="none"}>
+            <div style={{fontSize:24,color:b.c}}>{b.i}</div>
+            <div style={{fontFamily:M,fontSize:10,fontWeight:600,color:"#a1a1aa",letterSpacing:1,textTransform:"uppercase"}}>{b.l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:20,background:"#111113",borderRadius:10,border:"1px solid #1a1a1e",overflow:"hidden"}}>
+        <div style={{padding:"10px 16px",borderBottom:"1px solid #1a1a1e"}}>
+          <div style={{fontFamily:M,fontSize:9,color:"#3f3f46",letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>Gate Sequence</div>
+          <div style={{display:"flex",gap:6}}>
+            {[["RED","#fca5a5"],["FLOOR","#fcd34d"],["WAY","#93c5fd"],["EXEC","#86efac"]].map(([g,c],i)=>(
+              <span key={g}><span style={{fontFamily:M,fontSize:10,fontWeight:700,color:c}}>{g}</span>{i<3&&<span style={{color:"#27272a"}}> {"\u2192"} </span>}</span>
+            ))}
+          </div>
+        </div>
+        {Object.values(GA).map((g,i)=>(
+          <div key={g.name} style={{padding:"8px 16px",borderBottom:i<3?"1px solid #1a1a1e":"none"}}>
+            <div style={{display:"flex",justifyContent:"space-between"}}><span style={{fontFamily:M,fontSize:9,fontWeight:700,color:"#52525b"}}>{g.name}</span><span style={{fontFamily:M,fontSize:9,color:"#3f3f46"}}>{g.basis}</span></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const EMPTY = {packetType:"decision",domain:"business",title:"",freeText:"",proposedAction:"",urgency:"medium",witnessPresent:false,sourceBasis:"incomplete",riskLevel:"medium",assetId:"",notes:"",constraints:[]};
+
+function Form({onBack, onEval, onSave, initial}) {
+  const [f,sF] = useState(initial||EMPTY);
+  const [nc,sNc] = useState("");
+  const [er,sEr] = useState([]);
+  const st = (k,v)=>sF(o=>({...o,[k]:v}));
+  const ok = ()=>{ const e=[]; if(!f.title.trim())e.push("Title"); if(!f.freeText.trim())e.push("Description"); if(!f.proposedAction.trim())e.push("Proposed action"); sEr(e); return !e.length; };
+  const addC = ()=>{ if(nc.trim()){st("constraints",[...f.constraints,nc.trim()]);sNc("");} };
+  return (
+    <div>
+      <Back onClick={onBack} />
+      <Title>{f.assetId?"Maintenance Packet":"New Packet"}</Title>
+      {f.assetId&&<div style={{background:"#0a1a2a",border:"1px solid #2563eb33",borderRadius:10,padding:"8px 14px",marginBottom:16,fontFamily:M,fontSize:12,color:"#93c5fd"}}>{"\u22A1"} NFC: {f.assetId}</div>}
+      {er.length>0&&<div style={{background:"#2a0a0a",border:"1px solid #dc262633",borderRadius:10,padding:12,marginBottom:16}}>{er.map((e,i)=><div key={i} style={{fontFamily:M,fontSize:12,color:"#fca5a5"}}>Missing: {e}</div>)}</div>}
+
+      <div style={{marginBottom:18}}><Lbl>Type</Lbl><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{PTYPES.map(t=><Chip key={t} active={f.packetType===t} onClick={()=>st("packetType",t)}>{t}</Chip>)}</div></div>
+      <div style={{marginBottom:18}}><Lbl>Domain</Lbl><Sel value={f.domain} onChange={e=>st("domain",e.target.value)}>{DOMS.map(d=><option key={d}>{d}</option>)}</Sel></div>
+      <div style={{marginBottom:18}}><Lbl>Title</Lbl><Inp value={f.title} onChange={e=>st("title",e.target.value)} placeholder="Brief title" /></div>
+      <div style={{marginBottom:18}}><Lbl>Description</Lbl><Txt value={f.freeText} onChange={e=>st("freeText",e.target.value)} placeholder="Situation or question" /></div>
+      <div style={{marginBottom:18}}><Lbl>Proposed Action</Lbl><Inp value={f.proposedAction} onChange={e=>st("proposedAction",e.target.value)} placeholder="What action?" /></div>
+      <div style={{marginBottom:18}}><Lbl>Urgency</Lbl><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{["low","medium","high"].map(u=><Chip key={u} active={f.urgency===u} onClick={()=>st("urgency",u)}>{u}</Chip>)}</div></div>
+      <div style={{marginBottom:18}}><Lbl>Source Basis</Lbl><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{["none","incomplete","adequate"].map(s=><Chip key={s} active={f.sourceBasis===s} onClick={()=>st("sourceBasis",s)}>{s}</Chip>)}</div></div>
+      <div style={{marginBottom:18}}><Lbl>Risk Level</Lbl><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{["low","medium","high","critical"].map(r=><Chip key={r} active={f.riskLevel===r} onClick={()=>st("riskLevel",r)} style={r==="critical"&&f.riskLevel===r?{borderColor:"#dc2626",color:"#fca5a5"}:{}}>{r}</Chip>)}</div></div>
+      <div style={{marginBottom:18}}><Lbl>Witness Present?</Lbl><div style={{display:"flex",gap:8}}>{[true,false].map(v=><button key={String(v)} style={{flex:1,padding:"10px 0",borderRadius:8,border:f.witnessPresent===v?"1px solid #3f3f46":"1px solid #27272a",background:f.witnessPresent===v?"#27272a":"#18181b",color:f.witnessPresent===v?"#e4e4e7":"#71717a",fontFamily:M,fontSize:12,fontWeight:600,cursor:"pointer",textAlign:"center",letterSpacing:1,textTransform:"uppercase"}} onClick={()=>st("witnessPresent",v)}>{v?"Yes":"No"}</button>)}</div></div>
+      <div style={{marginBottom:18}}>
+        <Lbl>Constraints</Lbl>
+        <div style={{marginBottom:8}}>{f.constraints.map((c,i)=><span key={i} style={{display:"inline-flex",alignItems:"center",gap:4,background:"#27272a",borderRadius:6,padding:"4px 10px",fontSize:12,color:"#a1a1aa",fontFamily:M,marginRight:6,marginBottom:6}}>{c}<button style={{background:"none",border:"none",color:"#71717a",cursor:"pointer",fontSize:14,padding:0}} onClick={()=>st("constraints",f.constraints.filter((_,j)=>j!==i))}>{"\u00D7"}</button></span>)}</div>
+        <div style={{display:"flex",gap:6}}><Inp value={nc} onChange={e=>sNc(e.target.value)} placeholder="Add constraint..." onKeyDown={e=>{if(e.key==="Enter")addC()}} style={{flex:1}} /><Btn2 onClick={addC} style={{flex:"none",padding:"10px 16px",fontSize:12}}>Add</Btn2></div>
+      </div>
+      <div style={{marginBottom:18}}><Lbl>Notes</Lbl><Txt value={f.notes} onChange={e=>st("notes",e.target.value)} placeholder="Optional..." style={{minHeight:44}} /></div>
+      <div style={{display:"flex",gap:10,marginTop:20}}><Btn2 onClick={()=>{if(ok())onSave(f)}}>Save Draft</Btn2><Btn1 onClick={()=>{if(ok())onEval(f)}}>{"\u25B6"} Run Lighthouse</Btn1></div>
+    </div>
+  );
+}
+
+function ResultView({pkt, cal, onBack, onHome, onExport}) {
+  const gr=pkt.gateResult; if(!gr)return null; const c=RC[gr.result]; const tc=TC[cal.tier];
+  return (
+    <div>
+      <Back onClick={onBack} />
+      <div style={{background:c.bg,border:`2px solid ${c.border}`,borderRadius:14,padding:24,boxShadow:c.glow,marginBottom:20,textAlign:"center"}}>
+        <div style={{fontSize:48,color:c.color,marginBottom:8}}>{c.icon}</div>
+        <div style={{fontFamily:M,fontSize:28,fontWeight:800,color:c.color,letterSpacing:4}}>{gr.result}</div>
+        <div style={{fontFamily:M,fontSize:12,color:"#71717a",marginTop:8,letterSpacing:2,textTransform:"uppercase"}}>Halt: {gr.haltGate}</div>
+      </div>
+      <Scripture ga={gr.gateAuthority} rb={gr.ruleBasis} bc={c.border} />
+      <Panel><Lbl>Reasons</Lbl>{gr.reasons.map((r,i)=><div key={i} style={{fontFamily:M,fontSize:12,color:"#a1a1aa",lineHeight:1.6}}>{"\u2022"} {r}</div>)}</Panel>
+      <div style={{background:"#111113",borderRadius:10,padding:16,border:"1px solid #27272a",marginBottom:16}}><div style={{fontFamily:M,fontSize:10,color:"#71717a",letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Next Step</div><div style={{fontSize:14,color:"#e4e4e7",lineHeight:1.5}}>{gr.nextStep}</div></div>
+      <div style={{background:tc.bg,border:`1px solid ${tc.color}22`,borderRadius:10,padding:12,marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <span style={{fontFamily:M,fontSize:10,color:"#71717a",letterSpacing:1}}>CALIBRE</span>
+        <span style={{fontFamily:M,fontSize:11,color:tc.color}}>{tc.icon} {tc.label} &middot; A:{cal.align.toFixed(2)} &middot; C:{cal.chaff.toFixed(2)}</span>
+      </div>
+      <div style={{display:"flex",gap:10}}><Btn2 onClick={onHome}>Home</Btn2><Btn1 onClick={()=>onExport(pkt)}>{"\u21E5"} Export</Btn1></div>
+    </div>
+  );
+}
+
+function PktList({pkts, onBack, onSel}) {
+  const [fil,sFil] = useState("all");
+  const shown = fil==="all"?pkts:pkts.filter(p=>p.gateResult?.result===fil||(fil==="draft"&&!p.gateResult));
+  return (
+    <div>
+      <Back onClick={onBack} /><Title>Packets ({shown.length})</Title>
+      <div style={{display:"flex",gap:6,marginBottom:16,overflowX:"auto"}}>{["all","REJECT","WAIT","CONSTRAIN","PROCEED","draft"].map(f=><button key={f} style={{padding:"6px 12px",borderRadius:16,border:fil===f?"1px solid #3f3f46":"1px solid transparent",background:fil===f?"#27272a":"transparent",color:fil===f?"#e4e4e7":"#52525b",fontFamily:M,fontSize:10,fontWeight:600,cursor:"pointer",letterSpacing:1,textTransform:"uppercase",whiteSpace:"nowrap"}} onClick={()=>sFil(f)}>{f==="all"?"All":f}</button>)}</div>
+      {!shown.length?<div style={{textAlign:"center",padding:50,color:"#52525b",fontFamily:M,fontSize:12}}>No packets</div>:shown.map(p=>{
+        const c=p.gateResult?RC[p.gateResult.result]:{bg:"#18181b",border:"#3f3f46",color:"#71717a",icon:"\u2026"};
+        return <div key={p.packetId} style={{background:"#18181b",borderRadius:10,padding:"12px 16px",marginBottom:8,cursor:"pointer",border:"1px solid #27272a",display:"flex",alignItems:"center",gap:12}} onClick={()=>onSel(p)}>
+          <div style={{width:36,height:36,borderRadius:8,background:c.bg,border:`1px solid ${c.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:c.color,flexShrink:0}}>{c.icon}</div>
+          <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:600,color:"#e4e4e7",marginBottom:2}}>{p.title||"Untitled"}</div><div style={{fontFamily:M,fontSize:10,color:"#52525b"}}>{p.packetType} &middot; {p.gateResult?p.gateResult.result:"DRAFT"}</div></div>
+        </div>;
+      })}
+    </div>
+  );
+}
+
+function Detail({pkt, cal, onBack, onExport}) {
+  const gr=pkt.gateResult; const c=gr?RC[gr.result]:null;
+  return (
+    <div>
+      <Back onClick={onBack} />
+      {c&&gr&&<div style={{background:c.bg,border:`2px solid ${c.border}`,borderRadius:14,padding:14,boxShadow:c.glow,marginBottom:20,display:"flex",alignItems:"center",gap:12}}>
+        <div style={{fontSize:24,color:c.color}}>{c.icon}</div><div><div style={{fontFamily:M,fontSize:16,fontWeight:800,color:c.color,letterSpacing:3}}>{gr.result}</div><div style={{fontFamily:M,fontSize:10,color:"#71717a",marginTop:2}}>HALT: {gr.haltGate}</div></div>
+      </div>}
+      {gr&&<Scripture ga={gr.gateAuthority} rb={gr.ruleBasis} bc={c?.border} />}
+      <Panel>{[["ID",pkt.packetId],["Type",pkt.packetType],["Domain",pkt.domain],["Title",pkt.title],["Action",pkt.proposedAction],["Urgency",pkt.urgency],["Risk",pkt.riskLevel],["Basis",pkt.sourceBasis],["Witness",pkt.witnessPresent?"Yes":"No"],["Asset",pkt.assetId||"\u2014"]].map(([k,v])=><Row key={k} k={k} v={v} />)}</Panel>
+      <Btn1 onClick={()=>onExport(pkt)} style={{width:"100%"}}>{"\u21E5"} Export JSON</Btn1>
+    </div>
+  );
+}
+
+function CalDash({cal, onBack}) {
+  const tc=TC[cal.tier];
+  const h=flowHealth(clamp01(cal.align),clamp01(1-cal.chaff),clamp01(cal.fruit/Math.max(1,cal.fruit+1)));
+  const b=beautyScore(clamp01(cal.align),clamp01(1-cal.chaff),clamp01(cal.fruit/Math.max(1,cal.fruit+1)));
+  return (
+    <div>
+      <Back onClick={onBack} /><Title>Calibre State</Title>
+      <div style={{background:tc.bg,border:`1px solid ${tc.color}33`,borderRadius:10,padding:16,marginBottom:20,textAlign:"center"}}>
+        <div style={{fontSize:28}}>{tc.icon}</div><div style={{fontFamily:M,fontSize:22,fontWeight:800,color:tc.color,letterSpacing:4,marginTop:4}}>{tc.label}</div>
+        <div style={{fontFamily:M,fontSize:10,color:"#52525b",marginTop:4,letterSpacing:1}}>ACCESS {cal.access}/3 &middot; ALIGN STREAK {cal.alignStreak} &middot; PROOF STREAK {cal.proofStreak}</div>
+      </div>
+      <Panel><Meter label="Alignment" value={cal.align} color="#86efac" /><Meter label="Chaff" value={cal.chaff} color="#fca5a5" /><Meter label="Fruit" value={cal.fruit} color="#fcd34d" max={Math.max(5,cal.fruit)} /><Meter label="Firstfruits" value={cal.firstfruits} color="#93c5fd" max={Math.max(2,cal.firstfruits)} /></Panel>
+      <Panel><Lbl>Flow Diagnostics</Lbl><Meter label="Health" value={h} color="#86efac" /><Meter label="Beauty" value={b} color="#c4b5fd" /></Panel>
+      <Panel><Lbl>Packet History</Lbl>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>{[["Total",cal.totalPackets,"#a1a1aa"],["Proceed",cal.proceedCount,"#86efac"],["Wait",cal.waitCount,"#fcd34d"],["Reject",cal.rejectCount,"#fca5a5"]].map(([l,v,c])=><div key={l} style={{background:"#111113",borderRadius:8,padding:"10px 12px",textAlign:"center"}}><div style={{fontFamily:M,fontSize:22,fontWeight:800,color:c}}>{v}</div><div style={{fontFamily:M,fontSize:9,color:"#52525b",letterSpacing:1,textTransform:"uppercase"}}>{l}</div></div>)}</div>
+      </Panel>
+      {cal.tier==="MILK"&&<Panel>
+        <Lbl>Path to Meat</Lbl>
+        {[["Access \u2265 3",cal.access>=3],[`Align streak \u2265 ${DEFAULT_RULES.alignStreakRequired}`,cal.alignStreak>=DEFAULT_RULES.alignStreakRequired],[`Proof streak \u2265 ${DEFAULT_RULES.proofStreakRequired}`,cal.proofStreak>=DEFAULT_RULES.proofStreakRequired],[`Alignment \u2265 ${DEFAULT_RULES.alignMin}`,cal.align>=DEFAULT_RULES.alignMin],[`Chaff \u2264 ${DEFAULT_RULES.chaffMax}`,cal.chaff<=DEFAULT_RULES.chaffMax]].map(([l,m])=><div key={l} style={{display:"flex",alignItems:"center",gap:8,padding:"4px 0"}}><span style={{color:m?"#86efac":"#52525b",fontSize:14}}>{m?"\u2713":"\u25cb"}</span><span style={{fontFamily:M,fontSize:11,color:m?"#a1a1aa":"#52525b"}}>{l}</span></div>)}
+      </Panel>}
+    </div>
+  );
+}
+
+function NfcScan({onBack, onTag}) {
+  const [sc,sSc]=useState(false); const [tg,sTg]=useState(null);
+  const go=t=>{sSc(true);sTg(null);setTimeout(()=>{sSc(false);sTg(t)},800)};
+  return (
+    <div>
+      <Back onClick={onBack} /><Title>NFC Scan</Title>
+      <Panel><div style={{fontSize:13,color:"#a1a1aa",lineHeight:1.5}}>Tap a simulated tag to test prefill.</div></Panel>
+      {sc&&<div style={{textAlign:"center",padding:24}}><div style={{fontSize:36,animation:"pulse 1s infinite",color:"#2563eb"}}>{"\u22A1"}</div><div style={{fontFamily:M,fontSize:11,color:"#71717a",marginTop:8,letterSpacing:2}}>SCANNING...</div></div>}
+      {tg&&!sc&&<div style={{background:"#0a1a0a",border:"1px solid #16a34a33",borderRadius:10,padding:16,marginBottom:16}}><div style={{fontFamily:M,fontSize:10,color:"#16a34a",letterSpacing:2,marginBottom:8}}>TAG READ {"\u2713"}</div><div style={{fontFamily:M,fontSize:12,color:"#86efac",lineHeight:1.8}}>asset_id={tg.asset_id}<br/>type={tg.asset_type}</div><Btn1 onClick={()=>onTag(tg)} style={{marginTop:12,width:"100%"}}>Open Packet {"\u2192"}</Btn1></div>}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>{NTAGS.map(t=><div key={t.asset_id} style={{background:"#18181b",border:"1px solid #27272a",borderRadius:10,padding:16,cursor:"pointer",textAlign:"center"}} onClick={()=>go(t)}><div style={{fontSize:28,marginBottom:6}}>{"\u22A1"}</div><div style={{fontFamily:M,fontSize:11,fontWeight:700,color:"#a1a1aa"}}>{t.label}</div><div style={{fontFamily:M,fontSize:10,color:"#52525b",textTransform:"uppercase"}}>{t.asset_type}</div></div>)}</div>
+    </div>
+  );
+}
+
+function FetchScr({onBack, onPkt}) {
+  const [url,sUrl]=useState(""); const [busy,sBusy]=useState(false); const [res,sRes]=useState(null); const [err,sErr]=useState("");
+  const go=async()=>{ if(!url.trim())return; sBusy(true);sErr("");sRes(null); try{ const r=await fetch(url.trim()); if(!r.ok)throw new Error(`HTTP ${r.status}`); const t=await r.text(); try{sRes(JSON.parse(t))}catch{sRes({raw:t.slice(0,2000)})} }catch(e){sErr(`Fetch failed: ${e.message}. Expected offline \u2014 app works without connectivity.`)} sBusy(false); };
+  return (
+    <div>
+      <Back onClick={onBack} /><Title>Fetch External Data</Title>
+      <Panel>
+        <div style={{fontSize:13,color:"#a1a1aa",lineHeight:1.5,marginBottom:12}}>When online, fetch data and auto-generate an observation packet. Offline is default; fetching is opportunistic.</div>
+        <div style={{display:"flex",gap:6}}><Inp value={url} onChange={e=>sUrl(e.target.value)} placeholder="https://..." onKeyDown={e=>e.key==="Enter"&&go()} style={{flex:1}} /><Btn1 onClick={go} style={{flex:"none",padding:"10px 16px"}}>{busy?"...":"Fetch"}</Btn1></div>
+      </Panel>
+      {err&&<div style={{background:"#2a0a0a",border:"1px solid #dc262633",borderRadius:10,padding:12,marginBottom:16,fontFamily:M,fontSize:12,color:"#fca5a5",lineHeight:1.5}}>{err}</div>}
+      {res&&<div><Panel><Lbl>Fetched</Lbl><pre style={{fontFamily:M,fontSize:11,color:"#a1a1aa",lineHeight:1.5,whiteSpace:"pre-wrap",wordBreak:"break-all",maxHeight:200,overflow:"auto"}}>{JSON.stringify(res,null,2).slice(0,1000)}</pre></Panel><Btn1 onClick={()=>onPkt({packetType:"observation",domain:"field",title:`External: ${url.slice(0,40)}`,freeText:JSON.stringify(res).slice(0,500),proposedAction:"Review fetched data",urgency:"medium",witnessPresent:false,sourceBasis:"incomplete",riskLevel:"low",assetId:"",notes:`Source: ${url}`,constraints:[]})} style={{width:"100%"}}>{"\uFF0B"} Create Packet</Btn1></div>}
+      <div style={{marginTop:24}}><Lbl>Quick Sources</Lbl>{[{l:"JSON Placeholder",u:"https://jsonplaceholder.typicode.com/todos/1"},{l:"IP Info",u:"https://httpbin.org/ip"},{l:"World Time",u:"https://worldtimeapi.org/api/ip"}].map(s=><div key={s.l} style={{background:"#18181b",border:"1px solid #27272a",borderRadius:10,padding:"10px 14px",marginBottom:6,cursor:"pointer",display:"flex",justifyContent:"space-between"}} onClick={()=>sUrl(s.u)}><span style={{fontSize:13,color:"#a1a1aa"}}>{s.l}</span><span style={{fontFamily:M,fontSize:10,color:"#52525b"}}>{"\u2192"}</span></div>)}</div>
+    </div>
+  );
+}
+
+function ExportScr({pkts, cal, onBack, onExpOne, onExpAll, onExpState, onImpState}) {
+  const ev=pkts.filter(p=>p.gateResult); const fr=useRef(null);
+  return (
+    <div>
+      <Back onClick={onBack} /><Title>Export / Import</Title>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+        <Panel style={{marginBottom:0}}><div style={{fontFamily:M,fontSize:32,fontWeight:800,color:"#e4e4e7"}}>{ev.length}</div><div style={{fontFamily:M,fontSize:10,color:"#71717a",letterSpacing:1,textTransform:"uppercase"}}>Evaluated</div></Panel>
+        <Panel style={{marginBottom:0}}><div style={{fontFamily:M,fontSize:32,fontWeight:800,color:"#e4e4e7"}}>{pkts.length}</div><div style={{fontFamily:M,fontSize:10,color:"#71717a",letterSpacing:1,textTransform:"uppercase"}}>Total</div></Panel>
+      </div>
+      {ev.length>0&&<Btn1 onClick={onExpAll} style={{width:"100%",marginBottom:10}}>{"\u21E5"} Export All Packets</Btn1>}
+      <Btn1 onClick={onExpState} style={{width:"100%",marginBottom:10}}>{"\u21E5"} Export Full State (microSD)</Btn1>
+      <div style={{position:"relative",marginBottom:20}}>
+        <Btn2 onClick={()=>fr.current?.click()} style={{width:"100%"}}>{"\u21C5"} Import State from File</Btn2>
+        <input ref={fr} type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=ev=>{try{onImpState(JSON.parse(ev.target.result))}catch{}};r.readAsText(f)}}} />
+      </div>
+    </div>
+  );
+}
+
+function Toast({m,v}) { if(!v)return null; return <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",zIndex:999,background:"#27272a",color:"#e4e4e7",fontFamily:M,fontSize:12,letterSpacing:1,padding:"10px 20px",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.5)"}}>{m}</div>; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// APP ROOT
+// ═══════════════════════════════════════════════════════════════════════
+
+function App() {
+  // Load persisted state
+  const saved = useRef(loadState());
+  const [scr,sScr] = useState("home");
+  const [pkts,sPkts] = useState(saved.current?.packets || []);
+  const [cur,sCur] = useState(null);
+  const [fi,sFi] = useState(null);
+  const [cal,sCal] = useState(saved.current?.calibre || {...INIT_CAL});
+  const [toast,sToast] = useState({m:"",v:false});
+  const tR = useRef(null);
+
+  // Auto-save on change
+  useEffect(()=>{ saveState(pkts, cal); }, [pkts, cal]);
+
+  const flash = m=>{ sToast({m,v:true}); clearTimeout(tR.current); tR.current=setTimeout(()=>sToast({m:"",v:false}),2500); };
+
+  const mkPkt = (f,st="draft")=>({
+    packetId:gid(),createdAt:nw(),updatedAt:nw(),deviceId:"lh_edge_v01",
+    packetType:f.packetType,domain:f.domain,title:f.title,freeText:f.freeText,
+    actors:["user"],urgency:f.urgency,witnessPresent:f.witnessPresent,
+    sourceBasis:f.sourceBasis,riskLevel:f.riskLevel,proposedAction:f.proposedAction,
+    constraints:f.constraints,assetId:f.assetId||null,nfcTagId:f.nfcTagId||null,
+    gateResult:null,status:st,exportStatus:"pending",
+  });
+
+  const doEval = f=>{
+    const p=mkPkt(f,"evaluated"); p.gateResult=evaluate(p,cal); p.status="evaluated";
+    const nc=runCalibreCycle(cal,p,p.gateResult); sCal(nc);
+    sPkts(prev=>[p,...prev]); sCur(p); sScr("result"); flash("Evaluated \u00B7 Calibre updated");
+  };
+  const doSave = f=>{ sPkts(prev=>[mkPkt(f),...prev]); flash("Draft saved"); sScr("home"); };
+
+  const dl=(d,fn)=>{ const b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}); const u=URL.createObjectURL(b); const a=document.createElement("a"); a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u); };
+  const expPkt=p=>{ dl({...p,exportStatus:"exported"},`${p.packetId}_${p.gateResult?p.gateResult.result:"DRAFT"}.json`); sPkts(pr=>pr.map(q=>q.packetId===p.packetId?{...q,exportStatus:"exported"}:q)); flash(`Exported ${p.packetId}`); };
+  const expAll=()=>{ const ev=pkts.filter(p=>p.gateResult); if(!ev.length)return; dl(ev,`lighthouse_${new Date().toISOString().slice(0,10)}.json`); flash(`Exported ${ev.length}`); };
+  const expState=()=>{ dl({version:"0.1.0",exportedAt:nw(),calibre:cal,packets:pkts},`lighthouse_state_${new Date().toISOString().slice(0,10)}.json`); flash("Full state exported"); };
+  const impState=d=>{ if(d.calibre)sCal(d.calibre); if(d.packets)sPkts(d.packets); flash(`Imported ${d.packets?.length||0} packets`); sScr("home"); };
+  const doNfc=t=>{ sFi({...EMPTY,packetType:"maintenance",domain:"operations",assetId:t.asset_id,nfcTagId:t.asset_id,title:`${t.asset_type} \u2014 ${t.asset_id}`}); sScr("form"); };
+  const doFetchPkt=f=>{ sFi(f); sScr("form"); };
+  const nav=(s,d)=>{ if(s==="form")sFi(d||null); sScr(s); };
+
+  return (
+    <div style={{fontFamily:S,background:"#0c0c0e",color:"#d4d4d8",minHeight:"100vh",maxWidth:480,margin:"0 auto"}}>
+      <div style={{background:"#111113",borderBottom:"1px solid #27272a",padding:"12px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={()=>nav("home")}>
+          <span style={{fontSize:18}}>{"\u2B21"}</span>
+          <span style={{fontFamily:M,fontSize:13,fontWeight:700,letterSpacing:3,color:"#a1a1aa",textTransform:"uppercase"}}>Lighthouse Edge</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontFamily:M,fontSize:9,color:TC[cal.tier].color,letterSpacing:1}}>{TC[cal.tier].icon} {cal.tier}</span>
+          <div style={{width:8,height:8,borderRadius:"50%",background:"#16a34a",boxShadow:"0 0 8px rgba(22,163,74,0.6)"}} />
+        </div>
+      </div>
+      <div style={{padding:"14px 18px 100px"}}>
+        {scr==="home"&&<Home nav={nav} n={pkts.length} cal={cal} />}
+        {scr==="form"&&<Form initial={fi} onBack={()=>nav("home")} onEval={doEval} onSave={doSave} />}
+        {scr==="result"&&cur&&<ResultView pkt={cur} cal={cal} onBack={()=>nav("list")} onHome={()=>nav("home")} onExport={expPkt} />}
+        {scr==="list"&&<PktList pkts={pkts} onBack={()=>nav("home")} onSel={p=>{sCur(p);sScr("detail")}} />}
+        {scr==="detail"&&cur&&<Detail pkt={cur} cal={cal} onBack={()=>nav("list")} onExport={expPkt} />}
+        {scr==="nfc"&&<NfcScan onBack={()=>nav("home")} onTag={doNfc} />}
+        {scr==="calibre"&&<CalDash cal={cal} onBack={()=>nav("home")} />}
+        {scr==="fetch"&&<FetchScr onBack={()=>nav("home")} onPkt={doFetchPkt} />}
+        {scr==="export"&&<ExportScr pkts={pkts} cal={cal} onBack={()=>nav("home")} onExpOne={expPkt} onExpAll={expAll} onExpState={expState} onImpState={impState} />}
+      </div>
+      <Toast m={toast.m} v={toast.v} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

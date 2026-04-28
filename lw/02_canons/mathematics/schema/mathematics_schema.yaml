@@ -1,0 +1,113 @@
+schema_version: "1.0"
+domain: mathematics
+
+objects:
+  mathematics_packet:
+    required: [MATH_SETUP, MATH_RED, MATH_FLOOR, MATH_WAY, MATH_EXECUTION, MATH_DIAGNOSTICS]
+    optional: [PHYS_CONSTRAINTS, CHEM_CONTEXT, BIO_CONTEXT, ENG_DEPLOYMENT]
+
+properties:
+  MATH_SETUP:
+    required: [problem_type, objects, symbols, assumptions, goal_statement]
+    properties:
+      problem_type:
+        enum: ["proof", "computation", "modeling", "optimization", "inference"]
+      objects:
+        type: array
+        description: "typed objects used in the problem"
+      symbols:
+        type: array
+        description: "symbols with declared meaning and type"
+      assumptions:
+        type: array
+        description: "axioms/hypotheses; must be explicit and scoped"
+      goal_statement:
+        type: string
+
+  MATH_RED:
+    required: [well_formedness, type_safety, definitional_integrity, inference_integrity]
+    properties:
+      well_formedness:
+        required: [symbols_defined, quantifiers_scoped, domains_declared]
+        properties:
+          symbols_defined: {type: boolean}
+          quantifiers_scoped: {type: boolean}
+          domains_declared: {type: boolean}
+      type_safety:
+        required: [objects_typed, operations_valid]
+        properties:
+          objects_typed: {type: boolean}
+          operations_valid: {type: boolean}
+      definitional_integrity:
+        required: [no_circular_definitions, definitions_total]
+        properties:
+          no_circular_definitions: {type: boolean}
+          definitions_total: {type: boolean}
+      inference_integrity:
+        required: [rules_named, steps_justified]
+        properties:
+          rules_named: {type: boolean}
+          steps_justified: {type: boolean}
+
+  MATH_FLOOR:
+    required: [axioms_selected, theorem_dependencies, validity_conditions, numerical_policy]
+    properties:
+      axioms_selected:
+        type: array
+        description: "axioms or foundational system (e.g., ZFC, Peano, Euclid, type theory)"
+      theorem_dependencies:
+        type: array
+        description: "named theorems/lemmas used"
+      validity_conditions:
+        type: array
+        description: "explicit hypotheses that must hold"
+      numerical_policy:
+        type: object
+        required: [tolerance, conditioning_reporting, stability_checks]
+        properties:
+          tolerance: {type: number, description: "global numerical tolerance policy"}
+          conditioning_reporting: {type: boolean}
+          stability_checks: {type: boolean}
+
+  MATH_WAY:
+    required: [method_class, method_steps, convergence_or_soundness]
+    properties:
+      method_class:
+        enum: ["direct_proof", "contradiction", "contrapositive", "induction", "construction", "optimization", "numerical"]
+      method_steps:
+        type: array
+        description: "ordered steps; each must cite rule/theorem when applicable"
+      convergence_or_soundness:
+        type: object
+        required: [claim, conditions]
+        properties:
+          claim: {type: string, description: "what is guaranteed (soundness/convergence rate)"}
+          conditions: {type: array}
+
+  MATH_EXECUTION:
+    required: [implementation, parameters, checks]
+    properties:
+      implementation:
+        enum: ["human_proof", "computer_algebra", "numerical", "formal_proof_assistant"]
+      parameters:
+        type: object
+      checks:
+        type: array
+        description: "postconditions / verification checks"
+
+  MATH_DIAGNOSTICS:
+    required: [truth_table_triggers, failure_modes, corrective_actions, diagnostic_trace]
+    properties:
+      truth_table_triggers:
+        type: array
+      failure_modes:
+        type: array
+      corrective_actions:
+        type: array
+      diagnostic_trace:
+        type: object
+        required: [root_question, path_taken, terminal_diagnosis]
+        properties:
+          root_question: {type: string}
+          path_taken: {type: array}
+          terminal_diagnosis: {type: string}

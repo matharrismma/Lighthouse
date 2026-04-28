@@ -1,0 +1,174 @@
+"""Physics verifier.
+
+Checks performed:
+  * dimensional_consistency: parses both sides of an equation and verifies
+    that they reduce to the same SI dimension tuple
+    (mass, length, time, current, temperature, amount, luminous_intensity)
+  * conservation: given before/after dictionaries of conserved quantities
+    (mass, energy, momentum, charge, ...), verify within tolerance
+
+Equation format for dimensional check:
+    "F = m * a"           # symbolic — uses sympy.physics.units
+    "v = sqrt(2 * g * h)" # mixed numeric/symbolic
+    Each named symbol must appear in `symbols`, mapping name -> unit string,
+    e.g. {"F": "newton", "m": "kilogram", "a": "meter/second**2"}.
+
+Conservation format:
+    {"before": {"momentum": 12.5, "energy": 100.0},
+     "after":  {"momentum": 12.499, "energy": 99.998},
+     "tolerance_relative": 0.001}
+"""
+from __future__ import annotations
+from typing import Any, Dict, List, Optional
+from .base import VerifierResult, na, confirm, mismatch, error
+
+import sympy
+from sympy import sympify, simplify, Symbol
+from sympy.physics import units as u
+from sympy.physics.units.systems.si import SI
+
+
+# Map common unit strings to sympy unit objects
+_UNIT_TABLE = {
+    # length
+    "m": u.meter, "meter": u.meter, "meters": u.meter,
+    "cm": u.centimeter, "mm": u.millimeter, "km": u.kilometer,
+    # mass
+    "kg": u.kilogram, "kilogram": u.kilogram, "kilograms": u.kilogram,
+    "g": u.gram, "gram": u.gram, "grams": u.gram,
+    # time
+    "s": u.second, "sec": u.second, "second": u.second, "seconds": u.second,
+    "ms": u.millisecond, "min": u.minute, "hr": u.hour, "h": u.hour,
+    # force/energy/power
+    "N": u.newton, "newton": u.newton, "newtons": u.newton,
+    "J": u.joule, "joule": u.joule, "joules": u.joule,
+    "W": u.watt, "watt": u.watt,
+    # charge / current
+    "C": u.coulomb, "coulomb": u.coulomb,
+    "A": u.ampere, "ampere": u.ampere,
+    # temperature
+    "K": u.kelvin, "kelvin": u.kelvin,
+    # pressure
+    "Pa": u.pascal, "pascal": u.pascal, "atm": u.atmosphere, "atmosphere": u.atmosphere,
+    # frequency
+    "Hz": u.hertz, "hertz": u.hertz,
+}
+
+
+def _parse_unit(unit_str: str):
+    """Parse 'meter/second**2' or 'kg*m/s**2' into a sympy units expression."""
+    s = unit_str.replace("^", "**")
+    # Replace bare unit tokens with sympify-friendly wrappers
+    expr = sympify(s, locals=_UNIT_TABLE)
+    return expr
+
+
+def verify_dimensional_consistency(
+    equation: str,
+    symbols: Dict[str, str],
+) -> VerifierResult:
+    """Verify both sides of an equation have the same SI dimensions.
+
+    Strategy: substitute each symbol with its unit expression, then convert
+    both sides to a fixed set of SI base units and compare unit signatures.
+    """
+    if "=" not in equation:
+        return error("physics.dimensional", f"no '=' in equation {equation!r}")
+
+    lhs_str, rhs_str = equation.split("=", 1)
+
+    # Parse equation with ONLY the user's variable names as locals so
+    # that 'm', 's', etc. are read as variables, not as unit tokens.
+    eq_locals = {name: Symbol(name) for name in symbols.keys()}
+    try:
+        lhs = sympify(lhs_str.strip(), locals=eq_locals)
+        rhs = sympify(rhs_str.strip(), locals=eq_locals)
+    except Exception as e:
+        return error("physics.dimensional", f"equation parse failure: {e}")
+
+    # Parse units with the unit table (separate namespace).
+    try:
+        subs = {Symbol(name): _parse_unit(unit_str) for name, unit_str in symbols.items()}
+    except Exception as e:
+        return error("physics.dimensional", f"unit parse failure: {e}")
+
+    base_units = [u.kilogram, u.meter, u.second, u.ampere, u.kelvin, u.mol, u.candela]
+    try:
+        lhs_base = u.convert_to(lhs.subs(subs), base_units).n()
+        rhs_base = u.convert_to(rhs.subs(subs), base_units).n()
+    except Exception as e:
+        return error("physics.dimensional", f"unit conversion failure: {e}")
+
+    def _unit_signature(expr):
+        if expr.is_number:
+            return sympify(1)
+        coeff, rest = expr.as_coeff_Mul()
+        return rest
+
+    lhs_sig = _unit_signature(lhs_base)
+    rhs_sig = _unit_signature(rhs_base)
+
+    if simplify(lhs_sig - rhs_sig) == 0:
+        return confirm(
+            "physics.dimensional",
+            f"both sides reduce to {lhs_sig}",
+            {"lhs_units": str(lhs_sig), "rhs_units": str(rhs_sig)},
+        )
+    return mismatch(
+        "physics.dimensional",
+        f"LHS units {lhs_sig} != RHS units {rhs_sig}",
+        {"lhs_units": str(lhs_sig), "rhs_units": str(rhs_sig)},
+    )
+
+
+def verify_conservation(
+    before: Dict[str, float],
+    after: Dict[str, float],
+    *,
+    tolerance_relative: float = 1e-6,
+    tolerance_absolute: float = 0.0,
+) -> VerifierResult:
+    """Check each named quantity is conserved within tolerance."""
+    if not before or not after:
+        return na("physics.conservation", "missing before or after dict")
+
+    keys = sorted(set(before) | set(after))
+    failures = []
+    details = {}
+    for k in keys:
+        b = before.get(k)
+        a = after.get(k)
+        if b is None or a is None:
+            failures.append(f"{k}: present in only one of before/after")
+            continue
+        diff = abs(a - b)
+        scale = max(abs(b), abs(a), 1e-30)
+        rel = diff / scale
+        details[k] = {"before": b, "after": a, "abs_diff": diff, "rel_diff": rel}
+        if rel > tolerance_relative and diff > tolerance_absolute:
+            failures.append(f"{k}: {b} -> {a} (rel diff {rel:.3e})")
+    if failures:
+        return mismatch("physics.conservation", "; ".join(failures), details)
+    return confirm("physics.conservation", f"all {len(keys)} quantities conserved", details)
+
+
+def run(packet: Dict[str, Any]) -> List[VerifierResult]:
+    results: List[VerifierResult] = []
+    pv = packet.get("PHYS_VERIFY") or {}
+
+    if "equation" in pv and "symbols" in pv:
+        results.append(verify_dimensional_consistency(pv["equation"], pv["symbols"]))
+
+    if "before" in pv and "after" in pv:
+        results.append(
+            verify_conservation(
+                pv["before"],
+                pv["after"],
+                tolerance_relative=pv.get("tolerance_relative", 1e-6),
+                tolerance_absolute=pv.get("tolerance_absolute", 0.0),
+            )
+        )
+
+    if not results:
+        results.append(na("physics", "no PHYS_VERIFY artifacts present"))
+    return results

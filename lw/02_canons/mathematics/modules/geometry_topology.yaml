@@ -1,0 +1,30 @@
+module: geometry_topology
+version: "1.0"
+status: CANONICAL
+
+core_objects:
+  metric_space: "set X with distance d satisfying metric axioms"
+  manifold: "locally Euclidean topological space with charts"
+  homeomorphism: "continuous bijection with continuous inverse"
+  curvature: "geometric invariant (Riemannian context)"
+  geodesic: "locally length-minimizing curve"
+
+red_constraints:
+  - "metric must satisfy nonnegativity, symmetry, triangle inequality"
+  - "topology claims require specified topology (open sets or basis)"
+  - "map class must be stated (continuous, differentiable, isometry)"
+
+floor_bounds:
+  - "chart overlap conditions verified for manifolds"
+  - "invariants stated with transformation class (coordinate-free when possible)"
+
+way_methods:
+  geometry: ["coordinate charts", "geodesics", "curvature tensors (when applicable)"]
+  topology: ["compactness", "connectedness", "homotopy", "fundamental group"]
+  diagnostics: ["counterexample using standard spaces", "verify hypotheses (Hausdorff, second countable)"]
+
+truth_tables:
+  - id: invalid_metric
+    if: "distance_function_defined == true AND triangle_inequality_false == true"
+    diagnosis: "NOT_A_METRIC"
+    actions: ["fix definition", "use pseudometric or norm-induced metric if intended"]

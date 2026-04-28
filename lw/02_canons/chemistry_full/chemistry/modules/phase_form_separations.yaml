@@ -1,0 +1,56 @@
+module: phase_form_separations_canon
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: 'Model phase equilibria and separations: VLE/LLE, distillation/extraction, crystallization and kinetics; phase
+    diagrams.'
+  includes:
+  - Raoult/Henry regimes
+  - gamma-phi and phi-phi concepts
+  - distillation feasibility
+  - LLE tie-lines
+  - crystallization driving force
+  excludes:
+  - detailed column design and hydraulics (engineering domain)
+frozen_nouns_extensions:
+- noun: VAPOR_LIQUID_EQUILIBRIUM
+  meaning: Equality of component fugacity between vapor and liquid phases.
+- noun: LIQUID_LIQUID_EQUILIBRIUM
+  meaning: Equality of chemical potential between coexisting liquids; partitioning.
+- noun: SUPERSATURATION
+  meaning: Driving force for crystallization; S = c/c* (or analogous activity ratio).
+red_constraints:
+- Phase equilibrium requires equality of chemical potential (or fugacity/activity forms).
+- No negative compositions; phase fractions must be between 0 and 1.
+floor_checks:
+- "State model choice (ideal, \u03B3-model, EOS) and parameter source."
+- Check azeotrope possibility when relevant.
+- Report temperature and pressure.
+way_methods:
+- "Use simplest valid: Raoult's law for near-ideal; otherwise NRTL/UNIQUAC/Wilson (\u03B3) or EOS."
+- For crystallization, separate thermodynamic solubility from kinetic growth/nucleation.
+execution:
+  inputs:
+  - mixture_components
+  - T_P_conditions
+  - model_parameters
+  - target_separation
+  steps:
+  - "Determine regime: dilute solute (Henry), near-ideal (Raoult), non-ideal (\u03B3-model), high-pressure gas (EOS)."
+  - "For VLE: compute K_i (or y_i = K_i x_i) consistent with chosen model; enforce \u03A3y=1."
+  - 'Assess distillation feasibility: relative volatility, azeotrope check (qualitative if data limited).'
+  - 'For LLE: compute phase split via activity model; compute tie-line compositions and phase fractions.'
+  - 'For crystallization: compute supersaturation; discuss nucleation vs growth limits; estimate yield from mass balance and
+    solubility curve.'
+  outputs:
+  - phase_compositions
+  - phase_fractions
+  - feasibility_flags
+  - crystallization_yield_estimate_if_applicable
+diagnostics:
+  model_param_missing:
+    signal: "No parameters for chosen \u03B3-model/EOS."
+    fix: Select alternative model with available parameters or request data.
+  mass_balance_fail:
+    signal: Phase split violates overall composition.
+    fix: Recompute phase fractions; check normalization and units.

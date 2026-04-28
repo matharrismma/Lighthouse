@@ -1,0 +1,50 @@
+module: photochemistry
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: "Model light absorption and photochemical outcomes: Beer\u2013Lambert, excited states, quantum yield, basic kinetics."
+  includes:
+  - Beer-Lambert law
+  - molar absorptivity
+  - quantum yield
+  - fluorescence/phosphorescence concepts
+  - photostationary state (basic)
+  excludes:
+  - advanced spectroscopy and ultrafast dynamics
+frozen_nouns_extensions:
+- noun: PHOTON_FLUX
+  meaning: Incident photons per area per time; drives excitation rate.
+- noun: QUANTUM_YIELD
+  meaning: "\u03A6 = (events of interest) / (photons absorbed)."
+red_constraints:
+- Absorbance A must be nonnegative; transmittance between 0 and 1.
+- "Beer\u2013Lambert requires stated validity (no strong scattering, linear regime)."
+floor_checks:
+- State path length and wavelength; note inner-filter effects at high absorbance.
+- "Separate absorbed vs incident photons when computing \u03A6."
+way_methods:
+- Prefer photon-absorbed basis for yields; include overlap with lamp spectrum if needed (approximate).
+execution:
+  inputs:
+  - epsilon
+  - concentration
+  - path_length
+  - incident_intensity_or_flux
+  - wavelength
+  - measured_product_rate_if_any
+  steps:
+  - "Compute absorbance: A = \u03B5 c l; compute transmittance T = 10^{-A}."
+  - 'Estimate fraction absorbed (for collimated beam approximation): f_abs = 1 - 10^{-A}.'
+  - Compute absorbed photon rate from incident photon flux * f_abs.
+  - "Compute quantum yield \u03A6 from measured event rate / absorbed photon rate."
+  - 'If kinetics requested: set up dC/dt with light-dependent excitation term and dark decay term; solve in stated approximation.'
+  outputs:
+  - A
+  - T
+  - fraction_absorbed
+  - absorbed_photon_rate
+  - quantum_yield_if_applicable
+diagnostics:
+  nonlinear_absorbance:
+    signal: "Beer\u2013Lambert deviation observed."
+    fix: Check concentration range, aggregation, scattering; use calibration curve.

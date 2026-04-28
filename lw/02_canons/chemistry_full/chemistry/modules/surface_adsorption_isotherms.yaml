@@ -1,0 +1,47 @@
+module: surface_adsorption_isotherms
+version: '1.0'
+status: CANONICAL
+scope:
+  purpose: 'Model adsorption equilibria and surface area estimation: Langmuir, Freundlich, BET; interpret chemisorption vs
+    physisorption.'
+  includes:
+  - Langmuir isotherm
+  - BET surface area
+  - adsorption capacity
+  - coverage
+  - isotherm fitting
+  excludes:
+  - advanced pore network modeling and hysteresis loop classification
+frozen_nouns_extensions:
+- noun: SURFACE_COVERAGE
+  meaning: "\u03B8 fraction of sites occupied (0\u20131)."
+- noun: BET_MODEL
+  meaning: Multilayer adsorption model for surface area estimation from isotherm.
+red_constraints:
+- "Coverage \u03B8 must be within [0,1]."
+- Isotherm parameters must yield nonnegative adsorption amounts over valid range.
+floor_checks:
+- State temperature and adsorbate; report pressure range and whether relative pressure P/P0 is used.
+- Check BET linear region validity.
+way_methods:
+- Use Langmuir for monolayer on uniform sites; use BET for multilayer physisorption in correct P/P0 window.
+execution:
+  inputs:
+  - isotherm_data
+  - temperature_K
+  - model_choice
+  steps:
+  - Normalize data to appropriate axes (e.g., q vs P, q vs P/P0).
+  - 'Fit chosen model: Langmuir q = qmax bP/(1+bP) or BET linear form for surface area.'
+  - 'Validate fit regime: residuals, parameter signs, and physical plausibility.'
+  - 'Compute derived quantities: qmax, b, BET monolayer capacity, surface area (using cross-sectional area).'
+  - Interpret adsorption type (physisorption vs chemisorption) from temperature dependence and hysteresis qualitatively.
+  outputs:
+  - fit_parameters
+  - qmax_or_monolayer_capacity
+  - surface_area_if_BET
+  - fit_diagnostics
+diagnostics:
+  bet_region_invalid:
+    signal: BET plot non-linear in chosen region.
+    fix: Select proper P/P0 window; consider alternative model.
