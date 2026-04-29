@@ -54,6 +54,11 @@ mcp = FastMCP("concordance")
 
 _DEFAULT_CONFIG = EngineConfig(schema_path="", default_scope="adapter", run_verifiers=True)
 
+CONCORDANCE_API_URL = os.environ.get(
+    "CONCORDANCE_API_URL",
+    "https://lighthouse-production-3f9a.up.railway.app",
+)
+
 
 def _result_to_dict(result):
     """Convert engine result to a plain dict for JSON serialization."""
