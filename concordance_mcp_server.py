@@ -36,7 +36,10 @@ All tools are deterministic, run locally, and require no network access.
 """
 from __future__ import annotations
 import json
+import os
 import time
+import urllib.error
+import urllib.request
 from typing import Any, Dict
 
 from mcp.server.fastmcp import FastMCP
@@ -101,8 +104,31 @@ def validate_packet_tool(
     elif effective_now is None:
         effective_now = int(time.time())
 
+    # -- 1. Try Railway API (writes to Evidence Ledger) ----------------------
+    if CONCORDANCE_API_URL:
+        try:
+            pkt = {**packet}
+            if "created_epoch" not in pkt:
+                pkt["created_epoch"] = effective_now
+            payload = json.dumps({"packet": pkt}).encode()
+            req = urllib.request.Request(
+                f"{CONCORDANCE_API_URL.rstrip('/')}/validate",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                api_result = json.loads(resp.read().decode())
+            api_result["_source"] = "api"
+            return api_result
+        except (urllib.error.URLError, OSError, json.JSONDecodeError):
+            pass  # fall through to local engine
+
+    # -- 2. Local fallback (offline) -----------------------------------------
     result = validate_packet(packet, now_epoch=effective_now, config=_DEFAULT_CONFIG)
-    return _result_to_dict(result)
+    out = _result_to_dict(result)
+    out["_source"] = "local"
+    return out
 
 
 @mcp.tool()
