@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -55,6 +55,17 @@ app = FastAPI(
 )
 
 app.add_middleware(
+
+# -- Optional API key auth -----------------------------------------------
+_API_KEY = os.environ.get("API_KEY", "")
+
+def _check_api_key(x_api_key: str = Header(default="")) -> None:
+    """Reject requests that don't carry the correct API key.
+    If API_KEY env var is not set, auth is disabled (dev mode).
+    """
+    if _API_KEY and x_api_key != _API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
@@ -160,7 +171,7 @@ def health():
 
 
 @app.post("/validate", response_model=ValidateResponse)
-def validate(req: ValidateRequest):
+def validate(req: ValidateRequest, _: None = Depends(_check_api_key)):
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
             status_code=503,
