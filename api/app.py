@@ -1,5 +1,5 @@
 """
-Concordance API -- FastAPI server wrapping the concordance engine.
+Concordance Wisdom Engine — FastAPI server.
 
 Endpoints:
   POST /validate          Submit a packet for validation. Result is written to ledger.
@@ -43,10 +43,10 @@ from api.ledger import get_ledger
 
 # -- App setup -----------------------------------------------------------
 app = FastAPI(
-    title="Concordance Engine API",
+    title="Concordance Wisdom Engine",
     description=(
-        "Four-gate packet validation (RED -> FLOOR -> BROTHERS -> GOD) "
-        "with an append-only Evidence Ledger. Open source. "
+        "Concordance is a Wisdom Engine. Four gates — RED, FLOOR, BROTHERS, GOD — slow every decision "
+        "down until witnesses, scripture, and structure have done their work. Append-only Evidence Ledger. "
         "https://github.com/matharrismma/Lighthouse"
     ),
     version="1.0.0",
