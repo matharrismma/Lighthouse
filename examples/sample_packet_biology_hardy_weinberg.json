@@ -1,0 +1,25 @@
+{
+  "domain": "biology",
+  "id": "bio-hwe-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "BIO_RED": {
+    "non_contradiction": true, "conservation_declared": true,
+    "second_law_respected": true, "causality_respected": true,
+    "stoichiometry_balanced": true, "nonnegativity_respected": true,
+    "channel_limits_respected": true,
+    "orthogonal_assays_used": ["genotyping", "PCR"]
+  },
+  "BIO_FLOOR": {
+    "measurement_doctrine": {"controls_used": true, "calibrated": true,
+                              "uncertainty_reported": true, "replicated": true},
+    "orthogonality": {"required": true,
+                       "orthogonal_assays_used": ["genotyping", "PCR"]},
+    "replicates_minimum": 3, "replicates": 4
+  },
+  "BIO_VERIFY": {
+    "n_replicates": 4,
+    "min_replicates": 3,
+    "hardy_weinberg": {"counts": [490, 420, 90]}
+  }
+}

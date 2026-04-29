@@ -2,13 +2,10 @@
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
-
-
-
 [project]
 name = "concordance-engine"
-version = "1.0.6"
-description = "Concordance is a Wisdom Engine. Four gates — RED, FLOOR, BROTHERS, GOD — slow every decision down until witnesses, scripture, and structure have done their work."
+version = "1.0.5"
+description = "Four-Gates packet validation engine with cross-disciplinary computational verifiers and MCP server for AI assistant integration."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -35,5 +32,46 @@ dependencies = [
   "scipy>=1.11",
 ]
 
+[project.urls]
+Repository = "https://github.com/matharrismma/Lighthouse"
+"Bug Tracker" = "https://github.com/matharrismma/Lighthouse/issues"
 
+[project.optional-dependencies]
+schema = ["jsonschema>=4.21.0"]
+mcp = ["mcp>=1.0.0"]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.4.0",
+  "jsonschema>=4.21.0",
+  "mcp>=1.0.0",
+]
 
+[project.scripts]
+concordance = "concordance_engine.cli:main"
+concordance-mcp = "concordance_engine.mcp_server.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Each tests/test_*.py is a script-style harness; conftest.py wraps each one
+# in a parameterized pytest test that re-executes the script and checks exit 0.
+python_files = ["conftest.py"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # long lines tolerated in test data
+    "E731",  # lambdas in MCP tool descriptors are intentional
+    "E402",  # tests adjust sys.path before imports
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+"src/concordance_engine/mcp_server/tools.py" = ["E731"]

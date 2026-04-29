@@ -1,5 +1,57 @@
 # Migration
 
+## From v1.0.4 to v1.0.5
+
+This release is **additive** — every v1.0.4 packet, MCP call, and CLI invocation continues to work unchanged. Places a 1.0.4 caller might notice:
+
+### MCP server: collapsed to one implementation
+
+Three MCP server entry points existed in 1.0.4. Two were unreachable:
+- `src/concordance_engine/mcp_server.py` — shadowed by the package directory of the same name and silently never imported. Now an empty deprecation stub. **Action:** if your config invoked `python -m concordance_engine.mcp_server`, no change needed; the package directory wins anyway.
+- `concordance_mcp_server.py` at the repo root — historical 338-line standalone server. Now a 19-line shim that calls `concordance_engine.mcp_server.server.main`. **Action:** if your `claude_desktop_config.json` runs `python /path/to/concordance_mcp_server.py`, it still works. The supported invocation is `concordance-mcp` from the `[mcp]` extra.
+
+### MCP tool count: 11 → 14
+
+Three new tools register: `attest_red`, `attest_floor`, `get_example_packet`. Existing tools are unchanged in name and signature. If you cached the previous tool list, refresh it.
+
+### Verifier expansions (all additive)
+
+- `verify_mathematics(mode=...)` accepts four new modes: `matrix`, `inequality`, `series`, `ode`. Original five (equality, derivative, integral, limit, solve) unchanged.
+- `verify_statistics_pvalue` accepts seven new test types: `paired_t`, `one_proportion_z`, `two_proportion_z`, `fisher_exact`, `mannwhitney`, `wilcoxon_signed_rank`, `regression_coefficient_t`. Original five (`two_sample_t`, `one_sample_t`, `z`, `chi2`, `f`) unchanged.
+- `verify_statistics_confidence_interval` accepts an optional `spec` kwarg with raw inputs (`mean`, `sd`, `n`, `conf_level`) — when supplied, bounds are recomputed and compared to the claimed `ci_low`/`ci_high`. Without it, behavior is unchanged.
+- `verify_physics_conservation` accepts an optional `law` kwarg (`energy` | `momentum` | `charge` | `mass`). When set, keys in `before`/`after` are matched to a named-law profile and multi-key profiles (KE+PE) are summed before the conservation check. Without it, behavior is unchanged.
+- `verify_computer_science` accepts two new optional kwargs: `claimed_space_class` (triggers `tracemalloc`-based space-complexity verification) and `determinism_trials` (>=2 enables run-twice equality check).
+- `verify_biology` accepts four new optional sub-blocks in the spec: `hardy_weinberg`, `primer`, `molarity`, `mendelian`.
+- `verify_governance_decision_packet` accepts an optional `domain` kwarg (`governance` | `business` | `household` | `education` | `church`). When set, the per-domain required+recommended profile is checked alongside the base shape.
+
+### Schema description strings updated; structure unchanged
+
+`schema/packet.schema.json` description strings now mention the new sub-fields. Structural rules still use `additionalProperties: true`, so any 1.0.4 packet still validates without modification.
+
+### Engine wiring extended
+
+`physics.run()` and `computer_science.run()` now route to the new verifiers when the corresponding fields are present in `PHYS_VERIFY` / `CS_VERIFY`:
+
+- `PHYS_VERIFY.law` → `verify_named_conservation`
+- `CS_VERIFY.claimed_space_class` → `verify_space_complexity`
+- `CS_VERIFY.trials` → `verify_determinism`
+
+Packets without these fields take the v1.0.4 code path.
+
+### Test counts
+
+- `test_verifiers.py`: 64 → 101 cases.
+- `test_mcp_tools.py`: was failing on `ImportError: ALL_TOOLS` in 1.0.4; now passes 62 cases.
+- `test_canon_validators.py`: was failing on hardcoded `02_canons` path; now passes 5/5 (probes both `canons/` and `lw/02_canons/`).
+- `test_engine.py` (74), `test_cli.py` (16): unchanged.
+
+If your CI ran the suites via the old command lines, they continue to work. New in 1.0.5: `pytest tests/` is supported via `tests/conftest.py`, and `.github/workflows/ci.yml` runs the matrix on Python 3.10/3.11/3.12 plus a `ruff` lint pass plus `python scripts/regenerate_manifest.py --check`.
+
+### Removed / deprecated
+
+- `lw/01_engine/concordance-engine/src/concordance_engine/` — the parallel snapshot tree was emptied. Recommended: `git rm -rf` the subtree.
+- `src/concordance_engine/mcp_server.py` — the shadowed standalone server is now an inert stub. Recommended: `git rm` it.
+
 ## From v0.1
 - Old `src/*.py` scripts are now importable as `concordance_engine.*`.
 - Use `concordance validate <packet.json>`.

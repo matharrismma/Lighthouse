@@ -1,0 +1,41 @@
+{
+  "domain": "mathematics",
+  "id": "math-matrix-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "MATH_RED": {
+    "well_formedness": {
+      "symbols_defined": true,
+      "quantifiers_scoped": true,
+      "domains_declared": true
+    },
+    "type_safety": {
+      "objects_typed": true,
+      "operations_valid": true
+    },
+    "definitional_integrity": {
+      "no_circular_definitions": true
+    },
+    "inference_integrity": {
+      "rules_named": true,
+      "steps_justified": true
+    }
+  },
+  "MATH_VERIFY": {
+    "claim_type": "determinant",
+    "matrix": [
+      [
+        1,
+        2
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "claimed_value": -2
+  },
+  "artifacts": {
+    "derivation": "symbolic verification via sympy"
+  }
+}

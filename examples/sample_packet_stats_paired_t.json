@@ -1,0 +1,24 @@
+{
+  "domain": "statistics",
+  "id": "stat-paired-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "STAT_INFERENCE": {
+    "test_specified": true, "assumptions_tested": true,
+    "p_value": 0.0375, "alpha": 0.05,
+    "effect_size": 0.5, "effect_size_type": "cohen_d",
+    "confidence_interval": [0.05, 0.95],
+    "claimed_significance": "significant",
+    "hypothesis_pre_specified": true,
+    "multiple_comparisons_corrected": false
+  },
+  "STAT_VERIFY": {
+    "test": "paired_t",
+    "n": 20,
+    "mean_diff": 0.5,
+    "sd_diff": 1.0,
+    "tail": "two",
+    "claimed_p": 0.0375,
+    "tolerance": 1e-2
+  }
+}

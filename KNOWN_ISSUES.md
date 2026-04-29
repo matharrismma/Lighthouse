@@ -2,6 +2,8 @@
 
 Tracked here so the README and onboarding remain honest about what works.
 
+> **All four issues below were resolved in v1.0.5 (2026-04-29).** This file is kept as a record of what the README-audit on 2026-04-28 surfaced. Anything still open should be a fresh entry above this notice. — see CHANGELOG.md for the fix details.
+
 ## tests/test_mcp_tools.py — ImportError on `ALL_TOOLS`
 
 **Symptom**

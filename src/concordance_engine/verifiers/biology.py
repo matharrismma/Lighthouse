@@ -161,6 +161,130 @@ def verify_sample_size_powered(spec: Dict[str, Any]) -> VerifierResult:
                     f"alpha={alpha}, power={target_power}", data)
 
 
+def verify_hardy_weinberg(spec):
+    """Verify observed AA/Aa/aa genotype counts are HWE-consistent."""
+    obs = spec.get("counts") or spec.get("observed")
+    if not obs or len(obs) != 3:
+        return na("biology.hardy_weinberg")
+    AA, Aa, aa = (float(obs[0]), float(obs[1]), float(obs[2]))
+    n = AA + Aa + aa
+    if n <= 0:
+        return error("biology.hardy_weinberg", "no individuals counted")
+    p = (2*AA + Aa) / (2*n)
+    q = 1 - p
+    exp_AA = (p*p) * n
+    exp_Aa = (2*p*q) * n
+    exp_aa = (q*q) * n
+    chi2 = 0.0
+    for o, e in zip([AA, Aa, aa], [exp_AA, exp_Aa, exp_aa]):
+        if e > 0:
+            chi2 += (o - e) ** 2 / e
+    # df = 1 (k=3 categories - 1 estimated parameter - 1)
+    from scipy import stats as _st
+    pval = float(_st.chi2.sf(chi2, df=1))
+    alpha = float(spec.get("alpha", 0.05))
+    data = {"p_allele_freq": p, "q_allele_freq": q,
+            "expected": [exp_AA, exp_Aa, exp_aa],
+            "chi2": chi2, "df": 1, "p_value": pval, "alpha": alpha}
+    if pval >= alpha:
+        return confirm("biology.hardy_weinberg",
+                       f"counts consistent with HWE (chi2={chi2:.3f}, p={pval:.3g} >= {alpha})", data)
+    return mismatch("biology.hardy_weinberg",
+                    f"counts inconsistent with HWE (chi2={chi2:.3f}, p={pval:.3g} < {alpha})", data)
+
+
+def verify_primer(spec):
+    """Sanity-check a primer sequence: GC% in [40,60], Tm in [50,65] (Wallace) or supplied range."""
+    seq = (spec.get("sequence") or "").upper().strip()
+    if not seq:
+        return na("biology.primer")
+    if not all(b in "ACGTU" for b in seq):
+        return mismatch("biology.primer", f"sequence contains non-DNA characters: {seq!r}")
+    s = seq.replace("U", "T")
+    n = len(s)
+    gc = (s.count("G") + s.count("C")) / n * 100
+    a = s.count("A"); t = s.count("T")
+    g = s.count("G"); c = s.count("C")
+    # Wallace rule for short primers
+    tm = 2 * (a + t) + 4 * (g + c)
+    gc_lo, gc_hi = spec.get("gc_range", [40.0, 60.0])
+    tm_lo, tm_hi = spec.get("tm_range", [50.0, 65.0])
+    fails = []
+    if not (gc_lo <= gc <= gc_hi):
+        fails.append(f"GC%={gc:.1f} outside [{gc_lo},{gc_hi}]")
+    if not (tm_lo <= tm <= tm_hi):
+        fails.append(f"Tm={tm}C outside [{tm_lo},{tm_hi}]")
+    if not (15 <= n <= 30):
+        fails.append(f"length={n} outside [15,30]")
+    data = {"length": n, "gc_percent": gc, "tm_wallace_C": tm}
+    if fails:
+        return mismatch("biology.primer", "; ".join(fails), data)
+    return confirm("biology.primer",
+                   f"primer {seq} OK: len={n}, GC={gc:.1f}%, Tm={tm}C", data)
+
+
+def verify_molarity(spec):
+    """Check stated molarity arithmetic: M = moles/L, or moles = mass/MW.
+
+    spec keys: mass_g, mw_g_per_mol, volume_L, claimed_molarity (mol/L);
+    OR moles, volume_L, claimed_molarity.
+    """
+    cl = spec.get("claimed_molarity")
+    if cl is None:
+        return na("biology.molarity")
+    tol = float(spec.get("tolerance", 1e-3))
+    try:
+        if "moles" in spec:
+            moles = float(spec["moles"])
+        else:
+            mass = float(spec["mass_g"])
+            mw = float(spec["mw_g_per_mol"])
+            if mw <= 0:
+                return error("biology.molarity", f"non-positive MW: {mw}")
+            moles = mass / mw
+        v = float(spec["volume_L"])
+        if v <= 0:
+            return error("biology.molarity", f"non-positive volume: {v}")
+        actual = moles / v
+    except KeyError as e:
+        return error("biology.molarity", f"missing field: {e}")
+    diff = abs(actual - float(cl))
+    data = {"computed_molarity": actual, "claimed_molarity": cl,
+            "abs_diff": diff, "tolerance": tol}
+    if diff <= tol or (cl != 0 and diff / abs(cl) <= tol):
+        return confirm("biology.molarity",
+                       f"computed {actual:.6g} M ~ claimed {cl} M (diff {diff:.2e})", data)
+    return mismatch("biology.molarity",
+                    f"computed {actual:.6g} M != claimed {cl} M (diff {diff:.2e})", data)
+
+
+def verify_mendelian(spec):
+    """Chi-squared test of observed counts against an expected Mendelian ratio."""
+    obs = spec.get("observed")
+    ratio = spec.get("expected_ratio")  # e.g. [9, 3, 3, 1]
+    if not obs or not ratio:
+        return na("biology.mendelian")
+    if len(obs) != len(ratio):
+        return error("biology.mendelian",
+                     f"obs/ratio length mismatch: {len(obs)} vs {len(ratio)}")
+    n = sum(obs)
+    rs = sum(ratio)
+    if n <= 0 or rs <= 0:
+        return error("biology.mendelian", "zero total")
+    expected = [n * r / rs for r in ratio]
+    chi2 = sum((o - e) ** 2 / e for o, e in zip(obs, expected) if e > 0)
+    from scipy import stats as _st
+    df = len(obs) - 1
+    pval = float(_st.chi2.sf(chi2, df=df))
+    alpha = float(spec.get("alpha", 0.05))
+    data = {"expected": expected, "chi2": chi2, "df": df, "p_value": pval, "alpha": alpha}
+    if pval >= alpha:
+        return confirm("biology.mendelian",
+                       f"observed consistent with ratio {ratio} (chi2={chi2:.3f}, p={pval:.3g})", data)
+    return mismatch("biology.mendelian",
+                    f"observed inconsistent with ratio {ratio} (chi2={chi2:.3f}, p={pval:.3g})", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     bv = packet.get("BIO_VERIFY") or {}
@@ -173,6 +297,14 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_dose_response_monotonicity(bv))
     if "power_analysis" in bv:
         results.append(verify_sample_size_powered(bv))
+    if "hardy_weinberg" in bv:
+        results.append(verify_hardy_weinberg(bv["hardy_weinberg"]))
+    if "primer" in bv:
+        results.append(verify_primer(bv["primer"]))
+    if "molarity" in bv:
+        results.append(verify_molarity(bv["molarity"]))
+    if "mendelian" in bv:
+        results.append(verify_mendelian(bv["mendelian"]))
 
     if not results:
         results.append(na("biology", "no BIO_VERIFY artifacts present"))

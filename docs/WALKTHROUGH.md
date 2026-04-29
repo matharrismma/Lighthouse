@@ -3,7 +3,7 @@
 This document takes you from zero to a packet that the engine validates AND verifies. It assumes you have Python 3.10+ and the package installed.
 
 ```bash
-cd 01_engine/concordance-engine
+# from the repository root
 pip install -e ".[dev]"
 ```
 
