@@ -1,0 +1,21 @@
+{
+  "domain": "business",
+  "id": "biz-001",
+  "scope": "mesh",
+  "created_epoch": 1700000000,
+  "required_witnesses": 2,
+  "witness_count": 2,
+  "DECISION_PACKET": {
+    "title": "Approve Q3 vendor contract",
+    "scope": "mesh",
+    "red_items": ["no exploitation", "no deception"],
+    "floor_items": ["budget within tolerance", "fiduciary review complete"],
+    "way_path": "Award the contract to Vendor A on a 12-month term with 90-day cancellation. Reviewed against last year's spend; falls within board-approved discretionary budget.",
+    "execution_steps": ["Sign contract", "File with finance", "Schedule 90-day review"],
+    "witnesses": ["CEO", "CFO"],
+    "officers": ["CEO", "CFO"],
+    "fiduciary_basis": "approved Q3 budget allocation $50k/quarter",
+    "dollar_amount": 50000,
+    "risk_assessment": "low — vendor has 3-year history, references checked"
+  }
+}

@@ -154,3 +154,70 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     if not results:
         results.append(na("governance", "no DECISION_PACKET artifact present"))
     return results
+
+
+# ---------------------------------------------------------------------
+# V7: per-domain decision-packet profiles
+# ---------------------------------------------------------------------
+
+_DOMAIN_PROFILES = {
+    "governance": {
+        # Already covered by base shape; kept for explicitness.
+        "required": [],
+        "recommended": ["scripture_anchor"],
+    },
+    "business": {
+        # Officers signing off, fiduciary clarity, dollar amount.
+        "required": ["officers", "fiduciary_basis"],
+        "recommended": ["dollar_amount", "risk_assessment"],
+    },
+    "household": {
+        # A household decision should name affected dependents, budget category, and time horizon.
+        "required": ["budget_category", "affected_dependents"],
+        "recommended": ["time_horizon", "alternatives_considered"],
+    },
+    "education": {
+        # Affected students/cohort, learning objective, policy alignment.
+        "required": ["affected_cohort", "learning_objective"],
+        "recommended": ["accommodation_plan", "policy_reference"],
+    },
+    "church": {
+        # Elder/leader sign-off, scripture anchor, congregation impact.
+        "required": ["elder_signoff", "scripture_anchor"],
+        "recommended": ["congregation_impact", "prayer_record"],
+    },
+}
+
+
+def verify_domain_profile(domain, decision_packet):
+    """Verify a decision packet against per-domain required-field profile.
+
+    The base shape check is independent; this layer adds domain semantics.
+    """
+    domain_key = (domain or "").lower()
+    profile = _DOMAIN_PROFILES.get(domain_key)
+    if profile is None:
+        return na("governance.domain_profile",
+                  f"no profile registered for domain {domain!r}")
+    if not isinstance(decision_packet, dict):
+        return error("governance.domain_profile", "decision_packet must be an object")
+    missing_required = [k for k in profile["required"]
+                        if k not in decision_packet or decision_packet[k] in (None, "", [], {})]
+    missing_recommended = [k for k in profile["recommended"]
+                           if k not in decision_packet]
+    data = {"domain": domain_key,
+            "required": profile["required"],
+            "recommended": profile["recommended"],
+            "missing_required": missing_required,
+            "missing_recommended": missing_recommended}
+    if missing_required:
+        return mismatch("governance.domain_profile",
+                        f"{domain} packet missing required: {missing_required}",
+                        data)
+    if missing_recommended:
+        # Recommended fields are advisory, not blocking. Confirm but flag in detail.
+        return confirm("governance.domain_profile",
+                       f"{domain} required fields present; recommended missing: {missing_recommended}",
+                       data)
+    return confirm("governance.domain_profile",
+                   f"{domain} required + recommended fields all present", data)

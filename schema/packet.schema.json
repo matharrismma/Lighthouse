@@ -1,9 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Concordance Engine Packet Schema (v1.0 — engine-aligned)",
-  "description": "Describes the packet shape the engine actually validates. The original long-form schema (packet_type, provenance, claims with claim_id/kind, constraints, hash) is preserved at packet.schema.aspirational.json as a forward design target; it is not the contract the CLI runs against. Update this file when domain validators add new fields.",
+  "title": "Concordance Engine Packet Schema (v1.0.5 \u2014 engine-aligned)",
+  "description": "Describes the packet shape the engine actually validates as of v1.0.5. All <DOMAIN>_VERIFY blocks are extended this release; see field descriptions for the recognized sub-fields. The original long-form schema is preserved at packet.schema.aspirational.json.",
   "type": "object",
-  "required": ["domain"],
+  "required": [
+    "domain"
+  ],
   "properties": {
     "domain": {
       "type": "string",
@@ -30,7 +32,11 @@
     "scope": {
       "type": "string",
       "description": "Determines the GOD-gate wait window.",
-      "enum": ["adapter", "mesh", "canon"],
+      "enum": [
+        "adapter",
+        "mesh",
+        "canon"
+      ],
       "default": "adapter"
     },
     "created_epoch": {
@@ -63,12 +69,18 @@
       "description": "Fallback claims list used when domain-specific RED/FLOOR blocks are absent. Items may be strings or {subject, predicate} dicts.",
       "items": {
         "oneOf": [
-          { "type": "string" },
+          {
+            "type": "string"
+          },
           {
             "type": "object",
             "properties": {
-              "subject": { "type": "string" },
-              "predicate": { "type": "string" }
+              "subject": {
+                "type": "string"
+              },
+              "predicate": {
+                "type": "string"
+              }
             },
             "additionalProperties": true
           }
@@ -86,73 +98,132 @@
       "items": {
         "type": "object",
         "properties": {
-          "signal": { "type": "string" },
-          "diagnosis": { "type": "string" },
-          "action": { "type": "string" }
+          "signal": {
+            "type": "string"
+          },
+          "diagnosis": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          }
         },
         "additionalProperties": true
       }
     },
-
-    "MATH_RED": { "type": "object", "additionalProperties": true },
-    "MATH_FLOOR": { "type": "object", "additionalProperties": true },
+    "MATH_RED": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "MATH_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "MATH_VERIFY": {
       "type": "object",
-      "description": "Computational verification artifacts for mathematics. Recognized fields: expr_a/expr_b/variables (symbolic equality); function/variable/claimed_derivative; integrand/variable/claimed_antiderivative; function/variable/point/claimed_limit; equation/variable/claimed_solutions.",
+      "description": "Computational verification artifacts for mathematics. Recognized fields: expr_a/expr_b/variables (symbolic equality); function/variable/claimed_derivative; integrand/variable/claimed_antiderivative; function/variable/point/claimed_limit; equation/variable/claimed_solutions; matrix/claim_type (rank|determinant|trace|eigenvalues|transpose|inverse|symmetric|invertible|nullspace_dim)/claimed_value; lhs/rhs/op/variable for inequality; term/start/end/claimed_sum for series; ode/claimed_solution/variable/function for ODE.",
       "additionalProperties": true
     },
-
-    "PHYS_CONSERVATION": { "type": "object", "additionalProperties": true },
-    "PHYS_FLOOR": { "type": "object", "additionalProperties": true },
-    "PHYS_CONSTRAINTS": { "type": "object", "additionalProperties": true },
-    "PHYS_MEASUREMENTS": { "type": "object", "additionalProperties": true },
+    "PHYS_CONSERVATION": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "PHYS_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "PHYS_CONSTRAINTS": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "PHYS_MEASUREMENTS": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "PHYS_VERIFY": {
       "type": "object",
-      "description": "Computational verification artifacts for physics. Recognized fields: equation/symbols (dimensional consistency); before/after/tolerance_relative/tolerance_absolute (conservation arithmetic).",
+      "description": "Computational verification artifacts for physics. Recognized fields: equation/symbols (dimensional consistency); before/after/tolerance_relative/tolerance_absolute (per-quantity conservation); law (energy|momentum|charge|mass) plus before/after invokes named-law profile checking (KE+PE total energy, vector momentum components, scalar charge/mass).",
       "additionalProperties": true
     },
-    "conservation_checks": { "type": "object", "additionalProperties": true },
-    "units": { "type": "string", "description": "Unit system declaration (e.g. 'SI'). Satisfies physics FLOOR." },
-
-    "CHEM_SETUP": { "type": "object", "additionalProperties": true },
-    "CHEM_RED": { "type": "object", "additionalProperties": true },
-    "CHEM_FLOOR": { "type": "object", "additionalProperties": true },
+    "conservation_checks": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "units": {
+      "type": "string",
+      "description": "Unit system declaration (e.g. 'SI'). Satisfies physics FLOOR."
+    },
+    "CHEM_SETUP": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "CHEM_RED": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "CHEM_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "CHEM_VERIFY": {
       "type": "object",
       "description": "Computational verification artifacts for chemistry. Recognized fields: equation (atom/charge balance); temperature_K (positive absolute temperature).",
       "additionalProperties": true
     },
-    "regime": { "type": "object", "additionalProperties": true },
-
-    "BIO_RED": { "type": "object", "additionalProperties": true },
-    "BIO_FLOOR": { "type": "object", "additionalProperties": true },
+    "regime": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "BIO_RED": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "BIO_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "BIO_VERIFY": {
       "type": "object",
-      "description": "Computational verification artifacts for biology. Recognized fields: n_replicates / min_replicates; assay_classes / min_assay_classes; dose_response (doses, responses, expected_direction); power_analysis (effect_size, alpha, n_per_group, target_power).",
+      "description": "Computational verification artifacts for biology. Recognized fields: n_replicates/min_replicates; assay_classes/min_assay_classes; dose_response (doses, responses, expected_direction); power_analysis (effect_size, alpha, n_per_group, target_power); hardy_weinberg.counts (3-element AA/Aa/aa list, chi-squared vs HWE expectation); primer.sequence (length/GC%/Wallace Tm sanity), optional gc_range and tm_range; molarity.mass_g+mw_g_per_mol+volume_L+claimed_molarity (or moles+volume_L); mendelian.observed+expected_ratio (chi-squared).",
       "additionalProperties": true
     },
-
-    "CS_RED": { "type": "object", "additionalProperties": true },
-    "CS_FLOOR": { "type": "object", "additionalProperties": true },
-    "CS_COMPLEXITY": { "type": "object", "additionalProperties": true },
+    "CS_RED": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "CS_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "CS_COMPLEXITY": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "CS_VERIFY": {
       "type": "object",
-      "description": "Computational verification artifacts for computer science. Recognized fields: code (Python source); function_name; test_cases; input_generator; claimed_class; sizes; tolerance.",
+      "description": "Computational verification artifacts for computer science. Recognized fields: code (Python source); function_name; test_cases; input_generator; claimed_class; claimed_space_class; sizes; tolerance; trials (>=2 enables run-twice determinism check).",
       "additionalProperties": true
     },
-
-    "STAT_RED": { "type": "object", "additionalProperties": true },
-    "STAT_FLOOR": { "type": "object", "additionalProperties": true },
-    "STAT_INFERENCE": { "type": "object", "additionalProperties": true },
+    "STAT_RED": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "STAT_FLOOR": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "STAT_INFERENCE": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "STAT_VERIFY": {
       "type": "object",
-      "description": "Computational verification artifacts for statistics. Recognized fields: test (two_sample_t/one_sample_t/z/chi2/f); test inputs (n, mean, sd, df, statistic); claimed_p; raw_p_values/method/claimed_rejected_indices; estimate/ci_low/ci_high.",
+      "description": "Computational verification artifacts for statistics. Recognized fields: test (one of: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t); test inputs (n, mean, sd, df, statistic, table, etc.); tail (two|two-sided|greater|less); claimed_p; tolerance. Multiple-comparisons: raw_p_values/method/alpha/claimed_rejected_indices. Confidence interval: estimate/ci_low/ci_high (shape check) plus optional mean/sd/n/conf_level (bound recomputation).",
       "additionalProperties": true
     },
-
     "DECISION_PACKET": {
       "type": "object",
-      "description": "Structured governance / business / household / education / church decision packet. Verifier checks structural completeness (title, scope, red_items, floor_items, way_path, execution_steps, witnesses) and witness_count consistency. Content judgement remains human.",
+      "description": "Structured governance / business / household / education / church decision packet. Verifier checks structural completeness (title, scope, red_items, floor_items, way_path, execution_steps, witnesses) and witness_count consistency. Per-domain profiles add: business -> officers, fiduciary_basis (recommended: dollar_amount, risk_assessment); household -> budget_category, affected_dependents (recommended: time_horizon, alternatives_considered); education -> affected_cohort, learning_objective (recommended: accommodation_plan, policy_reference); church -> elder_signoff, scripture_anchor (recommended: congregation_impact, prayer_record). Content judgement remains human.",
       "additionalProperties": true
     }
   },

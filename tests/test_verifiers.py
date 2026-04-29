@@ -297,6 +297,193 @@ expect("witness count mismatch",
        verify_witness_count_consistency(complete_dp, {"witness_count": 5}),
        "MISMATCH")
 
+
+# ── New verifier features (v1.0.5) ──
+print("\nMathematics — matrix:")
+from concordance_engine.verifiers.mathematics import (
+    verify_matrix, verify_inequality, verify_series, verify_ode,
+)
+expect("matrix determinant 2x2",
+       verify_matrix({"matrix": [[1,2],[3,4]], "claim_type": "determinant",
+                      "claimed_value": -2}),
+       "CONFIRMED")
+expect("matrix rank singular",
+       verify_matrix({"matrix": [[1,2,3],[2,4,6]], "claim_type": "rank",
+                      "claimed_value": 1}),
+       "CONFIRMED")
+expect("matrix wrong det",
+       verify_matrix({"matrix": [[1,0],[0,1]], "claim_type": "determinant",
+                      "claimed_value": 5}),
+       "MISMATCH")
+expect("matrix unknown claim",
+       verify_matrix({"matrix": [[1]], "claim_type": "wat"}),
+       "ERROR")
+
+print("\nMathematics — inequality:")
+expect("x^2 >= 0 holds",
+       verify_inequality({"lhs":"x**2","rhs":"0","op":">="}),
+       "CONFIRMED")
+expect("x >= 1 fails on Reals",
+       verify_inequality({"lhs":"x","rhs":"1","op":">="}),
+       "MISMATCH")
+
+print("\nMathematics — series:")
+expect("geometric sum 1/2^k = 2",
+       verify_series({"term":"1/2**k","start":0,"end":"oo","claimed_sum":2}),
+       "CONFIRMED")
+expect("wrong series claim",
+       verify_series({"term":"1/2**k","start":0,"end":"oo","claimed_sum":3}),
+       "MISMATCH")
+
+print("\nMathematics — ODE:")
+expect("y'=y satisfied by exp(x)",
+       verify_ode({"ode":"Derivative(y(x),x) - y(x)",
+                   "claimed_solution":"exp(x)"}),
+       "CONFIRMED")
+expect("y'=y not satisfied by sin(x)",
+       verify_ode({"ode":"Derivative(y(x),x) - y(x)",
+                   "claimed_solution":"sin(x)"}),
+       "MISMATCH")
+
+print("\nStatistics — new test types:")
+expect("paired_t recompute",
+       verify_pvalue_calibration({"test":"paired_t","n":20,"mean_diff":0.5,
+                                   "sd_diff":1.0,"tail":"two",
+                                   "claimed_p":0.0375,"tolerance":1e-2}),
+       "CONFIRMED")
+expect("one_proportion_z recompute",
+       verify_pvalue_calibration({"test":"one_proportion_z","n":200,
+                                   "successes":110,"p0":0.5,"tail":"two",
+                                   "claimed_p":0.158,"tolerance":1e-2}),
+       "CONFIRMED")
+expect("two_proportion_z recompute",
+       verify_pvalue_calibration({"test":"two_proportion_z","n1":100,"n2":100,
+                                   "successes1":55,"successes2":40,
+                                   "tail":"two","claimed_p":0.0339,
+                                   "tolerance":1e-2}),
+       "CONFIRMED")
+expect("fisher_exact 2x2",
+       verify_pvalue_calibration({"test":"fisher_exact",
+                                   "table":[[8,2],[1,5]],"tail":"two",
+                                   "claimed_p":0.035,"tolerance":1e-2}),
+       "CONFIRMED")
+expect("mannwhitney small",
+       verify_pvalue_calibration({"test":"mannwhitney",
+                                   "x":[1,2,3,4,5],"y":[6,7,8,9,10],
+                                   "tail":"two","claimed_p":0.0079,
+                                   "tolerance":1e-2}),
+       "CONFIRMED")
+expect("regression_coefficient_t",
+       verify_pvalue_calibration({"test":"regression_coefficient_t",
+                                   "beta":2.0,"se":1.0,"n":52,"k":3,"tail":"two",
+                                   "claimed_p":0.0506,"tolerance":1e-2}),
+       "CONFIRMED")
+expect("paired_t wrong claim",
+       verify_pvalue_calibration({"test":"paired_t","n":20,"mean_diff":0.5,
+                                   "sd_diff":1.0,"tail":"two",
+                                   "claimed_p":0.5,"tolerance":1e-3}),
+       "MISMATCH")
+
+print("\nStatistics — CI bound recompute:")
+expect("CI matches recomputed bounds",
+       verify_confidence_interval({"estimate":100,"ci_low":95.872,"ci_high":104.128,
+                                    "mean":100,"sd":10,"n":25,"conf_level":0.95,
+                                    "tolerance":0.01}),
+       "CONFIRMED")
+expect("CI mismatches recomputed bounds",
+       verify_confidence_interval({"estimate":100,"ci_low":98,"ci_high":102,
+                                    "mean":100,"sd":10,"n":25,"conf_level":0.95,
+                                    "tolerance":0.01}),
+       "MISMATCH")
+
+print("\nComputer Science — space + determinism:")
+from concordance_engine.verifiers.computer_science import (
+    verify_space_complexity, verify_determinism,
+)
+expect("space O(n) for list(range(n))",
+       verify_space_complexity({"code":"def f(n):\n    return list(range(n))",
+                                  "function_name":"f",
+                                  "input_generator":"def gen(n):\n    return [n]",
+                                  "claimed_space_class":"O(n)"}),
+       "CONFIRMED")
+expect("determinism deterministic fn",
+       verify_determinism({"code":"def f(x): return x*2",
+                            "function_name":"f",
+                            "test_cases":[{"args":[3],"expected":6}],
+                            "trials":3}),
+       "CONFIRMED")
+
+print("\nPhysics — named conservation:")
+from concordance_engine.verifiers.physics import verify_named_conservation
+expect("KE+PE total conserved",
+       verify_named_conservation("energy",
+                                  {"KE":5.0,"PE":10.0},
+                                  {"KE":8.0,"PE":7.0}),
+       "CONFIRMED")
+expect("energy total drift",
+       verify_named_conservation("energy",
+                                  {"KE":5.0,"PE":10.0},
+                                  {"KE":8.0,"PE":5.0}),
+       "MISMATCH")
+expect("momentum components",
+       verify_named_conservation("momentum",
+                                  {"p_x":1.0,"p_y":2.0},
+                                  {"p_x":1.0,"p_y":2.0}),
+       "CONFIRMED")
+expect("unknown law errors",
+       verify_named_conservation("magic", {}, {}),
+       "ERROR")
+expect("wrong key for energy law",
+       verify_named_conservation("energy", {"foo":1.0},{"foo":1.0}),
+       "MISMATCH")
+
+print("\nBiology — HWE / primer / molarity / Mendelian:")
+from concordance_engine.verifiers.biology import (
+    verify_hardy_weinberg, verify_primer, verify_molarity, verify_mendelian,
+)
+expect("HWE consistent counts",
+       verify_hardy_weinberg({"counts":[490,420,90]}),
+       "CONFIRMED")
+expect("HWE inconsistent counts",
+       verify_hardy_weinberg({"counts":[100,500,400]}),
+       "MISMATCH")
+expect("primer too short low GC",
+       verify_primer({"sequence":"AAAAAAAAAAAAAAAA"}),
+       "MISMATCH")
+expect("molarity 1M from 4g/40g_per_mol/0.1L",
+       verify_molarity({"mass_g":4.0,"mw_g_per_mol":40.0,"volume_L":0.1,
+                         "claimed_molarity":1.0}),
+       "CONFIRMED")
+expect("molarity wrong claim",
+       verify_molarity({"moles":2.0,"volume_L":1.0,"claimed_molarity":1.0}),
+       "MISMATCH")
+expect("Mendelian 9:3:3:1 consistent",
+       verify_mendelian({"observed":[315,108,101,32],
+                          "expected_ratio":[9,3,3,1]}),
+       "CONFIRMED")
+expect("Mendelian 1:1 violated",
+       verify_mendelian({"observed":[100,1],"expected_ratio":[1,1]}),
+       "MISMATCH")
+
+print("\nGovernance — domain profile:")
+from concordance_engine.verifiers.governance import verify_domain_profile
+expect("business missing required",
+       verify_domain_profile("business", {"title":"x"}),
+       "MISMATCH")
+expect("business required+recommended present",
+       verify_domain_profile("business",
+                              {"officers":["CEO"],"fiduciary_basis":"budget",
+                               "dollar_amount":1000,"risk_assessment":"low"}),
+       "CONFIRMED")
+expect("household profile",
+       verify_domain_profile("household",
+                              {"budget_category":"food",
+                               "affected_dependents":["k1"]}),
+       "CONFIRMED")
+expect("unknown domain N/A",
+       verify_domain_profile("martian", {}),
+       "NOT_APPLICABLE")
+
 # ── Summary ──
 print(f"\n{'=' * 60}")
 if FAIL:

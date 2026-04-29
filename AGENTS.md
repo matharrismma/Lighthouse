@@ -32,9 +32,9 @@ RED has two independent layers: attestation (did the author affirm constraints?)
 ## Running tests
 
 ```bash
-PYTHONPATH=src python tests/test_engine.py        # 67 integration tests
-PYTHONPATH=src python tests/test_verifiers.py     # 53 verifier unit tests
-PYTHONPATH=src python tests/test_mcp_tools.py    # 44 MCP tool tests
+PYTHONPATH=src python tests/test_engine.py        # integration tests (see README for current count)
+PYTHONPATH=src python tests/test_verifiers.py     # verifier unit tests
+PYTHONPATH=src python tests/test_mcp_tools.py    # MCP tool tests
 PYTHONPATH=src python tests/test_cli.py          # 16 CLI tests
 ```
 

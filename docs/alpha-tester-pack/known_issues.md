@@ -1,6 +1,10 @@
 # Concordance Known Issues
 
-Three reproducible bugs surfaced while building the training set on 2026-04-27. Each includes a minimal repro, the wrong behavior, the right behavior, and a proposed fix. None can be fixed without server source access; document them so testers don't lose hours assuming user error.
+> **Status (as of v1.0.4):** All three bugs documented below were **resolved in v1.0.4** (see top-level [CHANGELOG.md](../../CHANGELOG.md)). The reproductions are kept here as a record of what was wrong and how it manifested for testers, so a returning tester recognizes the historical behavior. For currently open issues, see the top-level [KNOWN_ISSUES.md](../../KNOWN_ISSUES.md).
+
+---
+
+Three reproducible bugs surfaced while building the training set on 2026-04-27. Each includes a minimal repro, the wrong behavior, the right behavior, and the fix that landed in v1.0.4.
 
 ---
 

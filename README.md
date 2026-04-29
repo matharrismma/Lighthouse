@@ -57,7 +57,10 @@ The Concordance Engine implements O(1) validation across seven domains. It is st
 | `verify_statistics_confidence_interval` | CI well-formed and contains point estimate |
 | `verify_computer_science` | Termination, functional correctness, runtime complexity class |
 | `verify_biology` | Replicates, assay diversity, dose-response monotonicity, power |
-| `verify_governance_decision_packet` | Structural completeness of a governance decision |
+| `verify_governance_decision_packet` | Structural completeness of a governance decision (optional `domain` for business/household/education/church profile) |
+| `attest_red` | Run only the RED-gate attestation validator for the packet's domain |
+| `attest_floor` | Run only the FLOOR-gate attestation validator for the packet's domain |
+| `get_example_packet` | Return a canonical example packet by name (chemistry, physics, math, statistics, cs, cs_runtime, biology, governance, jda_phase1_fund) |
 
 Each tool returns `status` (CONFIRMED / MISMATCH / ERROR / NOT_APPLICABLE), a human-readable `detail` string, and structured `data` where applicable.
 
@@ -94,7 +97,7 @@ PYTHONPATH=src python tests/test_verifiers.py    # 64 unit tests
 PYTHONPATH=src python tests/test_cli.py          # 16 CLI tests
 ```
 
-154 tests; ~10 s total. (`tests/test_mcp_tools.py` is currently failing on import and is being repaired — track in `KNOWN_ISSUES.md`.)
+All five suites pass. (See `KNOWN_ISSUES.md` for any open issues — currently empty post-1.0.5.) For a single-shot pytest collection: `pytest tests/`.
 
 Run an example packet:
 

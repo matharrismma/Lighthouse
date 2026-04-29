@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "concordance-engine"
-version = "1.0.4"
+version = "1.0.5"
 description = "Four-Gates packet validation engine with cross-disciplinary computational verifiers and MCP server for AI assistant integration."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -52,3 +52,26 @@ concordance-mcp = "concordance_engine.mcp_server.server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Each tests/test_*.py is a script-style harness; conftest.py wraps each one
+# in a parameterized pytest test that re-executes the script and checks exit 0.
+python_files = ["conftest.py"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",  # long lines tolerated in test data
+    "E731",  # lambdas in MCP tool descriptors are intentional
+    "E402",  # tests adjust sys.path before imports
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+"src/concordance_engine/mcp_server/tools.py" = ["E731"]

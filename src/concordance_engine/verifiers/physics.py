@@ -160,15 +160,135 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_dimensional_consistency(pv["equation"], pv["symbols"]))
 
     if "before" in pv and "after" in pv:
-        results.append(
-            verify_conservation(
-                pv["before"],
-                pv["after"],
-                tolerance_relative=pv.get("tolerance_relative", 1e-6),
-                tolerance_absolute=pv.get("tolerance_absolute", 0.0),
+        if pv.get("law"):
+            results.append(
+                verify_named_conservation(
+                    pv["law"],
+                    pv["before"],
+                    pv["after"],
+                    tolerance_relative=pv.get("tolerance_relative", 1e-6),
+                    tolerance_absolute=pv.get("tolerance_absolute", 0.0),
+                )
             )
-        )
+        else:
+            results.append(
+                verify_conservation(
+                    pv["before"],
+                    pv["after"],
+                    tolerance_relative=pv.get("tolerance_relative", 1e-6),
+                    tolerance_absolute=pv.get("tolerance_absolute", 0.0),
+                )
+            )
 
     if not results:
         results.append(na("physics", "no PHYS_VERIFY artifacts present"))
     return results
+
+
+# ---------------------------------------------------------------------
+# V5: named-law conservation presets
+# ---------------------------------------------------------------------
+
+_LAW_PROFILES = {
+    "energy": {
+        "required_keys_any_of": [
+            ("kinetic_energy", "potential_energy"),
+            ("KE", "PE"),
+            ("E_total",),
+            ("E",),
+        ],
+        "preferred_unit": "joule",
+    },
+    "momentum": {
+        "required_keys_any_of": [
+            ("p",), ("p_x", "p_y"), ("momentum",), ("p_x", "p_y", "p_z"),
+        ],
+        "preferred_unit": "kilogram*meter/second",
+    },
+    "charge": {
+        "required_keys_any_of": [("Q",), ("q",), ("charge",), ("total_charge",)],
+        "preferred_unit": "coulomb",
+    },
+    "mass": {
+        "required_keys_any_of": [("m",), ("mass",), ("total_mass",)],
+        "preferred_unit": "kilogram",
+    },
+}
+
+
+def verify_named_conservation(
+    law: str, before, after,
+    tolerance_relative: float = 1e-6, tolerance_absolute: float = 0.0,
+):
+    """Conservation check that also enforces a named-law key profile.
+
+    Confirms that the keys in `before` and `after` match a recognized profile
+    for the named law, then runs the numeric conservation check.
+    """
+    law_key = (law or "").lower()
+    profile = _LAW_PROFILES.get(law_key)
+    if profile is None:
+        return error(
+            "physics.named_conservation",
+            f"unknown law {law!r}; recognized: {sorted(_LAW_PROFILES)}",
+        )
+    keys = set(before.keys()) | set(after.keys())
+    matched_profile = None
+    for required in profile["required_keys_any_of"]:
+        if all(k in keys for k in required):
+            matched_profile = required
+            break
+    if matched_profile is None:
+        return mismatch(
+            "physics.named_conservation",
+            f"{law} conservation requires one of {profile['required_keys_any_of']!r}; "
+            f"got keys {sorted(keys)}",
+        )
+    # For multi-key profiles (e.g. KE + PE), sum into a total and compare.
+    # For single-key profiles, fall back to per-quantity verify_conservation.
+    if len(matched_profile) > 1:
+        try:
+            total_before = sum(float(before[k]) for k in matched_profile)
+            total_after = sum(float(after[k]) for k in matched_profile)
+        except Exception as e:
+            return error("physics.named_conservation", f"sum failed: {e}")
+        diff = abs(total_after - total_before)
+        rel = diff / abs(total_before) if total_before != 0 else diff
+        ok = (diff <= tolerance_absolute) or (rel <= tolerance_relative)
+        data = {"law": law, "matched_profile": list(matched_profile),
+                "total_before": total_before, "total_after": total_after,
+                "abs_diff": diff, "rel_diff": rel,
+                "preferred_unit": profile["preferred_unit"]}
+        if ok:
+            return confirm("physics.named_conservation",
+                           f"{law} conserved: total {total_before} -> {total_after} "
+                           f"(rel {rel:.2e})", data)
+        return mismatch("physics.named_conservation",
+                        f"{law} not conserved: total {total_before} -> {total_after} "
+                        f"(diff {diff}, rel {rel:.2e})", data)
+
+    result = verify_conservation(
+        before, after,
+        tolerance_relative=tolerance_relative,
+        tolerance_absolute=tolerance_absolute,
+    )
+    if result.status == "CONFIRMED":
+        return confirm("physics.named_conservation",
+                       f"{law} conserved (profile {matched_profile}): " + result.detail,
+                       {**(result.data or {}), "law": law,
+                        "matched_profile": list(matched_profile),
+                        "preferred_unit": profile["preferred_unit"]})
+    if result.status == "MISMATCH":
+        return mismatch("physics.named_conservation",
+                        f"{law} not conserved: " + result.detail,
+                        {**(result.data or {}), "law": law,
+                         "matched_profile": list(matched_profile)})
+    return result
+                        "matched_profile": list(matched_profile),
+                        "preferred_unit": profile["preferred_unit"]})
+    if result.status == "MISMATCH":
+        return mismatch("physics.named_conservation",
+                        f"{law} not conserved: " + result.detail,
+                        {**(result.data or {}), "law": law,
+                         "matched_profile": list(matched_profile)})
+    return result

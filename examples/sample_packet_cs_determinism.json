@@ -1,0 +1,16 @@
+{
+  "domain": "computer_science",
+  "id": "cs-det-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "CS_RED": {"termination_proven": true, "memory_safety_addressed": true,
+              "no_undefined_behavior": true,
+              "concurrency_correctness_addressed": true},
+  "CS_COMPLEXITY": {"case": "worst", "time": "O(n)", "space": "O(1)"},
+  "CS_VERIFY": {
+    "code": "def double(x):\n    return x * 2",
+    "function_name": "double",
+    "test_cases": [{"args": [3], "expected": 6}, {"args": [10], "expected": 20}],
+    "trials": 3
+  }
+}

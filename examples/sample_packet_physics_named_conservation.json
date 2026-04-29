@@ -1,0 +1,14 @@
+{
+  "domain": "physics",
+  "id": "phys-energy-001",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "units": "SI",
+  "conservation_checks": {"energy": {"required": true, "verified": true}},
+  "PHYS_VERIFY": {
+    "law": "energy",
+    "before": {"KE": 5.0, "PE": 10.0},
+    "after": {"KE": 8.0, "PE": 7.0},
+    "tolerance_relative": 1e-6
+  }
+}

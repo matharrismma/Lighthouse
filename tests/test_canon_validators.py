@@ -1,29 +1,37 @@
 """Canon-validator smoke test.
 
-Each canon directory has a `tools/validator_<domain>.py` that's a parallel
-implementation of the corresponding engine validator. The canon directory
-exists so it can be forked or re-implemented in another language without
-dragging in the engine package.
-
-This test confirms each canon validator imports cleanly and runs against
-a representative packet. It does NOT check that the canon validator and
-the engine validator agree exactly — that would require a full
-equivalence proof and isn't in scope. It does catch import errors,
-syntax errors, and obviously broken validators.
-
 Run: python tests/test_canon_validators.py
+Set CONCORDANCE_CANON_ROOT to override canon discovery; otherwise the test
+probes top-level ``canons/``, ``lw/02_canons/``, and historical paths.
 """
 from __future__ import annotations
 import importlib.util
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-CANON_ROOT = REPO_ROOT / "02_canons"
+
+def _resolve_canon_root() -> Path:
+    here = Path(__file__).resolve()
+    env = os.environ.get("CONCORDANCE_CANON_ROOT")
+    candidates = []
+    if env:
+        candidates.append(Path(env))
+    for ancestor in [here.parent, *here.parents]:
+        candidates.append(ancestor / "canons")
+        candidates.append(ancestor / "02_canons")
+        candidates.append(ancestor / "lw" / "02_canons")
+    for c in candidates:
+        if (c / "biology" / "tools").exists() or (c / "mathematics" / "tools").exists():
+            return c
+    return here.parents[3] / "02_canons" if len(here.parents) > 3 else here.parent
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+CANON_ROOT = _resolve_canon_root()
 
 
 def load_module(path: Path):
-    """Load a Python file as a module by absolute path."""
     spec = importlib.util.spec_from_file_location(path.stem, str(path))
     if spec is None or spec.loader is None:
         raise ImportError(f"could not load {path}")
@@ -33,44 +41,38 @@ def load_module(path: Path):
     return module
 
 
-def expect_validator_runs(domain: str, validator_filename: str,
-                          entry_function: str, sample_packet: dict,
-                          should_pass: bool):
-    """Load a canon validator and run it on a sample packet."""
+def expect_validator_runs(domain, validator_filename, entry_function,
+                           sample_packet, should_pass):
     path = CANON_ROOT / domain / "tools" / validator_filename
     if not path.exists():
-        return False, f"missing: {path.relative_to(REPO_ROOT)}"
-
+        try:
+            rel = path.relative_to(REPO_ROOT)
+        except ValueError:
+            rel = path
+        return False, f"missing: {rel}"
     try:
         module = load_module(path)
     except Exception as e:
         return False, f"import failed: {e}"
-
     fn = getattr(module, entry_function, None)
     if fn is None:
         return False, f"no function {entry_function!r} in {validator_filename}"
-
     try:
         result = fn(sample_packet)
     except Exception as e:
         return False, f"validator raised: {e}"
-
     if not isinstance(result, dict):
         return False, f"validator returned {type(result).__name__}, expected dict"
-
     passed = result.get("passed", not result.get("errors"))
     if passed != should_pass:
         return False, (f"expected passed={should_pass}, got passed={passed}, "
                        f"errors={result.get('errors', [])}")
-
-    return True, f"passed={passed}, errors={len(result.get('errors', []))}, " \
-                 f"warnings={len(result.get('warnings', []))}"
+    return True, f"passed={passed}, errors={len(result.get('errors', []))}, warnings={len(result.get('warnings', []))}"
 
 
 def main():
     results = []
 
-    # Mathematics
     good_math = {
         "MATH_RED": {
             "well_formedness": {"symbols_defined": True, "quantifiers_scoped": True,
@@ -85,7 +87,6 @@ def main():
         "mathematics", "validator_mathematics.py", "validate_math_packet",
         good_math, True)))
 
-    # Physics
     good_phys = {
         "conservation_checks": {"dimensional_consistency": {"required": True, "verified": True}},
         "units": "SI",
@@ -94,15 +95,11 @@ def main():
         "physics", "validator_physics.py", "validate_physics_packet",
         good_phys, True)))
 
-    # Biology
     good_bio = {
         "BIO_RED": {
-            "non_contradiction": True,
-            "conservation_declared": True,
-            "second_law_respected": True,
-            "causality_respected": True,
-            "stoichiometry_balanced": True,
-            "nonnegativity_respected": True,
+            "non_contradiction": True, "conservation_declared": True,
+            "second_law_respected": True, "causality_respected": True,
+            "stoichiometry_balanced": True, "nonnegativity_respected": True,
             "channel_limits_respected": True,
             "orthogonal_assays_used": ["qPCR", "western_blot"],
         },
@@ -118,7 +115,6 @@ def main():
         "biology", "validator_biology.py", "validate_bio_packet",
         good_bio, True)))
 
-    # Computer Science
     good_cs = {
         "CS_RED": {"termination_proven": True, "memory_safety_addressed": True,
                    "no_undefined_behavior": True,
@@ -129,7 +125,6 @@ def main():
         "computer_science", "validator_computer_science.py", "validate_cs_packet",
         good_cs, True)))
 
-    # Statistics
     good_stat = {
         "STAT_INFERENCE": {"test_specified": True, "assumptions_tested": True,
                            "p_value": 0.0003, "alpha": 0.05,
@@ -143,23 +138,23 @@ def main():
         "statistics", "validator_statistics.py", "validate_stats_packet",
         good_stat, True)))
 
-    # Print summary
     passes = 0
     fails = 0
     for name, (ok, detail) in results:
-        icon = "✓" if ok else "✗"
-        print(f"  {icon} {name}: {detail}")
+        icon = "OK" if ok else "FAIL"
+        print(f"  [{icon}] {name}: {detail}")
         if ok:
             passes += 1
         else:
             fails += 1
 
-    print(f"\n{'=' * 60}")
+    print("\n" + "=" * 60)
     if fails:
         print(f"FAIL: {passes} passed, {fails} failed.")
+        print(f"  CANON_ROOT was: {CANON_ROOT}")
         sys.exit(1)
     print(f"All {passes} canon-validator smoke tests passed.")
-    print(f"{'=' * 60}")
+    print("=" * 60)
 
 
 if __name__ == "__main__":

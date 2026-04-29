@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run engine tests
+        run: PYTHONPATH=src python tests/test_engine.py
+
+      - name: Run verifier tests
+        run: PYTHONPATH=src python tests/test_verifiers.py
+
+      - name: Run CLI tests
+        run: PYTHONPATH=src python tests/test_cli.py
+
+      - name: Run MCP tool tests
+        run: PYTHONPATH=src python tests/test_mcp_tools.py
+
+      - name: Run canon-validator smoke tests
+        run: PYTHONPATH=src python tests/test_canon_validators.py
+
+      - name: Run pytest collection (sanity)
+        run: pytest tests/ -q
+
+      - name: Manifest is up to date
+        run: python scripts/regenerate_manifest.py --check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check src/ tests/

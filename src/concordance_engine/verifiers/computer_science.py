@@ -316,7 +316,118 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
             results.append(verify_functional_correctness(cv))
         if cv.get("input_generator") and cv.get("claimed_class"):
             results.append(verify_runtime_complexity(cv))
+        if cv.get("input_generator") and cv.get("claimed_space_class"):
+            results.append(verify_space_complexity(cv))
+        if cv.get("function_name") and cv.get("test_cases") and cv.get("trials"):
+            results.append(verify_determinism(cv))
 
     if not results:
         results.append(na("computer_science", "no CS_VERIFY artifacts present"))
     return results
+
+
+# ---------------------------------------------------------------------
+# V4: space complexity, determinism
+# ---------------------------------------------------------------------
+
+def verify_space_complexity(spec):
+    """Estimate peak memory delta at log-spaced input sizes via tracemalloc.
+
+    spec: same shape as verify_runtime_complexity but with claimed_space_class.
+    """
+    import tracemalloc
+    code = spec.get("code"); fn_name = spec.get("function_name")
+    gen_code = spec.get("input_generator")
+    claimed = (spec.get("claimed_space_class") or "").replace(" ", "").lower()
+    tol = spec.get("tolerance", 0.40)
+    if not code or not fn_name or not gen_code or not claimed:
+        return na("cs.space_complexity")
+    default_sizes = {
+        "o(1)": [1000, 10000, 100000],
+        "o(logn)": [1000, 10000, 100000],
+        "o(n)": [1000, 10000, 100000],
+        "o(nlogn)": [1000, 10000, 100000],
+        "o(n**2)": [100, 200, 400, 800],
+        "o(n^2)": [100, 200, 400, 800],
+    }
+    sizes = spec.get("sizes") or default_sizes.get(claimed, [100, 1000, 10000])
+    try:
+        fn = _exec_function(code, fn_name)
+        gen = _exec_function(gen_code, "gen")
+    except Exception as e:
+        return error("cs.space_complexity", f"setup failure: {e}")
+    peaks = []
+    for n in sizes:
+        try:
+            args = gen(n)
+            if not isinstance(args, (list, tuple)):
+                args = [args]
+        except Exception as e:
+            return error("cs.space_complexity", f"input_generator(n={n}) failure: {e}")
+        tracemalloc.start()
+        try:
+            fn(*args)
+        except Exception as e:
+            tracemalloc.stop()
+            return error("cs.space_complexity", f"call at n={n} failed: {e}")
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        peaks.append(max(peak, 1))
+    # log-log slope of memory vs n
+    log_n = [math.log(n) for n in sizes]
+    log_p = [math.log(p) for p in peaks]
+    cut = max(0, len(sizes) - max(3, len(sizes) // 2))
+    xs = log_n[cut:]; ys = log_p[cut:]
+    mx = sum(xs) / len(xs); my = sum(ys) / len(ys)
+    num = sum((xi - mx) * (yi - my) for xi, yi in zip(xs, ys))
+    den = sum((xi - mx) ** 2 for xi in xs) or 1e-30
+    slope = num / den
+    expected_slopes = {"o(1)": 0.0, "o(logn)": 0.0, "o(n)": 1.0,
+                       "o(nlogn)": 1.0, "o(n**2)": 2.0, "o(n^2)": 2.0}
+    expected = expected_slopes.get(claimed)
+    data = {"sizes": sizes, "peak_bytes": peaks, "log_log_slope": slope,
+            "claimed_space_class": claimed, "tolerance": tol}
+    if expected is None:
+        return error("cs.space_complexity", f"unrecognized claimed_space_class {claimed!r}", data)
+    if abs(slope - expected) <= tol:
+        return confirm("cs.space_complexity",
+                       f"measured slope {slope:.2f} ~ expected {expected:.1f} for {claimed}",
+                       data)
+    return mismatch("cs.space_complexity",
+                    f"measured slope {slope:.2f} != expected {expected:.1f} for {claimed}",
+                    data)
+
+
+def verify_determinism(spec):
+    """Run the function multiple times on each test_case and confirm identical output."""
+    code = spec.get("code"); fn_name = spec.get("function_name")
+    cases = spec.get("test_cases") or []
+    trials = max(2, int(spec.get("trials", 3)))
+    if not code or not fn_name or not cases:
+        return na("cs.determinism")
+    try:
+        fn = _exec_function(code, fn_name)
+    except Exception as e:
+        return error("cs.determinism", f"setup failure: {e}")
+    nondeterministic_cases = []
+    for i, case in enumerate(cases):
+        args, kwargs = _resolve_call_args(case)
+        try:
+            outs = []
+            for _ in range(trials):
+                outs.append(fn(*args, **kwargs))
+        except Exception as e:
+            return error("cs.determinism", f"case {i} raised: {e}")
+        # Compare every output to the first
+        first = outs[0]
+        if any(o != first for o in outs[1:]):
+            nondeterministic_cases.append({"index": i, "outputs_seen": [str(o) for o in outs]})
+    data = {"trials": trials, "n_cases": len(cases),
+            "nondeterministic": nondeterministic_cases}
+    if nondeterministic_cases:
+        return mismatch("cs.determinism",
+            f"{len(nondeterministic_cases)}/{len(cases)} cases non-deterministic across {trials} trials",
+            data)
+    return confirm("cs.determinism",
+        f"all {len(cases)} cases produced identical output across {trials} trials",
+        data)
