@@ -55,6 +55,12 @@ app = FastAPI(
 )
 
 app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 # -- Optional API key auth -----------------------------------------------
 _API_KEY = os.environ.get("API_KEY", "")
@@ -65,13 +71,6 @@ def _check_api_key(x_api_key: str = Header(default="")) -> None:
     """
     if _API_KEY and x_api_key != _API_KEY:
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
-
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
 
 # -- Schema discovery ----------------------------------------------------
 _SCHEMA_PATH_ENV = os.environ.get("CONCORDANCE_SCHEMA_PATH")
