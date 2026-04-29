@@ -31,9 +31,9 @@
 <script type="text/babel" data-type="module">
 const { useState, useRef, useEffect, useCallback } = React;
 
-// ═══════════════════════════════════════════════════════════════════════
-// CALIBRE ENGINE — Ported from Python (formulas.py + engine.py + model.py)
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// CALIBRE ENGINE â Ported from Python (formulas.py + engine.py + model.py)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const clamp01 = x => x < 0 ? 0 : x > 1 ? 1 : x;
 
@@ -137,22 +137,22 @@ function runCalibreCycle(cal, pkt, gr) {
   return s;
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// SCRIPTURAL AUTHORITY — WEB (public domain)
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// SCRIPTURAL AUTHORITY â WEB (public domain)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const GA = {
   RED: { name: "RED", principle: "You shall not cross this line.", basis: "Proverbs 22:3", text: "A prudent man sees danger and hides himself; but the simple pass on, and suffer for it.", source: "WEB" },
-  FLOOR: { name: "FLOOR", principle: "The foundation must be in place before you build.", basis: "Luke 14:28", text: "For which of you, desiring to build a tower, doesn’t first sit down and count the cost, whether he has enough to complete it?", source: "WEB" },
-  WAY: { name: "WAY", principle: "The path must be lawful, not merely possible.", basis: "Proverbs 4:26–27", text: "Make the path of your feet level. Let all of your ways be established. Don’t turn to the right hand nor to the left. Remove your foot from evil.", source: "WEB" },
+  FLOOR: { name: "FLOOR", principle: "The foundation must be in place before you build.", basis: "Luke 14:28", text: "For which of you, desiring to build a tower, doesnât first sit down and count the cost, whether he has enough to complete it?", source: "WEB" },
+  WAY: { name: "WAY", principle: "The path must be lawful, not merely possible.", basis: "Proverbs 4:26â27", text: "Make the path of your feet level. Let all of your ways be established. Donât turn to the right hand nor to the left. Remove your foot from evil.", source: "WEB" },
   EXECUTION: { name: "EXECUTION", principle: "Proceed faithfully within the bounds you have been given.", basis: "Colossians 3:23", text: "Whatever you do, work heartily, as for the Lord and not for men.", source: "WEB" },
 };
 const RB = {
   red_c: { basis: "Proverbs 22:3", text: "A prudent man sees danger and hides himself; but the simple pass on, and suffer for it." },
   red_u: { basis: "Proverbs 27:12", text: "A prudent man sees danger and hides himself. The simple pass on, and suffer for it." },
-  fl_b: { basis: "Luke 14:28–30", text: "For which of you, desiring to build a tower, doesn’t first sit down and count the cost, whether he has enough to complete it?" },
+  fl_b: { basis: "Luke 14:28â30", text: "For which of you, desiring to build a tower, doesnât first sit down and count the cost, whether he has enough to complete it?" },
   fl_w: { basis: "Deuteronomy 19:15", text: "One witness shall not rise up against a man for any iniquity, or for any sin that he sins. At the mouth of two witnesses, or at the mouth of three witnesses, shall a matter be established." },
-  way_p: { basis: "Proverbs 4:26–27", text: "Make the path of your feet level. Let all of your ways be established. Don’t turn to the right hand nor to the left." },
+  way_p: { basis: "Proverbs 4:26â27", text: "Make the path of your feet level. Let all of your ways be established. Donât turn to the right hand nor to the left." },
   way_a: { basis: "Hebrews 13:17", text: "Obey your leaders and submit to them, for they watch on behalf of your souls, as those who will give account." },
   ex: { basis: "Micah 6:8", text: "He has shown you, O man, what is good. What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God?" },
 };
@@ -179,15 +179,16 @@ function evaluate(p, cal = INIT_CAL) {
 }
 
 
-// ═══ CONCORDANCE API — Online validation (falls back to local when offline) ═══
+// âââ CONCORDANCE API â Online validation (falls back to local when offline) âââ
 // Set CONCORDANCE_API_URL to your hosted server. Leave empty = always local.
 const CONCORDANCE_API_URL = "https://lighthouse-production-3f9a.up.railway.app";
+const CONCORDANCE_API_KEY = "lh_786b9711d66ebd502ebe1d4e6b9df64a428edbaad26d81c4";
 
 async function validateViaAPI(packet) {
   if (!CONCORDANCE_API_URL || !navigator.onLine) return null;
   try {
     const res = await fetch(`${CONCORDANCE_API_URL}/validate`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json", "x-api-key": CONCORDANCE_API_KEY },
       body: JSON.stringify({ packet }), signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return null;
@@ -208,13 +209,13 @@ function apiResultToLocalResult(apiRes) {
     gateAuthority: GA[haltGate]||GA.EXECUTION,
     ruleBasis: haltGate==="RED"?RB.red_c:haltGate==="FLOOR"?RB.fl_b:RB.ex,
     _source:"api", _ledgerSeq:apiRes.ledger_seq,
-    _ledgerHash:apiRes.ledger_entry_hash?apiRes.ledger_entry_hash.slice(0,12)+"…":null,
+    _ledgerHash:apiRes.ledger_entry_hash?apiRes.ledger_entry_hash.slice(0,12)+"â¦":null,
     _elapsedMs:apiRes.elapsed_ms,
   };
 }
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // CONSTANTS
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const PTYPES = ["decision", "maintenance", "observation"];
 const DOMS = ["business", "governance", "operations", "field", "household", "education", "other"];
@@ -241,9 +242,9 @@ const M = "'JetBrains Mono','Fira Code','SF Mono',monospace";
 const S = "'DM Sans','Segoe UI',system-ui,sans-serif";
 const R = "'Crimson Pro','Georgia','Cambria',serif";
 
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SHARED UI COMPONENTS
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const Lbl = ({children}) => <div style={{fontFamily:M,fontSize:10,fontWeight:700,color:"#71717a",letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{children}</div>;
 const Back = ({onClick}) => <button style={{background:"none",border:"none",color:"#71717a",cursor:"pointer",fontFamily:M,fontSize:12,letterSpacing:1,padding:"8px 0",marginBottom:12,textTransform:"uppercase"}} onClick={onClick}>{"\u2190"} Back</button>;
@@ -284,9 +285,9 @@ function Meter({label, value, color, max=1}) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SCREENS
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function Home({nav, n, cal}) {
   const tc = TC[cal.tier];
@@ -504,9 +505,9 @@ function ExportScr({pkts, cal, onBack, onExpOne, onExpAll, onExpState, onImpStat
 
 function Toast({m,v}) { if(!v)return null; return <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",zIndex:999,background:"#27272a",color:"#e4e4e7",fontFamily:M,fontSize:12,letterSpacing:1,padding:"10px 20px",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.5)"}}>{m}</div>; }
 
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // APP ROOT
-// ═══════════════════════════════════════════════════════════════════════
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 function App() {
   // Load persisted state
@@ -574,7 +575,7 @@ function App() {
         </div>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{fontFamily:M,fontSize:9,color:TC[cal.tier].color,letterSpacing:1}}>{TC[cal.tier].icon} {cal.tier}</span>
-          <div title={online?"Online ✓":"Offline"} style={{width:8,height:8,borderRadius:"50%",background:online?"#16a34a":"#52525b",boxShadow:online?"0 0 8px rgba(22,163,74,0.6)":"none"}} />
+          <div title={online?"Online â":"Offline"} style={{width:8,height:8,borderRadius:"50%",background:online?"#16a34a":"#52525b",boxShadow:online?"0 0 8px rgba(22,163,74,0.6)":"none"}} />
         </div>
       </div>
       <div style={{padding:"14px 18px 100px"}}>
