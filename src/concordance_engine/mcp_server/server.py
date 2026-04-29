@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import os
+import time as _time
 import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
@@ -49,9 +50,15 @@ from . import tools
 
 mcp = FastMCP("concordance-engine")
 
+# Railway hosted API — set CONCORDANCE_API_URL env var to enable ledger routing.
+# Set CONCORDANCE_API_KEY to match the API_KEY env var on Railway.
 CONCORDANCE_API_URL = os.environ.get(
     "CONCORDANCE_API_URL",
     "https://lighthouse-production-3f9a.up.railway.app",
+)
+CONCORDANCE_API_KEY = os.environ.get(
+    "CONCORDANCE_API_KEY",
+    "lh_786b9711d66ebd502ebe1d4e6b9df64a428edbaad26d81c4",
 )
 
 
@@ -67,20 +74,25 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
     a `domain` field. The engine routes to the appropriate validator and
     verifier, then enforces witness count and time-wait gates.
 
+    Attempts to validate via the Railway-hosted API (writes to Evidence Ledger)
+    and falls back to local validation if the API is unreachable.
+
     Returns: {overall: PASS|REJECT|QUARANTINE, gate_results: [...]}.
     """
     # -- 1. Try Railway API (writes to Evidence Ledger) ----------------------
     if CONCORDANCE_API_URL:
         try:
             pkt = {**packet}
-            import time as _time
             if "created_epoch" not in pkt:
                 pkt["created_epoch"] = now_epoch or int(_time.time())
             payload = json.dumps({"packet": pkt}).encode()
+            headers = {"Content-Type": "application/json"}
+            if CONCORDANCE_API_KEY:
+                headers["x-api-key"] = CONCORDANCE_API_KEY
             req = urllib.request.Request(
                 f"{CONCORDANCE_API_URL.rstrip('/')}/validate",
                 data=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 method="POST",
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
@@ -88,8 +100,7 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
             api_result["_source"] = "api"
             return api_result
         except (urllib.error.URLError, OSError, json.JSONDecodeError):
-            pass  # fall through to local engine
-
+            pass
     # -- 2. Local fallback (offline) -----------------------------------------
     out = tools.validate_packet(packet, now_epoch)
     out["_source"] = "local"
