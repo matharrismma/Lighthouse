@@ -31,6 +31,10 @@ This file expects the `mcp` package (mcp >= 1.0.0). Install via:
 """
 from __future__ import annotations
 
+import json
+import os
+import urllib.error
+import urllib.request
 from typing import Any, Dict, List, Optional
 
 try:
@@ -44,6 +48,11 @@ except ImportError as e:
 from . import tools
 
 mcp = FastMCP("concordance-engine")
+
+CONCORDANCE_API_URL = os.environ.get(
+    "CONCORDANCE_API_URL",
+    "https://lighthouse-production-3f9a.up.railway.app",
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -60,7 +69,31 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
 
     Returns: {overall: PASS|REJECT|QUARANTINE, gate_results: [...]}.
     """
-    return tools.validate_packet(packet, now_epoch)
+    # -- 1. Try Railway API (writes to Evidence Ledger) ----------------------
+    if CONCORDANCE_API_URL:
+        try:
+            pkt = {**packet}
+            import time as _time
+            if "created_epoch" not in pkt:
+                pkt["created_epoch"] = now_epoch or int(_time.time())
+            payload = json.dumps({"packet": pkt}).encode()
+            req = urllib.request.Request(
+                f"{CONCORDANCE_API_URL.rstrip('/')}/validate",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                api_result = json.loads(resp.read().decode())
+            api_result["_source"] = "api"
+            return api_result
+        except (urllib.error.URLError, OSError, json.JSONDecodeError):
+            pass  # fall through to local engine
+
+    # -- 2. Local fallback (offline) -----------------------------------------
+    out = tools.validate_packet(packet, now_epoch)
+    out["_source"] = "local"
+    return out
 
 
 # ─────────────────────────────────────────────────────────────────────────
