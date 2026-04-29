@@ -2,9 +2,10 @@
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
 [project]
 name = "concordance-engine"
-version = "1.0.5"
+version = "1.0.6"
 description = "Four-Gates packet validation engine with cross-disciplinary computational verifiers and MCP server for AI assistant integration."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,5 +33,7 @@ dependencies = [
   "scipy>=1.11",
 ]
 
+
 [project.urls]
 Repository = "https://github.com/matharrismma/Lighthouse"
+
