@@ -3,426 +3,429 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Concordance Engine — Verify the claim, not the consensus</title>
-  <meta name="description" content="An open-source MCP server and validation engine that checks LLM-generated scientific claims against fixed external authorities. Chemistry, physics, math, statistics, and more.">
-  <meta property="og:title" content="Concordance Engine">
-  <meta property="og:description" content="O(1) authority-based validation. Replaces O(n²) consensus coordination.">
-  <meta property="og:type" content="website">
+  <title>Concordance</title>
+  <meta name="description" content="A wisdom engine. Four gates. Permanent record. Built for AI agents.">
+  <!-- For AI agents: API at /docs · MCP at /llms.txt · Ledger at /ledger -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #08090d;
-      --surface:   #10121a;
-      --surface2:  #181b26;
-      --border:    #1e2130;
-      --accent:    #4f8ef7;
-      --accent2:   #7c5cbf;
-      --good:      #2dd4a0;
-      --warn:      #e8a830;
-      --text:      #e8eaf0;
-      --muted:     #7a7f96;
-      --subtle:    #3a3f55;
-      --mono:      'JetBrains Mono', monospace;
-      --sans:      'Inter', system-ui, sans-serif;
-      --radius:    12px;
-      --max:       1100px;
+      --bg: #08090d;
+      --surface: #0f1117;
+      --border: #1e2130;
+      --text: #e8eaf0;
+      --muted: #5a6072;
+      --accent: #4f8ef7;
+      --pass: #2dd4a0;
+      --reject: #f75f5f;
+      --quarantine: #f7b84f;
     }
 
-    html { scroll-behavior: smooth; }
-
-    body {
+    html, body {
+      height: 100%;
       background: var(--bg);
       color: var(--text);
-      font-family: var(--sans);
-      font-size: 1rem;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
     }
 
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    /* ── NAV ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem;
-      height: 60px;
-      background: rgba(8,9,13,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
     }
-    .brand {
-      font-weight: 600; font-size: 1rem; color: var(--text);
-      display: flex; align-items: center; gap: 0.6rem;
+
+    .shell {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .exchange { display: flex; flex-direction: column; gap: 10px; }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: #151929;
+      border: 1px solid var(--border);
+      border-radius: 14px 14px 4px 14px;
+      padding: 12px 16px;
+      max-width: 90%;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .bubble-engine {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+      padding: 14px 16px;
+      max-width: 92%;
+      font-size: 14px;
+    }
+
+    .verdict {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .verdict.PASS       { background: #0d2b22; color: var(--pass);       border: 1px solid #1a4a38; }
+    .verdict.REJECT     { background: #2b0d0d; color: var(--reject);     border: 1px solid #4a1a1a; }
+    .verdict.QUARANTINE { background: #2b2208; color: var(--quarantine); border: 1px solid #4a3a10; }
+    .verdict.ERROR      { background: #1a1a24; color: var(--muted);      border: 1px solid var(--border); }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .gates { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+    .gate-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .gate-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      width: 80px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--muted);
+    }
+
+    .gate-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .gate-status.PASS       { background: #0d2b22; color: var(--pass); }
+    .gate-status.REJECT     { background: #2b0d0d; color: var(--reject); }
+    .gate-status.QUARANTINE { background: #2b2208; color: var(--quarantine); }
+    .gate-status.SKIP       { background: #0f1117; color: var(--muted); }
+
+    .gate-reasons {
+      color: var(--muted);
+      font-size: 12.5px;
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px 0;
+    }
+
+    .dots span {
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin: 0 2px;
+      animation: blink 1.2s infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; }
+      40%            { opacity: 1; }
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: border-color 0.15s;
+    }
+    .input-wrap:focus-within { border-color: var(--accent); }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      min-height: 24px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    textarea::placeholder { color: var(--muted); }
+
+    button.send {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: opacity 0.15s;
+      align-self: flex-end;
+    }
+    button.send:hover { opacity: 0.85; }
+    button.send:disabled { opacity: 0.35; cursor: default; }
+    button.send svg { width: 14px; height: 14px; fill: #fff; }
+
+    .hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+    .empty h1 {
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 10px;
       letter-spacing: -0.01em;
     }
-    .brand-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      flex-shrink: 0;
+    .empty p {
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 340px;
+      margin: 0 auto;
+      color: var(--muted);
     }
-    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
-    .nav-links a { color: var(--muted); font-size: 0.9rem; transition: color 0.15s; }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
-    .btn-ghost {
-      border: 1px solid var(--border); border-radius: 8px;
-      padding: 0.4rem 1rem; color: var(--text) !important; font-size: 0.875rem;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .btn-ghost:hover { border-color: var(--accent); background: rgba(79,142,247,0.06); }
 
-    /* ── HERO ── */
-    .hero {
-      max-width: var(--max); margin: 0 auto;
-      padding: 5rem 2rem 4rem;
+    .elapsed {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .footer {
+      margin-top: 36px;
       text-align: center;
     }
-    .badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.25);
-      border-radius: 100px; padding: 0.3rem 0.9rem;
-      font-size: 0.8rem; color: var(--accent); font-weight: 500;
-      margin-bottom: 2rem; letter-spacing: 0.02em;
+    .footer a {
+      color: var(--muted);
+      font-size: 12px;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
     }
-    .badge::before {
-      content: '';
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--good); animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-    }
-    h1 {
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
-      font-weight: 700; line-height: 1.1;
-      letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #fff 40%, #9aafd4);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1.25rem;
-    }
-    .lede {
-      font-size: 1.15rem; color: var(--muted); max-width: 600px;
-      margin: 0 auto 2.5rem; line-height: 1.7;
-    }
-    .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.7rem 1.5rem; border-radius: 10px;
-      font-size: 0.95rem; font-weight: 500;
-      transition: all 0.15s; cursor: pointer; text-decoration: none !important;
-    }
-    .btn-primary {
-      background: var(--accent); color: #fff;
-      box-shadow: 0 0 0 0 rgba(79,142,247,0.4);
-    }
-    .btn-primary:hover {
-      background: #6aa0f9;
-      box-shadow: 0 0 20px rgba(79,142,247,0.35);
-    }
-    .btn-secondary {
-      background: var(--surface2); color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { border-color: var(--subtle); background: #1f2235; }
-
-    /* ── SECTION ── */
-    section { padding: 4rem 2rem; }
-    .container { max-width: var(--max); margin: 0 auto; }
-    h2 {
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      font-weight: 650; letter-spacing: -0.025em;
-      margin-bottom: 0.75rem; color: var(--text);
-    }
-    .section-sub {
-      color: var(--muted); font-size: 1.05rem;
-      max-width: 580px; margin-bottom: 2.5rem; line-height: 1.65;
-    }
-
-    /* ── PROBLEM PANEL ── */
-    .problem-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
-      background: var(--border); border-radius: var(--radius);
-      overflow: hidden; margin-top: 2rem;
-    }
-    .problem-cell {
-      background: var(--surface); padding: 2rem;
-    }
-    .problem-cell h3 { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
-    .problem-cell .scale {
-      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em;
-      font-family: var(--mono); margin-bottom: 0.5rem;
-    }
-    .scale-bad { color: #e05c5c; }
-    .scale-good { color: var(--good); }
-    .problem-cell p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
-
-    /* ── EXAMPLE EXCHANGE ── */
-    .exchange { display: grid; gap: 0.75rem; margin-top: 2rem; }
-    .ex-row {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 1.1rem 1.25rem;
-    }
-    .ex-row.user { border-left: 3px solid var(--subtle); }
-    .ex-row.wrong { border-left: 3px solid var(--warn); background: rgba(232,168,48,0.04); }
-    .ex-row.right { border-left: 3px solid var(--good); background: rgba(45,212,160,0.04); }
-    .ex-label {
-      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
-      text-transform: uppercase; margin-bottom: 0.4rem;
-    }
-    .ex-label.user { color: var(--muted); }
-    .ex-label.wrong { color: var(--warn); }
-    .ex-label.right { color: var(--good); }
-    .ex-row p { color: var(--text); font-size: 0.95rem; }
-    code {
-      font-family: var(--mono); font-size: 0.85em;
-      background: var(--surface2); border: 1px solid var(--border);
-      padding: 0.1em 0.4em; border-radius: 4px; color: var(--accent);
-    }
-    em { color: var(--warn); font-style: italic; }
-
-    /* ── VERIFIER GRID ── */
-    .domains {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1px; background: var(--border);
-      border-radius: var(--radius); overflow: hidden; margin-top: 2rem;
-    }
-    .domain {
-      background: var(--surface); padding: 1.5rem;
-      transition: background 0.15s;
-    }
-    .domain:hover { background: var(--surface2); }
-    .domain-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
-    .domain h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
-    .domain p { font-size: 0.875rem; color: var(--muted); line-height: 1.55; }
-
-    /* ── CODE BLOCK ── */
-    .code-block {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; margin-top: 1.5rem;
-    }
-    .code-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.7rem 1.1rem; border-bottom: 1px solid var(--border);
-      background: var(--surface2);
-    }
-    .code-header span { font-size: 0.8rem; color: var(--muted); font-family: var(--mono); }
-    .code-dots { display: flex; gap: 5px; }
-    .code-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
-    pre {
-      padding: 1.25rem 1.5rem; overflow-x: auto;
-      font-family: var(--mono); font-size: 0.875rem;
-      line-height: 1.7; color: #c9d1e8;
-    }
-    .hl { color: var(--accent); }
-    .hl2 { color: var(--good); }
-    .cm { color: var(--muted); }
-
-    /* ── GET STARTED ── */
-    .get-started-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
-    .gs-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.75rem;
-    }
-    .gs-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .gs-card p { font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem; }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem; text-align: center;
-      color: var(--muted); font-size: 0.875rem;
-    }
-    footer a { color: var(--muted); }
-    footer a:hover { color: var(--text); text-decoration: none; }
-
-    /* ── DIVIDER ── */
-    .divider { border: none; border-top: 1px solid var(--border); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 700px) {
-      .problem-grid, .get-started-grid { grid-template-columns: 1fr; }
-      nav { padding: 0 1rem; }
-      .hero { padding: 3rem 1.25rem 2.5rem; }
-      section { padding: 3rem 1.25rem; }
+    .footer a:hover {
+      color: var(--text);
+      border-bottom-color: var(--border);
     }
   </style>
 </head>
 <body>
+<div class="shell">
 
-<nav>
-  <a class="brand" href="/">
-    <span class="brand-dot"></span>
-    Concordance Engine
-  </a>
-  <div class="nav-links">
-    <a href="https://github.com/matharrismma/Lighthouse" class="btn-ghost">GitHub ↗</a>
+  <div class="history" id="history">
+    <div class="empty" id="emptyState">
+      <div class="wordmark">Concordance</div>
+      <h1>Submit something for discernment.</h1>
+      <p>A claim. An equation. A decision that cannot be undone. Four gates will weigh it and return a verdict.</p>
+    </div>
   </div>
-</nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="badge">v1.0.6 · Apache 2.0 · MCP-ready</div>
-  <h1>Verify the claim,<br>not the consensus.</h1>
-  <p class="lede">
-    An open-source validation engine and MCP server that checks LLM-generated scientific claims
-    against fixed external authorities — not other models. When the math is wrong, the engine says so.
-  </p>
-  <div class="hero-ctas">
-    <a class="btn btn-primary" href="https://github.com/matharrismma/Lighthouse">Get started on GitHub</a>
-    <a class="btn btn-secondary" href="#how-it-works">How it works</a>
+  <div class="input-wrap">
+    <textarea id="input" rows="1" placeholder="What would you like to verify?" autofocus></textarea>
+    <button class="send" id="sendBtn" disabled title="Send">
+      <svg viewBox="0 0 16 16"><path d="M1 8L15 1 8 15 7 9z"/></svg>
+    </button>
   </div>
+  <div class="hint">
+    <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Enter</kbd> to send
+    &nbsp;·&nbsp;
+    <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Shift+Enter</kbd> for new line
+  </div>
+
+  <div class="footer">
+    <a href="https://github.com/matharrismma/Lighthouse" target="_blank" rel="noopener">learn more</a>
+  </div>
+
 </div>
 
-<!-- PROBLEM -->
-<section id="how-it-works">
-  <div class="container">
-    <h2>The shape of the problem</h2>
-    <p class="section-sub">
-      Current AI verification scales as O(n²): every model polls every other model. Cost grows with participants,
-      and reliability is bounded by the least reliable node. Authority-based validation scales as O(1).
-    </p>
-    <div class="problem-grid">
-      <div class="problem-cell">
-        <h3>Without Concordance</h3>
-        <div class="scale scale-bad">O(n²)</div>
-        <p>Model polls model. Costs compound. The network is only as reliable as its weakest node. Consensus can be wrong, confidently.</p>
-      </div>
-      <div class="problem-cell">
-        <h3>With Concordance</h3>
-        <div class="scale scale-good">O(1)</div>
-        <p>Every claim checked against a fixed external standard. Cost is constant. The standard does not drift with participant count.</p>
-      </div>
-    </div>
+<script>
+  const API = 'https://lighthouse-production-3f9a.up.railway.app';
 
-    <div class="exchange" style="margin-top: 2.5rem;">
-      <div class="ex-row user">
-        <div class="ex-label user">User</div>
-        <p>Compute the two-tailed p-value for n=30, mean₁=5.0, mean₂=4.0, sd=1.0. Is it significant at α=0.05?</p>
-      </div>
-      <div class="ex-row wrong">
-        <div class="ex-label wrong">LLM without engine</div>
-        <p>The p-value is approximately 0.0001. <em>Confident-sounding — but wrong.</em></p>
-      </div>
-      <div class="ex-row right">
-        <div class="ex-label right">LLM + Concordance Engine</div>
-        <p>Calls <code>verify_statistics_pvalue</code>. Engine recomputes via scipy: <strong>p ≈ 0.0003</strong>. LLM self-corrects: significant at α=0.05; correct p is 0.0003, not 0.0001.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  const historyEl = document.getElementById('history');
+  const emptyEl   = document.getElementById('emptyState');
+  const inputEl   = document.getElementById('input');
+  const sendBtn   = document.getElementById('sendBtn');
 
-<hr class="divider">
+  inputEl.addEventListener('input', () => {
+    sendBtn.disabled = inputEl.value.trim() === '';
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+  });
 
-<!-- VERIFIERS -->
-<section>
-  <div class="container">
-    <h2>Seven domains. Twelve verifiers.</h2>
-    <p class="section-sub">
-      Each tool returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE — never raises an unhandled exception.
-    </p>
-    <div class="domains">
-      <div class="domain">
-        <div class="domain-icon">⚗️</div>
-        <h3>Chemistry</h3>
-        <p>Balance equations across atoms and charge. Handles nested groups, ions, redox half-reactions.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">⚛️</div>
-        <h3>Physics</h3>
-        <p>Dimensional consistency in SI units. Named conservation laws: energy, momentum, charge, mass.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">∑</div>
-        <h3>Mathematics</h3>
-        <p>Symbolic equality, derivatives, integrals, limits, matrix algebra, inequalities, ODEs, series.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">📊</div>
-        <h3>Statistics</h3>
-        <p>Recompute p-values from raw inputs. Twelve tests including paired-t, Fisher exact, Mann-Whitney.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">💻</div>
-        <h3>Computer Science</h3>
-        <p>Termination, functional correctness, runtime and space complexity, run-twice determinism.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">🧬</div>
-        <h3>Biology</h3>
-        <p>Replication, dose-response, power, Hardy-Weinberg, primer Tm/GC, molarity, Mendelian ratios.</p>
-      </div>
-      <div class="domain">
-        <div class="domain-icon">⚖️</div>
-        <h3>Governance</h3>
-        <p>Decision packet structural completeness. Board, household, school profiles. Four-Gates protocol.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- GET STARTED -->
-<section>
-  <div class="container">
-    <h2>Get started in two steps</h2>
-    <p class="section-sub">
-      Runs locally as an MCP server. Connects to Claude Desktop, Cursor, or any MCP-compatible client.
-    </p>
-    <div class="get-started-grid">
-      <div class="gs-card">
-        <h3>1. Install</h3>
-        <p>Clone the repo and install with pip.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><i></i><i></i><i></i></div>
-            <span>terminal</span>
-          </div>
-          <pre><span class="cm"># Clone and install</span>
-git clone https://github.com/matharrismma/Lighthouse
-cd Lighthouse
-pip install -e ".[mcp]"
-
-<span class="cm"># Start the MCP server</span>
-<span class="hl2">concordance-mcp</span></pre>
-        </div>
-      </div>
-      <div class="gs-card">
-        <h3>2. Connect</h3>
-        <p>Add to your <code>claude_desktop_config.json</code>.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <div class="code-dots"><i></i><i></i><i></i></div>
-            <span>claude_desktop_config.json</span>
-          </div>
-          <pre><span class="cm">{</span>
-  <span class="hl">"mcpServers"</span>: {
-    <span class="hl">"concordance"</span>: {
-      <span class="hl">"command"</span>: <span class="hl2">"concordance-mcp"</span>
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) submit();
     }
+  });
+
+  sendBtn.addEventListener('click', submit);
+
+  function submit() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    if (emptyEl && emptyEl.parentNode) emptyEl.remove();
+
+    const exchange = document.createElement('div');
+    exchange.className = 'exchange';
+    exchange.innerHTML = '<div class="bubble-user">' + esc(text) + '</div>';
+    historyEl.appendChild(exchange);
+
+    const thinking = document.createElement('div');
+    thinking.className = 'thinking';
+    thinking.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span>Running gates…</span>';
+    exchange.appendChild(thinking);
+
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+    inputEl.disabled = true;
+    scrollBottom();
+
+    const now = Math.floor(Date.now() / 1000);
+    const packet = {
+      domain: 'governance',
+      witness_count: 1,
+      created_epoch: now - 60,
+      DECISION_PACKET: {
+        title: text.length > 60 ? text.slice(0, 57) + '…' : text,
+        decision: text,
+        rationale: 'Submitted for discernment.',
+        scope: 'adapter',
+        red_items: ['No coercion detected', 'No unilateral authority claimed'],
+        floor_items: ['Claim is internally coherent', 'Rationale provided'],
+        way_path: 'direct-submission',
+        execution_steps: ['Submit', 'Review'],
+        witnesses: ['submitter'],
+        witness_count: 1
+      }
+    };
+
+    fetch(API + '/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ packet, run_verifiers: true })
+    })
+    .then(r => r.json())
+    .then(data => renderResult(exchange, thinking, data))
+    .catch(err => renderError(exchange, thinking, err));
   }
-<span class="cm">}</span></pre>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- FOOTER -->
-<footer>
-  <p>
-    <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a>
-    &nbsp;·&nbsp; Apache 2.0 licensed &nbsp;·&nbsp; Open source
-  </p>
-</footer>
+  function renderResult(exchange, thinking, data) {
+    thinking.remove();
 
+    const overall = data.overall || 'ERROR';
+    const gates   = data.gate_results || [];
+    const elapsed = data.elapsed_ms != null ? data.elapsed_ms + ' ms' : '';
+
+    const gateHTML = gates.map(function(g) {
+      const reasons = (g.reasons || []).filter(function(r) { return r && r.trim(); });
+      return '<div class="gate-row">' +
+        '<span class="gate-name">' + esc(g.gate) + '</span>' +
+        '<span class="gate-status ' + g.status + '">' + g.status + '</span>' +
+        '<span class="gate-reasons">' + (reasons.length ? esc(reasons.join(' · ')) : '') + '</span>' +
+        '</div>';
+    }).join('');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+    bubble.innerHTML =
+      '<div class="verdict ' + overall + '"><span class="dot"></span>' + overall + '</div>' +
+      '<div class="gates">' + gateHTML + '</div>' +
+      (elapsed ? '<div class="elapsed">' + elapsed + '</div>' : '');
+    exchange.appendChild(bubble);
+
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
+  }
+
+  function renderError(exchange, thinking, err) {
+    thinking.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+    bubble.innerHTML =
+      '<div class="verdict ERROR"><span class="dot"></span>ERROR</div>' +
+      '<div class="gate-reasons" style="margin-top:6px;color:#f75f5f">' + esc(String(err)) + '</div>';
+    exchange.appendChild(bubble);
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
+  }
+
+  function scrollBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
 </body>
 </html>
