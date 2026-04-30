@@ -19,7 +19,8 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # -- Engine import -------------------------------------------------------
@@ -140,8 +141,21 @@ class ChainVerifyResponse(BaseModel):
 
 # -- Routes --------------------------------------------------------------
 
+@app.get("/llms.txt", include_in_schema=False)
+def llms_txt():
+    """AI-readable service description for agent discovery (llms.txt standard)."""
+    f = Path(__file__).parent.parent / "site" / "llms.txt"
+    if f.exists():
+        return FileResponse(str(f), media_type="text/plain")
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse("llms.txt not found", status_code=404)
+
+
 @app.get("/", include_in_schema=False)
 def root():
+    index = Path(__file__).parent.parent / "site" / "index.html"
+    if index.exists():
+        return FileResponse(str(index))
     return {
         "name": "Concordance Engine API",
         "version": "1.0.0",
@@ -149,6 +163,7 @@ def root():
         "docs": "/docs",
         "endpoints": {
             "validate": "POST /validate",
+            "submit": "POST /submit",
             "ledger": "GET /ledger",
             "ledger_by_id": "GET /ledger/{packet_id}",
             "chain_verify": "GET /ledger/verify",
@@ -184,6 +199,64 @@ def validate(req: ValidateRequest, _: None = Depends(_check_api_key)):
             schema_path=config.schema_path,
             run_verifiers=False,
         )
+
+    try:
+        result = validate_packet(
+            req.packet,
+            now_epoch=req.now_epoch,
+            config=config,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"engine error: {exc}")
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+
+    ledger = get_ledger()
+    try:
+        entry = ledger.append(req.packet, result.overall, result.gate_results)
+        ledger_seq = entry.seq
+        ledger_hash = entry.entry_hash
+    except Exception:
+        ledger_seq = None
+        ledger_hash = None
+
+    p_hash = compute_packet_hash(req.packet)
+
+    return ValidateResponse(
+        overall=result.overall,
+        gate_results=[
+            GateResultOut(
+                gate=gr.gate,
+                status=gr.status,
+                reasons=gr.reasons,
+                details=gr.details,
+            )
+            for gr in result.gate_results
+        ],
+        ledger_seq=ledger_seq,
+        ledger_entry_hash=ledger_hash,
+        packet_hash=p_hash,
+        elapsed_ms=round(elapsed_ms, 2),
+    )
+
+
+
+
+@app.post("/submit", include_in_schema=False)
+def submit_public(req: ValidateRequest):
+    """Public unauthenticated endpoint for the human-facing form."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+
+    t0 = time.perf_counter()
+    config = EngineConfig(
+        schema_path=str(_SCHEMA_PATH) if _SCHEMA_PATH and _SCHEMA_PATH.exists() else "",
+        run_verifiers=True,
+        wait_window_seconds=0,   # no wait window for public form
+    )
 
     try:
         result = validate_packet(
