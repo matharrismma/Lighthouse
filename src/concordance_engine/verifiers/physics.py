@@ -276,19 +276,4 @@ def verify_named_conservation(
         return confirm("physics.named_conservation",
                        f"{law} conserved (profile {matched_profile}): " + result.detail,
                        {**(result.data or {}), "law": law,
-                        "matched_profile": list(matched_profile),
-                        "preferred_unit": profile["preferred_unit"]})
-    if result.status == "MISMATCH":
-        return mismatch("physics.named_conservation",
-                        f"{law} not conserved: " + result.detail,
-                        {**(result.data or {}), "law": law,
-                         "matched_profile": list(matched_profile)})
-    return result
-                        "matched_profile": list(matched_profile),
-                        "preferred_unit": profile["preferred_unit"]})
-    if result.status == "MISMATCH":
-        return mismatch("physics.named_conservation",
-                        f"{law} not conserved: " + result.detail,
-                        {**(result.data or {}), "law": law,
-                         "matched_profile": list(matched_profile)})
-    return result
+                        "
