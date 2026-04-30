@@ -20,4 +20,4 @@ ENV CONCORDANCE_SCHEMA_PATH=/app/schema/packet.schema.json
 
 EXPOSE 8000
 # Use Railway's injected $PORT, fallback to 8000 for local runs
-CMD ["sh", "-c", "uvicorn api.app:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
+CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
