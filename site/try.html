@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try Concordance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08090d;
+      --surface: #0f1117;
+      --border: #1e2130;
+      --text: #e8eaf0;
+      --muted: #5a6072;
+      --accent: #4f8ef7;
+      --pass: #2dd4a0;
+      --reject: #f75f5f;
+      --quarantine: #f7b84f;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* History */
+    .history {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 32px;
+      min-height: 0;
+    }
+
+    .exchange { display: flex; flex-direction: column; gap: 10px; }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: #151929;
+      border: 1px solid var(--border);
+      border-radius: 14px 14px 4px 14px;
+      padding: 12px 16px;
+      max-width: 90%;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .bubble-engine {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+      padding: 14px 16px;
+      max-width: 92%;
+      font-size: 14px;
+    }
+
+    .verdict {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .verdict.PASS       { background: #0d2b22; color: var(--pass);       border: 1px solid #1a4a38; }
+    .verdict.REJECT     { background: #2b0d0d; color: var(--reject);     border: 1px solid #4a1a1a; }
+    .verdict.QUARANTINE { background: #2b2208; color: var(--quarantine); border: 1px solid #4a3a10; }
+    .verdict.ERROR      { background: #1a1a24; color: var(--muted);      border: 1px solid var(--border); }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .gates {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .gate-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .gate-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      width: 80px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: var(--muted);
+    }
+
+    .gate-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .gate-status.PASS       { background: #0d2b22; color: var(--pass); }
+    .gate-status.REJECT     { background: #2b0d0d; color: var(--reject); }
+    .gate-status.QUARANTINE { background: #2b2208; color: var(--quarantine); }
+    .gate-status.SKIP       { background: #0f1117; color: var(--muted); }
+
+    .gate-reasons {
+      color: var(--muted);
+      font-size: 12.5px;
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px 0;
+    }
+
+    .dots span {
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin: 0 2px;
+      animation: blink 1.2s infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; }
+      40%            { opacity: 1; }
+    }
+
+    /* Input row */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: border-color 0.15s;
+    }
+    .input-wrap:focus-within { border-color: var(--accent); }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: none;
+      min-height: 24px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    textarea::placeholder { color: var(--muted); }
+
+    button.send {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: opacity 0.15s;
+      align-self: flex-end;
+    }
+    button.send:hover { opacity: 0.85; }
+    button.send:disabled { opacity: 0.35; cursor: default; }
+    button.send svg { width: 14px; height: 14px; fill: #fff; }
+
+    .hint {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+    .empty h1 {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .empty p { font-size: 13px; line-height: 1.6; max-width: 380px; margin: 0 auto; }
+
+    .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      border: 1px solid #1e2a4a;
+      background: #0c1022;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .elapsed {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="history" id="history">
+    <div class="empty" id="emptyState">
+      <div class="tag">CONCORDANCE ENGINE</div>
+      <h1>What do you want to verify?</h1>
+      <p>Enter any claim, equation, or decision. The engine will run it through four gates and return a verdict.</p>
+    </div>
+  </div>
+
+  <div class="input-wrap">
+    <textarea
+      id="input"
+      rows="1"
+      placeholder="Enter a claim to validate…"
+      autofocus
+    ></textarea>
+    <button class="send" id="sendBtn" disabled title="Send">
+      <svg viewBox="0 0 16 16"><path d="M1 8L15 1 8 15 7 9z"/></svg>
+    </button>
+  </div>
+  <div class="hint">Press <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Enter</kbd> to send &nbsp;·&nbsp; <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Shift+Enter</kbd> for new line</div>
+
+</div>
+
+<script>
+  const API = 'https://lighthouse-production-3f9a.up.railway.app';
+
+  const historyEl = document.getElementById('history');
+  const emptyEl   = document.getElementById('emptyState');
+  const inputEl   = document.getElementById('input');
+  const sendBtn   = document.getElementById('sendBtn');
+
+  inputEl.addEventListener('input', () => {
+    sendBtn.disabled = inputEl.value.trim() === '';
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) submit();
+    }
+  });
+
+  sendBtn.addEventListener('click', submit);
+
+  function submit() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    // Remove empty state
+    if (emptyEl) emptyEl.remove();
+
+    // Add user bubble
+    const exchange = document.createElement('div');
+    exchange.className = 'exchange';
+    exchange.innerHTML = `<div class="bubble-user">${esc(text)}</div>`;
+    historyEl.appendChild(exchange);
+
+    // Add thinking indicator
+    const thinking = document.createElement('div');
+    thinking.className = 'thinking';
+    thinking.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span>Running gates…</span>`;
+    exchange.appendChild(thinking);
+
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+    inputEl.disabled = true;
+    scrollBottom();
+
+    // Build packet from plain text
+    const now = Math.floor(Date.now() / 1000);
+    const packet = {
+      domain: 'governance',
+      witness_count: 1,
+      created_epoch: now - 60,
+      DECISION_PACKET: {
+        title: text.length > 60 ? text.slice(0, 57) + '…' : text,
+        decision: text,
+        rationale: 'User-submitted claim for validation.',
+        scope: 'adapter',
+        red_items: ['No coercion detected', 'No unilateral authority claimed'],
+        floor_items: ['Claim is internally coherent', 'Rationale provided'],
+        way_path: 'direct-submission',
+        execution_steps: ['Submit claim', 'Review result'],
+        witnesses: ['submitter'],
+        witness_count: 1
+      }
+    };
+
+    fetch(`${API}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ packet, run_verifiers: true })
+    })
+    .then(r => r.json())
+    .then(data => renderResult(exchange, thinking, data))
+    .catch(err => renderError(exchange, thinking, err));
+  }
+
+  function renderResult(exchange, thinking, data) {
+    thinking.remove();
+
+    const overall = data.overall || 'ERROR';
+    const gates   = data.gate_results || [];
+    const elapsed = data.elapsed_ms != null ? `${data.elapsed_ms} ms` : '';
+
+    const gateHTML = gates.map(g => {
+      const reasons = (g.reasons || []).filter(r => r && r.trim());
+      return `
+        <div class="gate-row">
+          <span class="gate-name">${esc(g.gate)}</span>
+          <span class="gate-status ${g.status}">${g.status}</span>
+          <span class="gate-reasons">${reasons.length ? esc(reasons.join(' · ')) : ''}</span>
+        </div>`;
+    }).join('');
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+    bubble.innerHTML = `
+      <div class="verdict ${overall}"><span class="dot"></span>${overall}</div>
+      <div class="gates">${gateHTML}</div>
+      ${elapsed ? `<div class="elapsed">${elapsed}</div>` : ''}
+    `;
+    exchange.appendChild(bubble);
+
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
+  }
+
+  function renderError(exchange, thinking, err) {
+    thinking.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+    bubble.innerHTML = `<div class="verdict ERROR"><span class="dot"></span>ERROR</div><div class="gate-reasons" style="margin-top:6px;color:#f75f5f">${esc(String(err))}</div>`;
+    exchange.appendChild(bubble);
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
+  }
+
+  function scrollBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
