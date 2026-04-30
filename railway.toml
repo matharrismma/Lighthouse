@@ -7,4 +7,6 @@ restartPolicyMaxRetries = 3
 
 [[volumes]]
 mountPath = "/data"
-# last-deploy: 20260430T215940Z
+
+[deploy.environmentVariables]
+PORT = "8000"
