@@ -19,4 +19,5 @@ ENV LEDGER_PATH=/data/ledger.jsonl
 ENV CONCORDANCE_SCHEMA_PATH=/app/schema/packet.schema.json
 
 EXPOSE 8000
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Use Railway's injected $PORT, fallback to 8000 for local runs
+CMD ["sh", "-c", "uvicor
