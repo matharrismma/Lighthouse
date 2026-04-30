@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How it works · Concordance Engine</title>
+  <meta name="description" content="The Four Gates: RED, FLOOR, BROTHERS, GOD. Fixed-order, halt-on-first-failure validation that never self-confirms.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Architecture</div>
+    <h1>How it works</h1>
+    <p>Four gates, fixed order, halt at the first failure. The engine never self-confirms.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>The Four Gates</h2>
+    <p>Every packet passes through four gates in this exact order. The engine halts at the first gate that fails. There is no looping back, no consensus override, no second chance from a louder participant.</p>
+
+    <div class="gates">
+      <div class="gate red">
+        <div class="name">RED</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Forbidden categories. Attestation that load-bearing constraints hold, AND verification that the artifact actually computes correctly.</div>
+      </div>
+      <div class="gate floor">
+        <div class="name">FLOOR</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Structural rules. Required fields present, witnesses named, fiduciary basis declared, units stated.</div>
+      </div>
+      <div class="gate bro">
+        <div class="name">BROTHERS</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Witness count meets the threshold. Default zero (disabled). Boards configure to require N affirming witnesses.</div>
+      </div>
+      <div class="gate god">
+        <div class="name">GOD</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Elapsed wait window. Adapter scope: 1 hour. Mesh: 24 hours. Canon: 7 days. Buys time for a critical objection to surface.</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 1rem;"><strong>Hard</strong> gates produce <code>REJECT</code>. <strong>Soft</strong> gates produce <code>QUARANTINE</code> — the packet isn't bad, it's not yet ready. Soft gates exist because some failures should pause, not refuse.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>RED has two layers</h2>
+    <p>This is the keystone. Most consensus systems trust the author when they say their constraints are met. RED separates two concerns:</p>
+
+    <div class="cards" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <h3>Attestation</h3>
+        <p>The packet author affirms the load-bearing constraints. <em>Did they say it?</em> A dictionary of declarations, structurally checked against the domain's rule set.</p>
+      </div>
+      <div class="card">
+        <h3>Verification</h3>
+        <p>The engine computes against external standards. <em>Is it actually true?</em> Sympy for math. Scipy for statistics. Atom/charge balance for chemistry. SI unit reduction for physics.</p>
+      </div>
+    </div>
+
+    <p style="margin-top: 2rem;"><strong>The verifier can REJECT despite a passing attestation.</strong> The author may have honestly believed their math was right. The math is wrong regardless of what the author claimed. RED catches both — bad-faith claims (attestation fails) and good-faith errors (verification fails).</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>One packet, full pipeline</h2>
+    <p>A minimal decision packet looks like this:</p>
+<pre><code>{
+  "domain": "chemistry",
+  "scope": "adapter",
+  "created_epoch": 1735000000,
+  "CHEM_RED": {
+    "mass_conserved": true,
+    "charge_balanced": true,
+    "elements_consistent": true,
+    "phases_specified": true
+  },
+  "CHEM_VERIFY": {
+    "equation": "C3H8 + 5 O2 -> 3 CO2 + 4 H2O",
+    "temperature_K": 298.15
+  }
+}</code></pre>
+    <p>Run through the engine:</p>
+<pre><code>$ concordance validate examples/sample_packet_chemistry_verify.json --now-epoch 9999999999
+
+✓ PASS  (sample_packet_chemistry_verify.json)
+    ✓ RED        PASS
+          ✓ chemistry.equation: balanced (atoms + charge)
+          ✓ chemistry.temperature: 298.15 K positive
+    ✓ FLOOR      PASS
+    ✓ BROTHERS   PASS
+    ✓ GOD        PASS</code></pre>
+    <p>Change the equation to <code>H2 + O2 -> H2O</code> and RED rejects with the smallest balancing coefficients.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What it does not do</h2>
+    <p>Honest scoping matters more than feature lists.</p>
+    <ul style="max-width: 50rem; color: var(--muted); padding-left: 1.5rem;">
+      <li><strong>The engine does not write rules.</strong> The set of forbidden categories at RED, the structural requirements at FLOOR, the witness threshold at BROTHERS, the wait window at GOD — these are inputs. A community, board, or maintainer authors them. The engine enforces them.</li>
+      <li><strong>The engine does not assess wisdom.</strong> PASS means "the rules as encoded did not catch a problem." It does not mean "this is a good idea." Strategy and prudence live outside the codebase.</li>
+      <li><strong>The engine does not make network calls.</strong> Verifiers run locally. No data leaves your machine.</li>
+      <li><strong>The CS verifier does not sandbox adversarial code.</strong> Restricted Python namespace blocks <code>__import__</code>, <code>open</code>, <code>eval</code>, <code>exec</code>. Suitable for code you control. Not suitable for arbitrary internet code.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/verifiers.html">See what each verifier does →</a>
+    <a class="btn btn-secondary" href="/install.html" style="margin-left: 0.5rem;">Install</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

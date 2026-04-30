@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>For boards and councils · Concordance Engine</title>
+  <meta name="description" content="Run every decision through structural completeness gates before the vote. Officer sign-off, fiduciary basis, witnesses, dollar amounts — checked.">
+  <link rel="stylesheet" href="../styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">For boards, councils, and committees</div>
+    <h1>The decision packet that won't pass without all the parts.</h1>
+    <p>Most board failures aren't disagreements about strategy. They're decisions made without the structural pieces that make accountability possible: no named witnesses, no dollar amount on a budget item, no fiduciary basis cited, no written next steps. The engine refuses incomplete packets before they reach the vote.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>The problem</h2>
+    <p>You've sat in this meeting. The motion is moved. Someone asks "what's our budget for this?" and the answer is "it should be in last quarter's report." Someone asks "who's signing this off legally?" and the answer is "we'll figure that out after." The motion passes. Three months later, nobody remembers who was responsible for what, and the board minutes can't tell you.</p>
+    <p>Structural failure in governance is almost never a single big mistake. It's a thousand small omissions that compound. The Concordance Engine catches the omissions at <em>packet construction</em>, not at the postmortem.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What gets checked</h2>
+    <p>Every decision packet passes four gates before the engine calls it ready:</p>
+    <div class="gates">
+      <div class="gate red">
+        <div class="name">RED</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Forbidden categories: coercion, deception, exploitation, idolatry. Named explicitly so the rejection is auditable.</div>
+      </div>
+      <div class="gate floor">
+        <div class="name">FLOOR</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Required structural pieces: title, scope, red_items, floor_items, way_path, execution_steps, witnesses.</div>
+      </div>
+      <div class="gate bro">
+        <div class="name">BROTHERS</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Witness count meets the board's threshold. Configurable per scope. Disabled by default.</div>
+      </div>
+      <div class="gate god">
+        <div class="name">GOD</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Wait window: 1 hour for adapter scope, 24 hours for mesh, 7 days for canon. Buys time for an objection to surface.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Per-domain profiles</h2>
+    <p>A board decision is not a household decision. The engine has separate required-field profiles:</p>
+    <table class="tools">
+      <thead><tr><th>Domain</th><th>Required fields (added to base)</th><th>Recommended</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>business</td>
+          <td>officers, fiduciary_basis</td>
+          <td>dollar_amount, risk_assessment</td>
+        </tr>
+        <tr>
+          <td>household</td>
+          <td>budget_category, affected_dependents</td>
+          <td>time_horizon, alternatives_considered</td>
+        </tr>
+        <tr>
+          <td>education</td>
+          <td>affected_cohort, learning_objective</td>
+          <td>accommodation_plan, policy_reference</td>
+        </tr>
+        <tr>
+          <td>church</td>
+          <td>elder_signoff, scripture_anchor</td>
+          <td>congregation_impact, prayer_record</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>A worked example</h2>
+    <p>The chair is about to call a vote on a vendor contract. Before the vote, the secretary runs:</p>
+<pre><code>verify_governance_decision_packet({
+  "title": "Approve Q3 vendor contract",
+  "scope": "mesh",
+  "red_items": ["no exploitation", "no deception"],
+  "floor_items": ["budget within tolerance"],
+  "way_path": "Award to Vendor A on 12-month terms with 90-day cancellation.",
+  "execution_steps": ["Sign contract", "File with finance", "90-day review"],
+  "witnesses": ["CEO", "CFO"]
+}, witness_count=2, domain="business")
+
+→ {"shape": {"status": "CONFIRMED"},
+   "witness_consistency": {"status": "CONFIRMED"},
+   "domain_profile": {"status": "MISMATCH",
+                       "detail": "business packet missing required:
+                                  ['officers', 'fiduciary_basis']"}}</code></pre>
+    <p>Two pieces are missing. The chair knows before the motion is moved. The secretary asks for the officers signing off and the fiduciary basis. Three minutes of work, and the minutes will be defensible if anyone asks later.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What it does not do</h2>
+    <p>The engine doesn't tell you whether the decision is wise. It doesn't decide whether Vendor A or Vendor B is the better choice. It doesn't read the contract for hidden terms. It catches the structural gaps that make accountability possible — names attached to roles, dollar amounts attached to authorizations, witnesses attached to attestations. The judgment about whether to vote yes is still yours.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/install.html">Install →</a>
+    <a class="btn btn-secondary" href="/how-it-works.html" style="margin-left: 0.5rem;">How the gates work</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

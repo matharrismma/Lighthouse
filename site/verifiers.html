@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verifiers · Concordance Engine</title>
+  <meta name="description" content="The complete verifier toolbox: chemistry, physics, mathematics, statistics, computer science, biology, governance.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Reference</div>
+    <h1>Verifiers</h1>
+    <p>Fourteen MCP tools across seven domains. Every tool returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE — never raises.</p>
+  </div>
+</div>
+
+<section id="chemistry">
+  <div class="container">
+    <h2>Chemistry</h2>
+    <p>Parses formulas with nested groups (<code>Cu(OH)2</code>) and charges (<code>Fe^2+</code>, <code>MnO4^-</code>). Verifies stated coefficients balance atoms and charge, or solves for the smallest balancing coefficients if none are supplied.</p>
+<pre><code>verify_chemistry(equation="C3H8 + 5 O2 -> 3 CO2 + 4 H2O", temperature_K=298.15)
+→ {"equation": {"status": "CONFIRMED", "detail": "balanced (atoms + charge)"},
+   "temperature": {"status": "CONFIRMED", "detail": "298.15 K positive"}}
+
+verify_chemistry(equation="H2 + O2 -> H2O")
+→ {"equation": {"status": "MISMATCH",
+                "detail": "balances as: 2 H2 + O2 -> 2 H2O"},
+   "balanced_form": "2 H2 + O2 -> 2 H2O",
+   "balanced_coefficients": [2, 1, 2]}</code></pre>
+  </div>
+</section>
+
+<section id="physics">
+  <div class="container">
+    <h2>Physics</h2>
+    <p>Substitutes unit expressions for symbols, converts both sides to base SI units (kg, m, s, A, K, mol, cd), compares unit signatures. Conservation arithmetic with named-law profiles.</p>
+<pre><code>verify_physics_dimensional(
+  equation="F = m * a",
+  symbols={"F": "newton", "m": "kilogram", "a": "meter/second**2"})
+→ {"status": "CONFIRMED", "detail": "both sides reduce to kg·m/s²"}
+
+verify_physics_conservation(
+  before={"KE": 5.0, "PE": 10.0},
+  after ={"KE": 8.0, "PE":  7.0},
+  law="energy")
+→ {"status": "CONFIRMED",
+   "detail": "energy conserved: total 15.0 → 15.0 (rel 0.00e+00)"}</code></pre>
+  </div>
+</section>
+
+<section id="mathematics">
+  <div class="container">
+    <h2>Mathematics</h2>
+    <p>Sympy-based verification across nine modes: equality, derivative, integral, limit, solve, matrix, inequality, series, ODE.</p>
+<pre><code>verify_mathematics("matrix",
+  {"matrix": [[1, 2], [3, 4]],
+   "claim_type": "determinant",
+   "claimed_value": -2})
+→ {"status": "CONFIRMED",
+   "detail": "determinant: actual=-2, claimed=-2"}
+
+verify_mathematics("ode",
+  {"ode": "Derivative(y(x),x) - y(x)",
+   "claimed_solution": "exp(x)"})
+→ {"status": "CONFIRMED",
+   "detail": "y(x)=exp(x) satisfies the ODE"}
+
+verify_mathematics("series",
+  {"term": "1/2**k", "start": 0, "end": "oo", "claimed_sum": 2})
+→ {"status": "CONFIRMED", "detail": "computed=2, claimed=2"}</code></pre>
+  </div>
+</section>
+
+<section id="statistics">
+  <div class="container">
+    <h2>Statistics</h2>
+    <p>Recompute p-values from raw inputs across twelve test types. Multiple-comparisons correction. Confidence-interval bound recomputation.</p>
+    <table class="tools">
+      <thead><tr><th>Test</th><th>Inputs</th></tr></thead>
+      <tbody>
+        <tr><td>two_sample_t</td><td>n1, n2, mean1, mean2, sd1, sd2</td></tr>
+        <tr><td>one_sample_t</td><td>n, mean, sd, mu0</td></tr>
+        <tr><td>paired_t</td><td>n, mean_diff, sd_diff (or paired1/paired2)</td></tr>
+        <tr><td>z</td><td>z, tail</td></tr>
+        <tr><td>chi2</td><td>statistic, df</td></tr>
+        <tr><td>f</td><td>statistic, df1, df2</td></tr>
+        <tr><td>one_proportion_z</td><td>n, successes (or phat), p0</td></tr>
+        <tr><td>two_proportion_z</td><td>n1, n2, successes1, successes2</td></tr>
+        <tr><td>fisher_exact</td><td>2×2 table</td></tr>
+        <tr><td>mannwhitney</td><td>x, y</td></tr>
+        <tr><td>wilcoxon_signed_rank</td><td>x, y (or d)</td></tr>
+        <tr><td>regression_coefficient_t</td><td>beta, se, n, k</td></tr>
+      </tbody>
+    </table>
+<pre><code>verify_statistics_pvalue({
+  "test": "paired_t", "n": 20,
+  "mean_diff": 0.5, "sd_diff": 1.0,
+  "tail": "two", "claimed_p": 0.0375
+})
+→ {"status": "CONFIRMED",
+   "detail": "claimed p=0.0375, recomputed p=0.0375 (diff 4e-05)"}</code></pre>
+  </div>
+</section>
+
+<section id="cs">
+  <div class="container">
+    <h2>Computer Science</h2>
+    <p>Static termination scan (catches <code>while True:</code> without break, unguarded recursion). Functional correctness via restricted-namespace execution. Runtime complexity via log-log slope fit. Space complexity via tracemalloc. Run-twice determinism check.</p>
+<pre><code>verify_computer_science(
+  code="def lsum(a):\n    s = 0\n    for x in a: s += x\n    return s",
+  function_name="lsum",
+  test_cases=[{"args": [[1,2,3]], "expected": 6}],
+  determinism_trials=3)
+→ {"static_termination": {"status": "CONFIRMED"},
+   "functional_correctness": {"status": "CONFIRMED"},
+   "determinism": {"status": "CONFIRMED",
+                    "detail": "all cases identical across 3 trials"}}</code></pre>
+  </div>
+</section>
+
+<section id="biology">
+  <div class="container">
+    <h2>Biology</h2>
+    <p>Replicate count, orthogonal assay diversity, dose-response monotonicity, sample-size adequacy via power calculation. Hardy-Weinberg consistency, primer Tm/GC sanity, molarity arithmetic, Mendelian-ratio chi-squared.</p>
+<pre><code>verify_biology(
+  hardy_weinberg={"counts": [490, 420, 90]})
+→ {"checks": [{"status": "CONFIRMED",
+               "detail": "counts consistent with HWE (chi2=0.000, p=1)"}]}
+
+verify_biology(
+  mendelian={"observed": [315, 108, 101, 32],
+              "expected_ratio": [9, 3, 3, 1]})
+→ {"checks": [{"status": "CONFIRMED",
+               "detail": "consistent with 9:3:3:1 (chi2=0.470, p=0.926)"}]}</code></pre>
+  </div>
+</section>
+
+<section id="governance">
+  <div class="container">
+    <h2>Governance</h2>
+    <p>Structural completeness of decision packets: title, scope, red_items, floor_items, way_path, execution_steps, witnesses. Per-domain profiles add domain-specific required fields.</p>
+    <table class="tools">
+      <thead><tr><th>Domain</th><th>Required (in addition to base)</th><th>Recommended</th></tr></thead>
+      <tbody>
+        <tr><td>governance</td><td>—</td><td>scripture_anchor</td></tr>
+        <tr><td>business</td><td>officers, fiduciary_basis</td><td>dollar_amount, risk_assessment</td></tr>
+        <tr><td>household</td><td>budget_category, affected_dependents</td><td>time_horizon, alternatives_considered</td></tr>
+        <tr><td>education</td><td>affected_cohort, learning_objective</td><td>accommodation_plan, policy_reference</td></tr>
+        <tr><td>church</td><td>elder_signoff, scripture_anchor</td><td>congregation_impact, prayer_record</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Attestation tools</h2>
+    <p>Sometimes you want only the structural check, not the full pipeline.</p>
+<pre><code>attest_red(packet)    # RED gate only — domain validator output
+attest_floor(packet)  # FLOOR gate only</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/install.html">Install →</a>
+    <a class="btn btn-secondary" href="https://github.com/matharrismma/Lighthouse" style="margin-left: 0.5rem;">View source</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

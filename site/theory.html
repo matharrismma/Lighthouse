@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theory · Concordance Engine</title>
+  <meta name="description" content="The O(1) authority validation claim, formalized. Assumptions, scope, and what would falsify it.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Theory note</div>
+    <h1>The O(1) claim, in detail</h1>
+    <p>"O(1) external authority validation replaces O(n²) consensus coordination" is a marketing line. This page makes it precise: under what assumptions does it hold, what does it actually mean, and what would falsify it.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>The two regimes</h2>
+    <p>Consider <em>n</em> participants who each hold a candidate answer to a verifiable question — say, a p-value claim, a balanced equation, or a dimensional consistency assertion.</p>
+
+    <h3>Consensus regime</h3>
+    <p>Each participant's confidence in the answer increases as a function of how many other participants agree. To reach a stable consensus, every participant must (in the worst case) communicate with every other participant. That's <strong>O(n²)</strong> messages. Cost grows quadratically with the number of participants. The reliability of the result is bounded by the least-reliable participant who could swing the vote — collusion, bad-faith claims, and groupthink dominate at scale.</p>
+
+    <h3>Authority regime</h3>
+    <p>Each participant submits the candidate answer to a fixed external standard that returns CONFIRMED, MISMATCH, or NOT_APPLICABLE. The cost of each check is <strong>O(1)</strong> in the number of participants — the standard does not care how many people are asking, and the standard does not change because more people are asking.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>The claim, formally</h2>
+    <p>For a class of questions <em>Q</em> where (a) a deterministic external verifier exists, (b) the verifier's runtime is bounded by some constant <em>k</em> independent of <em>n</em>, and (c) a wrong answer's cost is at least <em>c</em> per participant, authority validation strictly dominates consensus validation as <em>n</em> grows past the threshold where consensus's <em>O(n²) · c_message</em> exceeds authority's <em>n · k</em>. For most realistic message-cost assumptions and verifier runtimes, that threshold is &lt; 5 participants.</p>
+    <p>This is not a contested claim. It's true by inspection. The interesting work is in the assumptions.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What the claim depends on</h2>
+    <div class="cards" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <h3>The verifier exists</h3>
+        <p>For chemistry balance, scipy-recomputable p-values, sympy-checkable derivatives, and SI dimensional analysis, the verifier exists and is small. The Concordance Engine ships these. For "is this scientific theory true," no such verifier exists, and the claim does not apply.</p>
+      </div>
+      <div class="card">
+        <h3>The verifier is honest</h3>
+        <p>If the standard itself drifts — sympy ships a bug, the standard library is compromised, your local install is poisoned — authority validation degrades to whatever the corrupted standard says. The engine hashes its dependencies via packet_manifest.yaml; tamper-evidence helps but is not a substitute for trusting the upstream.</p>
+      </div>
+      <div class="card">
+        <h3>The question is verifiable</h3>
+        <p>Most decisions are partly verifiable and partly judgment. The engine handles the verifiable layer (math, units, structural completeness) and explicitly does not handle the judgment layer. A community deciding whether to fund a program will find the engine useful for the structural and computational pieces; it will not adjudicate priority.</p>
+      </div>
+      <div class="card">
+        <h3>The cost of being wrong is asymmetric</h3>
+        <p>If wrong answers are cheap, consensus is fine — fluid agreement at low stakes is normal social behavior. The authority approach pays off when wrong answers compound: published papers, board decisions, code in production, regulatory filings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What would falsify it</h2>
+    <p>Authority validation is not magic. The claim that the Concordance Engine usefully implements O(1) authority validation could be falsified by:</p>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li>Demonstrating that for a meaningful class of questions, the engine returns CONFIRMED on substantively wrong artifacts. (The verifier's preconditions failed silently.)</li>
+      <li>Demonstrating that the verifier's "fixed external standard" is actually drifting — that re-running the same packet a year later, with a newer version of sympy or scipy, returns different verdicts. (The standard isn't fixed.)</li>
+      <li>Showing that the cost of correctly formulating a packet exceeds the cost of forming consensus. (The engine introduces friction without compensating value.)</li>
+      <li>Showing on a real benchmark that an LLM with the engine attached does not measurably outperform an LLM without it, on tasks within the engine's coverage. (The empirical claim doesn't land.)</li>
+    </ul>
+    <p>The fourth is what the <a href="/benchmark.html">benchmark page</a> is set up to test. The first three are open invitations — file an issue with a reproducible packet that breaks the claim, and we either fix the engine or narrow the claim.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What the engine does not claim</h2>
+    <p>Three frequent misreads, named explicitly:</p>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li><strong>Not "consensus is bad."</strong> Consensus is the right tool for taste, priority, allocation under genuine uncertainty, and any decision where reasonable people disagree on the verifier. The engine handles a different class of question.</li>
+      <li><strong>Not "authority is morally superior."</strong> The "authority" is a fixed external <em>standard</em>, not a person or institution. Sympy is not a moral authority; it's a deterministic computation. The framing is mathematical, not ethical.</li>
+      <li><strong>Not "humans are removed from the loop."</strong> Humans write the rules, populate the packet fields, decide the wait windows, name the witnesses. The engine enforces what the humans wrote down. It does not replace human judgment — it stops human judgment from being lazy on the structural pieces.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/benchmark.html">See the benchmark →</a>
+    <a class="btn btn-secondary" href="https://github.com/matharrismma/Lighthouse/issues" style="margin-left: 0.5rem;">File a counterexample</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

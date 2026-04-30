@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>For scientists · Concordance Engine</title>
+  <meta name="description" content="Catch p-value miscomputations, dimensional errors, and unbalanced equations in your work — and in the work you're peer reviewing.">
+  <link rel="stylesheet" href="../styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">For researchers and scientists</div>
+    <h1>The math is wrong more often than the prose admits.</h1>
+    <p>Statcheck-style audits of psychology papers find statistical reporting errors in roughly half of them; about one in eight changes the significance verdict. Statisticians who replay computations for the FDA or a journal find similar rates. Most of those errors are not fraud — they are arithmetic. The Concordance Engine catches that arithmetic.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>Where it helps</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Pre-submission self-check</h3>
+        <p>Before sending a manuscript out, run every reported p-value through <code>verify_statistics_pvalue</code> from the raw inputs. Catches transposed numerators, wrong-tail conventions, and copy-paste drift between draft revisions.</p>
+      </div>
+      <div class="card">
+        <h3>Peer review</h3>
+        <p>Reviewing a chemistry paper claiming a stoichiometric mechanism? Paste the equation into <code>verify_chemistry</code>. If it doesn't balance, the proposed mechanism is incomplete — and you have a concrete comment to write.</p>
+      </div>
+      <div class="card">
+        <h3>Reproducibility audits</h3>
+        <p>Ask Claude (with the engine connected) to walk a paper's results: "for each table reporting a p-value, recompute from the supplied n and effect size; flag mismatches." That's a real reproducibility pass, not a vibe check.</p>
+      </div>
+      <div class="card">
+        <h3>Teaching</h3>
+        <p>Have students hand-derive a t-statistic, then verify against the engine. The mismatch is the lesson — what assumption did they get wrong?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>A worked example</h2>
+    <p>You're reviewing a methods section that reports:</p>
+    <div class="callout note">
+      <p><em>"A two-sample t-test (n₁ = n₂ = 30, mean diff = 1.0, pooled SD = 1.0) yielded p &lt; 0.001."</em></p>
+    </div>
+    <p>Run it:</p>
+<pre><code>verify_statistics_pvalue({
+  "test": "two_sample_t",
+  "n1": 30, "n2": 30,
+  "mean1": 5.0, "mean2": 4.0,
+  "sd1": 1.0, "sd2": 1.0,
+  "tail": "two",
+  "claimed_p": 0.001
+})
+
+→ {"status": "MISMATCH",
+   "detail": "claimed p=0.001, recomputed p=0.000297 (diff 7.0e-04)",
+   "data": {"recomputed_t": 3.873, "df": 58.0,
+             "recomputed_p": 0.000297, "tail": "two-sided"}}</code></pre>
+    <p>The author wasn't lying — they were rounding. But "p &lt; 0.001" is true and "p ≈ 0.001" is not. The recomputed value is <strong>0.0003</strong>. Now you have a precise reviewer comment instead of a hunch.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What it doesn't replace</h2>
+    <p>The engine doesn't read your data. It can't tell you whether your <em>experimental design</em> is sound, whether your effect size is meaningful, whether you should have pre-registered, or whether your sample is representative. Those are scientific judgments. The engine catches the layer below judgment — the arithmetic that has to be right before any of the judgment matters.</p>
+    <p>A correct p-value computed from a confounded experiment is still wrong in the way that matters. The engine is necessary, not sufficient.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Domains covered for science workflows</h2>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li><strong>Statistics:</strong> 12 test types including paired-t, Fisher exact, Mann-Whitney, Wilcoxon, regression-coefficient t. Multiple-comparisons correction (Bonferroni, BH/FDR). CI bound recomputation from raw inputs.</li>
+      <li><strong>Chemistry:</strong> equation balance with charge handling. Catches copy-paste errors and stoichiometric mistakes.</li>
+      <li><strong>Physics:</strong> dimensional consistency. Named conservation laws (energy, momentum, charge, mass).</li>
+      <li><strong>Mathematics:</strong> sympy-backed equality, derivative, integral, limit, solve, matrix algebra, inequalities, infinite series, ordinary differential equations.</li>
+      <li><strong>Biology:</strong> Hardy-Weinberg, Mendelian-ratio chi-squared, primer Tm/GC, molarity arithmetic, dose-response monotonicity, power analysis.</li>
+      <li><strong>Computer science:</strong> static termination, functional correctness from test cases, runtime / space complexity, run-twice determinism for stochastic claims.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/install.html">Install →</a>
+    <a class="btn btn-secondary" href="/verifiers.html" style="margin-left: 0.5rem;">See all verifiers</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Benchmark · Concordance Engine</title>
+  <meta name="description" content="Head-to-head: Claude alone vs Claude + concordance-engine on 37 chemistry, physics, and statistics items.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Empirical evidence</div>
+    <h1>Does the engine actually help?</h1>
+    <p>A 37-item head-to-head benchmark across chemistry (17), statistics (10), and physics (10). Claude alone vs Claude + concordance-engine, with the same prompts and the same model.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="callout warn">
+      <p><strong>Numbers pending.</strong> The benchmark infrastructure is shipped (<a href="https://github.com/matharrismma/Lighthouse/tree/main/eval/benchmark">eval/benchmark/</a>), and the items + runner are reproducible. The scored head-to-head against Claude Haiku 4.5 will publish here as soon as the numbers are in. Until then, the page below describes what the benchmark measures and why it's the right shape.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What the benchmark measures</h2>
+    <p>For each item, the same prompt is sent to the model in two configurations:</p>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li><strong>Alone:</strong> just the model. No tools.</li>
+      <li><strong>With tools:</strong> three concordance-engine tools available — <code>verify_chemistry</code>, <code>verify_physics_dimensional</code>, <code>verify_statistics_pvalue</code>.</li>
+    </ul>
+    <p>The model's reply is parsed (yes/no for classification items, decimal number for numeric items) and scored against the engine-derived ground truth. The discriminator is the per-domain delta: where do the tools change the answer?</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>The 37 items, by domain</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Chemistry — 17</h3>
+        <p>"Is this equation balanced?" Mix of balanced and unbalanced. Includes redox, decomposition, and combustion equations. The unbalanced ones are picked specifically to look balanced at a glance.</p>
+      </div>
+      <div class="card">
+        <h3>Statistics — 10</h3>
+        <p>"Compute the two-tailed p-value." Two-sample t (3), paired t (3), one-proportion z (2), Fisher exact (2). Inputs designed to reach the model as plain text — exactly the format LLMs choke on without computational help.</p>
+      </div>
+      <div class="card">
+        <h3>Physics — 10</h3>
+        <p>"Is this equation dimensionally consistent?" Mix of obviously-correct (F=ma), obviously-wrong (F=mv), and subtly-wrong (s = u·t² instead of s = u·t + ½a·t²).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Predictions, on the record</h2>
+    <p>Before running the benchmark, here's the prediction:</p>
+    <div class="callout note">
+      <p><strong>Statistics:</strong> Claude alone scores below 50%. With tools: above 90%. <em>This is the headline if it lands.</em> p-value arithmetic from raw inputs is exactly what LLMs hallucinate confidently.</p>
+    </div>
+    <div class="callout note">
+      <p><strong>Chemistry:</strong> Claude alone scores around 75-85%. With tools: above 95%. The simple combustion equations are easy; the redox half-reactions and the "looks balanced but isn't" cases are the discriminators.</p>
+    </div>
+    <div class="callout note">
+      <p><strong>Physics:</strong> Both modes score similar, around 80-90%. Dimensional analysis is something modern LLMs handle reasonably well from training. The engine adds value mainly on the subtly-wrong cases.</p>
+    </div>
+    <p>If statistics shows the predicted gap, the engine has earned its keep. If it doesn't, that's a real finding — either the items are too easy, or LLMs have improved at p-value arithmetic faster than we thought.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Reproducing the benchmark</h2>
+<pre><code>git clone https://github.com/matharrismma/Lighthouse
+cd Lighthouse
+pip install -e ".[mcp]" anthropic
+
+export ANTHROPIC_API_KEY=sk-ant-...
+python eval/benchmark/build_items.py            # rebuild items.jsonl
+python eval/benchmark/adapter_anthropic.py      # ~30s, ~$0.05 on Haiku 4.5</code></pre>
+    <p>The script writes <code>results_*_alone.jsonl</code> and <code>results_*_tools.jsonl</code> alongside printed summaries. Comparing the two is one diff away from "items the engine fixed" / "items the engine broke."</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What this benchmark cannot prove</h2>
+    <p>37 items is a starter benchmark, not a definitive one. It cannot:</p>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li>Prove the engine helps on tasks outside the three domains tested.</li>
+      <li>Prove the engine helps with frontier models (GPT-5, Opus 4) that may already do mental p-value arithmetic better than Haiku.</li>
+      <li>Prove the engine helps in agentic workflows where tool latency matters.</li>
+      <li>Prove the engine catches errors in real published papers — that's a separate work item.</li>
+    </ul>
+    <p>It can only prove what 37 items can prove: there is a measurable per-domain delta on a benchmark we authored, on a model we picked, in a configuration we controlled. That's a starting point, not a finish line.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="https://github.com/matharrismma/Lighthouse/tree/main/eval/benchmark">View the benchmark code →</a>
+    <a class="btn btn-secondary" href="/theory.html" style="margin-left: 0.5rem;">Read the theory</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concordance Engine — verify scientific claims, not opinions</title>
+  <meta name="description" content="A Python validation engine and MCP server that checks decision packets and computational claims against fixed external authorities rather than polling internal consensus. Open source. MIT.">
+  <meta property="og:title" content="Concordance Engine">
+  <meta property="og:description" content="O(1) external authority validation. Replaces O(n²) consensus coordination.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="badge">v1.0.5 · MIT licensed · MCP-ready</div>
+    <h1>Verify the claim,<br>not the consensus.</h1>
+    <p class="lede">
+      An open-source validation engine that checks LLM-generated chemistry, physics,
+      mathematics, and statistics against fixed external authorities. When the math
+      is wrong, the engine says so — regardless of what was attested.
+    </p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="/install.html">Install in 60 seconds →</a>
+      <a class="btn btn-secondary" href="/how-it-works.html">How it works</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>The shape of the problem</h2>
+    <p style="color: var(--muted); font-size: 1.05rem; max-width: 50rem;">
+      Current AI verification scales as <strong>O(n²)</strong>: every model polls every other model,
+      cost grows with participants, and reliability is bounded by the least reliable node.
+      Authority-based validation scales as <strong>O(1)</strong>: every claim is checked against a
+      fixed external standard. Cost is constant. The standard does not drift with participant count.
+    </p>
+
+    <div style="background: #fff; border: 1px solid var(--rule); border-radius: 10px; padding: 1.75rem; margin-top: 1.5rem;">
+      <h3 style="margin-top: 0;">An example exchange</h3>
+      <div style="display: grid; gap: 0.75rem; margin-top: 1rem;">
+        <div style="background: var(--code-bg); padding: 0.85rem 1rem; border-radius: 6px; border-left: 3px solid var(--muted);">
+          <strong style="font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase;">User</strong><br>
+          Compute the two-tailed p-value for n=30, mean₁=5.0, mean₂=4.0, sd=1.0. Is it significant at α=0.05?
+        </div>
+        <div style="background: #fff8ed; padding: 0.85rem 1rem; border-radius: 6px; border-left: 3px solid #c9871f;">
+          <strong style="font-size: 0.8rem; color: #c9871f; letter-spacing: 0.05em; text-transform: uppercase;">LLM (without engine)</strong><br>
+          The p-value is approximately 0.0001. <em>That's a confident-sounding number — but it's wrong.</em>
+        </div>
+        <div style="background: #f1f7f3; padding: 0.85rem 1rem; border-radius: 6px; border-left: 3px solid var(--good);">
+          <strong style="font-size: 0.8rem; color: var(--good); letter-spacing: 0.05em; text-transform: uppercase;">LLM + Concordance Engine</strong><br>
+          Calls <code>verify_statistics_pvalue</code>. Engine recomputes from scipy: <strong>p ≈ 0.0003</strong>. LLM corrects itself: yes, significant at α=0.05; the correct p is 0.0003, not 0.0001.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What it verifies</h2>
+    <p>Twelve verifier tools across seven domains. Each returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE — never raises.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>Chemistry</h3>
+        <p>Balance equations across atoms and charge. Handles nested groups, ions, redox half-reactions.</p>
+        <a href="/verifiers.html#chemistry">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Physics</h3>
+        <p>Dimensional consistency in SI units. Named conservation laws (energy, momentum, charge, mass).</p>
+        <a href="/verifiers.html#physics">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Mathematics</h3>
+        <p>Symbolic equality, derivatives, integrals, limits, solve, matrix algebra, inequalities, series, ODEs.</p>
+        <a href="/verifiers.html#mathematics">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Statistics</h3>
+        <p>Recompute p-values from raw inputs. Twelve tests including paired-t, Fisher exact, Mann-Whitney.</p>
+        <a href="/verifiers.html#statistics">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Computer Science</h3>
+        <p>Static termination, functional correctness, runtime / space complexity, run-twice determinism.</p>
+        <a href="/verifiers.html#cs">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Biology</h3>
+        <p>Replicate counts, dose-response, power, Hardy-Weinberg, primer Tm/GC, molarity, Mendelian ratios.</p>
+        <a href="/verifiers.html#biology">See examples →</a>
+      </div>
+      <div class="card">
+        <h3>Governance</h3>
+        <p>Decision packet structural completeness with per-domain profiles for boards, households, schools.</p>
+        <a href="/verifiers.html#governance">See examples →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Built for whoever needs the receipts</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Researchers &amp; scientists</h3>
+        <p>Catch p-value miscomputations, dimensional errors, and unbalanced equations in your work — and in the work you're peer reviewing.</p>
+        <a href="/use-cases/science.html">For scientists →</a>
+      </div>
+      <div class="card">
+        <h3>Boards &amp; councils</h3>
+        <p>Run every decision through structural completeness gates. Officer sign-off, fiduciary basis, witnesses, dollar amounts — checked before the vote.</p>
+        <a href="/use-cases/governance.html">For governance →</a>
+      </div>
+      <div class="card">
+        <h3>Faith communities</h3>
+        <p>Four-Gates protocol with optional scripture anchoring. RED (non-negotiables), FLOOR (protective boundaries), BROTHERS (witness), GOD (wait window).</p>
+        <a href="/use-cases/faith.html">For faith communities →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Try it now</h2>
+    <p>The engine ships with an MCP server. Connect it to Claude Desktop in two steps:</p>
+<pre><code>pip install -e ".[mcp]"
+concordance-mcp</code></pre>
+    <p>Then in <code>claude_desktop_config.json</code>:</p>
+<pre><code>{
+  "mcpServers": {
+    "concordance-engine": { "command": "concordance-mcp" }
+  }
+}</code></pre>
+    <p>Restart Claude Desktop. The verifier tools now appear in the tool picker. <a href="/install.html">Full install guide →</a></p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      © 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed
+    </div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

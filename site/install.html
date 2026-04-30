@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Install · Concordance Engine</title>
+  <meta name="description" content="Install the Concordance Engine and connect it to Claude Desktop, Claude Code, or any MCP-capable client.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Setup · 60 seconds</div>
+    <h1>Install</h1>
+    <p>Three minutes from a fresh machine to verifier tools showing up in Claude Desktop's tool picker.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>Prerequisites</h2>
+    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
+      <li>Python ≥ 3.10</li>
+      <li>git</li>
+      <li>(For MCP integration) Claude Desktop, Claude Code, Cursor, or another MCP-capable client</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>1. Clone and install</h2>
+<pre><code>git clone https://github.com/matharrismma/Lighthouse
+cd Lighthouse
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e ".[mcp]"</code></pre>
+    <p>That installs the engine, scientific dependencies (sympy, numpy, scipy), and the MCP SDK that powers the server.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>2. Confirm it works</h2>
+<pre><code>PYTHONPATH=src python tests/test_engine.py
+PYTHONPATH=src python tests/test_verifiers.py
+PYTHONPATH=src python tests/test_cli.py
+PYTHONPATH=src python tests/test_mcp_tools.py
+PYTHONPATH=src python tests/test_canon_validators.py</code></pre>
+    <p>All five suites should print <code>All N tests passed.</code> If any fail, open an issue with the output and your Python version.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>3. Connect to Claude Desktop</h2>
+    <p>Edit your Claude Desktop config:</p>
+    <ul style="padding-left: 1.5rem; color: var(--muted);">
+      <li><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+      <li><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+      <li><strong>Linux:</strong> <code>~/.config/Claude/claude_desktop_config.json</code></li>
+    </ul>
+<pre><code>{
+  "mcpServers": {
+    "concordance-engine": {
+      "command": "concordance-mcp"
+    }
+  }
+}</code></pre>
+    <p>Restart Claude Desktop. The hammer / tool icon at the bottom of the chat shows "concordance-engine" with 14 tools available.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>3. Connect to Claude Code (alternate)</h2>
+<pre><code>claude mcp add concordance-engine -- concordance-mcp</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>4. Try it</h2>
+    <p>In Claude Desktop:</p>
+    <div class="callout note">
+      <p><em>"Use the concordance tool to check whether <code>H2 + O2 -> H2O</code> is balanced. If not, give me the correct coefficients."</em></p>
+    </div>
+    <p>Claude calls <code>verify_chemistry</code>, sees the imbalance, and replies with the balanced form.</p>
+
+    <p>Or for statistics:</p>
+    <div class="callout note">
+      <p><em>"For a paired t-test with n=20, mean_diff=0.5, sd_diff=1.0, what's the two-tailed p-value?"</em></p>
+    </div>
+    <p>Claude calls <code>verify_statistics_pvalue</code>, gets the recomputed p, replies with the actual value rather than guessing.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Run from the CLI without an LLM</h2>
+<pre><code>concordance validate examples/sample_packet_chemistry_verify.json --now-epoch 9999999999</code></pre>
+    <p>The CLI runs the full Four-Gates pipeline against any JSON packet file. Exit codes: <code>0</code> PASS, <code>1</code> REJECT, <code>2</code> QUARANTINE, <code>3</code> schema invalid, <code>4</code> CLI error.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Troubleshooting</h2>
+    <div class="callout warn">
+      <p><strong>"command not found: concordance-mcp"</strong> — your virtualenv isn't activated, or you didn't install the <code>[mcp]</code> extra. Re-run <code>pip install -e ".[mcp]"</code> with the venv active.</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>"ModuleNotFoundError: scipy"</strong> — you installed the engine but not its dependencies. Run <code>pip install -e ".[dev]"</code> for the full set.</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>Tools not showing in Claude Desktop</strong> — fully quit Claude Desktop (not just close the window) and reopen. The MCP config is read at startup.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/verifiers.html">See the verifier reference →</a>
+    <a class="btn btn-secondary" href="https://github.com/matharrismma/Lighthouse" style="margin-left: 0.5rem;">View on GitHub</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

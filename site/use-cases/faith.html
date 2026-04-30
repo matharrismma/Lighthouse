@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>For faith communities · Concordance Engine</title>
+  <meta name="description" content="The Four Gates protocol — RED, FLOOR, BROTHERS, GOD — for elders, household leaders, and church boards making decisions under accountability.">
+  <link rel="stylesheet" href="../styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/install.html">Install</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">For elders, councils, and household leaders</div>
+    <h1>Decisions held to a fixed standard, not to the loudest voice in the room.</h1>
+    <p>The Four-Gates protocol enforces a structure that scripture and long-running boards converge on independently: name what's non-negotiable, name the protective floor, require witness, allow time. The engine refuses to let a decision through without those parts.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>What the gates name</h2>
+    <p>The order is fixed: <strong>RED → FLOOR → BROTHERS → GOD</strong>. You don't get to skip ahead.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>RED — non-negotiables</h3>
+        <p>Coercion, deception, exploitation, idolatry. Things that cannot be permitted regardless of pragmatic upside. A decision that names these and affirms it does not violate them passes RED. A decision that violates one fails RED, and the engine halts.</p>
+      </div>
+      <div class="card">
+        <h3>FLOOR — protective boundaries</h3>
+        <p>Proportionality, accountability, transparency, due process, protection of the vulnerable, basic provision obligations. Below this floor, the decision is unsafe regardless of intent.</p>
+      </div>
+      <div class="card">
+        <h3>BROTHERS — witness threshold</h3>
+        <p>"By the mouth of two or three witnesses every word may be established." Witnesses named in the packet, count consistent with declared count. The engine doesn't decide who counts as a witness — the community does — it just enforces the threshold.</p>
+      </div>
+      <div class="card">
+        <h3>GOD — wait window</h3>
+        <p>"He who is hasty with his feet sins." A wait window proportional to scope: an hour for routine, a day for material, a week for canon-affecting. Buys the space for the still small voice — or for an objection — to surface.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What the engine does not claim</h2>
+    <p>This is software, not authority. The engine enforces rules the community has authored. It cannot substitute for the discernment of elders, the conviction of conscience, or the prompting of the Spirit. It does not adjudicate doctrine, interpret scripture, or judge between competing pastoral approaches.</p>
+    <p>What it does is prevent <em>the kind of decision that becomes a problem because nobody wrote down who was accountable</em>. That kind of decision is not a wisdom failure — it's a structural failure, and structure is what software is good for.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Worked example: a session decision</h2>
+    <p>An elder board is considering reallocating a building-fund line to fund a discipleship intensive. Before voting:</p>
+<pre><code>verify_governance_decision_packet({
+  "title": "Reallocate $30k from building fund to discipleship intensive",
+  "scope": "canon",
+  "red_items": ["no coercion of giving",
+                 "no opacity to congregation"],
+  "floor_items": ["fund balance preserved",
+                   "elder unanimity required"],
+  "way_path": "Hold reallocation through July; intensive runs Aug-Oct.
+                Public communication at next congregational meeting.",
+  "execution_steps": ["Elder vote", "Treasurer transfer",
+                       "Congregational announcement", "Quarterly review"],
+  "witnesses": ["Elder Smith", "Elder Jones", "Treasurer Davis"],
+  "elder_signoff": ["Smith", "Jones", "Brown"],
+  "scripture_anchor": "Acts 6:1-4",
+  "congregation_impact": "12-week intensive; ~25 households invited"
+}, witness_count=3, domain="church")
+
+→ {"shape": {"status": "CONFIRMED"},
+   "witness_consistency": {"status": "CONFIRMED"},
+   "domain_profile": {"status": "CONFIRMED",
+                       "detail": "church required + recommended fields all present"}}</code></pre>
+    <p>Now the elders can vote knowing every required structural piece is in place — including the scripture anchor and the congregation-impact note that some boards forget under pressure.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Why the framing maps cleanly</h2>
+    <p>The engine ships in a generic form (RED / FLOOR / BROTHERS / GOD with no doctrinal content), and a community provides the rule set. A reformed church will populate <code>red_items</code> differently than a Catholic parish will — that's correct. The engine's job is to enforce <em>that the rule set is named and the packet is consistent with what was declared</em>, not to write the rules.</p>
+    <p>For households: the same gates apply with smaller scope. "Should we co-sign for our adult child's car loan?" runs the same RED → FLOOR → BROTHERS → GOD sequence with a household-domain profile (budget category, affected dependents, time horizon, alternatives considered). Most household decisions that go badly fail FLOOR — proportionality or accountability — long before they fail RED.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="/install.html">Install →</a>
+    <a class="btn btn-secondary" href="/how-it-works.html" style="margin-left: 0.5rem;">How the gates work</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · MIT licensed</div>
+    <div>
+      <a href="/how-it-works.html">How it works</a> ·
+      <a href="/verifiers.html">Verifiers</a> ·
+      <a href="/install.html">Install</a> ·
+      <a href="/benchmark.html">Benchmark</a> ·
+      <a href="/theory.html">Theory</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
