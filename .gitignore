@@ -20,8 +20,17 @@ concordance_engine-1.0.4/
 # Claude Code local settings
 .claude/
 
-# Local audit working doc — not for the public repo
+# Local audit working doc ï¿½ not for the public repo
 GAP_PLAN.md
 
 # Local audit working doc - not for the public repo
 GAP_PLAN.md
+# Layer 0 source data â€” large files, built locally via build_concordance.py / fetch_sources.py
+lw/00_source/original/
+lw/00_source/web/
+
+# Pytest cache directories (non-standard names)
+pytest-cache-files-*/
+
+# Local working notes
+WORKING_STATE.md
