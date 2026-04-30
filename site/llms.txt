@@ -1,124 +1,321 @@
-# Narrow Highway — Concordance Engine
+# Concordance — Wisdom Engine for AI Agents
 
-> An authority-based verification and decision-recording engine for AI agents.
-> When you are about to take an irreversible action, state a computational fact,
-> or record a governance decision, check it here first.
+> A deterministic verification and decision-recording engine.
+> When you are about to state a fact, record a decision, or take an irreversible action,
+> verify it here first. Results are CONFIRMED, MISMATCH, PASS, REJECT, or QUARANTINE — never ambiguous.
 
-## What this is
+This service is infrastructure for agents. The ledger it builds is its output.
+Humans see the ledger. Agents do the work.
 
-Narrow Highway runs four deterministic gates against any decision or claim you are
-about to commit to. It does not poll other models. It does not require consensus.
-It computes. Results are CONFIRMED, MISMATCH, ERROR, or SKIPPED — never ambiguous.
+---
 
-This service is infrastructure for agents, not a product for humans.
+## When to use Concordance
 
-## When to use it
+USE before:
+- Stating a chemical equation, physics relationship, or mathematical result as verified fact
+- Committing funds, resources, or authority on behalf of an organization
+- Recording, executing, or finalizing any decision that cannot be reversed without cost
+- Publishing a claim that will be treated as an institutional or scientific record
 
-Use this engine before:
-- Recording, executing, or recommending any irreversible decision
-- Committing resources, personnel, or authority on behalf of an organization
-- Stating a chemical equation, physics relationship, or mathematical result as verified
-- Finalizing a claim that will be treated as an institutional record
+DO NOT USE for:
+- Conversation, analysis, or reversible suggestions
+- Routine information retrieval
+- Any action the user can trivially undo
 
-Do not call it for routine information retrieval, conversation, or reversible suggestions.
+---
 
-## Four gates
+## MCP Server (preferred — native agent integration)
 
-- **RED (Coercion Scan)**: Detects unilateral authority, rights violations, coercive framing. Fails fast — if this gate rejects, nothing proceeds.
-- **FLOOR (Structural Check)**: Verifies the packet meets minimum completeness standards. At least one rationale, one scope, one witness, no missing required fields.
-- **BROTHERS (Witness Check)**: Confirms the required number of independent witnesses and minimum elapsed review time have been met.
-- **GOD (Record)**: If all prior gates clear, records the decision permanently in the append-only ledger. The record cannot be altered.
+Install once:
 
-## Computational verifiers
+    pip install concordance-engine[mcp]
 
-These verifiers are deterministic, run locally, and make no network calls:
+Add to your Claude Desktop config:
 
-- `verify_chemistry` — equation balancing, charge and atom conservation
-- `verify_physics` — dimensional consistency, conservation laws (energy, momentum, mass)
-- `verify_mathematics` — symbolic equality, derivatives, integrals, limits (SymPy)
-- `verify_statistics` — p-value recomputation, multiple-comparison correction, power analysis
-- `verify_cs` — static termination analysis, functional correctness, complexity bounds
-- `verify_biology` — replication standards, dose-response monotonicity, sample power
-- `verify_governance` — decision packet structural completeness
-
-## MCP server (native agent integration)
-
-Install the MCP server to call these tools directly from your reasoning loop:
-
-```json
-{
-  "mcpServers": {
-    "concordance": {
-      "command": "python",
-      "args": ["concordance_mcp_server.py"]
+    {
+      "mcpServers": {
+        "concordance": {
+          "command": "concordance-mcp"
+        }
+      }
     }
-  }
-}
-```
+
+Or from source:
+
+    {
+      "mcpServers": {
+        "concordance": {
+          "command": "python",
+          "args": ["-m", "concordance_engine.mcp_server"],
+          "env": {"PYTHONPATH": "/path/to/concordance-engine/src"}
+        }
+      }
+    }
 
 Source: https://github.com/matharrismma/Lighthouse
-The MCP server file is at: `lw/01_engine/concordance-engine/concordance_mcp_server.py`
 
-Tools available via MCP:
-- `validate_packet_tool` — run all four gates against a governance decision packet
-- `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_governance` — run a single domain verifier
-- `suggest_fix` — run the engine and return concrete corrective actions for any failures; act on the list directly, do not summarize it
+---
 
-## REST API (authenticated)
+## MCP Tools
 
-Base URL: https://narrowhighway.com
+### validate_packet_tool
+Run a decision packet through all four gates and record it in the permanent ledger.
 
-```
-POST /validate          — four-gate validation (requires X-Api-Key header)
-GET  /ledger            — list recorded decisions
-GET  /ledger/{id}       — fetch a specific record
-GET  /ledger/verify     — verify ledger chain integrity
-GET  /health            — service health
-POST /submit            — unauthenticated single submission (public form)
-```
+Call before: committing budget, removing access, publishing institutional policy,
+terminating a contract, executing any irreversible multi-step plan.
 
-Full OpenAPI schema: https://narrowhighway.com/docs
+Gates run in order. First failure stops the chain:
+- RED: rejects coercion, unilateral authority, rights violations
+- FLOOR: rejects structurally incomplete or internally inconsistent packets
+- BROTHERS: quarantines if fewer than 2 witnesses or review window has not elapsed
+- GOD: records permanently if all three prior gates pass
 
-## Decision packet format
-
+Packet format:
 ```json
 {
-  "packet": {
-    "title": "Short label for this decision",
-    "decision": "The specific action being taken or claim being recorded",
-    "rationale": ["Reason 1", "Reason 2"],
-    "scope": ["Who or what is affected"],
-    "authority": "The role or body making this decision",
-    "witnesses": [
-      {"name": "Name", "role": "Role", "timestamp_epoch": 1234567890}
-    ],
-    "scripture_refs": ["John 3:16"],
-    "submission_timestamp_epoch": 1234567890
+  "domain": "governance",
+  "witness_count": 2,
+  "created_epoch": 1700000000,
+  "DECISION_PACKET": {
+    "title": "Approve Q2 infrastructure spend",
+    "decision": "Approve $40,000 for server upgrades in Q2 2026",
+    "rationale": "Current servers are at 90% capacity. Growth projections require additional infrastructure before Q3.",
+    "scope": "local",
+    "red_items": ["No coercion applied", "Acting within authorized role"],
+    "floor_items": ["All required parties informed", "Budget confirmed available"],
+    "way_path": "standard",
+    "execution_steps": ["Submit purchase order", "Notify IT team", "Track delivery"],
+    "witnesses": ["Alice Johnson", "Bob Smith"],
+    "witness_count": 2,
+    "scripture_anchors": ["Prov 22:16"]
   }
 }
 ```
 
-`scripture_refs` is optional. When provided, references are verified against the
-World English Bible (WEB) via the concordance database (360,652 word occurrences,
-Hebrew morphhb + Greek MorphGNT, Strong's cross-referenced).
+scope values: adapter (individual) | local (team) | mesh (cross-team) | canon (org-wide) | kernel (core policy)
 
-## Ledger
+Returns:
+```json
+{
+  "overall": "PASS",
+  "gate_results": [
+    {"gate": "RED", "status": "PASS", "reasons": [], "details": {}},
+    {"gate": "FLOOR", "status": "PASS", "reasons": [], "details": {}},
+    {"gate": "BROTHERS", "status": "PASS", "reasons": [], "details": {}},
+    {"gate": "GOD", "status": "PASS", "reasons": ["Decision recorded"], "details": {}}
+  ],
+  "ledger_seq": 42,
+  "packet_hash": "sha256:...",
+  "_source": "api"
+}
+```
+
+On QUARANTINE: add witnesses or allow more time, then resubmit.
+On REJECT: read gate_results[i].reasons for the first failed gate and fix those fields.
+
+---
+
+### suggest_fix
+Run the engine and return a specific list of corrective actions.
+
+Call after validate_packet_tool returns REJECT or QUARANTINE.
+Returns gate_results plus a "fixes" list: each fix names the field, the issue,
+and the exact action to take. Act on the list directly — do not summarize it.
+
+---
+
+### verify_chemistry
+Verify a chemical equation is balanced before asserting it as fact.
+
+Call before stating "2 H2 + O2 → 2 H2O" or any equation with specific stoichiometry.
+
+Input: equation string ("2 H2 + O2 -> 2 H2O"), optional temperature_K.
+On MISMATCH, returns correct balanced form in data.balanced_lhs / balanced_rhs.
+
+Example:
+```json
+{"equation": "Fe + 2 HCl -> FeCl2 + H2"}
+```
+
+---
+
+### verify_physics
+Verify dimensional consistency of a physics equation before asserting it as fact.
+
+Call before stating "F = ma" or any equation where you claim the units match.
+
+Input: equation string, symbols dict mapping variable names to unit strings.
+Valid units: newton, joule, watt, pascal, volt, ampere, kilogram, meter, second, kelvin.
+
+Example:
+```json
+{
+  "equation": "E = m * c**2",
+  "symbols": {"E": "joule", "m": "kilogram", "c": "meter/second"}
+}
+```
+
+---
+
+### verify_physics_conservation
+Verify a conservation law holds across a physical process.
+
+Call before asserting energy, momentum, or charge is conserved in a process.
+
+Input: before dict, after dict, optional tolerance, optional law name (energy|momentum|charge|mass).
+
+Example:
+```json
+{
+  "before": {"kinetic_energy_J": 100.0, "potential_energy_J": 50.0},
+  "after":  {"kinetic_energy_J": 120.0, "potential_energy_J": 30.0},
+  "law": "energy"
+}
+```
+
+---
+
+### verify_mathematics
+Verify a mathematical claim symbolically using SymPy before asserting it as fact.
+
+Call before stating an equality, derivative, integral, limit, or solution set.
+
+check_type → required kwargs:
+- "equality"   → expr_a, expr_b, variables: ["x"]
+- "derivative" → function, variable, claimed_derivative
+- "integral"   → integrand, variable, claimed_antiderivative
+- "limit"      → function, variable, point, claimed_limit
+- "solve"      → equation, variable, claimed_solutions: ["1", "-1"]
+
+All results are exact (symbolic), not numeric.
+On MISMATCH, returns the computed correct value.
+
+Example:
+```json
+{
+  "check_type": "derivative",
+  "function": "x**3",
+  "variable": "x",
+  "claimed_derivative": "3*x**2"
+}
+```
+
+---
+
+### verify_statistics
+Verify a statistical claim before asserting it as fact.
+
+Call before stating a p-value, rejection set, or confidence interval.
+
+Provide a "check" field to select the check type:
+
+p-value: {"check": "pvalue", "test": "two_sample_t", "n1": 30, "n2": 30, "mean1": 5.2, "mean2": 4.8, "sd1": 1.1, "sd2": 0.9, "claimed_p": 0.032}
+multiple comparisons: {"check": "multiple_comparisons", "raw_p_values": [0.01, 0.04, 0.2], "method": "bonferroni", "alpha": 0.05}
+confidence interval: {"check": "confidence_interval", "estimate": 2.3, "ci_low": 1.2, "ci_high": 3.4}
+
+Supported tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z,
+two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.
+
+---
+
+### verify_cs
+Verify Python code claims before asserting them as fact.
+
+Call before asserting: "this function always terminates", "this returns X for input Y",
+"this is O(n log n)", "this function is deterministic".
+
+Input: code (str), function_name, test_cases (list of {args, expected}),
+input_generator (str expression), claimed_class ("O(n)"|"O(n log n)"|"O(n**2)"),
+claimed_space_class, determinism_trials.
+
+Provide only the inputs needed for the checks you want. Termination analysis always runs.
+
+---
+
+### verify_biology
+Verify biological experimental claims before asserting them as fact.
+
+Call before asserting: sufficient replicates, assay diversity, monotonic dose-response,
+adequate statistical power, Hardy-Weinberg equilibrium, primer Tm/GC adequacy,
+molar concentration, or Mendelian inheritance.
+
+All parameters optional. Only checks for which you supply inputs will run.
+
+---
+
+### verify_governance
+Pre-flight structural check on a DECISION_PACKET before calling validate_packet_tool.
+
+Call to confirm packet structure is valid before incurring a ledger write.
+Input: the DECISION_PACKET sub-object (not the full outer packet), optional witness_count, optional domain.
+Domains: governance | business | household | education | church.
+
+---
+
+## REST API (unauthenticated submission)
+
+Base URL: https://narrowhighway.com
+API base: https://lighthouse-production-3f9a.up.railway.app
+
+POST /submit     — submit a packet (no auth required); identical to validate_packet_tool
+POST /validate   — submit a packet (requires X-Api-Key header)
+GET  /ledger     — list recent ledger entries (?n=50&offset=0)
+GET  /ledger/{packet_id} — fetch all entries for a specific packet_id
+GET  /ledger/verify      — verify the full SHA-256 hash chain (tamper detection)
+GET  /health     — service health and ledger entry count
+GET  /docs       — full OpenAPI schema
+
+/submit example:
+```
+POST https://lighthouse-production-3f9a.up.railway.app/submit
+Content-Type: application/json
+
+{
+  "packet": { ... }    // same format as validate_packet_tool
+}
+```
+
+---
+
+## The Ledger
 
 Every packet that clears all four gates is appended to a SHA-256 chained ledger.
-Records are permanent. The chain can be verified at any time via `/ledger/verify`.
-CONFIRMED records cannot be altered or deleted.
+Records are permanent and cannot be altered. The chain can be verified at any time.
+The ledger is the product. Agents build it. Humans read it.
 
-## Layer 0 WORD source
+Ledger entry shape:
+```json
+{
+  "seq": 42,
+  "timestamp_iso": "2026-04-30T12:00:00Z",
+  "timestamp_epoch": 1746000000,
+  "packet_id": "...",
+  "domain": "governance",
+  "overall": "PASS",
+  "gate_summary": {"RED": "PASS", "FLOOR": "PASS", "BROTHERS": "PASS", "GOD": "PASS"},
+  "top_reasons": ["Decision recorded"],
+  "packet_hash": "sha256:...",
+  "prev_hash": "sha256:...",
+  "entry_hash": "sha256:..."
+}
+```
 
-The scripture verifier is grounded in:
-- Hebrew: morphhb (Westminster Leningrad Codex, OSIS XML format)
-- Greek: MorphGNT (morphologically tagged Greek NT)
+---
+
+## Scripture Layer (Layer 0)
+
+The governance verifier optionally checks scripture_anchors against the concordance database.
+
+Sources:
+- Hebrew: morphhb (Westminster Leningrad Codex, OSIS XML)
+- Greek: MorphGNT (morphologically tagged New Testament)
 - Cross-reference: Strong's lexicon (Hebrew + Greek)
 - English: World English Bible (WEB), public domain
+- Index: 300,807 Hebrew + 59,845 Greek word occurrences; 360,652 total
 
-The concordance database contains 300,807 Hebrew and 59,845 Greek word occurrences.
+---
 
-## Source and license
+## Source and License
 
 https://github.com/matharrismma/Lighthouse
 Apache License 2.0

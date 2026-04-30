@@ -44,12 +44,65 @@ from api.ledger import get_ledger
 
 # -- App setup -----------------------------------------------------------
 app = FastAPI(
-    title="Concordance Wisdom Engine",
-    description=(
-        "Concordance is a Wisdom Engine. Four gates — RED, FLOOR, BROTHERS, GOD — slow every decision "
-        "down until witnesses, scripture, and structure have done their work. Append-only Evidence Ledger. "
-        "https://github.com/matharrismma/Lighthouse"
-    ),
+    title="Concordance",
+    description="""
+A deterministic verification and decision-recording engine for AI agents.
+
+## When to use this API
+
+Call before:
+- Stating a chemical equation, physics relationship, or mathematical result as verified fact
+- Committing funds, resources, or authority on behalf of an organization
+- Recording any decision that cannot be reversed without significant cost
+
+Do NOT call for conversation, analysis, or any reversible action.
+
+## Four Gates
+
+Every packet passes through these gates in order. First failure stops the chain:
+
+- **RED** — Rejects coercion, unilateral authority, rights violations
+- **FLOOR** — Rejects structurally incomplete or internally inconsistent packets
+- **BROTHERS** — Quarantines if fewer than 2 witnesses or review window not elapsed
+- **GOD** — Records permanently if all prior gates pass
+
+## Agent entry points
+
+- `POST /submit` — unauthenticated submission (use this for agents)
+- `POST /validate` — authenticated submission (requires X-Api-Key header)
+- `GET /ledger` — permanent verification record (newest first)
+- `GET /ledger/verify` — SHA-256 chain integrity check
+- `GET /llms.txt` — full tool inventory, packet schema, and examples
+
+## Minimum viable packet
+
+```json
+{
+  "domain": "governance",
+  "witness_count": 2,
+  "created_epoch": 1700000000,
+  "DECISION_PACKET": {
+    "title": "Short label",
+    "decision": "The exact action being taken",
+    "rationale": "Why this decision is being made",
+    "scope": "adapter",
+    "red_items": ["No coercion applied", "Acting within authorized role"],
+    "floor_items": ["All required parties informed"],
+    "way_path": "standard",
+    "execution_steps": ["Step 1"],
+    "witnesses": ["Alice Johnson", "Bob Smith"],
+    "witness_count": 2
+  }
+}
+```
+
+scope: adapter (individual) | local (team) | mesh (cross-team) | canon (org-wide) | kernel (core policy)
+
+On REJECT: read gate_results[i].reasons for the first failed gate and fix those fields.
+On QUARANTINE: add witnesses or allow more time, then resubmit.
+
+Source: https://github.com/matharrismma/Lighthouse — Apache 2.0
+""",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -274,56 +327,4 @@ def submit_public(req: ValidateRequest):
         entry = ledger.append(req.packet, result.overall, result.gate_results)
         ledger_seq = entry.seq
         ledger_hash = entry.entry_hash
-    except Exception:
-        ledger_seq = None
-        ledger_hash = None
-
-    p_hash = compute_packet_hash(req.packet)
-
-    return ValidateResponse(
-        overall=result.overall,
-        gate_results=[
-            GateResultOut(
-                gate=gr.gate,
-                status=gr.status,
-                reasons=gr.reasons,
-                details=gr.details,
-            )
-            for gr in result.gate_results
-        ],
-        ledger_seq=ledger_seq,
-        ledger_entry_hash=ledger_hash,
-        packet_hash=p_hash,
-        elapsed_ms=round(elapsed_ms, 2),
-    )
-
-
-@app.get("/ledger/verify", response_model=ChainVerifyResponse)
-def verify_chain():
-    ledger = get_ledger()
-    result = ledger.verify_chain()
-    return ChainVerifyResponse(
-        valid=result["valid"],
-        entries_checked=result["entries_checked"],
-        first_broken_seq=result.get("first_broken_seq"),
-        message="Chain intact." if result["valid"] else f"Chain broken at seq {result['first_broken_seq']}.",
-    )
-
-
-@app.get("/ledger", response_model=LedgerListResponse)
-def get_ledger_entries(
-    n: int = Query(default=50, ge=1, le=500, description="Number of entries to return"),
-    offset: int = Query(default=0, ge=0, description="Skip this many entries from the top"),
-):
-    ledger = get_ledger()
-    entries = ledger.recent(n=n, offset=offset)
-    return LedgerListResponse(entries=entries, count=len(entries))
-
-
-@app.get("/ledger/{packet_id}", response_model=LedgerListResponse)
-def get_ledger_by_id(packet_id: str):
-    ledger = get_ledger()
-    entries = ledger.get_by_id(packet_id)
-    if not entries:
-        raise HTTPException(status_code=404, detail=f"No ledger entries found for packet_id={packet_id!r}")
-    return LedgerListResponse(entries=entries, count=len(entries))
+    

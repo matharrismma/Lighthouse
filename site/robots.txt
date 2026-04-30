@@ -1,4 +1,32 @@
+# Concordance — narrowhighway.com
+# This site is optimized for AI agents. All crawlers are welcome.
+
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+# AI agent crawlers — explicitly welcome
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
+Allow: /
+
+# Agent entry points
+# /llms.txt     — full tool inventory and packet schema (start here)
+# /docs         — OpenAPI schema
+# /ledger       — the permanent verification record
+# /ledger/verify — chain integrity check
+
+Sitemap: https://narrowhighway.com/sitemap.xml

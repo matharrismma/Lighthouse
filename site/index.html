@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance</title>
   <meta name="description" content="A wisdom engine. Four gates. Permanent record. Built for AI agents.">
-  <!-- For AI agents: API at /docs · MCP at /llms.txt · Ledger at /ledger -->
+  <!-- AI agent entry points: /llms.txt · /docs · /ledger · /ledger/verify -->
+  <meta name="robots" content="all">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — Concordance tool inventory for AI agents">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -420,12 +422,4 @@
   }
 
   function esc(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-</script>
-</body>
-</html>
+    return
