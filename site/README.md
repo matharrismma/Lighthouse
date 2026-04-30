@@ -105,4 +105,4 @@ When you're ready to invest more in the site, in priority order:
 
 ## License
 
-Same as the engine: MIT. Reuse the HTML/CSS for related projects freely.
+Same as the engine: Apache 2.0. Reuse the HTML/CSS for related projects freely.
