@@ -1,0 +1,109 @@
+---
+# Layer 0 — WORD (Authority Reference)
+# This is the root source layer. All domain canons and calibration
+# logic are downstream calibrations of what is declared here.
+#
+# Architecture:
+#   Layer 0a — Original languages (Hebrew / Greek / Aramaic) — immutable root
+#   Layer 0b — WEB — locked English translation, drift-prevention anchor
+#   Bridge    — Strong's concordance — triangulation key (Layer 0a ↔ Layer 0b)
+#
+# Drift is caught by triangulation:
+#   A claim must align at all three layers.
+#   Divergence at any layer = drift flagged.
+
+layer: 0
+name: WORD
+role: authority_reference
+
+sources:
+  english:
+    id: WEB
+    name: World English Bible
+    status: LOCKED            # no living translation drift; public domain
+    license: public_domain
+    origin: https://ebible.org/web/
+    provider: christos-c/bible-corpus  (raw XML → converted to SQLite by fetch_sources.py)
+    provider_url: https://raw.githubusercontent.com/christos-c/bible-corpus/master/bibles/English-WEB.xml
+    local_path: web/web.db
+    format: sqlite  (built from XML source by fetch_sources.py)
+    schema: "t_web(id, b, c, v, t)  — b=book(1-66), c=chapter, v=verse, t=text"
+    note: >
+      WEB is the locked English layer. It is not the source — it is the
+      stable English rendering of the source. Interpretation must triangulate
+      back to the original language before a claim is settled.
+
+  original_languages:
+    hebrew:
+      name: Open Scriptures Hebrew Bible (morphhb)
+      status: PRIMARY_SOURCE
+      license: public_domain
+      origin: https://github.com/openscriptures/morphhb
+      local_path: original/hebrew/
+      format: OSIS XML / per-book files
+      strongs_tagged: true
+      note: Westminster Leningrad Codex with morphological tagging and Strong's numbers.
+
+    greek:
+      name: MorphGNT / SBL Greek New Testament
+      status: PRIMARY_SOURCE
+      license: public_domain
+      origin: https://github.com/morphgnt/sblgnt
+      local_path: original/greek/
+      format: tab-separated per-book files
+      strongs_tagged: true
+      note: Morphologically parsed Greek NT. Lemmas resolve to Strong's G numbers.
+
+    aramaic:
+      note: >
+        Aramaic portions (Daniel 2:4b–7:28, Ezra 4:8–6:18, 7:12–26, Jer 10:11,
+        two words in Genesis) are embedded in the Hebrew corpus (morphhb).
+        No separate fetch required.
+
+  lexicons:
+    strongs_hebrew:
+      id: H
+      name: Strong's Hebrew Dictionary
+      license: public_domain
+      origin: https://github.com/openscriptures/strongs
+      provider_url: https://raw.githubusercontent.com/openscriptures/strongs/master/hebrew/strongs-hebrew-dictionary.js
+      local_path: original/lexicon/strongs_hebrew.json  (converted from JS by fetch_sources.py)
+      coverage: H1–H8674
+      note: >
+        Triangulation key for OT. Maps Hebrew words → semantic range.
+        Full-corpus word study via this lexicon prevents single-verse
+        interpretation drift.
+
+    strongs_greek:
+      id: G
+      name: Strong's Greek Dictionary
+      license: public_domain
+      origin: https://github.com/openscriptures/strongs
+      provider_url: https://raw.githubusercontent.com/openscriptures/strongs/master/greek/strongs-greek-dictionary.js
+      local_path: original/lexicon/strongs_greek.json  (converted from JS by fetch_sources.py)
+      coverage: G1–G5624
+      note: >
+        Triangulation key for NT. Maps Greek lemmas → semantic range.
+
+triangulation_principle: >
+  When a claim cites a scripture reference:
+    1. Resolve the WEB text (locked English)
+    2. Identify key Strong's numbers for the critical terms
+    3. Pull the original Hebrew/Greek word and its full-corpus usage
+    4. A claim survives only if it is consistent with the word's full semantic range
+       across ALL its uses in scripture — not just the one cited verse.
+  This is how drift is detected: a word being used to mean something
+  its full corpus usage does not support.
+
+authority_hierarchy:
+  1: original_languages      # immutable — the text itself
+  2: WEB                     # locked English — stable rendering
+  3: triangulation_result    # concordance-verified meaning
+  4: domain_canons           # downstream calibrations (biology, chemistry, etc.)
+  5: decision_packets        # what gets verified at runtime
+
+maintained_by: Lighthouse / Concordance Engine
+note: >
+  Scripture anchors in kernel entries (refs: ["Jn15:2", "Pr4:23"]) resolve
+  against this layer. Run triangulation/lookup.py to resolve any ref string.
+  Run triangulation/drift_check.py to verify an interpretation claim.
