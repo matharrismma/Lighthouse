@@ -1,4 +1,4 @@
-# Concordance — Hourly ledger backup to GitHub
+# Concordance -- Hourly ledger backup to GitHub
 # Registered by install_services.ps1 as Concordance-LedgerBackup (runs as SYSTEM)
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -14,24 +14,21 @@ function Log($msg) {
 
 Log "=== Ledger backup started ==="
 
-# Ensure data/ directory exists in repo
 New-Item -ItemType Directory -Force -Path "$RepoRoot\data" | Out-Null
 
-# Copy ledger into repo
 if (Test-Path $LedgerSrc) {
     Copy-Item -Path $LedgerSrc -Destination $LedgerDest -Force
     $lines = (Get-Content $LedgerDest | Measure-Object -Line).Lines
-    Log "Copied ledger ($lines entries) → $LedgerDest"
+    Log "Copied ledger ($lines entries) -> $LedgerDest"
 } else {
-    Log "No ledger found at $LedgerSrc — skipping"
+    Log "No ledger found at $LedgerSrc -- skipping"
     exit 0
 }
 
-# Git commit and push
 Set-Location $RepoRoot
 $changed = git status --porcelain data/ledger.jsonl
 if (-not $changed) {
-    Log "No changes — nothing to commit"
+    Log "No changes -- nothing to commit"
     exit 0
 }
 
@@ -43,7 +40,7 @@ git push 2>&1 | ForEach-Object { Log $_ }
 if ($LASTEXITCODE -eq 0) {
     Log "Push succeeded"
 } else {
-    Log "Push failed (exit $LASTEXITCODE) — will retry next hour"
+    Log "Push failed (exit $LASTEXITCODE) -- will retry next hour"
 }
 
 Log "=== Backup complete ==="
