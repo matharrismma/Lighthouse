@@ -205,7 +205,8 @@ def verify_computer_science(code, function_name=None, test_cases=None,
 
 def verify_biology(n_replicates=None, min_replicates=3, assay_classes=None,
                     min_assay_classes=2, dose_response=None, power_analysis=None,
-                    *, hardy_weinberg=None, primer=None, molarity=None, mendelian=None):
+                    *, bio_control=None, hardy_weinberg=None, primer=None,
+                    molarity=None, mendelian=None):
     spec = {}
     if n_replicates is not None:
         spec["n_replicates"] = n_replicates
@@ -225,7 +226,10 @@ def verify_biology(n_replicates=None, min_replicates=3, assay_classes=None,
         spec["molarity"] = molarity
     if mendelian is not None:
         spec["mendelian"] = mendelian
-    results = biology.run({"BIO_VERIFY": spec})
+    packet = {"BIO_VERIFY": spec}
+    if bio_control is not None:
+        packet["BIO_CONTROL"] = bio_control
+    results = biology.run(packet)
     return {"checks": [_r(r) for r in results]}
 
 
@@ -392,7 +396,14 @@ TOOLS: List[Dict[str, Any]] = [
         determinism_trials=a.get("determinism_trials"),
         claimed_space_class=a.get("claimed_space_class"))},
     {"name": "verify_biology",
-     "description": "Biology checks: replicates, assays, dose-response, power, Hardy-Weinberg, primer Tm/GC, molarity, Mendelian.",
+     "description": (
+         "Biology checks: replicates, assays, dose-response, power, Hardy-Weinberg, "
+         "primer Tm/GC, molarity, Mendelian. "
+         "Pass bio_control dict to verify nested health control system claims: "
+         "failure_mode (setpoint_drift|loop_saturation|compensation_collapse|"
+         "cross_layer_override|sensor_failure), failure_layer (L1-L6), "
+         "intervention_layers, and required safety fields."
+     ),
      "inputSchema": {"type": "object",
                      "properties": {"n_replicates": {"type": "integer"},
                                     "min_replicates": {"type": "integer"},
@@ -400,6 +411,7 @@ TOOLS: List[Dict[str, Any]] = [
                                     "min_assay_classes": {"type": "integer"},
                                     "dose_response": {"type": "object"},
                                     "power_analysis": {"type": "object"},
+                                    "bio_control": {"type": "object"},
                                     "hardy_weinberg": {"type": "object"},
                                     "primer": {"type": "object"},
                                     "molarity": {"type": "object"},
@@ -408,6 +420,7 @@ TOOLS: List[Dict[str, Any]] = [
         a.get("n_replicates"), a.get("min_replicates", 3),
         a.get("assay_classes"), a.get("min_assay_classes", 2),
         a.get("dose_response"), a.get("power_analysis"),
+        bio_control=a.get("bio_control"),
         hardy_weinberg=a.get("hardy_weinberg"), primer=a.get("primer"),
         molarity=a.get("molarity"), mendelian=a.get("mendelian"))},
     {"name": "verify_governance_decision_packet",
