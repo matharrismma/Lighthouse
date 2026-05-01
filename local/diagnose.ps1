@@ -9,7 +9,6 @@ Write-Host ""
 Write-Host "=== Concordance Diagnostics ===" -ForegroundColor Cyan
 Write-Host ""
 
-# 1. cloudflared.exe
 Write-Host "--- cloudflared.exe ---" -ForegroundColor Yellow
 if (Test-Path $Cloudflared) {
     $ver = & $Cloudflared --version 2>&1
@@ -20,7 +19,6 @@ if (Test-Path $Cloudflared) {
     Write-Host "  Fix: run .\local\setup.ps1 as Administrator to download it" -ForegroundColor Yellow
 }
 
-# 2. Cloudflared Windows Service
 Write-Host ""
 Write-Host "--- Cloudflared Windows Service ---" -ForegroundColor Yellow
 $svc = Get-Service "Cloudflared" -ErrorAction SilentlyContinue
@@ -32,7 +30,6 @@ if ($null -eq $svc) {
     Write-Host "  DisplayName: $($svc.DisplayName)" -ForegroundColor Gray
 }
 
-# 3. Recent cloudflared event log errors
 Write-Host ""
 Write-Host "--- Windows Event Log (cloudflared, last 5 errors) ---" -ForegroundColor Yellow
 $events = Get-EventLog -LogName Application -Source "*cloudflared*" -EntryType Error,Warning -Newest 5 -ErrorAction SilentlyContinue
@@ -44,7 +41,6 @@ if ($events) {
     Write-Host "  No cloudflared errors in Application log" -ForegroundColor Gray
 }
 
-# 4. Concordance-API scheduled task
 Write-Host ""
 Write-Host "--- Concordance-API Task Scheduler ---" -ForegroundColor Yellow
 $task = Get-ScheduledTask "Concordance-API" -ErrorAction SilentlyContinue
@@ -57,7 +53,6 @@ if ($null -eq $task) {
     Write-Host "  LastResult:   $($info.LastTaskResult)" -ForegroundColor $(if ($info.LastTaskResult -eq 0) {"Green"} else {"Red"})
 }
 
-# 5. Port 8000
 Write-Host ""
 Write-Host "--- Port 8000 (API server) ---" -ForegroundColor Yellow
 $port = netstat -ano 2>$null | Select-String ":8000"
@@ -68,13 +63,11 @@ if ($port) {
     Write-Host "  NOT IN USE (API server is NOT running)" -ForegroundColor Red
 }
 
-# 6. Quick API health check
 Write-Host ""
 Write-Host "--- API Health (localhost:8000) ---" -ForegroundColor Yellow
 $health = try { (Invoke-RestMethod http://localhost:8000/health -TimeoutSec 3).status } catch { "UNREACHABLE" }
 Write-Host "  /health: $health" -ForegroundColor $(if ($health -eq "ok") {"Green"} else {"Red"})
 
-# 7. Check C:\Concordance folder
 Write-Host ""
 Write-Host "--- C:\Concordance\ contents ---" -ForegroundColor Yellow
 if (Test-Path "C:\Concordance") {
