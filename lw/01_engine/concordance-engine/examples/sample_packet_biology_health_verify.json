@@ -1,0 +1,59 @@
+{
+  "_comment": "Example: Type 2 diabetes treated as a nested control systems failure.",
+  "_comment2": "Failure mode: cross_layer_override — chronic stress (L4/L6) drives insulin resistance (L3).",
+  "_comment3": "Correct intervention plan addresses ALL relevant layers (L3 + L4 + L5 + L6).",
+
+  "domain": "biology",
+  "id": "bio-health-001",
+  "scope": "adapter",
+  "created_epoch": 1746000000,
+  "required_witnesses": 1,
+  "witness_count": 1,
+
+  "claim": "Type 2 diabetes remission requires a multi-layer intervention that addresses the cross_layer_override driving insulin resistance, not pharmacology alone.",
+
+  "BIO_RED": {
+    "conservation": {
+      "mass_balance": true,
+      "charge_balance": true,
+      "energy_budget": true
+    },
+    "second_law_satisfied": true,
+    "causality": {
+      "mechanism_specified": true,
+      "mechanism_detail": "Chronic cortisol elevation (L4 HPA axis) suppresses GLUT4 translocation (L2 cellular) and drives hepatic glucose output (L3 organ), overwhelming pancreatic compensation until beta-cell exhaustion. Environmental food access and occupational stress (L6) sustain the cortisol load."
+    }
+  },
+
+  "BIO_CONTROL": {
+    "failure_mode": "cross_layer_override",
+    "failure_layer": "L4",
+    "intervention_layers": ["L1", "L3", "L4", "L5", "L6"],
+    "upper_layer_driver_addressed": true,
+    "upper_layer_driver_detail": "HPA axis dysregulation (L4) driven by chronic occupational stress + poor sleep (L5) + adverse food environment (L6). Intervention plan includes structured sleep protocol (L5), stress-reduction program (L4), dietary environment redesign (L6), alongside metformin (L1) and insulin sensitization (L3).",
+    "intervention_plan": {
+      "L1_molecular": "metformin (AMPK activation, hepatic glucose suppression)",
+      "L3_organ": "GLP-1 agonist (incretin effect, beta-cell rest, partial setpoint reset)",
+      "L4_whole_body": "circadian rhythm restoration via structured sleep + light therapy; HPA axis adaptogenic support",
+      "L5_behavioral": "structured resistance exercise (GLUT4 upregulation), dietary pattern change (Mediterranean), sleep hygiene",
+      "L6_social_environmental": "food environment audit; occupational stress reduction; social support network"
+    },
+    "rationale": "Pharmacology alone (L1/L3) addresses the actuator failure but not the upper-layer cortisol override. Without resolving L4/L5/L6 drivers, drug tolerance and relapse are expected within 12-18 months per setpoint defense mechanism."
+  },
+
+  "BIO_VERIFY": {
+    "n_replicates": 3,
+    "min_replicates": 3,
+    "assay_classes": ["HbA1c_trajectory", "fasting_insulin", "HOMA-IR", "cortisol_diurnal"],
+    "min_assay_classes": 2
+  },
+
+  "refs": ["Romans 8:20-22", "Colossians 1:16-17"],
+
+  "artifacts": {
+    "protocol_id": "PROT-T2D-NESTED-001",
+    "canon_module": "biology/modules/systems_biology_control.yaml",
+    "module_version": "1.1",
+    "failure_mode_ref": "chronic_disease_failure_modes.cross_layer_override"
+  }
+}
