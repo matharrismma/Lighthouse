@@ -1,13 +1,13 @@
 """
 concordance_engine/gates.py — Four-gate validation pipeline.
 
-Gates run in order: RED → FLOOR → BROTHERS → GOD
+Gates run in order: RED \u2192 FLOOR \u2192 BROTHERS \u2192 GOD
 First gate to fail determines the overall verdict.
 
-RED      → REJECT   (hard violations: deception, exploitation, logical impossibility)
-FLOOR    → REJECT   (minimum rigour not met)
-BROTHERS → QUARANTINE (insufficient witnesses or wait period not elapsed)
-GOD      → PASS     (all gates cleared)
+RED      \u2192 REJECT   (hard violations: deception, exploitation, logical impossibility)
+FLOOR    \u2192 REJECT   (minimum rigour not met)
+BROTHERS \u2192 QUARANTINE (insufficient witnesses or wait period not elapsed)
+GOD      \u2192 PASS     (all gates cleared)
 """
 from __future__ import annotations
 
@@ -25,29 +25,29 @@ from .verifiers import chemistry, physics, mathematics, statistics, computer_sci
 
 _RED_PATTERNS = [
     # (pattern, category, description)
-    (r"\bpretend(?:ing|ed|s)?\b.{0,60}\b(?:customer|client|employee|user|member|student)s?\b",
+    (r"\\bpretend(?:ing|ed|s)?\\b.{0,60}\\b(?:customer|client|employee|user|member|student)s?\\b",
      "deception", "Deception: false identity or fake testimonials"),
-    (r"\bfabricat(?:e|ed|ing|es)\b.{0,40}\b(?:testimonial|review|data|result|evidence)s?\b",
+    (r"\\bfabricat(?:e|ed|ing|es)\\b.{0,40}\\b(?:testimonial|review|data|result|evidence)s?\\b",
      "deception", "Deception: fabricated data or testimonials"),
-    (r"\bfake\s+testimonial",
+    (r"\\bfake\\s+testimonial",
      "deception", "Deception: fake testimonials"),
-    (r"\bdeceiv(?:e|ed|ing|es)\b",
+    (r"\\bdeceiv(?:e|ed|ing|es)\\b",
      "deception", "Deception: active deception"),
-    (r"\bexploit\b.{0,40}\b(?:captive|audience|vulnerable|worker|employee|tenant|student|client)\b",
+    (r"\\bexploit\\b.{0,40}\\b(?:captive|audience|vulnerable|worker|employee|tenant|student|client)\\b",
      "exploitation", "Exploitation: exploiting a captive or vulnerable population"),
-    (r"\bpredatory\b.{0,40}\b(?:lend|loan|pric|term|practic)\w*",
+    (r"\\bpredatory\\b.{0,40}\\b(?:lend|loan|pric|term|practic)\\w*",
      "exploitation", "Exploitation: predatory lending or pricing"),
-    (r"\busury\b",
+    (r"\\busury\\b",
      "exploitation", "Exploitation: usury"),
-    (r"\bcoerce\b",
+    (r"\\bcoerce\\b",
      "coercion", "Coercion: coercive practice"),
-    (r"\bmandatory\s+surveillance\b",
+    (r"\\bmandatory\\s+surveillance\\b",
      "coercion", "Coercion: mandatory surveillance as control mechanism"),
-    (r"\bhide\b.{0,30}\bfinancial\b|\bstop\s+publish\w*\b.{0,40}\bfinancial\b",
+    (r"\\bhide\\b.{0,30}\\bfinancial\\b|\\bstop\\s+publish\\w*\\b.{0,40}\\bfinancial\\b",
      "accountability", "Accountability: concealing financial information"),
-    (r"\blast\?\s*vest\b|\blabel(?:ed|led)?\s+(?:DISRUPTIVE|PROBLEM|BAD)",
+    (r"\\blast?\\s*vest\\b|\\blabel(?:ed|led)?\\s+(?:DISRUPTIVE|PROBLEM|BAD)",
      "identity_branding", "Identity branding: shame-based labeling of individuals"),
-    (r"\bwear\s+a\s+vest\b.{0,60}\blabel\w*\b|\bvest\b.{0,30}\blabel\w*\b",
+    (r"\\bwear\\s+a\\s+vest\\b.{0,60}\\blabel\\w*\\b|\\bvest\\b.{0,30}\\blabel\\w*\\b",
      "identity_branding", "Identity branding: public shame-vest or label"),
 ]
 
@@ -70,7 +70,7 @@ def _is_negated(text: str, match_start: int, window: int = 6) -> bool:
     )
     clause_start = last_punct + 1 if last_punct >= 0 else 0
     clause = before[clause_start:]
-    tokens = re.findall(r"\b\w+\b", clause)
+    tokens = re.findall(r"\\b\\w+\\b", clause)
     context = tokens[-window:]
     return any(t.lower() in _NEGATION_WORDS for t in context)
 
@@ -170,23 +170,68 @@ def _red_chemistry(packet: dict) -> List[str]:
 def _red_biology(packet: dict) -> List[str]:
     reasons = []
     bio_red = packet.get("BIO_RED") or {}
-    if not bio_red:
-        return reasons  # flat packet — pass
+    if bio_red:
+        conservation = bio_red.get("conservation") or {}
+        if conservation.get("mass_balance") is False:
+            reasons.append("BIO_RED: mass balance violated")
+        if conservation.get("charge_balance") is False:
+            reasons.append("BIO_RED: charge balance violated")
+        if conservation.get("energy_budget") is False:
+            reasons.append("BIO_RED: energy budget violated")
 
-    conservation = bio_red.get("conservation") or {}
-    if conservation.get("mass_balance") is False:
-        reasons.append("BIO_RED: mass balance violated")
-    if conservation.get("charge_balance") is False:
-        reasons.append("BIO_RED: charge balance violated")
-    if conservation.get("energy_budget") is False:
-        reasons.append("BIO_RED: energy budget violated")
+        if bio_red.get("second_law_satisfied") is False:
+            reasons.append("BIO_RED: second law of thermodynamics violated")
 
-    if bio_red.get("second_law_satisfied") is False:
-        reasons.append("BIO_RED: second law of thermodynamics violated")
+        causality = bio_red.get("causality") or {}
+        if causality.get("mechanism_specified") is False:
+            reasons.append("BIO_RED: causality mechanism not specified")
 
-    causality = bio_red.get("causality") or {}
-    if causality.get("mechanism_specified") is False:
-        reasons.append("BIO_RED: causality mechanism not specified")
+    # \u2500\u2500 Nested health control RED checks (BIO_CONTROL block) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    bio_ctrl = packet.get("BIO_CONTROL") or {}
+    if bio_ctrl:
+        failure_mode = str(bio_ctrl.get("failure_mode", "")).lower()
+        intervention_layers = [str(l).upper() for l in bio_ctrl.get("intervention_layers", [])]
+        failure_layer = str(bio_ctrl.get("failure_layer", "")).upper()
+
+        _layer_order = {"L1": 1, "L2": 2, "L3": 3, "L4": 4, "L5": 5, "L6": 6}
+
+        # cross_layer_override: upper driver must be addressed
+        if failure_mode == "cross_layer_override":
+            if bio_ctrl.get("upper_layer_driver_addressed") is not True:
+                reasons.append(
+                    "BIO_CONTROL: cross_layer_override failure declared but "
+                    "upper_layer_driver_addressed is not True — single-loop intervention "
+                    "will not hold; upper-layer driver must be addressed"
+                )
+
+        # setpoint_drift: mechanism must be stated
+        if failure_mode == "setpoint_drift":
+            if bio_ctrl.get("setpoint_shift_mechanism_stated") is not True:
+                reasons.append(
+                    "BIO_CONTROL: setpoint_drift failure declared but "
+                    "setpoint_shift_mechanism_stated is not True — the biological "
+                    "mechanism driving the setpoint change must be identified"
+                )
+
+        # sensor_failure: recalibration plan required
+        if failure_mode == "sensor_failure":
+            if bio_ctrl.get("sensor_recalibration_plan") is not True:
+                reasons.append(
+                    "BIO_CONTROL: sensor_failure declared but sensor_recalibration_plan "
+                    "is not True — without restoring the sensing mechanism the control "
+                    "loop cannot close"
+                )
+
+        # layer mismatch: all interventions below failure layer
+        if failure_layer and intervention_layers and failure_layer in _layer_order:
+            fl_rank = _layer_order[failure_layer]
+            il_ranks = [_layer_order.get(il, 0) for il in intervention_layers]
+            if il_ranks and max(il_ranks) < fl_rank:
+                reasons.append(
+                    f"BIO_CONTROL: all intervention layers {intervention_layers} are below "
+                    f"failure layer {failure_layer} — upper-layer drivers will remain "
+                    f"unaddressed and the lower-loop intervention will not hold"
+                )
 
     return reasons
 
@@ -204,7 +249,7 @@ def _red_biology_measurement(packet: dict) -> List[str]:
     if bio_meas.get("decision_grade_claim"):
         assay_classes = bio_meas.get("orthogonal_assay_classes", [])
         if len(set(assay_classes)) < 2:
-            reasons.append("BIO_MEASUREMENT: decision-grade claim requires ≥2 orthogonal assay classes")
+            reasons.append("BIO_MEASUREMENT: decision-grade claim requires \u22652 orthogonal assay classes")
 
     return reasons
 
