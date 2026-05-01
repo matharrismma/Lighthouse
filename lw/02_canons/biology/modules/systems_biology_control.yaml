@@ -1,7 +1,7 @@
 module:
   id: systems_biology_control
-  name: Systems Biology + Control — Networks, Feedback, Homeostasis
-  version: '1.0'
+  name: Systems Biology + Control — Networks, Feedback, Homeostasis, Health
+  version: '1.1'
   status: CANONICAL
   authority_inheritance:
   - RED
@@ -29,6 +29,102 @@ ontology:
     fast: seconds-minutes (binding/signaling)
     medium: minutes-hours (translation)
     slow: hours-days (transcription/adaptation)
+    chronic: weeks-years (epigenetic/structural remodeling)
+
+nested_health_hierarchy:
+  description: >
+    The body is a nested stack of control loops. Each layer has its own
+    sensor, comparator, setpoint, and actuator. Upper layers can override
+    or reset the setpoints of lower layers. Health is maintained when all
+    loops operate within their designed ranges; chronic disease is a
+    persistent failure of one or more loops in this hierarchy.
+  layers:
+    L1_molecular:
+      timescale: seconds-minutes
+      sensors: receptors, allosteric sites, second messengers
+      actuators: kinases, phosphatases, metabolic enzymes
+      setpoint_example: intracellular ATP/ADP ratio
+      failure_example: mitochondrial dysfunction, enzyme saturation
+    L2_cellular:
+      timescale: minutes-hours
+      sensors: surface receptors, voltage gates, gap junctions
+      actuators: gene expression, secretion, apoptosis signals
+      setpoint_example: cell redox state, intracellular pH
+      failure_example: insulin receptor desensitization, senescence
+    L3_organ_tissue:
+      timescale: hours-days
+      sensors: baroreceptors, chemoreceptors, stretch receptors, immune cells
+      actuators: hormones, neurotransmitters, cytokines, paracrine signals
+      setpoint_example: blood glucose (pancreas), blood pressure (kidney/vasculature)
+      failure_example: beta-cell exhaustion, glomerular hyperfiltration
+    L4_whole_body:
+      timescale: hours-days
+      sensors: hypothalamus, brainstem nuclei, HPA axis, autonomic nervous system
+      actuators: cortisol, insulin, leptin, thyroid hormones, ANS tone
+      setpoint_example: body temperature, plasma osmolality, energy balance
+      failure_example: leptin resistance, HPA axis dysregulation, allostatic load
+    L5_behavioral:
+      timescale: days-weeks
+      sensors: hunger/satiety signals, pain, fatigue, affect
+      actuators: conscious choices (eating, sleeping, exercise, avoidance)
+      setpoint_example: sleep duration, physical activity level
+      failure_example: reward-pathway override of satiety, chronic sleep debt
+    L6_social_environmental:
+      timescale: months-years
+      sensors: social feedback, economic pressure, cultural norms
+      actuators: built environment, food access, stress exposure, social support
+      setpoint_example: chronic stress load, dietary pattern stability
+      failure_example: adverse childhood experiences resetting HPA setpoint for life
+
+chronic_disease_failure_modes:
+  setpoint_drift:
+    description: The loop's reference value shifts persistently — the body defends
+      the wrong target
+    mechanism: repeated overstimulation, allostatic remodeling, epigenetic locking
+    examples:
+    - hypertension (blood pressure setpoint elevated via RAAS remodeling)
+    - obesity (leptin resistance raises defended body weight)
+    - chronic pain (central sensitization lowers pain threshold)
+    diagnostic_flag: intervention corrects acutely but effect fades; setpoint not
+      moved
+  loop_saturation:
+    description: An actuator reaches its output ceiling and cannot increase further
+    mechanism: receptor downregulation, effector exhaustion, substrate depletion
+    examples:
+    - type 2 diabetes (pancreatic beta-cell exhaustion after chronic overdemand)
+    - adrenal fatigue pattern (cortisol output ceiling after chronic HPA overdrive)
+    diagnostic_flag: biomarker of effector output drops despite continued high demand
+  compensation_collapse:
+    description: Redundant compensatory loops masked the primary failure; collapse
+      occurs when compensation capacity is exhausted
+    mechanism: multiple loops run above capacity simultaneously; reserve depleted
+    examples:
+    - heart failure (cardiac remodeling masks declining output until decompensation)
+    - metabolic syndrome (multiple compensatory loops fail together)
+    diagnostic_flag: sudden nonlinear deterioration after years of apparent stability
+  cross_layer_override:
+    description: An upper-layer loop continuously resets the setpoint of a lower-layer
+      loop, preventing the lower loop from reaching its intended target
+    mechanism: sustained upper-layer signal (stress, behavior, environment) dominates
+      the lower-layer error signal
+    examples:
+    - chronic stress (L4/L6 cortisol elevation drives L3 insulin resistance)
+    - sleep deprivation (L5 behavior disrupts L4 hormonal rhythms, dysregulates L3
+      glucose control)
+    - adverse built environment (L6 food access overrides L5 dietary intentions)
+    diagnostic_flag: lower-loop intervention (drug, diet) fails to hold without
+      addressing the overriding upper loop
+  sensor_failure:
+    description: The loop's sensing mechanism becomes uncalibrated or silent,
+      so the comparator never detects the error
+    mechanism: receptor desensitization, afferent nerve damage, inflammatory noise
+    examples:
+    - peripheral neuropathy (pain sensor loss in diabetes allows tissue damage)
+    - interoception deficits (hunger/satiety signals lost in eating disorders)
+    - baroreceptor resetting (adapts to sustained high BP, stops flagging it)
+    diagnostic_flag: loss of normal symptom response to a perturbation that should
+      produce a clear signal
+
 way:
   homeostasis_lane:
     rule: stable phenotype typically requires negative feedback (integral-like control
@@ -37,6 +133,60 @@ way:
     rule: delays + negative feedback can yield oscillations
   robustness_lane:
     rule: robustness implies compensation; single perturbations may fail
+  nesting_lane:
+    rule: upper layers reset lower-layer setpoints; treat the override first or the
+      lower-loop fix will not hold
+  chronic_disease_lane:
+    rule: chronic disease is a stable but pathological attractor in the nested system;
+      single-target drugs fail when the upper-loop driver is unaddressed
+  intervention_layer_matching:
+    rule: map every proposed intervention to its target layer; if the disease-driving
+      failure is at L5/L6 (behavior/environment), molecular-level drugs are palliative
+      at best
+  setpoint_vs_gain_rule:
+    rule: distinguish setpoint error (defended wrong value) from gain error (loop
+      too weak/strong); same symptom, different fix
+
+health_interventions:
+  target_L1_molecular:
+    examples:
+    - enzyme inhibitors (statins, ACE inhibitors)
+    - receptor agonists/antagonists (beta blockers, GLP-1 agonists)
+    - metabolic substrate manipulation (ketogenic diet at the cellular level)
+    limitation: compensatory loops often restore the defended setpoint
+  target_L2_cellular:
+    examples:
+    - SGLT2 inhibitors (alter cellular glucose handling)
+    - senolytic therapy (clear senescent cells)
+    - metformin (AMPK activation, mitochondrial Complex I)
+    limitation: effective if cellular dysfunction is the primary loop; not if
+      upper-layer override is dominant
+  target_L3_organ:
+    examples:
+    - dialysis (replacing failed renal control)
+    - insulin therapy (replacing exhausted beta-cell output)
+    - antihypertensives (forcing vascular actuator)
+    limitation: replaces/forces the actuator but does not fix the setpoint
+  target_L4_whole_body:
+    examples:
+    - thyroid hormone replacement
+    - circadian rhythm entrainment (light therapy, melatonin timing)
+    - HPA axis modulation (adaptogenic protocols)
+    limitation: requires sustained intervention; setpoint drift may require years
+      to reverse
+  target_L5_behavioral:
+    examples:
+    - structured exercise (resensitizes insulin, resets leptin)
+    - sleep hygiene protocols (restores hormonal rhythms)
+    - dietary pattern change (not single nutrients — the whole loop pattern)
+    limitation: high failure rate without addressing L6 drivers
+  target_L6_social_environmental:
+    examples:
+    - food environment redesign
+    - chronic stress reduction (social support, ACE mitigation)
+    - built environment changes (walkability, food access)
+    limitation: hardest to change; most durable when achieved
+
 diagnostics:
 - id: drug_effect_fades
   trigger: acute_effect_present_then_fades == true
@@ -52,6 +202,45 @@ diagnostics:
   - map delays
   - identify negative feedback loop
   - fit simple ODE model
+- id: chronic_drug_tolerance
+  trigger: drug_effective_acutely == true and chronic_effect_attenuates == true
+  diagnosis: SETPOINT_DEFENDED_OR_RECEPTOR_DOWNREGULATION
+  action:
+  - identify which loop setpoint is being defended
+  - measure compensatory upstream signals
+  - assess whether upper-layer override (L4-L6) is present
+  - consider setpoint-shifting intervention alongside drug
+- id: treatment_fails_without_lifestyle
+  trigger: pharmacological_intervention == true and outcome_inadequate == true
+    and behavioral_drivers_unaddressed == true
+  diagnosis: CROSS_LAYER_OVERRIDE_L5_OR_L6
+  action:
+  - map behavioral and environmental inputs to the failing loop
+  - address L5 (behavior) or L6 (environment) driver first
+  - reassess pharmacology once upper-layer load is reduced
+- id: sudden_decompensation_after_stability
+  trigger: years_stable == true and acute_deterioration == true
+  diagnosis: COMPENSATION_COLLAPSE
+  action:
+  - identify which compensatory loops were running above capacity
+  - treat as multi-system failure not single-organ failure
+  - do not anchor on the presenting organ alone
+- id: intervention_works_then_weight_regains
+  trigger: weight_loss_achieved == true and weight_regain_over_months == true
+  diagnosis: DEFENDED_SETPOINT_NOT_MOVED (leptin/hypothalamic L4 loop)
+  action:
+  - assess leptin sensitivity
+  - evaluate sleep and circadian rhythm quality
+  - address chronic stress load before repeating caloric restriction
+  - consider GLP-1 axis (resets L4 setpoint more durably)
+- id: symptom_absent_despite_tissue_damage
+  trigger: expected_symptom_absent == true and objective_damage_confirmed == true
+  diagnosis: SENSOR_FAILURE_OR_AFFERENT_LOSS
+  action:
+  - assess peripheral sensation (neuropathy screening)
+  - evaluate interoceptive awareness
+  - do not use symptom absence as evidence of treatment success
+
 interfaces:
   PHYS_CONSTRAINTS:
     fields:
@@ -61,3 +250,14 @@ interfaces:
     fields:
     - control_design
     - stability_margins
+  BIOCHEMISTRY_METABOLISM:
+    fields:
+    - ATP_budget
+    - redox_state
+    - metabolic_flux
+    note: L1/L2 loop failures are often metabolic; cross-check with biochemistry_metabolism
+      module
+  CLINICAL_APPLICATION:
+    note: nested_health_hierarchy and chronic_disease_failure_modes are the bridge
+      between molecular biology and clinical reasoning; Concordance packets touching
+      chronic disease should route through this module
