@@ -73,4 +73,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("networking", "network"):
         from .networking import NetworkingValidator
         return NetworkingValidator()
+    if domain in ("electrical", "electrical_engineering"):
+        from .electrical import ElectricalValidator
+        return ElectricalValidator()
     return None
