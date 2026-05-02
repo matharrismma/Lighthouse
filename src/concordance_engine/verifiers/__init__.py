@@ -1,75 +1,107 @@
-"""Verifier registry — domain -> verifier module mapping."""
-from . import (
-    chemistry, physics, statistics, mathematics, computer_science, biology,
-    governance, scripture, linguistics, genetics, agriculture, formal_logic,
-    nutrition, cryptography, exercise_science, manufacturing, finance,
-    astronomy, calendar_time, networking, electrical, acoustics, optics,
-    geology, information_theory, document_validation,
-    music_theory, number_theory, geography,
-    combinatorics, geometry, meteorology,
-    hydrology, photography, sports_analytics,
-    witness,
-)
+"""Verifier registry — lazy domain → module mapping.
+
+Cold-start optimization: verifier modules are imported on first use,
+not at package load. This matters because some modules pull heavy
+scientific libraries (scipy.stats ≈ 1s, sympy ≈ 0.5s) that aren't
+needed unless a packet actually exercises those domains.
+
+Public API is unchanged for the only known consumer (`run_for_domain`).
+The `VERIFIERS` dict's values are now module-path strings rather than
+module objects; the resolver in `_get_module()` imports them lazily and
+caches the result. Direct submodule imports (`from concordance_engine
+.verifiers import chemistry`) still work — they just trigger that
+module's load on demand.
+"""
+from __future__ import annotations
+
+import importlib
+from types import ModuleType
+from typing import Dict, Optional
+
+# Cross-cutting verifiers run on every packet and are small enough that
+# eager loading costs nothing meaningful. Scripture's no-anchor short-
+# circuit makes per-call overhead negligible.
+from . import scripture
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
-VERIFIERS = {
-    "chemistry": chemistry,
-    "physics": physics,
-    "statistics": statistics,
-    "mathematics": mathematics,
-    "computer_science": computer_science,
-    "cs": computer_science,
-    "biology": biology,
-    "governance": governance,
-    "business": governance,
-    "household": governance,
-    "education": governance,
-    "church": governance,
-    "linguistics": linguistics,
-    "genetics": genetics,
-    "agriculture": agriculture,
-    "formal_logic": formal_logic,
-    "logic": formal_logic,
-    "nutrition": nutrition,
-    "cryptography": cryptography,
-    "cryptology": cryptography,
-    "exercise_science": exercise_science,
-    "exercise": exercise_science,
-    "manufacturing": manufacturing,
-    "finance": finance,
-    "astronomy": astronomy,
-    "calendar_time": calendar_time,
-    "calendar": calendar_time,
-    "time": calendar_time,
-    "networking": networking,
-    "network": networking,
-    "electrical": electrical,
-    "electrical_engineering": electrical,
-    "acoustics": acoustics,
-    "optics": optics,
-    "geology": geology,
-    "earth_science": geology,
-    "information_theory": information_theory,
-    "info_theory": information_theory,
-    "document_validation": document_validation,
-    "doc_validation": document_validation,
-    "music_theory": music_theory,
-    "music": music_theory,
-    "number_theory": number_theory,
-    "geography": geography,
-    "combinatorics": combinatorics,
-    "geometry": geometry,
-    "meteorology": meteorology,
-    "weather": meteorology,
-    "hydrology": hydrology,
-    "water": hydrology,
-    "photography": photography,
-    "photo": photography,
-    "sports_analytics": sports_analytics,
-    "sports": sports_analytics,
-    "witness": witness,
-    "testimony": witness,
+
+# Domain name (canonical or alias) → fully qualified module path.
+# Modules are imported on demand by `_get_module`.
+VERIFIERS: Dict[str, str] = {
+    "chemistry":            "concordance_engine.verifiers.chemistry",
+    "physics":              "concordance_engine.verifiers.physics",
+    "statistics":           "concordance_engine.verifiers.statistics",
+    "mathematics":          "concordance_engine.verifiers.mathematics",
+    "computer_science":     "concordance_engine.verifiers.computer_science",
+    "cs":                   "concordance_engine.verifiers.computer_science",
+    "biology":              "concordance_engine.verifiers.biology",
+    "governance":           "concordance_engine.verifiers.governance",
+    "business":             "concordance_engine.verifiers.governance",
+    "household":            "concordance_engine.verifiers.governance",
+    "education":            "concordance_engine.verifiers.governance",
+    "church":               "concordance_engine.verifiers.governance",
+    "linguistics":          "concordance_engine.verifiers.linguistics",
+    "genetics":             "concordance_engine.verifiers.genetics",
+    "agriculture":          "concordance_engine.verifiers.agriculture",
+    "formal_logic":         "concordance_engine.verifiers.formal_logic",
+    "logic":                "concordance_engine.verifiers.formal_logic",
+    "nutrition":            "concordance_engine.verifiers.nutrition",
+    "cryptography":         "concordance_engine.verifiers.cryptography",
+    "cryptology":           "concordance_engine.verifiers.cryptography",
+    "exercise_science":     "concordance_engine.verifiers.exercise_science",
+    "exercise":             "concordance_engine.verifiers.exercise_science",
+    "manufacturing":        "concordance_engine.verifiers.manufacturing",
+    "finance":              "concordance_engine.verifiers.finance",
+    "astronomy":            "concordance_engine.verifiers.astronomy",
+    "calendar_time":        "concordance_engine.verifiers.calendar_time",
+    "calendar":             "concordance_engine.verifiers.calendar_time",
+    "time":                 "concordance_engine.verifiers.calendar_time",
+    "networking":           "concordance_engine.verifiers.networking",
+    "network":              "concordance_engine.verifiers.networking",
+    "electrical":           "concordance_engine.verifiers.electrical",
+    "electrical_engineering": "concordance_engine.verifiers.electrical",
+    "acoustics":            "concordance_engine.verifiers.acoustics",
+    "optics":               "concordance_engine.verifiers.optics",
+    "geology":              "concordance_engine.verifiers.geology",
+    "earth_science":        "concordance_engine.verifiers.geology",
+    "information_theory":   "concordance_engine.verifiers.information_theory",
+    "info_theory":          "concordance_engine.verifiers.information_theory",
+    "document_validation":  "concordance_engine.verifiers.document_validation",
+    "doc_validation":       "concordance_engine.verifiers.document_validation",
+    "music_theory":         "concordance_engine.verifiers.music_theory",
+    "music":                "concordance_engine.verifiers.music_theory",
+    "number_theory":        "concordance_engine.verifiers.number_theory",
+    "geography":            "concordance_engine.verifiers.geography",
+    "combinatorics":        "concordance_engine.verifiers.combinatorics",
+    "geometry":             "concordance_engine.verifiers.geometry",
+    "meteorology":          "concordance_engine.verifiers.meteorology",
+    "weather":              "concordance_engine.verifiers.meteorology",
+    "hydrology":            "concordance_engine.verifiers.hydrology",
+    "water":                "concordance_engine.verifiers.hydrology",
+    "photography":          "concordance_engine.verifiers.photography",
+    "photo":                "concordance_engine.verifiers.photography",
+    "sports_analytics":     "concordance_engine.verifiers.sports_analytics",
+    "sports":               "concordance_engine.verifiers.sports_analytics",
+    "witness":              "concordance_engine.verifiers.witness",
+    "testimony":            "concordance_engine.verifiers.witness",
 }
+
+
+_LOADED_MODULES: Dict[str, ModuleType] = {}
+
+
+def _get_module(domain: str) -> Optional[ModuleType]:
+    """Resolve a domain name to its verifier module, importing on first
+    use. Returns None for unknown domains."""
+    mod_path = VERIFIERS.get(domain)
+    if mod_path is None:
+        return None
+    cached = _LOADED_MODULES.get(mod_path)
+    if cached is not None:
+        return cached
+    cached = importlib.import_module(mod_path)
+    _LOADED_MODULES[mod_path] = cached
+    return cached
 
 
 # Scripture is a cross-cutting verifier: it runs on EVERY packet (not just
@@ -88,7 +120,7 @@ def run_for_domain(domain: str, packet):
     to a no-op when the packet doesn't carry the relevant fields.
     """
     results = []
-    mod = VERIFIERS.get((domain or "").lower())
+    mod = _get_module((domain or "").lower())
     if mod is not None:
         results.extend(mod.run(packet))
     for cross in CROSS_CUTTING_VERIFIERS:
