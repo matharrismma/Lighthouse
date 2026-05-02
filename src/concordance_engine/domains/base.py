@@ -118,4 +118,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("sports_analytics", "sports"):
         from .sports_analytics import SportsAnalyticsValidator
         return SportsAnalyticsValidator()
+    if domain in ("witness", "testimony"):
+        from .witness import WitnessValidator
+        return WitnessValidator()
     return None

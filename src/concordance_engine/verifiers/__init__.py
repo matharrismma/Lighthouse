@@ -8,6 +8,7 @@ from . import (
     music_theory, number_theory, geography,
     combinatorics, geometry, meteorology,
     hydrology, photography, sports_analytics,
+    witness,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -66,6 +67,8 @@ VERIFIERS = {
     "photo": photography,
     "sports_analytics": sports_analytics,
     "sports": sports_analytics,
+    "witness": witness,
+    "testimony": witness,
 }
 
 
