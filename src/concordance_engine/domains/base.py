@@ -49,4 +49,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("formal_logic", "logic"):
         from .formal_logic import FormalLogicValidator
         return FormalLogicValidator()
+    if domain == "nutrition":
+        from .nutrition import NutritionValidator
+        return NutritionValidator()
     return None
