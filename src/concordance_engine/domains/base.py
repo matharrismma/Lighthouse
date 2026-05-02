@@ -67,4 +67,10 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "astronomy":
         from .astronomy import AstronomyValidator
         return AstronomyValidator()
+    if domain in ("calendar_time", "calendar", "time"):
+        from .calendar_time import CalendarTimeValidator
+        return CalendarTimeValidator()
+    if domain in ("networking", "network"):
+        from .networking import NetworkingValidator
+        return NetworkingValidator()
     return None

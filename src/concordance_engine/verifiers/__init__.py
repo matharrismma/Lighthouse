@@ -3,7 +3,7 @@ from . import (
     chemistry, physics, statistics, mathematics, computer_science, biology,
     governance, scripture, linguistics, genetics, agriculture, formal_logic,
     nutrition, cryptography, exercise_science, manufacturing, finance,
-    astronomy,
+    astronomy, calendar_time, networking,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -33,6 +33,11 @@ VERIFIERS = {
     "manufacturing": manufacturing,
     "finance": finance,
     "astronomy": astronomy,
+    "calendar_time": calendar_time,
+    "calendar": calendar_time,
+    "time": calendar_time,
+    "networking": networking,
+    "network": networking,
 }
 
 
