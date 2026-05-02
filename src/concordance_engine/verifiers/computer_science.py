@@ -298,6 +298,31 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
             break
 
     if len(sizes_used) < 2:
+        # Cap fired before we got enough data points to fit a slope. If the
+        # claimed class is "fast" (O(1)/O(log n)/O(n)/O(n log n)) and the
+        # very first (smallest) size already exceeded the per-call cap, that
+        # is strong direct evidence the actual algorithm is much slower than
+        # claimed — return MISMATCH rather than abstaining. The data we have
+        # is one slow measurement, which falsifies a fast-class claim by
+        # itself: an O(n) claim asserts that fn(n=sizes[0]) completes in
+        # sub-cap time at that scale, and we just observed it didn't.
+        fast_classes = (
+            "o(1)", "o(logn)", "o(loglogn)",
+            "o(n)", "o(nlogn)", "o(n*logn)",
+        )
+        if (claimed in fast_classes
+                and len(sizes_used) >= 1
+                and times[0] >= max_per_call_s):
+            data = {"sizes_used": sizes_used, "times_s": times,
+                    "claimed_class": claimed, "tolerance": tol,
+                    "max_per_call_s": max_per_call_s}
+            return mismatch(
+                "cs.runtime_complexity",
+                f"call at n={sizes_used[0]} took {times[0]:.2f}s "
+                f"(>= {max_per_call_s}s cap) — algorithm is far slower than "
+                f"claimed {claimed}",
+                data,
+            )
         return na("cs.runtime_complexity",
                   f"only {len(sizes_used)} size(s) completed within "
                   f"{max_per_call_s}s/call cap or {max_total_s}s/claim "
