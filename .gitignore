@@ -10,6 +10,15 @@ build/
 hutcheson_contract.docx
 *_contract.docx
 *_contract.pdf
+github_token.txt
+*.token
+.env
+.env.*
+
+# The local helper scripts no longer embed the Cloudflare tunnel token.
+# They read it from C:\Concordance\tunnel.token at runtime, which is
+# outside the repo. *.token above already keeps any in-repo token files
+# from being committed by accident.
 
 # frozen distribution snapshot — kept locally, not tracked
 concordance_engine-1.0.4/

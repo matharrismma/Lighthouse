@@ -23,3 +23,7 @@ class ValidationResult:
 
     def add(self, gr: GateResult) -> None:
         self.gate_results.append(gr)
+
+
+# Alias for CLI compatibility
+EngineResult = ValidationResult

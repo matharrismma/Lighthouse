@@ -142,6 +142,137 @@ class Ledger:
                     continue
         return results
 
+    def get_by_seq(self, seq):
+        """Look up a single ledger entry by its sequence number. Returns the
+        entry dict, or None if not found. Used by /confess to verify the
+        referenced packet exists, and by /dispatch for direct seq lookups."""
+        if not self._path.exists():
+            return None
+        with self._path.open("r", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                try:
+                    entry = json.loads(stripped)
+                    if entry.get("seq") == seq:
+                        return entry
+                except json.JSONDecodeError:
+                    continue
+        return None
+
+    def get_by_packet_hash(self, packet_hash):
+        """Return every entry whose packet_hash matches. A confession on a
+        packet would share the original's packet_hash via the link field
+        (`confesses_packet_hash`), not via this; use get_by_seq when you
+        want a specific entry."""
+        if not self._path.exists():
+            return []
+        results = []
+        with self._path.open("r", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                try:
+                    entry = json.loads(stripped)
+                    if entry.get("packet_hash") == packet_hash:
+                        results.append(entry)
+                except json.JSONDecodeError:
+                    continue
+        return results
+
+    def iter_filtered(self, *, domain=None, overall=None, since_epoch=None,
+                      until_epoch=None, packet_id=None, limit=None):
+        """Yield ledger entries (newest first) that match every supplied
+        filter. None for a filter means "any value." Used by /dispatch.
+
+        Filters:
+            domain        — exact domain string (e.g. "governance")
+            overall       — exact verdict string (e.g. "PASS", "REJECT",
+                            "QUARANTINE", "CONFESSION")
+            since_epoch   — entries with timestamp_epoch >= since_epoch
+            until_epoch   — entries with timestamp_epoch <= until_epoch
+            packet_id     — exact packet_id string
+            limit         — stop after yielding `limit` matches (None = all)
+        """
+        if not self._path.exists():
+            return
+        # Read all into memory; ledger is small. For large ledgers this
+        # would want streaming + reverse-line-walk, but JSONL append-only
+        # at expected scale (thousands of entries) reads fast enough.
+        entries = []
+        with self._path.open("r", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                try:
+                    entries.append(json.loads(stripped))
+                except json.JSONDecodeError:
+                    continue
+        entries.reverse()  # newest first
+        yielded = 0
+        for e in entries:
+            if domain is not None and e.get("domain") != domain:
+                continue
+            if overall is not None and e.get("overall") != overall:
+                continue
+            if packet_id is not None and e.get("packet_id") != packet_id:
+                continue
+            ts = int(e.get("timestamp_epoch") or 0)
+            if since_epoch is not None and ts < since_epoch:
+                continue
+            if until_epoch is not None and ts > until_epoch:
+                continue
+            yield e
+            yielded += 1
+            if limit is not None and yielded >= limit:
+                return
+
+    def stats(self):
+        """Aggregate counts across the ledger: total entries, breakdown by
+        overall verdict and by domain, latest entry's timestamp. Used by
+        /stats and /about."""
+        if not self._path.exists():
+            return {
+                "total": 0,
+                "by_overall": {},
+                "by_domain": {},
+                "latest_timestamp_epoch": None,
+                "latest_timestamp_iso": None,
+            }
+        by_overall = {}
+        by_domain = {}
+        total = 0
+        latest_ts = 0
+        latest_iso = None
+        with self._path.open("r", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                try:
+                    e = json.loads(stripped)
+                except json.JSONDecodeError:
+                    continue
+                total += 1
+                ov = e.get("overall", "UNKNOWN")
+                dm = e.get("domain", "unknown")
+                by_overall[ov] = by_overall.get(ov, 0) + 1
+                by_domain[dm] = by_domain.get(dm, 0) + 1
+                ts = int(e.get("timestamp_epoch") or 0)
+                if ts > latest_ts:
+                    latest_ts = ts
+                    latest_iso = e.get("timestamp_iso")
+        return {
+            "total": total,
+            "by_overall": by_overall,
+            "by_domain": by_domain,
+            "latest_timestamp_epoch": latest_ts or None,
+            "latest_timestamp_iso": latest_iso,
+        }
+
     def verify_chain(self):
         if not self._path.exists():
             return {"valid": True, "entries_checked": 0, "first_broken_seq": None}

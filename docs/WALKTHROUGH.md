@@ -178,8 +178,8 @@ The framework's job is to slow you down and make you write things down. The judg
 
 ## Next
 
-Read `verifiers/README.md` for the developer side — how to add a new verifier, what the result types mean, and what constraints apply (no network, no untrusted input, deterministic except runtime measurement).
+Read `src/concordance_engine/verifiers/README.md` for the developer side — how to add a new verifier, what the result types mean, and what constraints apply (no network, no untrusted input, deterministic except runtime measurement).
 
 Read `tests/test_engine.py` for the full set of cases the engine handles. The negation tests at the end show how the governance scanner handles "we will not exploit" vs "we exploit" correctly.
 
-Read `08_docs/the_mechanism.pdf` for the honest analysis of what's real and what's not yet real in the broader framework.
+If you are an AI agent calling the engine rather than editing it, read `FOR_AI_AGENTS.md` for the integration paths (MCP / REST / CLI) and what is expected of a packet submission.

@@ -45,6 +45,29 @@ Each line:
 
 `predicted_halt_gate` is one of `RED`, `FLOOR`, `WAY`, `EXECUTION`, `NONE`, or `UNKNOWN`. The runner compares against `halt_gate_expected` per item and reports overall accuracy plus the most-common confusions.
 
+## Related: NHANES falsification study
+
+The conversational eval here (gate-extraction accuracy on 50 prompts) is one
+kind of evaluation. There is a separate, more rigorous one: a pre-registered
+NHANES falsification study at `lw/06_validation/framework_validation_v3_final/`.
+
+That study uses 10-year mortality outcomes from NHANES 2011-2018 to test
+specific framework hypotheses. It has its own runner with three modes:
+
+```bash
+cd lw/06_validation/framework_validation_v3_final
+pip install -r requirements.txt
+python nhanes_validate.py --mode=prereg       # locked, pre-registered analysis
+python nhanes_validate.py --mode=sensitivity  # robustness checks
+python nhanes_validate.py --mode=full         # everything
+```
+
+Three possible verdicts: `SUPPORTED`, `FALSIFIED`, `INCONCLUSIVE`. Frozen
+2026-03-04. Stands on its own whether or not the rest of the framework
+holds — the empirical anchor for the broader claim. See its own
+`README.md` for the analysis plan, decision rules, and pre-registered
+hypotheses.
+
 ## Adding new eval items
 
 Append a JSONL line to `eval_chat.jsonl` with the same shape:

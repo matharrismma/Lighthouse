@@ -1,5 +1,76 @@
 # Changelog
 
+## v1.1.0 — 2026-05-01 (live deployment + Layer 0 + training kit)
+
+### Live deployment
+- **Engine is live at `https://narrowhighway.com`.** Windows desktop running uvicorn behind a Cloudflare Tunnel; cloudflared registered as a Windows service; `Concordance-API` scheduled task auto-starts uvicorn on user logon. Operational scripts in `local/`.
+- **Tunnel token rotation script** (`local/rotate_tunnel_token.ps1`) — uses Cloudflare API to PATCH the tunnel secret without deleting the tunnel; saves the new connector token to `C:\Concordance\tunnel.token` (locked to user via ACL); reinstalls the cloudflared service.
+- **Operational helpers**: `go_live.ps1` (one-shot bring-up), `finish_rotation.ps1` (rotation recovery), `repair_cloudflared.ps1` (service repair). All `local/*.ps1` now read tunnel token from `C:\Concordance\tunnel.token` rather than embedding it.
+
+### New endpoints
+- **`POST /reflect`** — preview-mode evaluation: same gates as `/submit`, no ledger write. For rehearsal before commitment.
+- **`POST /confess`** — record an agent's recognition that a prior packet was wrong. New ledger entry with `overall: CONFESSION` referencing the prior seq + packet hash.
+- **`GET /dispatch`** — filtered ledger search (domain, overall, packet_id, time range; AND semantics).
+- **`GET /stats`** — aggregate ledger counts by verdict and domain.
+- **`GET /about`** — service metadata: version, engine availability, layer-0 status, ledger total, chain validity, license, source, server epoch.
+- **`POST /triangulate`** — interpretation drift check against original-language Strong's. Pairs with the `triangulate_claim` MCP tool.
+- **`GET /scripture/{ref}`** and **`GET /strong/{number}`** — Layer 0 lookup endpoints.
+- **`GET /favicon.svg`, `/favicon.ico`, `/robots.txt`, `/sitemap.xml`** — cleared 404s for crawlers and browsers.
+- **`/submit` GOD-bypass for casual visitors** — public form gets meaningful PASS/REJECT verdicts instead of unwaitable QUARANTINE. `/validate` retains strict timing.
+
+### Layer 0 (Scripture) integration
+- **`src/concordance_engine/verifiers/scripture.py`** — moved from the historical `lw/01_engine/` subtree into the canonical engine; registered as a *cross-cutting* verifier (runs on every packet regardless of domain). Graceful when Layer 0 data isn't provisioned.
+- **`drift_check.py` activated** — the only triangulation module that wasn't previously imported is now wired through `triangulate_claim()`. Returns per-Strong's-key semantic ranges so a reviewer can compare an interpretation claim to attested word meaning.
+- **MCP tools**: `resolve_scripture_ref`, `word_study`, `verify_scripture_anchors`, `triangulate_claim`. Total tool count: 18.
+
+### Ledger helpers
+- `Ledger.get_by_seq()` — exact sequence lookup.
+- `Ledger.get_by_packet_hash()` — hash lookup.
+- `Ledger.iter_filtered()` — filtered iteration with AND semantics over domain / overall / packet_id / time range.
+- `Ledger.stats()` — aggregate counts.
+
+### Training kit (`training/`)
+- **CATECHISM.md** — the doctrinal core: Q&A teaching the four-gate protocol from first principles.
+- **SYSTEM_PROMPT.md** — the canonical prompt used in every training item (and at inference time).
+- **FORMAT.md** — JSONL schema spec for training items.
+- **BASELINE.md** — heuristic baseline (~76%) and tier targets for fine-tuned models.
+- **`data/conversational_train.jsonl`** (20 items) and **`data/packet_train.jsonl`** (8 items) — hand-written seeds covering all five governance-cluster domains and gate halt points.
+- **`loader.py`** — converts JSONL to HF datasets / OpenAI fine-tune / Anthropic Messages / eval-predictions formats.
+- **`score.py`** — wraps `eval/run_eval.py` with cleaner CLI; reports vs. heuristic baseline.
+- **`adapters/`** — minimal scripts for OpenAI fine-tune API, HuggingFace + PEFT LoRA, Anthropic Messages inference.
+
+### Canon documentation
+- **`docs/CANON.md`** — full canonical statement: Authority Stack (`GOD → WORD → RED → LAW → WAY`), kernel nouns, four gates, four actions, operator roles (Keeper / Scribe / Shepherd / Steward), three-ledger model, scope and wait windows.
+- **`docs/LAYERS.md`** — system layers (Word → Kernel → Keeper → Steward → Vessel → Lighthouse) with per-layer responsibility, surface, contract, and failure mode.
+- **`docs/CONCORDANCE.md`** — technical cross-reference index. Every architectural concern points at the right code or doc.
+- **`docs/CONTRIBUTION_PROTOCOL.md`** — canon-scope vs domain-scope rules. Changes that touch kernel nouns, gate ordering, or hash-chain construction follow the same gates the engine enforces on packets.
+
+### Site
+- **`site/architecture.svg`** — visual flow diagram (agent → entry point → four gates → verdict → ledger), with Layer 0 as the foundation strip.
+- **`site/index.html`** — same-origin `/submit` URL fix (was pointing at old Railway deployment); added favicon link tags; added `Cache-Control: no-cache` so future edits propagate immediately.
+- **Static-site mount** — any unmatched GET falls through to `site/`, so the marketing/explainer pages (`how-it-works.html`, `verifiers.html`, etc.) advertised in `sitemap.xml` are now actually served.
+
+### Other docs
+- **`FOR_AI_AGENTS.md`** — welcome doc for arriving agents (separate from `AGENTS.md`, which is for coding assistants editing the repo).
+- **`COOKBOOK.md`** — copy-paste recipes for chemistry, physics, statistics, CS, governance, multi-domain, scripture-anchored packets, and ledger reads.
+- **`GLOSSARY.md`** — every term used across docs.
+- **`SECURITY.md`** — vulnerability disclosure policy.
+- **`ROADMAP.md`** — what's next.
+- **`client/concordance_client.py`** — single-file Python client for the public REST API.
+
+### License realignment
+- README, `site/llms.txt`, `api/app.py` OpenAPI description, and `FOR_AI_AGENTS.md` now correctly say **Apache 2.0** (matching `LICENSE` and `pyproject.toml`). Previous claims of MIT in those files were stale from before the v1.0.6 license switch.
+
+### Examples
+- **`examples/sample_packet_scripture_anchored.json`** — governance packet with `scripture_anchors` to exercise the cross-cutting scripture verifier.
+- **`examples/sample_confession.json`** — example body for `POST /confess` (note: this is not a packet, it's a confession request).
+
+### Bug fixes
+- **`/submit` no longer 500s on EngineConfig.** Earlier code passed `wait_window_seconds=0` to `EngineConfig`, which doesn't accept that argument. Removed the bogus arg and replaced with `now_epoch` advancement past the wait window — same intent, working code.
+- **Server log encoding.** `start_server.ps1` now writes UTF-8 (was UTF-16 with BOM); uvicorn's stderr lines no longer get wrapped as PowerShell `RemoteException` records.
+
+---
+
 ## v1.0.6 — 2026-04-29 (license correction)
 
 - **Corrected the LICENSE file.** The previous LICENSE was a truncated placeholder ("Permission is hereby granted, free of charge, to any person obtaining a copy...") with no copyright holder named — meaning the repo was not actually licensed despite README/pyproject claiming MIT. Replaced with the full standard license text and a named copyright holder (Matthew R. Harris).

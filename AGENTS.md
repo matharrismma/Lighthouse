@@ -32,13 +32,16 @@ RED has two independent layers: attestation (did the author affirm constraints?)
 ## Running tests
 
 ```bash
-PYTHONPATH=src python tests/test_engine.py        # integration tests (see README for current count)
-PYTHONPATH=src python tests/test_verifiers.py     # verifier unit tests
-PYTHONPATH=src python tests/test_mcp_tools.py    # MCP tool tests
-PYTHONPATH=src python tests/test_cli.py          # 16 CLI tests
+PYTHONPATH=src python tests/test_engine.py        # 74 integration tests
+PYTHONPATH=src python tests/test_verifiers.py     # 64 verifier unit tests
+PYTHONPATH=src python tests/test_cli.py           # 16 CLI tests
+PYTHONPATH=src python tests/test_mcp_tools.py     # MCP tool dispatch
+PYTHONPATH=src python tests/test_canon_validators.py  # canon validator smoke tests
 ```
 
-All 164 tests should pass before any change is considered complete.
+All five suites should pass before any change is considered complete. README is the source of truth for current counts — when you change the test surface, update README in the same commit.
+
+> Note: there are two distinct AI-agent audiences for this codebase. **You** (a coding assistant editing this repository) read this file. **An agent calling the engine's verifiers in its reasoning loop** reads `FOR_AI_AGENTS.md` instead. Don't mix them up — they have different concerns.
 
 ## Running the MCP server
 

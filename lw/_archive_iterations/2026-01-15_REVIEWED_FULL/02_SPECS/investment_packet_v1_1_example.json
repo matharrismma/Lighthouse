@@ -1,0 +1,28 @@
+{
+  "derived_bands": {
+    "debt_band": "D1",
+    "income_band": "B3",
+    "savings_band": "S2",
+    "stability_band": "STABLE"
+  },
+  "expires_utc": "2026-02-14T23:56:54+00:00",
+  "issued_utc": "2026-01-15T23:56:54+00:00",
+  "issuer_pubkey": "F5Jtk0zTk7F7tVD49bUNFObexDGzeX4wpgXSrIYFG9Y",
+  "not_before_utc": "2026-01-15T23:56:54+00:00",
+  "packet_type": "stabilityos_investment_packet",
+  "packet_version": "1.1",
+  "privacy": {
+    "notes": "Raw financial data stays local; only derived bands + proof hashes leave Node.",
+    "raw_data_shared": false
+  },
+  "proof_hashes": {
+    "local_aggregator_snapshot_sha256": "<sha256 of local snapshot>",
+    "supporting_docs_bundle_sha256": "<sha256 of local bundle>"
+  },
+  "revocation": {
+    "revocable": true,
+    "revocation_id": "<issuer-controlled id>"
+  },
+  "signature": "",
+  "subject_pubkey": "F5Jtk0zTk7F7tVD49bUNFObexDGzeX4wpgXSrIYFG9Y"
+}

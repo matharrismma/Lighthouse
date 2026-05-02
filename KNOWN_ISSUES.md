@@ -2,47 +2,47 @@
 
 Tracked here so the README and onboarding remain honest about what works.
 
-> **All four issues below were resolved in v1.0.5 (2026-04-29).** This file is kept as a record of what the README-audit on 2026-04-28 surfaced. Anything still open should be a fresh entry above this notice. — see CHANGELOG.md for the fix details.
+## Open
 
-## tests/test_mcp_tools.py — ImportError on `ALL_TOOLS`
+*(none)*
 
-**Symptom**
+If you find a reproducible problem, file it above with: a minimal repro, observed
+output (`status`, `detail`, `data`), expected output, and the rule the engine
+should have applied.
 
-```
-ImportError: cannot import name 'ALL_TOOLS' from 'concordance_engine.mcp_server.tools'
-```
+---
 
-**Cause**
+## Resolved
 
-`tests/test_mcp_tools.py` imports `ALL_TOOLS` and uses it as a `dict[name -> callable]` (line 52: `name in ALL_TOOLS and callable(ALL_TOOLS[name])`). The current `src/concordance_engine/mcp_server/tools.py` exports `TOOLS` (a `list[dict]` of MCP tool descriptors) and `TOOL_BY_NAME` (a `dict` keyed by name, but the values are descriptors — not callables).
+The four entries below are kept as a record of what the README-audit on
+2026-04-28 surfaced. All were closed in v1.0.5 (2026-04-29). See `CHANGELOG.md`
+for the per-fix details.
 
-The test was written against a prior tool-module API and was never re-synced when `tools.py` switched to the descriptor/registry shape.
+### tests/test_mcp_tools.py — ImportError on `ALL_TOOLS` *(resolved 1.0.5)*
 
-**Fix sketch**
+The test imported `ALL_TOOLS` and expected `dict[name -> callable]`. The
+`mcp_server/tools.py` module had since switched to a `TOOLS` (list of
+descriptors) + `TOOL_BY_NAME` shape, leaving the test pointing at a name that
+no longer existed. Fix: re-exported an `ALL_TOOLS` mapping from `tools.py`.
 
-Either:
-1. Add `ALL_TOOLS = {fn.__name__: fn for fn in [validate_packet, verify_chemistry, ...]}` at the bottom of `tools.py` so the test's expected shape (`dict[name -> callable]`) is satisfied; or
-2. Rewrite the test to walk `TOOLS` / `TOOL_BY_NAME` and resolve each entry's callable through `call_tool(name, args)`.
+### tests/test_canon_validators.py — path resolution *(resolved 1.0.5)*
 
-Option 1 is the smaller diff. Option 2 is closer to how the MCP server actually dispatches.
+The test resolved canons via `parents[3] / "02_canons"`, which only worked from
+the old `lw/01_engine/concordance-engine/tests/` layout. Fix: replaced the
+hard-coded path with a probe that finds canons at either `canons/` or
+`lw/02_canons/`.
 
-**Affected files**
+### Two parallel `src/` trees *(resolved 1.0.5)*
 
-- `tests/test_mcp_tools.py`
-- `lw/01_engine/concordance-engine/tests/test_mcp_tools.py` (mirror — fix both)
+`src/concordance_engine/` (top-level, Apr 28) and
+`lw/01_engine/concordance-engine/src/concordance_engine/` (Apr 27) had
+diverged on `engine.py`, `verifiers/computer_science.py`, and
+`verifiers/statistics.py`. Fix: declared the top-level tree canonical;
+the lw subtree now contains a single README pointing back at the top-level
+package.
 
-## tests/test_canon_validators.py — path resolution requires lw/ layout
+### `concordance_engine-1.0.4/README.md` byte-identical to top-level *(resolved 1.0.5)*
 
-`test_canon_validators.py` resolves canons via `Path(__file__).resolve().parents[3] / "02_canons"`. That works when run from `lw/01_engine/concordance-engine/tests/` (parents[3] = `Lighthouse/lw/`). It does not work from the top-level `tests/` directory because `parents[3]` walks above the repo.
-
-Top-level `canons/` is the right target for that layout but the file hard-codes `02_canons`. Either parameterize the canon-root path or duplicate the test for the top-level layout.
-
-## Two parallel `src/` trees
-
-`src/concordance_engine/` and `lw/01_engine/concordance-engine/src/concordance_engine/` are near-duplicates. Top-level is newer (Apr 28); lw is Apr 27. They diverge on `engine.py`, `verifiers/computer_science.py`, `verifiers/statistics.py` (mostly comment/whitespace, but enough that test counts differ: top-level has 74/64 engine/verifier tests; lw has 70/53).
-
-Pick one as canonical. Suggested: top-level `src/` is the active development tree; treat `lw/01_engine/concordance-engine/` as a frozen reference snapshot or delete it.
-
-## `concordance_engine-1.0.4/README.md` is byte-for-byte identical to top-level README.md
-
-It's a frozen v1.0.4 distribution snapshot. Either mark it explicitly as a release artifact and stop maintaining it, or remove it from the repo. Currently any README edit has to be made twice to keep it in sync.
+A frozen v1.0.4 release snapshot was being maintained in parallel with the
+live README. Fix: marked the directory as a frozen distribution artifact
+(see `.gitignore`) and stopped tracking it.

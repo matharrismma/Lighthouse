@@ -1,8 +1,72 @@
 # Concordance Engine
 
+**Constraint-based decision architecture grounded in Scripture.**
+
+Lighthouse runs every decision through four checkpoints: is it honest, is it safe, is it wise, have you waited and listened? If any check fails, the system stops you and tells you the smallest fix. If all pass, it returns the concrete next step.
+
+It is built to run as software — an AI agent or a small device — so the checks cannot be skipped, the hierarchy cannot be inverted under pressure, and the underlying claims (math, chemistry, statistics, code, governance) are *computationally* verified rather than merely attested.
+
+## Verified at scale — 722-claim benchmark
+
+Independent of unit tests, the engine has been evaluated against a
+**722-claim deterministic benchmark** spanning all six verifier domains.
+Each claim has a reproducible ground-truth label (correct or perturbed)
+and an expected diagnosis. Results from the most recent run:
+
+| Domain | n | Accuracy | False-positive | False-negative | p50 latency | p95 latency |
+|---|---:|---:|---:|---:|---:|---:|
+| **Chemistry** | 130 | **100.0%** | 0.0% | 0.0% | 0.05 ms | 0.09 ms |
+| **Physics** | 110 | 97.3% | 5.5% | 0.0% | 4.7 ms | 27.6 ms |
+| **Computer science** | 110 | 92.7% | 14.5% | 0.0% | 0.12 ms | 1.1 ms |
+| **Mathematics** | 120 | 90.0% | 20.0% | 0.0% | 1.86 ms | 16.1 ms |
+| **Governance** | 128 | 85.2% | 0.0% | 27.5% | <0.01 ms | <0.01 ms |
+| **Statistics** | 124 | 81.5% | 32.3% | 4.8% | 0.02 ms | 0.25 ms |
+| **Overall** | **722** | **91.0%** | 12.1% | 6.0% | 0.07 ms | 14.1 ms |
+
+Median verification cost is **under 0.1 ms per claim**, fast enough to live
+in the request path of any LLM tool call. Chemistry is perfect; the residual
+error concentrates in two interpretable failure modes — statistics
+over-strictness on edge-case p-value reconstructions, and governance
+under-strictness on substantive (non-structural) packet validation. Both
+are addressable; see [`lw/09_evaluation/RESULTS.md`](lw/09_evaluation/RESULTS.md)
+for the full breakdown and prioritized fixes.
+
+**Reproduce:** `cd lw/09_evaluation && python run_benchmark.py` (or
+`run_benchmark.ps1` on Windows). Wall time ~3.5 seconds.
+
+---
+
+## One-line Canon
+
+> *"We keep the Word close, protect the floor, listen to brothers, and wait on God before we act."*
+
+## Authority Stack (Immutable)
+
+```
+GOD → WORD → RED → LAW → WAY
+```
+
+Nothing downstream overrides anything upstream. Renaming any kernel noun (WORD, RED, LAW, WAY, GATE, FLOOR, WITNESS, WAIT, VESSEL, RULE, ACTION, STATE, LEDGER) requires Canon-scope confirmation. See [`docs/CANON.md`](docs/CANON.md) for the full canon and [`docs/LAYERS.md`](docs/LAYERS.md) for the system layers.
+
+## Architectural claim
+
 **O(1) external authority validation. Replaces O(n²) consensus coordination.**
 
 A Python validation engine and MCP server that checks decision packets and computational claims against fixed external authorities rather than polling internal consensus. The engine halts at the first gate failure. It never self-confirms.
+
+> **If you are an AI agent**, read [`FOR_AI_AGENTS.md`](FOR_AI_AGENTS.md) first. It explains what this place is, what is expected of a packet submission, and how to integrate (MCP / REST / CLI). The rest of this README is the developer view — install, repository layout, how to add a verifier.
+
+> **Worked examples:** [`COOKBOOK.md`](COOKBOOK.md) has copy-paste recipes for chemistry, physics, statistics, CS, governance, multi-domain, and scripture-anchored packets, plus the pattern for using `/reflect` to rehearse before committing.
+
+> **Terminology:** [`GLOSSARY.md`](GLOSSARY.md) defines RED/FLOOR/BROTHERS/GOD, scope, Layer 0, triangulation, anchor, packet hash vs entry hash, attestation vs verification, and confession. Cross-link target for the rest of the docs.
+
+> **Canon and design:** [`docs/CANON.md`](docs/CANON.md) (immutable architectural commitments) · [`docs/LAYERS.md`](docs/LAYERS.md) (Word → Kernel → Keeper → Steward → Vessel → Lighthouse) · [`docs/KERNEL.md`](docs/KERNEL.md) (the kernel files in `lw/03_kernel/`) · [`docs/CONCORDANCE.md`](docs/CONCORDANCE.md) (technical cross-reference) · [`docs/CONTRIBUTION_PROTOCOL.md`](docs/CONTRIBUTION_PROTOCOL.md) (canon-scope vs domain-scope changes).
+
+> **Training a model on the protocol:** [`training/README.md`](training/README.md) is the full kit — system prompt, format spec, seed dataset, loaders, provider adapters, scoring, baselines. The doctrinal core is [`training/CATECHISM.md`](training/CATECHISM.md).
+
+> **Python client:** [`client/concordance_client.py`](client/concordance_client.py) — single-file sync wrapper around the public REST API.
+
+> **Live endpoint:** https://narrowhighway.com — the engine is publicly reachable. Submit a packet to `/submit` from any HTTP client.
 
 ---
 
@@ -97,7 +161,7 @@ PYTHONPATH=src python tests/test_verifiers.py    # 64 unit tests
 PYTHONPATH=src python tests/test_cli.py          # 16 CLI tests
 ```
 
-All five suites pass. (See `KNOWN_ISSUES.md` for any open issues — currently empty post-1.0.5.) For a single-shot pytest collection: `pytest tests/`.
+All three core suites pass — 154 tests across `test_engine.py`, `test_verifiers.py`, and `test_cli.py`. Two additional suites (`test_mcp_tools.py` and `test_canon_validators.py`) cover the MCP tool dispatch layer and the canon-validators discovery; both were resolved in v1.0.5. See `KNOWN_ISSUES.md` for the resolution notes and anything currently open. For a single-shot pytest collection: `pytest tests/`.
 
 Run an example packet:
 
@@ -230,8 +294,8 @@ concordance-engine/
 │   ├── test_engine.py           # 74 integration tests
 │   ├── test_verifiers.py        # 64 verifier unit tests
 │   ├── test_cli.py              # 16 CLI tests
-│   ├── test_mcp_tools.py        # MCP tool tests (currently broken — see KNOWN_ISSUES.md)
-│   └── test_canon_validators.py # 5 canon validator smoke tests (run from lw/01_engine layout)
+│   ├── test_mcp_tools.py        # MCP tool tests (resolved in v1.0.5)
+│   └── test_canon_validators.py # canon validator smoke tests — auto-discovers canons/ and lw/02_canons/
 └── packet_manifest.yaml      # SHA-256 manifest of all files
 ```
 
@@ -255,4 +319,4 @@ Optional: `jsonschema>=4.21.0` (full schema validation), `mcp>=1.0.0` (MCP serve
 
 ## License
 
-MIT
+Apache 2.0 (see `LICENSE` for the full text).

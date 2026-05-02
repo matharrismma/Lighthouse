@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 from ..engine import EngineConfig, validate_packet as _engine_validate
 from ..verifiers import (
     chemistry, physics, mathematics, statistics,
-    computer_science, biology, governance,
+    computer_science, biology, governance, scripture,
 )
 from ..verifiers.base import VerifierResult
 
@@ -291,6 +291,48 @@ def attest_floor(packet):
     return _gate_results_to_payload(grs)
 
 
+# ---------------------------------------------------------------------
+# Layer 0 / Scripture tools
+# ---------------------------------------------------------------------
+
+def resolve_scripture_ref(ref):
+    """Look up a scripture reference in the WEB and return its text.
+    Accepts forms like "Jn3:16", "John 3:16", "1Co13:4". Returns
+    `{ref, web_text, status, detail}`. Status `source_missing` means
+    the Layer 0 data has not been provisioned yet — see the detail."""
+    return scripture.resolve_ref(ref)
+
+
+def word_study(strongs_num):
+    """Strong's-keyed word study: definition, derivation, every verse
+    where the word appears. Accepts "G26", "H2617", etc. Returns
+    `{strongs, word, transliteration, definition, derivation, verses,
+    occurrence_count}` or a `source_missing` status if Layer 0 has not
+    been provisioned."""
+    return scripture.word_study(strongs_num)
+
+
+def verify_scripture_anchors(anchors):
+    """Confirm each ref in `anchors` resolves to a real WEB verse.
+    Used to catch fabricated scripture citations — the most common
+    LLM-failure mode in this domain. Returns the standard verifier
+    result shape (CONFIRMED / MISMATCH / SKIPPED)."""
+    return _r(scripture.verify_scripture_anchors(list(anchors or [])))
+
+
+def triangulate_claim(ref, claim, strongs_keys=None):
+    """Triangulation: check whether an interpretation `claim` about a
+    scripture verse `ref` is consistent with the original-language
+    Strong's definitions.
+
+    Without `strongs_keys`, returns NEEDS_MANUAL_VERIFICATION with the
+    WEB text and instructions for completing the check. With Strong's
+    numbers supplied (e.g. ['G142'] for airo), returns the per-word
+    semantic range so a reviewer (or later automated tagging) can
+    compare the claim to attested meaning."""
+    return scripture.triangulate_claim(ref, claim, strongs_keys=strongs_keys)
+
+
 def get_example_packet(name):
     examples_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))),
@@ -444,6 +486,54 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"packet": {"type": "object"}},
                      "required": ["packet"]},
      "fn": lambda a: attest_floor(a["packet"])},
+    {"name": "resolve_scripture_ref",
+     "description": (
+         "Look up a scripture reference in the World English Bible and return "
+         "its text. Accepts forms like 'Jn3:16', 'John 3:16', '1Co13:4'. "
+         "Returns {ref, web_text, status, detail}. Status 'source_missing' "
+         "means Layer 0 data has not been provisioned — run "
+         "lw/00_source/fetch_sources.py once."),
+     "inputSchema": {"type": "object",
+                     "properties": {"ref": {"type": "string"}},
+                     "required": ["ref"]},
+     "fn": lambda a: resolve_scripture_ref(a["ref"])},
+    {"name": "word_study",
+     "description": (
+         "Strong's-keyed word study. Pass a Strong's number like 'G26' "
+         "(agape) or 'H2617' (chesed). Returns word, transliteration, "
+         "definition, derivation, every verse where the word appears, "
+         "and occurrence count."),
+     "inputSchema": {"type": "object",
+                     "properties": {"strongs_num": {"type": "string"}},
+                     "required": ["strongs_num"]},
+     "fn": lambda a: word_study(a["strongs_num"])},
+    {"name": "verify_scripture_anchors",
+     "description": (
+         "Confirm each ref in 'anchors' resolves to a real WEB verse. Use "
+         "this before citing scripture in a load-bearing claim — fabricated "
+         "references are the most common LLM failure mode in this domain. "
+         "Returns CONFIRMED / MISMATCH / SKIPPED."),
+     "inputSchema": {"type": "object",
+                     "properties": {"anchors": {"type": "array",
+                                                "items": {"type": "string"}}},
+                     "required": ["anchors"]},
+     "fn": lambda a: verify_scripture_anchors(a["anchors"])},
+    {"name": "triangulate_claim",
+     "description": (
+         "Triangulation: check whether an interpretation 'claim' about a "
+         "verse 'ref' survives at all three layers (WEB text, Strong's "
+         "original-language meaning, the claim itself). Without "
+         "strongs_keys returns NEEDS_MANUAL_VERIFICATION + the WEB text "
+         "and instructions. With Strong's numbers supplied, returns the "
+         "per-word semantic range so the claim can be checked against "
+         "attested meaning."),
+     "inputSchema": {"type": "object",
+                     "properties": {"ref": {"type": "string"},
+                                    "claim": {"type": "string"},
+                                    "strongs_keys": {"type": "array",
+                                                     "items": {"type": "string"}}},
+                     "required": ["ref", "claim"]},
+     "fn": lambda a: triangulate_claim(a["ref"], a["claim"], a.get("strongs_keys"))},
     {"name": "get_example_packet",
      "description": "Return a canonical example packet by name.",
      "inputSchema": {"type": "object",
@@ -484,5 +574,9 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_governance_decision_packet": verify_governance_decision_packet,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
+    "resolve_scripture_ref": resolve_scripture_ref,
+    "word_study": word_study,
+    "verify_scripture_anchors": verify_scripture_anchors,
+    "triangulate_claim": triangulate_claim,
     "get_example_packet": get_example_packet,
 }
