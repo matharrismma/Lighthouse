@@ -5,6 +5,7 @@ from . import (
     nutrition, cryptography, exercise_science, manufacturing, finance,
     astronomy, calendar_time, networking, electrical, acoustics, optics,
     geology, information_theory, document_validation,
+    music_theory, number_theory, geography,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -49,6 +50,10 @@ VERIFIERS = {
     "info_theory": information_theory,
     "document_validation": document_validation,
     "doc_validation": document_validation,
+    "music_theory": music_theory,
+    "music": music_theory,
+    "number_theory": number_theory,
+    "geography": geography,
 }
 
 

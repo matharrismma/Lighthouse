@@ -91,4 +91,13 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("document_validation", "doc_validation"):
         from .document_validation import DocumentValidationValidator
         return DocumentValidationValidator()
+    if domain in ("music_theory", "music"):
+        from .music_theory import MusicTheoryValidator
+        return MusicTheoryValidator()
+    if domain == "number_theory":
+        from .number_theory import NumberTheoryValidator
+        return NumberTheoryValidator()
+    if domain == "geography":
+        from .geography import GeographyValidator
+        return GeographyValidator()
     return None
