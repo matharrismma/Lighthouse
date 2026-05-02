@@ -285,6 +285,113 @@ def verify_mendelian(spec):
                     f"observed inconsistent with ratio {ratio} (chi2={chi2:.3f}, p={pval:.3g})", data)
 
 
+# ── Nested health / control systems (BIO_CONTROL block) ───────────────────
+#
+# Recognized failure modes for the nested-control taxonomy. The architecture
+# is layered (L1 = molecular, L6 = organism) and each failure mode requires
+# a specific structural commitment in the intervention plan, otherwise the
+# loop will not close even if lower-layer interventions land. Ported from
+# the 2026-04-30 lw/01_engine biology iteration; see
+# `lw/_archive_iterations/01_engine_2026-05-02_pre_consolidation/`.
+
+_VALID_FAILURE_MODES = {
+    "setpoint_drift",
+    "loop_saturation",
+    "compensation_collapse",
+    "cross_layer_override",
+    "sensor_failure",
+}
+
+_LAYER_ORDER = {"L1": 1, "L2": 2, "L3": 3, "L4": 4, "L5": 5, "L6": 6}
+
+
+def verify_failure_mode_known(spec: Dict[str, Any]) -> VerifierResult:
+    """failure_mode must be in the recognized taxonomy (or absent)."""
+    name = "biology.failure_mode_taxonomy"
+    failure_mode = str(spec.get("failure_mode", "")).lower()
+    if not failure_mode:
+        return confirm(name, "no failure_mode declared — taxonomy check skipped")
+    if failure_mode in _VALID_FAILURE_MODES:
+        return confirm(name,
+                       f"failure_mode {failure_mode!r} is a recognized taxonomy value",
+                       {"failure_mode": failure_mode})
+    return mismatch(name,
+                    f"unknown failure_mode {failure_mode!r} (valid: {sorted(_VALID_FAILURE_MODES)})",
+                    {"failure_mode": failure_mode, "valid": sorted(_VALID_FAILURE_MODES)})
+
+
+def verify_control_layer_match(spec: Dict[str, Any]) -> VerifierResult:
+    """At least one intervention layer must be >= the failure layer.
+
+    A failure at L4 cannot be resolved by L1/L2 interventions alone.
+    """
+    name = "biology.control_layer_match"
+    failure_layer = str(spec.get("failure_layer", "")).upper()
+    intervention_layers = [str(l).upper() for l in (spec.get("intervention_layers") or [])]
+    if not failure_layer or not intervention_layers:
+        return confirm(name, "no failure_layer/intervention_layers — layer check skipped")
+    if failure_layer not in _LAYER_ORDER:
+        return error(name, f"unknown failure_layer {failure_layer!r}; must be L1–L6")
+    fl_rank = _LAYER_ORDER[failure_layer]
+    il_ranks = [_LAYER_ORDER.get(il, 0) for il in intervention_layers]
+    max_il_rank = max(il_ranks) if il_ranks else 0
+    data = {"failure_layer": failure_layer, "intervention_layers": intervention_layers,
+            "max_intervention_rank": max_il_rank, "failure_rank": fl_rank}
+    if max_il_rank >= fl_rank:
+        winner = intervention_layers[il_ranks.index(max_il_rank)]
+        return confirm(name,
+                       f"highest intervention layer ({winner}) >= failure layer ({failure_layer})",
+                       data)
+    return mismatch(name,
+                    f"all interventions ({intervention_layers}) below failure layer "
+                    f"({failure_layer}) — upper-layer drivers will not be addressed",
+                    data)
+
+
+def verify_cross_layer_override(spec: Dict[str, Any]) -> VerifierResult:
+    """If failure_mode is cross_layer_override, upper_layer_driver_addressed must be True."""
+    name = "biology.cross_layer_override"
+    failure_mode = str(spec.get("failure_mode", "")).lower()
+    if failure_mode != "cross_layer_override":
+        return confirm(name, "not a cross_layer_override failure — check skipped")
+    if spec.get("upper_layer_driver_addressed") is True:
+        return confirm(name, "cross_layer_override: upper_layer_driver_addressed = True")
+    return mismatch(name,
+                    "cross_layer_override declared but upper_layer_driver_addressed != True; "
+                    "the lower-loop fix will not hold without addressing the upper-layer driver",
+                    {"upper_layer_driver_addressed": spec.get("upper_layer_driver_addressed")})
+
+
+def verify_setpoint_mechanism(spec: Dict[str, Any]) -> VerifierResult:
+    """If failure_mode is setpoint_drift, setpoint_shift_mechanism_stated must be True."""
+    name = "biology.setpoint_mechanism"
+    failure_mode = str(spec.get("failure_mode", "")).lower()
+    if failure_mode != "setpoint_drift":
+        return confirm(name, "not a setpoint_drift failure — check skipped")
+    if spec.get("setpoint_shift_mechanism_stated") is True:
+        return confirm(name, "setpoint_drift: setpoint_shift_mechanism_stated = True")
+    return mismatch(name,
+                    "setpoint_drift declared but setpoint_shift_mechanism_stated != True; "
+                    "the biological mechanism (e.g., RAAS remodeling, leptin resistance, "
+                    "epigenetic locking) must be stated",
+                    {"setpoint_shift_mechanism_stated": spec.get("setpoint_shift_mechanism_stated")})
+
+
+def verify_sensor_failure_plan(spec: Dict[str, Any]) -> VerifierResult:
+    """If failure_mode is sensor_failure, sensor_recalibration_plan must be True."""
+    name = "biology.sensor_failure_plan"
+    failure_mode = str(spec.get("failure_mode", "")).lower()
+    if failure_mode != "sensor_failure":
+        return confirm(name, "not a sensor_failure mode — check skipped")
+    if spec.get("sensor_recalibration_plan") is True:
+        return confirm(name, "sensor_failure: sensor_recalibration_plan = True")
+    return mismatch(name,
+                    "sensor_failure declared but sensor_recalibration_plan != True; "
+                    "without restoring the sensing mechanism the loop cannot close and "
+                    "downstream damage continues silently",
+                    {"sensor_recalibration_plan": spec.get("sensor_recalibration_plan")})
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     bv = packet.get("BIO_VERIFY") or {}
@@ -306,6 +413,19 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     if "mendelian" in bv:
         results.append(verify_mendelian(bv["mendelian"]))
 
+    # Nested health / control systems block
+    ctrl = packet.get("BIO_CONTROL") or {}
+    if ctrl:
+        results.append(verify_failure_mode_known(ctrl))
+        results.append(verify_control_layer_match(ctrl))
+        failure_mode = str(ctrl.get("failure_mode", "")).lower()
+        if failure_mode == "cross_layer_override":
+            results.append(verify_cross_layer_override(ctrl))
+        elif failure_mode == "setpoint_drift":
+            results.append(verify_setpoint_mechanism(ctrl))
+        elif failure_mode == "sensor_failure":
+            results.append(verify_sensor_failure_plan(ctrl))
+
     if not results:
-        results.append(na("biology", "no BIO_VERIFY artifacts present"))
+        results.append(na("biology", "no BIO_VERIFY or BIO_CONTROL artifacts present"))
     return results
