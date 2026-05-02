@@ -249,10 +249,16 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
     # escalating to larger sizes — the data we have already differentiates
     # the claim. Without this, an O(n^2) algorithm wrongly claimed as O(n)
     # would pull the verifier into running n=100k or n=1M, taking hours.
-    max_per_call_s = float(spec.get("max_per_call_seconds", 2.0))
+    max_per_call_s = float(spec.get("max_per_call_seconds", 1.0))
+    # Per-claim total wall-clock budget: even when no single call hits the
+    # per-call cap, a slow algorithm probed at five sizes can accumulate
+    # 5+ seconds across the size loop. Cap the per-claim total to keep the
+    # benchmark/CI runtime bounded.
+    max_total_s = float(spec.get("max_total_seconds", 3.0))
 
     times = []
     sizes_used: List[int] = []
+    t_claim = time.perf_counter()
     for n in sizes:
         try:
             args = gen(n)
@@ -286,11 +292,16 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
         # If this size already exceeded the cap, don't try larger n
         if elapsed >= max_per_call_s:
             break
+        # Per-claim total budget: bail out if cumulative measurement time
+        # has exceeded the budget regardless of any single call's cost.
+        if (time.perf_counter() - t_claim) >= max_total_s:
+            break
 
     if len(sizes_used) < 2:
         return na("cs.runtime_complexity",
                   f"only {len(sizes_used)} size(s) completed within "
-                  f"{max_per_call_s}s/call cap — cannot fit a slope")
+                  f"{max_per_call_s}s/call cap or {max_total_s}s/claim "
+                  f"budget — cannot fit a slope")
 
     # Fit log-log slope on the larger half of sizes (where overhead matters less)
     sizes = sizes_used
