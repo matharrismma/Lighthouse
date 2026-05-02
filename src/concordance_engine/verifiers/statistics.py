@@ -237,11 +237,34 @@ def verify_pvalue_calibration(spec: Dict[str, Any]) -> VerifierResult:
                        f"recomputed p={p:.6g} (no claimed_p to compare)", data)
 
     diff = abs(p - claimed_p)
-    if diff <= tol:
+    # Ratio check (relative agreement) supplements the absolute tolerance.
+    # Without it, the 5e-3 absolute window accepts cases like claimed=0.0014
+    # vs recomputed=0.0028 (wrong_tail: ratio=2.0) or claimed=0.001379 vs
+    # recomputed=0.000276 (wrong_p_value: ratio=5.0) — the diffs are tiny in
+    # absolute terms but the inferential errors are large. A ratio threshold
+    # of 1.5 catches wrong_tail (ratio=2 exactly) while still allowing
+    # published rounding (typically ratio<1.2). Both p-values must be above a
+    # floor (1e-6) for the ratio check to apply — below that, scipy's
+    # underflow can pin one side to 0 and the ratio loses meaning.
+    ratio_threshold = float(spec.get("ratio_threshold", 1.5))
+    p_floor = 1e-6
+    if p > p_floor and claimed_p > p_floor:
+        ratio = max(p, claimed_p) / min(p, claimed_p)
+        ratio_ok = ratio <= ratio_threshold
+    else:
+        ratio = 1.0
+        ratio_ok = True
+    if diff <= tol and ratio_ok:
         return confirm("statistics.pvalue_calibration",
-                       f"claimed p={claimed_p}, recomputed p={p:.6g} (diff {diff:.2e})", data)
+                       f"claimed p={claimed_p}, recomputed p={p:.6g} "
+                       f"(diff {diff:.2e}, ratio {ratio:.2f})", data)
+    failures = []
+    if diff > tol:
+        failures.append(f"diff {diff:.2e} > tol {tol}")
+    if not ratio_ok:
+        failures.append(f"ratio {ratio:.2f} > {ratio_threshold}")
     return mismatch("statistics.pvalue_calibration",
-                    f"claimed p={claimed_p}, recomputed p={p:.6g} (diff {diff:.2e} > tol {tol})",
+                    f"claimed p={claimed_p}, recomputed p={p:.6g}: " + "; ".join(failures),
                     data)
 
 
