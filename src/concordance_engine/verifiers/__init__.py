@@ -6,6 +6,7 @@ from . import (
     astronomy, calendar_time, networking, electrical, acoustics, optics,
     geology, information_theory, document_validation,
     music_theory, number_theory, geography,
+    combinatorics, geometry, meteorology,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -54,6 +55,10 @@ VERIFIERS = {
     "music": music_theory,
     "number_theory": number_theory,
     "geography": geography,
+    "combinatorics": combinatorics,
+    "geometry": geometry,
+    "meteorology": meteorology,
+    "weather": meteorology,
 }
 
 

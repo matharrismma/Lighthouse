@@ -100,4 +100,13 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "geography":
         from .geography import GeographyValidator
         return GeographyValidator()
+    if domain == "combinatorics":
+        from .combinatorics import CombinatoricsValidator
+        return CombinatoricsValidator()
+    if domain == "geometry":
+        from .geometry import GeometryValidator
+        return GeometryValidator()
+    if domain in ("meteorology", "weather"):
+        from .meteorology import MeteorologyValidator
+        return MeteorologyValidator()
     return None
