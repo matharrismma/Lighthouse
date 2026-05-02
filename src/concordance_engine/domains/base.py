@@ -40,4 +40,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "linguistics":
         from .linguistics import LinguisticsValidator
         return LinguisticsValidator()
+    if domain == "genetics":
+        from .genetics import GeneticsValidator
+        return GeneticsValidator()
     return None
