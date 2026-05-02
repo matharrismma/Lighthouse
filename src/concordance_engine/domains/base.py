@@ -76,4 +76,10 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("electrical", "electrical_engineering"):
         from .electrical import ElectricalValidator
         return ElectricalValidator()
+    if domain == "acoustics":
+        from .acoustics import AcousticsValidator
+        return AcousticsValidator()
+    if domain == "optics":
+        from .optics import OpticsValidator
+        return OpticsValidator()
     return None

@@ -3,7 +3,7 @@ from . import (
     chemistry, physics, statistics, mathematics, computer_science, biology,
     governance, scripture, linguistics, genetics, agriculture, formal_logic,
     nutrition, cryptography, exercise_science, manufacturing, finance,
-    astronomy, calendar_time, networking, electrical,
+    astronomy, calendar_time, networking, electrical, acoustics, optics,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -40,6 +40,8 @@ VERIFIERS = {
     "network": networking,
     "electrical": electrical,
     "electrical_engineering": electrical,
+    "acoustics": acoustics,
+    "optics": optics,
 }
 
 
