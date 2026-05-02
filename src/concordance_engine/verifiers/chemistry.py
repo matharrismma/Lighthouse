@@ -316,6 +316,87 @@ def verify_temperature(temperature_K: float) -> VerifierResult:
     return confirm("chemistry.temperature_K", f"{t} K positive")
 
 
+def verify_thermodynamic_feasibility(spec: Dict[str, Any]) -> VerifierResult:
+    """Gibbs free energy check: ΔG = ΔH - T·ΔS determines spontaneity.
+
+    Inputs (keys in spec):
+        delta_H_kJ_mol     — enthalpy change (kJ/mol)
+        delta_S_J_mol_K    — entropy change (J/(mol·K))
+        temperature_K      — absolute temperature (K)
+        claimed_spontaneous — bool: claim that ΔG < 0 at the stated T
+    A reaction is thermodynamically spontaneous iff ΔG < 0.
+    """
+    name = "chemistry.thermodynamic_feasibility"
+    dH = spec.get("delta_H_kJ_mol")
+    dS = spec.get("delta_S_J_mol_K")
+    T = spec.get("temperature_K")
+    claimed = spec.get("claimed_spontaneous")
+    if dH is None or dS is None or T is None or claimed is None:
+        return na(name)
+    try:
+        dH_f = float(dH)
+        dS_f = float(dS) / 1000.0  # convert J → kJ
+        T_f = float(T)
+    except (TypeError, ValueError):
+        return error(name, f"non-numeric input: dH={dH!r}, dS={dS!r}, T={T!r}")
+    if T_f <= 0:
+        return error(name, f"temperature must be > 0 K, got {T_f}")
+    dG = dH_f - T_f * dS_f
+    spontaneous = dG < 0
+    if spontaneous == bool(claimed):
+        return confirm(name,
+                       f"ΔG = {dG:.3f} kJ/mol at T={T_f} K (spontaneous={spontaneous}, matches claim)",
+                       {"delta_G_kJ_mol": dG, "spontaneous": spontaneous,
+                        "claimed": bool(claimed), "delta_H": dH_f,
+                        "delta_S_kJ_mol_K": dS_f, "temperature_K": T_f})
+    return mismatch(name,
+                    f"ΔG = {dG:.3f} kJ/mol → spontaneous={spontaneous}, claimed {bool(claimed)}",
+                    {"delta_G_kJ_mol": dG, "spontaneous": spontaneous,
+                     "claimed": bool(claimed)})
+
+
+def verify_ph_classification(spec: Dict[str, Any]) -> VerifierResult:
+    """Classify a solution as acid / base / neutral by pH.
+
+    Inputs:
+        pH                          — numeric pH value (0-14)
+        claimed_classification      — one of "acid"/"base"/"neutral"/"acidic"/"basic"/"alkaline"
+        neutral_tolerance           — pH band counted as neutral (default 0.5 around 7.0)
+    """
+    name = "chemistry.pH_classification"
+    pH = spec.get("pH")
+    claimed = spec.get("claimed_classification")
+    if pH is None or claimed is None:
+        return na(name)
+    try:
+        pH_f = float(pH)
+    except (TypeError, ValueError):
+        return error(name, f"pH must be numeric, got {pH!r}")
+    if not (0.0 <= pH_f <= 14.0):
+        return mismatch(name, f"pH {pH_f} out of valid range [0, 14]",
+                        {"pH": pH_f})
+    tol = float(spec.get("neutral_tolerance", 0.5))
+    if abs(pH_f - 7.0) <= tol:
+        actual = "neutral"
+    elif pH_f < 7.0:
+        actual = "acid"
+    else:
+        actual = "base"
+    # Normalize claimed label: 'acidic' → 'acid', 'basic'/'alkaline' → 'base'.
+    claim_norm = str(claimed).lower().strip()
+    if claim_norm in ("acidic",):
+        claim_norm = "acid"
+    elif claim_norm in ("basic", "alkaline"):
+        claim_norm = "base"
+    if claim_norm == actual:
+        return confirm(name,
+                       f"pH {pH_f} is {actual} (matches claim {claimed!r})",
+                       {"pH": pH_f, "actual": actual, "claimed": claim_norm})
+    return mismatch(name,
+                    f"pH {pH_f} is {actual}, claimed {claim_norm!r}",
+                    {"pH": pH_f, "actual": actual, "claimed": claim_norm})
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     """Run all chemistry verifiers that have an artifact in the packet."""
     results: List[VerifierResult] = []
@@ -329,6 +410,15 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     if "temperature_K" in setup or "temperature_K" in chem_verify:
         t = chem_verify.get("temperature_K", setup.get("temperature_K"))
         results.append(verify_temperature(t))
+
+    # Thermodynamic feasibility: ΔG = ΔH - TΔS spontaneity check.
+    if all(k in chem_verify for k in ("delta_H_kJ_mol", "delta_S_J_mol_K",
+                                      "temperature_K", "claimed_spontaneous")):
+        results.append(verify_thermodynamic_feasibility(chem_verify))
+
+    # pH classification check.
+    if "pH" in chem_verify and "claimed_classification" in chem_verify:
+        results.append(verify_ph_classification(chem_verify))
 
     if not results:
         results.append(na("chemistry", "no CHEM_VERIFY artifacts present"))

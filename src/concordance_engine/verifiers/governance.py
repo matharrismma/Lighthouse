@@ -143,6 +143,86 @@ def verify_witness_count_consistency(spec: Dict[str, Any], packet: Dict[str, Any
                     f"DECISION_PACKET names {n_named} witnesses but top-level witness_count={n_top}")
 
 
+_SCOPE_WAIT_WINDOWS = {"adapter": 3600, "mesh": 86400, "canon": 604800}
+
+
+def verify_decision_timing(packet: Dict[str, Any]) -> VerifierResult:
+    """The packet's scope must have an explicit wait_window honoured.
+
+    Inputs (from packet, not just DECISION_PACKET):
+        scope               — 'adapter' (1h) | 'mesh' (24h) | 'canon' (7d)
+        created_epoch       — when the packet was created
+        wait_window_seconds — optional override; raises (never lowers) the floor
+    Without an `acted_at_epoch` field the verifier cannot confirm the wait
+    has elapsed yet, so it returns NA. With `acted_at_epoch >= created_epoch
+    + wait_window`, it CONFIRMS; otherwise MISMATCHes.
+    """
+    name = "governance.decision_timing"
+    scope = (packet.get("scope") or "").lower().strip()
+    created = packet.get("created_epoch")
+    acted = packet.get("acted_at_epoch")
+    if not scope or created is None:
+        return na(name, "scope or created_epoch missing")
+    if acted is None:
+        return na(name, "no acted_at_epoch — cannot judge wait window yet")
+    try:
+        c, a = int(created), int(acted)
+    except (TypeError, ValueError):
+        return error(name, f"created_epoch/acted_at_epoch must be integers")
+    if scope not in _SCOPE_WAIT_WINDOWS:
+        return error(name, f"unknown scope {scope!r}; expected adapter/mesh/canon")
+    floor = _SCOPE_WAIT_WINDOWS[scope]
+    override = packet.get("wait_window_seconds")
+    if override is not None:
+        try:
+            floor = max(floor, int(override))
+        except (TypeError, ValueError):
+            return error(name, f"wait_window_seconds must be an integer")
+    elapsed = a - c
+    data = {"scope": scope, "elapsed_seconds": elapsed, "required_seconds": floor,
+            "created_epoch": c, "acted_at_epoch": a}
+    if elapsed < 0:
+        return mismatch(name, f"acted before created (elapsed={elapsed}s)", data)
+    if elapsed >= floor:
+        return confirm(name,
+                       f"scope={scope} wait satisfied: elapsed={elapsed}s >= required {floor}s",
+                       data)
+    return mismatch(name,
+                    f"scope={scope} wait NOT satisfied: elapsed={elapsed}s < required {floor}s",
+                    data)
+
+
+def verify_rationale_alignment(spec: Dict[str, Any]) -> VerifierResult:
+    """Token-overlap check between rationale and decision text.
+
+    Deterministic heuristic: at least one substantive (≥4-char) noun-form
+    token from the decision must appear in the rationale. Catches the
+    obvious case where rationale and decision are about completely
+    different things. NOT a substantive semantic check — just a structural
+    integrity check that prevents pasted-rationale fraud.
+    """
+    name = "governance.rationale_alignment"
+    decision = spec.get("decision")
+    rationale = spec.get("rationale")
+    if not decision or not rationale:
+        return na(name, "decision or rationale missing")
+    import re
+    dec_tokens = set(re.findall(r"[A-Za-z]{4,}", str(decision).lower()))
+    rat_text = str(rationale).lower()
+    if not dec_tokens:
+        return na(name, "decision has no substantive tokens (≥4 chars)")
+    matched = [t for t in dec_tokens if t in rat_text]
+    if matched:
+        return confirm(name,
+                       f"rationale references decision (token overlap: {sorted(matched)[:6]})",
+                       {"matched_tokens": sorted(matched), "decision_token_count": len(dec_tokens)})
+    return mismatch(name,
+                    f"rationale shares no ≥4-char tokens with decision — "
+                    f"decision tokens were {sorted(dec_tokens)[:6]}",
+                    {"decision_tokens": sorted(dec_tokens),
+                     "rationale_excerpt": rat_text[:200]})
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     dp = packet.get("DECISION_PACKET")
@@ -150,6 +230,11 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     if dp is not None:
         results.append(verify_decision_packet_shape(dp))
         results.append(verify_witness_count_consistency(dp, packet))
+        results.append(verify_rationale_alignment(dp))
+
+    # Decision timing uses packet-level scope/created_epoch/acted_at_epoch.
+    if "acted_at_epoch" in packet:
+        results.append(verify_decision_timing(packet))
 
     if not results:
         results.append(na("governance", "no DECISION_PACKET artifact present"))

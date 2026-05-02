@@ -152,6 +152,89 @@ def verify_conservation(
     return confirm("physics.conservation", f"all {len(keys)} quantities conserved", details)
 
 
+def verify_kinematic_motion(spec: Dict[str, Any]) -> VerifierResult:
+    """1D constant-acceleration kinematics: d = v0·t + 0.5·a·t².
+
+    Inputs (all SI-consistent; the verifier doesn't enforce unit names):
+        v0                   — initial velocity (m/s)
+        a                    — acceleration (m/s²)
+        t                    — elapsed time (s)
+        claimed_displacement — claimed position change (m)
+        tolerance_relative   — relative tolerance (default 1e-6)
+        tolerance_absolute   — absolute tolerance floor (default 1e-9)
+    """
+    name = "physics.kinematic_motion"
+    v0 = spec.get("v0")
+    a = spec.get("a")
+    t = spec.get("t")
+    claimed = spec.get("claimed_displacement")
+    if v0 is None or a is None or t is None or claimed is None:
+        return na(name)
+    try:
+        v0_f, a_f, t_f, c_f = float(v0), float(a), float(t), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, f"non-numeric input: v0={v0!r}, a={a!r}, t={t!r}, claimed={claimed!r}")
+    if t_f < 0:
+        return mismatch(name, f"time must be non-negative, got {t_f}")
+    actual = v0_f * t_f + 0.5 * a_f * t_f * t_f
+    rel_tol = float(spec.get("tolerance_relative", 1e-6))
+    abs_tol = float(spec.get("tolerance_absolute", 1e-9))
+    diff = abs(actual - c_f)
+    if diff <= max(abs_tol, rel_tol * max(abs(actual), abs(c_f))):
+        return confirm(name,
+                       f"d = v0·t + ½·a·t² = {actual:.6g} (matches claim {c_f:.6g})",
+                       {"actual": actual, "claimed": c_f, "diff": diff,
+                        "v0": v0_f, "a": a_f, "t": t_f})
+    return mismatch(name,
+                    f"d = v0·t + ½·a·t² = {actual:.6g}, claimed {c_f:.6g} (diff {diff:.3g})",
+                    {"actual": actual, "claimed": c_f, "diff": diff,
+                     "v0": v0_f, "a": a_f, "t": t_f})
+
+
+# Speed of light in vacuum (SI: m/s). Public-domain physical constant.
+_SPEED_OF_LIGHT_M_PER_S = 299_792_458.0
+
+
+def verify_relativistic_speed_limit(spec: Dict[str, Any]) -> VerifierResult:
+    """Special relativity: no massive object travels at or above c.
+
+    Inputs:
+        speed_m_per_s   — claimed speed (in vacuum-equivalent units, m/s)
+        massive         — bool: True for objects with rest mass (default True).
+                          Photons/gluons/gravitons (massive=False) travel at c.
+    A claim that a massive object reaches v ≥ c is a MISMATCH (the
+    Lorentz factor diverges; v = c is not attainable for m > 0).
+    """
+    name = "physics.relativistic_speed_limit"
+    v = spec.get("speed_m_per_s")
+    if v is None:
+        return na(name)
+    try:
+        v_f = float(v)
+    except (TypeError, ValueError):
+        return error(name, f"speed must be numeric, got {v!r}")
+    if v_f < 0:
+        return error(name, f"speed must be non-negative, got {v_f}")
+    massive = spec.get("massive", True)
+    c = _SPEED_OF_LIGHT_M_PER_S
+    data = {"speed_m_per_s": v_f, "c_m_per_s": c, "fraction_of_c": v_f / c, "massive": bool(massive)}
+    if not massive:
+        # massless particles travel at exactly c.
+        if abs(v_f - c) < 1.0:
+            return confirm(name, f"massless particle at v = c (within 1 m/s)", data)
+        return mismatch(name,
+                        f"massless particle should travel at c = {c:.0f} m/s, claim is {v_f:.0f}",
+                        data)
+    if v_f >= c:
+        return mismatch(name,
+                        f"massive object cannot reach v = {v_f:.0f} m/s ≥ c = {c:.0f} m/s; "
+                        f"Lorentz factor diverges",
+                        data)
+    return confirm(name,
+                   f"massive object at {v_f:.3g} m/s ({v_f/c:.4%} of c), within relativistic bound",
+                   data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     pv = packet.get("PHYS_VERIFY") or {}
@@ -179,6 +262,12 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
                     tolerance_absolute=pv.get("tolerance_absolute", 0.0),
                 )
             )
+
+    if all(k in pv for k in ("v0", "a", "t", "claimed_displacement")):
+        results.append(verify_kinematic_motion(pv))
+
+    if "speed_m_per_s" in pv:
+        results.append(verify_relativistic_speed_limit(pv))
 
     if not results:
         results.append(na("physics", "no PHYS_VERIFY artifacts present"))

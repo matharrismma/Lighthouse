@@ -262,6 +262,196 @@ def verify_scripture_anchors(anchors: List[str]) -> VerifierResult:
     )
 
 
+# ── Canonical 66-book set (Protestant canon, public domain) ─────────────
+# Lower-cased, common abbreviations included. The pattern matcher accepts
+# any of these forms before chapter:verse.
+_CANON_BOOKS = {
+    # OT
+    "genesis", "gen", "ge",
+    "exodus", "exo", "ex",
+    "leviticus", "lev", "lv",
+    "numbers", "num", "nu",
+    "deuteronomy", "deut", "dt",
+    "joshua", "josh", "jos",
+    "judges", "judg", "jdg",
+    "ruth", "ru",
+    "1 samuel", "1samuel", "1sam", "1sa", "1 sam",
+    "2 samuel", "2samuel", "2sam", "2sa", "2 sam",
+    "1 kings", "1kings", "1kgs", "1ki",
+    "2 kings", "2kings", "2kgs", "2ki",
+    "1 chronicles", "1chronicles", "1chr", "1ch",
+    "2 chronicles", "2chronicles", "2chr", "2ch",
+    "ezra", "ezr",
+    "nehemiah", "neh", "ne",
+    "esther", "est", "es",
+    "job",
+    "psalms", "psalm", "ps", "psa",
+    "proverbs", "prov", "pr", "pro",
+    "ecclesiastes", "eccl", "ecc", "ec", "qoh",
+    "song of solomon", "song of songs", "song", "sos", "ss",
+    "isaiah", "isa", "is",
+    "jeremiah", "jer", "je",
+    "lamentations", "lam", "la",
+    "ezekiel", "ezek", "eze", "ezk",
+    "daniel", "dan", "da", "dn",
+    "hosea", "hos", "ho",
+    "joel", "joe", "jl",
+    "amos", "am",
+    "obadiah", "obad", "ob",
+    "jonah", "jon",
+    "micah", "mic", "mi",
+    "nahum", "nah", "na",
+    "habakkuk", "hab", "hb",
+    "zephaniah", "zeph", "zep",
+    "haggai", "hag", "hg",
+    "zechariah", "zech", "zec",
+    "malachi", "mal",
+    # NT
+    "matthew", "matt", "mt",
+    "mark", "mk", "mar",
+    "luke", "lk", "luk",
+    "john", "jn", "jhn",
+    "acts", "ac", "act",
+    "romans", "rom", "ro",
+    "1 corinthians", "1corinthians", "1cor", "1co",
+    "2 corinthians", "2corinthians", "2cor", "2co",
+    "galatians", "gal", "ga",
+    "ephesians", "eph",
+    "philippians", "phil", "php",
+    "colossians", "col",
+    "1 thessalonians", "1thess", "1th",
+    "2 thessalonians", "2thess", "2th",
+    "1 timothy", "1tim", "1ti",
+    "2 timothy", "2tim", "2ti",
+    "titus", "tit",
+    "philemon", "phlm", "phm",
+    "hebrews", "heb",
+    "james", "jas", "jam",
+    "1 peter", "1pet", "1pe",
+    "2 peter", "2pet", "2pe",
+    "1 john", "1jn", "1jo",
+    "2 john", "2jn", "2jo",
+    "3 john", "3jn", "3jo",
+    "jude", "jud",
+    "revelation", "rev", "re",
+}
+
+# Books that are predominantly red-letter (Jesus speaking in person).
+# Matthew, Mark, Luke, John = the four Gospels.
+_GOSPEL_BOOKS = {
+    "matthew", "matt", "mt",
+    "mark", "mk", "mar",
+    "luke", "lk", "luk",
+    "john", "jn", "jhn",
+}
+
+import re as _re
+
+# Match the reference prefix, allowing trailing content (commentary,
+# verse text). We only use the first chapter:verse hit and ignore what
+# follows.
+_BOOK_PATTERN = _re.compile(
+    r"^\s*((?:[1-3]\s*)?[A-Za-z][A-Za-z\.\s]*?)\s*(\d+)(?::\d+(?:-\d+)?)?(?=\s|$|[—–\-,;:.])"
+)
+
+
+def _extract_book_chapter(ref: str):
+    """Return (book_lower, chapter) for a reference, or (None, None).
+
+    Accepts commentary-annotated forms like "Mic 6:8 — to act justly..."
+    by anchoring only the reference prefix.
+    """
+    if not ref:
+        return None, None
+    s = str(ref)
+    # Trim any commentary that follows an em-dash, en-dash, or hyphen-with-spaces.
+    for sep in (" — ", " – ", " - "):
+        if sep in s:
+            s = s.split(sep, 1)[0].strip()
+            break
+    m = _BOOK_PATTERN.match(s)
+    if not m:
+        return None, None
+    book = m.group(1).strip().lower()
+    book = _re.sub(r"\s+", " ", book).rstrip(".").strip()
+    try:
+        chapter = int(m.group(2))
+    except (TypeError, ValueError):
+        return None, None
+    return book, chapter
+
+
+def verify_canon_membership(refs):
+    """Every reference must point to a book in the 66-book canon."""
+    name = "scripture.canon_membership"
+    if not refs:
+        return VerifierResult(name=name, status="CONFIRMED",
+                              detail="no references to check")
+    inside = []
+    outside = []
+    unparseable = []
+    for r in refs:
+        book, _ = _extract_book_chapter(r)
+        if book is None:
+            unparseable.append(r)
+        elif book in _CANON_BOOKS:
+            inside.append(r)
+        else:
+            outside.append(r)
+    data = {"inside": inside, "outside": outside, "unparseable": unparseable,
+            "total": len(refs)}
+    if outside:
+        return VerifierResult(name=name, status="MISMATCH",
+                              detail=f"{len(outside)} reference(s) not in canonical 66 books: {outside}",
+                              data=data)
+    if unparseable and not inside:
+        return VerifierResult(name=name, status="ERROR",
+                              detail=f"could not parse any reference: {unparseable}",
+                              data=data)
+    return VerifierResult(name=name, status="CONFIRMED",
+                          detail=f"all {len(inside)} reference(s) in canonical 66 books",
+                          data=data)
+
+
+def verify_red_letter_priority(refs):
+    """Surface which references are from Gospel books (Jesus's recorded words).
+
+    Per `00_CANON/SOURCE_HIERARCHY.md`: Jesus' words (RED) are primary
+    authority; all other Scripture is secondary witness. This verifier
+    annotates each reference with whether it points to a Gospel book,
+    so downstream consumers can weight accordingly. Returns CONFIRMED
+    in either case (it's a classification, not a pass/fail), but the
+    `data` payload tells the caller which refs are top-tier authority.
+    """
+    name = "scripture.red_letter_priority"
+    if not refs:
+        return VerifierResult(name=name, status="CONFIRMED",
+                              detail="no references to classify")
+    gospel_refs = []
+    other_refs = []
+    for r in refs:
+        book, _ = _extract_book_chapter(r)
+        if book and book in _GOSPEL_BOOKS:
+            gospel_refs.append(r)
+        else:
+            other_refs.append(r)
+    data = {"gospel_refs": gospel_refs, "other_refs": other_refs,
+            "total": len(refs), "gospel_count": len(gospel_refs)}
+    if gospel_refs:
+        return VerifierResult(
+            name=name, status="CONFIRMED",
+            detail=f"{len(gospel_refs)} of {len(refs)} reference(s) are from Gospels "
+                   f"(red-letter priority): {gospel_refs}",
+            data=data,
+        )
+    return VerifierResult(
+        name=name, status="CONFIRMED",
+        detail=f"no Gospel references among {len(refs)} citation(s); "
+               f"all are secondary-tier per source hierarchy",
+        data=data,
+    )
+
+
 def run(packet: dict) -> list:
     """Run scripture verification for every ref-bearing field in a packet.
 
@@ -285,5 +475,12 @@ def run(packet: dict) -> list:
         # Rename for clarity when both fields are present (VerifierResult is frozen)
         vr = _dc_replace(vr, name="scripture.entry_refs")
         results.append(vr)
+
+    # Canon membership + red-letter priority run on whatever refs are
+    # present (anchors first, fall back to refs).
+    all_refs = list(anchors) + list(refs)
+    if all_refs:
+        results.append(verify_canon_membership(all_refs))
+        results.append(verify_red_letter_priority(all_refs))
 
     return results
