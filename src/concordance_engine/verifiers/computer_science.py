@@ -239,7 +239,15 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
     except Exception as e:
         return error("cs.runtime_complexity", f"setup failure: {e}")
 
+    # Per-call wall-clock cap: if a single fn(*args) at size n exceeds this,
+    # the function is far slower than the claimed class at that n. Stop
+    # escalating to larger sizes — the data we have already differentiates
+    # the claim. Without this, an O(n^2) algorithm wrongly claimed as O(n)
+    # would pull the verifier into running n=100k or n=1M, taking hours.
+    max_per_call_s = float(spec.get("max_per_call_seconds", 2.0))
+
     times = []
+    sizes_used: List[int] = []
     for n in sizes:
         try:
             args = gen(n)
@@ -258,7 +266,8 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
                 return error("cs.runtime_complexity",
                              f"function call at n={n} failed: {e}")
             elapsed = time.perf_counter() - t0
-            if elapsed >= target_s or repeats >= 1_000_000:
+            # Hard cap stops the repeat-doubling loop too
+            if elapsed >= max_per_call_s or elapsed >= target_s or repeats >= 1_000_000:
                 break
             # Estimate factor needed
             if elapsed > 0:
@@ -268,8 +277,18 @@ def verify_runtime_complexity(spec: Dict[str, Any]) -> VerifierResult:
             repeats *= factor
         per_call = elapsed / repeats
         times.append(max(per_call, 1e-9))
+        sizes_used.append(n)
+        # If this size already exceeded the cap, don't try larger n
+        if elapsed >= max_per_call_s:
+            break
+
+    if len(sizes_used) < 2:
+        return na("cs.runtime_complexity",
+                  f"only {len(sizes_used)} size(s) completed within "
+                  f"{max_per_call_s}s/call cap — cannot fit a slope")
 
     # Fit log-log slope on the larger half of sizes (where overhead matters less)
+    sizes = sizes_used
     log_n = [math.log(n) for n in sizes]
     log_t = [math.log(t) for t in times]
     # use the upper half but at least 3 points
