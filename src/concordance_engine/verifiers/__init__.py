@@ -1,5 +1,5 @@
 """Verifier registry — domain -> verifier module mapping."""
-from . import chemistry, physics, statistics, mathematics, computer_science, biology, governance, scripture, linguistics, genetics
+from . import chemistry, physics, statistics, mathematics, computer_science, biology, governance, scripture, linguistics, genetics, agriculture
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
 VERIFIERS = {
@@ -17,6 +17,7 @@ VERIFIERS = {
     "church": governance,
     "linguistics": linguistics,
     "genetics": genetics,
+    "agriculture": agriculture,
 }
 
 

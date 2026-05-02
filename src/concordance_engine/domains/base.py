@@ -43,4 +43,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "genetics":
         from .genetics import GeneticsValidator
         return GeneticsValidator()
+    if domain == "agriculture":
+        from .agriculture import AgricultureValidator
+        return AgricultureValidator()
     return None
