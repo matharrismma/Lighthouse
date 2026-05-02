@@ -58,4 +58,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("exercise_science", "exercise"):
         from .exercise_science import ExerciseScienceValidator
         return ExerciseScienceValidator()
+    if domain == "manufacturing":
+        from .manufacturing import ManufacturingValidator
+        return ManufacturingValidator()
     return None
