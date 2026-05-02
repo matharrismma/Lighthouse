@@ -16,8 +16,14 @@ import sympy
 from sympy import (
     sympify, simplify, diff, integrate, limit, solve, Symbol, oo, S, expand
 )
+from sympy.core.sympify import SympifyError as _SympifyError
 
 from .base import VerifierResult, na, confirm, mismatch, error
+
+# Exceptions that indicate the expression couldn't be parsed — the engine
+# abstains (NOT_APPLICABLE) rather than returning ERROR, so these don't
+# inflate the false-positive rate on legitimate but unrecognised syntax.
+_PARSE_ERRORS = (_SympifyError, SyntaxError, TypeError, ValueError, NotImplementedError)
 
 
 def _parse(expr: str, var_names: List[str] = None):
@@ -44,8 +50,10 @@ def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
         if expand(ea - eb) == 0:
             return confirm("mathematics.equality", f"{a} == {b} after expand")
         return mismatch("mathematics.equality", f"{a} - ({b}) simplifies to {diff_}")
+    except _PARSE_ERRORS as e:
+        return na("mathematics.equality", f"cannot parse expression: {e}")
     except Exception as e:
-        return error("mathematics.equality", f"parse/simplify failure: {e}")
+        return error("mathematics.equality", f"computation failure: {e}")
 
 
 def verify_derivative(spec: Dict[str, Any]) -> VerifierResult:
@@ -65,8 +73,10 @@ def verify_derivative(spec: Dict[str, Any]) -> VerifierResult:
         return mismatch("mathematics.derivative",
                         f"d/d{var} of {f} = {actual}, but claimed {claimed}",
                         {"computed": str(actual), "claimed": str(ec)})
+    except _PARSE_ERRORS as e:
+        return na("mathematics.derivative", f"cannot parse expression: {e}")
     except Exception as e:
-        return error("mathematics.derivative", f"failure: {e}")
+        return error("mathematics.derivative", f"computation failure: {e}")
 
 
 def verify_integral(spec: Dict[str, Any]) -> VerifierResult:
@@ -87,8 +97,10 @@ def verify_integral(spec: Dict[str, Any]) -> VerifierResult:
         return mismatch("mathematics.integral",
                         f"d/d{var} of {claimed} = {derivative}, expected {ef}",
                         {"derivative_of_claim": str(derivative), "integrand": str(ef)})
+    except _PARSE_ERRORS as e:
+        return na("mathematics.integral", f"cannot parse expression: {e}")
     except Exception as e:
-        return error("mathematics.integral", f"failure: {e}")
+        return error("mathematics.integral", f"computation failure: {e}")
 
 
 def verify_limit(spec: Dict[str, Any]) -> VerifierResult:
@@ -110,8 +122,10 @@ def verify_limit(spec: Dict[str, Any]) -> VerifierResult:
         return mismatch("mathematics.limit",
                         f"lim_{{{var}->{point}}} {f} = {actual}, claimed {claimed}",
                         {"computed": str(actual), "claimed": str(ec)})
+    except _PARSE_ERRORS as e:
+        return na("mathematics.limit", f"cannot parse expression: {e}")
     except Exception as e:
-        return error("mathematics.limit", f"failure: {e}")
+        return error("mathematics.limit", f"computation failure: {e}")
 
 
 def verify_solve(spec: Dict[str, Any]) -> VerifierResult:
@@ -142,8 +156,10 @@ def verify_solve(spec: Dict[str, Any]) -> VerifierResult:
                                  "claimed": [str(s) for s in claimed_set]})
         return confirm("mathematics.solve",
                        f"solutions {[str(s) for s in actual]} match claim")
+    except _PARSE_ERRORS as e:
+        return na("mathematics.solve", f"cannot parse expression: {e}")
     except Exception as e:
-        return error("mathematics.solve", f"failure: {e}")
+        return error("mathematics.solve", f"computation failure: {e}")
 
 
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:

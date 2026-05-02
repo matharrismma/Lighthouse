@@ -54,7 +54,10 @@ def verify_pvalue_calibration(spec: Dict[str, Any]) -> VerifierResult:
     """Recompute p-value from supplied test inputs and verify the claim."""
     test = spec.get("test", "").lower()
     claimed_p = spec.get("claimed_p")
-    tol = spec.get("tolerance", 1e-3)
+    # Default tolerance raised from 1e-3 to 5e-3: published p-values are typically
+    # rounded to 2-3 decimal places, so a 0.001 window rejects legitimate claims
+    # whose reported p differs from the recomputed p only by rounding.
+    tol = spec.get("tolerance", 5e-3)
 
     try:
         if test in ("two_sample_t", "welch_t"):
@@ -347,7 +350,7 @@ def verify_confidence_interval(spec: Dict[str, Any]) -> VerifierResult:
     sd = spec.get("sd")
     n = spec.get("n")
     conf = float(spec.get("conf_level", 0.95))
-    tol = float(spec.get("tolerance", 1e-3))
+    tol = float(spec.get("tolerance", 5e-3))
     if sd is not None and n is not None and n >= 2:
         df = spec.get("df", n - 1)
         try:
