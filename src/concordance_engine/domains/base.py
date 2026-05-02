@@ -82,4 +82,13 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "optics":
         from .optics import OpticsValidator
         return OpticsValidator()
+    if domain in ("geology", "earth_science"):
+        from .geology import GeologyValidator
+        return GeologyValidator()
+    if domain in ("information_theory", "info_theory"):
+        from .information_theory import InformationTheoryValidator
+        return InformationTheoryValidator()
+    if domain in ("document_validation", "doc_validation"):
+        from .document_validation import DocumentValidationValidator
+        return DocumentValidationValidator()
     return None

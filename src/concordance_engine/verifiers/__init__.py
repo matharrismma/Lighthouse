@@ -4,6 +4,7 @@ from . import (
     governance, scripture, linguistics, genetics, agriculture, formal_logic,
     nutrition, cryptography, exercise_science, manufacturing, finance,
     astronomy, calendar_time, networking, electrical, acoustics, optics,
+    geology, information_theory, document_validation,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -42,6 +43,12 @@ VERIFIERS = {
     "electrical_engineering": electrical,
     "acoustics": acoustics,
     "optics": optics,
+    "geology": geology,
+    "earth_science": geology,
+    "information_theory": information_theory,
+    "info_theory": information_theory,
+    "document_validation": document_validation,
+    "doc_validation": document_validation,
 }
 
 
