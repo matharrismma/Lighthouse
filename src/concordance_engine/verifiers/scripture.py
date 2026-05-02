@@ -36,7 +36,30 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
+
+
+# Anchors come in two canonical forms:
+#   * legacy bare string:  "Mat 5:37"
+#   * Anchor-dict form:    {"ref": "Mat 5:37", "layer": "jesus_words", ...}
+#
+# The dict form is the canonical shape per witness_record.Anchor, but
+# legacy callers and string-anchor packets still flow through here.
+# Every reference-iterating verifier in this module normalizes via
+# `_anchor_to_ref` before attempting to parse the ref text.
+def _anchor_to_ref(raw: Any) -> Optional[str]:
+    """Extract the bare reference string from an anchor in either form.
+
+    Returns None if the anchor doesn't carry a parseable ref — caller
+    should treat that as a failure / unparseable for its own reporting.
+    """
+    if isinstance(raw, str):
+        return raw
+    if isinstance(raw, dict):
+        ref = raw.get("ref")
+        if isinstance(ref, str):
+            return ref
+    return None
 
 from .base import VerifierResult
 
@@ -188,12 +211,17 @@ def word_study(strongs_num: str) -> Dict[str, Any]:
     return conc.word_study(strongs_num)
 
 
-def verify_scripture_anchors(anchors: List[str]) -> VerifierResult:
+def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> VerifierResult:
     """Verify each ref in `anchors` resolves to a real WEB verse.
 
     Used to ensure DECISION_PACKET.scripture_anchors and Entry.refs cite
     genuine references rather than invented ones — the most common
     LLM-fabrication failure mode in this domain.
+
+    Anchors may be bare strings ("Mat 5:37") or Anchor-dict form
+    ({"ref": "Mat 5:37", "layer": "jesus_words"}). Both are accepted;
+    the original form is preserved in `data.resolved` / `data.failed`
+    so callers can carry through layer provenance.
 
     Returns CONFIRMED if all resolve, MISMATCH if any fail, SKIPPED if
     the source data has not been provisioned (run fetch_sources.py).
@@ -237,13 +265,17 @@ def verify_scripture_anchors(anchors: List[str]) -> VerifierResult:
 
     resolved = []
     failed = []
-    for ref in anchors:
-        bare_ref = _extract_ref(ref)
+    for raw in anchors:
+        ref_str = _anchor_to_ref(raw)
+        if ref_str is None:
+            failed.append(raw)
+            continue
+        bare_ref = _extract_ref(ref_str)
         result = layer.lookup(bare_ref)
         if result.get("status") == "ok" and result.get("web_text"):
-            resolved.append({"ref": ref, "text": result["web_text"][:120]})
+            resolved.append({"ref": raw, "text": result["web_text"][:120]})
         else:
-            failed.append(ref)
+            failed.append(raw)
 
     data = {"resolved": resolved, "failed": failed, "total": len(anchors)}
     if not failed:
@@ -390,14 +422,18 @@ def verify_canon_membership(refs):
     inside = []
     outside = []
     unparseable = []
-    for r in refs:
-        book, _ = _extract_book_chapter(r)
+    for raw in refs:
+        ref_str = _anchor_to_ref(raw)
+        if ref_str is None:
+            unparseable.append(raw)
+            continue
+        book, _ = _extract_book_chapter(ref_str)
         if book is None:
-            unparseable.append(r)
+            unparseable.append(raw)
         elif book in _CANON_BOOKS:
-            inside.append(r)
+            inside.append(raw)
         else:
-            outside.append(r)
+            outside.append(raw)
     data = {"inside": inside, "outside": outside, "unparseable": unparseable,
             "total": len(refs)}
     if outside:
@@ -429,12 +465,16 @@ def verify_red_letter_priority(refs):
                               detail="no references to classify")
     gospel_refs = []
     other_refs = []
-    for r in refs:
-        book, _ = _extract_book_chapter(r)
+    for raw in refs:
+        ref_str = _anchor_to_ref(raw)
+        if ref_str is None:
+            other_refs.append(raw)
+            continue
+        book, _ = _extract_book_chapter(ref_str)
         if book and book in _GOSPEL_BOOKS:
-            gospel_refs.append(r)
+            gospel_refs.append(raw)
         else:
-            other_refs.append(r)
+            other_refs.append(raw)
     data = {"gospel_refs": gospel_refs, "other_refs": other_refs,
             "total": len(refs), "gospel_count": len(gospel_refs)}
     if gospel_refs:

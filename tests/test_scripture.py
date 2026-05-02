@@ -91,6 +91,31 @@ if __name__ == "__main__":
     v3 = scr.verify_scripture_anchors(["Zz9:99", "Bogus 1:1"])
     expect("fake anchors return VerifierResult", isinstance(v3, VerifierResult), True)
 
+    # Anchor-dict form (the canonical witness_record.Anchor shape) must
+    # be accepted without crashing — used to TypeError before this fix.
+    v4 = scr.verify_scripture_anchors([
+        {"ref": "Jn3:16", "layer": "bible"},
+        {"ref": "Mt 5:37", "layer": "jesus_words"},
+    ])
+    expect("dict-form anchors don't crash", isinstance(v4, VerifierResult), True)
+    expect_in("dict-form status is CONFIRMED/MISMATCH/SKIPPED", v4.status,
+              ("CONFIRMED", "MISMATCH", "SKIPPED"))
+
+    # Mixed string + dict — both forms together should be tolerated.
+    v5 = scr.verify_scripture_anchors([
+        "Jn3:16",
+        {"ref": "Mic 6:8", "layer": "bible"},
+    ])
+    expect("mixed-form anchors don't crash", isinstance(v5, VerifierResult), True)
+
+    # Malformed dict (no `ref` field, or non-string `ref`) — should be
+    # classified as a failure / unparseable, not a crash.
+    v6 = scr.verify_scripture_anchors([
+        {"layer": "bible"},                # missing ref
+        {"ref": 12345, "layer": "bible"},  # non-string ref
+    ])
+    expect("malformed dicts don't crash", isinstance(v6, VerifierResult), True)
+
 
     # ── triangulate_claim ─────────────────────────────────────────────────
     print("\nscripture.triangulate_claim:")
@@ -125,6 +150,56 @@ if __name__ == "__main__":
     })
     expect("DECISION_PACKET anchors returns list",
            isinstance(results3, list), True)
+
+    # A packet with dict-form scripture_anchors (the new canonical
+    # Anchor shape) must run cleanly through every scripture verifier
+    # invoked from run() — anchors, canon membership, red-letter
+    # priority. Used to TypeError before this fix.
+    results4 = scr.run({
+        "domain": "governance",
+        "scripture_anchors": [
+            {"ref": "Mic 6:8", "layer": "bible"},
+            {"ref": "Mt 5:37", "layer": "jesus_words"},
+        ],
+    })
+    expect("dict-form scripture_anchors don't crash run()",
+           isinstance(results4, list), True)
+    # canon_membership and red_letter_priority both run when anchors
+    # are present, so we should get at least 3 results.
+    expect("dict-form anchors produce >= 3 results",
+           len(results4) >= 3, True)
+    for r in results4:
+        expect_in("each result is VerifierResult-shaped",
+                  isinstance(r, VerifierResult), (True,))
+
+    # canon_membership directly with dict-form refs — used to silently
+    # mark them all unparseable (str(dict) regex fails).
+    cm = scr.verify_canon_membership([
+        {"ref": "Jn3:16", "layer": "bible"},
+        {"ref": "Mic 6:8", "layer": "bible"},
+    ])
+    expect("canon_membership dict-form returns VerifierResult",
+           isinstance(cm, VerifierResult), True)
+    # Both refs are in canonical books, so should be CONFIRMED with
+    # all in `inside`. Catches the pre-fix silent unparseable case.
+    expect("canon_membership dict-form status is CONFIRMED",
+           cm.status, "CONFIRMED")
+    expect("canon_membership found 2 inside",
+           len((cm.data or {}).get("inside", [])), 2)
+
+    # red_letter_priority with mixed-tier dict refs — Mat is gospel,
+    # Mic is OT prophet.
+    rl = scr.verify_red_letter_priority([
+        {"ref": "Mt 5:37", "layer": "jesus_words"},
+        {"ref": "Mic 6:8",  "layer": "bible"},
+    ])
+    expect("red_letter dict-form returns VerifierResult",
+           isinstance(rl, VerifierResult), True)
+    # Should classify Mat as gospel, Mic as other.
+    expect("red_letter dict-form found 1 gospel ref",
+           len((rl.data or {}).get("gospel_refs", [])), 1)
+    expect("red_letter dict-form found 1 other ref",
+           len((rl.data or {}).get("other_refs", [])), 1)
 
 
     # ── summary ───────────────────────────────────────────────────────────
