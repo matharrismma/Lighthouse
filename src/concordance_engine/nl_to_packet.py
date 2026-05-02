@@ -173,7 +173,7 @@ def _try_stat_one_sample_t(text: str) -> Optional[ParseResult]:
 #   "v = sqrt(2*g*h), v in m/s, g in m/s^2, h in m"
 
 _PHYS_UNIT_LINE = re.compile(
-    rf"(?P<sym>[A-Za-z_]\w*)\s+(?:in|=|is\s+in)\s+(?P<unit>[A-Za-z0-9·*\^/\.\s\-]+?)(?=\s*(?:,|$))",
+    rf"(?P<sym>[A-Za-z_]\w*)\s+(?:in|is\s+in)\s+(?P<unit>[A-Za-z0-9·*\^/\.\s\-]+?)(?=\s*(?:,|$))",
     re.I,
 )
 
