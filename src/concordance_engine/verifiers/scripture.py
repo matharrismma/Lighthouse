@@ -217,10 +217,29 @@ def verify_scripture_anchors(anchors: List[str]) -> VerifierResult:
             data={"anchors": anchors},
         )
 
+    # Anchors are commonly formatted with the verse text or commentary
+    # appended to the reference, e.g. "Mic 6:8 — to act justly..."  or
+    # "Mic 6:8: to act justly...". The lookup only understands the bare
+    # reference (book + chapter:verse[-end]), so extract that prefix
+    # before lookup.
+    import re
+    _REF_PATTERN = re.compile(
+        r"^\s*("                       # capture group: the bare reference
+        r"(?:[1-3]\s*)?"               # optional leading 1/2/3 (book number)
+        r"[A-Za-z][A-Za-z\.]*"         # book name (letters and dots)
+        r"\s*\d+"                      # chapter
+        r"(?::\d+(?:-\d+)?)?"          # optional :verse or :verse-end
+        r")"
+    )
+    def _extract_ref(s):
+        m = _REF_PATTERN.match(s)
+        return m.group(1).strip() if m else s
+
     resolved = []
     failed = []
     for ref in anchors:
-        result = layer.lookup(ref)
+        bare_ref = _extract_ref(ref)
+        result = layer.lookup(bare_ref)
         if result.get("status") == "ok" and result.get("web_text"):
             resolved.append({"ref": ref, "text": result["web_text"][:120]})
         else:

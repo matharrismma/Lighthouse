@@ -165,3 +165,22 @@ if __name__ == "__main__":
 
     print(f"\n  {PASS} passed, {FAIL} failed")
     sys.exit(0 if FAIL == 0 else 1)
+
+
+
+# ── pytest integration ─────────────────────────────────────────────────────
+# Wraps the script body so `pytest tests/` actually runs the assertions.
+# Re-executes the file as __main__ in a fresh namespace, catches SystemExit,
+# and asserts the script's FAIL counter (if any) is zero.
+def test_runs_clean():
+    src = open(__file__, encoding="utf-8").read()
+    code = compile(src, __file__, "exec")
+    ns = {"__name__": "__main__", "__file__": __file__}
+    try:
+        exec(code, ns)
+    except SystemExit as e:
+        if e.code not in (0, None):
+            raise AssertionError(f"script exited with code {e.code}")
+    fail = ns.get("FAIL", 0)
+    if fail:
+        raise AssertionError(f"{fail} expectation(s) failed in script body")
