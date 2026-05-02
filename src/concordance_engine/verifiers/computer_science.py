@@ -33,10 +33,15 @@ class _TerminationLinter(ast.NodeVisitor):
         self._function_stack: List[str] = []
 
     def visit_While(self, node):
-        # Detect `while True:` or `while 1:` without a reachable break/return
+        # Detect `while True:` or `while 1:` without a reachable break/return.
+        # ast.Constant covers True/False/None/numeric literals on Python 3.8+;
+        # ast.NameConstant was the pre-3.8 form and was removed in Python 3.14.
+        # Guard with getattr so this works on every supported Python.
+        _NameConstant = getattr(ast, "NameConstant", ())
         is_constant_true = (
             (isinstance(node.test, ast.Constant) and bool(node.test.value)) or
-            (isinstance(node.test, ast.NameConstant) and bool(node.test.value))
+            (_NameConstant and isinstance(node.test, _NameConstant)
+             and bool(node.test.value))
         )
         if is_constant_true:
             has_exit = any(
