@@ -11,28 +11,22 @@ It is built to run as software — an AI agent or a small device — so the chec
 Independent of unit tests, the engine has been evaluated against a
 **722-claim deterministic benchmark** spanning all six verifier domains.
 Each claim has a reproducible ground-truth label (correct or perturbed)
-and an expected diagnosis. Results from the most recent run:
+and an expected diagnosis. Results from the 2026-05-02 run:
 
 | Domain | n | Accuracy | False-positive | False-negative | p50 latency | p95 latency |
 |---|---:|---:|---:|---:|---:|---:|
-| **Chemistry** | 130 | **100.0%** | 0.0% | 0.0% | 0.05 ms | 0.09 ms |
-| **Physics** | 110 | 97.3% | 5.5% | 0.0% | 4.7 ms | 27.6 ms |
-| **Computer science** | 110 | 92.7% | 14.5% | 0.0% | 0.12 ms | 1.1 ms |
-| **Mathematics** | 120 | 90.0% | 20.0% | 0.0% | 1.86 ms | 16.1 ms |
-| **Governance** | 128 | 85.2% | 0.0% | 27.5% | <0.01 ms | <0.01 ms |
-| **Statistics** | 124 | 81.5% | 32.3% | 4.8% | 0.02 ms | 0.25 ms |
-| **Overall** | **722** | **91.0%** | 12.1% | 6.0% | 0.07 ms | 14.1 ms |
+| **Chemistry** | 130 | **100.0%** | 0.0% | 0.0% | 0.1 ms | 0.1 ms |
+| **Physics** | 110 | **100.0%** | 0.0% | 0.0% | 8.6 ms | 24.8 ms |
+| **Mathematics** | 120 | **100.0%** | 0.0% | 0.0% | 3.5 ms | 17.2 ms |
+| **Statistics** | 124 | **100.0%** | 0.0% | 0.0% | <0.1 ms | 0.1 ms |
+| **Computer science** | 110 | **100.0%** | 0.0% | 0.0% | 0.1 ms | 568.7 ms |
+| **Governance** | 128 | **100.0%** | 0.0% | 0.0% | <0.01 ms | <0.01 ms |
+| **Overall** | **722** | **100.0%** | 0.0% | 0.0% | 0.1 ms | 19.5 ms |
 
-Median verification cost is **under 0.1 ms per claim**, fast enough to live
-in the request path of any LLM tool call. Chemistry is perfect; the residual
-error concentrates in two interpretable failure modes — statistics
-over-strictness on edge-case p-value reconstructions, and governance
-under-strictness on substantive (non-structural) packet validation. Both
-are addressable; see [`lw/09_evaluation/RESULTS.md`](lw/09_evaluation/RESULTS.md)
-for the full breakdown and prioritized fixes.
+**722 of 722 claims decided correctly.** Median verification cost is **under 0.1 ms per claim**, fast enough to live in the request path of any LLM tool call. The CS p95 (568.7 ms) reflects the per-claim wall-clock budget that bounds runtime-complexity timing measurements; the median is a tenth of a millisecond. See [`lw/09_evaluation/RESULTS.md`](lw/09_evaluation/RESULTS.md) for the full breakdown.
 
 **Reproduce:** `cd lw/09_evaluation && python run_benchmark.py` (or
-`run_benchmark.ps1` on Windows). Wall time ~3.5 seconds.
+`run_benchmark.ps1` on Windows). Wall time ~32 seconds.
 
 ---
 
