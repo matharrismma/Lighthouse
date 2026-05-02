@@ -7,6 +7,7 @@ from . import (
     geology, information_theory, document_validation,
     music_theory, number_theory, geography,
     combinatorics, geometry, meteorology,
+    hydrology, photography, sports_analytics,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -59,6 +60,12 @@ VERIFIERS = {
     "geometry": geometry,
     "meteorology": meteorology,
     "weather": meteorology,
+    "hydrology": hydrology,
+    "water": hydrology,
+    "photography": photography,
+    "photo": photography,
+    "sports_analytics": sports_analytics,
+    "sports": sports_analytics,
 }
 
 

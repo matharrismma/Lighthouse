@@ -109,4 +109,13 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("meteorology", "weather"):
         from .meteorology import MeteorologyValidator
         return MeteorologyValidator()
+    if domain in ("hydrology", "water"):
+        from .hydrology import HydrologyValidator
+        return HydrologyValidator()
+    if domain in ("photography", "photo"):
+        from .photography import PhotographyValidator
+        return PhotographyValidator()
+    if domain in ("sports_analytics", "sports"):
+        from .sports_analytics import SportsAnalyticsValidator
+        return SportsAnalyticsValidator()
     return None
