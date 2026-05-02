@@ -35,6 +35,7 @@ Engine integration:
 from __future__ import annotations
 
 import sys
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -74,8 +75,13 @@ _REPO_ROOT  = Path(__file__).resolve().parent.parent.parent.parent
 _SOURCE_DIR = _REPO_ROOT / "lw" / "00_source"
 
 
+@lru_cache(maxsize=1)
 def _get_source_layer():
     """Lazy-load SourceLayer from lw/00_source/triangulation/lookup.py.
+
+    Cached at module level: SourceLayer holds an open sqlite3 connection,
+    and re-instantiating on every packet costs ~370µs/packet for the
+    sqlite3.connect alone. The cache makes that a one-time startup cost.
 
     Returns None if the data has not been provisioned. Callers must handle
     None and degrade to SKIPPED rather than crashing.
@@ -92,8 +98,10 @@ def _get_source_layer():
         return None
 
 
+@lru_cache(maxsize=1)
 def _get_concordance():
-    """Lazy-load Concordance from lw/00_source/triangulation/concordance.py."""
+    """Lazy-load Concordance from lw/00_source/triangulation/concordance.py.
+    Cached for the same reason as _get_source_layer."""
     src_str = str(_SOURCE_DIR)
     if not _SOURCE_DIR.is_dir():
         return None
@@ -106,13 +114,14 @@ def _get_concordance():
         return None
 
 
+@lru_cache(maxsize=1)
 def _get_drift_checker():
     """Lazy-load DriftChecker from lw/00_source/triangulation/drift_check.py.
 
     Used by the deep-mode triangulation check that compares an
     interpretation claim against the original-language Strong's
     definitions for the verse. Returns None if Layer 0 isn't
-    provisioned."""
+    provisioned. Cached for the same reason as _get_source_layer."""
     src_str = str(_SOURCE_DIR)
     if not _SOURCE_DIR.is_dir():
         return None
