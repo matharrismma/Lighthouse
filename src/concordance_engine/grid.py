@@ -1,26 +1,33 @@
-"""Grid registry — make the pattern visible.
+"""Scaffold registry — make the pattern visible.
 
-The 36 axes form a graph along seven dimensional axes. Domains that
-share a dimension are *adjacent*. Domains that sit on three or more
-dimensions are *structurally deep*. This module exposes the mapping as
-data so other surfaces (CLI, future web UI, agent JSON) can render it.
+The 36 axes live in a *multi-dimensional scaffold* with seven members
+(encoding, metabolism, reasoning, physical_substance, authority_trust,
+time_sequence, conservation_balance). Each axis has coordinates along
+some subset of those members. Axes that share a member are *adjacent*;
+axes that sit on three or more are *structurally deep*. The renders
+in this module are flat projections of that scaffold — useful for
+reading, but each one collapses dimensions a higher-dimensional view
+would preserve.
 
 The mapping is a proposal, not a closed claim. Discovery, not design:
-when an axis sits clearly on a dimension, mark it; when it doesn't,
+when an axis sits clearly on a member, mark it; when it doesn't,
 leave it off. Surface the cluster the data shows; don't force one.
 
-Run as a CLI:
-    python -m concordance_engine.grid              # matrix
-    python -m concordance_engine.grid depth        # axes ranked by dimension count
-    python -m concordance_engine.grid adjacent X   # axes that share a dimension with X
-    python -m concordance_engine.grid dimension D  # axes on dimension D
+Run as a CLI (each subcommand is a different projection):
+    python -m concordance_engine.grid              # matrix projection
+    python -m concordance_engine.grid depth        # axes ranked by member count
+    python -m concordance_engine.grid adjacent X   # neighbors on the scaffold
+    python -m concordance_engine.grid dimension D  # axes on a single member
 """
 from __future__ import annotations
 
 from typing import Dict, FrozenSet, List, Tuple
 
 
-# The seven dimensional axes (Matt 2026-05-02 grid_connections framing).
+# The seven scaffold members. Each axis lives at a position in the 7D
+# space these members span — present (1) or absent (0) along each
+# member in the V1 binary model. Future iterations may upgrade to
+# continuous weights; the API is set-membership today.
 DIMENSIONS: Tuple[str, ...] = (
     "encoding",            # information / symbols / codes
     "metabolism",          # lifecycle / transformation / flow of substance
