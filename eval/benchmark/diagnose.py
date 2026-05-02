@@ -2,7 +2,7 @@
 import os, sys, json
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parents[2] / "lw" / "01_engine" / "concordance-engine" / "src"))
+sys.path.insert(0, str(Path(__file__).parents[2] / "src"))
 
 key = os.environ.get("ANTHROPIC_API_KEY","")
 if not key:
