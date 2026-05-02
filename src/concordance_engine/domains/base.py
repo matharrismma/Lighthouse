@@ -37,4 +37,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain in ("governance", "business", "household", "education", "church"):
         from .governance import GovernanceValidator
         return GovernanceValidator()
+    if domain == "linguistics":
+        from .linguistics import LinguisticsValidator
+        return LinguisticsValidator()
     return None
