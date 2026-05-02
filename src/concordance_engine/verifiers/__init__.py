@@ -2,7 +2,7 @@
 from . import (
     chemistry, physics, statistics, mathematics, computer_science, biology,
     governance, scripture, linguistics, genetics, agriculture, formal_logic,
-    nutrition,
+    nutrition, cryptography,
 )
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
@@ -25,6 +25,8 @@ VERIFIERS = {
     "formal_logic": formal_logic,
     "logic": formal_logic,
     "nutrition": nutrition,
+    "cryptography": cryptography,
+    "cryptology": cryptography,
 }
 
 

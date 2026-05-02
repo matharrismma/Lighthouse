@@ -52,4 +52,7 @@ def load_domain_validator(domain: str) -> DomainValidator | None:
     if domain == "nutrition":
         from .nutrition import NutritionValidator
         return NutritionValidator()
+    if domain in ("cryptography", "cryptology"):
+        from .cryptography import CryptographyValidator
+        return CryptographyValidator()
     return None
