@@ -103,6 +103,19 @@ class Ledger:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             with self._path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(asdict(entry), separators=(",", ":")) + "\n")
+                # Append-only ledger must be crash-safe: a process death between
+                # write() and the OS flushing its page cache would lose the
+                # entry. fsync forces the kernel to flush dirty pages to disk
+                # before append() returns. Marginal write-latency cost; a
+                # non-negotiable durability guarantee for Book-of-Life semantics.
+                f.flush()
+                try:
+                    os.fsync(f.fileno())
+                except (OSError, AttributeError):
+                    # OSError: filesystem doesn't support fsync (rare).
+                    # AttributeError: fileno() not available (e.g. some test mocks).
+                    # In either case the write is at least in the OS buffer.
+                    pass
             self._last_hash = e_hash
         return entry
 
