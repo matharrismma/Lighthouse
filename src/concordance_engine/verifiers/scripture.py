@@ -114,6 +114,24 @@ def _get_concordance():
         return None
 
 
+@lru_cache(maxsize=2048)
+def _cached_anchor_lookup(bare_ref: str):
+    """Per-bare-ref lookup against the source layer, memoized at module
+    scope. Same bare ref across many packets shares one DB query.
+
+    Returns whatever SourceLayer.lookup() returned (a dict), or None if
+    sources aren't provisioned. Caller is responsible for handling None.
+
+    Cache keys are bare references like "Mt 5:37" / "Gen 1:1" — anchor
+    text variants ("Mat 5:37", "Mt 5:37 — let your yes be yes") all
+    normalize to the same bare ref via _extract_ref before reaching here.
+    """
+    layer = _get_source_layer()
+    if layer is None:
+        return None
+    return layer.lookup(bare_ref)
+
+
 @lru_cache(maxsize=1)
 def _get_drift_checker():
     """Lazy-load DriftChecker from lw/00_source/triangulation/drift_check.py.
@@ -280,8 +298,10 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
             failed.append(raw)
             continue
         bare_ref = _extract_ref(ref_str)
-        result = layer.lookup(bare_ref)
-        if result.get("status") == "ok" and result.get("web_text"):
+        # Hits the per-bare-ref cache; same anchor across many packets
+        # shares one DB query.
+        result = _cached_anchor_lookup(bare_ref)
+        if result is not None and result.get("status") == "ok" and result.get("web_text"):
             resolved.append({"ref": raw, "text": result["web_text"][:120]})
         else:
             failed.append(raw)
