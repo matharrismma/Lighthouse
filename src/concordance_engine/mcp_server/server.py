@@ -109,6 +109,66 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
 
 
 # ---------------------------------------------------------------------------
+# Sealed records — agent + human surfaces over the same WitnessRecord
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def seal_packet(
+    packet: Dict[str, Any],
+    now_epoch: Optional[int] = None,
+    auto_precedent: bool = False,
+) -> Dict[str, Any]:
+    """Run a packet through the four gates and return the sealed
+    WitnessRecord as JSON.
+
+    The canonical agent surface: every gate verdict, every verifier
+    result, axis coordinates on the dimensional scaffold, citations
+    with source-hierarchy `layer`, optional closest-case overlay. No
+    `final_answer` field anywhere — the engine categorizes, it does
+    not answer.
+
+    auto_precedent: when True, look up the closest comparable
+    precedent in the Evidence Ledger and seal it into the record.
+    Honors discovery-not-design: empty ledger and zero-overlap both
+    return precedent_id=None rather than fabricating a match.
+    """
+    return tools.seal_packet(packet, now_epoch=now_epoch,
+                              auto_precedent=auto_precedent)
+
+
+@mcp.tool()
+def walkthrough_packet(
+    packet: Dict[str, Any],
+    now_epoch: Optional[int] = None,
+    format: str = "markdown",
+    expand_traces: bool = False,
+    auto_precedent: bool = False,
+) -> str:
+    """Run a packet and return a human-readable walkthrough.
+
+    format: "markdown" (Socratic walk, default) | "compact" (one-screen
+    status) | "html" (self-contained HTML page).
+
+    expand_traces=True adds the verifier trace section to markdown and
+    HTML outputs — formula, rule, and full data payload per check.
+
+    auto_precedent=True pulls the closest comparable precedent before
+    sealing, so the walkthrough's closest-case section renders an
+    actual precedent rather than being omitted.
+
+    The walkthrough always ends on a Socratic question. No fabricated
+    answer field appears in any format.
+    """
+    return tools.walkthrough_packet(
+        packet,
+        now_epoch=now_epoch,
+        fmt=format,
+        expand_traces=expand_traces,
+        auto_precedent=auto_precedent,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Chemistry
 # ---------------------------------------------------------------------------
 

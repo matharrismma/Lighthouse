@@ -10,12 +10,19 @@ import json
 import os
 from typing import Any, Dict, List, Optional
 
-from ..engine import EngineConfig, validate_packet as _engine_validate
+from ..engine import (
+    EngineConfig, validate_packet as _engine_validate,
+    validate_and_seal as _engine_seal,
+)
 from ..verifiers import (
     chemistry, physics, mathematics, statistics,
     computer_science, biology, governance, scripture,
 )
 from ..verifiers.base import VerifierResult
+from ..walkthrough import (
+    render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
+)
+from ..ledger import find_closest as _find_closest
 
 
 def _r(r: VerifierResult) -> Dict[str, Any]:
@@ -37,6 +44,52 @@ def validate_packet(packet, now_epoch=None):
             for gr in res.gate_results
         ],
     }
+
+
+def seal_packet(packet, now_epoch=None, auto_precedent=False):
+    """Run a packet through the four gates and return the sealed
+    WitnessRecord as JSON. The agent surface for the canonical sealed
+    record — same object the human walkthrough renderer consumes.
+
+    When `auto_precedent=True`, the Evidence Ledger is queried for the
+    closest comparable precedent and (if found) sealed into the record.
+    """
+    cfg = EngineConfig(schema_path="schema/packet.schema.json")
+    closest = _find_closest(packet) if auto_precedent else None
+    rec = _engine_seal(
+        packet, now_epoch=now_epoch, config=cfg,
+        closest_case=closest, packet_id=packet.get("id"),
+    )
+    return rec.to_dict()
+
+
+def walkthrough_packet(
+    packet,
+    now_epoch=None,
+    fmt="markdown",
+    expand_traces=False,
+    auto_precedent=False,
+):
+    """Run a packet and return a human-readable walkthrough.
+
+    `fmt` selects the renderer: "markdown" (Socratic walk, default),
+    "compact" (one-screen status), or "html" (self-contained HTML page).
+    `expand_traces=True` adds the verifier trace section to markdown
+    and HTML outputs (compact ignores it). `auto_precedent=True` pulls
+    in the closest comparable precedent before sealing.
+    """
+    cfg = EngineConfig(schema_path="schema/packet.schema.json")
+    closest = _find_closest(packet) if auto_precedent else None
+    rec = _engine_seal(
+        packet, now_epoch=now_epoch, config=cfg,
+        closest_case=closest, packet_id=packet.get("id"),
+    )
+    fmt = (fmt or "markdown").lower()
+    if fmt == "compact":
+        return render_walkthrough_compact(rec)
+    if fmt == "html":
+        return render_walkthrough_html(rec, expand_traces=expand_traces)
+    return render_walkthrough(rec, expand_traces=expand_traces)
 
 
 def verify_chemistry(equation, temperature_K=None):

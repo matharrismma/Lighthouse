@@ -288,6 +288,37 @@ def main() -> None:
     led_lookup.add_argument("packet", type=str, help="Path to packet JSON")
     led_sub.add_parser("list", help="List all precedents in the ledger.")
 
+    led_seal = led_sub.add_parser(
+        "seal",
+        help="Append a packet's sealed WitnessRecord to the ledger as "
+             "a new precedent.",
+        description=(
+            "Run a packet through the four gates and, if it passes, "
+            "write the resulting record to the Evidence Ledger as a "
+            "new precedent. REJECTED or QUARANTINED packets cannot be "
+            "sealed — the ledger is a record of resolved decisions."
+        ),
+    )
+    led_seal.add_argument("packet", type=str, help="Path to packet JSON")
+    led_seal.add_argument(
+        "--summary", "-s", required=True, type=str,
+        help="One-line human description. The ledger's value is the "
+             "human framing of what the precedent records — no "
+             "auto-generation."
+    )
+    led_seal.add_argument(
+        "--id", dest="precedent_id", type=str, default=None,
+        help="Stable precedent_id (URI-style). Auto-generated from axis "
+             "and packet_id if omitted."
+    )
+    led_seal.add_argument(
+        "--overwrite", action="store_true",
+        help="Allow replacing an existing precedent file. Default is "
+             "to refuse."
+    )
+    led_seal.add_argument("--now-epoch", type=int, default=None)
+    led_seal.add_argument("--no-verifiers", action="store_true")
+
     args = p.parse_args()
 
     if args.cmd == "validate":
@@ -363,7 +394,7 @@ def main() -> None:
         sys.exit(_EXIT.get(record.overall, 1))
 
     if args.cmd == "ledger":
-        from .ledger import find_closest, list_precedents
+        from .ledger import find_closest, list_precedents, seal_to_ledger
         if args.ledger_cmd == "list":
             precedents = list_precedents()
             if not precedents:
@@ -390,12 +421,53 @@ def main() -> None:
                 sys.exit(0)
             print(f"precedent: {cc.precedent_id}")
             print(f"  shared dimensions: {sorted(cc.shared_dimensions)}")
+            if cc.shared_anchors:
+                print(f"  shared anchors: {list(cc.shared_anchors)}")
             if cc.distance is not None:
                 print(f"  distance: {cc.distance}")
             if cc.reasoning_overlay:
                 print("  reasoning overlay:")
                 for k, v in (cc.reasoning_overlay or {}).items():
                     print(f"    {k}: {v}")
+            sys.exit(0)
+        if args.ledger_cmd == "seal":
+            packet_path = Path(args.packet)
+            try:
+                packet = _load_json(packet_path)
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read packet: {e}", file=sys.stderr)
+                sys.exit(4)
+            cfg = EngineConfig(
+                schema_path="",
+                run_verifiers=not args.no_verifiers,
+            )
+            record = validate_and_seal(
+                packet,
+                now_epoch=args.now_epoch,
+                config=cfg,
+                packet_id=packet.get("id"),
+            )
+            if record.overall != "PASS":
+                print(
+                    f"error: packet did not PASS (overall={record.overall}). "
+                    "Only PASS records can be sealed to the ledger.",
+                    file=sys.stderr,
+                )
+                sys.exit(_EXIT.get(record.overall, 1))
+            try:
+                target = seal_to_ledger(
+                    record,
+                    summary=args.summary,
+                    precedent_id=args.precedent_id,
+                    overwrite=args.overwrite,
+                )
+            except FileExistsError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            except ValueError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            print(f"sealed precedent → {target}")
             sys.exit(0)
         print("error: unknown ledger subcommand", file=sys.stderr)
         sys.exit(4)

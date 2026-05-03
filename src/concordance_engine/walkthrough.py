@@ -322,6 +322,9 @@ def _render_closest_case(record: WitnessRecord) -> str:
     if cc.shared_dimensions:
         dims = ", ".join(f"`{d}`" for d in sorted(cc.shared_dimensions))
         lines.append(f"Shared scaffold dimensions: {dims}.  ")
+    if cc.shared_anchors:
+        refs = ", ".join(f"`{r}`" for r in cc.shared_anchors)
+        lines.append(f"Shared citations: {refs}.  ")
     if cc.distance is not None:
         lines.append(f"Distance: **{cc.distance}**.")
     if cc.reasoning_overlay:
@@ -697,6 +700,12 @@ def render_walkthrough_html(record: WitnessRecord, *,
                     for d in sorted(cc.shared_dimensions)
                 )
                 parts.append(f"<p>Shared scaffold dimensions: {dims}.</p>")
+            if cc.shared_anchors:
+                refs = ", ".join(
+                    f"<code>{_html_escape(r)}</code>"
+                    for r in cc.shared_anchors
+                )
+                parts.append(f"<p>Shared citations: {refs}.</p>")
             if cc.distance is not None:
                 parts.append(f"<p>Distance: <strong>{cc.distance}</strong>.</p>")
             if cc.reasoning_overlay:

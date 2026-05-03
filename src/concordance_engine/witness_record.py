@@ -103,6 +103,10 @@ class ClosestCase:
     `shared_dimensions` is the scaffold-member overlap with the current
     packet — the structural axes along which the precedent and the
     situation are aligned.
+    `shared_anchors` is the set of citation refs (e.g. "Mt 18:15-17")
+    that both the packet and the precedent invoke. When the packet
+    cites scripture, anchor overlap is a strong second-order signal
+    beyond raw scaffold dimensions.
     `distance` is a scalar summary (lower = closer); concrete metric is
     deliberately not pinned here so future implementations can choose.
     `reasoning_overlay` is the precedent's verifier trace, ready to
@@ -114,6 +118,7 @@ class ClosestCase:
     """
     precedent_id: Optional[str]
     shared_dimensions: FrozenSet[str] = field(default_factory=frozenset)
+    shared_anchors: Tuple[str, ...] = ()
     distance: Optional[float] = None
     reasoning_overlay: Optional[Dict[str, Any]] = None
 
@@ -121,6 +126,8 @@ class ClosestCase:
         out: Dict[str, Any] = {"precedent_id": self.precedent_id}
         if self.shared_dimensions:
             out["shared_dimensions"] = sorted(self.shared_dimensions)
+        if self.shared_anchors:
+            out["shared_anchors"] = list(self.shared_anchors)
         if self.distance is not None:
             out["distance"] = self.distance
         if self.reasoning_overlay is not None:
@@ -132,6 +139,7 @@ class ClosestCase:
         return cls(
             precedent_id=d.get("precedent_id"),
             shared_dimensions=frozenset(d.get("shared_dimensions", [])),
+            shared_anchors=tuple(d.get("shared_anchors", [])),
             distance=d.get("distance"),
             reasoning_overlay=d.get("reasoning_overlay"),
         )
