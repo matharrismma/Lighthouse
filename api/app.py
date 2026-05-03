@@ -359,3 +359,62 @@ def submit_public(req: ValidateRequest):
         packet_hash=p_hash,
         elapsed_ms=round(elapsed_ms, 2),
     )
+
+
+# ── Ledger read endpoints ──────────────────────────────────────────────
+# Advertised by the home page (/) and /llms.txt; previously unimplemented.
+# The underlying Ledger class already provides recent / get_by_id /
+# verify_chain — these handlers are thin wrappers that surface them
+# over HTTP so external auditors and AI agents can read the permanent
+# record without touching the validator authentication path.
+
+@app.get("/ledger")
+def ledger_recent(
+    limit: int = Query(50, ge=1, le=500,
+                       description="How many entries to return (newest first)"),
+    offset: int = Query(0, ge=0,
+                        description="Skip the most recent N entries"),
+):
+    """Return the most recent ledger entries, newest first.
+
+    Read-only and unauthenticated — the ledger is a public verification
+    record. Each entry includes packet_hash, entry_hash, prev_hash, and
+    overall verdict, so external auditors can replay and verify the
+    chain without engine access.
+    """
+    ledger = get_ledger()
+    entries = ledger.recent(n=limit, offset=offset)
+    return {
+        "count": len(entries),
+        "limit": limit,
+        "offset": offset,
+        "entries": entries,
+    }
+
+
+@app.get("/ledger/verify")
+def ledger_verify():
+    """Walk the ledger chain and confirm every prev_hash → entry_hash
+    link is intact. Returns valid=True if the chain is whole, plus the
+    seq number of the first break if not. The hash chain is the
+    tampering check — any edit to any entry breaks it.
+    """
+    ledger = get_ledger()
+    return ledger.verify_chain()
+
+
+@app.get("/ledger/{packet_id}")
+def ledger_by_id(packet_id: str):
+    """Return all ledger entries for a specific packet_id, oldest first.
+
+    Same packet may appear multiple times if it was resubmitted; the
+    list is the full audit trail for that id. Empty list if the id
+    isn't in the ledger.
+    """
+    ledger = get_ledger()
+    entries = ledger.get_by_id(packet_id)
+    return {
+        "packet_id": packet_id,
+        "count": len(entries),
+        "entries": entries,
+    }
