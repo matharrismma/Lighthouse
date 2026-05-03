@@ -297,7 +297,14 @@ def validate(req: ValidateRequest, _: None = Depends(_check_api_key)):
 
 @app.post("/submit", include_in_schema=False)
 def submit_public(req: ValidateRequest):
-    """Public unauthenticated endpoint for the human-facing form."""
+    """Public unauthenticated endpoint for the human-facing form.
+
+    Behaves like /validate but bypasses the GOD-gate wait window — the
+    public form is for one-shot evaluations, not bound community
+    decisions. The wait-window override is applied on the packet
+    itself (the engine reads `wait_window_seconds` per-packet); the
+    EngineConfig dataclass doesn't carry that field.
+    """
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
             status_code=503,
@@ -308,12 +315,15 @@ def submit_public(req: ValidateRequest):
     config = EngineConfig(
         schema_path=str(_SCHEMA_PATH) if _SCHEMA_PATH and _SCHEMA_PATH.exists() else "",
         run_verifiers=True,
-        wait_window_seconds=0,   # no wait window for public form
     )
+
+    # Bypass the GOD wait window for the public form by overriding the
+    # packet's own wait_window_seconds (engine-level mechanism).
+    packet_for_engine = {**req.packet, "wait_window_seconds": 0}
 
     try:
         result = validate_packet(
-            req.packet,
+            packet_for_engine,
             now_epoch=req.now_epoch,
             config=config,
         )
@@ -327,4 +337,25 @@ def submit_public(req: ValidateRequest):
         entry = ledger.append(req.packet, result.overall, result.gate_results)
         ledger_seq = entry.seq
         ledger_hash = entry.entry_hash
-    
+    except Exception:
+        ledger_seq = None
+        ledger_hash = None
+
+    p_hash = compute_packet_hash(req.packet)
+
+    return ValidateResponse(
+        overall=result.overall,
+        gate_results=[
+            GateResultOut(
+                gate=gr.gate,
+                status=gr.status,
+                reasons=gr.reasons,
+                details=gr.details,
+            )
+            for gr in result.gate_results
+        ],
+        ledger_seq=ledger_seq,
+        ledger_entry_hash=ledger_hash,
+        packet_hash=p_hash,
+        elapsed_ms=round(elapsed_ms, 2),
+    )
