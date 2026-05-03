@@ -404,6 +404,69 @@ def main() -> None:
              "packet.issuer_public_key.",
     )
 
+    # ── keep subcommand (the liturgical layer) ─────────────────────
+    kp = sub.add_parser(
+        "keep",
+        help="Keeping — the liturgical layer. Continuous body-practice that "
+             "runs whether or not packets are submitted.",
+        description=(
+            "Per KoA Trilogy (The Keeping, Book Three): the engine's "
+            "validation is liturgical, not climactic. Four canonical "
+            "practices keep the four gates alive between firings: "
+            "SignalHum (GOD/heartbeat), PerimeterWalk (FLOOR/audit chain "
+            "boundary), ForgeLighting (RED/verifier readiness), "
+            "RollKeeping (BROTHERS/precedent index). Each practice keeps "
+            "something; none returns a decision."
+        ),
+    )
+    kp_sub = kp.add_subparsers(dest="kp_cmd", required=True)
+
+    kp_walk = kp_sub.add_parser(
+        "walk",
+        help="Run one tick of the keeping. Each due practice fires; the log "
+             "is appended; observations print to stdout.",
+    )
+    kp_walk.add_argument(
+        "--practice", "-p", type=str, default=None,
+        choices=["signal_hum", "perimeter_walk", "forge_lighting", "roll_keeping"],
+        help="Run only this practice. Default: run any practice whose "
+             "cadence has elapsed.",
+    )
+    kp_walk.add_argument(
+        "--force", action="store_true",
+        help="Force-run the practice(s) regardless of cadence. Useful for "
+             "scripted invocations.",
+    )
+
+    kp_status = kp_sub.add_parser(
+        "status",
+        help="Show what's been kept while you were away. Reads the keeping "
+             "log; surfaces per-practice run-count + latest observation.",
+    )
+    kp_status.add_argument(
+        "--since", type=float, default=None,
+        help="Unix epoch seconds; only show observations after this time. "
+             "Default: last 24 hours.",
+    )
+    kp_status.add_argument(
+        "--practice", "-p", type=str, default=None,
+        help="Filter to a single practice.",
+    )
+
+    kp_run = kp_sub.add_parser(
+        "run",
+        help="Run the keeper as a daemon. Ticks at the configured interval "
+             "until interrupted (Ctrl-C).",
+    )
+    kp_run.add_argument(
+        "--tick-interval", type=float, default=30.0,
+        help="Seconds between tick checks (default: 30).",
+    )
+    kp_run.add_argument(
+        "--quiet", action="store_true",
+        help="Don't print observations as they fire. Log still fills.",
+    )
+
     # ── lsp subcommand ─────────────────────────────────────────────
     lsp_p = sub.add_parser(
         "lsp",
@@ -846,6 +909,78 @@ def main() -> None:
                 sys.exit(0)
             print(f"signature INVALID: {detail}", file=sys.stderr)
             sys.exit(1)
+
+    if args.cmd == "keep":
+        from . import keeping as kp_mod
+        import time as _time
+
+        if args.kp_cmd == "walk":
+            keeper = kp_mod.default_keeper()
+            if args.practice:
+                # Run a single practice (force or due-only).
+                target = next(
+                    (p for p in keeper.practices if p.name == args.practice),
+                    None,
+                )
+                if target is None:
+                    print(f"error: unknown practice {args.practice!r}",
+                          file=sys.stderr)
+                    sys.exit(4)
+                if not args.force and not target.due():
+                    print(f"{target.name} not due yet (cadence "
+                          f"{target.cadence_seconds:.0f}s); use --force to override")
+                    sys.exit(0)
+                obs = target.run()
+                keeper.log.append(obs)
+                print(json.dumps(obs.to_dict(), indent=2, default=str))
+                sys.exit(0)
+            # Default: tick the keeper, print whatever fired.
+            observations = keeper.tick()
+            if not observations:
+                print("(nothing due this tick)")
+                sys.exit(0)
+            for obs in observations:
+                print(json.dumps(obs.to_dict(), indent=2, default=str))
+            sys.exit(0)
+
+        if args.kp_cmd == "status":
+            since = args.since if args.since is not None else (_time.time() - 86400)
+            log = kp_mod.KeepingLog()
+            if args.practice:
+                obs_list = log.read(since=since, practice=args.practice)
+                summary = {
+                    "since": since,
+                    "practice": args.practice,
+                    "runs": len(obs_list),
+                    "latest_kept": obs_list[-1].kept if obs_list else None,
+                    "latest_at": obs_list[-1].started_at if obs_list else None,
+                }
+            else:
+                summary = kp_mod.while_you_were_away(since=since)
+            print(json.dumps(summary, indent=2, default=str))
+            sys.exit(0)
+
+        if args.kp_cmd == "run":
+            import threading as _threading
+            keeper = kp_mod.default_keeper(
+                tick_interval_seconds=args.tick_interval,
+            )
+            stop = _threading.Event()
+            print(f"keeper running (tick interval {args.tick_interval:.0f}s); "
+                  f"Ctrl-C to stop", file=sys.stderr)
+
+            def _on_tick(observations):
+                if args.quiet:
+                    return
+                for obs in observations:
+                    print(f"[{obs.practice}] {obs.kept}")
+
+            try:
+                keeper.run_forever(stop_event=stop, on_tick=_on_tick)
+            except KeyboardInterrupt:
+                stop.set()
+                print("keeper stopped", file=sys.stderr)
+            sys.exit(0)
 
     if args.cmd == "lsp":
         from . import lsp as lsp_mod
