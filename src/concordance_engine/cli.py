@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -403,6 +404,90 @@ def main() -> None:
         help="Path to public key file. If omitted, reads from "
              "packet.issuer_public_key.",
     )
+
+    # ── write subcommand (the calibration tool / coach module) ─────
+    wr = sub.add_parser(
+        "write",
+        help="Capture a stream-of-consciousness journal entry. The engine "
+             "categorizes additively without replacing what you wrote.",
+        description=(
+            "The journal is the calibration surface of the coach module. "
+            "Stream of consciousness in; categorization out; nothing replaces "
+            "the original text. The engine listens, surfaces what shape it "
+            "heard, and shows where this entry sits relative to your recent "
+            "writing — drift, recurring anchors, dominant action shapes. "
+            "Calibration is descriptive, never prescriptive. The user does "
+            "the deciding."
+        ),
+    )
+    wr.add_argument(
+        "text", type=str, nargs="?",
+        help="The entry text. Omit to read from --from-file or stdin.",
+    )
+    wr.add_argument(
+        "--from-file", "-f", type=str, default=None,
+        help="Read entry text from this file.",
+    )
+    wr.add_argument(
+        "--stdin", action="store_true",
+        help="Read entry text from stdin (until EOF).",
+    )
+    wr.add_argument(
+        "--tags", type=str, default="",
+        help="Comma-separated user tags to attach to the entry.",
+    )
+    wr.add_argument(
+        "--quiet", action="store_true",
+        help="Suppress the calibration read-back; just confirm the entry id.",
+    )
+    wr.add_argument(
+        "--no-precedent", action="store_true",
+        help="Skip the audit-chain closest-precedent lookup. Faster; useful "
+             "when capturing many entries in a row.",
+    )
+
+    jr = sub.add_parser(
+        "journal",
+        help="Read, list, thread, and annotate journal entries.",
+        description=(
+            "Read-side surface for the journal. The engine has been keeping "
+            "your stream-of-consciousness writing alongside its categorizations. "
+            "These commands surface what's been kept."
+        ),
+    )
+    jr_sub = jr.add_subparsers(dest="jr_cmd", required=True)
+
+    jr_list = jr_sub.add_parser(
+        "list", help="List recent entries (newest first).",
+    )
+    jr_list.add_argument(
+        "--since", type=float, default=None,
+        help="Unix epoch seconds; only entries written after this time.",
+    )
+    jr_list.add_argument(
+        "--tag", type=str, default=None,
+        help="Filter to a specific user tag.",
+    )
+
+    jr_show = jr_sub.add_parser(
+        "show", help="Show a single entry by id.",
+    )
+    jr_show.add_argument("entry_id", type=str)
+
+    jr_thread = jr_sub.add_parser(
+        "thread",
+        help="Find entries that share categorizations with the given one "
+             "(thread of return).",
+    )
+    jr_thread.add_argument("entry_id", type=str)
+
+    jr_annotate = jr_sub.add_parser(
+        "annotate",
+        help="Add a later annotation to an entry. Original text is preserved.",
+    )
+    jr_annotate.add_argument("entry_id", type=str)
+    jr_annotate.add_argument("--note", required=True, type=str)
+    jr_annotate.add_argument("--author", type=str, default="")
 
     # ── keep subcommand (the liturgical layer) ─────────────────────
     kp = sub.add_parser(
@@ -909,6 +994,131 @@ def main() -> None:
                 sys.exit(0)
             print(f"signature INVALID: {detail}", file=sys.stderr)
             sys.exit(1)
+
+    if args.cmd == "write":
+        from . import journal as jr_mod
+
+        # Resolve entry text from positional / --from-file / --stdin.
+        text = args.text
+        sources_chosen = sum(bool(s) for s in (text, args.from_file, args.stdin))
+        if sources_chosen > 1:
+            print("error: pass at most one of: positional text, --from-file, --stdin",
+                  file=sys.stderr)
+            sys.exit(4)
+        if args.from_file:
+            try:
+                text = Path(args.from_file).read_text(encoding="utf-8")
+            except OSError as e:
+                print(f"error: could not read input: {e}", file=sys.stderr)
+                sys.exit(4)
+        if args.stdin:
+            text = sys.stdin.read()
+        if not text or not text.strip():
+            print(
+                "error: provide entry text (positional, --from-file, or --stdin)",
+                file=sys.stderr,
+            )
+            sys.exit(4)
+
+        tag_list = [t.strip() for t in args.tags.split(",") if t.strip()]
+        try:
+            entry = jr_mod.capture(
+                text,
+                tags=tag_list,
+                look_up_precedent=not args.no_precedent,
+            )
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            sys.exit(4)
+
+        if args.quiet:
+            print(entry.id)
+            sys.exit(0)
+
+        # Default: print id + calibration read-back.
+        print(f"# Captured `{entry.id}`")
+        print()
+        cal = jr_mod.calibrate(entry)
+        print(jr_mod.render_calibration(entry, cal))
+        sys.exit(0)
+
+    if args.cmd == "journal":
+        from . import journal as jr_mod
+        store = jr_mod.JournalStore()
+
+        if args.jr_cmd == "list":
+            entries = store.list_all(since=args.since, tag=args.tag)
+            if not entries:
+                print("(no entries match)")
+                sys.exit(0)
+            for e in entries:
+                ts = time.strftime(
+                    "%Y-%m-%d %H:%M:%S",
+                    time.gmtime(e.written_at),
+                ) if e.written_at else "(no timestamp)"
+                preview = e.text.replace("\n", " ")[:80]
+                tags = (
+                    "  [" + ", ".join(e.user_tags) + "]"
+                    if e.user_tags else ""
+                )
+                print(f"{e.id}  {ts}  {preview}{tags}")
+            sys.exit(0)
+
+        if args.jr_cmd == "show":
+            e = store.load(args.entry_id)
+            if e is None:
+                print(f"error: no entry found with id {args.entry_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            print(json.dumps(e.to_dict(), indent=2, ensure_ascii=False))
+            sys.exit(0)
+
+        if args.jr_cmd == "thread":
+            entries = jr_mod.thread(args.entry_id)
+            source = store.load(args.entry_id)
+            if source is None:
+                print(f"error: no entry found with id {args.entry_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            if not entries:
+                print(f"(no entries thread with {args.entry_id})")
+                sys.exit(0)
+            print(f"# Entries threading with `{args.entry_id}`:")
+            for e in entries:
+                preview = e.text.replace("\n", " ")[:80]
+                shared: List[str] = []
+                src_anchors = set(source.categorization.detected_anchors)
+                cand_anchors = set(e.categorization.detected_anchors)
+                if src_anchors & cand_anchors:
+                    shared.append(
+                        "anchors: " + ", ".join(src_anchors & cand_anchors)
+                    )
+                src_actions = set(source.categorization.detected_action_shapes)
+                cand_actions = set(e.categorization.detected_action_shapes)
+                if src_actions & cand_actions:
+                    shared.append(
+                        "actions: " + ", ".join(src_actions & cand_actions)
+                    )
+                if (e.categorization.detected_scope
+                        and e.categorization.detected_scope
+                            == source.categorization.detected_scope):
+                    shared.append(f"scope: {e.categorization.detected_scope}")
+                shared_str = " | ".join(shared) if shared else "(via persistence)"
+                print(f"  {e.id}  {preview}")
+                print(f"      shared → {shared_str}")
+            sys.exit(0)
+
+        if args.jr_cmd == "annotate":
+            updated = jr_mod.annotate(
+                args.entry_id, args.note, author=args.author,
+            )
+            if updated is None:
+                print(f"error: no entry found with id {args.entry_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            print(f"annotated {updated.id}; "
+                  f"{len(updated.annotations)} annotation(s) total")
+            sys.exit(0)
 
     if args.cmd == "keep":
         from . import keeping as kp_mod
