@@ -22,7 +22,7 @@ WitnessRecord; this module is one of many.
 """
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Dict, List, Optional, Tuple
 
 from .witness_record import WitnessRecord
 from . import grid
@@ -71,6 +71,104 @@ def _join_sections(sections: List[str]) -> str:
     return "\n\n".join(s for s in sections if s)
 
 
+# ── Shared data-prep helpers ──────────────────────────────────────────
+# Both renderers (markdown and HTML) consume these — the data lookups
+# are the part that was duplicated across formats; the per-format
+# emission stays separate.
+
+_STATUS_PRIORITY = {"PASS": 0, "QUARANTINE": 1, "REJECT": 2}
+
+
+def _group_gate_results(record: WitnessRecord) -> List[Dict[str, Any]]:
+    """Collapse consecutive same-gate verdicts into one group with
+    worst-status-wins for the headline. Each group exposes the gate
+    name, headline status, all reasons, all confirmed-verifier strings,
+    and any notes."""
+    groups: List[List] = []
+    for gr in record.gate_results:
+        if groups and groups[-1][0].gate == gr.gate:
+            groups[-1].append(gr)
+        else:
+            groups.append([gr])
+    out: List[Dict[str, Any]] = []
+    for group in groups:
+        headline = max(
+            (gr.status for gr in group),
+            key=lambda s: _STATUS_PRIORITY.get(s, -1),
+        )
+        merged_reasons: List[str] = []
+        merged_verified: List[str] = []
+        merged_notes: List[str] = []
+        for gr in group:
+            merged_reasons.extend(gr.reasons or [])
+            if gr.details and isinstance(gr.details, dict):
+                v = gr.details.get("verified")
+                if v:
+                    merged_verified.extend(v)
+                note = gr.details.get("note")
+                if note:
+                    merged_notes.append(note)
+        out.append({
+            "gate": group[0].gate,
+            "title": _GATE_LABELS.get(group[0].gate, group[0].gate),
+            "status": headline,
+            "reasons": merged_reasons,
+            "verified": merged_verified,
+            "notes": merged_notes,
+        })
+    return out
+
+
+def _scaffold_neighbors(axis: str, top: int = 3) -> List[Tuple[str, frozenset]]:
+    """Top N axes that share the most dimensions with `axis`."""
+    try:
+        return grid.adjacent(axis)[:top]
+    except KeyError:
+        return []
+
+
+def _anchor_tier_summary(record: WitnessRecord) -> Optional[str]:
+    """Return a one-line summary of the anchor-tier composition, or
+    None if there's nothing to highlight (mixed tier or no anchors)."""
+    if not record.anchors:
+        return None
+    layers = {a.layer for a in record.anchors}
+    if layers == {"jesus_words"}:
+        return ("All citations carry primary-tier authority. No appeal "
+                "to apostolic letters or recognized elders was needed.")
+    return None
+
+
+def _split_verifier_data(data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Split a verifier's `data` payload into the parts the renderer
+    surfaces prominently (formula, rule, anchor) and the leftover
+    trace fields. Both renderers want this exact split."""
+    if not isinstance(data, dict):
+        return {"formula": None, "rule": None, "anchor": None, "rest": {}}
+    rest = dict(data)
+    formula = rest.pop("formula", None)
+    rule = rest.pop("rule", None)
+    anchor = rest.pop("anchor", None)
+    return {"formula": formula, "rule": rule, "anchor": anchor, "rest": rest}
+
+
+def _expandable_verifier_results(record: WitnessRecord):
+    """The subset of verifier_results worth rendering in a trace
+    expansion: not NA, has data."""
+    return [
+        v for v in record.verifier_results
+        if v.status != "NOT_APPLICABLE" and v.data
+    ]
+
+
+def _has_fabricated_answer(packet_dict: Dict[str, Any]) -> List[str]:
+    """For witness-style introspection — list any forbidden answer
+    fields present. Currently unused by the renderer but kept here so
+    the doctrinal commitment lives in one shared place."""
+    forbidden = ("final_answer", "answer", "engine_answer", "verdict_answer")
+    return [f for f in forbidden if packet_dict.get(f) not in (None, "", [], {})]
+
+
 # ── Section renderers ─────────────────────────────────────────────────
 
 def _render_header(record: WitnessRecord) -> str:
@@ -108,10 +206,7 @@ def _render_scaffold(record: WitnessRecord) -> str:
         lines.append(f"- **{d}**")
 
     # Adjacency: top 3 axes that share the most dimensions.
-    try:
-        neighbors = grid.adjacent(axis)[:3]
-    except KeyError:
-        neighbors = []
+    neighbors = _scaffold_neighbors(axis)
     if neighbors:
         lines.append("")
         parts = [
@@ -135,65 +230,27 @@ def _render_submission(record: WitnessRecord) -> str:
     )
 
 
-_STATUS_PRIORITY = {"PASS": 0, "QUARANTINE": 1, "REJECT": 2}
-
-
 def _render_gates(record: WitnessRecord) -> str:
-    """One H3 section per gate, in firing order.
-
-    The gate runner can append multiple verdicts for the same gate (e.g.
-    RED gets one verdict from the domain validator, then a second from
-    the verifier-dispatch step). Collapse consecutive same-gate verdicts
-    into one section: take the worst status (REJECT > QUARANTINE > PASS)
-    as the headline, merge reasons and confirmed-verifier lists across
-    all verdicts.
-    """
+    """One H3 section per gate, in firing order. Consecutive same-gate
+    verdicts collapse via shared `_group_gate_results` helper."""
     if not record.gate_results:
         return ""
-    # Group adjacent verdicts on the same gate.
-    groups: List[List] = []
-    for gr in record.gate_results:
-        if groups and groups[-1][0].gate == gr.gate:
-            groups[-1].append(gr)
-        else:
-            groups.append([gr])
-
+    groups = _group_gate_results(record)
     lines = [_h(2, "The four gates")]
-    for i, group in enumerate(groups, start=1):
-        # Worst-status wins for the headline.
-        headline_status = max(
-            (gr.status for gr in group),
-            key=lambda s: _STATUS_PRIORITY.get(s, -1),
-        )
-        gate = group[0].gate
-        gate_title = _GATE_LABELS.get(gate, gate)
-        status_icon = _GATE_STATUS_ICONS.get(headline_status, f"[{headline_status}]")
+    for i, g in enumerate(groups, start=1):
+        status_icon = _GATE_STATUS_ICONS.get(g["status"], f"[{g['status']}]")
         lines.append("")
-        lines.append(_h(3, f"{i}. {gate_title} · {status_icon}"))
-
-        merged_reasons: List[str] = []
-        merged_verified: List[str] = []
-        merged_notes: List[str] = []
-        for gr in group:
-            merged_reasons.extend(gr.reasons or [])
-            if gr.details and isinstance(gr.details, dict):
-                v = gr.details.get("verified")
-                if v:
-                    merged_verified.extend(v)
-                note = gr.details.get("note")
-                if note:
-                    merged_notes.append(note)
-
-        if merged_reasons:
+        lines.append(_h(3, f"{i}. {g['title']} · {status_icon}"))
+        if g["reasons"]:
             lines.append("")
-            for r in merged_reasons:
+            for r in g["reasons"]:
                 lines.append(f"- {r}")
-        if merged_verified:
+        if g["verified"]:
             lines.append("")
             lines.append("Verifier checks confirmed:")
-            for v in merged_verified:
+            for v in g["verified"]:
                 lines.append(f"- `{v}`")
-        for note in merged_notes:
+        for note in g["notes"]:
             lines.append("")
             lines.append(f"_{note}_")
     return "\n".join(lines)
@@ -242,12 +299,7 @@ def _render_verifier_traces(record: WitnessRecord) -> str:
     Skips NOT_APPLICABLE results (no work was done) and also skips any
     verifier with no `data` payload (nothing to expand). The detail
     string is shown as a short headline; the data dict follows."""
-    if not record.verifier_results:
-        return ""
-    expandable = [
-        v for v in record.verifier_results
-        if v.status != "NOT_APPLICABLE" and v.data
-    ]
+    expandable = _expandable_verifier_results(record)
     if not expandable:
         return ""
     lines = [_h(2, "Verifier traces — the work shown")]
@@ -259,18 +311,12 @@ def _render_verifier_traces(record: WitnessRecord) -> str:
             lines.append("")
             lines.append(f"_{v.detail}_")
         lines.append("")
-        # Pull formula, rule, and anchor out of data for prominent display.
-        # Anchor surfaces the doctrinal derivation of the rule — when a
-        # verifier declares one, the walkthrough shows it inline with
-        # the formula so the human can see *why* this rule fires.
-        data = dict(v.data) if isinstance(v.data, dict) else {}
-        formula = data.pop("formula", None)
-        rule = data.pop("rule", None)
-        anchor = data.pop("anchor", None)
-        if formula:
-            lines.append(f"**Formula:** `{formula}`")
-        if rule:
-            lines.append(f"**Rule:** {rule}")
+        parts = _split_verifier_data(v.data)
+        if parts["formula"]:
+            lines.append(f"**Formula:** `{parts['formula']}`")
+        if parts["rule"]:
+            lines.append(f"**Rule:** {parts['rule']}")
+        anchor = parts["anchor"]
         if isinstance(anchor, dict) and anchor.get("ref"):
             layer = anchor.get("layer", "?")
             layer_label = _LAYER_LABELS.get(layer, f"*{layer}*")
@@ -280,12 +326,12 @@ def _render_verifier_traces(record: WitnessRecord) -> str:
             derivation = anchor.get("derivation")
             if derivation:
                 lines.append(f"  > {derivation}")
-        if data:
+        if parts["rest"]:
             lines.append("")
             lines.append("**Trace:**")
             lines.append("")
             lines.append("```json")
-            lines.append(_format_data_value(data))
+            lines.append(_format_data_value(parts["rest"]))
             lines.append("```")
     return "\n".join(lines)
 
@@ -303,13 +349,10 @@ def _render_anchors(record: WitnessRecord) -> str:
         lines.append(line)
 
     # Quiet-confidence note: if every anchor is primary-tier, surface that.
-    layers_present = {a.layer for a in record.anchors}
-    if layers_present == {"jesus_words"}:
+    summary = _anchor_tier_summary(record)
+    if summary:
         lines.append("")
-        lines.append(
-            "All citations carry primary-tier authority. No appeal to "
-            "apostolic letters or recognized elders was needed."
-        )
+        lines.append(summary)
     return "\n".join(lines)
 
 
@@ -562,10 +605,7 @@ def render_walkthrough_html(record: WitnessRecord, *,
         for d in sorted(record.axis_coords.dimensions):
             parts.append(f"<li><strong>{_html_escape(d)}</strong></li>")
         parts.append("</ul>")
-        try:
-            neighbors = grid.adjacent(record.axis_coords.axis)[:3]
-        except KeyError:
-            neighbors = []
+        neighbors = _scaffold_neighbors(record.axis_coords.axis)
         if neighbors:
             n_parts = [
                 f"<strong>{_html_escape(name)}</strong> (shares {len(shared)})"
@@ -575,50 +615,26 @@ def render_walkthrough_html(record: WitnessRecord, *,
                 f"<p>Closest neighbors on the scaffold: {', '.join(n_parts)}.</p>"
             )
 
-    # Gates
+    # Gates — shares group logic with the markdown renderer.
     if record.gate_results:
         parts.append("<h2>The four gates</h2>")
-        groups: List[List] = []
-        for gr in record.gate_results:
-            if groups and groups[-1][0].gate == gr.gate:
-                groups[-1].append(gr)
-            else:
-                groups.append([gr])
-        for i, group in enumerate(groups, start=1):
-            headline_status = max(
-                (gr.status for gr in group),
-                key=lambda s: _STATUS_PRIORITY.get(s, -1),
-            )
-            gate = group[0].gate
-            gate_title = _GATE_LABELS.get(gate, gate)
-            cls = _gate_html_class(headline_status)
+        for i, g in enumerate(_group_gate_results(record), start=1):
+            cls = _gate_html_class(g["status"])
             parts.append(
-                f"<h3>{i}. {_html_escape(gate_title)} · "
-                f"<span class=\"{cls}\">[{_html_escape(headline_status)}]</span></h3>"
+                f"<h3>{i}. {_html_escape(g['title'])} · "
+                f"<span class=\"{cls}\">[{_html_escape(g['status'])}]</span></h3>"
             )
-            merged_reasons = []
-            merged_verified = []
-            merged_notes = []
-            for gr in group:
-                merged_reasons.extend(gr.reasons or [])
-                if gr.details and isinstance(gr.details, dict):
-                    v = gr.details.get("verified")
-                    if v:
-                        merged_verified.extend(v)
-                    note = gr.details.get("note")
-                    if note:
-                        merged_notes.append(note)
-            if merged_reasons:
+            if g["reasons"]:
                 parts.append("<ul>")
-                for r in merged_reasons:
+                for r in g["reasons"]:
                     parts.append(f"<li>{_html_escape(r)}</li>")
                 parts.append("</ul>")
-            if merged_verified:
+            if g["verified"]:
                 parts.append("<p>Verifier checks confirmed:</p><ul>")
-                for v in merged_verified:
+                for v in g["verified"]:
                     parts.append(f"<li><code>{_html_escape(v)}</code></li>")
                 parts.append("</ul>")
-            for note in merged_notes:
+            for note in g["notes"]:
                 parts.append(f"<p><em>{_html_escape(note)}</em></p>")
 
     # Verifier table
@@ -640,12 +656,10 @@ def render_walkthrough_html(record: WitnessRecord, *,
             )
         parts.append("</table>")
 
-    # Verifier traces (opt-in)
+    # Verifier traces (opt-in) — shares data-split with the markdown
+    # renderer via _split_verifier_data.
     if expand_traces:
-        expandable = [
-            v for v in record.verifier_results
-            if v.status != "NOT_APPLICABLE" and v.data
-        ]
+        expandable = _expandable_verifier_results(record)
         if expandable:
             parts.append("<h2>Verifier traces — the work shown</h2>")
             for v in expandable:
@@ -655,21 +669,32 @@ def render_walkthrough_html(record: WitnessRecord, *,
                 )
                 if v.detail:
                     parts.append(f"<p><em>{_html_escape(v.detail)}</em></p>")
-                data = dict(v.data) if isinstance(v.data, dict) else {}
-                formula = data.pop("formula", None)
-                rule = data.pop("rule", None)
-                if formula:
+                d = _split_verifier_data(v.data)
+                if d["formula"]:
                     parts.append(
-                        f"<p><strong>Formula:</strong> <code>{_html_escape(str(formula))}</code></p>"
+                        f"<p><strong>Formula:</strong> <code>{_html_escape(str(d['formula']))}</code></p>"
                     )
-                if rule:
+                if d["rule"]:
                     parts.append(
-                        f"<p><strong>Rule:</strong> {_html_escape(str(rule))}</p>"
+                        f"<p><strong>Rule:</strong> {_html_escape(str(d['rule']))}</p>"
                     )
-                if data:
+                anchor = d["anchor"]
+                if isinstance(anchor, dict) and anchor.get("ref"):
+                    cls = _layer_html_class(anchor.get("layer", ""))
+                    parts.append(
+                        f"<p><strong>Derives from:</strong> "
+                        f"<code>{_html_escape(anchor['ref'])}</code> · "
+                        f"<span class=\"{cls}\">{_html_escape(anchor.get('layer', '?'))}</span></p>"
+                    )
+                    derivation = anchor.get("derivation")
+                    if derivation:
+                        parts.append(
+                            f"<blockquote>{_html_escape(derivation)}</blockquote>"
+                        )
+                if d["rest"]:
                     parts.append("<p><strong>Trace:</strong></p>")
                     parts.append(
-                        f"<pre><code>{_html_escape(_format_data_value(data))}</code></pre>"
+                        f"<pre><code>{_html_escape(_format_data_value(d['rest']))}</code></pre>"
                     )
 
     # Anchors
@@ -687,12 +712,9 @@ def render_walkthrough_html(record: WitnessRecord, *,
             line += "</li>"
             parts.append(line)
         parts.append("</ul>")
-        layers_present = {a.layer for a in record.anchors}
-        if layers_present == {"jesus_words"}:
-            parts.append(
-                "<p><em>All citations carry primary-tier authority. No appeal to "
-                "apostolic letters or recognized elders was needed.</em></p>"
-            )
+        summary = _anchor_tier_summary(record)
+        if summary:
+            parts.append(f"<p><em>{_html_escape(summary)}</em></p>")
 
     # Closest case
     cc = record.closest_case

@@ -29,8 +29,12 @@ This file requires the `mcp` package (mcp >= 1.0.0). Install via:
     pip install -e ".[mcp]"
 
 Environment variables:
-    CONCORDANCE_API_URL   - Override the API base URL (default: https://narrowhighway.com)
-    CONCORDANCE_API_KEY   - API key for authenticated endpoints
+    CONCORDANCE_API_URL   - Hosted API base URL (no default). When set
+                            with CONCORDANCE_API_KEY, validate_packet
+                            calls the hosted ledger first.
+    CONCORDANCE_API_KEY   - API key for authenticated endpoints. Both
+                            URL and key must be set for the hosted
+                            path; otherwise local-only.
 """
 from __future__ import annotations
 
@@ -53,15 +57,13 @@ from . import tools
 
 mcp = FastMCP("concordance")
 
-# Hosted API -- set CONCORDANCE_API_URL to override.
-CONCORDANCE_API_URL = os.environ.get(
-    "CONCORDANCE_API_URL",
-    "https://narrowhighway.com",
-)
-CONCORDANCE_API_KEY = os.environ.get(
-    "CONCORDANCE_API_KEY",
-    "lh_786b9711d66ebd502ebe1d4e6b9df64a428edbaad26d81c4",
-)
+# Hosted API. Both URL and key come from the environment — the source
+# carries no defaults so a deployment without env vars fails closed
+# (skips the API path entirely and uses local computation), and a
+# rotated key isn't sitting as a literal in the codebase. Set
+# CONCORDANCE_API_URL and CONCORDANCE_API_KEY to enable the hosted path.
+CONCORDANCE_API_URL: Optional[str] = os.environ.get("CONCORDANCE_API_URL")
+CONCORDANCE_API_KEY: Optional[str] = os.environ.get("CONCORDANCE_API_KEY")
 
 
 # ---------------------------------------------------------------------------
@@ -77,20 +79,27 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
     BROTHERS -- Quarantines if insufficient witnesses or review window has not elapsed.
     GOD     -- Records permanently in the append-only ledger if all prior gates pass.
 
-    Attempts the hosted API first (writes to the Evidence Ledger);
-    falls back to local computation if the API is unreachable.
+    Attempts the hosted API first (writes to the Evidence Ledger) when
+    both CONCORDANCE_API_URL and CONCORDANCE_API_KEY are configured;
+    falls back to local computation otherwise. With no API config, the
+    local path is the only path — no environment-dependent default
+    URL, no embedded key.
 
     Returns: {overall: PASS|QUARANTINE|REJECT, gate_results: [...]}.
     """
-    if CONCORDANCE_API_URL:
+    # Hosted path requires BOTH url and key — refuse to authenticate
+    # against an unconfigured API or send unauthenticated requests to
+    # a configured one.
+    if CONCORDANCE_API_URL and CONCORDANCE_API_KEY:
         try:
             pkt = {**packet}
             if "created_epoch" not in pkt:
                 pkt["created_epoch"] = now_epoch or int(_time.time())
             payload = json.dumps({"packet": pkt}).encode()
-            headers = {"Content-Type": "application/json"}
-            if CONCORDANCE_API_KEY:
-                headers["x-api-key"] = CONCORDANCE_API_KEY
+            headers = {
+                "Content-Type": "application/json",
+                "x-api-key": CONCORDANCE_API_KEY,
+            }
             req = urllib.request.Request(
                 f"{CONCORDANCE_API_URL.rstrip('/')}/validate",
                 data=payload,

@@ -325,6 +325,142 @@ def _try_cs_complexity(text: str) -> Optional[ParseResult]:
 
 
 # ---------------------------------------------------------------------------
+# Template: governance proposal (decision packet stub)
+# Examples that match:
+#   "Should we admit Alice as a member?"
+#   "should the community discipline Bob"
+#   "the elders propose to install a new bishop with 5 witnesses"
+#   "Citing Mt 18:15-17 we propose to restore Carol after restitution"
+#
+# Governance is the most-used domain in the sample ledger but had no NL
+# template — users had to hand-author DECISION_PACKET JSON. This template
+# extracts whatever structure is in the natural-language input and emits
+# a *partial* packet. The packet will likely fail FLOOR (missing
+# red_items / floor_items / way_path / execution_steps), and the engine's
+# rejection message will tell the user exactly what fields they still
+# need to fill in. The template's value is reaching into the engine, not
+# producing a complete decision.
+
+_GOVERNANCE_PROPOSAL_VERBS = (
+    "admit", "exclude", "discipline", "install", "appoint", "remove",
+    "ordain", "restore", "rebuke", "commission", "send", "receive",
+    "censure", "warn", "support", "fund", "spend",
+)
+_GOVERNANCE_TRIGGERS = re.compile(
+    r"\b(?:should\s+(?:we|the\s+(?:community|church|elders|council))|"
+    r"the\s+(?:community|church|elders|council)\s+(?:will|should|propose|propose\s+to)|"
+    r"propose\s+to|elders\s+(?:propose|decided|installed)|"
+    r"with\s+\d+\s+witnesses?)",
+    re.I,
+)
+
+_GOVERNANCE_VERB_PATTERN = re.compile(
+    r"\b(?:" + "|".join(_GOVERNANCE_PROPOSAL_VERBS) + r")\b",
+    re.I,
+)
+
+_WITNESS_COUNT_PATTERN = re.compile(
+    r"\bwith\s+(?P<n>\d+)\s+witnesses?\b",
+    re.I,
+)
+
+# Pull scripture refs out of "citing Mt 18:15-17" / "anchored in Lk 17:3"
+_GOVERNANCE_ANCHOR_PATTERN = re.compile(
+    r"\b(?:citing|anchored\s+in|grounded\s+in|see)\s+"
+    r"(?P<refs>(?:[1-3]\s*)?[A-Za-z][A-Za-z]*\s*\d+(?::\d+(?:-\d+)?)?"
+    r"(?:\s*(?:and|,)\s*(?:[1-3]\s*)?[A-Za-z][A-Za-z]*\s*\d+(?::\d+(?:-\d+)?)?)*)",
+    re.I,
+)
+
+
+def _extract_governance_anchors(text: str) -> List[Dict[str, Any]]:
+    """Pull scripture-style anchors out of governance proposal text."""
+    anchors = []
+    m = _GOVERNANCE_ANCHOR_PATTERN.search(text)
+    if not m:
+        return anchors
+    refs_blob = m.group("refs")
+    # Split on "and" / ","; trim whitespace
+    pieces = re.split(r"\s*(?:and|,)\s*", refs_blob)
+    for piece in pieces:
+        ref = piece.strip()
+        if ref:
+            # Layer is unknown from NL alone — leave it absent so the
+            # user / scripture verifier can classify later.
+            anchors.append({"ref": ref})
+    return anchors
+
+
+def _try_governance_proposal(text: str) -> Optional[ParseResult]:
+    """Recognize a community-decision proposal in natural language.
+
+    Emits an intentionally-incomplete DECISION_PACKET — enough to route
+    the input to the governance domain, with whatever structured info
+    we can extract. The user is expected to fill in red_items /
+    floor_items / way_path / execution_steps; the engine's FLOOR-stage
+    rejection will tell them which are missing.
+    """
+    if not _GOVERNANCE_TRIGGERS.search(text):
+        return None
+
+    # Title: clean copy of the trigger sentence (up to the first period
+    # or end-of-string).
+    sentence_end = re.search(r"[.!?]\s|\Z", text)
+    end = sentence_end.start() if sentence_end else len(text)
+    title = text[:end].strip().rstrip(".!?")
+
+    # Witness count if mentioned.
+    witness_count = 0
+    wm = _WITNESS_COUNT_PATTERN.search(text)
+    if wm:
+        witness_count = int(wm.group("n"))
+
+    # Scripture anchors if cited.
+    anchors = _extract_governance_anchors(text)
+
+    # Build a minimal packet shape. The DECISION_PACKET stub is
+    # deliberately incomplete: only `title` and (if present) `witnesses`
+    # / `scripture_anchors`. Without red_items / floor_items / way_path /
+    # execution_steps, the engine will reject at FLOOR — which is the
+    # signal to the user that they need to supply the structured fields.
+    decision_packet: Dict[str, Any] = {
+        "title": title,
+    }
+    if witness_count:
+        decision_packet["witnesses"] = [f"witness_{i+1}" for i in range(witness_count)]
+    if anchors:
+        decision_packet["scripture_anchors"] = anchors
+
+    packet = {
+        "domain": "governance",
+        "id": "nl-gov-001",
+        "scope": "adapter",
+        "created_epoch": 1,
+        "required_witnesses": witness_count,
+        "witness_count": witness_count,
+        "DECISION_PACKET": decision_packet,
+        "claims": [title],
+        "text": text.strip(),
+    }
+    if anchors:
+        packet["scripture_anchors"] = anchors
+
+    notes = (
+        "Governance template emits an intentionally-incomplete decision "
+        "packet. The engine will reject at FLOOR for missing red_items / "
+        "floor_items / way_path / execution_steps — that rejection IS the "
+        "useful output, telling the user which fields to fill in."
+    )
+    return ParseResult(
+        domain="governance",
+        packet=packet,
+        confidence=0.5,
+        template="governance.proposal",
+        notes=notes,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Dispatcher
 
 _TEMPLATES: List[Callable[[str], Optional[ParseResult]]] = [
@@ -333,6 +469,7 @@ _TEMPLATES: List[Callable[[str], Optional[ParseResult]]] = [
     _try_physics_dimensional,
     _try_math,
     _try_cs_complexity,
+    _try_governance_proposal,
 ]
 
 

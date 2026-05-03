@@ -101,10 +101,10 @@ def test_seal_chains_subsequent_files(tmp_path):
 
 
 def test_seal_inserting_alphabetically_earlier_keeps_chain_intact(tmp_path):
-    """Files are chain-ordered alphabetically, not by creation time.
-    Inserting a new file with a name that sorts before existing ones
-    should still produce a valid chain."""
-    # First, seal "b-second" and "c-third"
+    """Chain order is by `sealed_at` timestamp, not filename. Inserting
+    a file whose name sorts before existing ones still produces a valid
+    chain — the new file appends at the end of the chronological chain
+    regardless of where its filename sorts."""
     seal_to_ledger(
         _pass_record(), summary="b",
         precedent_id="ledger://test/b-second", ledger_dir=tmp_path,
@@ -113,19 +113,16 @@ def test_seal_inserting_alphabetically_earlier_keeps_chain_intact(tmp_path):
         _pass_record(), summary="c",
         precedent_id="ledger://test/c-third", ledger_dir=tmp_path,
     )
-    # Now insert "a-first" which sorts before both
+    # Now seal "a-first" — alphabetically first, but chronologically last.
     seal_to_ledger(
         _pass_record(), summary="a",
         precedent_id="ledger://test/a-first", ledger_dir=tmp_path,
     )
-    # Verify: chain may be broken because b-second was originally
-    # written with prev=GENESIS, now there's an a-first before it.
-    # That's the expected behavior — verify_chain reports the break.
     report = verify_chain(ledger_dir=tmp_path)
-    # broken_links should contain b-second (its stored prev_hash is
-    # GENESIS but the expected is now a-first's content_hash).
-    broken_files = [b["file"] for b in report["broken_links"]]
-    assert any("b-second" in f for f in broken_files)
+    assert report["ok"], (
+        f"chain should stay intact when sealed_at orders the chain: {report}"
+    )
+    assert report["verified"] == 3
 
 
 # ── verify_chain ───────────────────────────────────────────────────────

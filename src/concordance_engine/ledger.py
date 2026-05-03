@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -115,12 +116,33 @@ def compute_content_hash(precedent: Dict[str, Any]) -> str:
 
 
 def _ledger_chain_files(ledger_dir: Optional[Path] = None) -> List[Path]:
-    """Files in chain order — alphabetical by filename. Deterministic
-    so the chain link semantics are well-defined regardless of OS."""
+    """Files in chain order — by `sealed_at` timestamp ascending, with
+    filename as tiebreaker for files written in the same second.
+
+    Using sealed_at (rather than alphabetical filename order) means
+    inserting a file later doesn't change the chain position of
+    earlier files. Amendments and out-of-order additions both keep
+    the chain intact.
+
+    Files without `sealed_at` (pre-chain or hand-edited) fall back to
+    filesystem mtime so legacy precedents still order coherently.
+    """
     d = ledger_dir or _default_ledger_dir()
     if not d.exists() or not d.is_dir():
         return []
-    return sorted(d.glob("*.json"))
+    files = list(d.glob("*.json"))
+
+    def _sort_key(f: Path):
+        data = _read_precedent_file(f)
+        if data and isinstance(data.get("sealed_at"), (int, float)):
+            return (data["sealed_at"], f.name)
+        # Fallback: file mtime, plus filename as final tiebreaker.
+        try:
+            return (f.stat().st_mtime, f.name)
+        except OSError:
+            return (0.0, f.name)
+
+    return sorted(files, key=_sort_key)
 
 
 def _read_precedent_file(p: Path) -> Optional[Dict[str, Any]]:
@@ -353,6 +375,19 @@ def find_closest(
         # this packet — honest-novel response.
         return ClosestCase(precedent_id=None)
 
+    # If the matched precedent has been amended, surface the latest
+    # version. Older versions remain in the ledger for audit, but the
+    # closest-case overlay should reflect the community's current
+    # framing of the decision.
+    matched_id = best["precedent_id"]
+    latest_id = latest_in_amendment_chain(matched_id, ledger_dir=ledger_dir)
+    if latest_id != matched_id:
+        # Walk forward to the latest precedent's record.
+        for p in precedents:
+            if p.get("precedent_id") == latest_id:
+                best = p
+                break
+
     return ClosestCase(
         precedent_id=best["precedent_id"],
         shared_dimensions=best_shared_dims,
@@ -454,11 +489,12 @@ def seal_to_ledger(
         "summary": summary.strip(),
         "anchors": anchor_dicts,
         "reasoning_overlay": overlay,
+        "sealed_at": time.time(),
     }
 
-    # Determine the target file path BEFORE chain link computation:
-    # the chain depends on alphabetical order, and this file's slot is
-    # determined by its name.
+    # Determine the target file path BEFORE chain link computation.
+    # Chain order is by `sealed_at` timestamp, so this new file slots
+    # at the end of the chain (it has the latest sealed_at).
     d = ledger_dir or _default_ledger_dir()
     d.mkdir(parents=True, exist_ok=True)
     file_slug = _slugify(precedent_id.replace("ledger://", ""))
@@ -470,27 +506,19 @@ def seal_to_ledger(
         )
 
     # Compute the chain link: this precedent's prev_hash is the
-    # content_hash of the file that comes immediately before it in
-    # alphabetical order (or GENESIS if it's the first / would be the
-    # first after sorting). Existing files that lack content_hash
-    # contribute their recomputed hash instead so the chain stays
-    # connected even before backfill is complete.
+    # content_hash of the LATEST file in the chain (highest sealed_at).
+    # Because the new file's sealed_at is `now`, it's strictly later
+    # than every existing file, so it always appends at the end.
     existing = [f for f in _ledger_chain_files(d) if f != target]
-    # Find the file that would precede this one alphabetically.
-    prior = None
-    for f in existing:
-        if f.name < target.name:
-            prior = f
-        else:
-            break
-    if prior is None:
+    if not existing:
         prev_hash = GENESIS_HASH
     else:
-        prior_data = _read_precedent_file(prior)
-        if prior_data and "content_hash" in prior_data:
-            prev_hash = prior_data["content_hash"]
-        elif prior_data:
-            prev_hash = compute_content_hash(prior_data)
+        last = existing[-1]
+        last_data = _read_precedent_file(last)
+        if last_data and "content_hash" in last_data:
+            prev_hash = last_data["content_hash"]
+        elif last_data:
+            prev_hash = compute_content_hash(last_data)
         else:
             prev_hash = GENESIS_HASH
 
@@ -503,7 +531,148 @@ def seal_to_ledger(
     return target
 
 
+def _find_precedent_by_id(
+    precedent_id: str, ledger_dir: Optional[Path] = None,
+) -> Optional[Tuple[Path, Dict[str, Any]]]:
+    """Locate a precedent file by its precedent_id. Returns
+    (path, payload) or None."""
+    for f in _ledger_chain_files(ledger_dir):
+        data = _read_precedent_file(f)
+        if data and data.get("precedent_id") == precedent_id:
+            return f, data
+    return None
+
+
+def amend_precedent(
+    prior_precedent_id: str,
+    *,
+    summary: str,
+    new_precedent_id: Optional[str] = None,
+    reasoning_overlay: Optional[Dict[str, Any]] = None,
+    anchors: Optional[List[Dict[str, Any]]] = None,
+    ledger_dir: Optional[Path] = None,
+) -> Path:
+    """Append an amendment to an existing precedent.
+
+    Amendments are *append-only* — the prior precedent stays in the
+    ledger unmodified. The new file carries an `amends` field pointing
+    at the prior precedent_id, so the chain of refinement is visible.
+
+    `find_closest` prefers the *latest* version in an amendment chain
+    (it walks back through `amends` links and uses the head). Older
+    versions remain visible to anyone listing the ledger or auditing
+    the history of how a community refined its understanding.
+
+    Args:
+      prior_precedent_id: the precedent being refined.
+      summary: one-line description of the new framing (required).
+      new_precedent_id: stable id for the amendment (auto-generated
+        from prior id + timestamp slug if omitted).
+      reasoning_overlay: replacement overlay (defaults to the prior's).
+      anchors: replacement anchors (defaults to the prior's).
+
+    Raises:
+      ValueError if `summary` is missing or the prior precedent isn't
+      found.
+    """
+    if not summary or not summary.strip():
+        raise ValueError("`summary` is required for an amendment")
+
+    located = _find_precedent_by_id(prior_precedent_id, ledger_dir)
+    if located is None:
+        raise ValueError(
+            f"prior precedent not found: {prior_precedent_id!r}. "
+            "Cannot amend a precedent that isn't in the ledger."
+        )
+    _prior_path, prior_payload = located
+
+    if new_precedent_id is None:
+        # Auto-generate: prior_id with an "-amended-N" suffix where N
+        # is the next available amendment count.
+        existing_amendments = [
+            p for p in _load_precedents(ledger_dir)
+            if p.get("amends") == prior_precedent_id
+        ]
+        n = len(existing_amendments) + 1
+        new_precedent_id = f"{prior_precedent_id}-amended-{n}"
+
+    # Inherit fields from the prior unless the caller overrides.
+    new_payload = {
+        "precedent_id": new_precedent_id,
+        "axis": prior_payload.get("axis", "unknown"),
+        "dimensions": prior_payload.get("dimensions", []),
+        "summary": summary.strip(),
+        "anchors": anchors if anchors is not None
+                   else prior_payload.get("anchors", []),
+        "reasoning_overlay": (
+            reasoning_overlay if reasoning_overlay is not None
+            else prior_payload.get("reasoning_overlay", {})
+        ),
+        "amends": prior_precedent_id,
+        "sealed_at": time.time(),
+    }
+
+    # Determine target path and chain-link this file.
+    d = ledger_dir or _default_ledger_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    file_slug = _slugify(new_precedent_id.replace("ledger://", ""))
+    target = d / f"{file_slug}.json"
+    if target.exists():
+        raise FileExistsError(
+            f"amendment file already exists at {target}. "
+            "Pass a different new_precedent_id."
+        )
+
+    # Chain link: this amendment's prev_hash is the latest file in
+    # the chain (highest sealed_at). The new sealed_at = now, so this
+    # file always appends at the end.
+    existing = [f for f in _ledger_chain_files(d) if f != target]
+    if not existing:
+        prev_hash = GENESIS_HASH
+    else:
+        last = existing[-1]
+        last_data = _read_precedent_file(last)
+        if last_data and "content_hash" in last_data:
+            prev_hash = last_data["content_hash"]
+        elif last_data:
+            prev_hash = compute_content_hash(last_data)
+        else:
+            prev_hash = GENESIS_HASH
+
+    new_payload["prev_hash"] = prev_hash
+    new_payload["content_hash"] = compute_content_hash(new_payload)
+
+    with open(target, "w", encoding="utf-8") as f:
+        json.dump(new_payload, f, indent=2)
+        f.write("\n")
+    return target
+
+
+def latest_in_amendment_chain(
+    precedent_id: str, ledger_dir: Optional[Path] = None,
+) -> str:
+    """Walk forward through `amends` links to find the most recent
+    version of a precedent. Returns the latest precedent_id (which may
+    be the input itself if no amendments exist)."""
+    precedents = _load_precedents(ledger_dir)
+    by_amends: Dict[str, str] = {}
+    for p in precedents:
+        amend_target = p.get("amends")
+        if amend_target:
+            by_amends[amend_target] = p["precedent_id"]
+    current = precedent_id
+    seen = {current}
+    while current in by_amends:
+        next_id = by_amends[current]
+        if next_id in seen:
+            break  # cycle protection
+        seen.add(next_id)
+        current = next_id
+    return current
+
+
 __all__ = [
     "find_closest", "list_precedents", "seal_to_ledger",
     "verify_chain", "compute_content_hash", "GENESIS_HASH",
+    "amend_precedent", "latest_in_amendment_chain",
 ]

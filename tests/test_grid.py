@@ -156,6 +156,44 @@ def test_umbrella_unknown_returns_empty():
     assert grid.umbrella_children("not_an_umbrella") == ()
 
 
+# ── Umbrella coherence ─────────────────────────────────────────────────
+
+def test_all_umbrellas_are_coherent():
+    """Every umbrella's dimensions must subsume its subsystems' union.
+    Catches the case where a subsystem carries a dimension the umbrella
+    doesn't — like the audit's biology / time_sequence finding."""
+    breaks = grid.verify_umbrella_coherence()
+    assert breaks == {}, (
+        f"umbrella coherence breaks: {breaks}. "
+        "An umbrella must carry every dimension its subsystems carry."
+    )
+
+
+def test_biology_carries_time_sequence_for_subsystem_coherence():
+    """Locks in the audit fix: biology must include time_sequence
+    because agriculture and exercise_science both sit on it. If the
+    dimension is removed from biology, this test catches it."""
+    biology_dims = grid.axis_dimensions("biology")
+    assert "time_sequence" in biology_dims, (
+        "biology umbrella must carry time_sequence — both agriculture "
+        "and exercise_science (subsystems) sit on it. Removing it from "
+        "biology breaks umbrella coherence."
+    )
+
+
+def test_biology_dimensions_cover_all_subsystem_dimensions():
+    """Stronger form of the above: biology's dimension set must be a
+    superset of every subsystem's dimension set."""
+    biology_dims = grid.axis_dimensions("biology")
+    for child in grid.umbrella_children("biology"):
+        child_dims = grid.axis_dimensions(child)
+        missing = child_dims - biology_dims
+        assert not missing, (
+            f"biology missing dimensions {sorted(missing)} that "
+            f"subsystem {child!r} carries"
+        )
+
+
 # ── Rendering ──────────────────────────────────────────────────────────
 
 def test_render_matrix_includes_every_axis():

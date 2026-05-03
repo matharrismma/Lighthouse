@@ -49,7 +49,7 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     "mathematics":         frozenset({"reasoning"}),
     "statistics":          frozenset({"reasoning"}),
     "computer_science":    frozenset({"encoding", "reasoning", "time_sequence"}),
-    "biology":             frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance"}),
+    "biology":             frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence"}),
     "governance":          frozenset({"reasoning", "authority_trust", "time_sequence"}),
     "scripture":           frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
     "linguistics":         frozenset({"encoding", "reasoning"}),
@@ -152,6 +152,36 @@ def deep_axes(min_dimensions: int = 3) -> List[Tuple[str, int]]:
 def umbrella_children(parent: str) -> Tuple[str, ...]:
     """Subsystems under an umbrella axis, or () if none."""
     return UMBRELLAS.get(parent, ())
+
+
+def verify_umbrella_coherence() -> Dict[str, List[str]]:
+    """Verify each umbrella's dimensions cover the union of its
+    subsystems' dimensions.
+
+    The doctrinal claim: an umbrella subsumes its subsystems. If
+    `agriculture` sits on `time_sequence` but the `biology` umbrella
+    doesn't, the umbrella isn't actually carrying what its children
+    carry. This is a coherence break — either the umbrella needs the
+    extra dimension or the subsystem doesn't really belong under it.
+
+    Returns a dict mapping umbrella name → list of missing dimensions.
+    Empty list means coherent. Empty dict means all umbrellas coherent.
+    """
+    breaks: Dict[str, List[str]] = {}
+    for parent, children in UMBRELLAS.items():
+        if not children:
+            continue
+        if parent not in AXIS_DIMENSIONS:
+            continue
+        parent_dims = AXIS_DIMENSIONS[parent]
+        children_union = frozenset()
+        for c in children:
+            if c in AXIS_DIMENSIONS:
+                children_union = children_union | AXIS_DIMENSIONS[c]
+        missing = sorted(children_union - parent_dims)
+        if missing:
+            breaks[parent] = missing
+    return breaks
 
 
 # ── Rendering ──────────────────────────────────────────────────────────

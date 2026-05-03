@@ -330,6 +330,33 @@ def main() -> None:
         ),
     )
 
+    led_amend = led_sub.add_parser(
+        "amend",
+        help="Append an amendment to an existing precedent.",
+        description=(
+            "Amendments are append-only — the prior precedent stays in "
+            "the ledger unmodified. The new file carries an `amends` "
+            "field linking back to the prior precedent_id, and "
+            "`find_closest` automatically prefers the latest version "
+            "in an amendment chain. Older versions remain visible to "
+            "anyone listing the ledger or auditing how a community "
+            "refined its understanding."
+        ),
+    )
+    led_amend.add_argument(
+        "prior_id", type=str,
+        help="precedent_id of the prior version being refined.",
+    )
+    led_amend.add_argument(
+        "--summary", "-s", required=True, type=str,
+        help="One-line description of the new framing.",
+    )
+    led_amend.add_argument(
+        "--id", dest="new_id", type=str, default=None,
+        help="Stable precedent_id for the amendment. Auto-generated as "
+             "<prior_id>-amended-N if omitted.",
+    )
+
     args = p.parse_args()
 
     if args.cmd == "validate":
@@ -407,6 +434,7 @@ def main() -> None:
     if args.cmd == "ledger":
         from .ledger import (
             find_closest, list_precedents, seal_to_ledger, verify_chain,
+            amend_precedent,
         )
         if args.ledger_cmd == "verify":
             report = verify_chain()
@@ -466,6 +494,21 @@ def main() -> None:
                 print("  reasoning overlay:")
                 for k, v in (cc.reasoning_overlay or {}).items():
                     print(f"    {k}: {v}")
+            sys.exit(0)
+        if args.ledger_cmd == "amend":
+            try:
+                target = amend_precedent(
+                    args.prior_id,
+                    summary=args.summary,
+                    new_precedent_id=args.new_id,
+                )
+            except ValueError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            except FileExistsError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            print(f"amended precedent → {target}")
             sys.exit(0)
         if args.ledger_cmd == "seal":
             packet_path = Path(args.packet)
