@@ -1,0 +1,12 @@
+{
+  "_comment": "Example confession request body for POST /confess. Confession does not use the standard packet shape; it references a prior ledger seq and adds the confessor's recognition that the prior decision was wrong. The original entry remains immutable; the confession is a new entry chained after it.",
+  "ref_seq": 7,
+  "confessor": "Treasurer (Jane Doe)",
+  "reason": "The Q2 vendor selection at seq 7 prioritized lowest price without weighing the vendor's documented labor-practice issues. The decision passed all four gates as evaluated, but the FLOOR-gate predicate around 'protection of the vulnerable' should have considered the vendor's workforce, not only the church's congregation. The packet's red_items and floor_items did not name this risk and the committee failed to surface it.",
+  "amendment": "Future vendor decisions of this scope will require an additional FLOOR-gate item explicitly evaluating the vendor's labor practices (documented violations, NLRB filings, employee-reported wage theft) before the BROTHERS gate runs. This pattern is being added to the procurement checklist effective immediately.",
+  "scripture_anchors": [
+    "Lev 19:13",
+    "Jas 5:4",
+    "Mic 6:8"
+  ]
+}

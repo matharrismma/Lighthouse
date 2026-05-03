@@ -1,0 +1,38 @@
+{
+  "domain": "governance",
+  "scope": "adapter",
+  "created_epoch": 1700000000,
+  "witness_count": 2,
+  "DECISION_PACKET": {
+    "title": "Approve community benevolence fund disbursement",
+    "decision": "Disburse $2,500 from the benevolence fund to cover three months of utility bills for two member households facing imminent shutoff.",
+    "rationale": "Floor-level provision support for members in documented hardship. Funds remain within the year's approved benevolence budget. Privacy preserved by handling via the small-team review committee, not full board.",
+    "scope": "adapter",
+    "red_items": [
+      "No coercion of recipients (no requirements beyond confirming hardship)",
+      "Acting within authorized benevolence-fund role and current-year budget",
+      "Privacy of recipients preserved"
+    ],
+    "floor_items": [
+      "Both households have documented hardship (job loss / medical)",
+      "Disbursement within annual budget authority for the committee",
+      "Receipts collected post-disbursement for audit"
+    ],
+    "way_path": "Pay utility companies directly on behalf of households (avoids cash handling); document in the small-committee minutes; report aggregate (not names) to the broader leadership next quarter.",
+    "execution_steps": [
+      "Verify hardship documentation",
+      "Confirm utility account numbers",
+      "Issue payments directly to utilities",
+      "Record receipts in committee log",
+      "Aggregate-report at quarterly review"
+    ],
+    "witnesses": ["Benevolence Committee Chair", "Treasurer"],
+    "witness_count": 2,
+    "scripture_anchors": [
+      "Mat 25:35-36",
+      "Pro 22:9",
+      "Jas 1:27",
+      "Mic 6:8"
+    ]
+  }
+}
