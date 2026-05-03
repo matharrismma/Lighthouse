@@ -354,3 +354,84 @@ def render_walkthrough(record: WitnessRecord) -> str:
     # A blank line + horizontal rule between header and first section
     # would be redundant; rely on _join_sections' double-newlines.
     return body
+
+
+def render_walkthrough_compact(record: WitnessRecord) -> str:
+    """Single-screen render of the same record. ~10 lines max.
+
+    Trades the Socratic walkthrough for a glanceable status. Used when
+    piping the engine through CLI (`concordance ask --compact`) or when
+    a human is checking many records quickly. Same doctrinal commitments
+    apply: no fabricated answer, anchors carry their layer, no-precedent
+    renders explicitly, closing line is a question.
+    """
+    lines: List[str] = []
+
+    # Headline
+    pid = record.packet_id or "(no packet_id)"
+    domain = record.axis_coords.axis if record.axis_coords else "(unknown domain)"
+    lines.append(f"[{record.overall}] {domain} · {pid}")
+
+    # Gates: collapsed to a single status-icon line
+    if record.gate_results:
+        # Group consecutive same-gate verdicts (worst-status-wins).
+        groups: List[List] = []
+        for gr in record.gate_results:
+            if groups and groups[-1][0].gate == gr.gate:
+                groups[-1].append(gr)
+            else:
+                groups.append([gr])
+        gate_segments = []
+        for group in groups:
+            status = max(
+                (gr.status for gr in group),
+                key=lambda s: _STATUS_PRIORITY.get(s, -1),
+            )
+            icon = {"PASS": "✓", "REJECT": "✗", "QUARANTINE": "⏸"}.get(status, "?")
+            gate_segments.append(f"{icon} {group[0].gate}")
+        lines.append("  gates: " + "  ".join(gate_segments))
+
+    # Failed verifiers, if any (silent on PASS)
+    failed = record.failed_verifiers()
+    if failed:
+        lines.append("  failed:")
+        for v in failed:
+            detail = (v.detail or "").splitlines()[0][:80]
+            lines.append(f"    [{v.status}] {v.name}: {detail}")
+
+    # Anchors — count + tier summary
+    if record.anchors:
+        layers = {a.layer for a in record.anchors}
+        if layers == {"jesus_words"}:
+            tier_note = "all primary-tier"
+        elif len(layers) == 1:
+            tier_note = f"all {next(iter(layers))}"
+        else:
+            tier_note = "mixed-tier: " + ", ".join(sorted(layers))
+        refs = ", ".join(a.ref for a in record.anchors[:3])
+        more = "" if len(record.anchors) <= 3 else f", +{len(record.anchors) - 3} more"
+        lines.append(f"  anchors: {len(record.anchors)} ({tier_note}) — {refs}{more}")
+
+    # Closest case
+    cc = record.closest_case
+    if cc is not None:
+        if cc.precedent_id is None:
+            lines.append("  precedent: none in ledger (novel claim)")
+        else:
+            shared = len(cc.shared_dimensions)
+            dist = f", distance {cc.distance}" if cc.distance is not None else ""
+            lines.append(
+                f"  precedent: {cc.precedent_id} (shares {shared} dim{dist})"
+            )
+
+    # Closing question — branched, single line
+    if record.overall == "REJECT":
+        lines.append("  → What was wrong with the claim?")
+    elif record.overall == "QUARANTINE":
+        lines.append("  → What is still pending?")
+    elif cc is not None and cc.precedent_id is not None:
+        lines.append("  → Is your situation actually like this precedent?")
+    else:
+        lines.append("  → What is this situation most like?")
+
+    return "\n".join(lines)

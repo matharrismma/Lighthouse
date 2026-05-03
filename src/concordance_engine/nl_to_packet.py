@@ -367,10 +367,36 @@ def parse_and_validate(text: str, *, now_epoch: int = 9999999999):
     parsed = parse(text)
     if parsed is None:
         return None, None
-    # Lazy import so this module stays standalone-importable
-    from .engine import validate_packet  # type: ignore
-    eng = validate_packet(parsed.packet, now_epoch=now_epoch)
+    # Lazy imports so this module stays standalone-importable.
+    from .engine import validate_packet, EngineConfig  # type: ignore
+    cfg = EngineConfig(schema_path="", run_verifiers=True)
+    eng = validate_packet(parsed.packet, now_epoch=now_epoch, config=cfg)
     return parsed, eng
 
 
-__all__ = ["ParseResult", "parse", "parse_and_validate"]
+def parse_and_seal(text: str, *, now_epoch: int = 9999999999, anchors=(),
+                   closest_case=None):
+    """Parse a natural-language claim and return a sealed WitnessRecord.
+
+    The new canonical entry point that produces the same object both
+    audiences consume — agents serialize it, humans render it via
+    `walkthrough.render_walkthrough(record)`. If parse fails, returns
+    None; an MCP host can then do its own NL→packet conversion and call
+    the engine directly.
+    """
+    parsed = parse(text)
+    if parsed is None:
+        return None
+    from .engine import validate_and_seal, EngineConfig  # type: ignore
+    cfg = EngineConfig(schema_path="", run_verifiers=True)
+    return validate_and_seal(
+        parsed.packet,
+        now_epoch=now_epoch,
+        config=cfg,
+        anchors=anchors,
+        closest_case=closest_case,
+        packet_id=parsed.packet.get("id"),
+    )
+
+
+__all__ = ["ParseResult", "parse", "parse_and_validate", "parse_and_seal"]
