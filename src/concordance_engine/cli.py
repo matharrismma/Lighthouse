@@ -357,6 +357,75 @@ def main() -> None:
              "<prior_id>-amended-N if omitted.",
     )
 
+    # ── signing subcommand ─────────────────────────────────────────
+    sign = sub.add_parser(
+        "sign",
+        help="Ed25519 keypair generation, packet signing, signature verification.",
+        description=(
+            "Cryptographic signing operations per canonical "
+            "Investment Packet v1.1 spec. Requires the [signing] "
+            "extra: pip install -e \".[signing]\""
+        ),
+    )
+    sign_sub = sign.add_subparsers(dest="sign_cmd", required=True)
+
+    sg_keypair = sign_sub.add_parser(
+        "keypair", help="Generate a fresh Ed25519 keypair.",
+    )
+    sg_keypair.add_argument(
+        "--out-private", type=str, default=None,
+        help="Write private key b64u to this file (otherwise stdout).",
+    )
+    sg_keypair.add_argument(
+        "--out-public", type=str, default=None,
+        help="Write public key b64u to this file (otherwise stdout).",
+    )
+
+    sg_sign = sign_sub.add_parser(
+        "packet", help="Sign a packet JSON file.",
+    )
+    sg_sign.add_argument("packet", type=str, help="Path to packet JSON")
+    sg_sign.add_argument(
+        "--private-key", type=str, required=True,
+        help="Path to private key file (b64u-encoded raw 32 bytes)",
+    )
+    sg_sign.add_argument(
+        "--out", type=str, default=None,
+        help="Write signed packet to this file (otherwise stdout JSON).",
+    )
+
+    sg_verify = sign_sub.add_parser(
+        "verify", help="Verify a signed packet's signature.",
+    )
+    sg_verify.add_argument("packet", type=str, help="Path to signed packet JSON")
+    sg_verify.add_argument(
+        "--public-key", type=str, default=None,
+        help="Path to public key file. If omitted, reads from "
+             "packet.issuer_public_key.",
+    )
+
+    # ── investment-packet subcommand ───────────────────────────────
+    inv = sub.add_parser(
+        "investment-packet",
+        help="Build / verify Investment Packet v1.1 credentials.",
+        description=(
+            "Per canonical 02_SPECS/INVESTMENT_PACKET_SPEC_v1_1.md: "
+            "signed, time-bound, revocable, privacy-preserving "
+            "eligibility credential. Raw financial data stays local; "
+            "only derived bands + proof hashes leave Node."
+        ),
+    )
+    inv_sub = inv.add_subparsers(dest="inv_cmd", required=True)
+    inv_verify = inv_sub.add_parser(
+        "verify",
+        help="Verify an Investment Packet (signature, expiry, revocation).",
+    )
+    inv_verify.add_argument("packet", type=str, help="Path to signed Investment Packet JSON")
+    inv_verify.add_argument(
+        "--revoked", type=str, default=None,
+        help="Path to a JSON file with a list of revoked revocation_key_id values.",
+    )
+
     args = p.parse_args()
 
     if args.cmd == "validate":
@@ -551,6 +620,101 @@ def main() -> None:
             sys.exit(0)
         print("error: unknown ledger subcommand", file=sys.stderr)
         sys.exit(4)
+
+    if args.cmd == "sign":
+        from . import signing
+        if args.sign_cmd == "keypair":
+            try:
+                priv, pub = signing.generate_keypair()
+            except ImportError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            if args.out_private:
+                Path(args.out_private).write_text(priv, encoding="utf-8")
+                print(f"private key → {args.out_private}", file=sys.stderr)
+            else:
+                print(f"private: {priv}")
+            if args.out_public:
+                Path(args.out_public).write_text(pub, encoding="utf-8")
+                print(f"public key → {args.out_public}", file=sys.stderr)
+            else:
+                print(f"public:  {pub}")
+            sys.exit(0)
+        if args.sign_cmd == "packet":
+            try:
+                packet = _load_json(Path(args.packet))
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read packet: {e}", file=sys.stderr)
+                sys.exit(4)
+            try:
+                priv = Path(args.private_key).read_text(encoding="utf-8").strip()
+            except OSError as e:
+                print(f"error: could not read private key: {e}", file=sys.stderr)
+                sys.exit(4)
+            try:
+                signed = signing.sign_packet(packet, priv)
+            except ImportError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            out = json.dumps(signed, indent=2, default=str)
+            if args.out:
+                Path(args.out).write_text(out, encoding="utf-8")
+                print(f"signed packet → {args.out}", file=sys.stderr)
+            else:
+                print(out)
+            sys.exit(0)
+        if args.sign_cmd == "verify":
+            try:
+                packet = _load_json(Path(args.packet))
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read packet: {e}", file=sys.stderr)
+                sys.exit(4)
+            pub = None
+            if args.public_key:
+                try:
+                    pub = Path(args.public_key).read_text(encoding="utf-8").strip()
+                except OSError as e:
+                    print(f"error: could not read public key: {e}", file=sys.stderr)
+                    sys.exit(4)
+            try:
+                ok, detail = signing.verify_packet(packet, pub)
+            except ImportError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            if ok:
+                print(f"signature ok ({detail})")
+                sys.exit(0)
+            print(f"signature INVALID: {detail}", file=sys.stderr)
+            sys.exit(1)
+
+    if args.cmd == "investment-packet":
+        from . import investment_packet as ip
+        if args.inv_cmd == "verify":
+            try:
+                packet = _load_json(Path(args.packet))
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read packet: {e}", file=sys.stderr)
+                sys.exit(4)
+            revoked = None
+            if args.revoked:
+                try:
+                    revoked = json.loads(
+                        Path(args.revoked).read_text(encoding="utf-8")
+                    )
+                except (OSError, json.JSONDecodeError) as e:
+                    print(f"error: could not read revoked list: {e}", file=sys.stderr)
+                    sys.exit(4)
+            try:
+                ok, detail, report = ip.verify_investment_packet(
+                    packet, revoked_keys=revoked,
+                )
+            except ImportError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            print(f"{'OK' if ok else 'INVALID'}: {detail}")
+            for check, result in report.get("checks", {}).items():
+                print(f"  {check}: {result}")
+            sys.exit(0 if ok else 1)
 
 
 if __name__ == "__main__":
