@@ -258,6 +258,107 @@ def test_health_still_works():
     assert r.json()["status"] == "ok"
 
 
+# ── /seal/render endpoint (human-form pipeline) ────────────────────────
+
+def test_seal_render_chemistry_returns_walkthrough_html():
+    client = _client()
+    r = client.post("/seal/render", json={"text": "is C + O2 -> CO2 balanced?"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["parse_template"] == "chem.equation"
+    # Embedded HTML walkthrough — no <!DOCTYPE>, no full document
+    assert "<!DOCTYPE html>" not in body["walkthrough"]
+    assert "<div class=\"witness-record\">" in body["walkthrough"]
+    # Walkthrough always ends on a question (Socratic close)
+    assert "Socratic question" in body["walkthrough"]
+    # Record is present alongside rendered output
+    assert "schema_version" in body["record"]
+    # No fabricated answer fields, anywhere
+    forbidden = ("final_answer", "Final Answer", "engine_answer")
+    full = body["walkthrough"] + str(body["record"])
+    for word in forbidden:
+        assert word not in full
+
+
+def test_seal_render_governance_recognizes_proposal():
+    client = _client()
+    r = client.post("/seal/render", json={
+        "text": "Should we admit Alice with 3 witnesses?",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["parse_template"] == "governance.proposal"
+    # Governance template extracts the witness count
+    assert body["record"]["axis_coords"]["axis"] == "governance"
+
+
+def test_seal_render_unparseable_returns_422_with_template_list():
+    client = _client()
+    r = client.post("/seal/render", json={"text": "what is for dinner"})
+    assert r.status_code == 422
+    detail = r.json()["detail"]
+    assert detail["error"] == "no_template_matched"
+    # Useful error: tells the user what shapes ARE supported
+    assert any("chemistry" in t for t in detail["supported_templates"])
+    assert any("computer science" in t for t in detail["supported_templates"])
+
+
+def test_seal_render_empty_text_returns_422():
+    client = _client()
+    r = client.post("/seal/render", json={"text": "   "})
+    assert r.status_code == 422
+
+
+def test_seal_render_markdown_format():
+    client = _client()
+    r = client.post("/seal/render", json={
+        "text": "merge sort runs in O(n log n)",
+        "format": "markdown",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["format"] == "markdown"
+    # Markdown render — no HTML tags
+    assert "# Witness Record" in body["walkthrough"]
+    assert "<div" not in body["walkthrough"]
+
+
+def test_seal_render_compact_format():
+    client = _client()
+    r = client.post("/seal/render", json={
+        "text": "merge sort runs in O(n log n)",
+        "format": "compact",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert body["format"] == "compact"
+    # Compact: short, status-prefixed
+    assert body["walkthrough"].startswith("[")
+    assert len(body["walkthrough"].splitlines()) <= 20
+
+
+def test_seal_render_writes_to_ledger():
+    client = _client()
+    r = client.post("/seal/render", json={"text": "is H2 + O2 -> H2O balanced?"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body.get("ledger_seq") is not None
+
+
+def test_seal_render_html_embedded_does_not_redefine_styles():
+    """The embedded HTML must NOT carry its own <style> block — the
+    host page provides styling. This prevents CSS conflicts when the
+    walkthrough is inlined into the form's response area."""
+    client = _client()
+    r = client.post("/seal/render", json={"text": "d/dx(x^2) = 2x"})
+    assert r.status_code == 200
+    walk = r.json()["walkthrough"]
+    assert "<style>" not in walk
+    assert "<head>" not in walk
+
+
+# ── Existing endpoints still work ──────────────────────────────────────
+
 def test_validate_still_returns_old_engine_result_shape():
     """Backward compat: /validate must keep the old EngineResult shape
     so existing callers don't break when /seal becomes available."""

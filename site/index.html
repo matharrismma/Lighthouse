@@ -270,6 +270,95 @@
       color: var(--text);
       border-bottom-color: var(--border);
     }
+
+    /* ── Walkthrough rendering (consumes the engine's HTML output) ── */
+    /* These class names match concordance_engine.walkthrough's
+       embedded-mode output. Styled here against the host page's
+       theme so the walkthrough feels native, not iframe-inserted. */
+    .witness-record { font-size: 14px; line-height: 1.55; }
+    .witness-record h1 {
+      font-size: 18px; font-weight: 600; margin: 0 0 8px;
+      padding: 0; border: none; color: var(--text);
+    }
+    .witness-record h2 {
+      font-size: 14px; font-weight: 600; margin: 18px 0 6px;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .witness-record h3 {
+      font-size: 13px; font-weight: 500; margin: 12px 0 4px;
+      color: var(--text);
+    }
+    .witness-record p { margin: 4px 0; }
+    .witness-record ul { margin: 4px 0 4px 20px; padding: 0; }
+    .witness-record li { margin: 2px 0; }
+    .witness-record code {
+      background: var(--bg); padding: 1px 5px; border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--text);
+    }
+    .witness-record table {
+      width: 100%; border-collapse: collapse; margin: 8px 0;
+      font-size: 12px;
+    }
+    .witness-record th, .witness-record td {
+      border: 1px solid var(--border); padding: 4px 8px; text-align: left;
+    }
+    .witness-record th { background: var(--bg); color: var(--muted); }
+    .witness-record blockquote {
+      border-left: 2px solid var(--border); margin: 6px 0;
+      padding: 4px 12px; color: var(--muted);
+    }
+    .witness-record pre {
+      background: var(--bg); padding: 10px; border-radius: 4px;
+      overflow-x: auto; font-size: 12px; margin: 6px 0;
+    }
+    .witness-record .headline-pass    { color: var(--pass);       font-weight: 600; }
+    .witness-record .headline-reject  { color: var(--reject);     font-weight: 600; }
+    .witness-record .headline-quar    { color: var(--quarantine); font-weight: 600; }
+    .witness-record .gate-pass        { color: var(--pass); }
+    .witness-record .gate-reject      { color: var(--reject); }
+    .witness-record .gate-quar        { color: var(--quarantine); }
+    .witness-record .layer-jesus      { color: var(--reject); font-weight: 500; }
+    .witness-record .layer-bible      { color: var(--accent); }
+    .witness-record .layer-apostles   { color: #b97aff; }
+    .witness-record .layer-elders     { color: var(--muted); }
+    .witness-record .socratic {
+      background: var(--bg); border-left: 3px solid var(--quarantine);
+      padding: 12px 16px; margin: 18px 0 0; border-radius: 4px;
+    }
+    .witness-record .socratic h2 { margin-top: 0; border: none; }
+    .witness-record .socratic .question {
+      font-style: italic; color: var(--text); font-size: 15px;
+    }
+    .witness-record .no-precedent { color: var(--muted); font-style: italic; }
+
+    .parse-meta {
+      font-size: 11px; color: var(--muted); margin: 0 0 10px;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .parse-meta .parse-template {
+      color: var(--accent); font-family: 'JetBrains Mono', monospace;
+      text-transform: none; letter-spacing: 0;
+    }
+    .ledger-link {
+      display: block; margin-top: 14px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--muted);
+    }
+    .ledger-link code {
+      color: var(--accent);
+    }
+    .error-bubble {
+      color: var(--reject); font-size: 13px;
+    }
+    .error-bubble .templates {
+      margin-top: 10px; color: var(--text); font-size: 12px;
+    }
+    .error-bubble .templates code {
+      background: var(--bg); padding: 1px 4px; border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    }
   </style>
 </head>
 <body>
@@ -279,7 +368,14 @@
     <div class="empty" id="emptyState">
       <div class="wordmark">Concordance</div>
       <h1>Submit something for discernment.</h1>
-      <p>A claim. An equation. A decision that cannot be undone. Four gates will weigh it and return a verdict.</p>
+      <p>A claim. An equation. A decision that cannot be undone. Four gates will weigh it and return a verdict — never an answer.</p>
+      <div class="examples" style="margin-top: 28px; display: flex; flex-direction: column; gap: 10px; max-width: 540px;">
+        <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Try one</div>
+        <button class="example-btn" data-text="is C + O2 -&gt; CO2 balanced?" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">is C + O2 -&gt; CO2 balanced?</button>
+        <button class="example-btn" data-text="merge sort runs in O(n log n)" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">merge sort runs in O(n log n)</button>
+        <button class="example-btn" data-text="d/dx(x^2) = 2x" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">d/dx(x^2) = 2x</button>
+        <button class="example-btn" data-text="Should we admit Alice with 3 witnesses?" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">Should we admit Alice with 3 witnesses?</button>
+      </div>
     </div>
   </div>
 
@@ -302,7 +398,15 @@
 </div>
 
 <script>
-  const API = 'https://lighthouse-production-3f9a.up.railway.app';
+  // API URL is relative — works on narrowhighway.com, Railway, or localhost
+  // without per-environment config. Use absolute URL in dev only.
+  const API = (() => {
+    const host = window.location.hostname;
+    if (host === '' || host === 'file' || host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+    return '';  // same origin
+  })();
 
   const historyEl = document.getElementById('history');
   const emptyEl   = document.getElementById('emptyState');
@@ -323,6 +427,15 @@
   });
 
   sendBtn.addEventListener('click', submit);
+
+  // Wire example buttons in the empty state.
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      inputEl.value = btn.getAttribute('data-text') || '';
+      inputEl.dispatchEvent(new Event('input'));
+      inputEl.focus();
+    });
+  });
 
   function submit() {
     const text = inputEl.value.trim();
@@ -346,57 +459,77 @@
     inputEl.disabled = true;
     scrollBottom();
 
-    const now = Math.floor(Date.now() / 1000);
-    const packet = {
-      domain: 'governance',
-      witness_count: 1,
-      created_epoch: now - 60,
-      DECISION_PACKET: {
-        title: text.length > 60 ? text.slice(0, 57) + '…' : text,
-        decision: text,
-        rationale: 'Submitted for discernment.',
-        scope: 'adapter',
-        red_items: ['No coercion detected', 'No unilateral authority claimed'],
-        floor_items: ['Claim is internally coherent', 'Rationale provided'],
-        way_path: 'direct-submission',
-        execution_steps: ['Submit', 'Review'],
-        witnesses: ['submitter'],
-        witness_count: 1
-      }
-    };
-
-    fetch(API + '/submit', {
+    // Hit /seal/render — the human-form pipeline. Sends raw text;
+    // server runs nl_to_packet, validates, seals, renders walkthrough.
+    fetch(API + '/seal/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ packet, run_verifiers: true })
+      body: JSON.stringify({ text: text, format: 'html', expand_traces: false })
     })
-    .then(r => r.json())
-    .then(data => renderResult(exchange, thinking, data))
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        const detail = body && body.detail ? body.detail : { message: 'request failed: ' + r.status };
+        renderParseError(exchange, thinking, detail);
+        return;
+      }
+      renderResult(exchange, thinking, body);
+    })
     .catch(err => renderError(exchange, thinking, err));
   }
 
   function renderResult(exchange, thinking, data) {
     thinking.remove();
 
-    const overall = data.overall || 'ERROR';
-    const gates   = data.gate_results || [];
-    const elapsed = data.elapsed_ms != null ? data.elapsed_ms + ' ms' : '';
-
-    const gateHTML = gates.map(function(g) {
-      const reasons = (g.reasons || []).filter(function(r) { return r && r.trim(); });
-      return '<div class="gate-row">' +
-        '<span class="gate-name">' + esc(g.gate) + '</span>' +
-        '<span class="gate-status ' + g.status + '">' + g.status + '</span>' +
-        '<span class="gate-reasons">' + (reasons.length ? esc(reasons.join(' · ')) : '') + '</span>' +
-        '</div>';
-    }).join('');
-
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
-    bubble.innerHTML =
-      '<div class="verdict ' + overall + '"><span class="dot"></span>' + overall + '</div>' +
-      '<div class="gates">' + gateHTML + '</div>' +
-      (elapsed ? '<div class="elapsed">' + elapsed + '</div>' : '');
+
+    // Show how the input was understood (which template matched).
+    const meta = data.parse_template ? (
+      '<div class="parse-meta">parsed via <span class="parse-template">' +
+      esc(data.parse_template) + '</span>' +
+      (data.parse_confidence != null ? ' · confidence ' + Math.round(data.parse_confidence * 100) + '%' : '') +
+      '</div>'
+    ) : '';
+
+    // The walkthrough HTML is server-rendered (embedded mode — no
+    // <html>/<head> wrappers, just the .witness-record content).
+    const walk = data.walkthrough || '';
+
+    // Permalink + ledger context.
+    const ledger = (data.ledger_seq != null) ?
+      ('<div class="ledger-link">Recorded as ledger seq <code>#' + data.ledger_seq + '</code>' +
+        (data.elapsed_ms != null ? ' · <span style="color:var(--muted)">' + data.elapsed_ms + ' ms</span>' : '') +
+       '</div>') : '';
+
+    bubble.innerHTML = meta + walk + ledger;
+    exchange.appendChild(bubble);
+
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
+  }
+
+  function renderParseError(exchange, thinking, detail) {
+    thinking.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+
+    let html = '<div class="error-bubble">';
+    if (typeof detail === 'string') {
+      html += esc(detail);
+    } else {
+      html += esc(detail.message || 'request failed');
+      if (Array.isArray(detail.supported_templates)) {
+        html += '<div class="templates"><strong>Try one of these shapes:</strong><ul>';
+        for (const t of detail.supported_templates) {
+          html += '<li>' + esc(t) + '</li>';
+        }
+        html += '</ul></div>';
+      }
+    }
+    html += '</div>';
+    bubble.innerHTML = html;
     exchange.appendChild(bubble);
 
     inputEl.disabled = false;
@@ -409,8 +542,7 @@
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
     bubble.innerHTML =
-      '<div class="verdict ERROR"><span class="dot"></span>ERROR</div>' +
-      '<div class="gate-reasons" style="margin-top:6px;color:#f75f5f">' + esc(String(err)) + '</div>';
+      '<div class="error-bubble"><strong>Network error.</strong> ' + esc(String(err)) + '</div>';
     exchange.appendChild(bubble);
     inputEl.disabled = false;
     inputEl.focus();
@@ -422,4 +554,12 @@
   }
 
   function esc(s) {
-    return
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

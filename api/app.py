@@ -38,6 +38,11 @@ try:
     from concordance_engine.witness_record import (
         Anchor, ClosestCase, WitnessRecord,
     )
+    from concordance_engine.walkthrough import (
+        render_walkthrough, render_walkthrough_html,
+        render_walkthrough_compact,
+    )
+    from concordance_engine.nl_to_packet import parse as nl_parse
     _ENGINE_AVAILABLE = True
     _ENGINE_ERROR = None
 except ImportError as _e:
@@ -153,6 +158,20 @@ class ValidateRequest(BaseModel):
     packet: Dict[str, Any]
     now_epoch: Optional[int] = None
     run_verifiers: bool = True
+
+
+class SealRenderRequest(BaseModel):
+    """Body for `POST /seal/render` — the human-form pipeline.
+
+    Accepts a natural-language claim, routes it through nl_to_packet
+    to build a real packet, runs validate_and_seal, and returns both
+    the WitnessRecord JSON and a pre-rendered Socratic walkthrough
+    (markdown or HTML, caller's choice). The front-end can drop the
+    walkthrough into a div without re-implementing the renderer.
+    """
+    text: str
+    format: str = "html"  # "html" | "markdown" | "compact"
+    expand_traces: bool = False
 
 
 class SealRequest(BaseModel):
@@ -523,6 +542,116 @@ def seal(req: SealRequest):
         out["ledger_entry_hash"] = ledger_hash
     out["elapsed_ms"] = round(elapsed_ms, 2)
     return out
+
+
+@app.post("/seal/render", include_in_schema=False)
+def seal_render(req: SealRenderRequest):
+    """Human-form pipeline: natural-language → packet → seal → rendered walkthrough.
+
+    Routes the user's text through nl_to_packet (deterministic
+    template parser) to build a real packet, runs validate_and_seal,
+    and returns both the WitnessRecord JSON and a pre-rendered
+    walkthrough so the front-end just innerHTML's the response.
+
+    When the parser doesn't recognize the input shape, returns a
+    structured 422 listing the templates that *are* supported, so
+    the user gets a useful "try something like..." instead of a
+    confusing error. Templates currently understood:
+      * chemistry equation: "is C + O2 -> CO2 balanced?"
+      * one-sample t-test: "p=0.05 from a t-test, n=30, mean=5, sd=1, mu0=4"
+      * physics dimensional: "F = m*a where F in newtons, m in kg, a in m/s^2"
+      * math equality / derivative: "d/dx(x^2) = 2x"
+      * CS complexity: "merge sort runs in O(n log n)"
+      * governance proposal: "should we admit Alice with 3 witnesses?"
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=422, detail="text is empty")
+
+    parsed = nl_parse(text)
+    if parsed is None:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "no_template_matched",
+                "message": (
+                    "The deterministic parser doesn't recognize this "
+                    "input shape yet. Try one of the supported forms."
+                ),
+                "supported_templates": [
+                    "chemistry: 'is C + O2 -> CO2 balanced?'",
+                    "statistics: 'p=0.05 from a t-test, n=30, mean=5, sd=1, mu0=4'",
+                    "physics: 'F = m*a where F in newtons, m in kg, a in m/s^2'",
+                    "mathematics: 'd/dx(x^2) = 2x'",
+                    "computer science: 'merge sort runs in O(n log n)'",
+                    "governance: 'should we admit Alice with 3 witnesses?'",
+                ],
+                "input_text": text,
+            },
+        )
+
+    t0 = time.perf_counter()
+    config = _make_config()
+
+    # Force `wait_window_seconds=0` on the packet so the GOD wait
+    # window doesn't block one-shot human submissions. Mirrors the
+    # /submit handler's behavior.
+    packet_for_engine = {**parsed.packet, "wait_window_seconds": 0}
+
+    try:
+        record = validate_and_seal(
+            packet_for_engine,
+            config=config,
+            packet_id=packet_for_engine.get("id"),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"engine error: {exc}")
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+
+    # Write to the audit ledger.
+    ledger = get_ledger()
+    try:
+        entry = ledger.append(
+            parsed.packet, record.overall, list(record.gate_results),
+        )
+        ledger_seq = entry.seq
+        ledger_hash = entry.entry_hash
+    except Exception:
+        ledger_seq = None
+        ledger_hash = None
+
+    # Render the walkthrough in the requested format. HTML is embedded
+    # (inner-content only) so the front-end can drop it into a div
+    # without dragging the renderer's full document wrapper / styles
+    # into the host page.
+    fmt = (req.format or "html").lower()
+    if fmt == "markdown":
+        walkthrough = render_walkthrough(record, expand_traces=req.expand_traces)
+    elif fmt == "compact":
+        walkthrough = render_walkthrough_compact(record)
+    else:
+        walkthrough = render_walkthrough_html(
+            record, expand_traces=req.expand_traces, embedded=True,
+        )
+
+    return {
+        "record": record.to_dict(),
+        "walkthrough": walkthrough,
+        "format": fmt,
+        "parse_template": parsed.template,
+        "parse_confidence": parsed.confidence,
+        "parse_notes": parsed.notes,
+        "ledger_seq": ledger_seq,
+        "ledger_entry_hash": ledger_hash,
+        "elapsed_ms": round(elapsed_ms, 2),
+    }
 
 
 # ── Ledger read endpoints ──────────────────────────────────────────────

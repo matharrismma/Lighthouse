@@ -537,18 +537,26 @@ def _gate_html_class(status: str) -> str:
 
 
 def render_walkthrough_html(record: WitnessRecord, *,
-                             expand_traces: bool = False) -> str:
-    """Render a sealed WitnessRecord as a self-contained HTML page.
+                             expand_traces: bool = False,
+                             embedded: bool = False) -> str:
+    """Render a sealed WitnessRecord as HTML.
 
     Same sections, same doctrinal commitments as the markdown
     walkthrough — the HTML renderer is just a different surface, not a
-    different reading. Output includes embedded CSS so the page renders
-    standalone (savable to disk, emailable as an attachment, served from
-    any static host).
+    different reading.
 
-    Future hosted UI work consumes the same WitnessRecord and either
-    renders this directly or replaces it with a richer SPA. The schema
-    is the contract; this is one renderer.
+    embedded=False (default): full standalone HTML document with
+    embedded CSS. Savable to disk, emailable, served from any static
+    host. Use this when the output is the page.
+
+    embedded=True: inner content only — no DOCTYPE, no <html>/<head>/
+    <body>, no embedded <style>. Use this when injecting the
+    walkthrough into a host page that already has its own styling.
+    The host page should provide CSS for `.headline-pass`,
+    `.headline-reject`, `.headline-quar`, `.gate-pass`, `.gate-reject`,
+    `.gate-quar`, `.layer-jesus`, `.layer-bible`, `.layer-apostles`,
+    `.layer-elders`, `.socratic`, `.no-precedent`, or accept browser
+    defaults.
     """
     pid = _html_escape(record.packet_id or "(no packet_id)")
     headline_class = {
@@ -563,14 +571,17 @@ def render_walkthrough_html(record: WitnessRecord, *,
     }.get(record.overall, _html_escape(record.overall))
 
     parts: List[str] = []
-    parts.append("<!DOCTYPE html>")
-    parts.append("<html lang=\"en\">")
-    parts.append("<head>")
-    parts.append("<meta charset=\"utf-8\">")
-    parts.append(f"<title>Witness Record · {pid}</title>")
-    parts.append(f"<style>{_HTML_CSS}</style>")
-    parts.append("</head>")
-    parts.append("<body>")
+    if not embedded:
+        parts.append("<!DOCTYPE html>")
+        parts.append("<html lang=\"en\">")
+        parts.append("<head>")
+        parts.append("<meta charset=\"utf-8\">")
+        parts.append(f"<title>Witness Record · {pid}</title>")
+        parts.append(f"<style>{_HTML_CSS}</style>")
+        parts.append("</head>")
+        parts.append("<body>")
+    else:
+        parts.append('<div class="witness-record">')
 
     # Header
     parts.append("<h1>Witness Record</h1>")
@@ -784,8 +795,11 @@ def render_walkthrough_html(record: WitnessRecord, *,
         )
     parts.append("</div>")
 
-    parts.append("</body>")
-    parts.append("</html>")
+    if not embedded:
+        parts.append("</body>")
+        parts.append("</html>")
+    else:
+        parts.append("</div>")
     return "\n".join(parts)
 
 
