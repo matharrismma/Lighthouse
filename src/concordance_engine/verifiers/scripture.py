@@ -114,6 +114,161 @@ def _get_concordance():
         return None
 
 
+# ── Reference rotation (canonical §3: assume input error) ────────────
+# Per 00_CANON/PRIMARY_RULESET.md §3:
+#   "If a reference does not fit perfectly, assume input error rather
+#    than bending Scripture. Rotate context left/right until the
+#    anchor fits exactly."
+#
+# When a ref fails to resolve, we don't just call it invalid — we try
+# small rotations (±radius verses, common book-name corrections) and
+# surface candidates so the human can pick the right one.
+
+# Minimal verse-max table for chapters that frequently appear in
+# packets. Not a full Bible database — extend as new collisions arise.
+# Source: standard Protestant canon verse counts.
+_VERSE_MAX: Dict[Tuple[str, int], int] = {
+    ("genesis", 1): 31, ("genesis", 3): 24,
+    ("exodus", 20): 17,
+    ("deuteronomy", 6): 25, ("deuteronomy", 17): 20, ("deuteronomy", 19): 21,
+    ("psalms", 1): 6, ("psalms", 23): 6, ("psalms", 127): 5,
+    ("proverbs", 3): 35, ("proverbs", 10): 32, ("proverbs", 19): 29, ("proverbs", 30): 33,
+    ("ecclesiastes", 3): 22,
+    ("isaiah", 55): 13,
+    ("micah", 6): 16,
+    ("matthew", 5): 48, ("matthew", 6): 34, ("matthew", 7): 29,
+    ("matthew", 18): 35, ("matthew", 23): 39,
+    ("mark", 7): 37,
+    ("luke", 6): 49, ("luke", 17): 37,
+    ("john", 1): 51, ("john", 3): 36, ("john", 6): 71, ("john", 14): 31, ("john", 15): 27,
+    ("acts", 7): 60, ("acts", 15): 41,
+    ("romans", 12): 21,
+    ("1 corinthians", 14): 40, ("2 corinthians", 1): 24,
+    ("hebrews", 1): 14,
+    ("1 thessalonians", 4): 18, ("1 thessalonians", 5): 28,
+    ("2 timothy", 3): 17,
+    ("1 peter", 5): 14,
+    ("revelation", 22): 21,
+}
+
+# Common book-name typos / abbreviations not handled by the canon
+# matcher. Maps misspellings to the canonical lower-cased name.
+_BOOK_TYPOS = {
+    "matt.": "matthew",
+    "mt.": "matthew",
+    "matt": "matthew",
+    "mathew": "matthew",
+    "psalm": "psalms",
+    "ps.": "psalms",
+    "rom.": "romans",
+    "cor.": "corinthians",
+}
+
+# Book-name canonicalization: maps the short forms _extract_book_chapter
+# returns ("mt", "matt", "ps", "1cor") to the full lowercase names used
+# as keys in _VERSE_MAX. Built from the existing _CANON_BOOKS set with
+# explicit short-form mappings; extend as needed.
+_BOOK_CANONICAL = {
+    "mt": "matthew", "matt": "matthew", "matthew": "matthew",
+    "mk": "mark", "mark": "mark", "mar": "mark",
+    "lk": "luke", "luke": "luke", "luk": "luke",
+    "jn": "john", "john": "john", "jhn": "john",
+    "acts": "acts", "act": "acts",
+    "rom": "romans", "romans": "romans",
+    "1cor": "1 corinthians", "1 cor": "1 corinthians",
+    "1corinthians": "1 corinthians", "1 corinthians": "1 corinthians",
+    "2cor": "2 corinthians", "2 cor": "2 corinthians",
+    "2corinthians": "2 corinthians", "2 corinthians": "2 corinthians",
+    "heb": "hebrews", "hebrews": "hebrews",
+    "ps": "psalms", "psa": "psalms", "psalm": "psalms", "psalms": "psalms",
+    "prov": "proverbs", "pr": "proverbs", "proverbs": "proverbs",
+    "gen": "genesis", "ge": "genesis", "genesis": "genesis",
+    "deut": "deuteronomy", "dt": "deuteronomy", "deuteronomy": "deuteronomy",
+    "isa": "isaiah", "is": "isaiah", "isaiah": "isaiah",
+    "1thess": "1 thessalonians", "1 thess": "1 thessalonians",
+    "1thessalonians": "1 thessalonians", "1 thessalonians": "1 thessalonians",
+    "2tim": "2 timothy", "2 tim": "2 timothy",
+    "2timothy": "2 timothy", "2 timothy": "2 timothy",
+    "1pet": "1 peter", "1 pet": "1 peter",
+    "1peter": "1 peter", "1 peter": "1 peter",
+    "rev": "revelation", "revelation": "revelation",
+    "ex": "exodus", "exo": "exodus", "exodus": "exodus",
+    "ecc": "ecclesiastes", "ec": "ecclesiastes",
+    "ecclesiastes": "ecclesiastes",
+    "mic": "micah", "micah": "micah",
+}
+
+
+def _rotation_suggestions(bare_ref: str, radius: int = 3) -> List[str]:
+    """Generate plausible corrections for a ref that didn't resolve.
+
+    Strategy:
+      1. Parse book + chapter + verse from the ref.
+      2. If the book name is a known typo, suggest the corrected form.
+      3. If the verse is out of range for the chapter, suggest verses
+         within range (±radius around the input verse, clamped to
+         [1, max_verse]).
+      4. Suggestions are ordered by closeness to the original.
+
+    Returns an empty list if the ref can't be parsed or no rotation
+    table data is available.
+    """
+    book, chapter = _extract_book_chapter(bare_ref)
+    if book is None or chapter is None:
+        return []
+
+    # Canonicalize the book name (mt → matthew) so we can look up
+    # _VERSE_MAX, which keys on full lowercase names.
+    canonical_book = _BOOK_CANONICAL.get(book, _BOOK_TYPOS.get(book, book))
+
+    # Surface a typo correction if the input form was a clear typo.
+    suggestions: List[str] = []
+    if book in _BOOK_TYPOS:
+        parts = bare_ref.split(":", 1)
+        if len(parts) == 2:
+            verse_part = parts[1]
+            cap_book = canonical_book.title() if canonical_book.islower() else canonical_book
+            suggestions.append(f"{cap_book} {chapter}:{verse_part}")
+
+    # Verse-range rotation: extract the input verse number
+    import re as _re_local
+    m = _re_local.search(r":(\d+)", bare_ref)
+    if not m:
+        return suggestions
+    input_verse = int(m.group(1))
+    max_verse = _VERSE_MAX.get((canonical_book, chapter))
+    if max_verse is None:
+        return suggestions
+
+    # Suggest verses within ±radius, clamped to valid range.
+    cap = canonical_book.title() if canonical_book.islower() else canonical_book
+    seen: set = set()
+    for offset in range(0, radius + 1):
+        # Try +/- offsets, alternating to keep "closeness" order.
+        for sign in (-1, 1) if offset > 0 else (1,):
+            candidate = input_verse + (sign * offset)
+            if 1 <= candidate <= max_verse:
+                key = (cap, chapter, candidate)
+                if key not in seen:
+                    seen.add(key)
+                    suggestions.append(f"{cap} {chapter}:{candidate}")
+    # Ensure the chapter's last verse is in the suggestions if input
+    # was wildly out of range.
+    last_key = (cap, chapter, max_verse)
+    if input_verse > max_verse and last_key not in seen:
+        suggestions.append(f"{cap} {chapter}:{max_verse}")
+
+    # Dedupe while preserving order (typo correction + verse rotation
+    # can produce the same suggestion twice).
+    deduped: List[str] = []
+    seen_str: set = set()
+    for s in suggestions:
+        if s not in seen_str:
+            seen_str.add(s)
+            deduped.append(s)
+    return deduped[:6]  # cap to keep the output readable
+
+
 @lru_cache(maxsize=2048)
 def _cached_anchor_lookup(bare_ref: str):
     """Per-bare-ref lookup against the source layer, memoized at module
@@ -307,6 +462,7 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
 
     resolved = []
     failed = []
+    rotation_offers: List[Dict[str, Any]] = []  # canonical §3: assume input error
     for raw in anchors:
         ref_str = _anchor_to_ref(raw)
         if ref_str is None:
@@ -320,15 +476,25 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
             resolved.append({"ref": raw, "text": result["web_text"][:120]})
         else:
             failed.append(raw)
+            # Reference rotation: assume input error, suggest corrections.
+            suggestions = _rotation_suggestions(bare_ref)
+            if suggestions:
+                rotation_offers.append({
+                    "ref": raw,
+                    "bare_ref": bare_ref,
+                    "did_you_mean": suggestions,
+                })
 
     data = {
         "anchor": _SCRIPTURE_ANCHORS_ANCHOR,
         "rule": (
             "every cited reference must resolve to an actual verse in "
             "the public-domain WEB Bible (Prov 30:5-6 — every word of "
-            "God proves true)"
+            "God proves true). When a ref doesn't resolve, the engine "
+            "assumes input error and offers rotations (canon §3)."
         ),
         "resolved": resolved, "failed": failed, "total": len(anchors),
+        "rotation_offers": rotation_offers,
     }
     if not failed:
         return VerifierResult(
@@ -336,12 +502,26 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
             detail=f"All {len(anchors)} scripture anchor(s) resolved in WEB.",
             data=data,
         )
-    return VerifierResult(
-        name=name, status="MISMATCH",
-        detail=(
+    # Build a detail message that includes rotation offers when we have
+    # suggestions — helps the human spot input errors without bending
+    # Scripture (canon §3).
+    if rotation_offers:
+        offer_strs = [
+            f"{o['ref']} → did you mean: {', '.join(o['did_you_mean'][:3])}"
+            for o in rotation_offers
+        ]
+        detail = (
+            f"{len(failed)} anchor(s) not found in WEB. "
+            f"Possible input errors (rotation offered): {'; '.join(offer_strs)}"
+        )
+    else:
+        detail = (
             f"{len(failed)} anchor(s) not found in WEB: {failed}. "
             "Verify references are genuine before citing them."
-        ),
+        )
+    return VerifierResult(
+        name=name, status="MISMATCH",
+        detail=detail,
         data=data,
     )
 
