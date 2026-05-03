@@ -51,7 +51,7 @@ def seal_packet(packet, now_epoch=None, auto_precedent=False):
     WitnessRecord as JSON. The agent surface for the canonical sealed
     record — same object the human walkthrough renderer consumes.
 
-    When `auto_precedent=True`, the Evidence Ledger is queried for the
+    When `auto_precedent=True`, the Audit Chain is queried for the
     closest comparable precedent and (if found) sealed into the record.
     """
     cfg = EngineConfig(schema_path="schema/packet.schema.json")

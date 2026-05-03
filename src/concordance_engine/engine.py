@@ -343,7 +343,7 @@ def validate_and_seal(
     invariant against any record sealed here.
 
     Anchors and closest_case are passed in by the caller because their
-    sources (the user's citations, the Evidence Ledger lookup) live
+    sources (the user's citations, the Audit Chain lookup) live
     outside this engine. The engine fills in everything else.
     """
     gate_results, verifier_results, overall = _run_validation(

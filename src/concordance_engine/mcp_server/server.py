@@ -79,7 +79,7 @@ def validate_packet(packet: Dict[str, Any], now_epoch: Optional[int] = None) -> 
     BROTHERS -- Quarantines if insufficient witnesses or review window has not elapsed.
     GOD     -- Records permanently in the append-only ledger if all prior gates pass.
 
-    Attempts the hosted API first (writes to the Evidence Ledger) when
+    Attempts the hosted API first (writes to the Audit Chain) when
     both CONCORDANCE_API_URL and CONCORDANCE_API_KEY are configured;
     falls back to local computation otherwise. With no API config, the
     local path is the only path — no environment-dependent default
@@ -137,7 +137,7 @@ def seal_packet(
     not answer.
 
     auto_precedent: when True, look up the closest comparable
-    precedent in the Evidence Ledger and seal it into the record.
+    precedent in the Audit Chain and seal it into the record.
     Honors discovery-not-design: empty ledger and zero-overlap both
     return precedent_id=None rather than fabricating a match.
     """

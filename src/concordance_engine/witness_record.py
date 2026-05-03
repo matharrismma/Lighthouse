@@ -119,7 +119,7 @@ class AxisCoordinates:
 class ClosestCase:
     """The closest already-solved precedent the engine matched on.
 
-    `precedent_id` is a stable identifier into the Evidence Ledger.
+    `precedent_id` is a stable identifier into the Audit Chain.
     `shared_dimensions` is the scaffold-member overlap with the current
     packet — the structural axes along which the precedent and the
     situation are aligned.

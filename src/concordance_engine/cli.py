@@ -255,7 +255,7 @@ def main() -> None:
     a.add_argument(
         "--auto-precedent",
         action="store_true",
-        help="Look up the closest precedent in the Evidence Ledger and "
+        help="Look up the closest precedent in the Audit Chain and "
              "include it in the sealed record. Honors discovery-not-design: "
              "if no precedent matches, the record explicitly carries "
              "precedent_id=None rather than fabricating one.",
@@ -275,7 +275,7 @@ def main() -> None:
     # ── ledger subcommand ──────────────────────────────────────────
     led = sub.add_parser(
         "ledger",
-        help="Query the Evidence Ledger of recorded precedents.",
+        help="Query the Audit Chain of recorded precedents.",
         description=(
             "Read-only access to the ledger of past sealed decisions. "
             "Use `lookup` to find the closest precedent for a packet; "
@@ -294,7 +294,7 @@ def main() -> None:
              "a new precedent.",
         description=(
             "Run a packet through the four gates and, if it passes, "
-            "write the resulting record to the Evidence Ledger as a "
+            "write the resulting record to the Audit Chain as a "
             "new precedent. REJECTED or QUARANTINED packets cannot be "
             "sealed — the ledger is a record of resolved decisions."
         ),

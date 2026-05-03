@@ -1,10 +1,26 @@
-"""Evidence Ledger — closest-case precedent lookup.
+"""Audit Chain — closest-case precedent lookup.
 
-The ledger is a directory of JSON files, one per recorded precedent.
-Each file describes a sealed decision the engine (or a human community)
-has previously made: the axis it sat on, the dimensional coordinates,
-and a reasoning trace that can be overlaid onto a similar incoming
-packet.
+The Audit Chain is a directory of JSON files, one per recorded
+precedent. Each file describes a sealed decision the engine (or a
+human community) has previously made: the axis it sat on, the
+dimensional coordinates, and a reasoning trace that can be overlaid
+onto a similar incoming packet.
+
+**Naming note (doctrinal distinction).** Canon names "ledger" for the
+bookkeeping of held offenses against people — the judgment ledger
+that the gospel ends (Matt 7:1; canonical SEEDS.md "Ledger Principle:
+judgment/ledger-keeping reflects the knowledge tree; the gospel ends
+the ledger"). This module is **not** that. The Audit Chain is a
+mechanical record of computed verifications — what the engine
+checked, what gates fired, what hashes prove the record's integrity.
+No held offenses, no judgment.
+
+The Python module name `ledger.py` and method names like
+`seal_to_ledger` are kept for backward compatibility — internal API
+names don't carry the doctrinal weight that user-facing prose does.
+The user-facing language (CLI help text, walkthrough output, API
+descriptions, README) consistently calls this the "Audit Chain" so
+the doctrinal collision doesn't quietly slip back in.
 
 Doctrinal commitments encoded here:
 
@@ -421,7 +437,7 @@ def seal_to_ledger(
     ledger_dir: Optional[Path] = None,
     overwrite: bool = False,
 ) -> Path:
-    """Append a sealed WitnessRecord to the Evidence Ledger as a new
+    """Append a sealed WitnessRecord to the Audit Chain as a new
     precedent.
 
     Only PASS records are accepted. The ledger is a record of *resolved*

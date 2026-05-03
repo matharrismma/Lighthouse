@@ -711,3 +711,33 @@ def ledger_by_id(packet_id: str):
         "count": len(entries),
         "entries": entries,
     }
+
+
+# ── /audit-chain — canonical-naming aliases ────────────────────────────
+# Same handlers as /ledger but at the canonically-correct URL. Per the
+# doctrinal-distinction note: "ledger" the doctrinal term refers to
+# judgment-keeping (gospel ends the ledger); the engine's mechanism is
+# an audit chain, not a judgment ledger. The /ledger URLs stay live for
+# backward compat; new clients should prefer /audit-chain.
+
+@app.get("/audit-chain", include_in_schema=True)
+def audit_chain_recent(
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+):
+    """Most recent audit-chain entries (alias for /ledger)."""
+    return ledger_recent(limit=limit, offset=offset)
+
+
+@app.get("/audit-chain/verify", include_in_schema=True)
+def audit_chain_verify():
+    """Walk the chain and confirm prev_hash → entry_hash links hold
+    (alias for /ledger/verify)."""
+    return ledger_verify()
+
+
+@app.get("/audit-chain/{packet_id}", include_in_schema=True)
+def audit_chain_by_id(packet_id: str):
+    """All audit-chain entries for a specific packet_id (alias for
+    /ledger/{packet_id})."""
+    return ledger_by_id(packet_id)

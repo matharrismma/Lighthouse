@@ -1,4 +1,4 @@
-# Evidence Ledger
+# Audit Chain
 
 A directory of recorded precedents the engine can use for closest-case
 overlay. Each `*.json` file describes one sealed decision: the axis it

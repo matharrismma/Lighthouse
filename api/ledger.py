@@ -1,12 +1,21 @@
 """
-Evidence Ledger -- append-only JSONL with SHA-256 hash chain.
+Audit Chain -- append-only JSONL with SHA-256 hash chain.
 
 Every call to append() writes one line to ledger.jsonl. Each entry
 carries a hash of itself chained to the previous entry's hash, making
 tampering detectable: if any prior entry is altered, every subsequent
 entry_hash will be wrong.
 
-The ledger never deletes. It never mutates. It only grows.
+The chain never deletes. It never mutates. It only grows.
+
+**Naming note (doctrinal distinction).** Canon names "ledger" for the
+bookkeeping of held offenses against people — the judgment ledger
+that the gospel ends (Matt 7:1). This module is *not* that. The
+Audit Chain is a mechanical record of computed verifications — what
+gates fired, what hashes prove the record's integrity. The Python
+module name `ledger.py` and the on-disk filename `ledger.jsonl` are
+kept for backward compatibility; user-facing prose calls this the
+Audit Chain.
 """
 from __future__ import annotations
 
