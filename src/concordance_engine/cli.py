@@ -405,6 +405,30 @@ def main() -> None:
              "packet.issuer_public_key.",
     )
 
+    # ── live subcommand (the persistent companion / harvester) ─────
+    lv = sub.add_parser(
+        "live",
+        help="Open the persistent companion. One tool — never reloads. "
+             "Three tiers: your library (private), your shelf (community), "
+             "the seed bank (central, sealed precedents).",
+        description=(
+            "The harvester at the door. Bare text = capture a seed; commands "
+            "prefixed with / explore the library, manage the shelf, look up "
+            "anchors and precedents. The keeping runs in the background "
+            "while you write. The session never reloads. Closing and "
+            "reopening picks up exactly where you left off."
+        ),
+    )
+    lv.add_argument(
+        "--no-keeper", action="store_true",
+        help="Don't run the background keeper while the session is open. "
+             "Use for one-off scripted invocations.",
+    )
+    lv.add_argument(
+        "--tick-interval", type=float, default=30.0,
+        help="Background keeper tick interval in seconds (default 30).",
+    )
+
     # ── write subcommand (the calibration tool / coach module) ─────
     wr = sub.add_parser(
         "write",
@@ -994,6 +1018,14 @@ def main() -> None:
                 sys.exit(0)
             print(f"signature INVALID: {detail}", file=sys.stderr)
             sys.exit(1)
+
+    if args.cmd == "live":
+        from . import live as live_mod
+        cfg = live_mod.LiveConfig(
+            tick_interval_seconds=args.tick_interval,
+            run_keeper=not args.no_keeper,
+        )
+        sys.exit(live_mod.run(cfg))
 
     if args.cmd == "write":
         from . import journal as jr_mod
