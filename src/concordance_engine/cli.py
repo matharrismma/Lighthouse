@@ -28,7 +28,9 @@ from typing import Any, Dict, List
 from .engine import EngineConfig, validate_packet, validate_and_seal
 from .packet import EngineResult, GateResult
 from .validate import load_schema, validate_against_schema
-from .walkthrough import render_walkthrough, render_walkthrough_compact
+from .walkthrough import (
+    render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
+)
 from .witness_record import WitnessRecord
 
 
@@ -238,6 +240,27 @@ def main() -> None:
              "use this when piping to another tool.",
     )
     a.add_argument(
+        "--html",
+        action="store_true",
+        help="Emit a self-contained HTML document. Same sections as the "
+             "markdown walkthrough; embeds CSS so it renders standalone.",
+    )
+    a.add_argument(
+        "--trace",
+        action="store_true",
+        help="Expand each verifier's data block (formula, rule, claimed "
+             "vs actual values) inline. Shows the work behind each gate "
+             "verdict.",
+    )
+    a.add_argument(
+        "--auto-precedent",
+        action="store_true",
+        help="Look up the closest precedent in the Evidence Ledger and "
+             "include it in the sealed record. Honors discovery-not-design: "
+             "if no precedent matches, the record explicitly carries "
+             "precedent_id=None rather than fabricating one.",
+    )
+    a.add_argument(
         "--no-verifiers",
         action="store_true",
         help="Disable the verifier layer. Useful for legacy regression.",
@@ -248,6 +271,22 @@ def main() -> None:
         help="Print template/confidence diagnostic to stderr when --text "
              "is used.",
     )
+
+    # ── ledger subcommand ──────────────────────────────────────────
+    led = sub.add_parser(
+        "ledger",
+        help="Query the Evidence Ledger of recorded precedents.",
+        description=(
+            "Read-only access to the ledger of past sealed decisions. "
+            "Use `lookup` to find the closest precedent for a packet; "
+            "`list` enumerates all known precedents."
+        ),
+    )
+    led_sub = led.add_subparsers(dest="ledger_cmd", required=True)
+    led_lookup = led_sub.add_parser(
+        "lookup", help="Find the closest precedent for a packet.")
+    led_lookup.add_argument("packet", type=str, help="Path to packet JSON")
+    led_sub.add_parser("list", help="List all precedents in the ledger.")
 
     args = p.parse_args()
 
@@ -287,8 +326,11 @@ def main() -> None:
         sys.exit(_EXIT.get(res.overall, 1))
 
     if args.cmd == "ask":
-        if args.compact and args.json:
-            print("error: --compact and --json are mutually exclusive",
+        # Output formats are mutually exclusive: at most one of
+        # --compact / --json / --html.
+        chosen_formats = sum(bool(x) for x in (args.compact, args.json, args.html))
+        if chosen_formats > 1:
+            print("error: --compact, --json, and --html are mutually exclusive",
                   file=sys.stderr)
             sys.exit(4)
         packet = _ask_load_packet(args)
@@ -296,19 +338,67 @@ def main() -> None:
             schema_path="",
             run_verifiers=not args.no_verifiers,
         )
+
+        # Optional ledger lookup before sealing.
+        closest_case = None
+        if args.auto_precedent:
+            from .ledger import find_closest
+            closest_case = find_closest(packet)
+
         record = validate_and_seal(
             packet,
             now_epoch=args.now_epoch,
             config=cfg,
             packet_id=packet.get("id"),
+            closest_case=closest_case,
         )
         if args.json:
             print(_format_record_json(record))
         elif args.compact:
             print(render_walkthrough_compact(record))
+        elif args.html:
+            print(render_walkthrough_html(record, expand_traces=args.trace))
         else:
-            print(render_walkthrough(record))
+            print(render_walkthrough(record, expand_traces=args.trace))
         sys.exit(_EXIT.get(record.overall, 1))
+
+    if args.cmd == "ledger":
+        from .ledger import find_closest, list_precedents
+        if args.ledger_cmd == "list":
+            precedents = list_precedents()
+            if not precedents:
+                print("(no precedents in ledger)")
+            else:
+                for p in precedents:
+                    axis = p.get("axis", "?")
+                    pid = p.get("precedent_id", "?")
+                    summary = p.get("summary", "")
+                    print(f"  {axis:<20}  {pid}")
+                    if summary:
+                        print(f"    {summary}")
+            sys.exit(0)
+        if args.ledger_cmd == "lookup":
+            packet_path = Path(args.packet)
+            try:
+                packet = _load_json(packet_path)
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read packet: {e}", file=sys.stderr)
+                sys.exit(4)
+            cc = find_closest(packet)
+            if cc is None or cc.precedent_id is None:
+                print("(no comparable precedent in the ledger — claim is novel)")
+                sys.exit(0)
+            print(f"precedent: {cc.precedent_id}")
+            print(f"  shared dimensions: {sorted(cc.shared_dimensions)}")
+            if cc.distance is not None:
+                print(f"  distance: {cc.distance}")
+            if cc.reasoning_overlay:
+                print("  reasoning overlay:")
+                for k, v in (cc.reasoning_overlay or {}).items():
+                    print(f"    {k}: {v}")
+            sys.exit(0)
+        print("error: unknown ledger subcommand", file=sys.stderr)
+        sys.exit(4)
 
 
 if __name__ == "__main__":

@@ -222,6 +222,62 @@ def _render_verifier_table(record: WitnessRecord) -> str:
     return "\n".join(lines)
 
 
+def _format_data_value(v) -> str:
+    """Render an arbitrary `data` value for the trace expansion. Lists
+    and dicts get JSON-formatted; scalars print as-is."""
+    import json as _json
+    if isinstance(v, (dict, list)):
+        try:
+            return _json.dumps(v, indent=2, default=str)
+        except Exception:
+            return repr(v)
+    return str(v)
+
+
+def _render_verifier_traces(record: WitnessRecord) -> str:
+    """Per-verifier expanded trace — the formula, rule, claimed vs
+    actual values, residuals, anything the verifier surfaced in its
+    `data` block. Off by default; opt-in via `expand_traces=True`.
+
+    Skips NOT_APPLICABLE results (no work was done) and also skips any
+    verifier with no `data` payload (nothing to expand). The detail
+    string is shown as a short headline; the data dict follows."""
+    if not record.verifier_results:
+        return ""
+    expandable = [
+        v for v in record.verifier_results
+        if v.status != "NOT_APPLICABLE" and v.data
+    ]
+    if not expandable:
+        return ""
+    lines = [_h(2, "Verifier traces — the work shown")]
+    for v in expandable:
+        icon = _VERIFIER_STATUS_ICONS.get(v.status, f"[{v.status}]")
+        lines.append("")
+        lines.append(_h(3, f"`{v.name}` · {icon}"))
+        if v.detail:
+            lines.append("")
+            lines.append(f"_{v.detail}_")
+        lines.append("")
+        # Pull formula and rule out of data for prominent display, then
+        # dump the rest.
+        data = dict(v.data) if isinstance(v.data, dict) else {}
+        formula = data.pop("formula", None)
+        rule = data.pop("rule", None)
+        if formula:
+            lines.append(f"**Formula:** `{formula}`")
+        if rule:
+            lines.append(f"**Rule:** {rule}")
+        if data:
+            lines.append("")
+            lines.append("**Trace:**")
+            lines.append("")
+            lines.append("```json")
+            lines.append(_format_data_value(data))
+            lines.append("```")
+    return "\n".join(lines)
+
+
 def _render_anchors(record: WitnessRecord) -> str:
     """Citations with their source-hierarchy layer made visible."""
     if not record.anchors:
@@ -332,13 +388,19 @@ def _render_socratic_close(record: WitnessRecord) -> str:
 
 # ── Public API ─────────────────────────────────────────────────────────
 
-def render_walkthrough(record: WitnessRecord) -> str:
+def render_walkthrough(record: WitnessRecord, *, expand_traces: bool = False) -> str:
     """Render a sealed WitnessRecord as a Socratic markdown walkthrough.
 
     The output is designed to be readable in any terminal, pasted into
     Slack/email/docs, and round-tripped through human review without
     losing structure. It refuses to compress to a verdict; the closing
     section is always a question.
+
+    With `expand_traces=True`, an additional "Verifier traces" section
+    appears between the verifier table and the anchors section, showing
+    each verifier's formula, rule, and full `data` payload. Useful when
+    the human needs to inspect *how* the engine arrived at each
+    verdict — the show-your-work mode.
     """
     sections = [
         _render_header(record),
@@ -346,14 +408,342 @@ def render_walkthrough(record: WitnessRecord) -> str:
         _render_scaffold(record),
         _render_gates(record),
         _render_verifier_table(record),
+    ]
+    if expand_traces:
+        sections.append(_render_verifier_traces(record))
+    sections.extend([
         _render_anchors(record),
         _render_closest_case(record),
         _render_socratic_close(record),
-    ]
+    ])
     body = _join_sections(sections)
     # A blank line + horizontal rule between header and first section
     # would be redundant; rely on _join_sections' double-newlines.
     return body
+
+
+_HTML_CSS = """
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+       max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5;
+       color: #222; }
+h1 { border-bottom: 2px solid #888; padding-bottom: 0.3rem; }
+h2 { margin-top: 2rem; color: #444; border-bottom: 1px solid #ddd;
+     padding-bottom: 0.2rem; }
+h3 { margin-top: 1.5rem; color: #555; }
+.headline-pass    { color: #1a7f37; font-weight: bold; }
+.headline-reject  { color: #cf222e; font-weight: bold; }
+.headline-quar    { color: #9a6700; font-weight: bold; }
+.gate-pass        { color: #1a7f37; }
+.gate-reject      { color: #cf222e; }
+.gate-quar        { color: #9a6700; }
+.layer-jesus      { color: #cf222e; font-weight: bold; }
+.layer-bible      { color: #0969da; }
+.layer-apostles   { color: #553a90; }
+.layer-elders     { color: #6e7781; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; text-align: left; }
+th { background: #f6f8fa; }
+code { background: #f6f8fa; padding: 0.1rem 0.3rem; border-radius: 3px;
+       font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; }
+blockquote { border-left: 3px solid #ddd; margin: 0.5rem 0;
+             padding: 0.3rem 1rem; color: #555; font-style: italic; }
+.socratic { background: #fffbe6; border-left: 4px solid #d4a72c;
+            padding: 1rem; margin-top: 2rem; }
+.socratic .question { font-style: italic; font-size: 1.1em; }
+.no-precedent { color: #6e7781; font-style: italic; }
+""".strip()
+
+
+def _html_escape(text: str) -> str:
+    return (text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;"))
+
+
+def _layer_html_class(layer: str) -> str:
+    return {
+        "jesus_words":       "layer-jesus",
+        "bible":             "layer-bible",
+        "apostles":          "layer-apostles",
+        "recognized_elders": "layer-elders",
+    }.get(layer, "")
+
+
+def _gate_html_class(status: str) -> str:
+    return {
+        "PASS":       "gate-pass",
+        "REJECT":     "gate-reject",
+        "QUARANTINE": "gate-quar",
+    }.get(status, "")
+
+
+def render_walkthrough_html(record: WitnessRecord, *,
+                             expand_traces: bool = False) -> str:
+    """Render a sealed WitnessRecord as a self-contained HTML page.
+
+    Same sections, same doctrinal commitments as the markdown
+    walkthrough — the HTML renderer is just a different surface, not a
+    different reading. Output includes embedded CSS so the page renders
+    standalone (savable to disk, emailable as an attachment, served from
+    any static host).
+
+    Future hosted UI work consumes the same WitnessRecord and either
+    renders this directly or replaces it with a richer SPA. The schema
+    is the contract; this is one renderer.
+    """
+    pid = _html_escape(record.packet_id or "(no packet_id)")
+    headline_class = {
+        "PASS":       "headline-pass",
+        "REJECT":     "headline-reject",
+        "QUARANTINE": "headline-quar",
+    }.get(record.overall, "")
+    headline_text = {
+        "PASS":       "PASSED through all four gates",
+        "REJECT":     "REJECTED",
+        "QUARANTINE": "in QUARANTINE pending resolution",
+    }.get(record.overall, _html_escape(record.overall))
+
+    parts: List[str] = []
+    parts.append("<!DOCTYPE html>")
+    parts.append("<html lang=\"en\">")
+    parts.append("<head>")
+    parts.append("<meta charset=\"utf-8\">")
+    parts.append(f"<title>Witness Record · {pid}</title>")
+    parts.append(f"<style>{_HTML_CSS}</style>")
+    parts.append("</head>")
+    parts.append("<body>")
+
+    # Header
+    parts.append("<h1>Witness Record</h1>")
+    parts.append(
+        f"<p><strong>Packet:</strong> <code>{pid}</code><br>"
+        f"<strong>Schema:</strong> <code>{_html_escape(record.schema_version)}</code> · "
+        f"<strong>Result:</strong> <span class=\"{headline_class}\">{headline_text}</span></p>"
+    )
+
+    # Submission
+    if record.axis_coords is not None:
+        parts.append("<h2>What you submitted</h2>")
+        parts.append(
+            f"<p><strong>Domain:</strong> <code>{_html_escape(record.axis_coords.axis)}</code></p>"
+        )
+
+    # Scaffold
+    if record.axis_coords is not None and record.axis_coords.dimensions:
+        parts.append("<h2>Where this sits on the scaffold</h2>")
+        if record.axis_coords.umbrella:
+            parts.append(
+                f"<p><code>{_html_escape(record.axis_coords.axis)}</code> is a "
+                f"subsystem of the <strong>{_html_escape(record.axis_coords.umbrella)}</strong> "
+                f"umbrella; it lives at the intersection of:</p>"
+            )
+        else:
+            parts.append(
+                f"<p><code>{_html_escape(record.axis_coords.axis)}</code> "
+                f"lives at the intersection of:</p>"
+            )
+        parts.append("<ul>")
+        for d in sorted(record.axis_coords.dimensions):
+            parts.append(f"<li><strong>{_html_escape(d)}</strong></li>")
+        parts.append("</ul>")
+        try:
+            neighbors = grid.adjacent(record.axis_coords.axis)[:3]
+        except KeyError:
+            neighbors = []
+        if neighbors:
+            n_parts = [
+                f"<strong>{_html_escape(name)}</strong> (shares {len(shared)})"
+                for name, shared in neighbors
+            ]
+            parts.append(
+                f"<p>Closest neighbors on the scaffold: {', '.join(n_parts)}.</p>"
+            )
+
+    # Gates
+    if record.gate_results:
+        parts.append("<h2>The four gates</h2>")
+        groups: List[List] = []
+        for gr in record.gate_results:
+            if groups and groups[-1][0].gate == gr.gate:
+                groups[-1].append(gr)
+            else:
+                groups.append([gr])
+        for i, group in enumerate(groups, start=1):
+            headline_status = max(
+                (gr.status for gr in group),
+                key=lambda s: _STATUS_PRIORITY.get(s, -1),
+            )
+            gate = group[0].gate
+            gate_title = _GATE_LABELS.get(gate, gate)
+            cls = _gate_html_class(headline_status)
+            parts.append(
+                f"<h3>{i}. {_html_escape(gate_title)} · "
+                f"<span class=\"{cls}\">[{_html_escape(headline_status)}]</span></h3>"
+            )
+            merged_reasons = []
+            merged_verified = []
+            merged_notes = []
+            for gr in group:
+                merged_reasons.extend(gr.reasons or [])
+                if gr.details and isinstance(gr.details, dict):
+                    v = gr.details.get("verified")
+                    if v:
+                        merged_verified.extend(v)
+                    note = gr.details.get("note")
+                    if note:
+                        merged_notes.append(note)
+            if merged_reasons:
+                parts.append("<ul>")
+                for r in merged_reasons:
+                    parts.append(f"<li>{_html_escape(r)}</li>")
+                parts.append("</ul>")
+            if merged_verified:
+                parts.append("<p>Verifier checks confirmed:</p><ul>")
+                for v in merged_verified:
+                    parts.append(f"<li><code>{_html_escape(v)}</code></li>")
+                parts.append("</ul>")
+            for note in merged_notes:
+                parts.append(f"<p><em>{_html_escape(note)}</em></p>")
+
+    # Verifier table
+    if record.verifier_results:
+        parts.append("<h2>What the verifiers actually checked</h2>")
+        parts.append("<table>")
+        parts.append("<tr><th>verifier</th><th>status</th><th>rule</th></tr>")
+        for v in record.verifier_results:
+            cls = _gate_html_class(v.status if v.status in ("PASS", "REJECT", "QUARANTINE") else "")
+            rule = ""
+            if isinstance(v.data, dict):
+                rule = v.data.get("rule") or v.data.get("formula") or ""
+            if not rule:
+                rule = v.detail or ""
+            parts.append(
+                f"<tr><td><code>{_html_escape(v.name)}</code></td>"
+                f"<td>[{_html_escape(v.status)}]</td>"
+                f"<td>{_html_escape(str(rule)[:200])}</td></tr>"
+            )
+        parts.append("</table>")
+
+    # Verifier traces (opt-in)
+    if expand_traces:
+        expandable = [
+            v for v in record.verifier_results
+            if v.status != "NOT_APPLICABLE" and v.data
+        ]
+        if expandable:
+            parts.append("<h2>Verifier traces — the work shown</h2>")
+            for v in expandable:
+                parts.append(
+                    f"<h3><code>{_html_escape(v.name)}</code> · "
+                    f"[{_html_escape(v.status)}]</h3>"
+                )
+                if v.detail:
+                    parts.append(f"<p><em>{_html_escape(v.detail)}</em></p>")
+                data = dict(v.data) if isinstance(v.data, dict) else {}
+                formula = data.pop("formula", None)
+                rule = data.pop("rule", None)
+                if formula:
+                    parts.append(
+                        f"<p><strong>Formula:</strong> <code>{_html_escape(str(formula))}</code></p>"
+                    )
+                if rule:
+                    parts.append(
+                        f"<p><strong>Rule:</strong> {_html_escape(str(rule))}</p>"
+                    )
+                if data:
+                    parts.append("<p><strong>Trace:</strong></p>")
+                    parts.append(
+                        f"<pre><code>{_html_escape(_format_data_value(data))}</code></pre>"
+                    )
+
+    # Anchors
+    if record.anchors:
+        parts.append("<h2>Citations and their authority layer</h2>")
+        parts.append("<ul>")
+        for a in record.anchors:
+            cls = _layer_html_class(a.layer)
+            line = (
+                f"<li><strong>{_html_escape(a.ref)}</strong> · "
+                f"<span class=\"{cls}\">{_html_escape(a.layer)}</span>"
+            )
+            if a.text:
+                line += f"<blockquote>{_html_escape(a.text)}</blockquote>"
+            line += "</li>"
+            parts.append(line)
+        parts.append("</ul>")
+        layers_present = {a.layer for a in record.anchors}
+        if layers_present == {"jesus_words"}:
+            parts.append(
+                "<p><em>All citations carry primary-tier authority. No appeal to "
+                "apostolic letters or recognized elders was needed.</em></p>"
+            )
+
+    # Closest case
+    cc = record.closest_case
+    if cc is not None:
+        parts.append("<h2>The closest precedent we found</h2>")
+        if cc.precedent_id is None:
+            parts.append(
+                "<p class=\"no-precedent\">No comparable precedent was found "
+                "in the ledger. This claim is novel relative to the recorded "
+                "record.</p>"
+            )
+        else:
+            parts.append(f"<p><strong><code>{_html_escape(cc.precedent_id)}</code></strong></p>")
+            if cc.shared_dimensions:
+                dims = ", ".join(
+                    f"<code>{_html_escape(d)}</code>"
+                    for d in sorted(cc.shared_dimensions)
+                )
+                parts.append(f"<p>Shared scaffold dimensions: {dims}.</p>")
+            if cc.distance is not None:
+                parts.append(f"<p>Distance: <strong>{cc.distance}</strong>.</p>")
+            if cc.reasoning_overlay:
+                parts.append("<p><strong>Reasoning trace from the precedent:</strong></p>")
+                parts.append("<ul>")
+                if isinstance(cc.reasoning_overlay, dict):
+                    for k, v in cc.reasoning_overlay.items():
+                        parts.append(
+                            f"<li><strong>{_html_escape(str(k))}</strong> — "
+                            f"{_html_escape(str(v))}</li>"
+                        )
+                parts.append("</ul>")
+
+    # Socratic close
+    parts.append("<div class=\"socratic\">")
+    parts.append("<h2 style=\"border:none; margin-top:0;\">The Socratic question</h2>")
+    if record.overall == "REJECT":
+        parts.append("<p class=\"question\">What was wrong with the claim itself?</p>")
+        parts.append(
+            "<p>The engine refused this packet at one of the hard gates. "
+            "The reasons are listed above. The next move belongs to you.</p>"
+        )
+    elif record.overall == "QUARANTINE":
+        parts.append("<p class=\"question\">What is still pending?</p>")
+        parts.append(
+            "<p>This isn't a verdict yet. One of the gates has held the "
+            "packet — usually a wait window or missing witnesses.</p>"
+        )
+    elif cc is not None and cc.precedent_id is not None:
+        parts.append("<p class=\"question\">Is your situation actually like the precedent above?</p>")
+        parts.append(
+            "<p>The engine has refused to give you a verdict on the question "
+            "itself. That's load-bearing: this verdict belongs to the community "
+            "of witnesses, not to a machine.</p>"
+        )
+    else:
+        parts.append("<p class=\"question\">What is this situation most like?</p>")
+        parts.append(
+            "<p>All four gates passed and the verifiers confirmed every "
+            "claim that was checkable. No comparable precedent was supplied "
+            "for overlay; that doesn't make the decision wrong, only novel.</p>"
+        )
+    parts.append("</div>")
+
+    parts.append("</body>")
+    parts.append("</html>")
+    return "\n".join(parts)
 
 
 def render_walkthrough_compact(record: WitnessRecord) -> str:
