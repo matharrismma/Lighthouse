@@ -27,7 +27,27 @@ from .packet import GateResult, EngineResult, DecisionStatus
 from .verifiers.base import VerifierResult, VerifierStatus
 
 
-# Source-hierarchy layers (Matt's doctrinal commitment, made type-safe).
+# Source-hierarchy layers — four tiers, the refined expression of the
+# canonical doctrine in 00_CANON/SOURCE_HIERARCHY.md. Canon names three
+# (RED / All other Scripture / commentary as "removable spice"); the
+# four-tier refinement preserves canon's enforcement (RED is final;
+# all below are secondary; commentary is removable) while distinguishing
+# the qualitatively different authority weights underneath:
+#
+#   1. jesus_words (RED)        — primary and final authority.
+#   2. bible (OT, Psalms,       — Scripture, secondary witness;
+#      Prophets, etc.)            cannot override RED.
+#   3. apostles (NT epistles,   — Scripture, secondary witness with
+#      Acts, etc.)                apostolic authority; cannot override
+#                                  RED.
+#   4. recognized_elders        — historic teachers received by the
+#      (Augustine, Athanasius,    body (not anonymous commentary).
+#      etc.)                      Carries weight; still removable
+#                                  without altering RED.
+#
+# Anonymous / contemporary opinion is "removable spice" per canon and
+# isn't represented in this enum — that material doesn't get an anchor
+# in the engine.
 SourceLayer = Literal[
     "jesus_words",
     "bible",
