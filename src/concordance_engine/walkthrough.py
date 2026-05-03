@@ -1,5 +1,12 @@
 """Human-surface renderer for WitnessRecord — Socratic markdown.
 
+**Canonical naming.** This module IS *Atlas* per canonical naming
+(00_CANON, 03_ARCH/NAMING_AND_STRUCTURE.md): Lighthouse is the
+project, Concordance is the ingestion engine, Atlas is the output
+side. The thin `atlas.py` module re-exports these functions under
+the canonical names (`render_atlas` / `render_atlas_compact` /
+`render_atlas_html`); both are valid public APIs.
+
 Agents read `WitnessRecord.to_dict()`. Humans read this. Same object,
 two surfaces. The walkthrough refuses to compress: it surfaces every
 gate, every verifier, every anchor's source-hierarchy layer, and the
