@@ -441,6 +441,97 @@ def main() -> None:
         "verify", help="Recompute and verify chunk hashes in an LSP file.")
     lsp_verify_cmd.add_argument("lsp", type=str, help="Path to LSP JSON")
 
+    # ── quarantine subcommand ──────────────────────────────────────
+    qn = sub.add_parser(
+        "quarantine",
+        help="Quarantine Airlock — capture, decontaminate, admit ideas.",
+        description=(
+            "Per canonical 03_ARCH/QUARANTINE_AIRLOCK.md: ideas are "
+            "quarantined by default. Three zones (Holding / "
+            "Decontamination / Core), three roles (Q / Scribe / Guide), "
+            "structured admission format (hypothesis / backlog / "
+            "decision). File-backed under lw/quarantine/ parallel to the "
+            "Audit Chain."
+        ),
+    )
+    qn_sub = qn.add_subparsers(dest="qn_cmd", required=True)
+
+    qn_capture = qn_sub.add_parser(
+        "capture",
+        help="Scribe captures a raw input. Lands in HOLDING.",
+    )
+    qn_capture.add_argument(
+        "text", type=str, nargs="?",
+        help="Raw text of the captured idea. Omit to read from --from-file.",
+    )
+    qn_capture.add_argument(
+        "--from-file", type=str, default=None,
+        help="Read raw text from this file instead of the text argument.",
+    )
+    qn_capture.add_argument(
+        "--tags", type=str, default="",
+        help="Comma-separated tags to attach to the packet.",
+    )
+    qn_capture.add_argument(
+        "--note", type=str, default="",
+        help="Optional human-readable note for the capture history entry.",
+    )
+
+    qn_list = qn_sub.add_parser(
+        "list",
+        help="List quarantine packets, optionally filtered by zone.",
+    )
+    qn_list.add_argument(
+        "--zone", type=str, default=None,
+        choices=["holding", "decontamination", "core"],
+        help="Filter to one zone. Default lists all zones.",
+    )
+
+    qn_show = qn_sub.add_parser(
+        "show",
+        help="Print the full JSON of one quarantine packet.",
+    )
+    qn_show.add_argument("packet_id", type=str, help="Quarantine packet id (q-…)")
+
+    qn_decon = qn_sub.add_parser(
+        "decontaminate",
+        help="Q moves a packet HOLDING → DECONTAMINATION with a hypothesis.",
+    )
+    qn_decon.add_argument("packet_id", type=str, help="Quarantine packet id")
+    qn_decon.add_argument(
+        "--hypothesis", "-H", type=str, required=True,
+        help="The structured hypothesis the captured idea is being tested as.",
+    )
+    qn_decon.add_argument(
+        "--backlog", type=str, default="",
+        help="Pipe-separated backlog items: 'check ref|compare to canon'.",
+    )
+    qn_decon.add_argument("--note", type=str, default="")
+
+    qn_admit = qn_sub.add_parser(
+        "admit",
+        help="Guide issues a decision: accept / reject / defer.",
+    )
+    qn_admit.add_argument("packet_id", type=str, help="Quarantine packet id")
+    qn_admit.add_argument(
+        "--decision", "-d", type=str, required=True,
+        choices=["accept", "reject", "defer"],
+        help="The Guide's decision. ACCEPT → CORE; REJECT → HOLDING with "
+             "rejection reason; DEFER → stays in DECONTAMINATION.",
+    )
+    qn_admit.add_argument(
+        "--rationale", "-r", type=str, default="",
+        help="Why the Guide chose this decision. Required for REJECT — "
+             "the rejection record's value is the captured 'why'.",
+    )
+    qn_admit.add_argument("--note", type=str, default="")
+
+    qn_delete = qn_sub.add_parser(
+        "delete",
+        help="Delete a quarantine packet from the store. Use with care.",
+    )
+    qn_delete.add_argument("packet_id", type=str, help="Quarantine packet id")
+
     # ── investment-packet subcommand ───────────────────────────────
     inv = sub.add_parser(
         "investment-packet",
@@ -769,6 +860,123 @@ def main() -> None:
                     )
                 sys.exit(1)
             print("ok")
+            sys.exit(0)
+
+    if args.cmd == "quarantine":
+        from . import quarantine as qn_mod
+        store = qn_mod.QuarantineStore()
+
+        if args.qn_cmd == "capture":
+            text = args.text
+            if args.from_file:
+                if text:
+                    print(
+                        "error: pass either text or --from-file, not both",
+                        file=sys.stderr,
+                    )
+                    sys.exit(4)
+                try:
+                    text = Path(args.from_file).read_text(encoding="utf-8")
+                except OSError as e:
+                    print(f"error: could not read input: {e}", file=sys.stderr)
+                    sys.exit(4)
+            if not text:
+                print(
+                    "error: provide raw text as a positional arg or --from-file",
+                    file=sys.stderr,
+                )
+                sys.exit(4)
+            tag_list = [t.strip() for t in args.tags.split(",") if t.strip()]
+            try:
+                pkt = qn_mod.capture(text, tags=tag_list, note=args.note)
+            except qn_mod.QuarantineError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            store.save(pkt)
+            print(f"captured {pkt.id} → HOLDING ({len(pkt.raw)} chars)")
+            sys.exit(0)
+
+        if args.qn_cmd == "list":
+            zone = qn_mod.Zone(args.zone) if args.zone else None
+            pkts = store.list_all(zone=zone)
+            if not pkts:
+                label = f"zone={args.zone}" if args.zone else "all zones"
+                print(f"(no quarantine packets in {label})")
+                sys.exit(0)
+            for pkt in pkts:
+                summary = pkt.hypothesis or pkt.normalized[:60]
+                print(f"  {pkt.zone:<16} {pkt.id}  {summary}")
+                if pkt.decision:
+                    print(f"    decision: {pkt.decision}")
+                if pkt.rejection_reason:
+                    print(f"    rejected: {pkt.rejection_reason}")
+            sys.exit(0)
+
+        if args.qn_cmd == "show":
+            pkt = store.load(args.packet_id)
+            if pkt is None:
+                print(f"error: no packet found with id {args.packet_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            print(json.dumps(pkt.to_dict(), indent=2, ensure_ascii=False))
+            sys.exit(0)
+
+        if args.qn_cmd == "decontaminate":
+            pkt = store.load(args.packet_id)
+            if pkt is None:
+                print(f"error: no packet found with id {args.packet_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            backlog = [b.strip() for b in args.backlog.split("|") if b.strip()] \
+                if args.backlog else None
+            try:
+                qn_mod.decontaminate(
+                    pkt,
+                    hypothesis=args.hypothesis,
+                    backlog_items=backlog,
+                    note=args.note,
+                )
+            except qn_mod.QuarantineError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            store.save(pkt)
+            print(f"decontaminated {pkt.id} → DECONTAMINATION")
+            sys.exit(0)
+
+        if args.qn_cmd == "admit":
+            pkt = store.load(args.packet_id)
+            if pkt is None:
+                print(f"error: no packet found with id {args.packet_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            try:
+                decision = qn_mod.Decision(args.decision)
+            except ValueError:
+                print(f"error: invalid decision {args.decision!r}",
+                      file=sys.stderr)
+                sys.exit(4)
+            try:
+                qn_mod.admit(
+                    pkt,
+                    decision=decision,
+                    rationale=args.rationale,
+                    note=args.note,
+                )
+            except qn_mod.QuarantineError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+            store.save(pkt)
+            print(f"admitted {pkt.id} → {pkt.zone.upper()} "
+                  f"(decision={pkt.decision})")
+            sys.exit(0)
+
+        if args.qn_cmd == "delete":
+            ok = store.delete(args.packet_id)
+            if not ok:
+                print(f"error: no packet found with id {args.packet_id}",
+                      file=sys.stderr)
+                sys.exit(4)
+            print(f"deleted {args.packet_id}")
             sys.exit(0)
 
     if args.cmd == "investment-packet":
