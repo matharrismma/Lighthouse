@@ -319,6 +319,17 @@ def main() -> None:
     led_seal.add_argument("--now-epoch", type=int, default=None)
     led_seal.add_argument("--no-verifiers", action="store_true")
 
+    led_verify = led_sub.add_parser(
+        "verify",
+        help="Walk the ledger and verify the hash chain is intact.",
+        description=(
+            "Recompute each precedent's content_hash and confirm the "
+            "prev_hash links connect the chain. Tampered files and "
+            "broken links are reported. Files written before chain "
+            "support was added are reported as 'unsigned'."
+        ),
+    )
+
     args = p.parse_args()
 
     if args.cmd == "validate":
@@ -394,7 +405,33 @@ def main() -> None:
         sys.exit(_EXIT.get(record.overall, 1))
 
     if args.cmd == "ledger":
-        from .ledger import find_closest, list_precedents, seal_to_ledger
+        from .ledger import (
+            find_closest, list_precedents, seal_to_ledger, verify_chain,
+        )
+        if args.ledger_cmd == "verify":
+            report = verify_chain()
+            print(f"ledger: {report['total']} precedents")
+            print(f"  verified: {report['verified']}")
+            if report["unsigned"]:
+                print(f"  unsigned (no content_hash): {len(report['unsigned'])}")
+                for name in report["unsigned"]:
+                    print(f"    {name}")
+            if report["tampered"]:
+                print(f"  TAMPERED: {len(report['tampered'])}")
+                for entry in report["tampered"]:
+                    print(f"    {entry['file']}: {entry['error']}")
+            if report["broken_links"]:
+                print(f"  BROKEN LINKS: {len(report['broken_links'])}")
+                for entry in report["broken_links"]:
+                    print(
+                        f"    {entry['file']}: expected prev "
+                        f"{entry['expected_prev']}, got {entry['got_prev']}"
+                    )
+            if report["ok"]:
+                print("chain ok")
+                sys.exit(0)
+            print("chain INVALID — see report above", file=sys.stderr)
+            sys.exit(1)
         if args.ledger_cmd == "list":
             precedents = list_precedents()
             if not precedents:

@@ -1,16 +1,28 @@
 {
   "precedent_id": "ledger://decision/2024-09-22/publish-canon-update",
   "axis": "governance",
-  "dimensions": ["reasoning", "authority_trust", "time_sequence"],
+  "dimensions": [
+    "reasoning",
+    "authority_trust",
+    "time_sequence"
+  ],
   "summary": "Community ratified a canon update after 7-day witness window in canon scope.",
   "anchors": [
-    {"ref": "1 Cor 14:32-33", "layer": "apostles"},
-    {"ref": "Acts 15:6-29", "layer": "apostles"}
+    {
+      "ref": "1 Cor 14:32-33",
+      "layer": "apostles"
+    },
+    {
+      "ref": "Acts 15:6-29",
+      "layer": "apostles"
+    }
   ],
   "reasoning_overlay": {
     "step_1": "Proposal submitted as DECISION_PACKET with full red_items / floor_items / way_path",
     "step_2": "Required witnesses: 5 (canon-scope minimum). Achieved 7.",
     "step_3": "Wait window in canon scope (7 days) elapsed before binding",
     "step_4": "No objection raised during the witness window; bound on day 8"
-  }
+  },
+  "prev_hash": "GENESIS",
+  "content_hash": "de7c9e34856217a04150f8550195c5037e3677b15eb4c7073c29137f9da76efd"
 }

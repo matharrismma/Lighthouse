@@ -184,6 +184,77 @@ def verify_anchors_resolve(packet: Dict[str, Any]) -> VerifierResult:
     return mismatch(name, f"{len(unresolved)} anchor(s) do not resolve", data)
 
 
+def verify_rule_anchors_resolve(packet: Dict[str, Any]) -> VerifierResult:
+    """Every verifier-rule anchor must resolve to a source-hierarchy layer.
+
+    A verifier rule may declare its derivation by including an `anchor`
+    field in its `data` dict:
+      data = {"anchor": {"ref": "Mt 18:16", "layer": "jesus_words",
+                         "derivation": "..."}, "rule": ..., ...}
+
+    When the anchor is present, this check validates that:
+      * `ref` is a non-empty string
+      * `layer` is one of the source hierarchy
+        (jesus_words / bible / apostles / recognized_elders)
+
+    Verifiers without an anchor field are silently passed — the
+    convention is opt-in. Future iterations may roll the anchor out
+    to every verifier rule, at which point this check becomes a
+    coverage check (every rule must declare its derivation).
+    """
+    name = "witness.rule_anchors_resolve"
+    wv = packet.get("WIT_VERIFY") or {}
+    results = wv.get("claimed_verifier_results")
+    if results is None:
+        return na(name)
+    if not isinstance(results, list):
+        return error(name, "claimed_verifier_results must be a list")
+
+    bad: List[Dict[str, Any]] = []
+    checked = 0
+    for r in results:
+        if not isinstance(r, dict):
+            continue
+        data_block = r.get("data")
+        if not isinstance(data_block, dict):
+            continue
+        anchor = data_block.get("anchor")
+        if anchor is None:
+            continue  # opt-in convention
+        checked += 1
+        if not isinstance(anchor, dict):
+            bad.append({"name": r.get("name"),
+                        "reason": f"`anchor` must be a dict, got {type(anchor).__name__}"})
+            continue
+        ref = anchor.get("ref")
+        layer = anchor.get("layer")
+        if not isinstance(ref, str) or not ref.strip():
+            bad.append({"name": r.get("name"),
+                        "reason": "anchor.ref missing or empty"})
+            continue
+        if layer not in SOURCE_HIERARCHY_LAYERS:
+            bad.append({
+                "name": r.get("name"),
+                "reason": f"anchor.layer {layer!r} not in source hierarchy {SOURCE_HIERARCHY_LAYERS}",
+            })
+
+    data = {
+        "checked_count": checked,
+        "bad_anchors": bad,
+        "source_hierarchy": list(SOURCE_HIERARCHY_LAYERS),
+        "rule": (
+            "every verifier rule that declares an anchor must point to a "
+            "source-hierarchy layer (Jesus' words primary, Bible, "
+            "apostles, recognized elders)"
+        ),
+    }
+    if checked == 0:
+        return na(name, "no verifier rules declared an anchor")
+    if not bad:
+        return confirm(name, f"all {checked} declared rule anchor(s) resolve", data)
+    return mismatch(name, f"{len(bad)} rule anchor(s) do not resolve", data)
+
+
 def verify_no_fabricated_answer(packet: Dict[str, Any]) -> VerifierResult:
     """Categorize-don't-answer enforced at the rendering boundary.
 
@@ -218,6 +289,7 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_gate_chain_complete(packet))
     if "claimed_verifier_results" in wv:
         results.append(verify_reasoning_trace_present(packet))
+        results.append(verify_rule_anchors_resolve(packet))
     if "claimed_anchors" in wv:
         results.append(verify_anchors_resolve(packet))
     # The no-fabricated-answer check runs unconditionally when WIT_VERIFY is

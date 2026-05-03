@@ -259,15 +259,27 @@ def _render_verifier_traces(record: WitnessRecord) -> str:
             lines.append("")
             lines.append(f"_{v.detail}_")
         lines.append("")
-        # Pull formula and rule out of data for prominent display, then
-        # dump the rest.
+        # Pull formula, rule, and anchor out of data for prominent display.
+        # Anchor surfaces the doctrinal derivation of the rule — when a
+        # verifier declares one, the walkthrough shows it inline with
+        # the formula so the human can see *why* this rule fires.
         data = dict(v.data) if isinstance(v.data, dict) else {}
         formula = data.pop("formula", None)
         rule = data.pop("rule", None)
+        anchor = data.pop("anchor", None)
         if formula:
             lines.append(f"**Formula:** `{formula}`")
         if rule:
             lines.append(f"**Rule:** {rule}")
+        if isinstance(anchor, dict) and anchor.get("ref"):
+            layer = anchor.get("layer", "?")
+            layer_label = _LAYER_LABELS.get(layer, f"*{layer}*")
+            lines.append(
+                f"**Derives from:** `{anchor['ref']}` · {layer_label}"
+            )
+            derivation = anchor.get("derivation")
+            if derivation:
+                lines.append(f"  > {derivation}")
         if data:
             lines.append("")
             lines.append("**Trace:**")

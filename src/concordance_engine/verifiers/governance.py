@@ -121,8 +121,27 @@ def verify_decision_packet_shape(spec: Dict[str, Any]) -> VerifierResult:
                     "has_scripture": bool(spec.get("scripture_anchors"))})
 
 
+_WITNESS_COUNT_ANCHOR = {
+    "ref": "Mt 18:16",
+    "layer": "jesus_words",
+    "derivation": (
+        "Plural witness consistency: 'by the mouth of two or three "
+        "witnesses every word may be established.' If the packet "
+        "names witnesses, the count must agree with the declared "
+        "witness_count — the BROTHERS gate has no meaning if the "
+        "two numbers disagree."
+    ),
+}
+
+
 def verify_witness_count_consistency(spec: Dict[str, Any], packet: Dict[str, Any]) -> VerifierResult:
-    """If both DECISION_PACKET.witnesses and top-level witness_count exist, they must agree."""
+    """If both DECISION_PACKET.witnesses and top-level witness_count exist, they must agree.
+
+    Anchored in Mt 18:16 — see `_WITNESS_COUNT_ANCHOR`. The anchor is
+    surfaced in the verifier's `data` payload so the walkthrough
+    renderer (and any downstream consumer) can display the doctrinal
+    derivation alongside the rule.
+    """
     dp_witnesses = spec.get("witnesses")
     top_count = packet.get("witness_count")
     if dp_witnesses is None or top_count is None:
@@ -136,11 +155,22 @@ def verify_witness_count_consistency(spec: Dict[str, Any], packet: Dict[str, Any
     except (ValueError, TypeError):
         return error("governance.witness_count_consistency",
                      f"witness_count is non-integer: {top_count!r}")
+    data = {
+        "anchor": _WITNESS_COUNT_ANCHOR,
+        "rule": (
+            "DECISION_PACKET.witnesses count must equal top-level "
+            "witness_count (Mt 18:16 — plural witness)"
+        ),
+        "named_count": n_named,
+        "declared_count": n_top,
+    }
     if n_named == n_top:
         return confirm("governance.witness_count_consistency",
-                       f"DECISION_PACKET.witnesses count ({n_named}) matches top-level witness_count")
+                       f"DECISION_PACKET.witnesses count ({n_named}) matches top-level witness_count",
+                       data)
     return mismatch("governance.witness_count_consistency",
-                    f"DECISION_PACKET names {n_named} witnesses but top-level witness_count={n_top}")
+                    f"DECISION_PACKET names {n_named} witnesses but top-level witness_count={n_top}",
+                    data)
 
 
 _SCOPE_WAIT_WINDOWS = {"adapter": 3600, "mesh": 86400, "canon": 604800}

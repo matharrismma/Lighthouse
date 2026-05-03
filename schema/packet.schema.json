@@ -9,21 +9,8 @@
   "properties": {
     "domain": {
       "type": "string",
-      "description": "Routes the packet to a domain validator. Unknown domains pass with a 'no validator registered' note.",
-      "enum": [
-        "mathematics",
-        "physics",
-        "chemistry",
-        "biology",
-        "computer_science",
-        "cs",
-        "statistics",
-        "governance",
-        "business",
-        "household",
-        "education",
-        "church"
-      ]
+      "description": "Routes the packet to a domain validator. The engine knows 36+ axes (mathematics, physics, chemistry, biology, computer_science/cs, statistics, governance/business/household/education/church, linguistics, genetics, agriculture, formal_logic/logic, nutrition, cryptography, exercise_science, manufacturing, finance, astronomy, calendar_time, networking, electrical, acoustics, optics, geology, information_theory, document_validation, music_theory, number_theory, geography, combinatorics, geometry, meteorology, hydrology, photography, sports_analytics, witness, ...) — see concordance_engine.verifiers.VERIFIERS for the full registry. Unknown domains pass with a 'no validator registered' note. Schema enforces shape; engine enforces content.",
+      "pattern": "^[a-z][a-z0-9_]*$"
     },
     "id": {
       "type": "string",

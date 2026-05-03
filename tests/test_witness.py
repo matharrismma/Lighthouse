@@ -197,7 +197,12 @@ def test_no_fabricated_answer_engine_answer_field_caught():
 
 # ── run dispatch ───────────────────────────────────────────────────────
 
-def test_run_dispatches_all_four_checks():
+def test_run_dispatches_all_checks():
+    """Witness now runs 5 checks when the full WIT_VERIFY block is
+    present: gate_chain, reasoning_trace, rule_anchors_resolve,
+    anchors_resolve, and no_fabricated_answer. The rule_anchors check
+    is opt-in — it runs whenever claimed_verifier_results is present
+    but reports NA when no verifier rule has declared an anchor."""
     p = {
         "domain": "witness",
         "WIT_VERIFY": {
@@ -218,8 +223,15 @@ def test_run_dispatches_all_four_checks():
         },
     }
     results = wit.run(p)
-    assert len(results) == 4
-    assert all(r.status == "CONFIRMED" for r in results)
+    assert len(results) == 5
+    statuses = {r.name: r.status for r in results}
+    # Four of five should CONFIRM; the rule_anchors check is NA when
+    # no rule declared an anchor.
+    assert statuses["witness.gate_chain_complete"] == "CONFIRMED"
+    assert statuses["witness.reasoning_trace_present"] == "CONFIRMED"
+    assert statuses["witness.rule_anchors_resolve"] == "NOT_APPLICABLE"
+    assert statuses["witness.anchors_resolve"] == "CONFIRMED"
+    assert statuses["witness.no_fabricated_answer"] == "CONFIRMED"
 
 
 def test_run_full_record_with_short_circuit_red_reject():

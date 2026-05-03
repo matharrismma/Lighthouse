@@ -442,8 +442,26 @@ def _extract_book_chapter(ref: str):
     return book, chapter
 
 
+_CANON_MEMBERSHIP_ANCHOR = {
+    "ref": "2 Tim 3:16",
+    "layer": "apostles",
+    "derivation": (
+        "Canon-bounded scripture: 'All Scripture is breathed out by "
+        "God and profitable...' The 66-book canon (Protestant) is the "
+        "boundary of what counts as Scripture for this engine; "
+        "citations outside it are flagged so authority claims can't "
+        "smuggle in non-canonical texts."
+    ),
+}
+
+
 def verify_canon_membership(refs):
-    """Every reference must point to a book in the 66-book canon."""
+    """Every reference must point to a book in the 66-book canon.
+
+    Anchored in 2 Tim 3:16. The anchor is surfaced in the verifier's
+    `data` payload so the walkthrough renderer (and downstream
+    consumers) can display the doctrinal derivation alongside the rule.
+    """
     name = "scripture.canon_membership"
     if not refs:
         return VerifierResult(name=name, status="CONFIRMED",
@@ -463,8 +481,12 @@ def verify_canon_membership(refs):
             inside.append(raw)
         else:
             outside.append(raw)
-    data = {"inside": inside, "outside": outside, "unparseable": unparseable,
-            "total": len(refs)}
+    data = {
+        "anchor": _CANON_MEMBERSHIP_ANCHOR,
+        "rule": "every cited reference must be in the 66-book canon (2 Tim 3:16)",
+        "inside": inside, "outside": outside, "unparseable": unparseable,
+        "total": len(refs),
+    }
     if outside:
         return VerifierResult(name=name, status="MISMATCH",
                               detail=f"{len(outside)} reference(s) not in canonical 66 books: {outside}",

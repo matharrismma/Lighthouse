@@ -52,7 +52,17 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .witness_record import ClosestCase
+from .validate import canonical_json_bytes, sha256_bytes
 from . import grid
+
+
+# Sentinel value for the first precedent's prev_hash. Genesis link.
+GENESIS_HASH = "GENESIS"
+
+# Fields managed by the chain layer — excluded from content_hash
+# computation so the hash is over the *content* of the precedent, not
+# over the chain metadata wrapping it.
+_CHAIN_FIELDS = ("content_hash", "prev_hash")
 
 
 def _default_ledger_dir() -> Path:
@@ -92,6 +102,115 @@ def list_precedents(ledger_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
     `precedent_id` is present (formats may evolve).
     """
     return _load_precedents(ledger_dir)
+
+
+# ── Hash chain ─────────────────────────────────────────────────────────
+
+def compute_content_hash(precedent: Dict[str, Any]) -> str:
+    """Compute the content_hash for a precedent — SHA-256 of its
+    canonical JSON, excluding the chain fields themselves so the hash
+    is stable across re-sealing."""
+    payload = {k: v for k, v in precedent.items() if k not in _CHAIN_FIELDS}
+    return sha256_bytes(canonical_json_bytes(payload))
+
+
+def _ledger_chain_files(ledger_dir: Optional[Path] = None) -> List[Path]:
+    """Files in chain order — alphabetical by filename. Deterministic
+    so the chain link semantics are well-defined regardless of OS."""
+    d = ledger_dir or _default_ledger_dir()
+    if not d.exists() or not d.is_dir():
+        return []
+    return sorted(d.glob("*.json"))
+
+
+def _read_precedent_file(p: Path) -> Optional[Dict[str, Any]]:
+    try:
+        with open(p, encoding="utf-8") as fp:
+            data = json.load(fp)
+        return data if isinstance(data, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def verify_chain(
+    ledger_dir: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """Walk the ledger in chain order and verify integrity.
+
+    Two checks per file:
+      1. Recompute content_hash and compare to stored value.
+      2. Confirm prev_hash matches the prior file's content_hash
+         (or GENESIS for the first file).
+
+    Files written before the chain layer existed (no `content_hash`
+    field) are reported as `unsigned` — a degraded state, not a
+    failure. The chain is only enforced on files that opt in. Future
+    seals will write the chain fields automatically.
+
+    Returns a structured report:
+      {
+        "ok": bool,
+        "total": int,
+        "verified": int,
+        "unsigned": [filename, ...],
+        "tampered": [{file, error}],
+        "broken_links": [{file, expected_prev, got_prev}],
+      }
+    """
+    files = _ledger_chain_files(ledger_dir)
+    report: Dict[str, Any] = {
+        "ok": True,
+        "total": len(files),
+        "verified": 0,
+        "unsigned": [],
+        "tampered": [],
+        "broken_links": [],
+    }
+    expected_prev = GENESIS_HASH
+    for f in files:
+        precedent = _read_precedent_file(f)
+        if precedent is None:
+            report["tampered"].append(
+                {"file": f.name, "error": "could not parse JSON"}
+            )
+            report["ok"] = False
+            continue
+
+        stored_hash = precedent.get("content_hash")
+        if stored_hash is None:
+            # Pre-chain precedent. Recompute what its hash would be
+            # so the next file in chain can still link to it.
+            report["unsigned"].append(f.name)
+            expected_prev = compute_content_hash(precedent)
+            continue
+
+        # Verify content_hash.
+        recomputed = compute_content_hash(precedent)
+        if recomputed != stored_hash:
+            report["tampered"].append({
+                "file": f.name,
+                "error": f"content_hash mismatch: stored {stored_hash[:12]}..., "
+                         f"recomputed {recomputed[:12]}...",
+            })
+            report["ok"] = False
+            expected_prev = stored_hash  # advance regardless
+            continue
+
+        # Verify prev_hash link.
+        stored_prev = precedent.get("prev_hash", GENESIS_HASH)
+        if stored_prev != expected_prev:
+            report["broken_links"].append({
+                "file": f.name,
+                "expected_prev": expected_prev[:12] + "..." if expected_prev != GENESIS_HASH else GENESIS_HASH,
+                "got_prev": stored_prev[:12] + "..." if stored_prev != GENESIS_HASH else GENESIS_HASH,
+            })
+            report["ok"] = False
+            expected_prev = stored_hash
+            continue
+
+        report["verified"] += 1
+        expected_prev = stored_hash
+    return report
 
 
 def _anchor_to_ref(raw: Any) -> Optional[str]:
@@ -337,7 +456,9 @@ def seal_to_ledger(
         "reasoning_overlay": overlay,
     }
 
-    # Determine the target file path.
+    # Determine the target file path BEFORE chain link computation:
+    # the chain depends on alphabetical order, and this file's slot is
+    # determined by its name.
     d = ledger_dir or _default_ledger_dir()
     d.mkdir(parents=True, exist_ok=True)
     file_slug = _slugify(precedent_id.replace("ledger://", ""))
@@ -347,10 +468,42 @@ def seal_to_ledger(
             f"precedent file already exists at {target}. "
             "Pass overwrite=True to replace it."
         )
+
+    # Compute the chain link: this precedent's prev_hash is the
+    # content_hash of the file that comes immediately before it in
+    # alphabetical order (or GENESIS if it's the first / would be the
+    # first after sorting). Existing files that lack content_hash
+    # contribute their recomputed hash instead so the chain stays
+    # connected even before backfill is complete.
+    existing = [f for f in _ledger_chain_files(d) if f != target]
+    # Find the file that would precede this one alphabetically.
+    prior = None
+    for f in existing:
+        if f.name < target.name:
+            prior = f
+        else:
+            break
+    if prior is None:
+        prev_hash = GENESIS_HASH
+    else:
+        prior_data = _read_precedent_file(prior)
+        if prior_data and "content_hash" in prior_data:
+            prev_hash = prior_data["content_hash"]
+        elif prior_data:
+            prev_hash = compute_content_hash(prior_data)
+        else:
+            prev_hash = GENESIS_HASH
+
+    precedent_payload["prev_hash"] = prev_hash
+    precedent_payload["content_hash"] = compute_content_hash(precedent_payload)
+
     with open(target, "w", encoding="utf-8") as f:
         json.dump(precedent_payload, f, indent=2)
         f.write("\n")
     return target
 
 
-__all__ = ["find_closest", "list_precedents", "seal_to_ledger"]
+__all__ = [
+    "find_closest", "list_precedents", "seal_to_ledger",
+    "verify_chain", "compute_content_hash", "GENESIS_HASH",
+]

@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+from pathlib import Path
+
 from .packet import EngineResult, GateResult, DecisionStatus
 from .gates import reject, quarantine, ok
 from .domains import load_domain_validator
@@ -11,6 +13,7 @@ from . import verifiers as _verifiers
 from .witness_record import (
     WitnessRecord, Anchor, ClosestCase, axis_coords_for, build_record,
 )
+from .validate import load_schema, validate_against_schema
 
 WAIT_WINDOWS = {
     "adapter": 60 * 60,
@@ -35,6 +38,42 @@ class EngineConfig:
     schema_path: str
     default_scope: str = "adapter"
     run_verifiers: bool = True
+    # When True, the engine validates packets against the JSON schema
+    # before running gates. Default-on for the sealed-record path
+    # (validate_and_seal); opt-out via skip_schema_validation=True for
+    # callers that have already validated upstream (e.g. CLI's
+    # `validate` subcommand, tests with deliberately-malformed packets,
+    # MCP server falling back from the hosted API).
+    skip_schema_validation: bool = False
+
+
+# Cached default schema path: the bundled schema at <repo>/schema/packet.schema.json.
+# Resolved once at import time so each call doesn't re-walk parents[2].
+_DEFAULT_SCHEMA_PATH = (
+    Path(__file__).resolve().parents[2] / "schema" / "packet.schema.json"
+)
+
+
+# Memoized schema load — the file rarely changes within a process.
+_LOADED_SCHEMA: Dict[str, Any] | None = None
+
+
+def _get_schema(config: EngineConfig) -> Dict[str, Any] | None:
+    """Resolve the schema for validation. Returns None if no schema is
+    configured or the file isn't present (graceful degradation —
+    validation is best-effort for callers who haven't pinned a schema).
+    """
+    global _LOADED_SCHEMA
+    if _LOADED_SCHEMA is not None:
+        return _LOADED_SCHEMA
+    candidate = config.schema_path or str(_DEFAULT_SCHEMA_PATH)
+    if not candidate:
+        return None
+    try:
+        _LOADED_SCHEMA = load_schema(Path(candidate))
+        return _LOADED_SCHEMA
+    except (OSError, ValueError):
+        return None
 
 
 def _scope_seconds(scope):
@@ -90,9 +129,30 @@ def _run_validation(
     `EngineResult` shape) and `validate_and_seal` (which packs into a
     `WitnessRecord`). Both surfaces walk the same gates; only the return
     shape differs.
+
+    Schema validation runs before any gate fires (unless explicitly
+    skipped via config). A schema failure is a structural REJECT — the
+    packet doesn't even have a well-formed shape, so the four gates
+    don't get a chance to opine.
     """
     gate_results: List[GateResult] = []
     verifier_results: List[VerifierResult] = []
+
+    if not config.skip_schema_validation:
+        schema = _get_schema(config)
+        if schema is not None:
+            try:
+                validate_against_schema(packet, schema)
+            except Exception as e:  # jsonschema.ValidationError or ValueError
+                # Schema failure surfaces as a RED reject before the
+                # domain validator gets a turn. The reason carries the
+                # validation error message verbatim for the human to
+                # see what's malformed.
+                gate_results.append(reject(
+                    "RED", f"schema validation failed: {e}",
+                    details={"validation_error": str(e)},
+                ))
+                return gate_results, tuple(verifier_results), "REJECT"
 
     packet = _normalize_governance_packet(packet)
 
@@ -205,7 +265,11 @@ def validate_and_seal(
     gate_results, verifier_results, overall = _run_validation(
         packet, now_epoch=now_epoch, config=config
     )
-    domain = (packet.get("domain") or "").lower()
+    # Defensive: schema validation might have rejected on a non-string
+    # `domain`, in which case axis_coords lookup would crash. When the
+    # packet is malformed we just don't fill in axis_coords.
+    domain_raw = packet.get("domain") if isinstance(packet, dict) else None
+    domain = domain_raw.lower() if isinstance(domain_raw, str) else ""
     return WitnessRecord(
         overall=overall,
         gate_results=tuple(gate_results),
