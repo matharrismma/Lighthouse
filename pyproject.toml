@@ -53,3 +53,17 @@ concordance-mcp = "concordance_engine.mcp_server.server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# lw/_archive_iterations holds frozen pre-consolidation copies of test
+# files that share basenames with the live tests. Pytest's default
+# rootdir collection would pick both and fail with import-file mismatch.
+norecursedirs = [
+  "lw",
+  ".venv",
+  "build",
+  "dist",
+  "*.egg-info",
+  "concordance_engine-*",
+]

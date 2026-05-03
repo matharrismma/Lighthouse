@@ -14,6 +14,11 @@ github_token.txt
 *.token
 .env
 .env.*
+# Session handoff docs — these tend to embed live API keys and
+# session-specific notes. Treat as local-only by default. If you need
+# to share one publicly, scrub it to a separate path first.
+CLAUDE_CODE_HANDOFF.md
+CLAUDE_CODE_HANDOFF_*.md
 
 # The local helper scripts no longer embed the Cloudflare tunnel token.
 # They read it from C:\Concordance\tunnel.token at runtime, which is
@@ -43,3 +48,12 @@ pytest-cache-files-*/
 
 # Local working notes
 WORKING_STATE.md
+
+# Runtime audit log — written by api/ledger.py at runtime. The
+# canonical precedent store is lw/ledger/; this top-level jsonl is
+# transient runtime state that shouldn't pollute the repo.
+ledger.jsonl
+
+# Run logs from evaluation harnesses
+lw/09_evaluation/run.log
+**/run.log
