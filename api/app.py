@@ -31,8 +31,13 @@ if _engine_path:
     sys.path.insert(0, str(Path(_engine_path) / "src"))
 
 try:
-    from concordance_engine.engine import validate_packet, EngineConfig
+    from concordance_engine.engine import (
+        validate_packet, validate_and_seal, EngineConfig,
+    )
     from concordance_engine.validate import compute_packet_hash
+    from concordance_engine.witness_record import (
+        Anchor, ClosestCase, WitnessRecord,
+    )
     _ENGINE_AVAILABLE = True
     _ENGINE_ERROR = None
 except ImportError as _e:
@@ -150,6 +155,24 @@ class ValidateRequest(BaseModel):
     run_verifiers: bool = True
 
 
+class SealRequest(BaseModel):
+    """Body for `POST /seal` — the canonical sealed-record endpoint.
+
+    Identical to ValidateRequest but carries the optional rendering-
+    layer concerns (anchors, closest_case, packet_id) that turn a bare
+    EngineResult into a full WitnessRecord. Anchors are dicts of shape
+    {ref, layer, text?}; closest_case is a dict of shape {precedent_id,
+    shared_dimensions?, shared_anchors?, distance?, reasoning_overlay?}.
+    Both default to absent/empty rather than fabricated.
+    """
+    packet: Dict[str, Any]
+    now_epoch: Optional[int] = None
+    run_verifiers: bool = True
+    anchors: Optional[List[Dict[str, Any]]] = None
+    closest_case: Optional[Dict[str, Any]] = None
+    packet_id: Optional[str] = None
+
+
 class GateResultOut(BaseModel):
     gate: str
     status: str
@@ -235,6 +258,47 @@ def health():
         "ledger_entries": recent[0].get("seq") if recent else 0,
         "timestamp": int(time.time()),
     }
+
+
+@app.get("/version")
+def version():
+    """Return the deployed engine version, schema version, and git SHA
+    if available. Lets external callers (and us at 3am) verify what's
+    actually running without grepping logs.
+
+    git_sha resolves at request time from .git/HEAD if a git tree is
+    visible; falls back to the env var CONCORDANCE_GIT_SHA (set by
+    deploy scripts) or "unknown" if neither is available.
+    """
+    git_sha = os.environ.get("CONCORDANCE_GIT_SHA", "")
+    if not git_sha:
+        # Best-effort: read .git/HEAD from the repo on disk.
+        try:
+            repo_root = Path(__file__).parent.parent
+            head = (repo_root / ".git" / "HEAD").read_text(encoding="utf-8").strip()
+            if head.startswith("ref: "):
+                ref_path = repo_root / ".git" / head[5:]
+                if ref_path.exists():
+                    git_sha = ref_path.read_text(encoding="utf-8").strip()
+            else:
+                git_sha = head  # detached HEAD = direct SHA
+        except (OSError, ValueError):
+            git_sha = "unknown"
+
+    out = {
+        "git_sha": git_sha or "unknown",
+        "engine_available": _ENGINE_AVAILABLE,
+        "schema_version": "1.0",
+    }
+    if _ENGINE_AVAILABLE:
+        try:
+            import concordance_engine
+            out["engine_package_version"] = getattr(
+                concordance_engine, "__version__", "1.0.6",
+            )
+        except Exception:
+            out["engine_package_version"] = "unknown"
+    return out
 
 
 @app.post("/validate", response_model=ValidateResponse)
@@ -359,6 +423,106 @@ def submit_public(req: ValidateRequest):
         packet_hash=p_hash,
         elapsed_ms=round(elapsed_ms, 2),
     )
+
+
+# ── Sealed-record endpoint ─────────────────────────────────────────────
+# /seal returns the full WitnessRecord shape — gate verdicts, every
+# verifier result with its data (formula / rule / anchor), axis
+# coordinates on the dimensional scaffold, citations with their
+# source-hierarchy layer, and an optional closest-case overlay.
+# /validate keeps the legacy EngineResult shape for backward compat.
+
+@app.post("/seal")
+def seal(req: SealRequest):
+    """Run a packet through the four gates and return the sealed
+    WitnessRecord.
+
+    The canonical agent-facing surface for tonight's engine work.
+    Where /validate returns a stripped EngineResult (overall + gate
+    verdicts), /seal returns the WitnessRecord shape that walkthroughs
+    are rendered from: each verifier_result carries its full `data`
+    payload (rule, formula, doctrinal anchor for the rules that have
+    one); axis_coords places the packet on the 36-axis scaffold;
+    anchors carry their source-hierarchy layer; closest_case is
+    explicit-absent (precedent_id=None) when no precedent applies.
+
+    The endpoint also writes to the audit ledger like /submit does, so
+    every sealed record is part of the permanent chain. ledger_seq and
+    ledger_entry_hash come back alongside the WitnessRecord JSON.
+
+    Doctrinal commitment: the response carries no `final_answer` /
+    `answer` / `engine_answer` field, ever. The witness verifier's
+    no_fabricated_answer check enforces that against any record sealed.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+
+    t0 = time.perf_counter()
+    config = _make_config()
+    if not req.run_verifiers:
+        config = EngineConfig(
+            schema_path=config.schema_path,
+            run_verifiers=False,
+        )
+
+    # Coerce optional anchor / closest_case payloads into the schema
+    # types so any future structural changes propagate through one
+    # boundary, not many.
+    try:
+        anchors = tuple(
+            Anchor.from_dict(a) for a in (req.anchors or [])
+        )
+    except (KeyError, TypeError) as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=f"malformed anchors: {exc}",
+        )
+    closest_case = None
+    if req.closest_case is not None:
+        try:
+            closest_case = ClosestCase.from_dict(req.closest_case)
+        except (KeyError, TypeError) as exc:
+            raise HTTPException(
+                status_code=422,
+                detail=f"malformed closest_case: {exc}",
+            )
+
+    try:
+        record = validate_and_seal(
+            req.packet,
+            now_epoch=req.now_epoch,
+            config=config,
+            anchors=anchors,
+            closest_case=closest_case,
+            packet_id=req.packet_id or req.packet.get("id"),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"engine error: {exc}")
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+
+    # Write to the audit ledger using the gate_results from the record
+    # so the persisted entry matches the returned record.
+    ledger = get_ledger()
+    try:
+        entry = ledger.append(
+            req.packet, record.overall, list(record.gate_results),
+        )
+        ledger_seq = entry.seq
+        ledger_hash = entry.entry_hash
+    except Exception:
+        ledger_seq = None
+        ledger_hash = None
+
+    out = record.to_dict()
+    if ledger_seq is not None:
+        out["ledger_seq"] = ledger_seq
+        out["ledger_entry_hash"] = ledger_hash
+    out["elapsed_ms"] = round(elapsed_ms, 2)
+    return out
 
 
 # ── Ledger read endpoints ──────────────────────────────────────────────
