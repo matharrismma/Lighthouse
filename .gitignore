@@ -58,3 +58,10 @@ ledger.jsonl
 # Run logs from evaluation harnesses
 lw/09_evaluation/run.log
 **/run.log
+
+# Runtime stores — written by the engine at runtime (journal entries,
+# keeping log, quarantine packets). Each operator's local kingdom is
+# theirs; nothing here belongs in the repo.
+lw/journal/
+lw/keeping/
+lw/quarantine/

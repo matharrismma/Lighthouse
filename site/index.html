@@ -359,28 +359,117 @@
       background: var(--bg); padding: 1px 4px; border-radius: 3px;
       font-family: 'JetBrains Mono', monospace; font-size: 11px;
     }
+
+    /* Mode toggle (WRITE vs VERIFY) */
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      align-self: center;
+      margin-bottom: 18px;
+      padding: 3px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+    }
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: uppercase;
+      transition: all 120ms ease;
+    }
+    .mode-btn.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    .mode-btn:hover:not(.active) { color: var(--text); }
+
+    /* Calibration bubble (WRITE mode response) */
+    .bubble-engine .calibration-h {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 8px 0 4px 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .bubble-engine .cal-line {
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 1px 0;
+    }
+    .bubble-engine .cal-line code {
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    .bubble-engine .seed-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .bubble-engine .seed-id code {
+      color: var(--accent);
+    }
+    .bubble-engine .shelf-actions {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .shelf-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+    }
+    .shelf-btn:hover { border-color: var(--accent); }
+    .shelf-btn.published { color: var(--pass); border-color: var(--pass); }
   </style>
 </head>
 <body>
 <div class="shell">
 
+  <div class="mode-toggle" role="tablist">
+    <button id="modeWrite"  class="mode-btn active" role="tab" aria-selected="true">Write</button>
+    <button id="modeVerify" class="mode-btn"        role="tab" aria-selected="false">Verify</button>
+  </div>
+
   <div class="history" id="history">
     <div class="empty" id="emptyState">
       <div class="wordmark">Concordance</div>
-      <h1>Submit something for discernment.</h1>
-      <p>A claim. An equation. A decision that cannot be undone. Four gates will weigh it and return a verdict — never an answer.</p>
-      <div class="examples" style="margin-top: 28px; display: flex; flex-direction: column; gap: 10px; max-width: 540px;">
-        <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Try one</div>
-        <button class="example-btn" data-text="is C + O2 -&gt; CO2 balanced?" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">is C + O2 -&gt; CO2 balanced?</button>
-        <button class="example-btn" data-text="merge sort runs in O(n log n)" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">merge sort runs in O(n log n)</button>
-        <button class="example-btn" data-text="d/dx(x^2) = 2x" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">d/dx(x^2) = 2x</button>
-        <button class="example-btn" data-text="Should we admit Alice with 3 witnesses?" style="text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;">Should we admit Alice with 3 witnesses?</button>
+      <h1 id="emptyHeadline">Write what's on your mind.</h1>
+      <p id="emptyBlurb">Stream of consciousness in. Calibration out. The engine listens — surfaces what shape your writing carries, where this sits relative to your recent entries, who else has reached for the same anchors. Nothing replaces what you wrote.</p>
+      <div class="examples" id="examplesBlock" style="margin-top: 28px; display: flex; flex-direction: column; gap: 10px; max-width: 540px;">
+        <div id="examplesLabel" style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Try one</div>
+        <!-- Example buttons are populated by JS based on the active mode. -->
       </div>
     </div>
   </div>
 
   <div class="input-wrap">
-    <textarea id="input" rows="1" placeholder="What would you like to verify?" autofocus></textarea>
+    <textarea id="input" rows="1" placeholder="Write what's on your mind…" autofocus></textarea>
     <button class="send" id="sendBtn" disabled title="Send">
       <svg viewBox="0 0 16 16"><path d="M1 8L15 1 8 15 7 9z"/></svg>
     </button>
@@ -389,6 +478,8 @@
     <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Enter</kbd> to send
     &nbsp;·&nbsp;
     <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Shift+Enter</kbd> for new line
+    &nbsp;·&nbsp;
+    <span id="modeHint">Write mode: harvest a seed into your library</span>
   </div>
 
   <div class="footer">
@@ -412,6 +503,86 @@
   const emptyEl   = document.getElementById('emptyState');
   const inputEl   = document.getElementById('input');
   const sendBtn   = document.getElementById('sendBtn');
+  const modeWriteBtn  = document.getElementById('modeWrite');
+  const modeVerifyBtn = document.getElementById('modeVerify');
+  const modeHint      = document.getElementById('modeHint');
+  const headlineEl    = document.getElementById('emptyHeadline');
+  const blurbEl       = document.getElementById('emptyBlurb');
+  const examplesBlock = document.getElementById('examplesBlock');
+
+  // Default mode is WRITE per the new front-page concept (calibration
+  // tool / harvester). VERIFY is the secondary mode for technical claims.
+  let mode = 'write';
+
+  // Mode-specific examples. Each is a pre-fill the user can click.
+  const EXAMPLES = {
+    write: [
+      "Today I keep returning to Mt 5:37 — let your yes be yes.",
+      "I want to build something but I'm tempted to hold and wait.",
+      "My family is part of the question I haven't named yet.",
+      "I'm thinking about what 'the keeping is the substrate' really means."
+    ],
+    verify: [
+      "is C + O2 -> CO2 balanced?",
+      "merge sort runs in O(n log n)",
+      "d/dx(x^2) = 2x",
+      "Should we admit Alice with 3 witnesses?"
+    ]
+  };
+
+  const COPY = {
+    write: {
+      headline: "Write what's on your mind.",
+      blurb:    "Stream of consciousness in. Calibration out. The engine listens — surfaces what shape your writing carries, where this sits relative to your recent entries, who else has reached for the same anchors. Nothing replaces what you wrote.",
+      placeholder: "Write what's on your mind…",
+      hint: "Write mode: harvest a seed into your library"
+    },
+    verify: {
+      headline: "Submit a claim for verification.",
+      blurb:    "An equation. A statistical test. A governance decision. Four gates will check it computationally and return a structured walkthrough — never an answer, only what was found.",
+      placeholder: "What would you like to verify?",
+      hint: "Verify mode: run a packet through the four gates"
+    }
+  };
+
+  function setMode(next) {
+    mode = next;
+    modeWriteBtn.classList.toggle('active', next === 'write');
+    modeVerifyBtn.classList.toggle('active', next === 'verify');
+    modeWriteBtn.setAttribute('aria-selected', next === 'write');
+    modeVerifyBtn.setAttribute('aria-selected', next === 'verify');
+    inputEl.placeholder = COPY[next].placeholder;
+    if (modeHint) modeHint.textContent = COPY[next].hint;
+    if (headlineEl) headlineEl.textContent = COPY[next].headline;
+    if (blurbEl)    blurbEl.textContent    = COPY[next].blurb;
+    renderExamples();
+    inputEl.focus();
+  }
+
+  function renderExamples() {
+    if (!examplesBlock) return;
+    // Keep the label, replace the buttons.
+    const buttons = EXAMPLES[mode] || [];
+    const label = examplesBlock.querySelector('#examplesLabel');
+    examplesBlock.innerHTML = '';
+    if (label) examplesBlock.appendChild(label);
+    buttons.forEach(text => {
+      const btn = document.createElement('button');
+      btn.className = 'example-btn';
+      btn.textContent = text;
+      btn.style.cssText = 'text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;';
+      btn.addEventListener('click', () => {
+        inputEl.value = text;
+        inputEl.dispatchEvent(new Event('input'));
+        inputEl.focus();
+      });
+      examplesBlock.appendChild(btn);
+    });
+  }
+
+  modeWriteBtn.addEventListener('click', () => setMode('write'));
+  modeVerifyBtn.addEventListener('click', () => setMode('verify'));
+  renderExamples();
 
   inputEl.addEventListener('input', () => {
     sendBtn.disabled = inputEl.value.trim() === '';
@@ -428,15 +599,6 @@
 
   sendBtn.addEventListener('click', submit);
 
-  // Wire example buttons in the empty state.
-  document.querySelectorAll('.example-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      inputEl.value = btn.getAttribute('data-text') || '';
-      inputEl.dispatchEvent(new Event('input'));
-      inputEl.focus();
-    });
-  });
-
   function submit() {
     const text = inputEl.value.trim();
     if (!text) return;
@@ -448,9 +610,10 @@
     exchange.innerHTML = '<div class="bubble-user">' + esc(text) + '</div>';
     historyEl.appendChild(exchange);
 
+    const thinkingMsg = mode === 'write' ? 'Listening…' : 'Running gates…';
     const thinking = document.createElement('div');
     thinking.className = 'thinking';
-    thinking.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span>Running gates…</span>';
+    thinking.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span>' + thinkingMsg + '</span>';
     exchange.appendChild(thinking);
 
     inputEl.value = '';
@@ -459,8 +622,32 @@
     inputEl.disabled = true;
     scrollBottom();
 
-    // Hit /seal/render — the human-form pipeline. Sends raw text;
-    // server runs nl_to_packet, validates, seals, renders walkthrough.
+    if (mode === 'write') {
+      submitWrite(text, exchange, thinking);
+    } else {
+      submitVerify(text, exchange, thinking);
+    }
+  }
+
+  function submitWrite(text, exchange, thinking) {
+    fetch(API + '/journal/write', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, look_up_precedent: true })
+    })
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        const detail = body && body.detail ? body.detail : { message: 'request failed: ' + r.status };
+        renderError(exchange, thinking, typeof detail === 'string' ? detail : (detail.message || JSON.stringify(detail)));
+        return;
+      }
+      renderWriteResult(exchange, thinking, body);
+    })
+    .catch(err => renderError(exchange, thinking, err));
+  }
+
+  function submitVerify(text, exchange, thinking) {
     fetch(API + '/seal/render', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -476,6 +663,105 @@
       renderResult(exchange, thinking, body);
     })
     .catch(err => renderError(exchange, thinking, err));
+  }
+
+  // Render the WRITE-mode response: seed id + categorization + calibration
+  // measurements. Includes a publish-to-shelf button.
+  function renderWriteResult(exchange, thinking, data) {
+    thinking.remove();
+    const entry = data.entry || {};
+    const cat = (entry.categorization || {});
+    const cal = (data.calibration || {});
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+
+    let html = '<div class="seed-id">seed: <code>' + esc(entry.id || '?') + '</code> kept in your library</div>';
+
+    // What was heard
+    const heard = [];
+    if (cat.detected_anchors && cat.detected_anchors.length) {
+      heard.push('<span>anchors: ' + cat.detected_anchors.map(a => '<code>' + esc(a) + '</code>').join(', ') + '</span>');
+    }
+    if (cat.detected_action_shapes && cat.detected_action_shapes.length) {
+      heard.push('<span>action: <code>' + esc(cat.detected_action_shapes.join(', ')) + '</code></span>');
+    }
+    if (cat.detected_scope) {
+      heard.push('<span>scope: <code>' + esc(cat.detected_scope) + '</code></span>');
+    }
+    if (cat.detected_packet_shape) {
+      heard.push('<span>shape: <code>' + esc(cat.detected_packet_shape) + '</code></span>');
+    }
+    if (cat.closest_precedent_id) {
+      heard.push('<span>closest precedent: <code>' + esc(cat.closest_precedent_id) + '</code></span>');
+    }
+
+    if (heard.length) {
+      html += '<div class="calibration-h">What was heard</div>';
+      heard.forEach(line => { html += '<div class="cal-line">' + line + '</div>'; });
+    } else {
+      html += '<div class="cal-line"><em>The engine recognized no specific shape. The text is kept.</em></div>';
+    }
+
+    // Calibration
+    const calLines = [];
+    if (cal.total_entries_to_date === 1) {
+      calLines.push('<em>First entry. The keeping has begun.</em>');
+    } else if (cal.total_entries_to_date) {
+      let s = 'Entry #' + cal.total_entries_to_date;
+      if (typeof cal.entries_in_last_7_days === 'number') {
+        s += ' · ' + cal.entries_in_last_7_days + ' in last 7 days';
+      }
+      calLines.push(s);
+    }
+    if (cal.scope_shifted) {
+      calLines.push('Scope shifted: previous was <code>' + esc(cal.previous_scope || '') + '</code>; this one is <code>' + esc(cat.detected_scope || '') + '</code>');
+    }
+    if (cal.recurring_anchors && cal.recurring_anchors.length) {
+      calLines.push('Anchors you\'ve returned to: ' + cal.recurring_anchors.map(a => '<code>' + esc(a) + '</code>').join(', '));
+    }
+    if (cal.action_pattern_note) {
+      calLines.push(esc(cal.action_pattern_note));
+    }
+    if (calLines.length) {
+      html += '<div class="calibration-h">Calibration</div>';
+      calLines.forEach(line => { html += '<div class="cal-line">' + line + '</div>'; });
+    }
+
+    // Shelf actions
+    const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
+    html += '<div class="shelf-actions">';
+    html += '<span>Library only.</span>';
+    html += '<button class="shelf-btn ' + (isPublished ? 'published' : '') + '" data-id="' + esc(entry.id || '') + '">' + (isPublished ? 'On the shelf' : 'Publish to shelf') + '</button>';
+    html += '</div>';
+
+    bubble.innerHTML = html;
+    exchange.appendChild(bubble);
+
+    // Wire the shelf button.
+    const shelfBtn = bubble.querySelector('.shelf-btn');
+    if (shelfBtn) {
+      shelfBtn.addEventListener('click', () => {
+        const id = shelfBtn.getAttribute('data-id');
+        if (!id) return;
+        const isAlready = shelfBtn.classList.contains('published');
+        const method = isAlready ? 'DELETE' : 'POST';
+        shelfBtn.disabled = true;
+        fetch(API + '/shelf/' + encodeURIComponent(id), { method: method })
+          .then(r => r.ok ? r.json() : Promise.reject(r.status))
+          .then(updated => {
+            const onShelf = (updated.user_tags || []).indexOf('shelf') !== -1;
+            shelfBtn.classList.toggle('published', onShelf);
+            shelfBtn.textContent = onShelf ? 'On the shelf' : 'Publish to shelf';
+          })
+          .catch(() => { shelfBtn.textContent = 'Could not update'; })
+          .finally(() => { shelfBtn.disabled = false; });
+      });
+    }
+
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
   }
 
   function renderResult(exchange, thinking, data) {

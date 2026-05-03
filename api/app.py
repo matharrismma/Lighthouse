@@ -269,14 +269,88 @@ def root():
 
 @app.get("/health")
 def health():
+    """Comprehensive liveness check.
+
+    Reports engine availability, audit chain reachability, journal
+    store reachability, keeping log reachability, and verifier-layer
+    importability. Each subsystem reports independently so a single
+    degraded module doesn't make the whole API look down.
+    """
     ledger = get_ledger()
     recent = ledger.recent(n=1)
-    return {
+    out: Dict[str, Any] = {
         "status": "ok",
         "engine_available": _ENGINE_AVAILABLE,
         "ledger_entries": recent[0].get("seq") if recent else 0,
         "timestamp": int(time.time()),
+        "modules": {},
     }
+
+    if _ENGINE_AVAILABLE:
+        # Each subsystem is checked independently. Failures are reported,
+        # not raised — health endpoint must always respond.
+        try:
+            from concordance_engine.journal import JournalStore
+            store = JournalStore()
+            entries = store.list_all()
+            out["modules"]["journal"] = {
+                "reachable": True,
+                "total_entries": len(entries),
+                "shelf_count": sum(1 for e in entries if "shelf" in e.user_tags),
+            }
+        except Exception as e:
+            out["modules"]["journal"] = {"reachable": False, "error": str(e)}
+
+        try:
+            from concordance_engine.keeping import KeepingLog
+            log = KeepingLog()
+            observations = log.read()
+            out["modules"]["keeping"] = {
+                "reachable": True,
+                "total_observations": len(observations),
+                "practices_observed": len({o.practice for o in observations}),
+            }
+        except Exception as e:
+            out["modules"]["keeping"] = {"reachable": False, "error": str(e)}
+
+        try:
+            from concordance_engine.quarantine import QuarantineStore
+            qstore = QuarantineStore()
+            packets = qstore.list_all()
+            out["modules"]["quarantine"] = {
+                "reachable": True,
+                "total_packets": len(packets),
+            }
+        except Exception as e:
+            out["modules"]["quarantine"] = {"reachable": False, "error": str(e)}
+
+        try:
+            from concordance_engine import verifiers as _v
+            # Import a handful of canonical verifier modules to confirm
+            # the verifier layer is intact.
+            _domains = ["chemistry", "mathematics", "physics", "scripture", "phase"]
+            lit = []
+            for d in _domains:
+                try:
+                    __import__(f"concordance_engine.verifiers.{d}")
+                    lit.append(d)
+                except Exception:
+                    pass
+            out["modules"]["verifiers"] = {
+                "reachable": True,
+                "lit_count": len(lit),
+                "lit": lit,
+            }
+        except Exception as e:
+            out["modules"]["verifiers"] = {"reachable": False, "error": str(e)}
+
+    # Overall status downgrade if any module is unreachable.
+    if any(
+        isinstance(m, dict) and not m.get("reachable", True)
+        for m in out["modules"].values()
+    ):
+        out["status"] = "degraded"
+    return out
 
 
 @app.get("/version")
@@ -741,3 +815,250 @@ def audit_chain_by_id(packet_id: str):
     """All audit-chain entries for a specific packet_id (alias for
     /ledger/{packet_id})."""
     return ledger_by_id(packet_id)
+
+
+# ── Journal / shelf / keeping (the human-side surfaces) ──────────────
+# These expose the new harvest / library / shelf / keeping modules
+# over HTTP so narrowhighway.com (and any client) can use them.
+# Mirrors the CLI subcommands (`concordance write`, `concordance keep`,
+# `concordance journal`, `concordance live`).
+
+
+class WriteRequest(BaseModel):
+    text: str
+    tags: Optional[List[str]] = None
+    look_up_precedent: bool = True
+
+
+class AnnotateRequest(BaseModel):
+    note: str
+    author: Optional[str] = ""
+
+
+@app.post("/journal/write", include_in_schema=True)
+def journal_write(req: WriteRequest):
+    """Capture a stream-of-consciousness seed.
+
+    Bare text in. Categorization out. Nothing replaces what was
+    written. The engine listens and returns:
+      * the entry id (seed lands in the user's library)
+      * what was heard (anchors / actions / scope / shape)
+      * calibration measurements (drift / pattern / tempo against
+        history) — descriptive only, never prescriptive
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+    try:
+        from concordance_engine import journal as _journal
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"journal module not available: {e}")
+
+    try:
+        entry = _journal.capture(
+            req.text,
+            tags=req.tags,
+            look_up_precedent=req.look_up_precedent,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    cal = _journal.calibrate(entry)
+    return {
+        "entry": entry.to_dict(),
+        "calibration": cal.to_dict(),
+        "rendered_calibration": _journal.render_calibration(entry, cal),
+    }
+
+
+@app.get("/journal/recent", include_in_schema=True)
+def journal_recent(
+    limit: int = Query(20, ge=1, le=200),
+    tag: Optional[str] = Query(None),
+    since: Optional[float] = Query(None),
+):
+    """List recent journal seeds (newest first). Optional tag /
+    since filters."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entries = store.list_all(since=since, tag=tag)[:limit]
+    return {"count": len(entries), "entries": [e.to_dict() for e in entries]}
+
+
+@app.get("/journal/{entry_id}", include_in_schema=True)
+def journal_show(entry_id: str):
+    """Show a single journal seed in full."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    return entry.to_dict()
+
+
+@app.get("/journal/{entry_id}/thread", include_in_schema=True)
+def journal_thread(entry_id: str):
+    """Find seeds that share signal with this one (return-thread)."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    source = store.load(entry_id)
+    if source is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    related = _journal.thread(entry_id)
+    return {
+        "source_id": entry_id,
+        "count": len(related),
+        "entries": [e.to_dict() for e in related],
+    }
+
+
+@app.post("/journal/{entry_id}/annotate", include_in_schema=True)
+def journal_annotate(entry_id: str, req: AnnotateRequest):
+    """Append an annotation. Original text is preserved."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    try:
+        updated = _journal.annotate(
+            entry_id, req.note, author=req.author or "",
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if updated is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    return updated.to_dict()
+
+
+@app.get("/journal/{entry_id}/calibration", include_in_schema=True)
+def journal_calibration(entry_id: str):
+    """Run calibration for an existing entry against current history."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    cal = _journal.calibrate(entry)
+    return {
+        "entry_id": entry_id,
+        "calibration": cal.to_dict(),
+        "rendered": _journal.render_calibration(entry, cal),
+    }
+
+
+# ── Shelf (community tier) ───────────────────────────────────────────
+
+
+_SHELF_TAG = "shelf"
+
+
+@app.get("/shelf", include_in_schema=True)
+def shelf_list(limit: int = Query(50, ge=1, le=500)):
+    """List entries on the shelf — community-visible seeds."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entries = store.list_all(tag=_SHELF_TAG)[:limit]
+    return {"count": len(entries), "entries": [e.to_dict() for e in entries]}
+
+
+@app.post("/shelf/{entry_id}", include_in_schema=True)
+def shelf_publish(entry_id: str):
+    """Publish a seed to the shelf (anyone reaching for it can find it)."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    if _SHELF_TAG not in entry.user_tags:
+        entry.user_tags = list(entry.user_tags) + [_SHELF_TAG]
+        entry.modified_at = time.time()
+        store.save(entry)
+    return entry.to_dict()
+
+
+@app.delete("/shelf/{entry_id}", include_in_schema=True)
+def shelf_unshelf(entry_id: str):
+    """Remove a seed from the shelf — keep it in the library only."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    store = _journal.JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    if _SHELF_TAG in entry.user_tags:
+        entry.user_tags = [t for t in entry.user_tags if t != _SHELF_TAG]
+        entry.modified_at = time.time()
+        store.save(entry)
+    return entry.to_dict()
+
+
+# ── Keeping (the liturgical layer surface) ───────────────────────────
+
+
+@app.get("/keeping/status", include_in_schema=True)
+def keeping_status(
+    since: Optional[float] = Query(None,
+        description="Unix epoch seconds; default: last 24h."),
+):
+    """What the keeping kept while you were away.
+
+    Returns per-practice run-count and latest observation across the
+    look-back window. Default window: 24 hours.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import keeping as _keeping
+    if since is None:
+        since = time.time() - 86400.0
+    return _keeping.while_you_were_away(since=since)
+
+
+@app.post("/keeping/walk", include_in_schema=True)
+def keeping_walk():
+    """Run one tick of the keeper. Each due practice fires once.
+
+    Useful for nudging the keeping along when a daemon isn't running
+    in the background. Server-managed background ticker is separate
+    (see `concordance keep run` for the daemon mode).
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import keeping as _keeping
+    keeper = _keeping.default_keeper()
+    observations = keeper.tick()
+    return {
+        "observations": [o.to_dict() for o in observations],
+        "count": len(observations),
+    }
+
+
+@app.get("/keeping/log", include_in_schema=True)
+def keeping_log(
+    since: Optional[float] = Query(None),
+    practice: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=500),
+):
+    """Read the keeping log (append-only practice observations).
+    Optional filters by practice name / timestamp."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import keeping as _keeping
+    log = _keeping.KeepingLog()
+    observations = log.read(since=since, practice=practice)[-limit:]
+    return {
+        "count": len(observations),
+        "observations": [o.to_dict() for o in observations],
+    }

@@ -104,16 +104,59 @@ Pass a `bio_control` dict to verify nested health control system claims:
 
 Base URL: https://narrowhighway.com
 
+### Verification + audit chain (the original engine surface)
 ```
 POST /validate          — four-gate validation (requires X-Api-Key header)
-GET  /ledger            — list recorded decisions
-GET  /ledger/{id}       — fetch a specific record
-GET  /ledger/verify     — verify ledger chain integrity
-GET  /health            — service health
 POST /submit            — unauthenticated single submission (public form)
+POST /seal              — run a packet through the gates and seal as precedent
+POST /seal/render       — same as /seal but returns a human-readable walkthrough
+GET  /ledger            — list recorded decisions (alias: /audit-chain)
+GET  /ledger/{id}       — fetch a specific record
+GET  /ledger/verify     — verify chain integrity (SHA-256 link check)
+```
+
+### Journal — the calibration tool / harvest surface
+```
+POST /journal/write                  — capture a stream-of-consciousness seed
+GET  /journal/recent                 — list recent seeds (newest first)
+GET  /journal/{id}                   — show one seed in full
+GET  /journal/{id}/thread            — find seeds that share signal with this one
+GET  /journal/{id}/calibration       — drift / pattern / tempo measurements
+POST /journal/{id}/annotate          — append annotation; original text preserved
+```
+
+### Shelf — community-tier visibility (entries the user has published)
+```
+GET    /shelf                        — list published seeds (anyone reads this)
+POST   /shelf/{id}                   — publish a seed to the shelf
+DELETE /shelf/{id}                   — take a seed off the shelf
+```
+
+### Keeping — the liturgical layer (continuous body-practice)
+```
+GET  /keeping/status                 — what's been kept while you were away
+POST /keeping/walk                   — run one tick of the keeper
+GET  /keeping/log                    — read the practice log
+```
+
+### Service
+```
+GET  /health                         — module-by-module liveness
+GET  /version                        — engine version + git SHA
 ```
 
 Full OpenAPI schema: https://narrowhighway.com/docs
+
+### Three-tier visibility model
+
+```
+CENTRAL (smallest)  →  /ledger  /audit-chain         sealed precedents
+COMMUNITY           →  /shelf                        published seeds
+INDIVIDUAL (largest) →  /journal                     private library
+```
+
+Promotion is by survival: capture into journal → publish to shelf → seal to
+audit chain (when a seed survives the four gates).
 
 ## Decision packet format
 
