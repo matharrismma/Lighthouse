@@ -31,8 +31,9 @@ from . import grid
 # ── Helpers ────────────────────────────────────────────────────────────
 
 _GATE_LABELS = {
-    "RED":       "RED — refuse the false claim",
-    "FLOOR":     "FLOOR — affirmation floor",
+    "RED":       "RED — refuse the false claim (Authority check)",
+    "FLOOR":     "FLOOR — affirmation floor (Law check)",
+    "WAY":       "WAY — path without coercion (Way check)",
     "BROTHERS":  "BROTHERS — plural witness",
     "GOD":       "GOD — wait window",
 }

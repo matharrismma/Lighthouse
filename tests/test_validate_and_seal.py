@@ -61,10 +61,12 @@ def test_seal_pass_path_returns_witness_record():
     assert isinstance(rec, WitnessRecord)
     assert rec.overall == "PASS"
     assert rec.passed
-    assert len(rec.gate_results) == 4
-    # All four gates fired in order
+    # Five gates after the WAY-check addition: Authority(RED), Floor,
+    # Way, Witness(BROTHERS), Wait(GOD). Canon §3 of Biblical
+    # Alignment Protocol added Way as a real check.
+    assert len(rec.gate_results) == 5
     gates = [gr.gate for gr in rec.gate_results]
-    assert gates == ["RED", "FLOOR", "BROTHERS", "GOD"]
+    assert gates == ["RED", "FLOOR", "WAY", "BROTHERS", "GOD"]
 
 
 def test_seal_includes_axis_coords_for_known_domain():

@@ -54,7 +54,7 @@ from typing import Any, Dict, List
 from .base import VerifierResult, na, confirm, mismatch, error
 
 
-REQUIRED_GATES = ("RED", "FLOOR", "BROTHERS", "GOD")
+REQUIRED_GATES = ("RED", "FLOOR", "WAY", "BROTHERS", "GOD")
 
 _GATE_CHAIN_ANCHOR = {
     "ref": "Deut 19:15",

@@ -116,6 +116,78 @@ def _normalize_governance_packet(packet):
     return out
 
 
+# ── WAY gate helper ────────────────────────────────────────────────────
+# Canonical Biblical Alignment Protocol §3:
+#   "Among lawful options, choose the path that increases obedience,
+#    humility, and fruit without coercion."
+#
+# Mechanical implementation (V1):
+#   - Locate the way_path field on the packet (DECISION_PACKET.way_path
+#     for governance; way_path or way_check at top level for others).
+#   - If absent, gate is NA (passes through with a note) — non-
+#     governance domains aren't required to declare a path-of-action.
+#   - If present, scan for coercion keywords. Match → REJECT. Clean → PASS.
+#
+# This is keyword-level only. Future iterations can layer semantic
+# checks (e.g. "does the path mention waiting / consultation /
+# submission") but the floor here is: the engine refuses to seal a
+# record whose declared path of action is openly coercive.
+
+_WAY_COERCION_KEYWORDS = (
+    "force", "compel", "coerce", "mandate", "override",
+    "without consent", "regardless of", "ignore objection",
+    "silence dissent", "punish disagreement", "demand compliance",
+    "enforce by", "make them", "shut down", "make him", "make her",
+)
+
+
+def _check_way_gate(packet: Dict[str, Any]) -> GateResult:
+    """The Way check — third canonical gate."""
+    # Locate way_path. Governance packets usually nest it inside
+    # DECISION_PACKET; other domains may declare it at top level.
+    way_path: Optional[str] = None
+    dp = packet.get("DECISION_PACKET")
+    if isinstance(dp, dict):
+        way_path = dp.get("way_path")
+    if not way_path:
+        way_path = packet.get("way_path") or packet.get("way_check")
+
+    if not way_path or not isinstance(way_path, str) or not way_path.strip():
+        # No path declared — gate is structurally NA. Passes with note.
+        return ok("WAY", {
+            "note": "no way_path declared — Way check skipped",
+            "rule": (
+                "Way check (Biblical Alignment Protocol §3): among "
+                "lawful options, choose the path that increases "
+                "obedience, humility, and fruit without coercion."
+            ),
+        })
+
+    lowered = way_path.lower()
+    matched = [kw for kw in _WAY_COERCION_KEYWORDS if kw in lowered]
+    if matched:
+        return reject(
+            "WAY",
+            f"way_path contains coercion keywords: {matched}",
+            details={
+                "way_path": way_path,
+                "matched_keywords": matched,
+                "rule": (
+                    "the chosen path must avoid coercion (Biblical "
+                    "Alignment Protocol §3)"
+                ),
+            },
+        )
+    return ok("WAY", {
+        "way_path": way_path,
+        "rule": (
+            "Way check passed: path declared, no coercion keywords "
+            "detected. Substantive check (does this path increase "
+            "obedience, humility, and fruit?) remains the human's call."
+        ),
+    })
+
+
 def _run_validation(
     packet: Dict[str, Any],
     *,
@@ -196,6 +268,18 @@ def _run_validation(
             return gate_results, tuple(verifier_results), "REJECT"
     else:
         gate_results.append(ok("FLOOR", {"note": "no domain validator registered"}))
+
+    # WAY gate — canonical Biblical Alignment Protocol's third check:
+    # "Among lawful options, choose the path that increases obedience,
+    # humility, and fruit without coercion." Mechanically: if the packet
+    # declares a way_path (governance) or way_check field, ensure it
+    # contains no coercion keywords. Without a way_path, the gate is NA
+    # (passes through with a note) — non-governance domains aren't
+    # required to declare a path-of-action.
+    way_result = _check_way_gate(packet)
+    gate_results.append(way_result)
+    if way_result.status == "REJECT":
+        return gate_results, tuple(verifier_results), "REJECT"
 
     required = int(packet.get("required_witnesses") or 0)
     have = int(packet.get("witness_count") or 0)

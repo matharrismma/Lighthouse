@@ -141,6 +141,7 @@ def _sample_engine_result() -> EngineResult:
         gate_results=[
             ok("RED", {"verified": ["math.equality: 2+2=4"]}),
             ok("FLOOR"),
+            ok("WAY", {"note": "no way_path declared — Way check skipped"}),
             ok("BROTHERS", {"witnesses": 2, "required": 2}),
             ok("GOD", {"elapsed": 9999, "required": 60}),
         ],
@@ -302,7 +303,7 @@ def test_build_record_packs_engine_output():
         packet_id="pkt://1",
     )
     assert rec.overall == "PASS"
-    assert len(rec.gate_results) == 4
+    assert len(rec.gate_results) == 5  # added WAY between FLOOR and BROTHERS
     assert len(rec.verifier_results) == 2
     assert rec.axis_coords is not None
     assert rec.axis_coords.axis == "mathematics"

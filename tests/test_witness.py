@@ -6,10 +6,14 @@ from concordance_engine.verifiers import witness as wit
 
 # ── witness.gate_chain_complete ────────────────────────────────────────
 
-def test_gate_chain_all_four_pass():
+def test_gate_chain_all_five_pass():
+    """Canonical Biblical Alignment Protocol has 4 logical checks
+    (Authority/Floor/Way/Witness+Wait); the engine implements them as
+    5 mechanism gates (RED/FLOOR/WAY/BROTHERS/GOD)."""
     p = {"WIT_VERIFY": {"claimed_gate_verdicts": [
         {"gate": "RED", "status": "PASS"},
         {"gate": "FLOOR", "status": "PASS"},
+        {"gate": "WAY", "status": "PASS"},
         {"gate": "BROTHERS", "status": "PASS"},
         {"gate": "GOD", "status": "PASS"},
     ]}}
@@ -31,6 +35,7 @@ def test_gate_chain_short_circuit_at_brothers_quarantine():
     p = {"WIT_VERIFY": {"claimed_gate_verdicts": [
         {"gate": "RED", "status": "PASS"},
         {"gate": "FLOOR", "status": "PASS"},
+        {"gate": "WAY", "status": "PASS"},
         {"gate": "BROTHERS", "status": "QUARANTINE"},
     ]}}
     r = wit.verify_gate_chain_complete(p)
@@ -43,6 +48,7 @@ def test_gate_chain_missing_god_after_all_pass():
     p = {"WIT_VERIFY": {"claimed_gate_verdicts": [
         {"gate": "RED", "status": "PASS"},
         {"gate": "FLOOR", "status": "PASS"},
+        {"gate": "WAY", "status": "PASS"},
         {"gate": "BROTHERS", "status": "PASS"},
     ]}}
     r = wit.verify_gate_chain_complete(p)
@@ -209,6 +215,7 @@ def test_run_dispatches_all_checks():
             "claimed_gate_verdicts": [
                 {"gate": "RED", "status": "PASS"},
                 {"gate": "FLOOR", "status": "PASS"},
+                {"gate": "WAY", "status": "PASS"},
                 {"gate": "BROTHERS", "status": "PASS"},
                 {"gate": "GOD", "status": "PASS"},
             ],
@@ -266,6 +273,7 @@ def test_run_catches_fabricated_answer_even_when_other_checks_pass():
             "claimed_gate_verdicts": [
                 {"gate": "RED", "status": "PASS"},
                 {"gate": "FLOOR", "status": "PASS"},
+                {"gate": "WAY", "status": "PASS"},
                 {"gate": "BROTHERS", "status": "PASS"},
                 {"gate": "GOD", "status": "PASS"},
             ],
