@@ -55,6 +55,47 @@ from .base import VerifierResult, na, confirm, mismatch, error
 
 
 REQUIRED_GATES = ("RED", "FLOOR", "BROTHERS", "GOD")
+
+_GATE_CHAIN_ANCHOR = {
+    "ref": "Deut 19:15",
+    "layer": "bible",
+    "derivation": (
+        "Plural witness for binding judgment: 'A single witness shall "
+        "not suffice against a person... only on the evidence of two "
+        "witnesses or three witnesses shall a charge be established.' "
+        "The four-gate chain (RED → FLOOR → BROTHERS → GOD) is the "
+        "engine's plural-witness procedure. A sealed record without a "
+        "verdict at every gate (or an explicit short-circuit) lacks "
+        "the testimony Deut 19:15 demands."
+    ),
+}
+
+_REASONING_TRACE_ANCHOR = {
+    "ref": "1 Cor 14:33",
+    "layer": "apostles",
+    "derivation": (
+        "Order over confusion: 'God is not a God of confusion but of "
+        "peace.' A verifier that confirms or rejects without showing "
+        "its reasoning is producing confusion under the appearance of "
+        "judgment. Every CONFIRMED/MISMATCH must carry the rule and "
+        "data the verdict is built on — the trace is what makes the "
+        "verdict reviewable."
+    ),
+}
+
+_NO_FABRICATED_ANSWER_ANCHOR = {
+    "ref": "Mt 5:37",
+    "layer": "jesus_words",
+    "derivation": (
+        "Categorize, don't answer: 'Let what you say be simply Yes "
+        "or No; anything more than this comes from evil.' The engine "
+        "produces gate verdicts and verifier classifications; it does "
+        "not produce 'the answer.' A sealed record carrying a "
+        "final_answer / answer / engine_answer field is the engine "
+        "claiming an authority Mt 5:37 forbids. This check enforces "
+        "the absence at the rendering boundary."
+    ),
+}
 TERMINAL_STATUSES = ("PASS", "REJECT", "QUARANTINE")
 SOURCE_HIERARCHY_LAYERS = (
     "jesus_words", "bible", "apostles", "recognized_elders",
@@ -99,11 +140,16 @@ def verify_gate_chain_complete(packet: Dict[str, Any]) -> VerifierResult:
             short_circuit_at = i
 
     data = {
+        "anchor": _GATE_CHAIN_ANCHOR,
+        "rule": (
+            "all four gates have a verdict, or an earlier gate "
+            "short-circuited with REJECT/QUARANTINE (Deut 19:15 — "
+            "plural witness establishes a charge)"
+        ),
         "required_gates": list(REQUIRED_GATES),
         "observed": by_gate,
         "missing": missing,
         "short_circuit_at_gate": REQUIRED_GATES[short_circuit_at] if short_circuit_at is not None else None,
-        "rule": "all four gates have a verdict, or an earlier gate short-circuited with REJECT/QUARANTINE",
     }
     if not missing:
         msg = "all gates accounted for"
@@ -140,10 +186,15 @@ def verify_reasoning_trace_present(packet: Dict[str, Any]) -> VerifierResult:
             })
 
     data = {
+        "anchor": _REASONING_TRACE_ANCHOR,
+        "rule": (
+            "every CONFIRMED/MISMATCH result must carry a non-empty "
+            "`data` block with a formula or rule (1 Cor 14:33 — order, "
+            "not confusion)"
+        ),
         "checked_count": len(results),
         "untraced": untraced,
         "required_data_keys": list(TRACE_REQUIRED_KEYS),
-        "rule": "every CONFIRMED/MISMATCH result must carry a non-empty `data` block with a formula or rule",
     }
     if not untraced:
         return confirm(name, f"all {len(results)} verifier results carry a reasoning trace", data)
@@ -272,10 +323,16 @@ def verify_no_fabricated_answer(packet: Dict[str, Any]) -> VerifierResult:
     declared = wv.get("declared_no_answer")
 
     data = {
+        "anchor": _NO_FABRICATED_ANSWER_ANCHOR,
+        "rule": (
+            "the engine categorizes; it does not answer. No "
+            "`final_answer` / `answer` / `engine_answer` / "
+            "`verdict_answer` field may carry content (Mt 5:37 — let "
+            "your yes be yes)."
+        ),
         "scanned_fields": list(FABRICATED_ANSWER_FIELDS),
         "fabricated_fields_present": found,
         "declared_no_answer": bool(declared) if declared is not None else None,
-        "rule": "the engine categorizes; it does not answer. No `final_answer` / `answer` / `engine_answer` / `verdict_answer` field may carry content.",
     }
     if not found:
         return confirm(name, "no fabricated answer field present", data)

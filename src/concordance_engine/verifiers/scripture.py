@@ -238,12 +238,26 @@ def word_study(strongs_num: str) -> Dict[str, Any]:
     return conc.word_study(strongs_num)
 
 
+_SCRIPTURE_ANCHORS_ANCHOR = {
+    "ref": "Prov 30:5-6",
+    "layer": "bible",
+    "derivation": (
+        "Anchor authenticity: 'Every word of God proves true; he is a "
+        "shield to those who take refuge in him. Do not add to his words, "
+        "lest he rebuke you and you be found a liar.' Citing references "
+        "that don't actually appear in Scripture is exactly the addition "
+        "Prov 30:6 forbids — this verifier rejects fabricated anchors so "
+        "no claim is built on words God didn't say."
+    ),
+}
+
+
 def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> VerifierResult:
     """Verify each ref in `anchors` resolves to a real WEB verse.
 
     Used to ensure DECISION_PACKET.scripture_anchors and Entry.refs cite
     genuine references rather than invented ones — the most common
-    LLM-fabrication failure mode in this domain.
+    LLM-fabrication failure mode in this domain. Anchored in Prov 30:5-6.
 
     Anchors may be bare strings ("Mat 5:37") or Anchor-dict form
     ({"ref": "Mat 5:37", "layer": "jesus_words"}). Both are accepted;
@@ -257,7 +271,8 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
     if not anchors:
         return VerifierResult(
             name=name, status="CONFIRMED",
-            detail="No scripture anchors to verify."
+            detail="No scripture anchors to verify.",
+            data={"anchor": _SCRIPTURE_ANCHORS_ANCHOR},
         )
 
     layer = _get_source_layer()
@@ -269,7 +284,7 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
                 "`python lw/00_source/fetch_sources.py` "
                 "to enable anchor verification."
             ),
-            data={"anchors": anchors},
+            data={"anchor": _SCRIPTURE_ANCHORS_ANCHOR, "anchors": anchors},
         )
 
     # Anchors are commonly formatted with the verse text or commentary
@@ -306,7 +321,15 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
         else:
             failed.append(raw)
 
-    data = {"resolved": resolved, "failed": failed, "total": len(anchors)}
+    data = {
+        "anchor": _SCRIPTURE_ANCHORS_ANCHOR,
+        "rule": (
+            "every cited reference must resolve to an actual verse in "
+            "the public-domain WEB Bible (Prov 30:5-6 — every word of "
+            "God proves true)"
+        ),
+        "resolved": resolved, "failed": failed, "total": len(anchors),
+    }
     if not failed:
         return VerifierResult(
             name=name, status="CONFIRMED",
@@ -500,20 +523,36 @@ def verify_canon_membership(refs):
                           data=data)
 
 
+_RED_LETTER_PRIORITY_ANCHOR = {
+    "ref": "Heb 1:1-2",
+    "layer": "apostles",
+    "derivation": (
+        "Source-hierarchy primacy: 'Long ago, at many times and in many "
+        "ways, God spoke to our fathers by the prophets, but in these "
+        "last days he has spoken to us by his Son.' The Son's recorded "
+        "words (the Gospels) are the highest-tier authority; all other "
+        "Scripture is secondary witness. This verifier classifies refs "
+        "so weight can be given accordingly."
+    ),
+}
+
+
 def verify_red_letter_priority(refs):
     """Surface which references are from Gospel books (Jesus's recorded words).
 
     Per `00_CANON/SOURCE_HIERARCHY.md`: Jesus' words (RED) are primary
-    authority; all other Scripture is secondary witness. This verifier
-    annotates each reference with whether it points to a Gospel book,
-    so downstream consumers can weight accordingly. Returns CONFIRMED
-    in either case (it's a classification, not a pass/fail), but the
-    `data` payload tells the caller which refs are top-tier authority.
+    authority; all other Scripture is secondary witness. Anchored in
+    Heb 1:1-2. This verifier annotates each reference with whether it
+    points to a Gospel book, so downstream consumers can weight
+    accordingly. Returns CONFIRMED in either case (it's a classification,
+    not a pass/fail), but the `data` payload tells the caller which
+    refs are top-tier authority.
     """
     name = "scripture.red_letter_priority"
     if not refs:
         return VerifierResult(name=name, status="CONFIRMED",
-                              detail="no references to classify")
+                              detail="no references to classify",
+                              data={"anchor": _RED_LETTER_PRIORITY_ANCHOR})
     gospel_refs = []
     other_refs = []
     for raw in refs:
@@ -526,8 +565,16 @@ def verify_red_letter_priority(refs):
             gospel_refs.append(raw)
         else:
             other_refs.append(raw)
-    data = {"gospel_refs": gospel_refs, "other_refs": other_refs,
-            "total": len(refs), "gospel_count": len(gospel_refs)}
+    data = {
+        "anchor": _RED_LETTER_PRIORITY_ANCHOR,
+        "rule": (
+            "classify refs as Gospel (Jesus' recorded words, primary "
+            "authority) vs other Scripture (secondary). Heb 1:1-2 — "
+            "in these last days God has spoken by his Son."
+        ),
+        "gospel_refs": gospel_refs, "other_refs": other_refs,
+        "total": len(refs), "gospel_count": len(gospel_refs),
+    }
     if gospel_refs:
         return VerifierResult(
             name=name, status="CONFIRMED",

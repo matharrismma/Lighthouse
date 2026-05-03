@@ -48,11 +48,28 @@ _MIN_WITNESSES = 1
 _MIN_EXECUTION_STEPS = 1
 
 
+_DECISION_PACKET_SHAPE_ANCHOR = {
+    "ref": "1 Cor 14:40",
+    "layer": "apostles",
+    "derivation": (
+        "Order in community decisions: 'But all things should be done "
+        "decently and in order.' A decision packet without its parts "
+        "(red_items, floor_items, way_path, execution_steps, witnesses) "
+        "isn't a decision — it's a wish. The structural completeness "
+        "check refuses to forward a packet whose shape is incomplete."
+    ),
+}
+
+
 def verify_decision_packet_shape(spec: Dict[str, Any]) -> VerifierResult:
-    """Structural completeness check for a decision packet."""
+    """Structural completeness check for a decision packet.
+
+    Anchored in 1 Cor 14:40 — all things done decently and in order.
+    """
     if not isinstance(spec, dict):
         return error("governance.decision_packet_shape",
-                     f"DECISION_PACKET must be an object, got {type(spec).__name__}")
+                     f"DECISION_PACKET must be an object, got {type(spec).__name__}",
+                     {"anchor": _DECISION_PACKET_SHAPE_ANCHOR})
 
     failures: List[str] = []
 
@@ -110,15 +127,33 @@ def verify_decision_packet_shape(spec: Dict[str, Any]) -> VerifierResult:
     if failures:
         return mismatch("governance.decision_packet_shape",
                         "; ".join(failures),
-                        {"failures": failures})
+                        {
+                            "anchor": _DECISION_PACKET_SHAPE_ANCHOR,
+                            "rule": (
+                                "DECISION_PACKET must declare title, scope, "
+                                "red_items, floor_items, way_path, "
+                                "execution_steps, and witnesses (1 Cor 14:40 — "
+                                "decently and in order)"
+                            ),
+                            "failures": failures,
+                        })
 
     return confirm("governance.decision_packet_shape",
                    f"complete decision packet: {len(red_items)} red, {len(floor_items)} floor, "
                    f"{len(witnesses)} witnesses, {len(steps)} steps, "
                    f"scripture_anchors={'present' if spec.get('scripture_anchors') else 'absent'}",
-                   {"red_count": len(red_items), "floor_count": len(floor_items),
-                    "witness_count": len(witnesses), "step_count": len(steps),
-                    "has_scripture": bool(spec.get("scripture_anchors"))})
+                   {
+                       "anchor": _DECISION_PACKET_SHAPE_ANCHOR,
+                       "rule": (
+                           "DECISION_PACKET must declare title, scope, "
+                           "red_items, floor_items, way_path, "
+                           "execution_steps, and witnesses (1 Cor 14:40 — "
+                           "decently and in order)"
+                       ),
+                       "red_count": len(red_items), "floor_count": len(floor_items),
+                       "witness_count": len(witnesses), "step_count": len(steps),
+                       "has_scripture": bool(spec.get("scripture_anchors")),
+                   })
 
 
 _WITNESS_COUNT_ANCHOR = {
@@ -176,10 +211,25 @@ def verify_witness_count_consistency(spec: Dict[str, Any], packet: Dict[str, Any
 _SCOPE_WAIT_WINDOWS = {"adapter": 3600, "mesh": 86400, "canon": 604800}
 
 
+_DECISION_TIMING_ANCHOR = {
+    "ref": "Prov 19:2",
+    "layer": "bible",
+    "derivation": (
+        "Patience before binding: 'Desire without knowledge is not "
+        "good, and whoever makes haste with his feet misses his way.' "
+        "The wait window forces a community to live with a decision "
+        "before binding it — adapter scope (1h) for cheap reversibles, "
+        "mesh (24h) for material decisions, canon (7d) for binding "
+        "ones. Acting before the window elapses is the haste this "
+        "verifier rejects."
+    ),
+}
+
+
 def verify_decision_timing(packet: Dict[str, Any]) -> VerifierResult:
     """The packet's scope must have an explicit wait_window honoured.
 
-    Inputs (from packet, not just DECISION_PACKET):
+    Anchored in Prov 19:2. Inputs (from packet, not just DECISION_PACKET):
         scope               — 'adapter' (1h) | 'mesh' (24h) | 'canon' (7d)
         created_epoch       — when the packet was created
         wait_window_seconds — optional override; raises (never lowers) the floor
@@ -209,8 +259,15 @@ def verify_decision_timing(packet: Dict[str, Any]) -> VerifierResult:
         except (TypeError, ValueError):
             return error(name, f"wait_window_seconds must be an integer")
     elapsed = a - c
-    data = {"scope": scope, "elapsed_seconds": elapsed, "required_seconds": floor,
-            "created_epoch": c, "acted_at_epoch": a}
+    data = {
+        "anchor": _DECISION_TIMING_ANCHOR,
+        "rule": (
+            "scope-determined wait window must elapse between created "
+            "and acted (Prov 19:2 — haste misses the way)"
+        ),
+        "scope": scope, "elapsed_seconds": elapsed, "required_seconds": floor,
+        "created_epoch": c, "acted_at_epoch": a,
+    }
     if elapsed < 0:
         return mismatch(name, f"acted before created (elapsed={elapsed}s)", data)
     if elapsed >= floor:
@@ -222,9 +279,25 @@ def verify_decision_timing(packet: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
+_RATIONALE_ALIGNMENT_ANCHOR = {
+    "ref": "Mt 7:16-20",
+    "layer": "jesus_words",
+    "derivation": (
+        "Coherence between word and fruit: 'You will recognize them by "
+        "their fruits... A healthy tree cannot bear bad fruit.' A "
+        "rationale that shares no substantive tokens with the decision "
+        "it claims to justify is a tree pretending to bear fruit it "
+        "doesn't bear — the structural integrity check catches the "
+        "pasted-rationale fraud where rationale and decision were "
+        "drafted independently."
+    ),
+}
+
+
 def verify_rationale_alignment(spec: Dict[str, Any]) -> VerifierResult:
     """Token-overlap check between rationale and decision text.
 
+    Anchored in Mt 7:16-20 — by their fruits you will know them.
     Deterministic heuristic: at least one substantive (≥4-char) noun-form
     token from the decision must appear in the rationale. Catches the
     obvious case where rationale and decision are about completely
@@ -245,12 +318,27 @@ def verify_rationale_alignment(spec: Dict[str, Any]) -> VerifierResult:
     if matched:
         return confirm(name,
                        f"rationale references decision (token overlap: {sorted(matched)[:6]})",
-                       {"matched_tokens": sorted(matched), "decision_token_count": len(dec_tokens)})
+                       {
+                           "anchor": _RATIONALE_ALIGNMENT_ANCHOR,
+                           "rule": (
+                               "rationale must reference the decision "
+                               "it justifies (Mt 7:16-20 — by their fruits)"
+                           ),
+                           "matched_tokens": sorted(matched),
+                           "decision_token_count": len(dec_tokens),
+                       })
     return mismatch(name,
                     f"rationale shares no ≥4-char tokens with decision — "
                     f"decision tokens were {sorted(dec_tokens)[:6]}",
-                    {"decision_tokens": sorted(dec_tokens),
-                     "rationale_excerpt": rat_text[:200]})
+                    {
+                        "anchor": _RATIONALE_ALIGNMENT_ANCHOR,
+                        "rule": (
+                            "rationale must reference the decision it "
+                            "justifies (Mt 7:16-20 — by their fruits)"
+                        ),
+                        "decision_tokens": sorted(dec_tokens),
+                        "rationale_excerpt": rat_text[:200],
+                    })
 
 
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
