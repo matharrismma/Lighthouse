@@ -441,6 +441,38 @@ def main() -> None:
         "verify", help="Recompute and verify chunk hashes in an LSP file.")
     lsp_verify_cmd.add_argument("lsp", type=str, help="Path to LSP JSON")
 
+    lsp_ingest = lsp_sub.add_parser(
+        "ingest",
+        help="Ingest a JSONL corpus of {ref, text} into an LSPCorpus.",
+        description=(
+            "Build an LSPCorpus from a JSONL file. Each line must be a "
+            "JSON object with `ref` and `text` keys. The corpus carries "
+            "the LSP record + a ref→word-range index so anchors like "
+            "'Mt 5:37' resolve to the chunk(s) covering them. The result "
+            "is what makes a ref-shaped anchor verifiable end-to-end."
+        ),
+    )
+    lsp_ingest.add_argument("input", type=str, help="Path to JSONL input")
+    lsp_ingest.add_argument(
+        "--out", type=str, required=True,
+        help="Write LSPCorpus JSON to this file.",
+    )
+    lsp_ingest.add_argument(
+        "--source-id", type=str, default="",
+        help="Opaque identifier for the source corpus (e.g. 'WEB-66').",
+    )
+    lsp_ingest.add_argument(
+        "--words-per-page", type=int, default=200,
+        help="Chunk size in words (default: 200, per LSP_SPEC v0).",
+    )
+
+    lsp_lookup = lsp_sub.add_parser(
+        "lookup",
+        help="Look up a reference in an LSPCorpus and verify chunk integrity.",
+    )
+    lsp_lookup.add_argument("corpus", type=str, help="Path to LSPCorpus JSON")
+    lsp_lookup.add_argument("ref", type=str, help="Reference to look up (e.g. 'Mt 5:37')")
+
     # ── quarantine subcommand ──────────────────────────────────────
     qn = sub.add_parser(
         "quarantine",
@@ -861,6 +893,37 @@ def main() -> None:
                 sys.exit(1)
             print("ok")
             sys.exit(0)
+        if args.lsp_cmd == "ingest":
+            cfg = lsp_mod.LSPConfig(words_per_page=args.words_per_page)
+            try:
+                corpus = lsp_mod.load_corpus_from_jsonl(
+                    Path(args.input), source_id=args.source_id, cfg=cfg,
+                )
+            except OSError as e:
+                print(f"error: could not read input: {e}", file=sys.stderr)
+                sys.exit(4)
+            target = corpus.save(Path(args.out))
+            print(
+                f"LSPCorpus → {target}  "
+                f"({len(corpus.ref_index)} refs, "
+                f"{corpus.lsp.get('chunk_count', 0)} chunks, "
+                f"{corpus.lsp.get('total_words', 0)} words)",
+                file=sys.stderr,
+            )
+            sys.exit(0)
+        if args.lsp_cmd == "lookup":
+            try:
+                corpus = lsp_mod.LSPCorpus.load(Path(args.corpus))
+            except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
+                print(f"error: could not read corpus: {e}", file=sys.stderr)
+                sys.exit(4)
+            result = corpus.verify_anchor(args.ref)
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            if result["status"] == "ok":
+                sys.exit(0)
+            if result["status"] == "not_indexed":
+                sys.exit(2)
+            sys.exit(1)  # tampered
 
     if args.cmd == "quarantine":
         from . import quarantine as qn_mod

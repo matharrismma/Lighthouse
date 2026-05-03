@@ -6,14 +6,19 @@ itself; Scripture-verifier integration is a future iteration.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from concordance_engine.lsp import (
     DEFAULT_WORDS_PER_PAGE,
     LSPConfig,
+    LSPCorpus,
     build_lsp,
+    build_lsp_corpus,
     chunk_words,
     find_chunk_for_word,
+    load_corpus_from_jsonl,
     normalize_text,
     verify_lsp,
 )
@@ -224,3 +229,139 @@ def test_lsp_config_rejects_zero_size():
 def test_lsp_config_rejects_negative_size():
     with pytest.raises(ValueError):
         LSPConfig(words_per_page=-1)
+
+
+# ── LSPCorpus + ingest (Full LSP) ─────────────────────────────────────
+
+
+def test_build_lsp_corpus_records_ref_ranges():
+    """Each ref in the input maps to a contiguous word range in the
+    concatenated, normalized stream."""
+    pairs = [
+        ("Jn 3:16", "for God so loved the world"),       # 6 words: 0-5
+        ("Jn 3:17", "that he gave his only Son"),        # 6 words: 6-11
+        ("Mt 5:37", "let your yes be yes"),              # 5 words: 12-16
+    ]
+    corpus = build_lsp_corpus(pairs, source_id="WEB-NT", cfg=LSPConfig(words_per_page=5))
+    assert corpus.lookup("Jn 3:16") == (0, 5)
+    assert corpus.lookup("Jn 3:17") == (6, 11)
+    assert corpus.lookup("Mt 5:37") == (12, 16)
+    assert corpus.lsp["total_words"] == 17
+    assert corpus.source_id == "WEB-NT"
+
+
+def test_build_lsp_corpus_skips_empty_text():
+    pairs = [
+        ("Jn 3:16", "real text here"),
+        ("Jn 3:17", ""),
+        ("Jn 3:18", "more text"),
+    ]
+    corpus = build_lsp_corpus(pairs)
+    assert corpus.lookup("Jn 3:16") is not None
+    assert corpus.lookup("Jn 3:17") is None
+    assert corpus.lookup("Jn 3:18") is not None
+
+
+def test_lsp_corpus_lookup_normalizes_ref():
+    """Caller variants of the same ref resolve to the same key."""
+    pairs = [("John 3:16", "the verse")]
+    corpus = build_lsp_corpus(pairs)
+    # Same canonical form, just different whitespace.
+    assert corpus.lookup("John   3:16") == corpus.lookup("john 3:16")
+    assert corpus.lookup("John 3:16.") == corpus.lookup("John 3:16")
+
+
+def test_lsp_corpus_chunks_for_ref():
+    """A ref straddling a chunk boundary should return both chunks."""
+    pairs = [
+        ("a", "one two three"),     # words 0-2
+        ("b", "four five six"),     # words 3-5
+        ("c", "seven eight nine"),  # words 6-8 (straddles chunk boundary)
+    ]
+    corpus = build_lsp_corpus(pairs, cfg=LSPConfig(words_per_page=4))
+    # 9 words / 4 = chunks: [0-3], [4-7], [8-8]
+    chunks_a = corpus.chunks_for_ref("a")
+    assert [c["index"] for c in chunks_a] == [0]
+    chunks_b = corpus.chunks_for_ref("b")
+    # b is words 3-5: overlaps chunk 0 (0-3) AND chunk 1 (4-7)
+    assert [c["index"] for c in chunks_b] == [0, 1]
+    chunks_c = corpus.chunks_for_ref("c")
+    # c is words 6-8: chunk 1 (4-7) AND chunk 2 (8-8)
+    assert [c["index"] for c in chunks_c] == [1, 2]
+
+
+def test_lsp_corpus_verify_anchor_ok():
+    pairs = [("Jn 3:16", "for God so loved the world")]
+    corpus = build_lsp_corpus(pairs)
+    result = corpus.verify_anchor("Jn 3:16")
+    assert result["status"] == "ok"
+    assert result["chunks"] == [0]
+    assert result["tampered"] == []
+
+
+def test_lsp_corpus_verify_anchor_not_indexed():
+    pairs = [("Jn 3:16", "for God so loved")]
+    corpus = build_lsp_corpus(pairs)
+    result = corpus.verify_anchor("Mt 5:37")
+    assert result["status"] == "not_indexed"
+    assert result["chunks"] == []
+
+
+def test_lsp_corpus_verify_anchor_detects_tamper():
+    pairs = [("Jn 3:16", "for God so loved the world")]
+    corpus = build_lsp_corpus(pairs)
+    # Tamper with the text without recomputing the hash.
+    corpus.lsp["chunks"][0]["text"] = "tampered"
+    result = corpus.verify_anchor("Jn 3:16")
+    assert result["status"] == "tampered"
+    assert len(result["tampered"]) == 1
+
+
+def test_lsp_corpus_save_load_roundtrip(tmp_path):
+    pairs = [
+        ("Jn 3:16", "for God so loved the world"),
+        ("Mt 5:37", "let your yes be yes"),
+    ]
+    corpus = build_lsp_corpus(pairs, source_id="test")
+    target = tmp_path / "corpus.json"
+    corpus.save(target)
+    loaded = LSPCorpus.load(target)
+    assert loaded.source_id == corpus.source_id
+    assert loaded.ref_index == corpus.ref_index
+    assert loaded.lsp == corpus.lsp
+    # Verification still works after roundtrip.
+    assert loaded.verify_anchor("Jn 3:16")["status"] == "ok"
+
+
+def test_load_corpus_from_jsonl(tmp_path):
+    jsonl_path = tmp_path / "corpus.jsonl"
+    jsonl_path.write_text(
+        '\n'.join([
+            json.dumps({"ref": "Jn 3:16", "text": "for God so loved"}),
+            json.dumps({"ref": "Mt 5:37", "text": "let your yes be yes"}),
+        ]) + '\n',
+        encoding="utf-8",
+    )
+    corpus = load_corpus_from_jsonl(jsonl_path, source_id="test")
+    assert corpus.lookup("Jn 3:16") is not None
+    assert corpus.lookup("Mt 5:37") is not None
+    assert corpus.source_id == "test"
+
+
+def test_load_corpus_from_jsonl_skips_malformed(tmp_path):
+    jsonl_path = tmp_path / "corpus.jsonl"
+    jsonl_path.write_text(
+        '\n'.join([
+            json.dumps({"ref": "Jn 3:16", "text": "valid"}),
+            "not json at all",
+            json.dumps({"ref": "no_text"}),       # missing text
+            json.dumps({"text": "no_ref"}),       # missing ref
+            "",
+            json.dumps({"ref": "Mt 5:37", "text": "also valid"}),
+        ]) + '\n',
+        encoding="utf-8",
+    )
+    corpus = load_corpus_from_jsonl(jsonl_path)
+    assert len(corpus.ref_index) == 2
+    assert corpus.lookup("Jn 3:16") is not None
+    assert corpus.lookup("Mt 5:37") is not None

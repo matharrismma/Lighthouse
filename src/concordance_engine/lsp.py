@@ -15,14 +15,19 @@ the substrate that gives "Mt 5:37 (jesus_words)" a verifiable address
 that can't drift between editions, translations, or transcription
 accidents.
 
-**MVP scope (this commit):**
+**Full scope (this iteration):**
   - Deterministic NFKC normalization + whitespace collapse.
   - Strict sequential word-windowed chunking (default 200 words).
   - SHA-256 integrity hash per chunk.
   - Stable index + start_word + end_word per chunk.
-  - Caller provides text; no LXX/MorphGNT corpus is bundled.
-  - Scripture verifier integration is NOT in MVP — stays a future
-    "Integrated" iteration.
+  - Corpus ingest: JSONL of {ref, text} → LSP record + ref→word-range
+    index, persisted as a single LSPCorpus JSON.
+  - Anchor verification: given a ref, find its containing chunk(s),
+    recompute the hash, confirm match. Surfaces tampering or drift
+    against the canonical hash baseline.
+  - Wired into scripture verifier as an optional second-tier integrity
+    check (CONCORDANCE_LSP_PATH env var). Falls back to WEB DB lookup
+    when no LSP corpus is provisioned.
 
 Canonical normalization rules (LSP_SPEC.md v0):
   1. Convert to Unicode NFKC.
@@ -38,10 +43,12 @@ mangling original-language tokens.
 """
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .validate import sha256_bytes
 
@@ -207,6 +214,225 @@ def find_chunk_for_word(
     return None
 
 
+# ── Corpus ingest + anchor verification (Full LSP) ──────────────────
+
+
+# Canonical reference normalization for ref-index keys. The corpus
+# stores refs as the caller supplied them (preserves "Jn 3:16" vs
+# "John 3:16" provenance); lookup normalizes both sides through this
+# function so caller variants resolve to the same key.
+_REF_WS_RE = re.compile(r"\s+")
+
+
+def _canonical_ref(ref: str) -> str:
+    """Normalize a reference string for ref-index lookup.
+
+    Lowercases, collapses whitespace, strips trailing punctuation. Does
+    not attempt book-name canonicalization — that's the scripture
+    verifier's job (it has the canon table). LSP's role is integrity
+    over text bytes, not theological/linguistic resolution."""
+    if not ref:
+        return ""
+    out = _REF_WS_RE.sub(" ", str(ref)).strip().lower()
+    return out.rstrip(".,;")
+
+
+@dataclass
+class LSPCorpus:
+    """An LSP record plus a ref→(start_word, end_word) index.
+
+    The combination is what makes a ref-shaped anchor like "Mt 5:37"
+    verifiable: the ref-index maps the human reference to a word range,
+    `find_chunk_for_word` maps the word range to chunk(s), and
+    `verify_lsp` confirms the chunk hashes haven't drifted.
+
+    Persisted as a single JSON file: {lsp: ..., ref_index: {ref: [start, end]}}.
+    Loadable via `LSPCorpus.load(path)`.
+    """
+    lsp: Dict[str, Any]
+    ref_index: Dict[str, List[int]] = field(default_factory=dict)
+    source_id: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "lsp_corpus_version": "v0",
+            "source_id": self.source_id,
+            "lsp": self.lsp,
+            "ref_index": {k: list(v) for k, v in self.ref_index.items()},
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "LSPCorpus":
+        return cls(
+            lsp=d.get("lsp", {}),
+            ref_index={k: list(v) for k, v in (d.get("ref_index") or {}).items()},
+            source_id=d.get("source_id", ""),
+        )
+
+    def save(self, path: Path) -> Path:
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(self.to_dict(), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        return path
+
+    @classmethod
+    def load(cls, path: Path) -> "LSPCorpus":
+        path = Path(path)
+        return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+    def lookup(self, ref: str) -> Optional[Tuple[int, int]]:
+        """Resolve a reference to its (start_word, end_word) range.
+        Returns None if the ref isn't in the index."""
+        rng = self.ref_index.get(_canonical_ref(ref))
+        if rng is None or len(rng) < 2:
+            return None
+        return int(rng[0]), int(rng[1])
+
+    def chunks_for_ref(self, ref: str) -> List[Dict[str, Any]]:
+        """Return every chunk that overlaps the ref's word range.
+        Empty list if the ref isn't indexed or has no overlapping chunks."""
+        rng = self.lookup(ref)
+        if rng is None:
+            return []
+        start_word, end_word = rng
+        out: List[Dict[str, Any]] = []
+        for chunk in self.lsp.get("chunks") or []:
+            c_start = chunk.get("start_word", 0)
+            c_end = chunk.get("end_word", -1)
+            if c_end < c_start:
+                continue
+            # Overlap: not (c_end < start_word or c_start > end_word)
+            if not (c_end < start_word or c_start > end_word):
+                out.append(chunk)
+        return out
+
+    def verify_anchor(self, ref: str) -> Dict[str, Any]:
+        """Verify a single reference resolves AND its chunks haven't drifted.
+
+        Returns:
+          {
+            "ref": str,
+            "canonical_ref": str,
+            "status": "ok" | "not_indexed" | "tampered",
+            "chunks": [chunk_index, ...],
+            "tampered": [{index, expected, recomputed}],  # if any
+          }
+        """
+        canonical = _canonical_ref(ref)
+        rng = self.lookup(ref)
+        if rng is None:
+            return {
+                "ref": ref,
+                "canonical_ref": canonical,
+                "status": "not_indexed",
+                "chunks": [],
+                "tampered": [],
+            }
+        chunks = self.chunks_for_ref(ref)
+        tampered: List[Dict[str, Any]] = []
+        chunk_indices: List[int] = []
+        for c in chunks:
+            chunk_indices.append(c.get("index", -1))
+            stored = c.get("sha256", "")
+            recomputed = sha256_bytes(c.get("text", "").encode("utf-8"))
+            if stored != recomputed:
+                tampered.append({
+                    "index": c.get("index"),
+                    "expected": stored[:12] + "...",
+                    "recomputed": recomputed[:12] + "...",
+                })
+        return {
+            "ref": ref,
+            "canonical_ref": canonical,
+            "word_range": list(rng),
+            "status": "tampered" if tampered else "ok",
+            "chunks": chunk_indices,
+            "tampered": tampered,
+        }
+
+
+def build_lsp_corpus(
+    refs_with_text: Iterable[Tuple[str, str]],
+    *,
+    source_id: str = "",
+    cfg: Optional[LSPConfig] = None,
+) -> LSPCorpus:
+    """Build an LSPCorpus from an iterable of (ref, text) tuples.
+
+    Texts are concatenated in order with single-space joins. The
+    ref-index records the word-range each ref's text occupies in the
+    concatenated, normalized stream. Chunks straddle ref boundaries —
+    that's intentional: hashing is over the chunk window, not per-ref,
+    so chunks preserve canonical word-window invariants regardless of
+    how the source was carved into refs.
+
+    Empty texts are skipped. Duplicate refs overwrite earlier entries
+    (so callers can call this with a deduped pipeline upstream)."""
+    cfg = cfg or LSPConfig()
+    pieces: List[str] = []
+    ref_index: Dict[str, List[int]] = {}
+    word_cursor = 0
+
+    for raw_ref, raw_text in refs_with_text:
+        text = normalize_text(raw_text, cfg)
+        if not text:
+            continue
+        words = text.split(" ")
+        n = len(words)
+        if n == 0:
+            continue
+        start = word_cursor
+        end = word_cursor + n - 1
+        ref_index[_canonical_ref(raw_ref)] = [start, end]
+        pieces.append(text)
+        word_cursor += n
+
+    full_text = " ".join(pieces)
+    lsp_record = build_lsp(full_text, source_id=source_id, cfg=cfg)
+    return LSPCorpus(
+        lsp=lsp_record,
+        ref_index=ref_index,
+        source_id=source_id,
+    )
+
+
+def load_corpus_from_jsonl(
+    path: Path,
+    *,
+    source_id: str = "",
+    cfg: Optional[LSPConfig] = None,
+) -> LSPCorpus:
+    """Build an LSPCorpus from a JSONL file where each line is a JSON
+    object with `ref` and `text` keys.
+
+    Lines that are blank, malformed JSON, or missing ref/text are
+    silently skipped — ingest is best-effort over potentially noisy
+    public-domain corpora. The line index is preserved in input order
+    so the resulting corpus is deterministic per-file."""
+    path = Path(path)
+    pairs: List[Tuple[str, str]] = []
+    with path.open("r", encoding="utf-8") as fh:
+        for raw_line in fh:
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(obj, dict):
+                continue
+            ref = obj.get("ref")
+            text = obj.get("text")
+            if not isinstance(ref, str) or not isinstance(text, str):
+                continue
+            pairs.append((ref, text))
+    return build_lsp_corpus(pairs, source_id=source_id, cfg=cfg)
+
+
 __all__ = [
     "LSPConfig",
     "DEFAULT_WORDS_PER_PAGE",
@@ -215,4 +441,7 @@ __all__ = [
     "build_lsp",
     "verify_lsp",
     "find_chunk_for_word",
+    "LSPCorpus",
+    "build_lsp_corpus",
+    "load_corpus_from_jsonl",
 ]

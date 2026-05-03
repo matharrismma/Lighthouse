@@ -6,6 +6,12 @@ reference strings ("Jn3:16", "Pr4:23") to WEB text and Strong's data, and
 verifies that any scripture_anchors declared in a packet are genuine
 references rather than fabrications.
 
+When a CONCORDANCE_LSP_PATH env var points at an LSPCorpus JSON, an
+additional integrity layer runs: each anchor is resolved against the
+corpus's ref-index, the containing chunks are located, and the chunk
+hashes are recomputed. This catches drift between the WEB DB and the
+canonical hash baseline — the LSP layer is silent when not provisioned.
+
 Layer 0 architecture:
 - Hebrew OT  — Westminster Leningrad Codex (morphhb, OSIS XML)
 - Greek NT   — MorphGNT (morphologically tagged Greek NT)
@@ -34,10 +40,11 @@ Engine integration:
 """
 from __future__ import annotations
 
+import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
 # Anchors come in two canonical forms:
@@ -307,6 +314,39 @@ def _get_drift_checker():
         return None
 
 
+# ── LSP corpus integration (Full LSP) ─────────────────────────────────
+# When CONCORDANCE_LSP_PATH points at an LSPCorpus JSON file, anchor
+# verification runs an additional integrity check against the corpus:
+# resolve ref → chunk(s) → recompute hashes. This is the canonical
+# "verifiable address" promise of LSP. Silent / no-op when the env var
+# is unset or the file isn't readable.
+
+
+@lru_cache(maxsize=1)
+def _get_lsp_corpus():
+    path_str = os.environ.get("CONCORDANCE_LSP_PATH")
+    if not path_str:
+        return None
+    path = Path(path_str)
+    if not path.is_file():
+        return None
+    try:
+        from ..lsp import LSPCorpus
+        return LSPCorpus.load(path)
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def _verify_against_lsp(bare_ref: str) -> Optional[Dict[str, Any]]:
+    """Run LSP integrity check for a single bare ref. Returns None when
+    no corpus is provisioned (caller skips the check); otherwise returns
+    the corpus's verify_anchor() result dict."""
+    corpus = _get_lsp_corpus()
+    if corpus is None:
+        return None
+    return corpus.verify_anchor(bare_ref)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -463,6 +503,8 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
     resolved = []
     failed = []
     rotation_offers: List[Dict[str, Any]] = []  # canonical §3: assume input error
+    lsp_checks: List[Dict[str, Any]] = []  # populated only if LSP corpus is provisioned
+    lsp_tampered: List[Dict[str, Any]] = []
     for raw in anchors:
         ref_str = _anchor_to_ref(raw)
         if ref_str is None:
@@ -485,6 +527,13 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
                     "did_you_mean": suggestions,
                 })
 
+        # LSP integrity check (silent when no corpus provisioned).
+        lsp_result = _verify_against_lsp(bare_ref)
+        if lsp_result is not None:
+            lsp_checks.append(lsp_result)
+            if lsp_result.get("status") == "tampered":
+                lsp_tampered.append(lsp_result)
+
     data = {
         "anchor": _SCRIPTURE_ANCHORS_ANCHOR,
         "rule": (
@@ -496,6 +545,24 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
         "resolved": resolved, "failed": failed, "total": len(anchors),
         "rotation_offers": rotation_offers,
     }
+    if lsp_checks:
+        data["lsp_checks"] = lsp_checks
+        data["lsp_tampered"] = lsp_tampered
+
+    # LSP tampering is a hard failure even if WEB resolution passed —
+    # the chunk hash is the canonical integrity baseline.
+    if lsp_tampered:
+        tamper_refs = [t.get("ref") for t in lsp_tampered]
+        return VerifierResult(
+            name=name, status="MISMATCH",
+            detail=(
+                f"{len(lsp_tampered)} anchor(s) failed LSP integrity check "
+                f"(chunk hash mismatch — drift detected): {tamper_refs}. "
+                "The canonical hash baseline does not match the current "
+                "corpus text."
+            ),
+            data=data,
+        )
     if not failed:
         return VerifierResult(
             name=name, status="CONFIRMED",
