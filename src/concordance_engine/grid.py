@@ -96,6 +96,13 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     # encoding (the result schema), reasoning (the trace), authority_trust
     # (the source hierarchy), and time_sequence (the gate chain order).
     "witness":             frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+
+    # Phase — cross-cutting classifier (Setup/Positioning/Conversion).
+    # Sits primarily on time_sequence (phases unfold over time) and
+    # reasoning (phase choice is a structured judgment). Doesn't carry
+    # substantive content of its own; classifies WHERE in the lifecycle
+    # a packet sits.
+    "phase":               frozenset({"time_sequence", "reasoning"}),
 }
 
 

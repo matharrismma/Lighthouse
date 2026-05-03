@@ -20,8 +20,10 @@ from typing import Dict, Optional
 
 # Cross-cutting verifiers run on every packet and are small enough that
 # eager loading costs nothing meaningful. Scripture's no-anchor short-
-# circuit makes per-call overhead negligible.
-from . import scripture
+# circuit makes per-call overhead negligible. Phase classifier is also
+# cheap (a single lookup + classification) and keeps phase metadata
+# visible whether or not a domain validator is registered.
+from . import scripture, phase
 from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 
 
@@ -104,11 +106,13 @@ def _get_module(domain: str) -> Optional[ModuleType]:
     return cached
 
 
-# Scripture is a cross-cutting verifier: it runs on EVERY packet (not just
-# packets in a "scripture" domain) because scripture_anchors and refs can
-# appear inside any domain's packet. The verifier no-ops on packets that
-# don't carry references, so always running it is safe.
-CROSS_CUTTING_VERIFIERS = (scripture,)
+# Cross-cutting verifiers run on EVERY packet regardless of domain.
+# Scripture handles anchor verification (no-ops if no refs present);
+# phase classifies the packet's position in the Setup → Positioning
+# → Conversion lifecycle (NA if no phase declared). Both are safe
+# defaults — they degrade gracefully on packets that don't carry
+# the relevant fields.
+CROSS_CUTTING_VERIFIERS = (scripture, phase)
 
 
 def run_for_domain(domain: str, packet):

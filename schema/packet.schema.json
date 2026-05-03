@@ -26,6 +26,15 @@
       ],
       "default": "adapter"
     },
+    "phase": {
+      "type": "string",
+      "description": "Canonical decision phase per 00_CANON/PHASES_SETUP_POSITIONING_CONVERSION.md. Setup = secure base, define arena, develop capacity, avoid early loss. Positioning = build dominant positions, apply longest levers, reduce complexity, win position before outcome. Conversion = lock in gains, remove counterplay, simplify when ahead, make results irreversible. Optional metadata; future iterations may apply phase-aware verifier behavior.",
+      "enum": [
+        "setup",
+        "positioning",
+        "conversion"
+      ]
+    },
     "created_epoch": {
       "type": "integer",
       "description": "Unix epoch seconds when the packet was created. Required for the GOD gate; missing or zero quarantines.",

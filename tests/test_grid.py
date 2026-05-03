@@ -68,9 +68,12 @@ def test_every_grid_entry_has_a_verifier_or_is_a_subsystem():
     assert not truly_extra, f"grid entries without a verifier: {sorted(truly_extra)}"
 
 
-def test_axis_count_is_36():
-    """The phase-close commitment: 35 content axes + witness = 36."""
-    assert len(grid.AXIS_DIMENSIONS) == 36
+def test_axis_count_at_or_above_baseline():
+    """The grid grows over time as new axes are discovered. The
+    baseline at the V1 alignment commit is 37 (35 content axes +
+    witness + phase). Future commits may add more; this test catches
+    accidental losses without freezing the count."""
+    assert len(grid.AXIS_DIMENSIONS) >= 37
 
 
 def test_all_dimensions_have_at_least_one_axis():
