@@ -404,6 +404,43 @@ def main() -> None:
              "packet.issuer_public_key.",
     )
 
+    # ── lsp subcommand ─────────────────────────────────────────────
+    lsp_p = sub.add_parser(
+        "lsp",
+        help="Lighthouse Standard Pages — deterministic chunking + hashing.",
+        description=(
+            "Build / verify LSP records per canonical 02_SPECS/LSP_SPEC.md. "
+            "NFKC normalize, 200-word chunks (default), SHA-256 per chunk. "
+            "Caller provides text; no LXX/MorphGNT corpus is bundled in "
+            "MVP."
+        ),
+    )
+    lsp_sub = lsp_p.add_subparsers(dest="lsp_cmd", required=True)
+
+    lsp_build = lsp_sub.add_parser(
+        "build", help="Build an LSP record from a text file.")
+    lsp_build.add_argument("input", type=str, help="Path to input text file")
+    lsp_build.add_argument(
+        "--out", type=str, default=None,
+        help="Write LSP JSON to this file (otherwise stdout).",
+    )
+    lsp_build.add_argument(
+        "--words-per-page", type=int, default=200,
+        help="Chunk size in words (default: 200, per LSP_SPEC v0).",
+    )
+    lsp_build.add_argument(
+        "--source-id", type=str, default="",
+        help="Opaque identifier for the source text (e.g. 'LXX-Mt').",
+    )
+    lsp_build.add_argument(
+        "--no-nfkc", action="store_true",
+        help="Skip Unicode NFKC normalization. Default is to apply.",
+    )
+
+    lsp_verify_cmd = lsp_sub.add_parser(
+        "verify", help="Recompute and verify chunk hashes in an LSP file.")
+    lsp_verify_cmd.add_argument("lsp", type=str, help="Path to LSP JSON")
+
     # ── investment-packet subcommand ───────────────────────────────
     inv = sub.add_parser(
         "investment-packet",
@@ -686,6 +723,53 @@ def main() -> None:
                 sys.exit(0)
             print(f"signature INVALID: {detail}", file=sys.stderr)
             sys.exit(1)
+
+    if args.cmd == "lsp":
+        from . import lsp as lsp_mod
+        if args.lsp_cmd == "build":
+            try:
+                text = Path(args.input).read_text(encoding="utf-8")
+            except OSError as e:
+                print(f"error: could not read input: {e}", file=sys.stderr)
+                sys.exit(4)
+            cfg = lsp_mod.LSPConfig(
+                words_per_page=args.words_per_page,
+                nfkc=not args.no_nfkc,
+            )
+            record = lsp_mod.build_lsp(
+                text, source_id=args.source_id, cfg=cfg,
+            )
+            out_json = json.dumps(record, indent=2, ensure_ascii=False)
+            if args.out:
+                Path(args.out).write_text(out_json, encoding="utf-8")
+                print(
+                    f"LSP built → {args.out} "
+                    f"({record['chunk_count']} chunks, "
+                    f"{record['total_words']} words)",
+                    file=sys.stderr,
+                )
+            else:
+                print(out_json)
+            sys.exit(0)
+        if args.lsp_cmd == "verify":
+            try:
+                lsp_record = _load_json(Path(args.lsp))
+            except (FileNotFoundError, json.JSONDecodeError) as e:
+                print(f"error: could not read LSP: {e}", file=sys.stderr)
+                sys.exit(4)
+            report = lsp_mod.verify_lsp(lsp_record)
+            print(f"LSP: {report['total']} chunks, "
+                  f"{report['verified']} verified")
+            if report["tampered"]:
+                print(f"  TAMPERED: {len(report['tampered'])}")
+                for entry in report["tampered"]:
+                    print(
+                        f"    chunk {entry['index']}: "
+                        f"expected {entry['expected']} got {entry['recomputed']}"
+                    )
+                sys.exit(1)
+            print("ok")
+            sys.exit(0)
 
     if args.cmd == "investment-packet":
         from . import investment_packet as ip
