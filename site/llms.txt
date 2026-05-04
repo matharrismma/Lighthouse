@@ -100,6 +100,39 @@ Pass a `bio_control` dict to verify nested health control system claims:
 }
 ```
 
+## How to run the engine — four paths, lowest-friction first
+
+1. **Zero install — narrowhighway.com**
+   The full engine is deployed at https://narrowhighway.com.
+   Open in any browser, or call the REST endpoints below from any
+   language. No account, no key, no install.
+
+2. **In-browser only (Pyodide WASM)**
+   Visit https://narrowhighway.com/pyodide.html — the engine compiled
+   to WebAssembly, running entirely in your browser tab. The page
+   loads Pyodide, installs `concordance-engine` from PyPI via
+   micropip, and exposes capture / seek / library surfaces. Everything
+   stays in the browser session; nothing leaves the device. Once
+   loaded, the page works offline.
+
+3. **Single-file Python client**
+   Drop `client/concordance_client.py` from the repo into your
+   project — one file, optional `requests` dependency (or stdlib
+   urllib via `use_stdlib=True`). Wraps every REST endpoint.
+
+4. **Local install for full power**
+   `pip install concordance-engine` — installs the package from PyPI.
+   Provides the `concordance` CLI (write / journal / keep / live /
+   seek / promote / share / community / bins / emergence) plus
+   importable Python modules. Three deps: sympy / numpy / scipy.
+   For private library on disk, run keeping locally, custom verifiers,
+   or the persistent companion (`concordance live`).
+
+   Standalone binaries for Linux / macOS / Windows are published on
+   each tagged release at
+   https://github.com/matharrismma/Lighthouse/releases — single file,
+   no Python needed on the target machine.
+
 ## REST API (authenticated)
 
 Base URL: https://narrowhighway.com

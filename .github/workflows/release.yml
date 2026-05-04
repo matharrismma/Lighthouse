@@ -1,0 +1,164 @@
+name: Release
+
+# Triggers on a version tag push: `git tag v1.1.0 && git push --tags`.
+# Builds the wheel, publishes to PyPI via Trusted Publishing
+# (no token required if configured at PyPI side; falls back to
+# PYPI_API_TOKEN secret if not), and builds standalone binaries
+# for Linux / macOS / Windows via PyInstaller.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Version tag (e.g. v1.1.0). Must match pyproject.toml."
+        required: true
+
+permissions:
+  contents: write
+  id-token: write  # required for PyPI Trusted Publishing
+
+jobs:
+  # ── Build the wheel + sdist ──────────────────────────────────────────
+  build-package:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building $VERSION"
+
+      - name: Install build tools
+        run: pip install --upgrade build
+
+      - name: Build wheel + sdist
+        run: python -m build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  # ── Publish to PyPI ──────────────────────────────────────────────────
+  # Uses PyPI Trusted Publishing if the project is configured at
+  # https://pypi.org/manage/project/concordance-engine/settings/publishing/
+  # to trust this GitHub repo. No API token needed in that case.
+  # If trusted publishing isn't configured, set PYPI_API_TOKEN in the
+  # repo's Actions secrets and the fallback step picks it up.
+  publish-pypi:
+    needs: build-package
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/concordance-engine
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Token-based fallback: only used if trusted publishing isn't set
+          # up. If the secret isn't present, the action falls through to
+          # OIDC trusted publishing.
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+
+  # ── Build standalone binaries (PyInstaller, one-file) ────────────────
+  build-binaries:
+    needs: build-package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: concordance-linux-x86_64
+            ext: ""
+          - os: macos-latest
+            artifact: concordance-macos-arm64
+            ext: ""
+          - os: windows-latest
+            artifact: concordance-windows-x86_64.exe
+            ext: ".exe"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package + PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build binary
+        shell: bash
+        run: |
+          # PyInstaller bundles the engine, sympy, numpy, scipy, and
+          # the FastAPI server (when --include-api) into one executable.
+          # `--collect-all` ensures the verifiers package and its lazy-
+          # loaded submodules are all bundled.
+          pyinstaller \
+            --onefile \
+            --name "concordance${{ matrix.ext }}" \
+            --collect-all concordance_engine \
+            --hidden-import concordance_engine.cli \
+            --console \
+            src/concordance_engine/cli.py
+
+      - name: Smoke test the binary
+        shell: bash
+        run: |
+          ./dist/concordance${{ matrix.ext }} --help
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/concordance${{ matrix.ext }}
+          retention-days: 30
+
+  # ── Create the GitHub Release with all artifacts attached ────────────
+  github-release:
+    needs: [build-package, build-binaries]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Layout files for release
+        run: |
+          mkdir -p release/
+          # The wheel + sdist
+          cp artifacts/dist/* release/
+          # The binaries (artifact dirs contain a single file)
+          for d in artifacts/concordance-*; do
+            if [ -d "$d" ]; then
+              cp "$d"/* release/
+            fi
+          done
+          ls -la release/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: release/*

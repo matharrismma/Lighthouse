@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concordance — engine in your browser</title>
+  <meta name="description" content="The Concordance engine running fully in-browser via Pyodide. No install, no server.">
+  <meta name="robots" content="all">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <!-- Pyodide CDN. Pinned to a stable release; bump when the engine
+       requires a newer Python. Pyodide 0.26 ships Python 3.12 + numpy
+       + scipy + sympy as built-in wheels (no compile needed). -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+      --pass: #7ec488;
+      --reject: #d97c7c;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .shell {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 24px 64px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.75;
+      margin-bottom: 18px;
+    }
+
+    .blurb {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 600px;
+    }
+
+    .status-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pulse {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--quarantine, #d9b66c);
+      box-shadow: 0 0 6px var(--quarantine, #d9b66c);
+    }
+    .pulse.ready { background: var(--pass); box-shadow: 0 0 6px var(--pass); }
+    .pulse.error { background: var(--reject); box-shadow: 0 0 6px var(--reject); }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.7;
+      resize: vertical;
+    }
+    textarea::placeholder { color: var(--muted); font-style: italic; }
+    textarea:focus { outline: none; border-color: var(--accent-soft); }
+    textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .row { display: flex; gap: 10px; align-items: center; }
+
+    button {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--accent); color: var(--bg); }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .output {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 13.5px;
+      line-height: 1.55;
+      min-height: 80px;
+    }
+    .output h2 { font-size: 14px; font-weight: 500; margin: 12px 0 6px; color: var(--accent); letter-spacing: 0.02em; }
+    .output h3 { font-size: 12px; font-weight: 500; margin: 8px 0 4px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+    .output code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+    .output ul { list-style: none; padding: 0; margin: 6px 0; }
+    .output li { padding: 3px 0; }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .footer a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .footer a:hover { color: var(--accent); border-bottom-color: var(--accent-soft); }
+
+    .badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--accent-soft);
+      border-radius: 12px;
+      padding: 2px 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header>
+    <div class="wordmark">narrow highway · pyodide</div>
+    <h1>The engine in your browser.</h1>
+    <p class="blurb">
+      No install. No server. The Concordance engine compiled to WebAssembly via
+      Pyodide and loaded into this tab. Everything you write stays in this browser
+      session — nothing leaves your device.
+      <span class="badge">offline-capable once loaded</span>
+    </p>
+  </header>
+
+  <div class="status-line">
+    <span class="pulse" id="statusPulse"></span>
+    <span id="statusLabel">booting Pyodide…</span>
+  </div>
+
+  <section>
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">capture a seed</h3>
+    <textarea id="captureInput" placeholder="a thought, a task, a date, a feeling — anything you put down is kept" disabled></textarea>
+    <div class="row" style="margin-top: 10px;">
+      <button id="captureBtn" disabled>Keep</button>
+      <span style="color:var(--muted);font-size:11px;letter-spacing:.04em;">stays in this browser session only</span>
+    </div>
+    <div class="output" id="captureOutput" style="margin-top:12px;display:none;"></div>
+  </section>
+
+  <section>
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">seek the bank</h3>
+    <div class="row">
+      <input type="text" id="seekInput" placeholder="ask a question…" disabled style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font:inherit;font-size:14px;">
+      <button id="seekBtn" disabled>Seek</button>
+    </div>
+    <div class="output" id="seekOutput" style="margin-top:12px;display:none;"></div>
+  </section>
+
+  <section>
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">what's in your library</h3>
+    <button id="recentBtn" disabled>Show library</button>
+    <div class="output" id="recentOutput" style="margin-top:12px;display:none;"></div>
+  </section>
+
+  <div class="footer">
+    Same engine running at <a href="/">narrowhighway.com</a>.
+    Source: <a href="https://github.com/matharrismma/Lighthouse" target="_blank" rel="noopener">github.com/matharrismma/Lighthouse</a>.
+    <br>
+    This page is a Pyodide port — Python compiled to WASM. The engine itself is unchanged.
+  </div>
+
+</div>
+
+<script>
+  // ──────────────────────────────────────────────────────────────────
+  // In-browser engine bootstrap.
+  //
+  // Step 1. Load Pyodide (the WASM Python runtime).
+  // Step 2. micropip-install concordance-engine from PyPI (or, in dev,
+  //         from the local wheel served alongside this page).
+  // Step 3. Patch the storage layer to use in-memory dicts instead of
+  //         the filesystem (Pyodide has a fake FS but we keep things
+  //         simple — this whole tab IS the kingdom).
+  // Step 4. Wire up the three demo surfaces: capture, seek, library.
+  //
+  // The engine code itself is untouched. The categorize/calibrate/
+  // ask/seek/community/bins logic is the exact same Python that
+  // narrowhighway.com runs on the server.
+  // ──────────────────────────────────────────────────────────────────
+
+  const statusPulse  = document.getElementById('statusPulse');
+  const statusLabel  = document.getElementById('statusLabel');
+  const captureInput = document.getElementById('captureInput');
+  const captureBtn   = document.getElementById('captureBtn');
+  const captureOut   = document.getElementById('captureOutput');
+  const seekInput    = document.getElementById('seekInput');
+  const seekBtn      = document.getElementById('seekBtn');
+  const seekOut      = document.getElementById('seekOutput');
+  const recentBtn    = document.getElementById('recentBtn');
+  const recentOut    = document.getElementById('recentOutput');
+
+  let pyodide = null;
+  let engineReady = false;
+
+  function setStatus(label, kind) {
+    statusLabel.textContent = label;
+    statusPulse.classList.remove('ready', 'error');
+    if (kind === 'ready') statusPulse.classList.add('ready');
+    if (kind === 'error') statusPulse.classList.add('error');
+  }
+
+  function enableUi() {
+    captureInput.disabled = false;
+    captureBtn.disabled = false;
+    seekInput.disabled = false;
+    seekBtn.disabled = false;
+    recentBtn.disabled = false;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  async function boot() {
+    try {
+      setStatus('booting Pyodide…', 'loading');
+      pyodide = await loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
+      });
+
+      setStatus('loading numpy / scipy / sympy…', 'loading');
+      // Pyodide ships these as built-in wheels — fast load from CDN.
+      await pyodide.loadPackage(['numpy', 'scipy', 'sympy', 'micropip']);
+
+      setStatus('installing concordance-engine from PyPI…', 'loading');
+      // Use the published wheel. In dev, you can serve a local wheel
+      // and change this URL to e.g. './concordance_engine-1.1.0-py3-none-any.whl'.
+      await pyodide.runPythonAsync(`
+        import micropip
+        # The package ships the optional [schema] extra for schema validation;
+        # we don't need it for this demo, so install the bare package.
+        await micropip.install('concordance-engine')
+      `);
+
+      setStatus('preparing in-memory storage layer…', 'loading');
+      // Patch the journal/keeping/ledger storage to use in-memory dicts.
+      // This avoids needing a fake filesystem and keeps the demo self-
+      // contained. A more sophisticated port would map to localStorage
+      // or IndexedDB; for the proof-of-concept, in-memory is enough.
+      await pyodide.runPythonAsync(\`
+import os, json
+from pathlib import Path
+from concordance_engine import journal as J, keeping as K
+
+# In-memory store backing all journal operations.
+_journal_mem = {}
+
+class _MemJournalStore:
+    """Drop-in replacement for JournalStore that lives in a dict."""
+    def __init__(self, base_dir=None):
+        self.base_dir = base_dir
+    def save(self, entry):
+        _journal_mem[entry.id] = entry.to_dict()
+        return None
+    def load(self, entry_id):
+        d = _journal_mem.get(entry_id)
+        if d is None:
+            return None
+        return J.JournalEntry.from_dict(d)
+    def list_all(self, *, since=None, tag=None):
+        out = []
+        for d in _journal_mem.values():
+            e = J.JournalEntry.from_dict(d)
+            if since is not None and e.written_at < since:
+                continue
+            if tag is not None and tag not in e.user_tags:
+                continue
+            out.append(e)
+        out.sort(key=lambda e: e.written_at, reverse=True)
+        return out
+    def delete(self, entry_id):
+        return _journal_mem.pop(entry_id, None) is not None
+
+# In-memory keeping log.
+_keeping_mem = []
+class _MemKeepingLog:
+    def __init__(self, base_dir=None):
+        self.base_dir = base_dir
+    def append(self, observation):
+        _keeping_mem.append(observation.to_dict())
+    def read(self, *, since=None, practice=None):
+        out = []
+        for d in _keeping_mem:
+            if since is not None and d.get('started_at', 0) < since:
+                continue
+            if practice is not None and d.get('practice') != practice:
+                continue
+            out.append(K.KeepingObservation.from_dict(d))
+        return out
+    def clear(self):
+        _keeping_mem.clear()
+
+# Monkey-patch the modules so capture/seek/etc. use the in-memory stores.
+J.JournalStore = _MemJournalStore
+K.KeepingLog = _MemKeepingLog
+
+# Re-export common functions at module top level for the JS bridge.
+from concordance_engine.journal import capture, calibrate, render_calibration
+from concordance_engine.ask import ask, render_ask
+print("engine ready")
+\`);
+
+      engineReady = true;
+      setStatus('engine ready · running entirely in this browser tab', 'ready');
+      enableUi();
+    } catch (err) {
+      console.error(err);
+      setStatus('engine failed to load: ' + (err.message || err), 'error');
+    }
+  }
+
+  async function doCapture() {
+    if (!engineReady) return;
+    const text = captureInput.value.trim();
+    if (!text) return;
+    captureBtn.disabled = true;
+    captureOut.style.display = 'block';
+    captureOut.innerHTML = '<em style="color:var(--muted);">thinking…</em>';
+    try {
+      // Run the engine. Pass text via globals to avoid Python string-
+      // escaping issues with arbitrary user input.
+      pyodide.globals.set('user_text', text);
+      const result = pyodide.runPython(`
+import json
+from concordance_engine.journal import capture, calibrate, render_calibration
+entry = capture(user_text)
+cal = calibrate(entry)
+json.dumps({
+    "id": entry.id,
+    "rendered": render_calibration(entry, cal),
+    "categorization": entry.categorization.to_dict(),
+})
+      `);
+      const data = JSON.parse(result);
+      let html = '<h2>Kept as <code>' + esc(data.id) + '</code></h2>';
+      // Reuse the engine's own markdown render — light formatting:
+      html += '<pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:var(--text);">'
+            + esc(data.rendered) + '</pre>';
+      captureOut.innerHTML = html;
+      captureInput.value = '';
+    } catch (err) {
+      captureOut.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
+    } finally {
+      captureBtn.disabled = false;
+    }
+  }
+
+  async function doSeek() {
+    if (!engineReady) return;
+    const q = seekInput.value.trim();
+    if (!q) return;
+    seekBtn.disabled = true;
+    seekOut.style.display = 'block';
+    seekOut.innerHTML = '<em style="color:var(--muted);">searching the bank…</em>';
+    try {
+      pyodide.globals.set('user_question', q);
+      const result = pyodide.runPython(`
+import json
+from concordance_engine.ask import ask, render_ask
+r = ask(user_question)
+json.dumps({"rendered": render_ask(r), "result": r.to_dict()})
+      `);
+      const data = JSON.parse(result);
+      seekOut.innerHTML = '<pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;color:var(--text);">'
+                       + esc(data.rendered) + '</pre>';
+    } catch (err) {
+      seekOut.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
+    } finally {
+      seekBtn.disabled = false;
+    }
+  }
+
+  async function doRecent() {
+    if (!engineReady) return;
+    recentBtn.disabled = true;
+    recentOut.style.display = 'block';
+    recentOut.innerHTML = '<em style="color:var(--muted);">loading…</em>';
+    try {
+      const result = pyodide.runPython(`
+import json
+from concordance_engine.journal import JournalStore
+store = JournalStore()
+entries = store.list_all()[:20]
+json.dumps([{
+    "id": e.id,
+    "preview": (e.text or "").replace("\\n", " ")[:100],
+    "anchors": list(e.categorization.detected_anchors or []),
+    "actions": list(e.categorization.detected_action_shapes or []),
+} for e in entries])
+      `);
+      const entries = JSON.parse(result);
+      if (!entries.length) {
+        recentOut.innerHTML = '<em style="color:var(--muted);">nothing kept yet — write something above</em>';
+      } else {
+        let html = '<h3>your library (' + entries.length + ' seed' + (entries.length === 1 ? '' : 's') + ')</h3><ul>';
+        entries.forEach(e => {
+          html += '<li><code>' + esc(e.id) + '</code> ' + esc(e.preview);
+          if (e.anchors.length) html += ' <span style="color:var(--muted);font-size:11px;">↳ ' + esc(e.anchors.join(', ')) + '</span>';
+          html += '</li>';
+        });
+        html += '</ul>';
+        recentOut.innerHTML = html;
+      }
+    } catch (err) {
+      recentOut.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
+    } finally {
+      recentBtn.disabled = false;
+    }
+  }
+
+  // Wire the buttons.
+  captureBtn.addEventListener('click', doCapture);
+  seekBtn.addEventListener('click', doSeek);
+  recentBtn.addEventListener('click', doRecent);
+
+  // ⌘/Ctrl+Enter on the textarea = capture.
+  captureInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); doCapture(); }
+  });
+  seekInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); doSeek(); }
+  });
+
+  // Boot on load.
+  boot();
+</script>
+
+</body>
+</html>
