@@ -1079,7 +1079,7 @@
     },
     verify: {
       placeholder: "submit a claim. equation. statistical test. governance decision.",
-      callout:     "— four gates will check it computationally —"
+      callout:     "red → floor → brothers → god"
     }
   };
 
@@ -2171,6 +2171,42 @@
 
     bubble.innerHTML = meta + walk + ledger;
     exchange.appendChild(bubble);
+
+    // Sequential reveal — the gates *ran* server-side in this exact
+    // order; the cadence here lets the user see the order they ran
+    // in. Per the principal goal: show how engineered the realm is.
+    // Not theater: every section's content is the real verifier
+    // output. We just stagger the appearance so the engineering is
+    // legible instead of arriving as a single wall of text.
+    //
+    // Gate headings (h3) and the Socratic close get longer beats;
+    // section headings (h2) get medium beats; prose gets short
+    // beats. Total reveal ~1.2-1.6s for a typical walkthrough.
+    const record = bubble.querySelector('.witness-record');
+    if (record) {
+      let delay = 50;
+      Array.from(record.children).forEach((el) => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.30s ease';
+        setTimeout(() => { el.style.opacity = ''; }, delay);
+        const tag = el.tagName;
+        const isSocratic = tag === 'DIV' && el.classList.contains('socratic');
+        if (tag === 'H3' || isSocratic) {
+          delay += 280;   // gates and the Socratic question — pause to read
+        } else if (tag === 'H2') {
+          delay += 180;   // section headings — set the frame
+        } else {
+          delay += 90;    // body content — flow
+        }
+      });
+      // Reveal the ledger-link tail after the walkthrough finishes
+      const tail = bubble.querySelector('.ledger-link');
+      if (tail) {
+        tail.style.opacity = '0';
+        tail.style.transition = 'opacity 0.30s ease';
+        setTimeout(() => { tail.style.opacity = ''; }, delay + 100);
+      }
+    }
 
     inputEl.disabled = false;
     inputEl.focus();
