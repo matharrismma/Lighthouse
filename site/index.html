@@ -10,6 +10,15 @@
   <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — Concordance tool inventory for AI agents">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#161318">
+
+  <!-- iOS-specific PWA chrome — render the Chi-Rho on home screen,
+       run standalone (no Safari URL bar), warm-palette status bar. -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Concordance">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
@@ -170,6 +179,56 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
     .mode-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── INSTALL HINT (shown only when browser deems installable) ─ */
+    .install-hint {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .install-hint.show { display: flex; }
+    .install-hint .glyph {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .install-hint .text {
+      flex: 1;
+      letter-spacing: 0.02em;
+    }
+    .install-hint .text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .install-hint button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: color 80ms ease, border-color 80ms ease;
+    }
+    .install-hint button:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .install-hint button.primary {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .install-hint button.primary:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
 
     /* ── ACTIVITY STRIP — last 14 days ─────────────────────────── */
     .hud-strip {
@@ -775,6 +834,22 @@
     </span>
   </header>
 
+  <!-- ── INSTALL HINT — appears only when browser fires beforeinstallprompt ── -->
+  <div class="install-hint" id="installHint" role="region" aria-label="Install Concordance">
+    <svg class="glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="64" height="64" rx="12" fill="#161318"/>
+      <g stroke="#c9a87c" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="16" y1="18" x2="48" y2="50"/>
+        <line x1="48" y1="18" x2="16" y2="50"/>
+        <line x1="32" y1="10" x2="32" y2="56"/>
+        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+      </g>
+    </svg>
+    <span class="text"><strong>Install Concordance.</strong> One tap; works offline; receives shares from any app.</span>
+    <button id="installNoBtn">Not now</button>
+    <button id="installYesBtn" class="primary">Install</button>
+  </div>
+
   <!-- ── 14-DAY ACTIVITY STRIP ─────────────────────────────────── -->
   <div class="hud-strip" id="activityStrip" aria-label="Last 14 days">
     <span class="strip-label">last 14d</span>
@@ -1269,6 +1344,83 @@
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
   }
+
+  // ── Install hint ───────────────────────────────────────────────
+  // Show a small, dismissible bar when the browser deems the page
+  // installable AND the user hasn't dismissed it before AND the app
+  // isn't already running standalone (i.e. already installed).
+  // Honors the wise-serpent + innocent-dove posture: surface the
+  // option plainly, don't pester, never block content.
+  (function setupInstallHint() {
+    const hint = document.getElementById('installHint');
+    if (!hint) return;
+
+    const yesBtn = document.getElementById('installYesBtn');
+    const noBtn  = document.getElementById('installNoBtn');
+    const DISMISS_KEY = 'concordance.installHintDismissed';
+
+    // Already running as installed PWA? Then we're past this.
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    // User dismissed previously? Respect that for 30 days.
+    try {
+      const raw = localStorage.getItem(DISMISS_KEY);
+      if (raw) {
+        const ts = parseInt(raw, 10);
+        if (!isNaN(ts) && (Date.now() - ts) < 30 * 24 * 60 * 60 * 1000) {
+          return;
+        }
+      }
+    } catch (_) {}
+
+    let deferredPrompt = null;
+
+    // Chrome/Edge/Android fire beforeinstallprompt when the page is
+    // installable. Stash the event and show the hint.
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      hint.classList.add('show');
+    });
+
+    // iOS Safari doesn't fire beforeinstallprompt. Detect it heuristically
+    // and show a different label that points to the manual flow.
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+    if (isIOS) {
+      const text = hint.querySelector('.text');
+      if (text) {
+        text.innerHTML = '<strong>Add to Home Screen.</strong> '
+          + 'Tap the share icon in Safari, then "Add to Home Screen."';
+      }
+      // Hide the install button — iOS has no API for it.
+      yesBtn.style.display = 'none';
+      // Show the hint so the instruction is visible.
+      hint.classList.add('show');
+    }
+
+    yesBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      try {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+      } catch (_) {}
+      deferredPrompt = null;
+      hint.classList.remove('show');
+    });
+
+    noBtn.addEventListener('click', () => {
+      try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch (_) {}
+      hint.classList.remove('show');
+    });
+
+    // If the app gets installed (in the background, somehow), hide.
+    window.addEventListener('appinstalled', () => {
+      hint.classList.remove('show');
+    });
+  })();
 
   // ── Click-through on any panel item ─────────────────────────────
   document.body.addEventListener('click', e => {

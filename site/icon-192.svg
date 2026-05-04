@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Stylized Chi-Rho — manifest icon at 192px.
+       Same Christogram as favicon, scaled with proportional strokes
+       for legibility on a home screen. -->
+  <rect width="192" height="192" rx="36" fill="#161318"/>
+  <g stroke="#c9a87c" stroke-width="12" stroke-linecap="round" fill="none">
+    <!-- chi: the X -->
+    <line x1="48"  y1="54"  x2="144" y2="150"/>
+    <line x1="144" y1="54"  x2="48"  y2="150"/>
+    <!-- rho: vertical stem -->
+    <line x1="96"  y1="30"  x2="96"  y2="168"/>
+    <!-- rho: the bowl curving right and back -->
+    <path d="M 96 30 C 138 30, 138 84, 96 84"/>
+  </g>
+</svg>

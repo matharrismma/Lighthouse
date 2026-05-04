@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Offline — Concordance</title>
+  <meta name="description" content="The network is unreachable. The well is still here.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#161318">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 22px;
+      min-height: 100vh;
+      text-align: center;
+    }
+    .glyph {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 18px;
+      opacity: 0.85;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.78;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 400;
+      max-width: 420px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 400px;
+      margin-bottom: 22px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    a, button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    a:hover, button:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .scripture {
+      margin-top: 30px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 380px;
+      opacity: 0.75;
+    }
+  </style>
+</head>
+<body>
+  <!-- The Chi-Rho, inline so this page renders even with cache empty. -->
+  <svg class="glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="64" height="64" rx="12" fill="#161318"/>
+    <g stroke="#c9a87c" stroke-width="4" stroke-linecap="round" fill="none">
+      <line x1="16" y1="18" x2="48" y2="50"/>
+      <line x1="48" y1="18" x2="16" y2="50"/>
+      <line x1="32" y1="10" x2="32" y2="56"/>
+      <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+    </g>
+  </svg>
+  <div class="wordmark">narrow highway</div>
+  <h1>The network is gone.<br>The well is still here.</h1>
+  <p>
+    This page is the cached shell. The live engine isn't reachable
+    right now — but the doctrine, the ledger you've already drawn,
+    and the seeds in your library are unchanged.
+  </p>
+
+  <div class="actions">
+    <button id="retryBtn">Try again</button>
+    <a href="/pyodide.html">Run engine in browser →</a>
+    <a href="/">Home</a>
+  </div>
+
+  <p class="scripture">
+    "Whoever desires, let him take the water of life freely."<br>
+    — Revelation 22:17
+  </p>
+
+  <script>
+    document.getElementById('retryBtn').addEventListener('click', () => {
+      // Reload to attempt network again. If it works, the SW will
+      // serve fresh content; if not, this page comes right back.
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
