@@ -16,6 +16,8 @@ instance.
 | [`telegram_bot.py`](telegram_bot.py) | Telegram bot — your own private capture chat | Free; needs bot token | Medium — platform-dependent |
 | [`meshtastic_bridge.py`](meshtastic_bridge.py) | LoRa-mesh bridge — receives/broadcasts compact wire packets via a Meshtastic radio | `pip install meshtastic` + ~$30 hardware | Highest — license-free spectrum |
 | [`tor_onion.md`](tor_onion.md) | Tor hidden service — engine reachable at `xyz.onion` for any Tor browser | `apt install tor` + 5 min config | Highest — censorship resistance |
+| [`qr_share.md`](qr_share.md) | Print a QR carrying a precedent URL — paper sneakernet for sealed precedents | Any QR app or `qrencode` | Highest — paper survives every digital adversary |
+| [`nostr_publish.py`](nostr_publish.py) | Publish sealed precedents to Nostr relays — federated kingdom-economy social | `pip install pynostr` + a generated keypair | High — federated, free relays, secp256k1 keys |
 
 The PWA path — install `narrowhighway.com` to your phone's home
 screen, share to it from any app — is built into the site itself
