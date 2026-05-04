@@ -92,11 +92,38 @@ def _default_ledger_dir() -> Path:
     return Path(__file__).resolve().parents[2] / "lw" / "ledger"
 
 
-def _load_precedents(ledger_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """Read every *.json file in the ledger directory. Malformed files
-    are skipped silently (the ledger is best-effort; one bad file
+def _additional_precedent_dirs() -> List[Path]:
+    """Other directories to search alongside the primary ledger.
+
+    The well is deeper than what one instance has sealed. Operators
+    can populate these from peers (manually copy precedent JSONs in,
+    or via future tooling that fetches and stores). Search order is:
+      1. Each path in CONCORDANCE_PRECEDENT_DIRS (os.pathsep separated)
+      2. `<CONCORDANCE_DATA_DIR or ~/.concordance>/fetched_precedents/`
+
+    Each directory is searched independently. Duplicate precedent_ids
+    across directories are de-duplicated by `_load_precedents` (first
+    one wins — local sealed precedents take precedence over fetched).
+    """
+    dirs: List[Path] = []
+    extra = os.environ.get("CONCORDANCE_PRECEDENT_DIRS", "").strip()
+    if extra:
+        for part in extra.split(os.pathsep):
+            p = Path(part.strip()).expanduser()
+            if p:
+                dirs.append(p)
+    base = os.environ.get("CONCORDANCE_DATA_DIR", "")
+    if base:
+        dirs.append(Path(base) / "fetched_precedents")
+    else:
+        dirs.append(Path.home() / ".concordance" / "fetched_precedents")
+    return dirs
+
+
+def _read_precedents_from_dir(d: Path) -> List[Dict[str, Any]]:
+    """Read every *.json file in one directory. Malformed files are
+    skipped silently (the ledger is best-effort; one bad file
     shouldn't break a session)."""
-    d = ledger_dir or _default_ledger_dir()
     if not d.exists() or not d.is_dir():
         return []
     out: List[Dict[str, Any]] = []
@@ -108,6 +135,46 @@ def _load_precedents(ledger_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
                 out.append(p)
         except (OSError, json.JSONDecodeError):
             continue
+    return out
+
+
+def _load_precedents(ledger_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Read precedents from the primary ledger directory and any
+    additional directories registered via CONCORDANCE_PRECEDENT_DIRS
+    or the fetched_precedents convention.
+
+    De-duplicates across directories by precedent_id — the first
+    occurrence wins, which means the primary (locally-sealed) ledger
+    takes precedence over fetched copies. This preserves the rule
+    that your own seals are what your engine knows authoritatively;
+    fetched precedents are reference, not authority.
+
+    Per the principal goal: the well is deeper than what one instance
+    has sealed. Federation feeds wisdom — fetched precedents become
+    part of the closest-case search space.
+    """
+    seen_ids: set = set()
+    out: List[Dict[str, Any]] = []
+
+    # Primary directory first so its entries take precedence on dedupe.
+    primary = ledger_dir or _default_ledger_dir()
+    for p in _read_precedents_from_dir(primary):
+        pid = p.get("precedent_id")
+        if pid and pid not in seen_ids:
+            seen_ids.add(pid)
+            out.append(p)
+
+    # If the caller specified an explicit ledger_dir, do not also walk
+    # the additional dirs — that's an isolated lookup (e.g. test).
+    if ledger_dir is not None:
+        return out
+
+    for extra_dir in _additional_precedent_dirs():
+        for p in _read_precedents_from_dir(extra_dir):
+            pid = p.get("precedent_id")
+            if pid and pid not in seen_ids:
+                seen_ids.add(pid)
+                out.append(p)
     return out
 
 
