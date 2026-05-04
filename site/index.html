@@ -9,20 +9,23 @@
   <meta name="robots" content="all">
   <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — Concordance tool inventory for AI agents">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Warmer dark palette — softer than pure cool-blue.
+       The page should feel like reading by lamplight, not staring at a terminal. */
     :root {
-      --bg: #08090d;
-      --surface: #0f1117;
-      --border: #1e2130;
-      --text: #e8eaf0;
-      --muted: #5a6072;
-      --accent: #4f8ef7;
-      --pass: #2dd4a0;
-      --reject: #f75f5f;
-      --quarantine: #f7b84f;
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+      --pass: #7ec488;
+      --reject: #d97c7c;
+      --quarantine: #d9b66c;
     }
 
     html, body {
@@ -31,21 +34,163 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.65;
+    }
+
+    /* Serif used only for the prompt — sets a "this is a place to think"
+       tone without taking over the rest of the page. */
+    .serif {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
     }
 
     body {
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* HUD layout: top bar + 3-column main + footer.
+       The writing area is the center of the HUD; rails hold ambient
+       context fetched on load and refreshed periodically. On narrow
+       viewports the rails stack below the center column. */
+    .hud {
+      display: grid;
+      grid-template-columns: 220px 1fr 240px;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "topbar topbar  topbar"
+        "left   center  right"
+        "footer footer  footer";
+      min-height: 100vh;
+      gap: 0;
+    }
+    .hud-topbar { grid-area: topbar; }
+    .hud-left   { grid-area: left;   }
+    .hud-center { grid-area: center; }
+    .hud-right  { grid-area: right;  }
+    .hud-footer { grid-area: footer; }
+
+    @media (max-width: 960px) {
+      .hud {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "topbar"
+          "center"
+          "left"
+          "right"
+          "footer";
+      }
+      .hud-left, .hud-right {
+        border-top: 1px solid var(--border);
+        border-left: none !important;
+        border-right: none !important;
+      }
+    }
+
+    /* Top bar — wordmark + ambient status (today's date + keeping pulse) */
+    .hud-topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .hud-topbar .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.75;
+      margin: 0;
+    }
+    .hud-topbar .topbar-spacer { flex: 1; }
+    .hud-topbar .topbar-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.04em;
+    }
+    .hud-topbar .pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--pass);
+      box-shadow: 0 0 6px var(--pass);
+      animation: pulse-glow 2.4s infinite ease-in-out;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.55; }
+      50%      { opacity: 1; }
+    }
+
+    /* Side rails — panels of ambient signal */
+    .hud-left, .hud-right {
+      padding: 20px 16px;
+      font-size: 12px;
+      color: var(--text);
+    }
+    .hud-left  { border-right: 1px solid var(--border); }
+    .hud-right { border-left: 1px solid var(--border); }
+
+    .panel {
+      margin-bottom: 22px;
+    }
+    .panel-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panel-label .count {
+      color: var(--accent);
+      opacity: 0.7;
+      font-size: 10px;
+    }
+    .panel-item {
+      padding: 4px 0;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text);
+      border-bottom: 1px solid transparent;
+    }
+    .panel-item code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: transparent;
+      padding: 0;
+    }
+    .panel-item .meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 4px;
+    }
+    .panel-empty {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 11px;
+      padding: 4px 0;
+    }
+
+    /* Center column — the writing area + recent kept */
+    .hud-center {
+      padding: 32px 28px 8px 28px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
+      justify-content: flex-start;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .shell {
       width: 100%;
-      max-width: 680px;
       display: flex;
       flex-direction: column;
     }
@@ -191,59 +336,72 @@
       max-height: 160px;
       overflow-y: auto;
     }
-    textarea::placeholder { color: var(--muted); }
+    textarea::placeholder { color: var(--muted); font-style: italic; }
 
-    button.send {
-      background: var(--accent);
-      border: none;
-      border-radius: 8px;
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-left: 8px;
-      transition: opacity 0.15s;
-      align-self: flex-end;
+    /* Writing area — generous from the start. Not a chat input;
+       a place a person settles into. */
+    .input-wrap textarea {
+      min-height: 180px !important;
+      max-height: none !important;
+      padding: 18px !important;
+      font-size: 15px !important;
+      line-height: 1.7 !important;
+      background: var(--surface) !important;
     }
-    button.send:hover { opacity: 0.85; }
-    button.send:disabled { opacity: 0.35; cursor: default; }
-    button.send svg { width: 14px; height: 14px; fill: #fff; }
+
+    button.keep {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, opacity 0.15s;
+      align-self: flex-end;
+      margin-left: 10px;
+    }
+    button.keep:hover { background: var(--accent); color: var(--bg); }
+    button.keep:disabled { opacity: 0.35; cursor: default; }
 
     .hint {
       text-align: center;
       color: var(--muted);
       font-size: 12px;
-      margin-top: 12px;
+      margin-top: 14px;
+      letter-spacing: 0.02em;
     }
 
     .empty {
       text-align: center;
-      margin-bottom: 52px;
+      margin-bottom: 36px;
     }
     .wordmark {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.18em;
+      font-size: 10px;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 20px;
-      opacity: 0.7;
+      color: var(--muted);
+      margin-bottom: 32px;
+      opacity: 0.55;
     }
     .empty h1 {
-      font-size: 19px;
-      font-weight: 500;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 400;
       color: var(--text);
-      margin-bottom: 10px;
+      margin-bottom: 0;
       letter-spacing: -0.01em;
+      opacity: 0.92;
     }
     .empty p {
       font-size: 13px;
-      line-height: 1.7;
-      max-width: 340px;
-      margin: 0 auto;
+      line-height: 1.6;
+      max-width: 380px;
+      margin: 18px auto 0 auto;
       color: var(--muted);
     }
 
@@ -255,20 +413,39 @@
     }
 
     .footer {
-      margin-top: 36px;
-      text-align: center;
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
     }
+    .footer .tier-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer .dot-sep {
+      color: var(--accent-soft);
+      opacity: 0.5;
+    }
+    .footer .footer-spacer { flex: 1; }
     .footer a {
       color: var(--muted);
       font-size: 12px;
       text-decoration: none;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
       border-bottom: 1px solid transparent;
       transition: color 0.15s, border-color 0.15s;
     }
     .footer a:hover {
-      color: var(--text);
-      border-bottom-color: var(--border);
+      color: var(--accent);
+      border-bottom-color: var(--accent-soft);
+    }
+    .footer .footer-mode {
+      color: var(--muted);
+      opacity: 0.7;
     }
 
     /* ── Walkthrough rendering (consumes the engine's HTML output) ── */
@@ -449,42 +626,103 @@
   </style>
 </head>
 <body>
-<div class="shell">
+<div class="hud">
 
-  <div class="mode-toggle" role="tablist">
-    <button id="modeWrite"  class="mode-btn active" role="tab" aria-selected="true">Write</button>
-    <button id="modeVerify" class="mode-btn"        role="tab" aria-selected="false">Verify</button>
-  </div>
+  <!-- ── TOP BAR ─────────────────────────────────────────────────── -->
+  <header class="hud-topbar">
+    <span class="wordmark">narrow highway</span>
+    <span class="topbar-spacer"></span>
+    <span class="topbar-item" id="topbarDate" title="Today's date"></span>
+    <span class="topbar-item" id="topbarLibraryCount" title="Seeds in your library">— seeds</span>
+    <span class="topbar-item" id="topbarKeeping" title="Keeping status">
+      <span class="pulse"></span>
+      <span id="keepingLabel">keeping…</span>
+    </span>
+  </header>
 
-  <div class="history" id="history">
-    <div class="empty" id="emptyState">
-      <div class="wordmark">Concordance</div>
-      <h1 id="emptyHeadline">Write what's on your mind.</h1>
-      <p id="emptyBlurb">Stream of consciousness in. Calibration out. The engine listens — surfaces what shape your writing carries, where this sits relative to your recent entries, who else has reached for the same anchors. Nothing replaces what you wrote.</p>
-      <div class="examples" id="examplesBlock" style="margin-top: 28px; display: flex; flex-direction: column; gap: 10px; max-width: 540px;">
-        <div id="examplesLabel" style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Try one</div>
-        <!-- Example buttons are populated by JS based on the active mode. -->
+  <!-- ── LEFT RAIL — tasks / dates / feelings ───────────────────── -->
+  <aside class="hud-left">
+    <div class="panel" id="panelTasks">
+      <div class="panel-label">tasks still standing <span class="count" id="taskCount"></span></div>
+      <div id="taskList"><div class="panel-empty">—</div></div>
+    </div>
+    <div class="panel" id="panelDates">
+      <div class="panel-label">dates noted <span class="count" id="dateCount"></span></div>
+      <div id="dateList"><div class="panel-empty">—</div></div>
+    </div>
+    <div class="panel" id="panelFeelings">
+      <div class="panel-label">feelings recurring <span class="count" id="feelingCount"></span></div>
+      <div id="feelingList"><div class="panel-empty">—</div></div>
+    </div>
+  </aside>
+
+  <!-- ── CENTER — the writing area + recent kept ─────────────────── -->
+  <main class="hud-center">
+    <div class="history" id="history">
+      <div class="empty" id="emptyState">
+        <h1 id="emptyHeadline">What's with you today?</h1>
+        <p id="emptyBlurb">Tasks, ideas, dates, names, feelings — anything you put down is kept. The engine listens; nothing replaces what you wrote.</p>
       </div>
     </div>
-  </div>
 
-  <div class="input-wrap">
-    <textarea id="input" rows="1" placeholder="Write what's on your mind…" autofocus></textarea>
-    <button class="send" id="sendBtn" disabled title="Send">
-      <svg viewBox="0 0 16 16"><path d="M1 8L15 1 8 15 7 9z"/></svg>
-    </button>
-  </div>
-  <div class="hint">
-    <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Enter</kbd> to send
-    &nbsp;·&nbsp;
-    <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Shift+Enter</kbd> for new line
-    &nbsp;·&nbsp;
-    <span id="modeHint">Write mode: harvest a seed into your library</span>
-  </div>
+    <div class="input-wrap">
+      <textarea id="input" rows="6" placeholder="a thought, a task, a date, a feeling — anything you put down is kept." autofocus></textarea>
+      <button class="keep" id="sendBtn" disabled title="Keep">Keep</button>
+    </div>
+    <div class="hint">
+      <kbd style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px;border:1px solid var(--border);">⌘ Enter</kbd> to keep
+      &nbsp;·&nbsp;
+      <kbd style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px;border:1px solid var(--border);">Shift+Enter</kbd> for new line
+    </div>
 
-  <div class="footer">
-    <a href="https://github.com/matharrismma/Lighthouse" target="_blank" rel="noopener">learn more</a>
-  </div>
+    <!-- Recent kept seeds — ambient, scrollable, populated on load -->
+    <div class="panel" id="panelRecent" style="margin-top: 32px;">
+      <div class="panel-label">recently kept <span class="count" id="recentCount"></span></div>
+      <div id="recentList"><div class="panel-empty">—</div></div>
+    </div>
+  </main>
+
+  <!-- ── RIGHT RAIL — recurring anchors / people / emerging ──────── -->
+  <aside class="hud-right">
+    <div class="panel" id="panelAnchors">
+      <div class="panel-label">recurring anchors <span class="count" id="anchorCount"></span></div>
+      <div id="anchorList"><div class="panel-empty">—</div></div>
+    </div>
+    <div class="panel" id="panelPeople">
+      <div class="panel-label">people on your mind <span class="count" id="peopleCount"></span></div>
+      <div id="peopleList"><div class="panel-empty">—</div></div>
+    </div>
+    <div class="panel" id="panelActions">
+      <div class="panel-label">action shapes</div>
+      <div id="actionList"><div class="panel-empty">—</div></div>
+    </div>
+    <div class="panel" id="panelEmergence">
+      <div class="panel-label">what's emerging</div>
+      <div id="emergenceList"><div class="panel-empty">— the keeping continues</div></div>
+    </div>
+  </aside>
+
+  <!-- ── FOOTER — quiet links to the rest of the system ──────────── -->
+  <footer class="hud-footer">
+    <div class="footer">
+      <span class="tier-links">
+        <a href="#" id="lnkLibrary">your library</a>
+        <span class="dot-sep">·</span>
+        <a href="#" id="lnkShelf">your shelf</a>
+        <span class="dot-sep">·</span>
+        <a href="#" id="lnkSeek">seek the bank</a>
+      </span>
+      <span class="footer-spacer"></span>
+      <a href="#" id="modeToggleLink" class="footer-mode" title="Switch to verify mode">verify a claim ›</a>
+    </div>
+  </footer>
+
+  <!-- Hidden hooks the existing JS still references — keep these so the
+       toggle/examples logic doesn't error out. -->
+  <button id="modeWrite"  style="display:none;" class="mode-btn active"></button>
+  <button id="modeVerify" style="display:none;" class="mode-btn"></button>
+  <span   id="modeHint"   style="display:none;"></span>
+  <div    id="examplesBlock" style="display:none;"></div>
 
 </div>
 
@@ -582,16 +820,332 @@
 
   modeWriteBtn.addEventListener('click', () => setMode('write'));
   modeVerifyBtn.addEventListener('click', () => setMode('verify'));
-  renderExamples();
+
+  // ── HUD population ─────────────────────────────────────────────────
+  // Side rails + top bar are populated on load and after every capture.
+  // Each panel reads from a single endpoint; a panel that fails to
+  // populate gracefully shows an em-dash rather than breaking the page.
+
+  function el(id) { return document.getElementById(id); }
+
+  function setTopbarDate() {
+    const d = new Date();
+    const opts = { weekday: 'short', month: 'short', day: 'numeric' };
+    const node = el('topbarDate');
+    if (node) node.textContent = d.toLocaleDateString(undefined, opts).toLowerCase();
+  }
+
+  function renderPanelList(listEl, items, formatter, emptyMsg) {
+    if (!listEl) return;
+    if (!items || !items.length) {
+      listEl.innerHTML = '<div class="panel-empty">' + esc(emptyMsg || '—') + '</div>';
+      return;
+    }
+    listEl.innerHTML = items.map(formatter).join('');
+  }
+
+  function loadHudEmergence() {
+    return fetch(API + '/emergence?window_days=30')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const em = data.emergence || {};
+
+        // Tasks
+        const tasks = em.standing_tasks || [];
+        if (el('taskCount')) el('taskCount').textContent = tasks.length ? '· ' + tasks.length : '';
+        renderPanelList(el('taskList'), tasks.slice(0, 6),
+          t => '<div class="panel-item">' + esc(t.task) + '</div>',
+          'no standing tasks'
+        );
+
+        // Dates
+        const dates = em.upcoming_dates || [];
+        if (el('dateCount')) el('dateCount').textContent = dates.length ? '· ' + dates.length : '';
+        // Dedupe by date_text + show most-recent-source-entry-first.
+        const seenDates = new Set();
+        const uniqueDates = [];
+        dates.forEach(d => {
+          const key = (d.date_text || '').toLowerCase();
+          if (key && !seenDates.has(key)) {
+            seenDates.add(key);
+            uniqueDates.push(d);
+          }
+        });
+        renderPanelList(el('dateList'), uniqueDates.slice(0, 6),
+          d => '<div class="panel-item"><code>' + esc(d.date_text) + '</code></div>',
+          'no dates noted'
+        );
+
+        // Feelings — pivot the dict to sorted list
+        const feelingsObj = em.feeling_distribution || {};
+        const feelings = Object.entries(feelingsObj)
+          .sort((a, b) => b[1] - a[1]);
+        if (el('feelingCount')) el('feelingCount').textContent = feelings.length ? '· ' + feelings.length : '';
+        renderPanelList(el('feelingList'), feelings.slice(0, 5),
+          ([word, count]) => '<div class="panel-item">' + esc(word) + ' <span class="meta">×' + count + '</span></div>',
+          'none yet'
+        );
+
+        // Anchors — sorted by recurrence
+        const anchorsObj = em.recurring_anchors || {};
+        const anchors = Object.entries(anchorsObj)
+          .sort((a, b) => b[1] - a[1]);
+        if (el('anchorCount')) el('anchorCount').textContent = anchors.length ? '· ' + anchors.length : '';
+        renderPanelList(el('anchorList'), anchors.slice(0, 6),
+          ([ref, count]) => '<div class="panel-item"><code>' + esc(ref) + '</code> <span class="meta">×' + count + '</span></div>',
+          'no anchors yet'
+        );
+
+        // People
+        const peopleObj = em.recurring_people || {};
+        const people = Object.entries(peopleObj)
+          .sort((a, b) => b[1] - a[1]);
+        if (el('peopleCount')) el('peopleCount').textContent = people.length ? '· ' + people.length : '';
+        renderPanelList(el('peopleList'), people.slice(0, 6),
+          ([name, count]) => '<div class="panel-item">' + esc(name) + ' <span class="meta">×' + count + '</span></div>',
+          'none named'
+        );
+
+        // Action shapes
+        const actionsObj = em.recurring_action_shapes || {};
+        const actions = Object.entries(actionsObj)
+          .sort((a, b) => b[1] - a[1]);
+        renderPanelList(el('actionList'), actions,
+          ([name, count]) => '<div class="panel-item">' + esc(name) + ' <span class="meta">×' + count + '</span></div>',
+          'none yet'
+        );
+
+        // Emergence notes
+        const notes = em.notes || [];
+        renderPanelList(el('emergenceList'), notes,
+          n => '<div class="panel-item">— ' + esc(n) + '</div>',
+          'the keeping continues'
+        );
+      })
+      .catch(() => {
+        // Swallow — rails just stay as their previous state. Health
+        // panel below will reflect any deeper issue.
+      });
+  }
+
+  function loadHudRecent() {
+    return fetch(API + '/journal/recent?limit=8')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const entries = data.entries || [];
+        if (el('recentCount')) el('recentCount').textContent = data.count ? '· ' + data.count : '';
+        if (el('topbarLibraryCount')) {
+          el('topbarLibraryCount').textContent = (data.count || 0) + ' seed' + (data.count === 1 ? '' : 's');
+        }
+        renderPanelList(el('recentList'), entries,
+          e => {
+            const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 100);
+            const truncated = (e.text || '').length > 100;
+            const cat = e.categorization || {};
+            let pills = '';
+            if ((cat.detected_anchors || []).length) {
+              pills += ' <span class="meta">↳ ' + esc((cat.detected_anchors || []).join(', ')) + '</span>';
+            }
+            return '<div class="panel-item"><code>' + esc(e.id) + '</code> ' + esc(preview) + (truncated ? '…' : '') + pills + '</div>';
+          },
+          'nothing kept yet'
+        );
+      })
+      .catch(() => {});
+  }
+
+  function loadHudKeeping() {
+    return fetch(API + '/health')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const lbl = el('keepingLabel');
+        if (!lbl) return;
+        const m = data.modules || {};
+        if (m.keeping && m.keeping.reachable) {
+          const obs = m.keeping.total_observations || 0;
+          lbl.textContent = obs + ' observation' + (obs === 1 ? '' : 's');
+        } else {
+          lbl.textContent = 'keeping: …';
+        }
+      })
+      .catch(() => {});
+  }
+
+  function loadHud() {
+    setTopbarDate();
+    return Promise.all([loadHudEmergence(), loadHudRecent(), loadHudKeeping()]);
+  }
+
+  // Initial load + refresh every 60s. After every successful capture,
+  // submitWrite() also calls loadHud() so writing immediately updates
+  // the rails (the user sees their own seed land in "recently kept",
+  // any new tasks appear in the standing list, etc.)
+  loadHud();
+  setInterval(loadHud, 60000);
+
+  // Footer "verify a claim ›" link toggles to verify mode and surfaces
+  // a small back-link in the empty state once flipped. The empty state
+  // copy is mode-aware via setMode(), so the same hidden infrastructure
+  // drives both modes — toggle is just hidden chrome.
+  const modeToggleLink = document.getElementById('modeToggleLink');
+  if (modeToggleLink) {
+    modeToggleLink.addEventListener('click', e => {
+      e.preventDefault();
+      const next = (mode === 'write') ? 'verify' : 'write';
+      setMode(next);
+      modeToggleLink.textContent = (next === 'verify')
+        ? '‹ back to writing'
+        : 'verify a claim ›';
+    });
+  }
+
+  // Footer tier links — open the relevant view inline in the history.
+  // Library + Shelf show full lists (the rails only show summaries).
+  // Seek opens a small inline prompt for /ask-style queries.
+  const lnkLibrary    = document.getElementById('lnkLibrary');
+  const lnkShelf      = document.getElementById('lnkShelf');
+  const lnkSeek       = document.getElementById('lnkSeek');
+  function fetchAndShow(label, url, formatter) {
+    if (emptyEl && emptyEl.parentNode) emptyEl.remove();
+    const exchange = document.createElement('div');
+    exchange.className = 'exchange';
+    exchange.innerHTML = '<div class="bubble-engine"><strong>' + esc(label) + '</strong> <em style="color:var(--muted)">loading…</em></div>';
+    historyEl.appendChild(exchange);
+    scrollBottom();
+    fetch(API + url)
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const html = formatter(data);
+        exchange.querySelector('.bubble-engine').innerHTML = html;
+        scrollBottom();
+      })
+      .catch(err => {
+        exchange.querySelector('.bubble-engine').innerHTML =
+          '<strong>' + esc(label) + '</strong><br><span style="color:var(--reject)">' + esc(String(err)) + '</span>';
+      });
+  }
+  if (lnkLibrary) lnkLibrary.addEventListener('click', e => {
+    e.preventDefault();
+    fetchAndShow('Your library', '/journal/recent?limit=20', data => {
+      if (!data.entries || !data.entries.length) {
+        return '<strong>Your library</strong><br><em style="color:var(--muted)">no entries yet — write something to plant the first seed</em>';
+      }
+      let html = '<strong>Your library</strong><div style="margin-top:10px;">';
+      data.entries.forEach(e => {
+        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 90);
+        html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><code style="color:var(--accent);font-size:11px;">' + esc(e.id) + '</code> &nbsp; ' + esc(preview) + (preview.length === 90 ? '…' : '') + '</div>';
+      });
+      html += '</div>';
+      return html;
+    });
+  });
+  if (lnkShelf) lnkShelf.addEventListener('click', e => {
+    e.preventDefault();
+    fetchAndShow('Your shelf', '/shelf', data => {
+      if (!data.entries || !data.entries.length) {
+        return '<strong>Your shelf</strong><br><em style="color:var(--muted)">empty — publish a seed to put it on the shelf</em>';
+      }
+      let html = '<strong>Your shelf</strong> <span style="color:var(--muted);font-size:12px;">(community-visible)</span><div style="margin-top:10px;">';
+      data.entries.forEach(e => {
+        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 90);
+        const anchors = (e.categorization && e.categorization.detected_anchors) || [];
+        html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><code style="color:var(--accent);font-size:11px;">' + esc(e.id) + '</code> &nbsp; ' + esc(preview) + (preview.length === 90 ? '…' : '');
+        if (anchors.length) html += ' <span style="color:var(--muted);font-size:11px;"> &nbsp;↳ ' + esc(anchors.join(', ')) + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+      return html;
+    });
+  });
+  // Seek — opens an inline prompt that calls POST /ask, renders the
+  // elimination trail + survivors. The right-rail "what's emerging"
+  // panel covers the previous emergence-link use case.
+  if (lnkSeek) lnkSeek.addEventListener('click', e => {
+    e.preventDefault();
+    if (emptyEl && emptyEl.parentNode) emptyEl.remove();
+    const exchange = document.createElement('div');
+    exchange.className = 'exchange';
+    exchange.innerHTML =
+      '<div class="bubble-engine"><strong>Seek the bank</strong>'
+      + '<div style="color:var(--muted);font-size:12px;margin:6px 0 10px 0;">'
+      + 'Type a question. The engine eliminates misfits with reasons, ranks survivors by fruit; if nothing matches, the question itself becomes a new seed.'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;">'
+      + '<input type="text" id="seekInput" placeholder="your question…" '
+      + 'style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font:inherit;font-size:13px;" />'
+      + '<button id="seekBtn" class="keep" style="margin:0;">Seek</button>'
+      + '</div>'
+      + '<div id="seekResult" style="margin-top:14px;"></div>'
+      + '</div>';
+    historyEl.appendChild(exchange);
+    scrollBottom();
+    const seekInput = exchange.querySelector('#seekInput');
+    const seekBtn = exchange.querySelector('#seekBtn');
+    const seekResult = exchange.querySelector('#seekResult');
+    seekInput.focus();
+    function runSeek() {
+      const q = seekInput.value.trim();
+      if (!q) return;
+      seekBtn.disabled = true;
+      seekResult.innerHTML = '<em style="color:var(--muted);">searching…</em>';
+      fetch(API + '/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, max_survivors: 5, max_eliminated: 8 })
+      })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(data => {
+          const r = data.result || {};
+          let html = '';
+          if ((r.survivors || []).length) {
+            html += '<div style="color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">survived elimination · ranked by fruit</div>';
+            r.survivors.forEach(s => {
+              html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">'
+                + '<code style="color:var(--accent);font-size:11px;">' + esc(s.candidate_id) + '</code> '
+                + '<span class="meta">(' + esc(s.source) + ', fruit ' + (Math.round(s.fruit_score * 100) / 100) + ')</span>'
+                + '<br>' + esc(s.summary) + '</div>';
+            });
+          } else if (r.new_seed_id) {
+            html += '<em style="color:var(--muted);">Nothing in the bank matched. The question is now a new seed: <code style="color:var(--accent);">' + esc(r.new_seed_id) + '</code></em>';
+            loadHud();  // new seed in the bank — refresh rails
+          } else {
+            html += '<em style="color:var(--muted);">No matches and no seed captured.</em>';
+          }
+          if ((r.eliminated || []).length) {
+            html += '<div style="color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 6px 0;">eliminated</div>';
+            r.eliminated.forEach(e => {
+              html += '<div style="padding:3px 0;font-size:12px;color:var(--muted);">· <code style="color:var(--accent);">' + esc(e.candidate_id) + '</code> — ' + esc(e.reason) + '</div>';
+            });
+          }
+          seekResult.innerHTML = html;
+          seekBtn.disabled = false;
+          scrollBottom();
+        })
+        .catch(err => {
+          seekResult.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
+          seekBtn.disabled = false;
+        });
+    }
+    seekBtn.addEventListener('click', runSeek);
+    seekInput.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter') { ev.preventDefault(); runSeek(); }
+    });
+  });
 
   inputEl.addEventListener('input', () => {
     sendBtn.disabled = inputEl.value.trim() === '';
+    // Auto-grow but with a generous floor so the writing area never
+    // shrinks back to a chat-input height once it's been opened up.
     inputEl.style.height = 'auto';
-    inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+    inputEl.style.height = Math.max(180, Math.min(inputEl.scrollHeight, 480)) + 'px';
   });
 
   inputEl.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // Cmd/Ctrl + Enter keeps; bare Enter adds a newline (this is a
+    // writing area, not a chat box). Shift+Enter also adds a newline
+    // for muscle-memory parity.
+    const isKeep = e.key === 'Enter' && (e.metaKey || e.ctrlKey);
+    if (isKeep) {
       e.preventDefault();
       if (!sendBtn.disabled) submit();
     }
@@ -762,6 +1316,11 @@
     inputEl.disabled = false;
     inputEl.focus();
     scrollBottom();
+    // The user just kept a seed. Refresh the HUD so any new tasks /
+    // anchors / dates / people / feelings the engine heard show up
+    // in the rails immediately. The keeping ran in the background;
+    // the page reflects it.
+    loadHud();
   }
 
   function renderResult(exchange, thinking, data) {
