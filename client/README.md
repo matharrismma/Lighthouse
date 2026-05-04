@@ -19,6 +19,7 @@ instance.
 | [`qr_share.md`](qr_share.md) | Print a QR carrying a precedent URL — paper sneakernet for sealed precedents | Any QR app or `qrencode` | Highest — paper survives every digital adversary |
 | [`nostr_publish.py`](nostr_publish.py) | Publish sealed precedents to Nostr relays — federated kingdom-economy social | `pip install pynostr` + a generated keypair | High — federated, free relays, secp256k1 keys |
 | [`ipfs_pin.py`](ipfs_pin.py) | Pin precedents (and any file) to IPFS — durable content-addressed distribution | `apt install kubo` + `ipfs daemon` running | High — content-addressed, no proprietary CDN |
+| [`digest_mail.py`](digest_mail.py) | Email a digest of newly-sealed precedents to a subscriber list via SMTP | Stdlib only + an SMTP server | High — SMTP is universal, hard to block |
 
 The PWA path — install `narrowhighway.com` to your phone's home
 screen, share to it from any app — is built into the site itself
