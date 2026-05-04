@@ -14,11 +14,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     /* Warmer dark palette — softer than pure cool-blue.
-       The page should feel like reading by lamplight, not staring at a terminal. */
+       The page should feel like reading by lamplight, not a terminal. */
     :root {
       --bg: #161318;
       --surface: #1d191f;
+      --surface-2: #232028;
       --border: #2d2731;
+      --border-bright: #3f3845;
       --text: #efe9e0;
       --muted: #8a8593;
       --accent: #c9a87c;
@@ -34,50 +36,52 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       font-size: 15px;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
-    /* Serif used only for the prompt — sets a "this is a place to think"
-       tone without taking over the rest of the page. */
-    .serif {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-    }
+    body { min-height: 100vh; padding: 0; }
 
-    body {
-      min-height: 100vh;
-      padding: 0;
-    }
-
-    /* HUD layout: top bar + 3-column main + footer.
-       The writing area is the center of the HUD; rails hold ambient
-       context fetched on load and refreshed periodically. On narrow
-       viewports the rails stack below the center column. */
+    /* HUD layout: top bar + activity strip + 3-column main + footer.
+       In verify mode the journal rails are hidden via body.verify-mode. */
     .hud {
       display: grid;
       grid-template-columns: 220px 1fr 240px;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto auto 1fr auto;
       grid-template-areas:
         "topbar topbar  topbar"
+        "strip  strip   strip"
         "left   center  right"
         "footer footer  footer";
       min-height: 100vh;
       gap: 0;
     }
     .hud-topbar { grid-area: topbar; }
+    .hud-strip  { grid-area: strip;  }
     .hud-left   { grid-area: left;   }
     .hud-center { grid-area: center; }
     .hud-right  { grid-area: right;  }
     .hud-footer { grid-area: footer; }
+
+    body.verify-mode .hud-left,
+    body.verify-mode .hud-right,
+    body.verify-mode .hud-strip { display: none; }
+    body.verify-mode .hud {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "topbar"
+        "center"
+        "footer";
+    }
 
     @media (max-width: 960px) {
       .hud {
         grid-template-columns: 1fr;
         grid-template-areas:
           "topbar"
+          "strip"
           "center"
-          "left"
           "right"
+          "left"
           "footer";
       }
       .hud-left, .hud-right {
@@ -87,12 +91,12 @@
       }
     }
 
-    /* Top bar — wordmark + ambient status (today's date + keeping pulse) */
+    /* ── TOP BAR ────────────────────────────────────────────────── */
     .hud-topbar {
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 14px 24px;
+      gap: 14px;
+      padding: 12px 22px;
       border-bottom: 1px solid var(--border);
       font-size: 12px;
       color: var(--muted);
@@ -103,7 +107,7 @@
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--accent);
-      opacity: 0.75;
+      opacity: 0.78;
       margin: 0;
     }
     .hud-topbar .topbar-spacer { flex: 1; }
@@ -112,52 +116,137 @@
       align-items: center;
       gap: 6px;
       letter-spacing: 0.04em;
+      white-space: nowrap;
     }
     .hud-topbar .pulse {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--pass);
       box-shadow: 0 0 6px var(--pass);
       animation: pulse-glow 2.4s infinite ease-in-out;
+    }
+    .hud-topbar .pulse.degraded {
+      background: var(--quarantine);
+      box-shadow: 0 0 6px var(--quarantine);
+    }
+    .hud-topbar .pulse.down {
+      background: var(--reject);
+      box-shadow: 0 0 6px var(--reject);
+      animation: none;
     }
     @keyframes pulse-glow {
       0%, 100% { opacity: 0.55; }
       50%      { opacity: 1; }
     }
 
-    /* Side rails — panels of ambient signal */
+    /* Mode toggle in the topbar — small, deterministic, always visible. */
+    .mode-toggle {
+      display: inline-flex;
+      gap: 0;
+      padding: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: uppercase;
+      transition: all 120ms ease;
+    }
+    .mode-btn.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .mode-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── ACTIVITY STRIP — last 14 days ─────────────────────────── */
+    .hud-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 22px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      overflow-x: auto;
+    }
+    .strip-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .strip-cells { display: inline-flex; gap: 3px; }
+    .strip-cell {
+      width: 14px; height: 14px;
+      border-radius: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 80ms ease;
+    }
+    .strip-cell:hover { transform: scale(1.25); }
+    .strip-cell.d1 { background: #2a2620; border-color: #3a322a; }
+    .strip-cell.d2 { background: #4a3a26; border-color: #5a482a; }
+    .strip-cell.d3 { background: #7a5e3a; border-color: #8a6e44; }
+    .strip-cell.d4 { background: var(--accent); border-color: var(--accent); }
+    .strip-cell.today { outline: 1px solid var(--accent); outline-offset: 1px; }
+
+    /* ── SIDE RAILS ────────────────────────────────────────────── */
     .hud-left, .hud-right {
-      padding: 20px 16px;
+      padding: 18px 14px;
       font-size: 12px;
       color: var(--text);
     }
     .hud-left  { border-right: 1px solid var(--border); }
     .hud-right { border-left: 1px solid var(--border); }
 
-    .panel {
-      margin-bottom: 22px;
-    }
+    .panel { margin-bottom: 20px; }
     .panel-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
     .panel-label .count {
       color: var(--accent);
-      opacity: 0.7;
+      opacity: 0.72;
       font-size: 10px;
     }
+
     .panel-item {
-      padding: 4px 0;
+      padding: 5px 8px;
+      margin: 0 -8px;
       font-size: 12.5px;
       line-height: 1.45;
       color: var(--text);
-      border-bottom: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 80ms ease;
+    }
+    .panel-item:hover {
+      background: var(--surface);
+    }
+    .panel-item.active {
+      background: var(--surface-2);
+      box-shadow: inset 2px 0 0 var(--accent);
     }
     .panel-item code {
       font-family: 'JetBrains Mono', monospace;
@@ -178,30 +267,17 @@
       padding: 4px 0;
     }
 
-    /* Center column — the writing area + recent kept */
+    /* ── CENTER COLUMN ─────────────────────────────────────────── */
     .hud-center {
-      padding: 32px 28px 8px 28px;
+      padding: 24px 28px 8px 28px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       width: 100%;
     }
 
-    .shell {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .history {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-
+    .history { display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px; }
     .exchange { display: flex; flex-direction: column; gap: 10px; }
 
     .bubble-user {
@@ -213,6 +289,7 @@
       max-width: 90%;
       color: var(--text);
       font-size: 14px;
+      white-space: pre-wrap;
     }
 
     .bubble-engine {
@@ -221,69 +298,156 @@
       border: 1px solid var(--border);
       border-radius: 4px 14px 14px 14px;
       padding: 14px 16px;
-      max-width: 92%;
+      max-width: 95%;
+      width: 100%;
       font-size: 14px;
     }
 
-    .verdict {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 3px 9px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
-    .verdict.PASS       { background: #0d2b22; color: var(--pass);       border: 1px solid #1a4a38; }
-    .verdict.REJECT     { background: #2b0d0d; color: var(--reject);     border: 1px solid #4a1a1a; }
-    .verdict.QUARANTINE { background: #2b2208; color: var(--quarantine); border: 1px solid #4a3a10; }
-    .verdict.ERROR      { background: #1a1a24; color: var(--muted);      border: 1px solid var(--border); }
-
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    .gates { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
-
-    .gate-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .gate-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      width: 80px;
-      flex-shrink: 0;
-      margin-top: 2px;
+    /* Compact engine bubble — used after the first response of a session.
+       Shows id + heard-count; click to expand to full calibration. */
+    .bubble-engine.compact { padding: 10px 14px; }
+    .bubble-engine.compact .seed-id { margin-bottom: 0; }
+    .bubble-engine.compact .compact-summary {
+      font-size: 12px;
       color: var(--muted);
+      margin-top: 2px;
     }
+    .bubble-engine.compact .full { display: none; }
+    .bubble-engine.compact.expanded .full { display: block; margin-top: 10px; }
+    .bubble-engine.compact.expanded { padding: 14px 16px; }
+    .bubble-engine .expand-link {
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    .bubble-engine .expand-link:hover { color: var(--accent); }
 
-    .gate-status {
+    /* Today's pulse — replaces the decorative empty state */
+    .empty {
+      margin-bottom: 24px;
+    }
+    .pulse-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .pulse-heading .label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      font-weight: 500;
-      padding: 1px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    .pulse-heading .date {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    .pulse-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .pulse-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .pulse-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .pulse-stat .lbl {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
       margin-top: 2px;
     }
-    .gate-status.PASS       { background: #0d2b22; color: var(--pass); }
-    .gate-status.REJECT     { background: #2b0d0d; color: var(--reject); }
-    .gate-status.QUARANTINE { background: #2b2208; color: var(--quarantine); }
-    .gate-status.SKIP       { background: #0f1117; color: var(--muted); }
-
-    .gate-reasons {
+    .pulse-callout {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
       color: var(--muted);
-      font-size: 12.5px;
+      opacity: 0.85;
+      padding: 6px 0;
+    }
+
+    /* ── INPUT ─────────────────────────────────────────────────── */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      transition: border-color 0.15s;
+    }
+    .input-wrap:focus-within { border-color: var(--accent); }
+
+    textarea {
       flex: 1;
-      line-height: 1.5;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      resize: none;
+      min-height: 160px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+    textarea::placeholder { color: var(--muted); font-style: italic; }
+
+    button.keep {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, opacity 0.15s;
+      align-self: flex-end;
+      margin-left: 10px;
+      white-space: nowrap;
+    }
+    button.keep:hover { background: var(--accent); color: var(--bg); }
+    button.keep:disabled { opacity: 0.35; cursor: default; }
+
+    .hint {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 10px;
+      letter-spacing: 0.02em;
+      padding: 0 4px;
+    }
+    .hint kbd {
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 10px;
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .thinking {
@@ -294,7 +458,6 @@
       font-size: 13px;
       padding: 10px 0;
     }
-
     .dots span {
       display: inline-block;
       width: 4px; height: 4px;
@@ -310,164 +473,216 @@
       40%            { opacity: 1; }
     }
 
-    .input-wrap {
-      position: relative;
-      display: flex;
-      align-items: flex-end;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px 14px;
-      transition: border-color 0.15s;
-    }
-    .input-wrap:focus-within { border-color: var(--accent); }
-
-    textarea {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      resize: none;
-      min-height: 24px;
-      max-height: 160px;
-      overflow-y: auto;
-    }
-    textarea::placeholder { color: var(--muted); font-style: italic; }
-
-    /* Writing area — generous from the start. Not a chat input;
-       a place a person settles into. */
-    .input-wrap textarea {
-      min-height: 180px !important;
-      max-height: none !important;
-      padding: 18px !important;
-      font-size: 15px !important;
-      line-height: 1.7 !important;
-      background: var(--surface) !important;
-    }
-
-    button.keep {
-      background: var(--accent-soft);
-      border: 1px solid var(--accent);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      transition: background 0.15s, opacity 0.15s;
-      align-self: flex-end;
-      margin-left: 10px;
-    }
-    button.keep:hover { background: var(--accent); color: var(--bg); }
-    button.keep:disabled { opacity: 0.35; cursor: default; }
-
-    .hint {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 14px;
-      letter-spacing: 0.02em;
-    }
-
-    .empty {
-      text-align: center;
-      margin-bottom: 36px;
-    }
-    .wordmark {
+    /* ── ENGINE BUBBLE INTERNALS ───────────────────────────────── */
+    .seed-id {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 32px;
-      opacity: 0.55;
-    }
-    .empty h1 {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 28px;
-      font-weight: 400;
-      color: var(--text);
-      margin-bottom: 0;
-      letter-spacing: -0.01em;
-      opacity: 0.92;
-    }
-    .empty p {
-      font-size: 13px;
-      line-height: 1.6;
-      max-width: 380px;
-      margin: 18px auto 0 auto;
-      color: var(--muted);
-    }
-
-    /* Ledger heading — a desk-ledger feel, not a chat greeting */
-    .ledger-heading {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 14px;
-      margin-bottom: 6px;
-    }
-    .ledger-heading .ledger-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0.7;
-    }
-    .ledger-heading .ledger-date {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 22px;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: 0.01em;
-      opacity: 0.95;
-    }
-    .ledger-rule {
-      text-align: center;
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 13px;
-      color: var(--muted);
-      opacity: 0.6;
-      margin-top: 4px;
-    }
-
-    .elapsed {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+    .seed-id code { color: var(--accent); }
+    .calibration-h {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 10px 0 4px 0;
       font-family: 'JetBrains Mono', monospace;
     }
+    .cal-line {
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 1px 0;
+    }
+    .cal-line code {
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
 
-    .footer {
-      margin-top: 32px;
+    /* Seed actions row — annotate / publish / open */
+    .seed-actions {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
       display: flex;
+      gap: 8px;
       align-items: center;
-      gap: 16px;
+      font-size: 11px;
+      color: var(--muted);
       flex-wrap: wrap;
+    }
+    .seed-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 11px;
+      transition: border-color 80ms ease;
+    }
+    .seed-btn:hover { border-color: var(--accent); }
+    .seed-btn.published { color: var(--pass); border-color: var(--pass); }
+    .seed-btn.muted     { color: var(--muted); }
+    .annotate-row {
+      display: none;
+      margin-top: 10px;
+      gap: 6px;
+      align-items: stretch;
+    }
+    .annotate-row.open { display: flex; }
+    .annotate-row input[type="text"] {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font: inherit;
+      font-size: 12px;
+    }
+
+    /* ── THREAD VIEW (inline panel — opened by clicking a panel item) ── */
+    .thread-view {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .thread-view .thread-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .thread-view .thread-title .t { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .thread-view .thread-title .name { font-size: 14px; color: var(--text); }
+    .thread-view .thread-title .close { color: var(--muted); cursor: pointer; font-size: 14px; }
+    .thread-view .thread-title .close:hover { color: var(--reject); }
+    .thread-view .thread-row {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .thread-view .thread-row:last-child { border-bottom: none; }
+    .thread-view .thread-row:hover { color: var(--accent); }
+    .thread-view .thread-row code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      margin-right: 8px;
+    }
+    .thread-view .thread-row .when {
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .thread-view .thread-empty {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── SEEK BAR ─────────────────────────────────────────────── */
+    .seek-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      padding-top: 12vh;
+      justify-content: center;
+    }
+    .seek-overlay.open { display: flex; }
+    .seek-box {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 10px;
+      padding: 14px 18px;
+      max-width: 640px;
+      width: 92%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .seek-box .seek-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .seek-box .seek-prose {
       font-size: 12px;
       color: var(--muted);
+      margin: 6px 0 12px 0;
+      line-height: 1.5;
     }
-    .footer .tier-links {
+    .seek-box input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 14px;
+    }
+    .seek-box input:focus { outline: none; border-color: var(--accent); }
+    .seek-results { margin-top: 14px; max-height: 50vh; overflow-y: auto; }
+    .seek-row {
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .seek-row:last-child { border-bottom: none; }
+    .seek-row code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      margin-right: 6px;
+    }
+    .seek-row .meta { color: var(--muted); font-size: 11px; }
+    .seek-eliminated {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .seek-eliminated .row { padding: 3px 0; }
+    .seek-eliminated code { color: var(--accent); }
+
+    /* ── FOOTER ────────────────────────────────────────────────── */
+    .hud-footer { border-top: 1px solid var(--border); margin-top: 24px; }
+    .footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 14px 22px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .footer .group {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
-    .footer .dot-sep {
-      color: var(--accent-soft);
-      opacity: 0.5;
+    .footer .group + .group {
+      padding-left: 14px;
+      border-left: 1px solid var(--border);
     }
     .footer .footer-spacer { flex: 1; }
     .footer a {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       text-decoration: none;
       letter-spacing: 0.02em;
       border-bottom: 1px solid transparent;
@@ -477,53 +692,31 @@
       color: var(--accent);
       border-bottom-color: var(--accent-soft);
     }
-    .footer .footer-mode {
+    .footer a.identity { color: var(--accent); opacity: 0.85; }
+    .footer .kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
       color: var(--muted);
-      opacity: 0.7;
     }
 
-    /* ── Walkthrough rendering (consumes the engine's HTML output) ── */
-    /* These class names match concordance_engine.walkthrough's
-       embedded-mode output. Styled here against the host page's
-       theme so the walkthrough feels native, not iframe-inserted. */
+    /* ── WALKTHROUGH (verify mode) ─────────────────────────────── */
     .witness-record { font-size: 14px; line-height: 1.55; }
-    .witness-record h1 {
-      font-size: 18px; font-weight: 600; margin: 0 0 8px;
-      padding: 0; border: none; color: var(--text);
-    }
-    .witness-record h2 {
-      font-size: 14px; font-weight: 600; margin: 18px 0 6px;
-      color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .witness-record h3 {
-      font-size: 13px; font-weight: 500; margin: 12px 0 4px;
-      color: var(--text);
-    }
+    .witness-record h1 { font-size: 18px; font-weight: 600; margin: 0 0 8px; color: var(--text); }
+    .witness-record h2 { font-size: 14px; font-weight: 600; margin: 18px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .witness-record h3 { font-size: 13px; font-weight: 500; margin: 12px 0 4px; color: var(--text); }
     .witness-record p { margin: 4px 0; }
     .witness-record ul { margin: 4px 0 4px 20px; padding: 0; }
     .witness-record li { margin: 2px 0; }
-    .witness-record code {
-      background: var(--bg); padding: 1px 5px; border-radius: 3px;
-      font-family: 'JetBrains Mono', monospace; font-size: 12px;
-      color: var(--text);
-    }
-    .witness-record table {
-      width: 100%; border-collapse: collapse; margin: 8px 0;
-      font-size: 12px;
-    }
-    .witness-record th, .witness-record td {
-      border: 1px solid var(--border); padding: 4px 8px; text-align: left;
-    }
+    .witness-record code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+    .witness-record table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; }
+    .witness-record th, .witness-record td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
     .witness-record th { background: var(--bg); color: var(--muted); }
-    .witness-record blockquote {
-      border-left: 2px solid var(--border); margin: 6px 0;
-      padding: 4px 12px; color: var(--muted);
-    }
-    .witness-record pre {
-      background: var(--bg); padding: 10px; border-radius: 4px;
-      overflow-x: auto; font-size: 12px; margin: 6px 0;
-    }
+    .witness-record blockquote { border-left: 2px solid var(--border); margin: 6px 0; padding: 4px 12px; color: var(--muted); }
+    .witness-record pre { background: var(--bg); padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; margin: 6px 0; }
     .witness-record .headline-pass    { color: var(--pass);       font-weight: 600; }
     .witness-record .headline-reject  { color: var(--reject);     font-weight: 600; }
     .witness-record .headline-quar    { color: var(--quarantine); font-weight: 600; }
@@ -534,14 +727,9 @@
     .witness-record .layer-bible      { color: var(--accent); }
     .witness-record .layer-apostles   { color: #b97aff; }
     .witness-record .layer-elders     { color: var(--muted); }
-    .witness-record .socratic {
-      background: var(--bg); border-left: 3px solid var(--quarantine);
-      padding: 12px 16px; margin: 18px 0 0; border-radius: 4px;
-    }
+    .witness-record .socratic { background: var(--bg); border-left: 3px solid var(--quarantine); padding: 12px 16px; margin: 18px 0 0; border-radius: 4px; }
     .witness-record .socratic h2 { margin-top: 0; border: none; }
-    .witness-record .socratic .question {
-      font-style: italic; color: var(--text); font-size: 15px;
-    }
+    .witness-record .socratic .question { font-style: italic; color: var(--text); font-size: 15px; }
     .witness-record .no-precedent { color: var(--muted); font-style: italic; }
 
     .parse-meta {
@@ -557,106 +745,13 @@
       border-top: 1px solid var(--border);
       font-size: 11px; color: var(--muted);
     }
-    .ledger-link code {
-      color: var(--accent);
-    }
-    .error-bubble {
-      color: var(--reject); font-size: 13px;
-    }
-    .error-bubble .templates {
-      margin-top: 10px; color: var(--text); font-size: 12px;
-    }
+    .ledger-link code { color: var(--accent); }
+    .error-bubble { color: var(--reject); font-size: 13px; }
+    .error-bubble .templates { margin-top: 10px; color: var(--text); font-size: 12px; }
     .error-bubble .templates code {
       background: var(--bg); padding: 1px 4px; border-radius: 3px;
       font-family: 'JetBrains Mono', monospace; font-size: 11px;
     }
-
-    /* Mode toggle (WRITE vs VERIFY) */
-    .mode-toggle {
-      display: flex;
-      gap: 0;
-      align-self: center;
-      margin-bottom: 18px;
-      padding: 3px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.06em;
-    }
-    .mode-btn {
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      padding: 6px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      font: inherit;
-      letter-spacing: inherit;
-      text-transform: uppercase;
-      transition: all 120ms ease;
-    }
-    .mode-btn.active {
-      background: var(--bg);
-      color: var(--text);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    }
-    .mode-btn:hover:not(.active) { color: var(--text); }
-
-    /* Calibration bubble (WRITE mode response) */
-    .bubble-engine .calibration-h {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 8px 0 4px 0;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .bubble-engine .cal-line {
-      font-size: 13px;
-      line-height: 1.5;
-      padding: 1px 0;
-    }
-    .bubble-engine .cal-line code {
-      background: var(--bg);
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--accent);
-    }
-    .bubble-engine .seed-id {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .bubble-engine .seed-id code {
-      color: var(--accent);
-    }
-    .bubble-engine .shelf-actions {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      font-size: 11px;
-      color: var(--muted);
-    }
-    .shelf-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font: inherit;
-      font-size: 11px;
-    }
-    .shelf-btn:hover { border-color: var(--accent); }
-    .shelf-btn.published { color: var(--pass); border-color: var(--pass); }
   </style>
 </head>
 <body>
@@ -665,16 +760,28 @@
   <!-- ── TOP BAR ─────────────────────────────────────────────────── -->
   <header class="hud-topbar">
     <span class="wordmark">narrow highway</span>
+    <div class="mode-toggle" role="tablist" aria-label="Mode">
+      <button class="mode-btn active" id="modeWrite"  role="tab" aria-selected="true">Write</button>
+      <button class="mode-btn"        id="modeVerify" role="tab" aria-selected="false">Verify</button>
+    </div>
     <span class="topbar-spacer"></span>
     <span class="topbar-item" id="topbarDate" title="Today's date"></span>
     <span class="topbar-item" id="topbarLibraryCount" title="Seeds in your library">— seeds</span>
     <span class="topbar-item" id="topbarKeeping" title="Keeping status">
-      <span class="pulse"></span>
+      <span class="pulse" id="healthPulse"></span>
       <span id="keepingLabel">keeping…</span>
     </span>
   </header>
 
-  <!-- ── LEFT RAIL — tasks / dates / feelings ───────────────────── -->
+  <!-- ── 14-DAY ACTIVITY STRIP ─────────────────────────────────── -->
+  <div class="hud-strip" id="activityStrip" aria-label="Last 14 days">
+    <span class="strip-label">last 14d</span>
+    <span class="strip-cells" id="stripCells"></span>
+    <span class="topbar-spacer"></span>
+    <span class="strip-label" id="streakLabel"></span>
+  </div>
+
+  <!-- ── LEFT RAIL — life-state feed (mostly time-anchored) ─────── -->
   <aside class="hud-left">
     <div class="panel" id="panelTasks">
       <div class="panel-label">tasks still standing <span class="count" id="taskCount"></span></div>
@@ -688,45 +795,41 @@
       <div class="panel-label">feelings recurring <span class="count" id="feelingCount"></span></div>
       <div id="feelingList"><div class="panel-empty">—</div></div>
     </div>
-    <div class="panel" id="panelBins">
-      <div class="panel-label">bins forming <span class="count" id="binCount"></span></div>
-      <div id="binList"><div class="panel-empty">—</div></div>
-    </div>
   </aside>
 
-  <!-- ── CENTER — the writing area + recent kept ─────────────────── -->
+  <!-- ── CENTER — pulse + writing area + thread + recent ─────────── -->
   <main class="hud-center">
     <div class="history" id="history">
       <div class="empty" id="emptyState">
-        <div class="ledger-heading">
-          <span class="ledger-label">ledger</span>
-          <span class="ledger-date" id="emptyHeadline"></span>
+        <div class="pulse-heading">
+          <span class="label">ledger</span>
+          <span class="date" id="emptyHeadline"></span>
         </div>
-        <p class="ledger-rule">— the page is open —</p>
-        <!-- emptyBlurb retained as a hidden node so existing JS that
-             rewrites it for verify-mode doesn't error. -->
-        <p id="emptyBlurb" style="display:none;"></p>
+        <div class="pulse-stats" id="pulseStats"></div>
+        <div class="pulse-callout" id="pulseCallout">— the page is open —</div>
       </div>
     </div>
 
+    <!-- thread view appears here when a panel item is clicked -->
+    <div id="threadHost"></div>
+
     <div class="input-wrap">
-      <textarea id="input" rows="6" placeholder="" autofocus></textarea>
+      <textarea id="input" rows="6" placeholder="write what's on your mind…" autofocus></textarea>
       <button class="keep" id="sendBtn" disabled title="Keep">Keep</button>
     </div>
     <div class="hint">
-      <kbd style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px;border:1px solid var(--border);">⌘ Enter</kbd> to keep
-      &nbsp;·&nbsp;
-      <kbd style="background:var(--surface);padding:1px 5px;border-radius:4px;font-size:11px;border:1px solid var(--border);">Shift+Enter</kbd> for new line
+      <span><kbd>⌘ Enter</kbd> keep · <kbd>Shift+Enter</kbd> new line</span>
+      <span><kbd>⌘K</kbd> seek · <kbd>⌘L</kbd> library · <kbd>⌘.</kbd> mode</span>
     </div>
 
-    <!-- Recent kept seeds — ambient, scrollable, populated on load -->
-    <div class="panel" id="panelRecent" style="margin-top: 32px;">
+    <!-- Recent kept seeds — clickable to expand -->
+    <div class="panel" id="panelRecent" style="margin-top: 28px;">
       <div class="panel-label">recently kept <span class="count" id="recentCount"></span></div>
       <div id="recentList"><div class="panel-empty">—</div></div>
     </div>
   </main>
 
-  <!-- ── RIGHT RAIL — recurring anchors / people / emerging ──────── -->
+  <!-- ── RIGHT RAIL — meaning-state feed (recurrence-driven) ─────── -->
   <aside class="hud-right">
     <div class="panel" id="panelAnchors">
       <div class="panel-label">recurring anchors <span class="count" id="anchorCount"></span></div>
@@ -740,6 +843,10 @@
       <div class="panel-label">action shapes</div>
       <div id="actionList"><div class="panel-empty">—</div></div>
     </div>
+    <div class="panel" id="panelBins">
+      <div class="panel-label">bins forming <span class="count" id="binCount"></span></div>
+      <div id="binList"><div class="panel-empty">—</div></div>
+    </div>
     <div class="panel" id="panelEmergence">
       <div class="panel-label">what's emerging</div>
       <div id="emergenceList"><div class="panel-empty">— the keeping continues</div></div>
@@ -750,30 +857,37 @@
     </div>
   </aside>
 
-  <!-- ── FOOTER — quiet links to the rest of the system ──────────── -->
+  <!-- ── FOOTER — three-tier links + service links ──────────────── -->
   <footer class="hud-footer">
     <div class="footer">
-      <span class="tier-links">
-        <a href="#" id="lnkLibrary">your library</a>
-        <span class="dot-sep">·</span>
-        <a href="#" id="lnkShelf">your shelf</a>
-        <span class="dot-sep">·</span>
-        <a href="#" id="lnkSeek">seek the bank</a>
+      <span class="group">
+        <a href="#" id="lnkLibrary">library</a>
+        <a href="#" id="lnkShelf">shelf</a>
+        <a href="#" id="lnkSeek">seek <span class="kbd">⌘K</span></a>
       </span>
       <span class="footer-spacer"></span>
-      <a href="/identity" class="footer-mode" title="What this engine serves" style="margin-right:14px;">serves Jesus Christ</a>
-      <a href="/pyodide.html" class="footer-mode" title="Run the engine entirely in your browser — no server, no install" style="margin-right:14px;">in-browser ›</a>
-      <a href="#" id="modeToggleLink" class="footer-mode" title="Switch to verify mode">verify a claim ›</a>
+      <span class="group">
+        <a href="/identity" class="identity" title="What this engine serves">serves Jesus Christ</a>
+        <a href="/pyodide.html" title="Run the engine entirely in your browser">in-browser</a>
+        <a href="/llms.txt" title="For AI agents">llms.txt</a>
+      </span>
     </div>
   </footer>
 
-  <!-- Hidden hooks the existing JS still references — keep these so the
-       toggle/examples logic doesn't error out. -->
-  <button id="modeWrite"  style="display:none;" class="mode-btn active"></button>
-  <button id="modeVerify" style="display:none;" class="mode-btn"></button>
-  <span   id="modeHint"   style="display:none;"></span>
-  <div    id="examplesBlock" style="display:none;"></div>
+</div>
 
+<!-- ── SEEK OVERLAY — opens with ⌘K or footer link ────────────── -->
+<div class="seek-overlay" id="seekOverlay" role="dialog" aria-label="Seek the bank">
+  <div class="seek-box">
+    <div class="seek-label">seek the bank · ⌘K</div>
+    <div class="seek-prose">
+      Type a question. The engine eliminates misfits with reasons,
+      ranks survivors by fruit. If nothing matches, the question
+      itself becomes a new seed.
+    </div>
+    <input type="text" id="seekInput" placeholder="your question…" autocomplete="off" />
+    <div class="seek-results" id="seekResults"></div>
+  </div>
 </div>
 
 <script>
@@ -784,110 +898,78 @@
     if (host === '' || host === 'file' || host === 'localhost' || host === '127.0.0.1') {
       return 'http://localhost:8000';
     }
-    return '';  // same origin
+    return '';
   })();
 
-  const historyEl = document.getElementById('history');
-  const emptyEl   = document.getElementById('emptyState');
-  const inputEl   = document.getElementById('input');
-  const sendBtn   = document.getElementById('sendBtn');
+  const historyEl  = document.getElementById('history');
+  const emptyEl    = document.getElementById('emptyState');
+  const inputEl    = document.getElementById('input');
+  const sendBtn    = document.getElementById('sendBtn');
+  const threadHost = document.getElementById('threadHost');
   const modeWriteBtn  = document.getElementById('modeWrite');
   const modeVerifyBtn = document.getElementById('modeVerify');
-  const modeHint      = document.getElementById('modeHint');
   const headlineEl    = document.getElementById('emptyHeadline');
-  const blurbEl       = document.getElementById('emptyBlurb');
-  const examplesBlock = document.getElementById('examplesBlock');
+  const calloutEl     = document.getElementById('pulseCallout');
 
-  // Default mode is WRITE per the new front-page concept (calibration
-  // tool / harvester). VERIFY is the secondary mode for technical claims.
-  let mode = 'write';
-
-  // Mode-specific examples. Each is a pre-fill the user can click.
-  const EXAMPLES = {
-    write: [
-      "Today I keep returning to Mt 5:37 — let your yes be yes.",
-      "I want to build something but I'm tempted to hold and wait.",
-      "My family is part of the question I haven't named yet.",
-      "I'm thinking about what 'the keeping is the substrate' really means."
-    ],
-    verify: [
-      "is C + O2 -> CO2 balanced?",
-      "merge sort runs in O(n log n)",
-      "d/dx(x^2) = 2x",
-      "Should we admit Alice with 3 witnesses?"
-    ]
-  };
+  // Keep a small client-side cache of recent entries so we can do
+  // anchor/person/date threading without server-side filters.
+  let RECENT_CACHE = [];
+  let MODE = 'write';
+  let RESPONSE_COUNT = 0;  // for compact subsequent responses
 
   const COPY = {
     write: {
-      headline: "Write what's on your mind.",
-      blurb:    "Stream of consciousness in. Calibration out. The engine listens — surfaces what shape your writing carries, where this sits relative to your recent entries, who else has reached for the same anchors. Nothing replaces what you wrote.",
-      placeholder: "Write what's on your mind…",
-      hint: "Write mode: harvest a seed into your library"
+      placeholder: "write what's on your mind…",
+      callout:     "— the page is open —"
     },
     verify: {
-      headline: "Submit a claim for verification.",
-      blurb:    "An equation. A statistical test. A governance decision. Four gates will check it computationally and return a structured walkthrough — never an answer, only what was found.",
-      placeholder: "What would you like to verify?",
-      hint: "Verify mode: run a packet through the four gates"
+      placeholder: "submit a claim. equation. statistical test. governance decision.",
+      callout:     "— four gates will check it computationally —"
     }
   };
 
   function setMode(next) {
-    mode = next;
-    modeWriteBtn.classList.toggle('active', next === 'write');
+    MODE = next;
+    document.body.classList.toggle('verify-mode', next === 'verify');
+    modeWriteBtn.classList.toggle('active',  next === 'write');
     modeVerifyBtn.classList.toggle('active', next === 'verify');
-    modeWriteBtn.setAttribute('aria-selected', next === 'write');
+    modeWriteBtn.setAttribute('aria-selected',  next === 'write');
     modeVerifyBtn.setAttribute('aria-selected', next === 'verify');
     inputEl.placeholder = COPY[next].placeholder;
-    if (modeHint) modeHint.textContent = COPY[next].hint;
-    if (headlineEl) headlineEl.textContent = COPY[next].headline;
-    if (blurbEl)    blurbEl.textContent    = COPY[next].blurb;
-    renderExamples();
+    if (calloutEl) calloutEl.textContent = COPY[next].callout;
     inputEl.focus();
   }
-
-  function renderExamples() {
-    if (!examplesBlock) return;
-    // Keep the label, replace the buttons.
-    const buttons = EXAMPLES[mode] || [];
-    const label = examplesBlock.querySelector('#examplesLabel');
-    examplesBlock.innerHTML = '';
-    if (label) examplesBlock.appendChild(label);
-    buttons.forEach(text => {
-      const btn = document.createElement('button');
-      btn.className = 'example-btn';
-      btn.textContent = text;
-      btn.style.cssText = 'text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:13px;';
-      btn.addEventListener('click', () => {
-        inputEl.value = text;
-        inputEl.dispatchEvent(new Event('input'));
-        inputEl.focus();
-      });
-      examplesBlock.appendChild(btn);
-    });
-  }
-
-  modeWriteBtn.addEventListener('click', () => setMode('write'));
+  modeWriteBtn.addEventListener('click',  () => setMode('write'));
   modeVerifyBtn.addEventListener('click', () => setMode('verify'));
 
-  // ── HUD population ─────────────────────────────────────────────────
-  // Side rails + top bar are populated on load and after every capture.
-  // Each panel reads from a single endpoint; a panel that fails to
-  // populate gracefully shows an em-dash rather than breaking the page.
-
-  function el(id) { return document.getElementById(id); }
-
+  // ── Date helpers ────────────────────────────────────────────────
   function setTopbarDate() {
     const d = new Date();
-    // Topbar — terse for the corner ("tue, may 5")
     const topOpts = { weekday: 'short', month: 'short', day: 'numeric' };
-    const topNode = el('topbarDate');
+    const topNode = document.getElementById('topbarDate');
     if (topNode) topNode.textContent = d.toLocaleDateString(undefined, topOpts).toLowerCase();
-    // Hero — full ("Tuesday, May 5, 2026") for the ledger heading
     const heroOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const heroNode = el('emptyHeadline');
-    if (heroNode) heroNode.textContent = d.toLocaleDateString(undefined, heroOpts);
+    if (headlineEl) headlineEl.textContent = d.toLocaleDateString(undefined, heroOpts);
+  }
+
+  function ymd(d) {
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  function entryDate(e) {
+    // Entry .id format on this engine is typically `journal/<ymd>/<n>`
+    // but we also accept written_at if the server returns it.
+    if (e.written_at) {
+      const t = typeof e.written_at === 'number' ? e.written_at * 1000 : Date.parse(e.written_at);
+      if (!isNaN(t)) return new Date(t);
+    }
+    if (e.id) {
+      const m = String(e.id).match(/(\d{4}-\d{2}-\d{2})/);
+      if (m) return new Date(m[1] + 'T12:00:00');
+    }
+    return null;
   }
 
   function renderPanelList(listEl, items, formatter, emptyMsg) {
@@ -899,24 +981,24 @@
     listEl.innerHTML = items.map(formatter).join('');
   }
 
+  // ── HUD population ──────────────────────────────────────────────
   function loadHudEmergence() {
     return fetch(API + '/emergence?window_days=30')
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
         const em = data.emergence || {};
 
-        // Tasks
         const tasks = em.standing_tasks || [];
-        if (el('taskCount')) el('taskCount').textContent = tasks.length ? '· ' + tasks.length : '';
-        renderPanelList(el('taskList'), tasks.slice(0, 6),
-          t => '<div class="panel-item">' + esc(t.task) + '</div>',
+        document.getElementById('taskCount').textContent = tasks.length ? '· ' + tasks.length : '';
+        renderPanelList(
+          document.getElementById('taskList'),
+          tasks.slice(0, 6),
+          t => '<div class="panel-item" data-action="task" data-task="' + esc(t.task) + '">' + esc(t.task) + '</div>',
           'no standing tasks'
         );
 
-        // Dates
         const dates = em.upcoming_dates || [];
-        if (el('dateCount')) el('dateCount').textContent = dates.length ? '· ' + dates.length : '';
-        // Dedupe by date_text + show most-recent-source-entry-first.
+        document.getElementById('dateCount').textContent = dates.length ? '· ' + dates.length : '';
         const seenDates = new Set();
         const uniqueDates = [];
         dates.forEach(d => {
@@ -926,73 +1008,84 @@
             uniqueDates.push(d);
           }
         });
-        renderPanelList(el('dateList'), uniqueDates.slice(0, 6),
-          d => '<div class="panel-item"><code>' + esc(d.date_text) + '</code></div>',
+        renderPanelList(
+          document.getElementById('dateList'),
+          uniqueDates.slice(0, 6),
+          d => '<div class="panel-item" data-action="thread" data-kind="date" data-needle="' + esc(d.date_text) + '"><code>' + esc(d.date_text) + '</code></div>',
           'no dates noted'
         );
 
-        // Feelings — pivot the dict to sorted list
         const feelingsObj = em.feeling_distribution || {};
-        const feelings = Object.entries(feelingsObj)
-          .sort((a, b) => b[1] - a[1]);
-        if (el('feelingCount')) el('feelingCount').textContent = feelings.length ? '· ' + feelings.length : '';
-        renderPanelList(el('feelingList'), feelings.slice(0, 5),
-          ([word, count]) => '<div class="panel-item">' + esc(word) + ' <span class="meta">×' + count + '</span></div>',
+        const feelings = Object.entries(feelingsObj).sort((a, b) => b[1] - a[1]);
+        document.getElementById('feelingCount').textContent = feelings.length ? '· ' + feelings.length : '';
+        renderPanelList(
+          document.getElementById('feelingList'),
+          feelings.slice(0, 5),
+          ([w, c]) => '<div class="panel-item" data-action="thread" data-kind="feeling" data-needle="' + esc(w) + '">' + esc(w) + ' <span class="meta">×' + c + '</span></div>',
           'none yet'
         );
 
-        // Anchors — sorted by recurrence
         const anchorsObj = em.recurring_anchors || {};
-        const anchors = Object.entries(anchorsObj)
-          .sort((a, b) => b[1] - a[1]);
-        if (el('anchorCount')) el('anchorCount').textContent = anchors.length ? '· ' + anchors.length : '';
-        renderPanelList(el('anchorList'), anchors.slice(0, 6),
-          ([ref, count]) => '<div class="panel-item"><code>' + esc(ref) + '</code> <span class="meta">×' + count + '</span></div>',
+        const anchors = Object.entries(anchorsObj).sort((a, b) => b[1] - a[1]);
+        document.getElementById('anchorCount').textContent = anchors.length ? '· ' + anchors.length : '';
+        renderPanelList(
+          document.getElementById('anchorList'),
+          anchors.slice(0, 6),
+          ([ref, c]) => '<div class="panel-item" data-action="thread" data-kind="anchor" data-needle="' + esc(ref) + '"><code>' + esc(ref) + '</code> <span class="meta">×' + c + '</span></div>',
           'no anchors yet'
         );
 
-        // People
         const peopleObj = em.recurring_people || {};
-        const people = Object.entries(peopleObj)
-          .sort((a, b) => b[1] - a[1]);
-        if (el('peopleCount')) el('peopleCount').textContent = people.length ? '· ' + people.length : '';
-        renderPanelList(el('peopleList'), people.slice(0, 6),
-          ([name, count]) => '<div class="panel-item">' + esc(name) + ' <span class="meta">×' + count + '</span></div>',
+        const people = Object.entries(peopleObj).sort((a, b) => b[1] - a[1]);
+        document.getElementById('peopleCount').textContent = people.length ? '· ' + people.length : '';
+        renderPanelList(
+          document.getElementById('peopleList'),
+          people.slice(0, 6),
+          ([n, c]) => '<div class="panel-item" data-action="thread" data-kind="person" data-needle="' + esc(n) + '">' + esc(n) + ' <span class="meta">×' + c + '</span></div>',
           'none named'
         );
 
-        // Action shapes
         const actionsObj = em.recurring_action_shapes || {};
-        const actions = Object.entries(actionsObj)
-          .sort((a, b) => b[1] - a[1]);
-        renderPanelList(el('actionList'), actions,
-          ([name, count]) => '<div class="panel-item">' + esc(name) + ' <span class="meta">×' + count + '</span></div>',
+        const actions = Object.entries(actionsObj).sort((a, b) => b[1] - a[1]);
+        renderPanelList(
+          document.getElementById('actionList'),
+          actions,
+          ([n, c]) => '<div class="panel-item" data-action="thread" data-kind="action" data-needle="' + esc(n) + '">' + esc(n) + ' <span class="meta">×' + c + '</span></div>',
           'none yet'
         );
 
-        // Emergence notes
         const notes = em.notes || [];
-        renderPanelList(el('emergenceList'), notes,
+        renderPanelList(
+          document.getElementById('emergenceList'),
+          notes,
           n => '<div class="panel-item">— ' + esc(n) + '</div>',
           'the keeping continues'
         );
+
+        // Today's pulse stats — derive from emergence + recent
+        renderPulseStats({
+          standingTasks: tasks.length,
+          upcomingDates: uniqueDates.length,
+          recurringAnchors: anchors.length,
+          recurringPeople: people.length,
+        });
       })
-      .catch(() => {
-        // Swallow — rails just stay as their previous state. Health
-        // panel below will reflect any deeper issue.
-      });
+      .catch(() => {});
   }
 
   function loadHudRecent() {
-    return fetch(API + '/journal/recent?limit=8')
+    return fetch(API + '/journal/recent?limit=30')
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
         const entries = data.entries || [];
-        if (el('recentCount')) el('recentCount').textContent = data.count ? '· ' + data.count : '';
-        if (el('topbarLibraryCount')) {
-          el('topbarLibraryCount').textContent = (data.count || 0) + ' seed' + (data.count === 1 ? '' : 's');
-        }
-        renderPanelList(el('recentList'), entries,
+        RECENT_CACHE = entries;
+        document.getElementById('recentCount').textContent = data.count ? '· ' + data.count : '';
+        document.getElementById('topbarLibraryCount').textContent =
+          (data.count || 0) + ' seed' + (data.count === 1 ? '' : 's');
+
+        renderPanelList(
+          document.getElementById('recentList'),
+          entries.slice(0, 8),
           e => {
             const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 100);
             const truncated = (e.text || '').length > 100;
@@ -1001,10 +1094,25 @@
             if ((cat.detected_anchors || []).length) {
               pills += ' <span class="meta">↳ ' + esc((cat.detected_anchors || []).join(', ')) + '</span>';
             }
-            return '<div class="panel-item"><code>' + esc(e.id) + '</code> ' + esc(preview) + (truncated ? '…' : '') + pills + '</div>';
+            return '<div class="panel-item" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code> ' + esc(preview) + (truncated ? '…' : '') + pills + '</div>';
           },
           'nothing kept yet'
         );
+
+        // Today's pulse — entries today / last 7 days
+        const today = ymd(new Date());
+        const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+        let todayCount = 0, weekCount = 0;
+        entries.forEach(e => {
+          const d = entryDate(e);
+          if (!d) return;
+          if (ymd(d) === today) todayCount++;
+          if (d >= sevenAgo) weekCount++;
+        });
+        renderPulseStats({ today: todayCount, week: weekCount });
+
+        // Activity strip
+        renderActivityStrip(entries);
       })
       .catch(() => {});
   }
@@ -1013,17 +1121,27 @@
     return fetch(API + '/health')
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
-        const lbl = el('keepingLabel');
+        const lbl = document.getElementById('keepingLabel');
+        const pulse = document.getElementById('healthPulse');
         if (!lbl) return;
         const m = data.modules || {};
-        if (m.keeping && m.keeping.reachable) {
-          const obs = m.keeping.total_observations || 0;
+        const k = m.keeping || {};
+        if (k.reachable) {
+          const obs = k.total_observations || 0;
           lbl.textContent = obs + ' observation' + (obs === 1 ? '' : 's');
+          pulse.classList.remove('degraded', 'down');
         } else {
           lbl.textContent = 'keeping: …';
+          pulse.classList.add('degraded');
         }
+        // If any module is unreachable, mark degraded.
+        const anyDown = Object.values(m).some(v => v && v.reachable === false);
+        if (anyDown) pulse.classList.add('degraded');
       })
-      .catch(() => {});
+      .catch(() => {
+        document.getElementById('healthPulse').classList.add('down');
+        document.getElementById('keepingLabel').textContent = 'engine unreachable';
+      });
   }
 
   function loadHudBins() {
@@ -1031,9 +1149,11 @@
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
         const bins = data.bins || [];
-        if (el('binCount')) el('binCount').textContent = bins.length ? '· ' + bins.length : '';
-        renderPanelList(el('binList'), bins.slice(0, 6),
-          b => '<div class="panel-item"><code>' + esc(b.kind) + '</code> ' + esc(b.name) + ' <span class="meta">×' + b.size + '</span></div>',
+        document.getElementById('binCount').textContent = bins.length ? '· ' + bins.length : '';
+        renderPanelList(
+          document.getElementById('binList'),
+          bins.slice(0, 6),
+          b => '<div class="panel-item" data-action="thread" data-kind="bin" data-needle="' + esc(b.name) + '"><code>' + esc(b.kind) + '</code> ' + esc(b.name) + ' <span class="meta">×' + b.size + '</span></div>',
           'no bins yet'
         );
       })
@@ -1045,24 +1165,83 @@
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
         const items = data.items || [];
-        if (el('communityCount')) el('communityCount').textContent = items.length ? '· ' + items.length : '';
-        renderPanelList(el('communityList'), items,
+        document.getElementById('communityCount').textContent = items.length ? '· ' + items.length : '';
+        renderPanelList(
+          document.getElementById('communityList'),
+          items,
           item => {
             const e = item.entry || {};
             const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 70);
             const truncated = (e.text || '').length > 70;
             const badges = [];
             if (item.widespread) badges.push('shelf');
-            if (item.direct) badges.push('direct');
-            const badgeStr = badges.length
-              ? ' <span class="meta">[' + badges.join(', ') + ']</span>'
-              : '';
-            return '<div class="panel-item">' + esc(preview) + (truncated ? '…' : '') + badgeStr + '</div>';
+            if (item.direct)     badges.push('direct');
+            const badgeStr = badges.length ? ' <span class="meta">[' + badges.join(', ') + ']</span>' : '';
+            return '<div class="panel-item" data-action="open" data-id="' + esc(e.id || '') + '">' + esc(preview) + (truncated ? '…' : '') + badgeStr + '</div>';
           },
           'no shared seeds yet'
         );
       })
       .catch(() => {});
+  }
+
+  // ── Today's pulse (replaces decorative empty state) ─────────────
+  let PULSE_DATA = {};
+  function renderPulseStats(updates) {
+    Object.assign(PULSE_DATA, updates);
+    const host = document.getElementById('pulseStats');
+    if (!host) return;
+    const stats = [
+      { num: PULSE_DATA.today    != null ? PULSE_DATA.today    : '—', lbl: 'entries today' },
+      { num: PULSE_DATA.week     != null ? PULSE_DATA.week     : '—', lbl: 'last 7 days' },
+      { num: PULSE_DATA.standingTasks    != null ? PULSE_DATA.standingTasks    : '—', lbl: 'standing tasks' },
+      { num: PULSE_DATA.upcomingDates    != null ? PULSE_DATA.upcomingDates    : '—', lbl: 'dates noted' },
+      { num: PULSE_DATA.recurringAnchors != null ? PULSE_DATA.recurringAnchors : '—', lbl: 'anchors recur' },
+      { num: PULSE_DATA.recurringPeople  != null ? PULSE_DATA.recurringPeople  : '—', lbl: 'people on mind' },
+    ];
+    host.innerHTML = stats.map(s =>
+      '<div class="pulse-stat"><div class="num">' + esc(String(s.num)) + '</div><div class="lbl">' + esc(s.lbl) + '</div></div>'
+    ).join('');
+  }
+
+  // ── 14-day activity strip ───────────────────────────────────────
+  function renderActivityStrip(entries) {
+    const host = document.getElementById('stripCells');
+    const streakEl = document.getElementById('streakLabel');
+    if (!host) return;
+    const today = new Date(); today.setHours(12, 0, 0, 0);
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      days.push({ date: d, ymd: ymd(d), count: 0 });
+    }
+    const byDay = new Map(days.map(d => [d.ymd, d]));
+    entries.forEach(e => {
+      const d = entryDate(e);
+      if (!d) return;
+      const k = ymd(d);
+      if (byDay.has(k)) byDay.get(k).count++;
+    });
+    const cells = days.map(d => {
+      const cls = ['strip-cell'];
+      if (d.count >= 5) cls.push('d4');
+      else if (d.count >= 3) cls.push('d3');
+      else if (d.count >= 1) cls.push('d2');
+      else if (d.count === 0) cls.push('');
+      if (d.ymd === ymd(today)) cls.push('today');
+      const title = d.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) +
+        ' · ' + d.count + ' entr' + (d.count === 1 ? 'y' : 'ies');
+      return '<span class="' + cls.join(' ') + '" data-action="day" data-ymd="' + d.ymd + '" title="' + esc(title) + '"></span>';
+    }).join('');
+    host.innerHTML = cells;
+
+    // Streak: count consecutive trailing days with at least one entry.
+    let streak = 0;
+    for (let i = days.length - 1; i >= 0; i--) {
+      if (days[i].count > 0) streak++;
+      else break;
+    }
+    if (streakEl) streakEl.textContent = streak >= 1 ? (streak + '-day streak') : 'no streak yet';
   }
 
   function loadHud() {
@@ -1075,36 +1254,257 @@
       loadHudCommunity(),
     ]);
   }
-
-  // Initial load + refresh every 60s. After every successful capture,
-  // submitWrite() also calls loadHud() so writing immediately updates
-  // the rails (the user sees their own seed land in "recently kept",
-  // any new tasks appear in the standing list, etc.)
   loadHud();
   setInterval(loadHud, 60000);
 
-  // Footer "verify a claim ›" link toggles to verify mode and surfaces
-  // a small back-link in the empty state once flipped. The empty state
-  // copy is mode-aware via setMode(), so the same hidden infrastructure
-  // drives both modes — toggle is just hidden chrome.
-  const modeToggleLink = document.getElementById('modeToggleLink');
-  if (modeToggleLink) {
-    modeToggleLink.addEventListener('click', e => {
-      e.preventDefault();
-      const next = (mode === 'write') ? 'verify' : 'write';
-      setMode(next);
-      modeToggleLink.textContent = (next === 'verify')
-        ? '‹ back to writing'
-        : 'verify a claim ›';
+  // ── Click-through on any panel item ─────────────────────────────
+  document.body.addEventListener('click', e => {
+    const target = e.target.closest('[data-action]');
+    if (!target) return;
+    const action = target.getAttribute('data-action');
+    if (action === 'thread') {
+      openThread(
+        target.getAttribute('data-kind'),
+        target.getAttribute('data-needle')
+      );
+    } else if (action === 'open') {
+      openSeed(target.getAttribute('data-id'));
+    } else if (action === 'task') {
+      // Clicking a standing task prefills input with a follow-up so the
+      // user can record completion or progress as a new seed.
+      const t = target.getAttribute('data-task') || '';
+      inputEl.value = '(re: ' + t + ') ';
+      inputEl.focus();
+      inputEl.dispatchEvent(new Event('input'));
+    } else if (action === 'day') {
+      openDay(target.getAttribute('data-ymd'));
+    }
+  });
+
+  // ── Thread view ─────────────────────────────────────────────────
+  function openThread(kind, needle) {
+    if (!needle) return;
+    threadHost.innerHTML = '';
+    const view = document.createElement('div');
+    view.className = 'thread-view';
+    view.innerHTML =
+      '<div class="thread-title">' +
+        '<span><span class="t">' + esc(kind) + ' ›</span> <span class="name">' + esc(needle) + '</span></span>' +
+        '<span class="close" title="close">×</span>' +
+      '</div>' +
+      '<div id="threadRows"><em class="thread-empty">searching…</em></div>';
+    threadHost.appendChild(view);
+    view.querySelector('.close').addEventListener('click', () => view.remove());
+
+    // Filter the recent cache for entries matching the needle in the
+    // appropriate categorization field.
+    const rows = RECENT_CACHE.filter(e => {
+      const cat = e.categorization || {};
+      const text = (e.text || '').toLowerCase();
+      const n = needle.toLowerCase();
+      switch (kind) {
+        case 'anchor':
+          return (cat.detected_anchors || []).some(a => a.toLowerCase() === n);
+        case 'person':
+          return (cat.detected_people || []).some(p => p.toLowerCase() === n) || text.includes(n);
+        case 'feeling':
+          return (cat.detected_feelings || []).some(f => f.toLowerCase() === n) || text.includes(n);
+        case 'date':
+          return (cat.detected_dates || []).some(d => (d.text || d).toLowerCase().includes(n)) || text.includes(n);
+        case 'action':
+          return (cat.detected_action_shapes || []).some(a => a.toLowerCase() === n);
+        case 'bin':
+          return text.includes(n);
+        default:
+          return text.includes(n);
+      }
     });
+
+    const rowsEl = view.querySelector('#threadRows');
+    if (!rows.length) {
+      rowsEl.innerHTML = '<em class="thread-empty">no seeds in the recent window touch this. earlier seeds may exist — open the library to widen the search.</em>';
+      return;
+    }
+    rowsEl.innerHTML = rows.map(e => {
+      const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 140);
+      const truncated = (e.text || '').length > 140;
+      const d = entryDate(e);
+      const when = d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+      return '<div class="thread-row" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code>' + esc(preview) + (truncated ? '…' : '') + '<span class="when">' + esc(when) + '</span></div>';
+    }).join('');
+    view.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Footer tier links — open the relevant view inline in the history.
-  // Library + Shelf show full lists (the rails only show summaries).
-  // Seek opens a small inline prompt for /ask-style queries.
-  const lnkLibrary    = document.getElementById('lnkLibrary');
-  const lnkShelf      = document.getElementById('lnkShelf');
-  const lnkSeek       = document.getElementById('lnkSeek');
+  function openDay(targetYmd) {
+    threadHost.innerHTML = '';
+    const view = document.createElement('div');
+    view.className = 'thread-view';
+    const date = new Date(targetYmd + 'T12:00:00');
+    const label = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    view.innerHTML =
+      '<div class="thread-title">' +
+        '<span><span class="t">day ›</span> <span class="name">' + esc(label) + '</span></span>' +
+        '<span class="close" title="close">×</span>' +
+      '</div>' +
+      '<div id="threadRows"></div>';
+    threadHost.appendChild(view);
+    view.querySelector('.close').addEventListener('click', () => view.remove());
+
+    const rows = RECENT_CACHE.filter(e => {
+      const d = entryDate(e);
+      return d && ymd(d) === targetYmd;
+    });
+    const rowsEl = view.querySelector('#threadRows');
+    if (!rows.length) {
+      rowsEl.innerHTML = '<em class="thread-empty">no entries for this day in the recent window.</em>';
+      return;
+    }
+    rowsEl.innerHTML = rows.map(e => {
+      const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 160);
+      const truncated = (e.text || '').length > 160;
+      return '<div class="thread-row" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code>' + esc(preview) + (truncated ? '…' : '') + '</div>';
+    }).join('');
+    view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Open a single seed (full text + actions) ───────────────────
+  function openSeed(id) {
+    if (!id) return;
+    if (emptyEl && emptyEl.parentNode) emptyEl.remove();
+    const exchange = document.createElement('div');
+    exchange.className = 'exchange';
+    exchange.innerHTML = '<div class="bubble-engine"><div class="seed-id">opening <code>' + esc(id) + '</code> …</div></div>';
+    historyEl.appendChild(exchange);
+    scrollBottom();
+    fetch(API + '/journal/' + encodeURIComponent(id))
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(entry => renderSeedDetail(exchange, entry))
+      .catch(err => {
+        exchange.querySelector('.bubble-engine').innerHTML =
+          '<div class="error-bubble">could not open seed: ' + esc(String(err)) + '</div>';
+      });
+  }
+
+  function renderSeedDetail(exchange, entry) {
+    const cat = entry.categorization || {};
+    const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
+    const annotations = entry.annotations || [];
+    let html = '<div class="seed-id">seed <code>' + esc(entry.id || '?') + '</code></div>';
+    html += '<div class="cal-line" style="white-space:pre-wrap;">' + esc(entry.text || '') + '</div>';
+
+    const heard = [];
+    if ((cat.detected_anchors || []).length)
+      heard.push('anchors: ' + cat.detected_anchors.map(a => '<code>' + esc(a) + '</code>').join(', '));
+    if ((cat.detected_action_shapes || []).length)
+      heard.push('action: <code>' + esc(cat.detected_action_shapes.join(', ')) + '</code>');
+    if (cat.detected_scope)
+      heard.push('scope: <code>' + esc(cat.detected_scope) + '</code>');
+    if (cat.detected_packet_shape)
+      heard.push('shape: <code>' + esc(cat.detected_packet_shape) + '</code>');
+    if (heard.length) {
+      html += '<div class="calibration-h">What was heard</div>';
+      heard.forEach(h => { html += '<div class="cal-line">' + h + '</div>'; });
+    }
+
+    if (annotations.length) {
+      html += '<div class="calibration-h">Annotations · ' + annotations.length + '</div>';
+      annotations.forEach(a => {
+        const at = a.annotated_at ? new Date(a.annotated_at * 1000).toLocaleDateString() : '';
+        html += '<div class="cal-line"><span class="meta">' + esc(at) + '</span> ' + esc(a.text || '') + '</div>';
+      });
+    }
+
+    html += '<div class="seed-actions">';
+    html += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on shelf' : 'publish to shelf') + '</button>';
+    html += '<button class="seed-btn" data-role="annotate-toggle">annotate</button>';
+    html += '<button class="seed-btn muted" data-role="copy-id">copy id</button>';
+    html += '</div>';
+    html += '<div class="annotate-row" data-role="annotate-row">' +
+      '<input type="text" placeholder="add an annotation… (preserves original text)" />' +
+      '<button class="seed-btn" data-role="annotate-submit">save</button>' +
+      '</div>';
+
+    const bubble = exchange.querySelector('.bubble-engine');
+    bubble.innerHTML = html;
+
+    // Wire actions
+    bubble.querySelector('[data-role="shelf"]').addEventListener('click', ev => {
+      const btn = ev.currentTarget;
+      const onShelf = btn.classList.contains('published');
+      btn.disabled = true;
+      fetch(API + '/shelf/' + encodeURIComponent(entry.id), { method: onShelf ? 'DELETE' : 'POST' })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(updated => {
+          const now = (updated.user_tags || []).indexOf('shelf') !== -1;
+          btn.classList.toggle('published', now);
+          btn.textContent = now ? 'on shelf' : 'publish to shelf';
+        })
+        .catch(() => { btn.textContent = 'could not update'; })
+        .finally(() => { btn.disabled = false; });
+    });
+    bubble.querySelector('[data-role="annotate-toggle"]').addEventListener('click', () => {
+      bubble.querySelector('[data-role="annotate-row"]').classList.toggle('open');
+      const inp = bubble.querySelector('[data-role="annotate-row"] input');
+      if (inp) inp.focus();
+    });
+    bubble.querySelector('[data-role="annotate-submit"]').addEventListener('click', () => {
+      const row = bubble.querySelector('[data-role="annotate-row"]');
+      const inp = row.querySelector('input');
+      const text = (inp.value || '').trim();
+      if (!text) return;
+      const btn = row.querySelector('[data-role="annotate-submit"]');
+      btn.disabled = true;
+      fetch(API + '/journal/' + encodeURIComponent(entry.id) + '/annotate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text })
+      })
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(updated => {
+          renderSeedDetail(exchange, updated);
+          loadHud();
+        })
+        .catch(() => { btn.textContent = 'failed'; })
+        .finally(() => { btn.disabled = false; });
+    });
+    bubble.querySelector('[data-role="copy-id"]').addEventListener('click', () => {
+      navigator.clipboard.writeText(entry.id || '');
+    });
+
+    scrollBottom();
+  }
+
+  // ── Footer tier links ──────────────────────────────────────────
+  document.getElementById('lnkLibrary').addEventListener('click', e => {
+    e.preventDefault();
+    fetchAndShow('library', '/journal/recent?limit=30', data => {
+      if (!data.entries || !data.entries.length) {
+        return '<strong>library</strong><br><em style="color:var(--muted)">no entries yet — write something to plant the first seed</em>';
+      }
+      let html = '<strong>library</strong><div style="margin-top:10px;">';
+      data.entries.forEach(e => {
+        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 100);
+        html += '<div class="thread-row" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code>' + esc(preview) + (preview.length === 100 ? '…' : '') + '</div>';
+      });
+      html += '</div>';
+      return html;
+    });
+  });
+  document.getElementById('lnkShelf').addEventListener('click', e => {
+    e.preventDefault();
+    fetchAndShow('shelf', '/shelf', data => {
+      if (!data.entries || !data.entries.length) {
+        return '<strong>shelf</strong><br><em style="color:var(--muted)">empty — publish a seed to put it on the shelf</em>';
+      }
+      let html = '<strong>shelf</strong> <span style="color:var(--muted);font-size:12px;">(community-visible)</span><div style="margin-top:10px;">';
+      data.entries.forEach(e => {
+        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 100);
+        html += '<div class="thread-row" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code>' + esc(preview) + (preview.length === 100 ? '…' : '') + '</div>';
+      });
+      html += '</div>';
+      return html;
+    });
+  });
   function fetchAndShow(label, url, formatter) {
     if (emptyEl && emptyEl.parentNode) emptyEl.remove();
     const exchange = document.createElement('div');
@@ -1115,8 +1515,7 @@
     fetch(API + url)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
-        const html = formatter(data);
-        exchange.querySelector('.bubble-engine').innerHTML = html;
+        exchange.querySelector('.bubble-engine').innerHTML = formatter(data);
         scrollBottom();
       })
       .catch(err => {
@@ -1124,70 +1523,26 @@
           '<strong>' + esc(label) + '</strong><br><span style="color:var(--reject)">' + esc(String(err)) + '</span>';
       });
   }
-  if (lnkLibrary) lnkLibrary.addEventListener('click', e => {
-    e.preventDefault();
-    fetchAndShow('Your library', '/journal/recent?limit=20', data => {
-      if (!data.entries || !data.entries.length) {
-        return '<strong>Your library</strong><br><em style="color:var(--muted)">no entries yet — write something to plant the first seed</em>';
-      }
-      let html = '<strong>Your library</strong><div style="margin-top:10px;">';
-      data.entries.forEach(e => {
-        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 90);
-        html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><code style="color:var(--accent);font-size:11px;">' + esc(e.id) + '</code> &nbsp; ' + esc(preview) + (preview.length === 90 ? '…' : '') + '</div>';
-      });
-      html += '</div>';
-      return html;
-    });
-  });
-  if (lnkShelf) lnkShelf.addEventListener('click', e => {
-    e.preventDefault();
-    fetchAndShow('Your shelf', '/shelf', data => {
-      if (!data.entries || !data.entries.length) {
-        return '<strong>Your shelf</strong><br><em style="color:var(--muted)">empty — publish a seed to put it on the shelf</em>';
-      }
-      let html = '<strong>Your shelf</strong> <span style="color:var(--muted);font-size:12px;">(community-visible)</span><div style="margin-top:10px;">';
-      data.entries.forEach(e => {
-        const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 90);
-        const anchors = (e.categorization && e.categorization.detected_anchors) || [];
-        html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;"><code style="color:var(--accent);font-size:11px;">' + esc(e.id) + '</code> &nbsp; ' + esc(preview) + (preview.length === 90 ? '…' : '');
-        if (anchors.length) html += ' <span style="color:var(--muted);font-size:11px;"> &nbsp;↳ ' + esc(anchors.join(', ')) + '</span>';
-        html += '</div>';
-      });
-      html += '</div>';
-      return html;
-    });
-  });
-  // Seek — opens an inline prompt that calls POST /ask, renders the
-  // elimination trail + survivors. The right-rail "what's emerging"
-  // panel covers the previous emergence-link use case.
-  if (lnkSeek) lnkSeek.addEventListener('click', e => {
-    e.preventDefault();
-    if (emptyEl && emptyEl.parentNode) emptyEl.remove();
-    const exchange = document.createElement('div');
-    exchange.className = 'exchange';
-    exchange.innerHTML =
-      '<div class="bubble-engine"><strong>Seek the bank</strong>'
-      + '<div style="color:var(--muted);font-size:12px;margin:6px 0 10px 0;">'
-      + 'Type a question. The engine eliminates misfits with reasons, ranks survivors by fruit; if nothing matches, the question itself becomes a new seed.'
-      + '</div>'
-      + '<div style="display:flex;gap:8px;">'
-      + '<input type="text" id="seekInput" placeholder="your question…" '
-      + 'style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:6px;font:inherit;font-size:13px;" />'
-      + '<button id="seekBtn" class="keep" style="margin:0;">Seek</button>'
-      + '</div>'
-      + '<div id="seekResult" style="margin-top:14px;"></div>'
-      + '</div>';
-    historyEl.appendChild(exchange);
-    scrollBottom();
-    const seekInput = exchange.querySelector('#seekInput');
-    const seekBtn = exchange.querySelector('#seekBtn');
-    const seekResult = exchange.querySelector('#seekResult');
-    seekInput.focus();
-    function runSeek() {
+
+  // ── Seek overlay (⌘K) ──────────────────────────────────────────
+  const seekOverlay = document.getElementById('seekOverlay');
+  const seekInput   = document.getElementById('seekInput');
+  const seekResults = document.getElementById('seekResults');
+  function openSeek() {
+    seekOverlay.classList.add('open');
+    seekInput.value = '';
+    seekResults.innerHTML = '';
+    setTimeout(() => seekInput.focus(), 30);
+  }
+  function closeSeek() { seekOverlay.classList.remove('open'); }
+  document.getElementById('lnkSeek').addEventListener('click', e => { e.preventDefault(); openSeek(); });
+  seekOverlay.addEventListener('click', e => { if (e.target === seekOverlay) closeSeek(); });
+  seekInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSeek();
+    if (e.key === 'Enter') {
       const q = seekInput.value.trim();
       if (!q) return;
-      seekBtn.disabled = true;
-      seekResult.innerHTML = '<em style="color:var(--muted);">searching…</em>';
+      seekResults.innerHTML = '<em style="color:var(--muted);">searching…</em>';
       fetch(API + '/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1198,65 +1553,64 @@
           const r = data.result || {};
           let html = '';
           if ((r.survivors || []).length) {
-            html += '<div style="color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">survived elimination · ranked by fruit</div>';
+            html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">survivors · ranked by fruit</div>';
             r.survivors.forEach(s => {
-              html += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">'
-                + '<code style="color:var(--accent);font-size:11px;">' + esc(s.candidate_id) + '</code> '
-                + '<span class="meta">(' + esc(s.source) + ', fruit ' + (Math.round(s.fruit_score * 100) / 100) + ')</span>'
-                + '<br>' + esc(s.summary) + '</div>';
+              html += '<div class="seek-row" data-action="open" data-id="' + esc(s.candidate_id) + '"><code>' + esc(s.candidate_id) + '</code> <span class="meta">(' + esc(s.source) + ', fruit ' + (Math.round(s.fruit_score * 100) / 100) + ')</span><br>' + esc(s.summary) + '</div>';
             });
           } else if (r.new_seed_id) {
-            html += '<em style="color:var(--muted);">Nothing in the bank matched. The question is now a new seed: <code style="color:var(--accent);">' + esc(r.new_seed_id) + '</code></em>';
-            loadHud();  // new seed in the bank — refresh rails
+            html += '<em style="color:var(--muted);">nothing matched — kept as new seed: <code style="color:var(--accent);">' + esc(r.new_seed_id) + '</code></em>';
+            loadHud();
           } else {
-            html += '<em style="color:var(--muted);">No matches and no seed captured.</em>';
+            html += '<em style="color:var(--muted);">no matches.</em>';
           }
           if ((r.eliminated || []).length) {
-            html += '<div style="color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 6px 0;">eliminated</div>';
-            r.eliminated.forEach(e => {
-              html += '<div style="padding:3px 0;font-size:12px;color:var(--muted);">· <code style="color:var(--accent);">' + esc(e.candidate_id) + '</code> — ' + esc(e.reason) + '</div>';
+            html += '<div class="seek-eliminated"><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;">eliminated</div>';
+            r.eliminated.forEach(it => {
+              html += '<div class="row">· <code>' + esc(it.candidate_id) + '</code> — ' + esc(it.reason) + '</div>';
             });
+            html += '</div>';
           }
-          seekResult.innerHTML = html;
-          seekBtn.disabled = false;
-          scrollBottom();
+          seekResults.innerHTML = html;
         })
         .catch(err => {
-          seekResult.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
-          seekBtn.disabled = false;
+          seekResults.innerHTML = '<span style="color:var(--reject);">error: ' + esc(String(err)) + '</span>';
         });
     }
-    seekBtn.addEventListener('click', runSeek);
-    seekInput.addEventListener('keydown', ev => {
-      if (ev.key === 'Enter') { ev.preventDefault(); runSeek(); }
-    });
   });
 
+  // ── Global shortcuts ───────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    const meta = e.metaKey || e.ctrlKey;
+    if (meta && e.key.toLowerCase() === 'k') {
+      e.preventDefault(); openSeek();
+    } else if (meta && e.key.toLowerCase() === 'l') {
+      e.preventDefault(); document.getElementById('lnkLibrary').click();
+    } else if (meta && e.key === '.') {
+      e.preventDefault();
+      setMode(MODE === 'write' ? 'verify' : 'write');
+    } else if (e.key === 'Escape' && seekOverlay.classList.contains('open')) {
+      closeSeek();
+    }
+  });
+
+  // ── Input wiring ───────────────────────────────────────────────
   inputEl.addEventListener('input', () => {
     sendBtn.disabled = inputEl.value.trim() === '';
-    // Auto-grow but with a generous floor so the writing area never
-    // shrinks back to a chat-input height once it's been opened up.
     inputEl.style.height = 'auto';
-    inputEl.style.height = Math.max(180, Math.min(inputEl.scrollHeight, 480)) + 'px';
+    inputEl.style.height = Math.max(160, Math.min(inputEl.scrollHeight, 480)) + 'px';
   });
-
   inputEl.addEventListener('keydown', e => {
-    // Cmd/Ctrl + Enter keeps; bare Enter adds a newline (this is a
-    // writing area, not a chat box). Shift+Enter also adds a newline
-    // for muscle-memory parity.
     const isKeep = e.key === 'Enter' && (e.metaKey || e.ctrlKey);
     if (isKeep) {
       e.preventDefault();
       if (!sendBtn.disabled) submit();
     }
   });
-
   sendBtn.addEventListener('click', submit);
 
   function submit() {
     const text = inputEl.value.trim();
     if (!text) return;
-
     if (emptyEl && emptyEl.parentNode) emptyEl.remove();
 
     const exchange = document.createElement('div');
@@ -1264,7 +1618,7 @@
     exchange.innerHTML = '<div class="bubble-user">' + esc(text) + '</div>';
     historyEl.appendChild(exchange);
 
-    const thinkingMsg = mode === 'write' ? 'Listening…' : 'Running gates…';
+    const thinkingMsg = MODE === 'write' ? 'listening…' : 'running gates…';
     const thinking = document.createElement('div');
     thinking.className = 'thinking';
     thinking.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span>' + thinkingMsg + '</span>';
@@ -1276,11 +1630,8 @@
     inputEl.disabled = true;
     scrollBottom();
 
-    if (mode === 'write') {
-      submitWrite(text, exchange, thinking);
-    } else {
-      submitVerify(text, exchange, thinking);
-    }
+    if (MODE === 'write') submitWrite(text, exchange, thinking);
+    else                  submitVerify(text, exchange, thinking);
   }
 
   function submitWrite(text, exchange, thinking) {
@@ -1319,45 +1670,31 @@
     .catch(err => renderError(exchange, thinking, err));
   }
 
-  // Render the WRITE-mode response: seed id + categorization + calibration
-  // measurements. Includes a publish-to-shelf button.
   function renderWriteResult(exchange, thinking, data) {
     thinking.remove();
     const entry = data.entry || {};
-    const cat = (entry.categorization || {});
-    const cal = (data.calibration || {});
+    const cat = entry.categorization || {};
+    const cal = data.calibration || {};
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
+    RESPONSE_COUNT++;
+    const isCompact = RESPONSE_COUNT > 1;
+    if (isCompact) bubble.classList.add('compact');
 
-    let html = '<div class="seed-id">seed: <code>' + esc(entry.id || '?') + '</code> kept in your library</div>';
-
-    // What was heard
+    // Build heard + calibration content
     const heard = [];
-    if (cat.detected_anchors && cat.detected_anchors.length) {
+    if ((cat.detected_anchors || []).length)
       heard.push('<span>anchors: ' + cat.detected_anchors.map(a => '<code>' + esc(a) + '</code>').join(', ') + '</span>');
-    }
-    if (cat.detected_action_shapes && cat.detected_action_shapes.length) {
+    if ((cat.detected_action_shapes || []).length)
       heard.push('<span>action: <code>' + esc(cat.detected_action_shapes.join(', ')) + '</code></span>');
-    }
-    if (cat.detected_scope) {
+    if (cat.detected_scope)
       heard.push('<span>scope: <code>' + esc(cat.detected_scope) + '</code></span>');
-    }
-    if (cat.detected_packet_shape) {
+    if (cat.detected_packet_shape)
       heard.push('<span>shape: <code>' + esc(cat.detected_packet_shape) + '</code></span>');
-    }
-    if (cat.closest_precedent_id) {
+    if (cat.closest_precedent_id)
       heard.push('<span>closest precedent: <code>' + esc(cat.closest_precedent_id) + '</code></span>');
-    }
 
-    if (heard.length) {
-      html += '<div class="calibration-h">What was heard</div>';
-      heard.forEach(line => { html += '<div class="cal-line">' + line + '</div>'; });
-    } else {
-      html += '<div class="cal-line"><em>The engine recognized no specific shape. The text is kept.</em></div>';
-    }
-
-    // Calibration
     const calLines = [];
     if (cal.total_entries_to_date === 1) {
       calLines.push('<em>First entry. The keeping has begun.</em>');
@@ -1368,68 +1705,92 @@
       }
       calLines.push(s);
     }
-    if (cal.scope_shifted) {
-      calLines.push('Scope shifted: previous was <code>' + esc(cal.previous_scope || '') + '</code>; this one is <code>' + esc(cat.detected_scope || '') + '</code>');
-    }
-    if (cal.recurring_anchors && cal.recurring_anchors.length) {
+    if (cal.scope_shifted)
+      calLines.push('Scope shifted: previous was <code>' + esc(cal.previous_scope || '') + '</code>; this is <code>' + esc(cat.detected_scope || '') + '</code>');
+    if ((cal.recurring_anchors || []).length)
       calLines.push('Anchors you\'ve returned to: ' + cal.recurring_anchors.map(a => '<code>' + esc(a) + '</code>').join(', '));
-    }
-    if (cal.action_pattern_note) {
+    if (cal.action_pattern_note)
       calLines.push(esc(cal.action_pattern_note));
-    }
-    if (calLines.length) {
-      html += '<div class="calibration-h">Calibration</div>';
-      calLines.forEach(line => { html += '<div class="cal-line">' + line + '</div>'; });
+
+    const fullHTML = (() => {
+      let h = '';
+      if (heard.length) {
+        h += '<div class="calibration-h">What was heard</div>';
+        heard.forEach(line => { h += '<div class="cal-line">' + line + '</div>'; });
+      } else {
+        h += '<div class="cal-line"><em>No specific shape recognized. The text is kept.</em></div>';
+      }
+      if (calLines.length) {
+        h += '<div class="calibration-h">Calibration</div>';
+        calLines.forEach(line => { h += '<div class="cal-line">' + line + '</div>'; });
+      }
+      const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
+      h += '<div class="seed-actions">';
+      h += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on shelf' : 'publish') + '</button>';
+      h += '<button class="seed-btn" data-role="open">open</button>';
+      h += '<button class="seed-btn muted" data-role="copy-id">copy id</button>';
+      h += '</div>';
+      return h;
+    })();
+
+    if (isCompact) {
+      const summary = [];
+      if ((cat.detected_anchors || []).length) summary.push(cat.detected_anchors.length + ' anchor' + (cat.detected_anchors.length === 1 ? '' : 's'));
+      if (cat.detected_action_shapes && cat.detected_action_shapes.length) summary.push(cat.detected_action_shapes.join(', '));
+      if (cat.detected_scope) summary.push(cat.detected_scope);
+      bubble.innerHTML =
+        '<div class="seed-id">kept <code>' + esc(entry.id || '?') + '</code><span class="expand-link" data-role="expand">expand ›</span></div>' +
+        '<div class="compact-summary">' + esc(summary.join(' · ') || 'kept') + '</div>' +
+        '<div class="full">' + fullHTML + '</div>';
+    } else {
+      bubble.innerHTML =
+        '<div class="seed-id">seed <code>' + esc(entry.id || '?') + '</code> kept</div>' + fullHTML;
     }
 
-    // Shelf actions
-    const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
-    html += '<div class="shelf-actions">';
-    html += '<span>Library only.</span>';
-    html += '<button class="shelf-btn ' + (isPublished ? 'published' : '') + '" data-id="' + esc(entry.id || '') + '">' + (isPublished ? 'On the shelf' : 'Publish to shelf') + '</button>';
-    html += '</div>';
-
-    bubble.innerHTML = html;
     exchange.appendChild(bubble);
 
-    // Wire the shelf button.
-    const shelfBtn = bubble.querySelector('.shelf-btn');
+    // Wire compact expand
+    const expandLink = bubble.querySelector('[data-role="expand"]');
+    if (expandLink) {
+      expandLink.addEventListener('click', () => {
+        bubble.classList.toggle('expanded');
+        expandLink.textContent = bubble.classList.contains('expanded') ? 'collapse' : 'expand ›';
+      });
+    }
+    // Wire shelf
+    const shelfBtn = bubble.querySelector('[data-role="shelf"]');
     if (shelfBtn) {
       shelfBtn.addEventListener('click', () => {
-        const id = shelfBtn.getAttribute('data-id');
-        if (!id) return;
-        const isAlready = shelfBtn.classList.contains('published');
-        const method = isAlready ? 'DELETE' : 'POST';
+        const id = entry.id; if (!id) return;
+        const onShelf = shelfBtn.classList.contains('published');
         shelfBtn.disabled = true;
-        fetch(API + '/shelf/' + encodeURIComponent(id), { method: method })
+        fetch(API + '/shelf/' + encodeURIComponent(id), { method: onShelf ? 'DELETE' : 'POST' })
           .then(r => r.ok ? r.json() : Promise.reject(r.status))
           .then(updated => {
-            const onShelf = (updated.user_tags || []).indexOf('shelf') !== -1;
-            shelfBtn.classList.toggle('published', onShelf);
-            shelfBtn.textContent = onShelf ? 'On the shelf' : 'Publish to shelf';
+            const now = (updated.user_tags || []).indexOf('shelf') !== -1;
+            shelfBtn.classList.toggle('published', now);
+            shelfBtn.textContent = now ? 'on shelf' : 'publish';
           })
-          .catch(() => { shelfBtn.textContent = 'Could not update'; })
+          .catch(() => { shelfBtn.textContent = 'failed'; })
           .finally(() => { shelfBtn.disabled = false; });
       });
     }
+    const openBtn = bubble.querySelector('[data-role="open"]');
+    if (openBtn) openBtn.addEventListener('click', () => openSeed(entry.id));
+    const copyBtn = bubble.querySelector('[data-role="copy-id"]');
+    if (copyBtn) copyBtn.addEventListener('click', () => navigator.clipboard.writeText(entry.id || ''));
 
     inputEl.disabled = false;
     inputEl.focus();
     scrollBottom();
-    // The user just kept a seed. Refresh the HUD so any new tasks /
-    // anchors / dates / people / feelings the engine heard show up
-    // in the rails immediately. The keeping ran in the background;
-    // the page reflects it.
     loadHud();
   }
 
   function renderResult(exchange, thinking, data) {
     thinking.remove();
-
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
 
-    // Show how the input was understood (which template matched).
     const meta = data.parse_template ? (
       '<div class="parse-meta">parsed via <span class="parse-template">' +
       esc(data.parse_template) + '</span>' +
@@ -1437,13 +1798,9 @@
       '</div>'
     ) : '';
 
-    // The walkthrough HTML is server-rendered (embedded mode — no
-    // <html>/<head> wrappers, just the .witness-record content).
     const walk = data.walkthrough || '';
-
-    // Permalink + ledger context.
     const ledger = (data.ledger_seq != null) ?
-      ('<div class="ledger-link">Recorded as ledger seq <code>#' + data.ledger_seq + '</code>' +
+      ('<div class="ledger-link">recorded as ledger seq <code>#' + data.ledger_seq + '</code>' +
         (data.elapsed_ms != null ? ' · <span style="color:var(--muted)">' + data.elapsed_ms + ' ms</span>' : '') +
        '</div>') : '';
 
@@ -1459,24 +1816,19 @@
     thinking.remove();
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
-
     let html = '<div class="error-bubble">';
-    if (typeof detail === 'string') {
-      html += esc(detail);
-    } else {
+    if (typeof detail === 'string') html += esc(detail);
+    else {
       html += esc(detail.message || 'request failed');
       if (Array.isArray(detail.supported_templates)) {
-        html += '<div class="templates"><strong>Try one of these shapes:</strong><ul>';
-        for (const t of detail.supported_templates) {
-          html += '<li>' + esc(t) + '</li>';
-        }
+        html += '<div class="templates"><strong>try one of these shapes:</strong><ul>';
+        for (const t of detail.supported_templates) html += '<li>' + esc(t) + '</li>';
         html += '</ul></div>';
       }
     }
     html += '</div>';
     bubble.innerHTML = html;
     exchange.appendChild(bubble);
-
     inputEl.disabled = false;
     inputEl.focus();
     scrollBottom();
@@ -1486,8 +1838,7 @@
     thinking.remove();
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
-    bubble.innerHTML =
-      '<div class="error-bubble"><strong>Network error.</strong> ' + esc(String(err)) + '</div>';
+    bubble.innerHTML = '<div class="error-bubble"><strong>network error.</strong> ' + esc(String(err)) + '</div>';
     exchange.appendChild(bubble);
     inputEl.disabled = false;
     inputEl.focus();
