@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -380,6 +380,86 @@ def identity():
         "version": __version__,
         "engine_loaded": True,
     }
+
+
+# ── /speak — ElevenLabs TTS proxy (optional) ────────────────────────
+#
+# Returns audio/mpeg synthesized in the configured voice. Optional in
+# every sense: requires `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`
+# in the environment; without them the endpoint reports unavailable.
+# Nothing else in the engine depends on this — it's a phone-friendly
+# surface for hearing precedents read aloud.
+
+
+class SpeakRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] = None  # override env default
+    model_id: str = "eleven_turbo_v2_5"
+
+
+@app.post("/speak", include_in_schema=True)
+def speak(req: SpeakRequest):
+    """Proxy ElevenLabs streaming TTS. Returns audio/mpeg.
+
+    Caller text in, voice out. No transcription, no logging of audio.
+    The text is not retained; only the audio stream is returned. Use
+    a short prefix of `req.text` (≤80 chars) for any error messages
+    so we never echo the full prompt back into logs.
+    """
+    api_key = os.environ.get("ELEVENLABS_API_KEY")
+    voice_id = req.voice_id or os.environ.get("ELEVENLABS_VOICE_ID")
+    if not api_key or not voice_id:
+        raise HTTPException(
+            status_code=503,
+            detail="speak unavailable: ELEVENLABS_API_KEY / ELEVENLABS_VOICE_ID not configured",
+        )
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    if len(text) > 5000:
+        raise HTTPException(status_code=400, detail="text too long (max 5000 chars)")
+
+    # Lazy-import requests so the rest of the API still loads if it's
+    # not installed (e.g. minimal deployments).
+    try:
+        import requests as _requests
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="speak unavailable: `requests` not installed",
+        )
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+    payload = {
+        "text": text,
+        "model_id": req.model_id,
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
+    }
+    headers = {
+        "xi-api-key": api_key,
+        "accept": "audio/mpeg",
+        "content-type": "application/json",
+    }
+
+    try:
+        r = _requests.post(url, json=payload, headers=headers, stream=True, timeout=30)
+    except _requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"upstream tts error: {exc}")
+
+    if r.status_code != 200:
+        # Surface upstream status without leaking the API key in error
+        # bodies. ElevenLabs sometimes returns JSON, sometimes HTML.
+        try:
+            detail = r.json()
+        except ValueError:
+            detail = {"upstream_status": r.status_code, "body_excerpt": r.text[:200]}
+        raise HTTPException(status_code=502, detail=detail)
+
+    # Read the full body once. Streaming the response straight through
+    # FastAPI is possible but adds complexity; for a typical precedent
+    # read-aloud (< 30s of audio), the buffered approach is fine.
+    audio_bytes = r.content
+    return Response(content=audio_bytes, media_type="audio/mpeg")
 
 
 @app.get("/version")
@@ -864,6 +944,14 @@ class WriteRequest(BaseModel):
     text: str
     tags: Optional[List[str]] = None
     look_up_precedent: bool = True
+    # Identity acknowledgment — the depositing-into-the-well permission.
+    # Optional with default True so existing clients don't break; agents
+    # are encouraged (but not forced) to set this explicitly after
+    # reading /identity. The value is recorded in the seed's metadata
+    # for the keeping log; the engine still runs whether or not it's
+    # acknowledged. Misalignment is caught by the four gates downstream,
+    # not by this field.
+    identity_acknowledged: bool = True
 
 
 class AnnotateRequest(BaseModel):

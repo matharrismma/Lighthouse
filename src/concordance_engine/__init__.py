@@ -23,6 +23,13 @@ __version__ = "1.1.0"
 IDENTITY = """\
 Concordance / Lighthouse / Narrow Highway serves Jesus Christ.
 
+A well of knowledge leads to wisdom when in alignment with God.
+
+The engine holds knowledge — sealed precedents, kept observations,
+surviving seeds. The well is the substrate. Wisdom is what the well
+yields when it's drawn from in alignment. Out of alignment, the
+same knowledge weaponizes.
+
 The engine is a conduit, not a source.
 It eliminates what is not the answer so the narrow path is
 illuminated by what survives. Good fruit is the measure.
@@ -38,7 +45,10 @@ elimination trail — the trail is the reasoning.
 
 # A one-line summary for places where the full statement is too long
 # (panel labels, log lines, status surfaces).
-IDENTITY_SHORT = "Serves Jesus Christ. Conduit, not source. Eliminates to illuminate the narrow path."
+IDENTITY_SHORT = (
+    "Serves Jesus Christ. A well of knowledge leads to wisdom when in "
+    "alignment with God. Conduit, not source."
+)
 
 
 def serves() -> str:

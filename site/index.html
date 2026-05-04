@@ -802,7 +802,7 @@
     <div class="history" id="history">
       <div class="empty" id="emptyState">
         <div class="pulse-heading">
-          <span class="label">ledger</span>
+          <span class="label">journal</span>
           <span class="date" id="emptyHeadline"></span>
         </div>
         <div class="pulse-stats" id="pulseStats"></div>
@@ -852,7 +852,7 @@
       <div id="emergenceList"><div class="panel-empty">— the keeping continues</div></div>
     </div>
     <div class="panel" id="panelCommunity">
-      <div class="panel-label">community <span class="count" id="communityCount"></span></div>
+      <div class="panel-label">the porch · offered <span class="count" id="communityCount"></span></div>
       <div id="communityList"><div class="panel-empty">—</div></div>
     </div>
   </aside>
@@ -861,8 +861,9 @@
   <footer class="hud-footer">
     <div class="footer">
       <span class="group">
-        <a href="#" id="lnkLibrary">library</a>
-        <a href="#" id="lnkShelf">shelf</a>
+        <a href="#" id="lnkLibrary" title="Your private library — what you've kept">library</a>
+        <a href="#" id="lnkShelf" title="The porch — what you've offered">porch</a>
+        <a href="#" id="lnkWell" title="The well — sealed precedents, drawn from the ledger">well</a>
         <a href="#" id="lnkSeek">seek <span class="kbd">⌘K</span></a>
       </span>
       <span class="footer-spacer"></span>
@@ -1415,7 +1416,7 @@
     }
 
     html += '<div class="seed-actions">';
-    html += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on shelf' : 'publish to shelf') + '</button>';
+    html += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on the porch' : 'offer to porch') + '</button>';
     html += '<button class="seed-btn" data-role="annotate-toggle">annotate</button>';
     html += '<button class="seed-btn muted" data-role="copy-id">copy id</button>';
     html += '</div>';
@@ -1437,7 +1438,7 @@
         .then(updated => {
           const now = (updated.user_tags || []).indexOf('shelf') !== -1;
           btn.classList.toggle('published', now);
-          btn.textContent = now ? 'on shelf' : 'publish to shelf';
+          btn.textContent = now ? 'on the porch' : 'offer to porch';
         })
         .catch(() => { btn.textContent = 'could not update'; })
         .finally(() => { btn.disabled = false; });
@@ -1492,14 +1493,39 @@
   });
   document.getElementById('lnkShelf').addEventListener('click', e => {
     e.preventDefault();
-    fetchAndShow('shelf', '/shelf', data => {
+    fetchAndShow('the porch', '/shelf', data => {
       if (!data.entries || !data.entries.length) {
-        return '<strong>shelf</strong><br><em style="color:var(--muted)">empty — publish a seed to put it on the shelf</em>';
+        return '<strong>the porch</strong> <span style="color:var(--muted);font-size:12px;">offered, not yet sealed</span><br><br><em style="color:var(--muted)">empty — offer a seed to set it on the porch</em>';
       }
-      let html = '<strong>shelf</strong> <span style="color:var(--muted);font-size:12px;">(community-visible)</span><div style="margin-top:10px;">';
+      let html = '<strong>the porch</strong> <span style="color:var(--muted);font-size:12px;">offered, not yet sealed</span><div style="margin-top:10px;">';
       data.entries.forEach(e => {
         const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 100);
         html += '<div class="thread-row" data-action="open" data-id="' + esc(e.id) + '"><code>' + esc(e.id) + '</code>' + esc(preview) + (preview.length === 100 ? '…' : '') + '</div>';
+      });
+      html += '</div>';
+      return html;
+    });
+  });
+  // The well — sealed precedents only. What survived the four gates.
+  // You go to it; it doesn't push to you.
+  const lnkWell = document.getElementById('lnkWell');
+  if (lnkWell) lnkWell.addEventListener('click', e => {
+    e.preventDefault();
+    fetchAndShow('the well', '/ledger', data => {
+      const records = data.records || data.entries || data.precedents || [];
+      if (!records.length) {
+        return '<strong>the well</strong> <span style="color:var(--muted);font-size:12px;">sealed precedents — drawn, not pushed</span><br><br><em style="color:var(--muted)">the well is quiet. nothing has been sealed yet.</em>';
+      }
+      let html = '<strong>the well</strong> <span style="color:var(--muted);font-size:12px;">sealed precedents — drawn, not pushed</span><div style="margin-top:10px;">';
+      records.forEach(r => {
+        const id = r.precedent_id || r.id || '';
+        const summary = r.summary || r.title || '';
+        const axis = r.axis || r.kind || '';
+        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">'
+              + '<code style="color:var(--accent);font-size:11px;">' + esc(id) + '</code>'
+              + (axis ? ' <span style="color:var(--muted);font-size:11px;">(' + esc(axis) + ')</span>' : '')
+              + '<br>' + esc(summary)
+              + '</div>';
       });
       html += '</div>';
       return html;
@@ -1726,7 +1752,7 @@
       }
       const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
       h += '<div class="seed-actions">';
-      h += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on shelf' : 'publish') + '</button>';
+      h += '<button class="seed-btn ' + (isPublished ? 'published' : '') + '" data-role="shelf">' + (isPublished ? 'on porch' : 'offer') + '</button>';
       h += '<button class="seed-btn" data-role="open">open</button>';
       h += '<button class="seed-btn muted" data-role="copy-id">copy id</button>';
       h += '</div>';
@@ -1769,7 +1795,7 @@
           .then(updated => {
             const now = (updated.user_tags || []).indexOf('shelf') !== -1;
             shelfBtn.classList.toggle('published', now);
-            shelfBtn.textContent = now ? 'on shelf' : 'publish';
+            shelfBtn.textContent = now ? 'on porch' : 'offer';
           })
           .catch(() => { shelfBtn.textContent = 'failed'; })
           .finally(() => { shelfBtn.disabled = false; });
