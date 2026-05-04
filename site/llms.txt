@@ -228,7 +228,22 @@ equivalent is `concordance dawn [--hours N] [--json]`.
 GET  /identity                       — canonical identity statement (what we serve)
 GET  /version                        — engine version + git SHA + serves field
 GET  /health                         — module-by-module liveness
+GET  /chain/since?seq=N&limit=M      — federation: audit-chain entries past seq
 ```
+
+### Federation — `concordance fetch`
+
+The engine works offline; the chain is local; federation is opt-in.
+`concordance fetch [--remote URL]` pulls new sealed precedents from
+a remote engine into a local mirror tagged with the remote's URL.
+Idempotent (only entries with seq > last_seq are fetched). Offline-
+tolerant (unreachable remote returns `status: offline`, no error).
+The local chain is unaffected; fetched entries live in a parallel
+`fetched/` store, one file per remote.
+
+The `/chain/since` endpoint is the server side. Read-only and free
+to call (per "free use, alignment to execute" — reading the well
+costs nothing).
 
 Full OpenAPI schema: https://narrowhighway.com/docs
 

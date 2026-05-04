@@ -933,6 +933,49 @@ def audit_chain_by_id(packet_id: str):
     return ledger_by_id(packet_id)
 
 
+# ── /chain/since — fetch endpoint for federation ──────────────────
+#
+# Returns audit-chain entries with seq > the given cursor, ordered
+# OLDEST FIRST so a receiver can append in chain order. This is the
+# server side of `concordance fetch` — a peer engine pulls new
+# sealed precedents from this instance to mirror them locally.
+#
+# Read-only, public. Per "free use, alignment to execute": reading
+# the well is free. Anyone can fetch any sealed precedent.
+
+
+@app.get("/chain/since", include_in_schema=True)
+def chain_since(
+    seq: int = Query(0, ge=0,
+        description="Return entries with seq > this value."),
+    limit: int = Query(100, ge=1, le=1000),
+):
+    """Audit-chain entries past `seq`, oldest first. Federation endpoint.
+
+    Used by `concordance fetch` to incrementally sync new precedents
+    from a remote engine. Idempotent — calling with the same `seq`
+    yields the same response. Empty `entries` array means the receiver
+    is up to date.
+    """
+    ledger = get_ledger()
+    # Read all entries newest-first, then filter + reverse.
+    all_recent = ledger.recent(n=10000, offset=0)  # generous cap
+    after: List[Dict[str, Any]] = []
+    for e in all_recent:
+        e_seq = int(e.get("seq", 0))
+        if e_seq > seq:
+            after.append(e)
+    after.sort(key=lambda x: x.get("seq", 0))
+    sliced = after[:limit]
+    return {
+        "since_seq": seq,
+        "limit": limit,
+        "count": len(sliced),
+        "next_seq": sliced[-1].get("seq", seq) if sliced else seq,
+        "entries": sliced,
+    }
+
+
 # ── Journal / shelf / keeping (the human-side surfaces) ──────────────
 # These expose the new harvest / library / shelf / keeping modules
 # over HTTP so narrowhighway.com (and any client) can use them.

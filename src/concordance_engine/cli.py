@@ -776,6 +776,48 @@ def main() -> None:
              "rendered narrative.",
     )
 
+    # ── fetch subcommand (optional, offline-tolerant federation) ───
+    # Like `git fetch`. Pulls new sealed precedents from a remote
+    # engine and mirrors them locally. Works offline (no-op when
+    # remote unreachable). Idempotent.
+    ft = sub.add_parser(
+        "fetch",
+        help="Pull updates to the audit chain from a remote engine. "
+             "Works offline (no-op when remote unreachable).",
+        description=(
+            "Federation endpoint — like `git fetch`. Asks the remote for "
+            "all sealed precedents past the last-seen seq, appends them "
+            "to a local mirror tagged with the remote's URL. Local chain "
+            "is unaffected. Read-only on the remote — fetching the well "
+            "is free."
+        ),
+    )
+    ft.add_argument(
+        "--remote", type=str, default=None,
+        help="Remote URL to fetch from. Defaults to env "
+             "CONCORDANCE_FETCH_REMOTE or https://narrowhighway.com.",
+    )
+    ft.add_argument(
+        "--status", action="store_true",
+        help="Show last-fetched-seq and age for every known remote.",
+    )
+    ft.add_argument(
+        "--list", action="store_true",
+        help="List fetched precedents (newest first).",
+    )
+    ft.add_argument(
+        "--limit", type=int, default=20,
+        help="When using --list, cap at this many (default: 20).",
+    )
+    ft.add_argument(
+        "--page-size", type=int, default=100,
+        help="Per-request page size when fetching (default: 100).",
+    )
+    ft.add_argument(
+        "--json", action="store_true",
+        help="Emit machine-readable JSON instead of human-readable text.",
+    )
+
     # ── broadcast subcommand (optional, LoRa-mesh wire format) ─────
     # Encode a journal entry as a compact wire packet suitable for
     # transmission over LoRa mesh radios (Meshtastic et al). Per the
@@ -1642,6 +1684,77 @@ def main() -> None:
                 stop.set()
                 print("keeper stopped", file=sys.stderr)
             sys.exit(0)
+
+    if args.cmd == "fetch":
+        try:
+            from . import fetch as _fetch
+        except ImportError as exc:
+            print(f"error: fetch module unavailable: {exc}", file=sys.stderr)
+            sys.exit(4)
+
+        if args.status:
+            states = _fetch.all_states()
+            if args.json:
+                print(json.dumps(
+                    [s.to_dict() for s in states], indent=2, default=str
+                ))
+            elif not states:
+                print("no remotes fetched yet.")
+            else:
+                now = time.time()
+                for s in states:
+                    age_s = now - s.last_fetched_at if s.last_fetched_at else None
+                    age_str = (
+                        f"{age_s/60:.1f} min ago" if age_s and age_s < 3600
+                        else f"{age_s/3600:.1f} hr ago" if age_s
+                        else "never"
+                    )
+                    print(f"  {s.url}")
+                    print(f"    last_seq: {s.last_seq}  fetched: {age_str}  "
+                          f"status: {s.last_status or '(none)'}")
+            sys.exit(0)
+
+        if args.list:
+            entries = _fetch.list_fetched(
+                remote_url=args.remote,
+                limit=args.limit,
+            )
+            if args.json:
+                print(json.dumps(entries, indent=2, default=str))
+            elif not entries:
+                print("no fetched entries.")
+            else:
+                for e in entries:
+                    seq = e.get("seq", "?")
+                    pid = e.get("packet_id", "?")
+                    overall = e.get("overall", "?")
+                    origin = e.get("_origin", "?")
+                    print(f"  seq#{seq:>5}  {overall:<12}  {pid}  ←  {origin}")
+            sys.exit(0)
+
+        # Default: do a fetch
+        result = _fetch.fetch_remote(
+            remote_url=args.remote,
+            page_size=args.page_size,
+        )
+        if args.json:
+            print(json.dumps(result.to_dict(), indent=2, default=str))
+        else:
+            if result.fetched_count:
+                print(f"✓ fetched {result.fetched_count} new precedents from "
+                      f"{result.remote_url}")
+                print(f"  new last_seq: {result.new_last_seq}")
+            elif result.status.startswith("offline"):
+                print(f"× {result.remote_url} unreachable ({result.status}); "
+                      "engine continues with local chain.")
+            elif result.status.startswith("error"):
+                print(f"× fetch from {result.remote_url} failed: "
+                      f"{result.status}")
+                sys.exit(1)
+            else:
+                print(f"= already up to date with {result.remote_url} "
+                      f"(seq {result.new_last_seq}).")
+        sys.exit(0)
 
     if args.cmd == "broadcast":
         # Defensive import — wire is optional in the strongest sense.
