@@ -462,6 +462,45 @@ def speak(req: SpeakRequest):
     return Response(content=audio_bytes, media_type="audio/mpeg")
 
 
+# ── /reach — operator-configured substrate addresses (read-only) ──
+#
+# Public, read-only. Returns whichever alternative-substrate addresses
+# the operator has configured via environment variables. Empty
+# fields mean "not configured by this operator." reach.html and
+# setup.html both consume this; the public reach page substitutes
+# operator-specific addresses where present and shows generic
+# descriptions where absent.
+#
+# These are addresses (onion URL, bot handle, npub, gateway), not
+# secrets. The corresponding *secrets* (Telegram token, ElevenLabs
+# API key, etc.) stay in env vars and are never exposed.
+
+
+@app.get("/reach")
+def reach_config():
+    """Return the substrate-channel directory for this instance.
+
+    Reads operator-configured public addresses from environment
+    variables. Booleans (e.g. `speak_voice`) signal capability
+    without revealing the underlying credential.
+    """
+    el_key = os.environ.get("ELEVENLABS_API_KEY", "")
+    el_voice = os.environ.get("ELEVENLABS_VOICE_ID", "")
+    return {
+        "tor_onion":    os.environ.get("CONCORDANCE_TOR_ONION", ""),
+        "telegram":     os.environ.get("CONCORDANCE_TELEGRAM_HANDLE", ""),
+        "email_in":     os.environ.get("CONCORDANCE_EMAIL_INBOUND", ""),
+        "nostr_npub":   os.environ.get("CONCORDANCE_NOSTR_NPUB", ""),
+        "ipfs_gateway": os.environ.get("CONCORDANCE_IPFS_GATEWAY", ""),
+        "lora_freq":    os.environ.get("CONCORDANCE_LORA_FREQ", ""),
+        "mailing_list": os.environ.get("CONCORDANCE_MAILING_LIST", ""),
+        # Capability booleans — true when the corresponding secret /
+        # config is present, without exposing the secret itself.
+        "speak_voice":  bool(el_key and el_voice),
+        "fetch_remote": os.environ.get("CONCORDANCE_FETCH_REMOTE", ""),
+    }
+
+
 @app.get("/version")
 def version():
     """Return the deployed engine version, schema version, and git SHA

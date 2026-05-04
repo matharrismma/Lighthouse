@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Setup — Concordance</title>
+  <meta name="description" content="Operator setup checklist. Configured / missing / installed for every substrate channel.">
+  <meta name="theme-color" content="#161318">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+      --pass: #7ec488;
+      --warn: #d9b66c;
+      --reject: #d97c7c;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    body {
+      padding: 36px 22px 60px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .glyph { width: 28px; height: 28px; flex-shrink: 0; }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.78;
+    }
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 30px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      letter-spacing: -0.005em;
+    }
+    .lede {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      max-width: 560px;
+    }
+    .summary {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .summary .stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .summary .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .summary .num.pass { color: var(--pass); }
+    .summary .num.warn { color: var(--warn); }
+    .summary .lbl {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    section { margin-top: 28px; }
+    section > h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    section > p.section-blurb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      max-width: 540px;
+      font-style: italic;
+      font-family: 'Crimson Pro', Georgia, serif;
+      opacity: 0.85;
+    }
+
+    .item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 28px 200px 1fr;
+      gap: 14px;
+      align-items: baseline;
+    }
+    .item:last-child { border-bottom: none; }
+    .item .mark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      line-height: 1;
+      text-align: center;
+    }
+    .item.configured .mark { color: var(--pass); }
+    .item.missing    .mark { color: var(--muted); opacity: 0.4; }
+    .item.unknown    .mark { color: var(--warn); }
+    .item .name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    .item .desc {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .item .desc small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+    .item .desc small a {
+      color: var(--muted);
+      border-bottom: 1px solid var(--accent-soft);
+      text-decoration: none;
+    }
+    .item .desc small a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .item .value {
+      display: block;
+      margin-top: 5px;
+      padding: 4px 8px;
+      background: var(--surface);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 3px 3px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .item .env {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .item {
+        grid-template-columns: 28px 1fr;
+        gap: 8px;
+      }
+      .item .name {
+        grid-column: 2;
+      }
+      .item .desc {
+        grid-column: 2;
+      }
+    }
+
+    footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    footer a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent-soft);
+    }
+    footer a.identity { color: var(--accent); opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <svg class="glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="64" height="64" rx="12" fill="#161318"/>
+      <g stroke="#c9a87c" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="16" y1="18" x2="48" y2="50"/>
+        <line x1="48" y1="18" x2="16" y2="50"/>
+        <line x1="32" y1="10" x2="32" y2="56"/>
+        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+      </g>
+    </svg>
+    <span class="wordmark">narrow highway · setup</span>
+  </div>
+
+  <h1>Operator setup checklist.</h1>
+  <p class="lede">
+    What this instance has running and what it doesn't.
+    <strong>✓</strong> means configured.
+    <strong>○</strong> means available but not yet wired up by you.
+    Each row links to the recipe for filling that slot.
+  </p>
+
+  <div class="summary" id="summary">
+    <div class="stat"><div class="num pass" id="cfg-count">—</div><div class="lbl">configured</div></div>
+    <div class="stat"><div class="num"      id="opt-count">—</div><div class="lbl">optional / unset</div></div>
+    <div class="stat"><div class="num"      id="ver-num">—</div><div class="lbl">engine version</div></div>
+    <div class="stat"><div class="num"      id="health-mark">—</div><div class="lbl">health</div></div>
+  </div>
+
+  <section>
+    <h2>Engine substrate</h2>
+    <p class="section-blurb">the four gates and the audit chain — always-on by design</p>
+
+    <div class="item configured" data-required="true">
+      <span class="mark">✓</span>
+      <span class="name">/identity</span>
+      <span class="desc">
+        Canonical doctrine on every agent-facing surface.
+        <small>Always available. Edit <code class="env">src/concordance_engine/__init__.py</code> · <a href="/identity">view</a></small>
+      </span>
+    </div>
+    <div class="item configured" data-required="true">
+      <span class="mark">✓</span>
+      <span class="name">/llms.txt</span>
+      <span class="desc">
+        AI-agent discovery surface — doctrine + endpoint inventory.
+        <small><a href="/llms.txt">view</a></small>
+      </span>
+    </div>
+    <div class="item configured" data-required="true">
+      <span class="mark">✓</span>
+      <span class="name">/ledger</span>
+      <span class="desc">
+        SHA-256 chained audit log. The well's content layer.
+        <small><a href="/ledger">view</a> · <a href="/ledger/verify">integrity check</a></small>
+      </span>
+    </div>
+    <div class="item configured" data-required="true">
+      <span class="mark">✓</span>
+      <span class="name">/chain/since</span>
+      <span class="desc">
+        Federation endpoint — peers can <code>concordance fetch</code> from this instance.
+        <small><a href="/chain/since?seq=0&amp;limit=3">view</a></small>
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Substrate channels you can opt into</h2>
+    <p class="section-blurb">each is independent — turn on one, none, or all</p>
+
+    <div class="item" data-key="tor_onion">
+      <span class="mark">○</span>
+      <span class="name">tor onion</span>
+      <span class="desc">
+        Engine reachable at a <code>.onion</code> address that survives DNS hijacking + ISP blocks.
+        <small>set <code class="env">CONCORDANCE_TOR_ONION</code> · <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/tor_onion.md">recipe</a></small>
+      </span>
+    </div>
+
+    <div class="item" data-key="email_in">
+      <span class="mark">○</span>
+      <span class="name">email-in</span>
+      <span class="desc">
+        Forward an email address; body becomes a seed.
+        <small>set <code class="env">CONCORDANCE_EMAIL_INBOUND</code> · <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/email_webhook.md">recipe</a></small>
+      </span>
+    </div>
+
+    <div class="item" data-key="telegram">
+      <span class="mark">○</span>
+      <span class="name">telegram bot</span>
+      <span class="desc">
+        Allow-listed Telegram capture bot.
+        <small>set <code class="env">CONCORDANCE_TELEGRAM_HANDLE</code> + run <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/telegram_bot.py">telegram_bot.py</a> with token</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="lora_freq">
+      <span class="mark">○</span>
+      <span class="name">lora mesh</span>
+      <span class="desc">
+        Compact wire packets over license-free sub-GHz radio (Meshtastic).
+        <small>set <code class="env">CONCORDANCE_LORA_FREQ</code> + run <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/meshtastic_bridge.py">meshtastic_bridge.py</a></small>
+      </span>
+    </div>
+
+    <div class="item" data-key="nostr_npub">
+      <span class="mark">○</span>
+      <span class="name">nostr publication</span>
+      <span class="desc">
+        Publish sealed precedents to Nostr relays.
+        <small>set <code class="env">CONCORDANCE_NOSTR_NPUB</code> · run <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/nostr_publish.py">nostr_publish.py</a> as cron</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="ipfs_gateway">
+      <span class="mark">○</span>
+      <span class="name">ipfs pinning</span>
+      <span class="desc">
+        Content-addressed durable distribution via local <code>ipfs daemon</code>.
+        <small>set <code class="env">CONCORDANCE_IPFS_GATEWAY</code> · run <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/ipfs_pin.py">ipfs_pin.py</a> sync</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="mailing_list">
+      <span class="mark">○</span>
+      <span class="name">mailing list digest</span>
+      <span class="desc">
+        Email digest of newly-sealed precedents to a subscriber list.
+        <small>set <code class="env">CONCORDANCE_MAILING_LIST</code> · run <a href="https://github.com/matharrismma/Lighthouse/blob/main/client/digest_mail.py">digest_mail.py</a> as cron</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="speak_voice" data-bool="true">
+      <span class="mark">○</span>
+      <span class="name">/speak — voice</span>
+      <span class="desc">
+        ElevenLabs TTS proxy. Returns audio/mpeg in the configured voice.
+        <small>set both <code class="env">ELEVENLABS_API_KEY</code> + <code class="env">ELEVENLABS_VOICE_ID</code></small>
+      </span>
+    </div>
+
+    <div class="item" data-key="fetch_remote">
+      <span class="mark">○</span>
+      <span class="name">fetch upstream</span>
+      <span class="desc">
+        A remote engine this instance pulls precedents from.
+        <small>set <code class="env">CONCORDANCE_FETCH_REMOTE</code> · run <code>concordance fetch</code> as cron</small>
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <h2>External assets you bring</h2>
+    <p class="section-blurb">these aren't environment variables — they're physical or installed</p>
+
+    <div class="item" data-key="meshtastic_pkg" data-pkg="meshtastic">
+      <span class="mark">○</span>
+      <span class="name">meshtastic (pip)</span>
+      <span class="desc">
+        Required for the LoRa bridge. The engine ships the wire format; the bridge needs the radio driver.
+        <small><code class="env">pip install meshtastic</code> + USB serial radio (~$30 hardware)</small>
+      </span>
+    </div>
+    <div class="item" data-key="pynostr_pkg" data-pkg="pynostr">
+      <span class="mark">○</span>
+      <span class="name">pynostr (pip)</span>
+      <span class="desc">
+        Required for Nostr publication.
+        <small><code class="env">pip install pynostr</code></small>
+      </span>
+    </div>
+    <div class="item" data-key="ipfs_daemon" data-bool="true">
+      <span class="mark">○</span>
+      <span class="name">ipfs daemon</span>
+      <span class="desc">
+        Required for IPFS pinning. Runs separately from the engine.
+        <small><code class="env">brew install ipfs</code> / <code class="env">apt install kubo</code> + <code class="env">ipfs daemon</code></small>
+      </span>
+    </div>
+    <div class="item" data-key="tor_pkg" data-pkg="tor">
+      <span class="mark">○</span>
+      <span class="name">tor</span>
+      <span class="desc">
+        Required for the onion service. Runs separately from the engine.
+        <small><code class="env">brew install tor</code> / <code class="env">apt install tor</code> + edit <code>torrc</code></small>
+      </span>
+    </div>
+  </section>
+
+  <footer>
+    <a href="/">← journal</a>
+    <a href="/reach.html">reach</a>
+    <a href="/identity" class="identity">serves Jesus Christ</a>
+    <a href="https://github.com/matharrismma/Lighthouse">source</a>
+  </footer>
+
+  <script>
+    // Read /reach (operator-configured addresses), /version (engine
+    // info), and /health (module liveness). Mark each item configured
+    // or missing accordingly.
+    Promise.all([
+      fetch('/reach').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+      fetch('/version').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+      fetch('/health').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+    ]).then(([reach, version, health]) => {
+      let configured = 0;
+      let optional = 0;
+
+      document.querySelectorAll('[data-key]').forEach(item => {
+        const key = item.getAttribute('data-key');
+        const isBool = item.getAttribute('data-bool') === 'true';
+        const value = reach[key];
+        let isOn = false;
+        if (isBool) {
+          isOn = !!value;
+        } else if (typeof value === 'string') {
+          isOn = value.length > 0;
+        }
+        if (isOn) {
+          item.classList.add('configured');
+          item.classList.remove('missing');
+          item.querySelector('.mark').textContent = '✓';
+          if (typeof value === 'string') {
+            const valNode = document.createElement('div');
+            valNode.className = 'value';
+            valNode.textContent = value;
+            item.querySelector('.desc').appendChild(valNode);
+          }
+          configured++;
+        } else {
+          item.classList.add('missing');
+          item.querySelector('.mark').textContent = '○';
+          optional++;
+        }
+      });
+
+      document.getElementById('cfg-count').textContent = configured;
+      document.getElementById('opt-count').textContent = optional;
+
+      if (version && version.version) {
+        document.getElementById('ver-num').textContent = 'v' + version.version;
+      }
+
+      // Health is overall_status: "ok" | "degraded" | "down"
+      const healthMark = document.getElementById('health-mark');
+      if (health && health.modules) {
+        const anyDown = Object.values(health.modules)
+          .some(m => m && m.reachable === false);
+        if (anyDown) {
+          healthMark.textContent = 'degraded';
+          healthMark.classList.add('warn');
+        } else {
+          healthMark.textContent = 'ok';
+          healthMark.classList.add('pass');
+        }
+      } else {
+        healthMark.textContent = '?';
+      }
+    });
+  </script>
+</body>
+</html>

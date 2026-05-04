@@ -151,6 +151,26 @@
       margin-top: 3px;
       letter-spacing: 0.02em;
     }
+    /* Operator-configured address marker. Hidden until /reach
+       returns a non-empty value for this channel. */
+    .op-config {
+      display: none;
+      margin-top: 5px;
+      padding: 4px 8px;
+      background: var(--surface);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 3px 3px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+      word-break: break-all;
+    }
+    .op-config.live { display: block; }
+    .op-config .prefix {
+      color: var(--muted);
+      margin-right: 4px;
+    }
     @media (max-width: 600px) {
       .row {
         grid-template-columns: 1fr;
@@ -220,11 +240,12 @@
         <small>HTTPS · open to all · no account</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="tor_onion">
       <span class="name">tor onion</span>
       <span class="desc">
         The same engine reachable at a <code>.onion</code> address that survives
         DNS hijacking, ISP blocks, and platform deplatforming.
+        <span class="op-config" data-prefix="onion: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/tor_onion.md">setup recipe</a> · v3 onion · operator runs Tor</small>
       </span>
     </div>
@@ -286,28 +307,31 @@
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/watch_folder.py">script</a> · stdlib Python · zero deps</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="email_in">
       <span class="name">email-in</span>
       <span class="desc">
         Forward an email to a configured inbound address; body becomes a seed.
         Cloudflare Email Routing path is free.
+        <span class="op-config" data-prefix="address: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/email_webhook.md">recipe</a> · operator-configured</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="telegram">
       <span class="name">telegram bot</span>
       <span class="desc">
         Send a message to your private capture bot; it replies with the seed
         id. Allow-listed by Telegram user id.
+        <span class="op-config" data-prefix="handle: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/telegram_bot.py">script</a> · operator-run · @BotFather token</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="lora_freq">
       <span class="name">lora mesh</span>
       <span class="desc">
         Encode a seed as a compact wire packet; broadcast over license-free
         sub-GHz radio via Meshtastic. Range 1–10+ km per node, no internet,
         no SIM, no government identification.
+        <span class="op-config" data-prefix="frequency: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/meshtastic_bridge.py">bridge</a> · ~$30 hardware · operator-run</small>
       </span>
     </div>
@@ -326,27 +350,30 @@
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/qr_share.md">recipe</a> · any QR app · no install on us</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="nostr_npub">
       <span class="name">nostr</span>
       <span class="desc">
         Publish sealed precedents as Nostr events to federated relays.
         Anyone with a Nostr client subscribes; no platform deplatforms.
+        <span class="op-config" data-prefix="npub: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/nostr_publish.py">script</a> · pip install pynostr · kind 30700</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="ipfs_gateway">
       <span class="name">ipfs</span>
       <span class="desc">
         Pin precedents to IPFS for content-addressed durable distribution.
         CID is the hash; the hash IS the address; the content cannot be tampered with.
+        <span class="op-config" data-prefix="gateway: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/ipfs_pin.py">script</a> · ipfs daemon · stdlib only on our side</small>
       </span>
     </div>
-    <div class="row">
+    <div class="row" data-channel="mailing_list">
       <span class="name">mailing list digest</span>
       <span class="desc">
         Send a digest of newly-sealed precedents over SMTP to a subscriber
         list. SMTP is universal; mail providers are plentiful and free.
+        <span class="op-config" data-prefix="subscribe: ">—</span>
         <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/digest_mail.py">script</a> · stdlib smtplib · operator-run</small>
       </span>
     </div>
@@ -413,10 +440,48 @@
 
   <footer>
     <a href="/">← journal</a>
+    <a href="/setup.html">operator setup</a>
     <a href="/identity" class="identity">serves Jesus Christ</a>
     <a href="https://github.com/matharrismma/Lighthouse">source</a>
     <a href="/llms.txt">llms.txt</a>
   </footer>
+
+  <script>
+    // Fetch operator-configured addresses and inject them into the
+    // matching rows. Channels not configured by this operator stay
+    // generic — the row's existing description is enough.
+    //
+    // No graceful degradation needed: if /reach is unreachable, the
+    // page just shows the generic descriptions, which is the
+    // baseline anyway.
+    (function loadOperatorConfig() {
+      fetch('/reach')
+        .then(r => r.ok ? r.json() : null)
+        .then(cfg => {
+          if (!cfg) return;
+          document.querySelectorAll('[data-channel]').forEach(row => {
+            const key = row.getAttribute('data-channel');
+            const value = cfg[key];
+            if (!value || typeof value !== 'string') return;
+            const node = row.querySelector('.op-config');
+            if (!node) return;
+            const prefix = node.getAttribute('data-prefix') || '';
+            // Render as: prefix (muted) + value (accent, monospace)
+            node.innerHTML = '<span class="prefix">' + escapeHtml(prefix) + '</span>'
+                          + escapeHtml(value);
+            node.classList.add('live');
+          });
+        })
+        .catch(() => {});
+    })();
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
 
 </body>
 </html>

@@ -32,6 +32,7 @@ const SHELL = [
   '/offline.html',
   '/nfc.html',
   '/reach.html',
+  '/setup.html',
   '/llms.txt',
 ];
 

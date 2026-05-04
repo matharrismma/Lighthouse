@@ -229,7 +229,30 @@ GET  /identity                       — canonical identity statement (what we s
 GET  /version                        — engine version + git SHA + serves field
 GET  /health                         — module-by-module liveness
 GET  /chain/since?seq=N&limit=M      — federation: audit-chain entries past seq
+GET  /reach                          — operator-configured substrate addresses
 ```
+
+### Operator configuration (env vars)
+
+The engine reads these on startup; the public `/reach` endpoint
+surfaces whichever are set. Empty / unset means "this operator has
+not configured this channel."
+
+```
+CONCORDANCE_TOR_ONION         — public .onion URL for the engine
+CONCORDANCE_EMAIL_INBOUND     — inbound capture address (e.g. seed@host)
+CONCORDANCE_TELEGRAM_HANDLE   — capture bot @username
+CONCORDANCE_LORA_FREQ         — LoRa frequency band (915MHz / 868MHz)
+CONCORDANCE_NOSTR_NPUB        — Nostr public key (npub1...)
+CONCORDANCE_IPFS_GATEWAY      — preferred IPFS gateway URL
+CONCORDANCE_MAILING_LIST      — mailing-list subscribe address
+CONCORDANCE_FETCH_REMOTE      — upstream engine to fetch from
+ELEVENLABS_API_KEY            — TTS (POST /speak)
+ELEVENLABS_VOICE_ID           — TTS voice id
+```
+
+Operator dashboard at `/setup.html`. Public reach directory at
+`/reach.html`. Both consume `/reach` JSON.
 
 ### Federation — `concordance fetch`
 
