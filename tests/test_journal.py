@@ -16,13 +16,16 @@ from concordance_engine.journal import (
     Annotation,
     Calibration,
     Categorization,
+    Emergence,
     JournalEntry,
     JournalStore,
     annotate,
     calibrate,
     capture,
     categorize,
+    emergence,
     render_calibration,
+    render_emergence,
     thread,
 )
 
@@ -410,3 +413,157 @@ def test_render_calibration_no_judgment_words(tmp_path, monkeypatch):
     forbidden = ["good", "bad", "you should", "you must"]
     for word in forbidden:
         assert word not in rendered, f"render contains prescriptive word: {word!r}"
+
+
+# ── Daily-life detectors (tasks / dates / people / feelings) ─────────
+
+
+def test_detects_tasks_from_first_person_phrasing():
+    cat = categorize("I need to call the bank tomorrow about the loan.")
+    assert any("call the bank" in t.lower() for t in cat.detected_tasks)
+
+
+def test_detects_tasks_from_dont_forget():
+    cat = categorize("Don't forget to pick up groceries on the way home.")
+    assert any("pick up groceries" in t.lower() for t in cat.detected_tasks)
+
+
+def test_detects_tasks_from_bullets():
+    cat = categorize("- Call mom\n- Buy milk\n- Pray for Sarah")
+    tasks_lower = [t.lower() for t in cat.detected_tasks]
+    assert any("call mom" in t for t in tasks_lower)
+    assert any("buy milk" in t for t in tasks_lower)
+
+
+def test_detects_tasks_dedupes_identical():
+    """An exact-duplicate task phrase should only land once. Variants
+    (e.g. 'X' vs 'X again') are distinct tasks, not duplicates."""
+    cat = categorize("I need to call the bank today. I need to call the bank today.")
+    # Identical phrasing should land once.
+    matches = [t for t in cat.detected_tasks if t.lower() == "call the bank today"]
+    assert len(matches) == 1
+
+
+def test_detects_iso_date():
+    cat = categorize("Meeting on 2026-05-10 at the church.")
+    assert "2026-05-10" in cat.detected_dates
+
+
+def test_detects_day_name():
+    cat = categorize("Sarah's birthday is on Friday — must remember.")
+    assert any(d.lower() == "friday" for d in cat.detected_dates)
+
+
+def test_detects_relative_date():
+    cat = categorize("I'll call them next week.")
+    assert any("next week" in d.lower() for d in cat.detected_dates)
+
+
+def test_detects_month_day():
+    cat = categorize("The retreat starts May 15th.")
+    assert any("may 15" in d.lower() for d in cat.detected_dates)
+
+
+def test_detects_person_via_relational_verb():
+    cat = categorize("I had coffee with Sarah this morning.")
+    assert "Sarah" in cat.detected_people
+
+
+def test_detects_person_via_birthday():
+    cat = categorize("Don't forget Sarah's birthday next week.")
+    assert "Sarah" in cat.detected_people
+
+
+def test_detects_person_via_kinship():
+    cat = categorize("My friend Bob has been on my mind lately.")
+    assert "Bob" in cat.detected_people
+
+
+def test_detects_feelings():
+    cat = categorize("I feel anxious about the meeting tomorrow.")
+    assert "anxious" in cat.detected_feelings
+
+
+def test_detects_multiple_feelings():
+    cat = categorize("I am tired and a little stressed but mostly grateful.")
+    assert "tired" in cat.detected_feelings
+    assert "stressed" in cat.detected_feelings
+    assert "grateful" in cat.detected_feelings
+
+
+def test_categorize_empty_has_no_detections():
+    cat = categorize("")
+    assert cat.detected_tasks == []
+    assert cat.detected_dates == []
+    assert cat.detected_people == []
+    assert cat.detected_feelings == []
+
+
+# ── Emergence (pattern surfacing across recent entries) ──────────────
+
+
+def test_emergence_with_no_entries(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    em = emergence()
+    assert em.entries_in_window == 0
+    assert em.notes == []
+    assert em.standing_tasks == []
+
+
+def test_emergence_finds_recurring_anchors(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(4):
+        capture(f"Mt 5:37 — entry {i}")
+    em = emergence()
+    assert em.recurring_anchors.get("Mt 5:37", 0) >= 3
+    assert any("Mt 5:37" in n for n in em.notes)
+
+
+def test_emergence_finds_standing_tasks(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    capture("I need to call the dentist about the appointment.")
+    em = emergence()
+    assert any("call the dentist" in t["task"].lower() for t in em.standing_tasks)
+
+
+def test_emergence_excludes_done_tasks(tmp_path, monkeypatch):
+    """A task whose entry has a 'done' annotation is not surfaced as
+    standing."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("I need to call the bank.")
+    annotate(e.id, "Called them — done.")
+    em = emergence()
+    assert not any("call the bank" in t["task"].lower() for t in em.standing_tasks)
+
+
+def test_emergence_finds_recurring_people(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(4):
+        capture(f"Coffee with Sarah — entry {i}.")
+    em = emergence()
+    assert em.recurring_people.get("Sarah", 0) >= 3
+
+
+def test_emergence_collects_dates(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    capture("Sarah's birthday is on 2026-05-15.")
+    em = emergence()
+    assert any("2026-05-15" in d["date_text"] for d in em.upcoming_dates)
+
+
+def test_render_emergence_no_judgment_words(tmp_path, monkeypatch):
+    """Doctrinal: emergence renders descriptively, never directs."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(4):
+        capture(f"I keep returning to Mt 5:37 today, day {i}.")
+    em = emergence()
+    rendered = render_emergence(em).lower()
+    forbidden = ["you should", "you must", "the answer is", "verdict"]
+    for word in forbidden:
+        assert word not in rendered, f"render contains directive word: {word!r}"

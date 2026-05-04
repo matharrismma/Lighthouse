@@ -1045,6 +1045,70 @@ def keeping_walk():
     }
 
 
+# ── Ask (search the seed bank or capture a new seed) ────────────────
+
+
+class AskRequest(BaseModel):
+    question: str
+    capture_if_no_survivors: bool = True
+    max_survivors: int = 5
+    max_eliminated: int = 10
+
+
+@app.post("/ask", include_in_schema=True)
+def ask_endpoint(req: AskRequest):
+    """Search the seed bank with elimination + fruit ranking.
+
+    Apophatic + cataphatic: eliminate misfits with reasons (the
+    elimination trail IS the reasoning), then rank survivors by good
+    fruit (sealed + unamended + recurring + threaded). If nothing
+    survives, capture the question itself as a new seed.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    try:
+        from concordance_engine import ask as ask_mod
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"ask module unavailable: {e}")
+    try:
+        result = ask_mod.ask(
+            req.question,
+            capture_if_no_survivors=req.capture_if_no_survivors,
+            max_survivors=req.max_survivors,
+            max_eliminated=req.max_eliminated,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {
+        "result": result.to_dict(),
+        "rendered": ask_mod.render_ask(result),
+    }
+
+
+# ── Emergence (what the engine sees emerging across recent entries) ─
+
+
+@app.get("/emergence", include_in_schema=True)
+def emergence_endpoint(
+    window_days: int = Query(30, ge=1, le=365),
+):
+    """Surface patterns across recent journal entries — recurring
+    anchors, standing tasks, dates, people, action shapes, feelings.
+
+    Per Matt 2026-05-03: "We see what is being created before the
+    creator." The engine names patterns the user may not have named
+    yet; descriptive only, never directive.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    em = _journal.emergence(window_days=window_days)
+    return {
+        "emergence": em.to_dict(),
+        "rendered": _journal.render_emergence(em),
+    }
+
+
 @app.get("/keeping/log", include_in_schema=True)
 def keeping_log(
     since: Optional[float] = Query(None),

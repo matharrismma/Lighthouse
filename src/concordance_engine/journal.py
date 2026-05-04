@@ -159,6 +159,78 @@ _REF_RE = re.compile(
     r"(?::\d{1,3}(?:-\d{1,3})?)?"                # optional :verse(-end)
 )
 
+# Task-shape phrases — first-person and imperative cues that suggest a
+# to-do item buried in the stream of consciousness.
+_TASK_PATTERNS = [
+    re.compile(r"\b(?:i\s+(?:need|have|want|got)\s+to|i\s+should|i'?ll\s+(?:need\s+to|have\s+to))\s+([^.!?\n]{2,80})", re.IGNORECASE),
+    re.compile(r"\b(?:don't\s+forget\s+to|remember\s+to|make\s+sure\s+to|gotta)\s+([^.!?\n]{2,80})", re.IGNORECASE),
+    re.compile(r"\b(?:todo|to-do|to\s+do)\s*[:\-]\s*([^.!?\n]{2,80})", re.IGNORECASE),
+    re.compile(r"^\s*[\-\*•]\s+([^.!?\n]{2,80})", re.MULTILINE),  # bulleted lines
+]
+
+# Date / calendar shapes — explicit dates, day names, relative references.
+_DATE_PATTERNS = [
+    # Full dates: 2026-05-03, 5/3/26, May 3, May 3rd, 3 May
+    re.compile(r"\b\d{4}-\d{1,2}-\d{1,2}\b"),
+    re.compile(r"\b\d{1,2}/\d{1,2}(?:/\d{2,4})?\b"),
+    re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?\b", re.IGNORECASE),
+    re.compile(r"\b\d{1,2}(?:st|nd|rd|th)?\s+(?:of\s+)?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b", re.IGNORECASE),
+    # Day names
+    re.compile(r"\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b", re.IGNORECASE),
+    re.compile(r"\b(?:Mon|Tue|Tues|Wed|Thu|Thur|Thurs|Fri|Sat|Sun)\b", re.IGNORECASE),
+    # Relative-time markers that anchor planning
+    re.compile(r"\b(?:today|tomorrow|tonight|yesterday)\b", re.IGNORECASE),
+    re.compile(r"\b(?:next|this|last)\s+(?:week|month|year|monday|tuesday|wednesday|thursday|friday|saturday|sunday|morning|evening)\b", re.IGNORECASE),
+    re.compile(r"\bin\s+\d+\s+(?:days?|weeks?|months?|years?)\b", re.IGNORECASE),
+]
+
+# Person mentions — capitalized first names following relational
+# verbs / prepositions ("met with Sarah", "Sarah's birthday", "from
+# Bob"). Heuristic; not a real NER pass. The engine never claims this
+# is exhaustive.
+# Inline (?i:...) flag groups make the prefix case-insensitive while
+# the captured NAME group remains required-capitalized — distinguishing
+# proper names from common nouns.
+_PERSON_RELATIONAL = re.compile(
+    r"\b(?i:with|from|to|for|by|met|saw|called|texted|emailed|asked|told|"
+    r"thanked|owe|love)\s+([A-Z][a-z]{1,15})(?:'s|\b)",
+)
+_PERSON_BIRTHDAY = re.compile(
+    r"\b([A-Z][a-z]{1,15})(?:'s|s')\s+(?i:birthday|anniversary|wedding|funeral)",
+)
+_PERSON_WHOLE = re.compile(
+    r"\b(?i:my|her|his)\s+(?i:wife|husband|spouse|partner|son|daughter|"
+    r"brother|sister|mom|mother|dad|father|cousin|friend)\s+([A-Z][a-z]{1,15})",
+)
+
+# Feeling vocabulary — minimal seed list; the engine treats matches as
+# hypotheses. NOT a clinical assessment.
+_FEELING_WORDS = [
+    "happy", "joyful", "grateful", "thankful", "content", "peaceful",
+    "calm", "relaxed", "excited", "hopeful", "loved", "blessed",
+    "tired", "exhausted", "drained", "weary", "fatigued",
+    "anxious", "worried", "nervous", "stressed", "overwhelmed",
+    "afraid", "scared", "fearful", "uncertain", "confused", "lost",
+    "sad", "down", "blue", "discouraged", "hopeless", "lonely",
+    "angry", "frustrated", "annoyed", "irritated", "resentful",
+    "ashamed", "guilty", "embarrassed", "regretful",
+    "convicted", "humbled", "broken", "contrite",
+]
+_FEELING_RES = [
+    re.compile(rf"\b(?:i\s+(?:am|feel|felt|am\s+feeling))\s+(?:so\s+|really\s+|very\s+|kinda\s+|a\s+bit\s+|a\s+little\s+)?({w})\b", re.IGNORECASE)
+    for w in _FEELING_WORDS
+] + [
+    re.compile(rf"\b(?:feeling|feel|felt)\s+({w})\b", re.IGNORECASE)
+    for w in _FEELING_WORDS
+]
+
+# Coordinated-continuation pattern — captures feeling words after "and",
+# "but", "or", commas. "I am tired and stressed" should catch both.
+_FEELING_CONTINUATION = re.compile(
+    rf"(?:\band\b|\bbut\b|\bor\b|,)\s+(?:so\s+|really\s+|very\s+|kinda\s+|a\s+bit\s+|a\s+little\s+|mostly\s+)?({'|'.join(_FEELING_WORDS)})\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class Categorization:
@@ -167,7 +239,13 @@ class Categorization:
     Empty list / None for any field means "the engine didn't recognize
     a [field] in this text" — not "this entry has none." Absence is
     explicit, never implicit.
+
+    Per Matt 2026-05-03: *"It's all important. It may just be
+    important to you, but it was important enough to input."* The
+    engine doesn't filter for "depth" — even casual notes (tasks,
+    dates, names, feelings) are surfaced as real signal.
     """
+    # Doctrinal / structural
     detected_anchors: List[str] = field(default_factory=list)
     detected_action_shapes: List[str] = field(default_factory=list)
     detected_scope: Optional[str] = None
@@ -175,6 +253,13 @@ class Categorization:
     detected_packet_confidence: float = 0.0
     closest_precedent_id: Optional[str] = None
     closest_precedent_distance: Optional[int] = None
+
+    # Daily-life signals (per the broader stream-of-consciousness
+    # framing — tasks, dates, names, feelings)
+    detected_tasks: List[str] = field(default_factory=list)
+    detected_dates: List[str] = field(default_factory=list)
+    detected_people: List[str] = field(default_factory=list)
+    detected_feelings: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -189,6 +274,10 @@ class Categorization:
             detected_packet_confidence=float(d.get("detected_packet_confidence", 0.0)),
             closest_precedent_id=d.get("closest_precedent_id"),
             closest_precedent_distance=d.get("closest_precedent_distance"),
+            detected_tasks=list(d.get("detected_tasks") or []),
+            detected_dates=list(d.get("detected_dates") or []),
+            detected_people=list(d.get("detected_people") or []),
+            detected_feelings=list(d.get("detected_feelings") or []),
         )
 
 
@@ -258,12 +347,65 @@ def categorize(text: str) -> Categorization:
         # block the capture.
         pass
 
+    # 5. Tasks — first-person and imperative cues
+    detected_tasks: List[str] = []
+    seen_tasks = set()
+    for pat in _TASK_PATTERNS:
+        for m in pat.finditer(text):
+            task = (m.group(1) if m.groups() else m.group(0)).strip().rstrip(",.;: ")
+            if task and task.lower() not in seen_tasks and len(task) >= 3:
+                seen_tasks.add(task.lower())
+                detected_tasks.append(task)
+
+    # 6. Dates / calendar markers
+    detected_dates: List[str] = []
+    seen_dates = set()
+    for pat in _DATE_PATTERNS:
+        for m in pat.finditer(text):
+            d = m.group(0).strip()
+            d_norm = d.lower()
+            if d and d_norm not in seen_dates:
+                seen_dates.add(d_norm)
+                detected_dates.append(d)
+
+    # 7. People — heuristic-only; never a real NER pass
+    detected_people: List[str] = []
+    seen_people = set()
+    for pat in (_PERSON_RELATIONAL, _PERSON_BIRTHDAY, _PERSON_WHOLE):
+        for m in pat.finditer(text):
+            name = m.group(1).strip()
+            if name and name not in seen_people:
+                seen_people.add(name)
+                detected_people.append(name)
+
+    # 8. Feelings — seed vocabulary only; treats matches as hypotheses
+    detected_feelings: List[str] = []
+    seen_feelings = set()
+    for pat in _FEELING_RES:
+        for m in pat.finditer(text):
+            f = m.group(1).lower()
+            if f and f not in seen_feelings:
+                seen_feelings.add(f)
+                detected_feelings.append(f)
+    # If we found at least one feeling via the strict pattern, also pick
+    # up coordinated continuations ("I am tired AND stressed AND grateful").
+    if detected_feelings:
+        for m in _FEELING_CONTINUATION.finditer(text):
+            f = m.group(1).lower()
+            if f and f not in seen_feelings:
+                seen_feelings.add(f)
+                detected_feelings.append(f)
+
     return Categorization(
         detected_anchors=detected_anchors,
         detected_action_shapes=detected_action_shapes,
         detected_scope=detected_scope,
         detected_packet_shape=detected_packet_shape,
         detected_packet_confidence=detected_packet_confidence,
+        detected_tasks=detected_tasks,
+        detected_dates=detected_dates,
+        detected_people=detected_people,
+        detected_feelings=detected_feelings,
     )
 
 
@@ -766,16 +908,215 @@ def render_calibration(entry: JournalEntry, calibration: Calibration) -> str:
     return "\n".join(lines)
 
 
+# ── Emergence (see what is being created before the creator) ───────
+
+
+@dataclass
+class Emergence:
+    """Patterns the engine sees across a window of recent entries
+    that the writer may not have named yet.
+
+    Per Matt 2026-05-03: *"We see what is being created before the
+    creator. This helps them see the path they are on. It keeps them
+    organized and on track."*
+
+    Each field surfaces a *pattern* — never a directive, never a
+    judgment. The writer does the work of seeing what (if anything)
+    to do with the pattern.
+    """
+    window_seconds: float = 0.0
+    entries_in_window: int = 0
+
+    # Recurring signals — what's been showing up
+    recurring_anchors: Dict[str, int] = field(default_factory=dict)
+    recurring_people: Dict[str, int] = field(default_factory=dict)
+    recurring_action_shapes: Dict[str, int] = field(default_factory=dict)
+    feeling_distribution: Dict[str, int] = field(default_factory=dict)
+
+    # Tasks that haven't been struck through (kept from older entries
+    # and not annotated as done)
+    standing_tasks: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Upcoming dates the engine noticed across entries
+    upcoming_dates: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Plain-language narrative the renderer can lean on
+    notes: List[str] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+def emergence(
+    *,
+    since: Optional[float] = None,
+    window_days: int = 30,
+    store: Optional[JournalStore] = None,
+    now: Optional[float] = None,
+) -> Emergence:
+    """Surface emerging patterns across recent entries.
+
+    Read-only. Aggregates categorization signals across the window
+    and surfaces what's recurring (anchors / people / action shapes /
+    feelings), what tasks are still standing (mentioned in entries,
+    no later annotation marking them done), and what dates appeared.
+    """
+    store = store or JournalStore()
+    now_epoch = now if now is not None else _now()
+    if since is None:
+        since = now_epoch - (window_days * 86400)
+
+    entries = [e for e in store.list_all() if e.written_at >= since]
+
+    recurring_anchors: Dict[str, int] = {}
+    recurring_people: Dict[str, int] = {}
+    recurring_action_shapes: Dict[str, int] = {}
+    feeling_distribution: Dict[str, int] = {}
+    upcoming_dates: List[Dict[str, Any]] = []
+    standing_tasks: List[Dict[str, Any]] = []
+
+    for entry in entries:
+        cat = entry.categorization
+        for a in cat.detected_anchors or []:
+            recurring_anchors[a] = recurring_anchors.get(a, 0) + 1
+        for p in cat.detected_people or []:
+            recurring_people[p] = recurring_people.get(p, 0) + 1
+        for s in cat.detected_action_shapes or []:
+            recurring_action_shapes[s] = recurring_action_shapes.get(s, 0) + 1
+        for f in cat.detected_feelings or []:
+            feeling_distribution[f] = feeling_distribution.get(f, 0) + 1
+
+        for d in cat.detected_dates or []:
+            upcoming_dates.append({
+                "date_text": d,
+                "entry_id": entry.id,
+                "entry_written_at": entry.written_at,
+            })
+
+        for t in cat.detected_tasks or []:
+            # If the entry has an annotation later than the entry's
+            # written_at that mentions "done" or "completed", treat as
+            # struck through. Otherwise, the task is still standing.
+            done = False
+            for ann in entry.annotations or []:
+                if ann.timestamp > entry.written_at:
+                    note_l = (ann.note or "").lower()
+                    if any(k in note_l for k in ("done", "completed", "finished", "handled")):
+                        done = True
+                        break
+            if not done:
+                standing_tasks.append({
+                    "task": t,
+                    "entry_id": entry.id,
+                    "entry_written_at": entry.written_at,
+                })
+
+    notes: List[str] = []
+    # Surface plain-language patterns. Never directive — only naming
+    # what the engine sees.
+    if recurring_anchors:
+        top = sorted(recurring_anchors.items(), key=lambda x: -x[1])[:3]
+        if top[0][1] >= 3:
+            notes.append(
+                f"You've returned to {top[0][0]} {top[0][1]} times in this window."
+            )
+    if recurring_action_shapes:
+        top = sorted(recurring_action_shapes.items(), key=lambda x: -x[1])[:1]
+        shape, count = top[0]
+        if count >= 3:
+            notes.append(
+                f"Action shape {shape} appears in {count} of {len(entries)} entries."
+            )
+    if feeling_distribution:
+        top = sorted(feeling_distribution.items(), key=lambda x: -x[1])[:3]
+        if top[0][1] >= 3:
+            words = ", ".join(f"{w}({c})" for w, c in top)
+            notes.append(f"Feelings recurring: {words}.")
+    if standing_tasks:
+        notes.append(
+            f"{len(standing_tasks)} task(s) still standing — surfaced from your "
+            f"writing, not yet marked done in an annotation."
+        )
+    if recurring_people:
+        top = sorted(recurring_people.items(), key=lambda x: -x[1])[:3]
+        if top[0][1] >= 3:
+            people = ", ".join(f"{n}({c})" for n, c in top)
+            notes.append(f"People you've named multiple times: {people}.")
+
+    return Emergence(
+        window_seconds=now_epoch - since,
+        entries_in_window=len(entries),
+        recurring_anchors=recurring_anchors,
+        recurring_people=recurring_people,
+        recurring_action_shapes=recurring_action_shapes,
+        feeling_distribution=feeling_distribution,
+        standing_tasks=standing_tasks,
+        upcoming_dates=upcoming_dates,
+        notes=notes,
+    )
+
+
+def render_emergence(em: Emergence) -> str:
+    """Render an Emergence as human-readable markdown.
+
+    Honors the doctrine: descriptive only, never prescriptive. The
+    renderer names what the engine sees and stops. The user does the
+    work of deciding what (if anything) to do with the pattern.
+    """
+    lines: List[str] = []
+    lines.append("## What the engine sees emerging")
+    lines.append("")
+    days = em.window_seconds / 86400 if em.window_seconds else 0
+    lines.append(
+        f"_Across {em.entries_in_window} entries in the last "
+        f"{days:.0f} day(s)._"
+    )
+    lines.append("")
+
+    if not em.notes and not em.standing_tasks and not em.upcoming_dates:
+        lines.append("_No patterns surfaced yet. The keeping continues._")
+        lines.append("")
+        return "\n".join(lines)
+
+    if em.notes:
+        for n in em.notes:
+            lines.append(f"- {n}")
+        lines.append("")
+
+    if em.standing_tasks:
+        lines.append("### Tasks still standing")
+        lines.append("")
+        for t in em.standing_tasks[:10]:
+            lines.append(f"- {t['task']}  _(from `{t['entry_id']}`)_")
+        if len(em.standing_tasks) > 10:
+            lines.append(f"- _+{len(em.standing_tasks) - 10} more_")
+        lines.append("")
+
+    if em.upcoming_dates:
+        lines.append("### Dates noted in your writing")
+        lines.append("")
+        for d in em.upcoming_dates[:8]:
+            lines.append(f"- `{d['date_text']}`  _(from `{d['entry_id']}`)_")
+        if len(em.upcoming_dates) > 8:
+            lines.append(f"- _+{len(em.upcoming_dates) - 8} more_")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 __all__ = [
     "Categorization",
     "Annotation",
     "JournalEntry",
     "JournalStore",
     "Calibration",
+    "Emergence",
     "categorize",
     "calibrate",
     "render_calibration",
     "capture",
     "annotate",
     "thread",
+    "emergence",
+    "render_emergence",
 ]

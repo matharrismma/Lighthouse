@@ -405,6 +405,59 @@ def main() -> None:
              "packet.issuer_public_key.",
     )
 
+    # ── seek subcommand (search the seed bank or capture a new seed)
+    # Named `seek` (Mt 7:7) to avoid collision with the existing `ask`
+    # subcommand which runs a packet through the four-gate walkthrough.
+    # `concordance seek <question>` is the seed-bank-search surface;
+    # `concordance ask <packet>` is the packet-walkthrough surface.
+    ak = sub.add_parser(
+        "seek",
+        help="Seek the seed bank. Search audit chain + journal + shelf for "
+             "what shape your question carries; surface what survives "
+             "elimination, ranked by fruit; capture a new seed if nothing "
+             "matched.",
+        description=(
+            "Apophatic + cataphatic. Eliminate misfits with reasons. Among "
+            "survivors, rank by good fruit (sealed precedents that have "
+            "stood unamended; journal seeds that have been threaded, "
+            "annotated, or published to the shelf). Surface the elimination "
+            "trail — that is the reasoning. Mt 7:7 — seek and ye shall find."
+        ),
+    )
+    ak.add_argument(
+        "question", type=str, nargs="?",
+        help="Your question. Omit to read from --from-file or --stdin.",
+    )
+    ak.add_argument("--from-file", "-f", type=str, default=None)
+    ak.add_argument("--stdin", action="store_true")
+    ak.add_argument(
+        "--max-survivors", type=int, default=5,
+        help="Cap the number of surviving matches (default 5).",
+    )
+    ak.add_argument(
+        "--no-capture", action="store_true",
+        help="Don't capture the question as a new seed when nothing matches.",
+    )
+    ak.add_argument("--json", action="store_true",
+                    help="Emit raw JSON instead of markdown.")
+
+    # ── emergence (what the engine sees emerging) ──────────────────
+    em = sub.add_parser(
+        "emergence",
+        help="Surface patterns across recent journal entries — recurring "
+             "anchors, standing tasks, dates, people, action shapes.",
+        description=(
+            "See what is being created before the creator. The engine reads "
+            "across the window, names what's recurring, and surfaces what's "
+            "still standing. Descriptive, never prescriptive — the user "
+            "decides what (if anything) to do with the pattern."
+        ),
+    )
+    em.add_argument("--days", type=int, default=30,
+                    help="Look-back window in days (default 30).")
+    em.add_argument("--json", action="store_true",
+                    help="Emit raw JSON instead of markdown.")
+
     # ── live subcommand (the persistent companion / harvester) ─────
     lv = sub.add_parser(
         "live",
@@ -1026,6 +1079,51 @@ def main() -> None:
             run_keeper=not args.no_keeper,
         )
         sys.exit(live_mod.run(cfg))
+
+    if args.cmd == "seek":
+        from . import ask as ask_mod
+        # Resolve question text
+        question = args.question
+        sources = sum(bool(s) for s in (question, args.from_file, args.stdin))
+        if sources > 1:
+            print("error: pass at most one of: positional, --from-file, --stdin",
+                  file=sys.stderr)
+            sys.exit(4)
+        if args.from_file:
+            try:
+                question = Path(args.from_file).read_text(encoding="utf-8")
+            except OSError as e:
+                print(f"error: {e}", file=sys.stderr)
+                sys.exit(4)
+        if args.stdin:
+            question = sys.stdin.read()
+        if not question or not question.strip():
+            print("error: provide a question (positional, --from-file, --stdin)",
+                  file=sys.stderr)
+            sys.exit(4)
+        try:
+            result = ask_mod.ask(
+                question,
+                capture_if_no_survivors=not args.no_capture,
+                max_survivors=args.max_survivors,
+            )
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            sys.exit(4)
+        if args.json:
+            print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+        else:
+            print(ask_mod.render_ask(result))
+        sys.exit(0)
+
+    if args.cmd == "emergence":
+        from . import journal as jr_mod
+        em = jr_mod.emergence(window_days=args.days)
+        if args.json:
+            print(json.dumps(em.to_dict(), indent=2, ensure_ascii=False))
+        else:
+            print(jr_mod.render_emergence(em))
+        sys.exit(0)
 
     if args.cmd == "write":
         from . import journal as jr_mod

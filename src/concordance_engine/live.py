@@ -277,6 +277,12 @@ def _cmd_help(_session: LiveSession, _args: str) -> str:
     /precedent          Closest precedent for the last seed (read-only).
     /anchor <ref>       Look up a scripture reference against Layer 0.
 
+  ACROSS — search + emergence:
+    /ask <question>     Search the seed bank by elimination + fruit;
+                        capture the question as a new seed if no match.
+    /emergence [days]   Patterns across recent entries (default 30 days):
+                        recurring anchors, standing tasks, dates, people.
+
   Session:
     /help               This.
     /quit               Leave. The keeping continues."""
@@ -388,6 +394,34 @@ def _cmd_anchor(_session: LiveSession, args: str) -> str:
     return f"  ({ref}: {status})"
 
 
+def _cmd_ask(session: LiveSession, args: str) -> str:
+    """Search the seed bank for the question's shape; eliminate
+    misfits; rank survivors by fruit."""
+    question = args.strip()
+    if not question:
+        return "  (usage: /ask <question>)"
+    try:
+        from . import ask as ask_mod
+        result = ask_mod.ask(question)
+    except ValueError as e:
+        return f"  (error: {e})"
+    if result.new_seed_id:
+        session.last_entry_id = result.new_seed_id
+    return ask_mod.render_ask(result)
+
+
+def _cmd_emergence(_session: LiveSession, args: str) -> str:
+    """Surface patterns across recent journal entries."""
+    days = 30
+    if args.strip():
+        try:
+            days = max(1, int(args.strip()))
+        except ValueError:
+            return f"  (could not parse '{args.strip()}' as days)"
+    em = _journal.emergence(window_days=days)
+    return _journal.render_emergence(em)
+
+
 def _cmd_precedent(session: LiveSession, _args: str) -> str:
     if not session.last_entry_id:
         return "  (no entry yet; capture one first)"
@@ -459,18 +493,21 @@ def _cmd_unshelf(session: LiveSession, args: str) -> str:
 
 
 _COMMANDS: Dict[str, Callable[[LiveSession, str], str]] = {
-    "help":      _cmd_help,
-    "?":         _cmd_help,
-    "thread":    _cmd_thread,
-    "show":      _cmd_show,
-    "recent":    _cmd_recent,
-    "keeping":   _cmd_keeping,
-    "kept":      _cmd_keeping,
-    "anchor":    _cmd_anchor,
-    "precedent": _cmd_precedent,
-    "shelf":     _cmd_shelf,
-    "publish":   _cmd_publish,
-    "unshelf":   _cmd_unshelf,
+    "help":       _cmd_help,
+    "?":          _cmd_help,
+    "thread":     _cmd_thread,
+    "show":       _cmd_show,
+    "recent":     _cmd_recent,
+    "keeping":    _cmd_keeping,
+    "kept":       _cmd_keeping,
+    "anchor":     _cmd_anchor,
+    "precedent":  _cmd_precedent,
+    "shelf":      _cmd_shelf,
+    "publish":    _cmd_publish,
+    "unshelf":    _cmd_unshelf,
+    "ask":        _cmd_ask,
+    "emergence":  _cmd_emergence,
+    "emerging":   _cmd_emergence,
 }
 
 
