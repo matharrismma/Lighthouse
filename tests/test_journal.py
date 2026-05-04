@@ -14,8 +14,10 @@ import pytest
 
 from concordance_engine.journal import (
     Annotation,
+    Bin,
     Calibration,
     Categorization,
+    CommunityItem,
     Emergence,
     JournalEntry,
     JournalStore,
@@ -24,12 +26,19 @@ from concordance_engine.journal import (
     calibrate,
     capture,
     categorize,
+    community_feed,
     emergence,
+    infer_bins,
     promote,
+    render_bins,
     render_calibration,
     render_emergence,
     render_promotion,
+    review_bin,
+    share_widespread,
+    share_with,
     thread,
+    unshare_with,
 )
 
 
@@ -689,3 +698,272 @@ def test_render_promotion_no_directive_words():
     forbidden = ["you should", "you must", "the answer is", "verdict"]
     for word in forbidden:
         assert word not in rendered, f"render contains directive word: {word!r}"
+
+
+# ── Sharing — widespread + direct + community feed ───────────────────
+
+
+def test_share_widespread_adds_shelf_tag(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("A seed worth sharing.")
+    updated = share_widespread(e.id)
+    assert updated is not None
+    assert "shelf" in updated.user_tags
+
+
+def test_share_widespread_idempotent(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("seed")
+    share_widespread(e.id)
+    updated = share_widespread(e.id)
+    assert updated.user_tags.count("shelf") == 1
+
+
+def test_share_widespread_unknown_returns_none(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    assert share_widespread("j-doesnotexist") is None
+
+
+def test_share_with_adds_recipient_tag(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("Just for Sarah.")
+    updated = share_with(e.id, recipient="sarah")
+    assert "shared_with:sarah" in updated.user_tags
+
+
+def test_share_with_multiple_recipients(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("Shared with two people.")
+    share_with(e.id, recipient="sarah")
+    updated = share_with(e.id, recipient="bob")
+    assert "shared_with:sarah" in updated.user_tags
+    assert "shared_with:bob" in updated.user_tags
+
+
+def test_share_with_rejects_empty_recipient(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("seed")
+    with pytest.raises(ValueError):
+        share_with(e.id, recipient="")
+
+
+def test_unshare_with_removes_recipient_tag(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("seed")
+    share_with(e.id, recipient="sarah")
+    updated = unshare_with(e.id, recipient="sarah")
+    assert "shared_with:sarah" not in updated.user_tags
+
+
+def test_community_feed_widespread_visible_to_all(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("Shelf seed.")
+    share_widespread(e.id)
+    items = community_feed(viewer="anyone")
+    assert any(i.entry.id == e.id for i in items)
+    item = next(i for i in items if i.entry.id == e.id)
+    assert item.widespread is True
+    assert item.direct is False
+
+
+def test_community_feed_direct_only_visible_to_recipient(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("Just for Sarah.")
+    share_with(e.id, recipient="sarah")
+    # Bob does not see it
+    bob_feed = community_feed(viewer="bob")
+    assert not any(i.entry.id == e.id for i in bob_feed)
+    # Sarah does
+    sarah_feed = community_feed(viewer="sarah")
+    assert any(i.entry.id == e.id for i in sarah_feed)
+    sarah_item = next(i for i in sarah_feed if i.entry.id == e.id)
+    assert sarah_item.direct is True
+    assert sarah_item.widespread is False
+
+
+def test_community_feed_excludes_unshared_entries(tmp_path, monkeypatch):
+    """Library entries not on the shelf and not directly shared
+    should never appear in any community feed."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    private = capture("Private thought.")
+    feed = community_feed(viewer="anyone")
+    assert not any(i.entry.id == private.id for i in feed)
+
+
+def test_community_feed_combines_widespread_and_direct_for_recipient(
+    tmp_path, monkeypatch,
+):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    a = capture("Public seed.")
+    share_widespread(a.id)
+    b = capture("Just for Sarah.")
+    share_with(b.id, recipient="sarah")
+    sarah_feed = community_feed(viewer="sarah")
+    ids = [i.entry.id for i in sarah_feed]
+    assert a.id in ids and b.id in ids
+
+
+def test_community_feed_marks_dual_widespread_and_direct(tmp_path, monkeypatch):
+    """An entry that is BOTH on the shelf and directly addressed to
+    the viewer should be flagged with both."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    e = capture("Shelf seed I also pinged Sarah about.")
+    share_widespread(e.id)
+    share_with(e.id, recipient="sarah")
+    sarah_feed = community_feed(viewer="sarah")
+    item = next(i for i in sarah_feed if i.entry.id == e.id)
+    assert item.widespread is True
+    assert item.direct is True
+
+
+def test_community_feed_newest_first(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    a = capture("first")
+    share_widespread(a.id)
+    b = capture("second")
+    share_widespread(b.id)
+    feed = community_feed(viewer="anyone")
+    assert feed[0].entry.id == b.id  # newest first by modified_at
+    assert feed[1].entry.id == a.id
+
+
+# ── Bins — emergent clusters of the user's life ─────────────────────
+
+
+def test_infer_bins_with_no_entries(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    bins = infer_bins()
+    assert bins == []
+
+
+def test_infer_bins_below_threshold_returns_nothing(tmp_path, monkeypatch):
+    """Default min_recurrence=3; a signal that appears in 2 entries
+    should not yet be a bin."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    capture("Mt 5:37 — entry one")
+    capture("Mt 5:37 — entry two")  # only two
+    bins = infer_bins()
+    assert bins == []
+
+
+def test_infer_bins_anchor_recurrence(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(4):
+        capture(f"Mt 5:37 — entry {i}")
+    bins = infer_bins()
+    assert any(b.kind == "anchor" and b.signal_key == "Mt 5:37"
+               for b in bins)
+    bin_ = next(b for b in bins if b.signal_key == "Mt 5:37")
+    assert bin_.size == 4
+    assert bin_.bin_id == "anchor:Mt 5:37"
+
+
+def test_infer_bins_person_recurrence(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(3):
+        capture(f"Coffee with Sarah — entry {i}.")
+    bins = infer_bins()
+    person_bins = [b for b in bins if b.kind == "person"]
+    assert any(b.signal_key == "Sarah" for b in person_bins)
+
+
+def test_infer_bins_action_recurrence(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(3):
+        capture(f"I want to build something different — entry {i}.")
+    bins = infer_bins()
+    action_bins = [b for b in bins if b.kind == "action"]
+    assert any(b.signal_key == "Build" for b in action_bins)
+
+
+def test_infer_bins_sorted_by_size(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    # 5 anchored to Mt 5:37, 3 to Heb 11:1
+    for i in range(5):
+        capture(f"Mt 5:37 — entry {i}")
+    for i in range(3):
+        capture(f"Heb 11:1 — entry {i}")
+    bins = infer_bins()
+    sizes = [b.size for b in bins]
+    assert sizes == sorted(sizes, reverse=True)
+    # Largest bin should be Mt 5:37
+    assert bins[0].signal_key == "Mt 5:37"
+
+
+def test_infer_bins_same_entry_in_multiple_bins(tmp_path, monkeypatch):
+    """An entry with multiple recurring signals appears in multiple bins."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    # Mention Mt 5:37 + Sarah in 3 entries each, with overlap
+    for i in range(3):
+        capture(f"Coffee with Sarah about Mt 5:37 — entry {i}")
+    bins = infer_bins()
+    by_signal = {b.signal_key: b for b in bins}
+    # Both Sarah and Mt 5:37 should be bins
+    assert "Sarah" in by_signal
+    assert "Mt 5:37" in by_signal
+    # The same entry ids should appear in both
+    sarah_ids = set(by_signal["Sarah"].entry_ids)
+    mt_ids = set(by_signal["Mt 5:37"].entry_ids)
+    assert sarah_ids == mt_ids
+
+
+def test_infer_bins_min_recurrence_override(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    capture("Mt 5:37 — entry one")
+    capture("Mt 5:37 — entry two")
+    # min_recurrence=2 should now form a bin
+    bins = infer_bins(min_recurrence=2)
+    assert any(b.signal_key == "Mt 5:37" for b in bins)
+
+
+def test_review_bin_returns_full_entries(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(3):
+        capture(f"Mt 5:37 entry {i}")
+    review = review_bin("anchor:Mt 5:37")
+    assert review is not None
+    assert review["bin"]["size"] == 3
+    assert len(review["entries"]) == 3
+
+
+def test_review_bin_unknown_returns_none(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    assert review_bin("anchor:NonExistent") is None
+
+
+def test_render_bins_empty():
+    rendered = render_bins([])
+    assert "no bins yet" in rendered.lower() or "bins emerge" in rendered.lower()
+
+
+def test_render_bins_no_directive_words(tmp_path, monkeypatch):
+    """Doctrinal: bin rendering describes what's there; never directs."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    for i in range(3):
+        capture(f"Mt 5:37 entry {i}")
+    bins = infer_bins()
+    rendered = render_bins(bins).lower()
+    forbidden = ["you should", "you must", "the answer is"]
+    for word in forbidden:
+        assert word not in rendered, f"bins render contains: {word!r}"

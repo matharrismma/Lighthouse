@@ -1104,6 +1104,319 @@ def render_emergence(em: Emergence) -> str:
     return "\n".join(lines)
 
 
+# ── Sharing (community tier — widespread or directly shared) ───────
+
+
+# Tag conventions on a JournalEntry's user_tags:
+#   "shelf"           — widespread; anyone reaching for your shelf sees it
+#   "shared_with:<u>" — directly shared with user `u`; only `u` sees it in
+#                       their community feed
+SHELF_TAG = "shelf"
+DIRECT_SHARE_PREFIX = "shared_with:"
+
+
+def share_widespread(
+    entry_id: str,
+    *,
+    store: Optional[JournalStore] = None,
+) -> Optional[JournalEntry]:
+    """Publish a seed to the shelf — anyone reaching for your shelf
+    will see it. Idempotent."""
+    store = store or JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        return None
+    if SHELF_TAG not in entry.user_tags:
+        entry.user_tags = list(entry.user_tags) + [SHELF_TAG]
+        entry.modified_at = _now()
+        store.save(entry)
+    return entry
+
+
+def share_with(
+    entry_id: str,
+    *,
+    recipient: str,
+    store: Optional[JournalStore] = None,
+) -> Optional[JournalEntry]:
+    """Share a seed directly with one person. Adds `shared_with:<u>`
+    to the entry's tags. Multiple direct-share recipients can be
+    added by calling this repeatedly. Idempotent per-recipient."""
+    if not recipient or not recipient.strip():
+        raise ValueError("recipient cannot be empty")
+    recipient = recipient.strip()
+    store = store or JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        return None
+    tag = DIRECT_SHARE_PREFIX + recipient
+    if tag not in entry.user_tags:
+        entry.user_tags = list(entry.user_tags) + [tag]
+        entry.modified_at = _now()
+        store.save(entry)
+    return entry
+
+
+def unshare_with(
+    entry_id: str,
+    *,
+    recipient: str,
+    store: Optional[JournalStore] = None,
+) -> Optional[JournalEntry]:
+    """Withdraw a direct share. The seed remains in the library
+    untouched; only the share tag is removed."""
+    store = store or JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        return None
+    tag = DIRECT_SHARE_PREFIX + recipient.strip()
+    if tag in entry.user_tags:
+        entry.user_tags = [t for t in entry.user_tags if t != tag]
+        entry.modified_at = _now()
+        store.save(entry)
+    return entry
+
+
+@dataclass
+class CommunityItem:
+    """One entry visible to the current viewer in the community feed.
+
+    Either `widespread=True` (entry is on the shelf, anyone sees) or
+    `widespread=False` and `direct=True` (entry was shared specifically
+    with the current viewer). Both can be true if the entry is on the
+    shelf AND directly addressed to this viewer.
+    """
+    entry: JournalEntry
+    widespread: bool
+    direct: bool
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "entry": self.entry.to_dict(),
+            "widespread": self.widespread,
+            "direct": self.direct,
+        }
+
+
+def community_feed(
+    *,
+    viewer: str = "default",
+    limit: int = 20,
+    store: Optional[JournalStore] = None,
+) -> List[CommunityItem]:
+    """Return the community feed visible to a given viewer.
+
+    Includes:
+      * Every entry on the shelf (widespread; anyone sees these)
+      * Every entry tagged `shared_with:<viewer>` (direct shares to
+        the current viewer; private to them)
+
+    Newest first. The viewer parameter defaults to `default` for
+    single-user deployments; multi-user installs pass the
+    authenticated user's id.
+    """
+    store = store or JournalStore()
+    direct_tag = DIRECT_SHARE_PREFIX + viewer.strip()
+
+    seen: Dict[str, CommunityItem] = {}
+    for entry in store.list_all():
+        widespread = SHELF_TAG in entry.user_tags
+        direct = direct_tag in entry.user_tags
+        if not (widespread or direct):
+            continue
+        seen[entry.id] = CommunityItem(
+            entry=entry, widespread=widespread, direct=direct,
+        )
+    items = list(seen.values())
+    items.sort(key=lambda i: i.entry.modified_at, reverse=True)
+    return items[:limit]
+
+
+# ── Bins — emergent clusters of the user's life ─────────────────────
+
+
+# Per the project's "fractal bins architecture" memory: bins are NAMED
+# BY USE, REBALANCED FOR OPTIMAL RECALL, PACKETS TRANSPORT BETWEEN
+# THEM. Bins are not pre-defined categories the user sorts into;
+# they emerge from what the writing has shown.
+#
+# Bins themselves are a fractal of the larger system:
+#   * each bin has its own anchor / scope / action / feeling
+#     fingerprint — its signal-signature
+#   * bins can be widespread (shelf-shaped) or private to the user
+#   * bins can be reviewed, merged, split, renamed, or promoted
+#   * the engine never invents a bin without a use-pattern in the
+#     entries — explicit absence over invented structure
+
+
+# Minimum entries needed for the engine to infer a bin from a
+# single recurring signal. Tunable; lower = more bins, higher = only
+# the strong patterns surface.
+BIN_MIN_RECURRENCE = 3
+
+
+@dataclass
+class Bin:
+    """One emergent cluster of journal entries that share a signal.
+
+    A bin is named by what made it visible (an anchor recurring, a
+    person recurring, an action shape clustering). Membership is the
+    set of entry ids whose categorization carries the signal. Bins
+    overlap — an entry can belong to several at once.
+    """
+    bin_id: str  # synthesized from kind+key, e.g. "anchor:Mt 5:37"
+    kind: str    # "anchor" | "person" | "action" | "feeling" | "shape"
+    name: str    # human-readable, derived from the kind+key
+    signal_key: str  # the literal signal — "Mt 5:37", "Sarah", "Hold"
+    entry_ids: List[str] = field(default_factory=list)
+    sample_entries: List[Dict[str, Any]] = field(default_factory=list)
+    size: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+def infer_bins(
+    *,
+    min_recurrence: int = BIN_MIN_RECURRENCE,
+    store: Optional[JournalStore] = None,
+) -> List[Bin]:
+    """Walk the user's library and surface emergent bins.
+
+    Bins are inferred along five axes: anchor, person, action shape,
+    feeling, and packet shape. A signal that recurs in `min_recurrence`
+    or more entries becomes a bin. Bins are sorted by size descending
+    so the strongest patterns surface first.
+
+    The engine does NOT name bins by topic — it names them by the
+    literal signal that grouped the entries. "Mt 5:37" not "spiritual
+    discernment." "Sarah" not "relationship." The user does the
+    abstracting if they want to.
+    """
+    store = store or JournalStore()
+    entries = store.list_all()
+
+    # signal-key → list of entry ids
+    by_kind: Dict[str, Dict[str, List[str]]] = {
+        "anchor":  {},
+        "person":  {},
+        "action":  {},
+        "feeling": {},
+        "shape":   {},
+    }
+    entry_lookup: Dict[str, JournalEntry] = {e.id: e for e in entries}
+
+    for entry in entries:
+        cat = entry.categorization
+        for a in cat.detected_anchors or []:
+            by_kind["anchor"].setdefault(a, []).append(entry.id)
+        for p in cat.detected_people or []:
+            by_kind["person"].setdefault(p, []).append(entry.id)
+        for s in cat.detected_action_shapes or []:
+            by_kind["action"].setdefault(s, []).append(entry.id)
+        for f in cat.detected_feelings or []:
+            by_kind["feeling"].setdefault(f, []).append(entry.id)
+        if cat.detected_packet_shape:
+            by_kind["shape"].setdefault(
+                cat.detected_packet_shape, []).append(entry.id)
+
+    bins: List[Bin] = []
+    for kind, mapping in by_kind.items():
+        for key, ids in mapping.items():
+            if len(ids) < min_recurrence:
+                continue
+            # Pick a few sample previews for the bin's surface.
+            samples: List[Dict[str, Any]] = []
+            for eid in ids[:3]:
+                e = entry_lookup.get(eid)
+                if e is None:
+                    continue
+                preview = e.text.replace("\n", " ").strip()[:80]
+                samples.append({"id": eid, "preview": preview})
+            bins.append(Bin(
+                bin_id=f"{kind}:{key}",
+                kind=kind,
+                name=key,
+                signal_key=key,
+                entry_ids=list(ids),
+                sample_entries=samples,
+                size=len(ids),
+            ))
+
+    # Strongest signals first.
+    bins.sort(key=lambda b: b.size, reverse=True)
+    return bins
+
+
+def review_bin(
+    bin_id: str,
+    *,
+    store: Optional[JournalStore] = None,
+) -> Optional[Dict[str, Any]]:
+    """Look at one bin: its full entry list with previews. Returns
+    None if the bin doesn't currently exist (signal stopped recurring,
+    or never did)."""
+    bins = infer_bins(min_recurrence=1, store=store)  # widen so any signal counts
+    for b in bins:
+        if b.bin_id == bin_id:
+            store = store or JournalStore()
+            full_entries = []
+            for eid in b.entry_ids:
+                e = store.load(eid)
+                if e is None:
+                    continue
+                full_entries.append({
+                    "id": e.id,
+                    "text": e.text,
+                    "written_at": e.written_at,
+                    "user_tags": list(e.user_tags),
+                    "anchors": list(e.categorization.detected_anchors or []),
+                    "actions": list(e.categorization.detected_action_shapes or []),
+                    "scope": e.categorization.detected_scope,
+                })
+            return {
+                "bin": b.to_dict(),
+                "entries": full_entries,
+            }
+    return None
+
+
+def render_bins(bins: List[Bin]) -> str:
+    """Render bins as human-readable markdown.
+
+    Per doctrine: descriptive only. "Bin X has 5 entries" not "you
+    should focus on bin X." The user does the deciding."""
+    if not bins:
+        return ("## Bins forming\n\n_No bins yet. Bins emerge once a "
+                "signal recurs across several entries — the engine "
+                "doesn't invent them. Keep writing._")
+    lines: List[str] = ["## Bins forming"]
+    lines.append("")
+    lines.append(
+        f"_{len(bins)} bin(s) the engine sees in your library. "
+        f"Each bin is named by the recurring signal — anchor, person, "
+        f"action shape, feeling, or packet shape — that grouped the "
+        f"entries. Review and rebalance as you like; the engine does "
+        f"not impose structure._"
+    )
+    lines.append("")
+    by_kind: Dict[str, List[Bin]] = {}
+    for b in bins:
+        by_kind.setdefault(b.kind, []).append(b)
+    for kind in ("anchor", "person", "action", "feeling", "shape"):
+        kind_bins = by_kind.get(kind, [])
+        if not kind_bins:
+            continue
+        lines.append(f"### {kind} bins")
+        lines.append("")
+        for b in kind_bins:
+            lines.append(f"- **`{b.name}`** — {b.size} entries")
+            for s in b.sample_entries:
+                lines.append(f"    - `{s['id']}` — {s['preview']}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 # ── Promotion (individual → community → central, by survival) ───────
 
 
@@ -1413,6 +1726,9 @@ __all__ = [
     "Calibration",
     "Emergence",
     "PromotionResult",
+    "CommunityItem",
+    "SHELF_TAG",
+    "DIRECT_SHARE_PREFIX",
     "categorize",
     "calibrate",
     "render_calibration",
@@ -1423,4 +1739,13 @@ __all__ = [
     "render_emergence",
     "promote",
     "render_promotion",
+    "share_widespread",
+    "share_with",
+    "unshare_with",
+    "community_feed",
+    "Bin",
+    "BIN_MIN_RECURRENCE",
+    "infer_bins",
+    "review_bin",
+    "render_bins",
 ]

@@ -1085,6 +1085,100 @@ def ask_endpoint(req: AskRequest):
     }
 
 
+# ── Community feed (widespread + directly shared with viewer) ──────
+
+
+class ShareWithRequest(BaseModel):
+    recipient: str
+
+
+@app.get("/community", include_in_schema=True)
+def community_feed_endpoint(
+    viewer: str = Query("default"),
+    limit: int = Query(20, ge=1, le=200),
+):
+    """The community feed visible to a given viewer.
+
+    Includes shelf-published seeds (widespread; anyone sees) plus
+    seeds directly shared with this viewer (private to them).
+    Newest first.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    items = _journal.community_feed(viewer=viewer, limit=limit)
+    return {
+        "viewer": viewer,
+        "count": len(items),
+        "items": [i.to_dict() for i in items],
+    }
+
+
+@app.post("/journal/{entry_id}/share", include_in_schema=True)
+def journal_share_with(entry_id: str, req: ShareWithRequest):
+    """Share a seed directly with a recipient. Adds the
+    `shared_with:<recipient>` tag — only the recipient's community
+    feed shows it. Multiple recipients via repeated calls.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    try:
+        updated = _journal.share_with(entry_id, recipient=req.recipient)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if updated is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    return updated.to_dict()
+
+
+@app.delete("/journal/{entry_id}/share/{recipient}", include_in_schema=True)
+def journal_unshare_with(entry_id: str, recipient: str):
+    """Withdraw a direct share. Seed remains in library; tag removed."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    updated = _journal.unshare_with(entry_id, recipient=recipient)
+    if updated is None:
+        raise HTTPException(status_code=404, detail=f"no entry {entry_id}")
+    return updated.to_dict()
+
+
+# ── Bins (emergent clusters of the user's life) ────────────────────
+
+
+@app.get("/bins", include_in_schema=True)
+def bins_endpoint(min_recurrence: int = Query(3, ge=1, le=20)):
+    """Surface emergent bins from the user's library.
+
+    Bins are named by use — anchor / person / action / feeling /
+    packet shape — and form when a signal recurs across at least
+    `min_recurrence` entries (default 3). Sorted by size descending.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    bins = _journal.infer_bins(min_recurrence=min_recurrence)
+    return {
+        "count": len(bins),
+        "bins": [b.to_dict() for b in bins],
+        "rendered": _journal.render_bins(bins),
+    }
+
+
+@app.get("/bins/{bin_id:path}", include_in_schema=True)
+def bins_review(bin_id: str):
+    """Review one bin in full — signature + every entry's text +
+    metadata. Bin ids are kind-prefixed (e.g. `anchor:Mt 5:37`)."""
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    review = _journal.review_bin(bin_id)
+    if review is None:
+        raise HTTPException(status_code=404, detail=f"no bin {bin_id}")
+    return review
+
+
 # ── Promotion (individual → community → central tier) ──────────────
 
 

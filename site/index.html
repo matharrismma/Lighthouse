@@ -654,6 +654,10 @@
       <div class="panel-label">feelings recurring <span class="count" id="feelingCount"></span></div>
       <div id="feelingList"><div class="panel-empty">—</div></div>
     </div>
+    <div class="panel" id="panelBins">
+      <div class="panel-label">bins forming <span class="count" id="binCount"></span></div>
+      <div id="binList"><div class="panel-empty">—</div></div>
+    </div>
   </aside>
 
   <!-- ── CENTER — the writing area + recent kept ─────────────────── -->
@@ -699,6 +703,10 @@
     <div class="panel" id="panelEmergence">
       <div class="panel-label">what's emerging</div>
       <div id="emergenceList"><div class="panel-empty">— the keeping continues</div></div>
+    </div>
+    <div class="panel" id="panelCommunity">
+      <div class="panel-label">community feed <span class="count" id="communityCount"></span></div>
+      <div id="communityList"><div class="panel-empty">—</div></div>
     </div>
   </aside>
 
@@ -971,9 +979,54 @@
       .catch(() => {});
   }
 
+  function loadHudBins() {
+    return fetch(API + '/bins?min_recurrence=3')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const bins = data.bins || [];
+        if (el('binCount')) el('binCount').textContent = bins.length ? '· ' + bins.length : '';
+        renderPanelList(el('binList'), bins.slice(0, 6),
+          b => '<div class="panel-item"><code>' + esc(b.kind) + '</code> ' + esc(b.name) + ' <span class="meta">×' + b.size + '</span></div>',
+          'no bins yet'
+        );
+      })
+      .catch(() => {});
+  }
+
+  function loadHudCommunity() {
+    return fetch(API + '/community?viewer=default&limit=5')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const items = data.items || [];
+        if (el('communityCount')) el('communityCount').textContent = items.length ? '· ' + items.length : '';
+        renderPanelList(el('communityList'), items,
+          item => {
+            const e = item.entry || {};
+            const preview = (e.text || '').replace(/\n/g, ' ').slice(0, 70);
+            const truncated = (e.text || '').length > 70;
+            const badges = [];
+            if (item.widespread) badges.push('shelf');
+            if (item.direct) badges.push('direct');
+            const badgeStr = badges.length
+              ? ' <span class="meta">[' + badges.join(', ') + ']</span>'
+              : '';
+            return '<div class="panel-item">' + esc(preview) + (truncated ? '…' : '') + badgeStr + '</div>';
+          },
+          'no shared seeds yet'
+        );
+      })
+      .catch(() => {});
+  }
+
   function loadHud() {
     setTopbarDate();
-    return Promise.all([loadHudEmergence(), loadHudRecent(), loadHudKeeping()]);
+    return Promise.all([
+      loadHudEmergence(),
+      loadHudRecent(),
+      loadHudKeeping(),
+      loadHudBins(),
+      loadHudCommunity(),
+    ]);
   }
 
   // Initial load + refresh every 60s. After every successful capture,

@@ -441,6 +441,76 @@ def main() -> None:
     ak.add_argument("--json", action="store_true",
                     help="Emit raw JSON instead of markdown.")
 
+    # ── share / unshare (community tier) ───────────────────────────
+    sh = sub.add_parser(
+        "share",
+        help="Share a seed. Default puts it on your shelf (widespread, "
+             "anyone reaches for it); --to NAME shares directly with one "
+             "person (only their feed shows it).",
+        description=(
+            "Sharing has two modes — widespread (shelf) and direct "
+            "(addressed to a specific recipient). Either or both can "
+            "apply to the same seed. The original entry text is "
+            "preserved either way; sharing only adds tags."
+        ),
+    )
+    sh.add_argument("entry_id", type=str)
+    sh.add_argument(
+        "--to", dest="recipients", action="append", default=[],
+        help="Direct-share with this recipient (repeat for multiple). "
+             "If omitted, the seed is published widespread to your shelf.",
+    )
+
+    un = sub.add_parser(
+        "unshare",
+        help="Withdraw a share. --to NAME removes a direct share; "
+             "without --to, removes the shelf publication.",
+    )
+    un.add_argument("entry_id", type=str)
+    un.add_argument(
+        "--from", dest="recipient", type=str, default=None,
+        help="Recipient to withdraw the direct share from. Without "
+             "this flag, removes the shelf tag.",
+    )
+
+    cm = sub.add_parser(
+        "community",
+        help="Show the community feed visible to a viewer (shelf + "
+             "directly shared with them).",
+    )
+    cm.add_argument(
+        "--viewer", "-v", type=str, default="default",
+        help="The viewer's id. Default 'default' for single-user.",
+    )
+    cm.add_argument("--limit", "-n", type=int, default=20)
+
+    bn = sub.add_parser(
+        "bins",
+        help="Surface emergent bins from your library — clusters named "
+             "by recurring signal (anchor / person / action / feeling).",
+        description=(
+            "Bins are not pre-defined categories. The engine names "
+            "them by what made them visible — a recurring anchor, a "
+            "person you keep mentioning, an action shape that clusters. "
+            "Review and rebalance as you like."
+        ),
+    )
+    bn_sub = bn.add_subparsers(dest="bn_cmd", required=False)
+    bn_list = bn_sub.add_parser("list", help="List all bins (default).")
+    bn_list.add_argument(
+        "--min", dest="min_recurrence", type=int, default=3,
+        help="Minimum recurrence to form a bin (default 3).",
+    )
+    bn_list.add_argument("--json", action="store_true")
+    bn_review = bn_sub.add_parser(
+        "review",
+        help="Review one bin in detail — every entry, its text, metadata.",
+    )
+    bn_review.add_argument(
+        "bin_id", type=str,
+        help="Bin id, e.g. 'anchor:Mt 5:37' or 'person:Sarah'.",
+    )
+
     # ── promote (individual → community → central; survival-based) ─
     pr = sub.add_parser(
         "promote",
@@ -1159,6 +1229,91 @@ def main() -> None:
         else:
             print(jr_mod.render_emergence(em))
         sys.exit(0)
+
+    if args.cmd == "share":
+        from . import journal as jr_mod
+        if args.recipients:
+            # Direct share with one or more recipients.
+            for r in args.recipients:
+                try:
+                    updated = jr_mod.share_with(args.entry_id, recipient=r)
+                except ValueError as e:
+                    print(f"error: {e}", file=sys.stderr)
+                    sys.exit(4)
+                if updated is None:
+                    print(f"error: no entry {args.entry_id}", file=sys.stderr)
+                    sys.exit(4)
+                print(f"shared {args.entry_id} → {r}")
+        else:
+            # Widespread (shelf) publication.
+            updated = jr_mod.share_widespread(args.entry_id)
+            if updated is None:
+                print(f"error: no entry {args.entry_id}", file=sys.stderr)
+                sys.exit(4)
+            print(f"published {args.entry_id} to shelf (widespread)")
+        sys.exit(0)
+
+    if args.cmd == "unshare":
+        from . import journal as jr_mod
+        if args.recipient:
+            updated = jr_mod.unshare_with(args.entry_id, recipient=args.recipient)
+            verb = f"withdrew direct share from {args.recipient}"
+        else:
+            # Strip the shelf tag if present.
+            store = jr_mod.JournalStore()
+            entry = store.load(args.entry_id)
+            if entry is None:
+                print(f"error: no entry {args.entry_id}", file=sys.stderr)
+                sys.exit(4)
+            if jr_mod.SHELF_TAG in entry.user_tags:
+                entry.user_tags = [t for t in entry.user_tags if t != jr_mod.SHELF_TAG]
+                store.save(entry)
+            updated = entry
+            verb = "removed from shelf"
+        if updated is None:
+            print(f"error: no entry {args.entry_id}", file=sys.stderr)
+            sys.exit(4)
+        print(f"{args.entry_id}: {verb}")
+        sys.exit(0)
+
+    if args.cmd == "community":
+        from . import journal as jr_mod
+        items = jr_mod.community_feed(viewer=args.viewer, limit=args.limit)
+        if not items:
+            print(f"(community feed for {args.viewer!r}: empty)")
+            sys.exit(0)
+        print(f"# Community feed for {args.viewer!r} ({len(items)} item(s)):")
+        for item in items:
+            badges = []
+            if item.widespread:
+                badges.append("widespread")
+            if item.direct:
+                badges.append(f"direct→{args.viewer}")
+            preview = item.entry.text.replace("\n", " ").strip()[:80]
+            print(f"  {item.entry.id}  [{', '.join(badges)}]  {preview}")
+        sys.exit(0)
+
+    if args.cmd == "bins":
+        from . import journal as jr_mod
+        bn_cmd = getattr(args, "bn_cmd", None) or "list"
+        if bn_cmd == "list":
+            min_rec = getattr(args, "min_recurrence", 3)
+            bins = jr_mod.infer_bins(min_recurrence=min_rec)
+            if getattr(args, "json", False):
+                print(json.dumps(
+                    [b.to_dict() for b in bins],
+                    indent=2, ensure_ascii=False,
+                ))
+            else:
+                print(jr_mod.render_bins(bins))
+            sys.exit(0)
+        if bn_cmd == "review":
+            review = jr_mod.review_bin(args.bin_id)
+            if review is None:
+                print(f"error: no bin {args.bin_id!r}", file=sys.stderr)
+                sys.exit(4)
+            print(json.dumps(review, indent=2, ensure_ascii=False, default=str))
+            sys.exit(0)
 
     if args.cmd == "promote":
         from . import journal as jr_mod
