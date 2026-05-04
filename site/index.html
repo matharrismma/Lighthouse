@@ -1812,8 +1812,11 @@
               + '<br>' + esc(summary)
               // <details> is closed by default — no chrome until invited.
               // Per "carry the witness": opens to a copyable URL + paper
-              // hint + link to /reach.html for the other channels.
-              + '<details class="carry-details" style="margin-top:6px;">'
+              // hint + link to /reach.html for the other channels, AND
+              // shows any Ed25519 witness attestations on file with
+              // verify status (lazy-fetched the first time the details
+              // are opened — see lnkWell click handler below).
+              + '<details class="carry-details" data-witness-id="' + esc(id) + '" style="margin-top:6px;">'
               +   '<summary style="cursor:pointer;color:var(--muted);font-size:11px;letter-spacing:0.04em;list-style:none;">'
               +     '<span style="border-bottom:1px solid var(--accent-soft);">carry the witness</span>'
               +   '</summary>'
@@ -1821,7 +1824,10 @@
               +     '<div data-action="copy-url" data-url="' + esc(url) + '" '
               +          'style="word-break:break-all;color:var(--accent);font-family:\'JetBrains Mono\',monospace;cursor:pointer;padding:4px 0;" '
               +          'title="click to copy">' + esc(url) + '</div>'
-              +     '<div style="margin-top:4px;line-height:1.5;">'
+              +     '<div class="witness-block" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">'
+              +       '<em>witnesses…</em>'
+              +     '</div>'
+              +     '<div style="margin-top:6px;line-height:1.5;">'
               +       'click to copy. paste into any QR app for paper distribution. '
               +       '<a href="/reach.html" style="color:var(--muted);border-bottom:1px solid var(--accent-soft);text-decoration:none;">other channels →</a>'
               +     '</div>'
@@ -1851,6 +1857,58 @@
           '<strong>' + esc(label) + '</strong><br><span style="color:var(--reject)">' + esc(String(err)) + '</span>';
       });
   }
+
+  // ── Witness attestations on precedents ─────────────────────────
+  // The "carry the witness" details on every well-list precedent
+  // lazy-loads its Ed25519 attestations the first time it opens.
+  // Toggle events don't bubble — capture-phase delegation reaches
+  // every <details class="carry-details" data-witness-id="…">.
+  function renderAttestations(data) {
+    const atts = (data && data.attestations) || [];
+    if (!atts.length) {
+      return '<em>(no witness signatures on file)</em>';
+    }
+    const verified = atts.filter(a => a.verified).length;
+    const failed = atts.length - verified;
+    const counts = atts.length + ' witness' + (atts.length === 1 ? '' : 'es')
+                 + ' · <span style="color:var(--pass);">' + verified + ' ✓</span>'
+                 + (failed ? ' · <span style="color:var(--reject);">' + failed + ' ✗</span>' : '');
+    let html = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px;">' + counts + '</div>';
+    atts.forEach(a => {
+      const ok = !!a.verified;
+      const mark = ok ? '✓' : '✗';
+      const markColor = ok ? 'var(--pass)' : 'var(--reject)';
+      let when = '';
+      try {
+        when = new Date((a.signed_at || 0) * 1000).toISOString().slice(0, 10);
+      } catch (_) { when = ''; }
+      html += '<div style="font-size:12px;line-height:1.5;color:var(--text);padding:2px 0;">'
+            + '<span style="color:' + markColor + ';font-weight:500;">' + mark + '</span> '
+            + '<strong>' + esc(a.witness_name || '?') + '</strong> '
+            + '<span style="color:var(--muted);">(' + esc(a.witness_role || '?') + ')</span>'
+            + (when ? ' <span style="color:var(--muted);font-family:\'JetBrains Mono\',monospace;font-size:10px;"> — ' + esc(when) + '</span>' : '')
+            + '</div>';
+      if (!ok && a.verify_reason) {
+        html += '<div style="font-size:10px;color:var(--reject);margin-left:14px;font-family:\'JetBrains Mono\',monospace;padding-bottom:2px;">'
+              + esc(a.verify_reason) + '</div>';
+      }
+    });
+    return html;
+  }
+  document.addEventListener('toggle', e => {
+    const det = e.target;
+    if (!det || !det.classList || !det.classList.contains('carry-details')) return;
+    if (!det.open) return;                              // only on open
+    if (det.dataset.witnessLoaded) return;              // cached
+    const id = det.dataset.witnessId;
+    const block = det.querySelector('.witness-block');
+    if (!id || !block) return;
+    det.dataset.witnessLoaded = '1';
+    fetch(API + '/witness/' + encodeURIComponent(id))
+      .then(r => r.ok ? r.json() : { attestations: [] })
+      .then(data => { block.innerHTML = renderAttestations(data); })
+      .catch(() => { block.innerHTML = '<em>witness signatures unavailable</em>'; });
+  }, true);   // capture — toggle does not bubble
 
   // ── Seek overlay (⌘K) ──────────────────────────────────────────
   const seekOverlay = document.getElementById('seekOverlay');

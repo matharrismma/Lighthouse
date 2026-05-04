@@ -197,3 +197,75 @@ def test_chain_receive_requires_from():
     c = TestClient(app)
     r = c.post("/chain/receive", json={"entries": []})
     assert r.status_code == 400
+
+
+# ── /witness/{precedent_id} endpoint ──────────────────────────────
+
+
+def test_witness_endpoint_empty_precedent(tmp_path, monkeypatch):
+    """Precedent with no attestations on file returns count=0."""
+    monkeypatch.setenv("CONCORDANCE_WITNESS_DIR", str(tmp_path))
+    from fastapi.testclient import TestClient
+    from api.app import app
+    c = TestClient(app)
+    r = c.get("/witness/ledger://test/no-attestations")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["count"] == 0
+    assert data["attestations"] == []
+
+
+def test_witness_endpoint_returns_verified_attestations(tmp_path, monkeypatch):
+    """A real attestation comes back with verified=True; a tampered
+    copy comes back with verified=False + reason."""
+    monkeypatch.setenv("CONCORDANCE_WITNESS_DIR", str(tmp_path))
+    pid = "ledger://test/witness-endpoint"
+
+    priv, _pub = signing.generate_keypair()
+    real = witness.sign(
+        precedent_id=pid, entry_hash="hash1",
+        private_key_b64u=priv,
+        witness_name="Alice", witness_role="elder",
+    )
+    witness.append(real)
+
+    bad = dataclasses.replace(real,
+                               entry_hash="tampered",
+                               witness_name="Bob",
+                               witness_role="brother")
+    witness.append(bad)
+
+    from fastapi.testclient import TestClient
+    from api.app import app
+    c = TestClient(app)
+    r = c.get(f"/witness/{pid}")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["count"] == 2
+
+    # Both attestations come back; one verifies, one doesn't.
+    by_name = {a["witness_name"]: a for a in data["attestations"]}
+    assert by_name["Alice"]["verified"] is True
+    assert by_name["Alice"]["verify_reason"] == "ok"
+    assert by_name["Bob"]["verified"] is False
+    assert "signature" in by_name["Bob"]["verify_reason"].lower()
+
+
+def test_witness_endpoint_includes_signed_at_for_ui_render(tmp_path, monkeypatch):
+    """The endpoint preserves signed_at so the UI can render dates."""
+    monkeypatch.setenv("CONCORDANCE_WITNESS_DIR", str(tmp_path))
+    priv, _pub = signing.generate_keypair()
+    att = witness.sign(
+        precedent_id="ledger://test/signed-at-test",
+        entry_hash="h",
+        private_key_b64u=priv,
+        witness_name="X", witness_role="elder",
+        signed_at=1730000000,
+    )
+    witness.append(att)
+    from fastapi.testclient import TestClient
+    from api.app import app
+    c = TestClient(app)
+    r = c.get("/witness/ledger://test/signed-at-test")
+    data = r.json()
+    assert data["attestations"][0]["signed_at"] == 1730000000

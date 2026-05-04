@@ -925,6 +925,52 @@ def ledger_verify():
     return ledger.verify_chain()
 
 
+# ── /witness/{precedent_id} — list witness attestations on a precedent ──
+#
+# Public, read-only. Returns every Ed25519 witness attestation on file
+# for the given precedent_id, with a verify result on each. Anyone
+# reading a precedent in the well can see who has stood by it
+# cryptographically — the BROTHERS gate's witness count + the
+# witness signatures together make the witness layer legible.
+#
+# Per "free use, alignment to execute": reading attestations is
+# free; signing them requires the witness's private key.
+
+
+@app.get("/witness/{precedent_id:path}")
+def witness_attestations(precedent_id: str):
+    """Return all witness attestations on file for a precedent.
+
+    Each result includes the attestation fields plus `verified`
+    (bool) and `verify_reason` (str) computed at request time so
+    consumers see whether the signature still holds.
+    """
+    if not precedent_id:
+        raise HTTPException(status_code=400, detail="precedent_id is required")
+    try:
+        from concordance_engine import witness as _witness
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503, detail=f"witness module unavailable: {exc}"
+        )
+    attestations = _witness.list_for_precedent(precedent_id)
+    out: List[Dict[str, Any]] = []
+    for att in attestations:
+        try:
+            ok, reason = _witness.verify(att)
+        except Exception as exc:  # noqa: BLE001
+            ok, reason = False, f"verify error: {exc}"
+        record = att.to_dict()
+        record["verified"] = ok
+        record["verify_reason"] = reason
+        out.append(record)
+    return {
+        "precedent_id": precedent_id,
+        "count": len(out),
+        "attestations": out,
+    }
+
+
 @app.get("/ledger/{packet_id}")
 def ledger_by_id(packet_id: str):
     """Return all ledger entries for a specific packet_id, oldest first.

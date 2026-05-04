@@ -286,6 +286,8 @@ trusting senders.
 concordance witness sign <precedent_id> <entry_hash> --name X --role Y --key K
 concordance witness verify [--file path]      (reads JSON from stdin if no file)
 concordance witness list <precedent_id>
+
+GET  /witness/{precedent_id}                  — list attestations + verify status
 ```
 
 A witness signs the canonical bytes of `{precedent_id, entry_hash,
@@ -295,6 +297,10 @@ is verifiable by anyone holding the public key — no engine needed.
 The BROTHERS gate already requires N witnesses by name; signatures
 add cryptographic proof. Required for federation across instances
 that don't share the same chain.
+
+Each well-precedent display surfaces the attestation list with
+verify status (✓/✗ per witness) so readers see who has stood by it
+cryptographically — not just who was named.
 
 Full OpenAPI schema: https://narrowhighway.com/docs
 
