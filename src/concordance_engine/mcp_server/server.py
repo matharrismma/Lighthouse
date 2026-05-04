@@ -388,6 +388,36 @@ def verify_governance_decision_packet(
     return tools.verify_governance_decision_packet(decision_packet, witness_count)
 
 
+# ---------------------------------------------------------------------------
+# Energy
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def verify_energy(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Verify energy-system claims at the system scale: off-grid sizing,
+    power balance, battery + solar yield, voltage drop, efficiency, runtime.
+
+    Per kingdom-economy substrate doctrine: those refusing the mark may
+    need off-grid power. This verifier turns napkin arithmetic into
+    deterministic verification.
+
+    `spec` is the contents of ENERGY_VERIFY (see verifiers/energy.py for
+    the full field reference). Provide whichever subset you want checked;
+    unsupplied checks return NOT_APPLICABLE.
+
+    Sub-checks:
+      energy.power_balance         — gen − cons − losses = balance
+      energy.battery_sizing        — Ah from kWh × days / (V × DoD)
+      energy.solar_daily_yield     — kWh/day from panel × PSH × η
+      energy.wire_voltage_drop     — DC drop across length at I
+      energy.kwh_wh_consistency    — kWh × 1000 = Wh
+      energy.efficiency            — η = output/input (≤1.0 unless heat pump)
+      energy.runtime               — battery_Wh / load_W
+      energy.peak_load_vs_inverter — peak ≤ inverter continuous rating
+    """
+    return tools.verify_energy(spec)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()

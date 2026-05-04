@@ -68,6 +68,13 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     "document_validation": frozenset({"encoding", "authority_trust"}),
     "photography":         frozenset({"encoding", "physical_substance"}),
 
+    # Energy — generation, storage, distribution. Sits where chemistry
+    # and electrical meet at system scale: matter/fields (physical),
+    # flow + transformation (metabolism), capacity-over-window (time),
+    # and the first law (conservation). Adjacent to agriculture,
+    # manufacturing, hydrology, meteorology, exercise_science.
+    "energy":              frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+
     # Earth / physical-substance
     "geology":             frozenset({"metabolism", "physical_substance", "time_sequence"}),
     "geography":           frozenset({"physical_substance"}),

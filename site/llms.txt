@@ -67,6 +67,7 @@ These verifiers are deterministic, run locally, and make no network calls:
 - `verify_cs` — static termination analysis, functional correctness, complexity bounds
 - `verify_biology` — replication standards, dose-response monotonicity, sample power, nested health control systems (setpoint drift, cross-layer override, sensor failure, loop saturation)
 - `verify_governance` — decision packet structural completeness
+- `verify_energy` — system-scale power: off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency (η ≤ 1.0 unless heat pump), runtime, peak-load-vs-inverter, daily power balance. Per the kingdom-economy substrate: Christians refusing the mark may need off-grid power; this verifier checks the math.
 
 ## MCP server (native agent integration)
 
@@ -107,7 +108,7 @@ Source: https://github.com/matharrismma/Lighthouse
 
 Tools available via MCP:
 - `validate_packet_tool` — run all four gates against a governance decision packet
-- `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_governance` — run a single domain verifier
+- `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_governance`, `verify_energy` — run a single domain verifier
 - `suggest_fix` — run the engine and return concrete corrective actions for any failures; act on the list directly, do not summarize it
 
 ### verify_biology — extended parameters

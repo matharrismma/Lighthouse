@@ -18,6 +18,7 @@ from ..verifiers import (
     chemistry, physics, mathematics, statistics,
     computer_science, biology, governance, scripture,
 )
+from ..verifiers import energy as _energy
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -295,6 +296,23 @@ def verify_governance_decision_packet(decision_packet, witness_count=None, *, do
     if domain:
         out["domain_profile"] = _r(governance.verify_domain_profile(domain, decision_packet))
     return out
+
+
+def verify_energy(spec):
+    """Run all applicable energy-system checks against the supplied spec.
+
+    Spec is the contents of the ENERGY_VERIFY field — see
+    `concordance_engine.verifiers.energy` docstring for the full
+    field reference. Each check fires when its inputs are present;
+    unsupplied checks return NOT_APPLICABLE.
+
+    Off-grid system sizing, wire voltage drop, battery sizing,
+    solar daily yield, peak-load-vs-inverter, runtime, kWh↔Wh,
+    efficiency (with heat-pump COP carve-out), power balance.
+    """
+    packet = {"ENERGY_VERIFY": spec or {}}
+    results = _energy.run(packet)
+    return {"checks": [_r(r) for r in results]}
 
 
 # ---------------------------------------------------------------------

@@ -31,6 +31,8 @@ ALIAS_TO_CANONICAL = {
     "water": "hydrology",
     "photo": "photography",
     "sports": "sports_analytics",
+    "power": "energy",
+    "off_grid": "energy",
     "testimony": "witness",
 }
 
