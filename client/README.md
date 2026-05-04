@@ -15,6 +15,7 @@ instance.
 | [`email_webhook.md`](email_webhook.md) | Forward an email → seed (Cloudflare Worker, Postmark, self-hosted, etc.) | Free tier on most providers | High — most decentralized |
 | [`telegram_bot.py`](telegram_bot.py) | Telegram bot — your own private capture chat | Free; needs bot token | Medium — platform-dependent |
 | [`meshtastic_bridge.py`](meshtastic_bridge.py) | LoRa-mesh bridge — receives/broadcasts compact wire packets via a Meshtastic radio | `pip install meshtastic` + ~$30 hardware | Highest — license-free spectrum |
+| [`tor_onion.md`](tor_onion.md) | Tor hidden service — engine reachable at `xyz.onion` for any Tor browser | `apt install tor` + 5 min config | Highest — censorship resistance |
 
 The PWA path — install `narrowhighway.com` to your phone's home
 screen, share to it from any app — is built into the site itself
