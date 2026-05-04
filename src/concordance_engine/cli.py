@@ -441,6 +441,41 @@ def main() -> None:
     ak.add_argument("--json", action="store_true",
                     help="Emit raw JSON instead of markdown.")
 
+    # ── promote (individual → community → central; survival-based) ─
+    pr = sub.add_parser(
+        "promote",
+        help="Promote a journal seed to the central seed bank. The seed's "
+             "categorization translates into a packet, runs through the "
+             "four gates; if it passes, it's sealed as a precedent.",
+        description=(
+            "Three-tier promotion path: individual library → central seed "
+            "bank, by survival. The seed's anchors / scope / action / "
+            "packet shape become a packet; the four gates eliminate "
+            "candidates that fail. If anything fails, the seed stays in "
+            "your library unchanged and the elimination trail is the "
+            "reasoning. Gate-survival is what gets sealed."
+        ),
+    )
+    pr.add_argument("entry_id", type=str)
+    pr.add_argument(
+        "--confession", "-c", required=True, type=str,
+        help="Humility statement attesting the seed's claim. Required — "
+             "the engine never invents this. Convention: \"I may be "
+             "wrong. I acted in faith on [anchor].\"",
+    )
+    pr.add_argument(
+        "--witness", "-w", action="append", default=[],
+        help="A witness's name. Repeat for multiple (BROTHERS gate "
+             "typically needs ≥2).",
+    )
+    pr.add_argument(
+        "--summary", type=str, default=None,
+        help="Short description for the precedent record. Defaults to "
+             "the entry's first 120 chars.",
+    )
+    pr.add_argument("--json", action="store_true",
+                    help="Emit raw JSON instead of markdown.")
+
     # ── emergence (what the engine sees emerging) ──────────────────
     em = sub.add_parser(
         "emergence",
@@ -1124,6 +1159,32 @@ def main() -> None:
         else:
             print(jr_mod.render_emergence(em))
         sys.exit(0)
+
+    if args.cmd == "promote":
+        from . import journal as jr_mod
+        try:
+            result = jr_mod.promote(
+                args.entry_id,
+                confession=args.confession,
+                witnesses=list(args.witness or []),
+                summary=args.summary,
+            )
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            sys.exit(4)
+        if args.json:
+            print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+        else:
+            print(jr_mod.render_promotion(result))
+        # Exit-code semantics: 0 if promoted, otherwise the engine's
+        # mapping (REJECT=1, QUARANTINE=2, ERROR=4).
+        if result.promoted:
+            sys.exit(0)
+        if result.overall == "REJECT":
+            sys.exit(1)
+        if result.overall == "QUARANTINE":
+            sys.exit(2)
+        sys.exit(4)
 
     if args.cmd == "write":
         from . import journal as jr_mod

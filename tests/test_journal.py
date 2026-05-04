@@ -19,13 +19,16 @@ from concordance_engine.journal import (
     Emergence,
     JournalEntry,
     JournalStore,
+    PromotionResult,
     annotate,
     calibrate,
     capture,
     categorize,
     emergence,
+    promote,
     render_calibration,
     render_emergence,
+    render_promotion,
     thread,
 )
 
@@ -564,6 +567,125 @@ def test_render_emergence_no_judgment_words(tmp_path, monkeypatch):
         capture(f"I keep returning to Mt 5:37 today, day {i}.")
     em = emergence()
     rendered = render_emergence(em).lower()
+    forbidden = ["you should", "you must", "the answer is", "verdict"]
+    for word in forbidden:
+        assert word not in rendered, f"render contains directive word: {word!r}"
+
+
+# ── Promotion (individual → community → central) ─────────────────────
+
+
+def test_promote_requires_confession(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    monkeypatch.setenv("CONCORDANCE_LEDGER_DIR", str(tmp_path / "l"))
+    e = capture("Some seed.")
+    with pytest.raises(ValueError, match="confession"):
+        promote(e.id, confession="")
+
+
+def test_promote_unknown_entry_raises(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    monkeypatch.setenv("CONCORDANCE_LEDGER_DIR", str(tmp_path / "l"))
+    with pytest.raises(ValueError, match="no journal entry"):
+        promote("j-doesnotexist", confession="I may be wrong.")
+
+
+def test_promote_returns_result_for_failed_seed(tmp_path, monkeypatch):
+    """A seed with no witnesses lands in QUARANTINE at BROTHERS — that
+    failure mode is part of normal operation, not an exception. The
+    result names the gate verdict and the seed remains in the
+    library unchanged."""
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    monkeypatch.setenv("CONCORDANCE_LEDGER_DIR", str(tmp_path / "l"))
+    e = capture("Personal reflection on Mt 5:37.")
+    result = promote(
+        e.id,
+        confession="I may be wrong. I acted in faith on Mt 5:37.",
+        witnesses=[],  # no witnesses
+    )
+    assert isinstance(result, PromotionResult)
+    assert result.entry_id == e.id
+    assert result.overall in ("REJECT", "QUARANTINE", "ERROR")
+    assert result.promoted is False
+    assert result.precedent_id is None
+    # The seed is still in the library, untagged.
+    store = JournalStore()
+    reloaded = store.load(e.id)
+    assert reloaded is not None
+    assert "sealed" not in reloaded.user_tags
+
+
+def test_promote_packet_carries_categorization(tmp_path, monkeypatch):
+    monkeypatch.setenv("CONCORDANCE_JOURNAL_DIR", str(tmp_path / "j"))
+    monkeypatch.setenv("CONCORDANCE_KEEPING_DIR", str(tmp_path / "k"))
+    monkeypatch.setenv("CONCORDANCE_LEDGER_DIR", str(tmp_path / "l"))
+    e = capture("My family decision about Mt 5:37 — let our yes be yes.")
+    result = promote(
+        e.id,
+        confession="I may be wrong; we acted in faith.",
+        witnesses=["Witness A"],
+    )
+    assert result.packet_used is not None
+    pkt = result.packet_used
+    # Anchor came through.
+    refs = [a.get("ref") for a in pkt.get("scripture_anchors") or []]
+    assert "Mt 5:37" in refs
+    # Family scope mapped to adapter.
+    assert pkt["scope"] == "adapter"
+    # Decision packet carries the entry text verbatim.
+    assert pkt["DECISION_PACKET"]["decision"] == e.text
+
+
+def test_render_promotion_pass_path():
+    """When promoted=True the render names the new precedent."""
+    result = PromotionResult(
+        entry_id="j-x",
+        overall="PASS",
+        promoted=True,
+        precedent_id="ledger://test/promoted",
+        gate_results=[
+            {"gate": "RED", "status": "PASS", "reasons": []},
+            {"gate": "FLOOR", "status": "PASS", "reasons": []},
+            {"gate": "BROTHERS", "status": "PASS", "reasons": []},
+            {"gate": "GOD", "status": "PASS", "reasons": []},
+        ],
+    )
+    rendered = render_promotion(result)
+    assert "ledger://test/promoted" in rendered
+    assert "Sealed" in rendered or "sealed" in rendered
+
+
+def test_render_promotion_failure_surfaces_elimination_trail():
+    """When promotion fails, render must surface gate verdicts +
+    reasons — that's the elimination trail."""
+    result = PromotionResult(
+        entry_id="j-x",
+        overall="QUARANTINE",
+        promoted=False,
+        gate_results=[
+            {"gate": "RED", "status": "PASS", "reasons": []},
+            {"gate": "FLOOR", "status": "PASS", "reasons": []},
+            {"gate": "BROTHERS", "status": "QUARANTINE",
+             "reasons": ["fewer than 2 witnesses"]},
+        ],
+        reasons=["BROTHERS: fewer than 2 witnesses"],
+    )
+    rendered = render_promotion(result)
+    assert "QUARANTINE" in rendered
+    assert "BROTHERS" in rendered
+    assert "witnesses" in rendered.lower()
+
+
+def test_render_promotion_no_directive_words():
+    """Doctrinal: even on failure, the render must not direct the user."""
+    result = PromotionResult(
+        entry_id="j-x", overall="REJECT", promoted=False,
+        reasons=["test reason"],
+    )
+    rendered = render_promotion(result).lower()
     forbidden = ["you should", "you must", "the answer is", "verdict"]
     for word in forbidden:
         assert word not in rendered, f"render contains directive word: {word!r}"

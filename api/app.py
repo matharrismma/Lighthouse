@@ -1085,6 +1085,42 @@ def ask_endpoint(req: AskRequest):
     }
 
 
+# ── Promotion (individual → community → central tier) ──────────────
+
+
+class PromoteRequest(BaseModel):
+    confession: str
+    witnesses: List[str] = []
+    summary: Optional[str] = None
+
+
+@app.post("/journal/{entry_id}/promote", include_in_schema=True)
+def journal_promote(entry_id: str, req: PromoteRequest):
+    """Promote a journal seed to the central seed bank.
+
+    Translates the seed's categorization into a packet, runs the four
+    gates, seals to the audit chain on PASS. On REJECT/QUARANTINE,
+    surfaces the gate verdicts + reasons (the elimination trail) and
+    leaves the seed unchanged.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    from concordance_engine import journal as _journal
+    try:
+        result = _journal.promote(
+            entry_id,
+            confession=req.confession,
+            witnesses=list(req.witnesses or []),
+            summary=req.summary,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {
+        "result": result.to_dict(),
+        "rendered": _journal.render_promotion(result),
+    }
+
+
 # ── Emergence (what the engine sees emerging across recent entries) ─
 
 

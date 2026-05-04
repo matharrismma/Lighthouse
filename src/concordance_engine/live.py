@@ -283,6 +283,12 @@ def _cmd_help(_session: LiveSession, _args: str) -> str:
     /emergence [days]   Patterns across recent entries (default 30 days):
                         recurring anchors, standing tasks, dates, people.
 
+  PROMOTE — individual → central (gate-survival required):
+    /promote [id] | <confession> | <witness1, witness2 ...>
+                        Translate the seed to a packet, run the gates,
+                        seal to central if all four pass. Confession
+                        required; engine never invents it.
+
   Session:
     /help               This.
     /quit               Leave. The keeping continues."""
@@ -410,6 +416,47 @@ def _cmd_ask(session: LiveSession, args: str) -> str:
     return ask_mod.render_ask(result)
 
 
+def _cmd_promote(session: LiveSession, args: str) -> str:
+    """Promote a seed from your library to the central seed bank.
+
+    Usage: /promote [entry_id] | confession | witness1, witness2, ...
+
+    The pipe-delimited form is:
+      /promote j-abc | I may be wrong; I acted in faith. | Sarah, Bob
+
+    If only an id is given (no `|`), the engine prompts for confession
+    via the next command (held as a partial — type the confession on
+    the next line). For the simple case here we take the inline form;
+    callers wanting full interactive flow should use the CLI."""
+    raw = args.strip()
+    if not raw:
+        return ("  (usage: /promote [id] | confession | witness1, witness2 ...)\n"
+                "  Confession required; the engine never invents it.")
+
+    # Parse pipe-delimited form.
+    parts = [p.strip() for p in raw.split("|")]
+    entry_id = parts[0] if parts[0] else session.last_entry_id
+    if not entry_id:
+        return "  (no seed to promote; capture or pass /promote <id>)"
+    confession = parts[1] if len(parts) > 1 else ""
+    witnesses_str = parts[2] if len(parts) > 2 else ""
+    witnesses = [w.strip() for w in witnesses_str.split(",") if w.strip()]
+
+    if not confession:
+        return ("  (confession required; pass it after the id with `|`:"
+                "  /promote " + entry_id + " | I may be wrong... | Witness1, Witness2)")
+
+    try:
+        result = _journal.promote(
+            entry_id,
+            confession=confession,
+            witnesses=witnesses,
+        )
+    except ValueError as e:
+        return f"  (error: {e})"
+    return _journal.render_promotion(result)
+
+
 def _cmd_emergence(_session: LiveSession, args: str) -> str:
     """Surface patterns across recent journal entries."""
     days = 30
@@ -508,6 +555,7 @@ _COMMANDS: Dict[str, Callable[[LiveSession, str], str]] = {
     "ask":        _cmd_ask,
     "emergence":  _cmd_emergence,
     "emerging":   _cmd_emergence,
+    "promote":    _cmd_promote,
 }
 
 

@@ -1104,6 +1104,307 @@ def render_emergence(em: Emergence) -> str:
     return "\n".join(lines)
 
 
+# ── Promotion (individual → community → central, by survival) ───────
+
+
+@dataclass
+class PromotionResult:
+    """The outcome of attempting to promote a journal seed to the
+    central seed bank (audit chain).
+
+    Honors the elimination doctrine: when promotion fails, the gate
+    verdicts and reasons are surfaced so the user can see the
+    elimination trail. The seed itself is never destroyed — failed
+    promotions leave the original entry untouched in the library.
+    """
+    entry_id: str
+    overall: str  # "PASS" | "REJECT" | "QUARANTINE" | "ERROR"
+    promoted: bool  # True only if PASS and sealed to ledger
+    precedent_id: Optional[str] = None
+    gate_results: List[Dict[str, Any]] = field(default_factory=list)
+    reasons: List[str] = field(default_factory=list)
+    packet_used: Optional[Dict[str, Any]] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+
+def _entry_to_packet(
+    entry: "JournalEntry",
+    *,
+    confession: str,
+    witnesses: List[str],
+    wait_window_seconds: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Translate a journal entry into a packet shape the four-gate
+    pipeline can run on.
+
+    Inputs the engine cannot infer from text — confession (humility
+    statement), explicit witness list, optional wait window — must be
+    supplied by the caller. The engine reads what's there; it does
+    not invent attestations.
+    """
+    cat = entry.categorization
+
+    # Axis: prefer the recognized packet shape; fall back to
+    # 'governance' for personal/family/community-scope decisions
+    # (governance is the generic "decision packet" axis).
+    axis = cat.detected_packet_shape or "governance"
+
+    # Scope: map detected scope to engine scope vocabulary.
+    # Personal/family → adapter; team/community → mesh;
+    # region → canon. Default adapter.
+    scope_map = {
+        "personal":  "adapter",
+        "family":    "adapter",
+        "team":      "mesh",
+        "community": "mesh",
+        "region":    "canon",
+    }
+    engine_scope = scope_map.get(cat.detected_scope or "personal", "adapter")
+
+    # Anchors: convert the engine's preferred Anchor-dict shape.
+    anchors_dicts = [
+        {"ref": a, "layer": "bible"}  # default layer; user may override
+        for a in (cat.detected_anchors or [])
+    ]
+
+    # Action: the first detected action shape, or "Hold" as a safe default.
+    action = "Hold"
+    if cat.detected_action_shapes:
+        action = cat.detected_action_shapes[0]
+
+    decision_packet: Dict[str, Any] = {
+        "title": entry.text[:80],
+        "decision": entry.text,
+        "rationale": confession or "(no confession supplied)",
+        "scope": engine_scope,
+        "scripture_anchors": list(cat.detected_anchors or []),
+        "witnesses": list(witnesses),
+        "action": action,
+        # Floor / red items default empty; the engine treats absence as
+        # explicit absence and lets gates run.
+        "red_items": [],
+        "floor_items": [],
+    }
+
+    packet: Dict[str, Any] = {
+        "domain": axis,
+        "scope": engine_scope,
+        "created_epoch": int(entry.written_at),  # schema requires int
+        "witness_count": len(witnesses),
+        "scripture_anchors": anchors_dicts,
+        "DECISION_PACKET": decision_packet,
+    }
+    if wait_window_seconds is not None:
+        packet["wait_window_seconds"] = int(wait_window_seconds)
+
+    return packet
+
+
+def promote(
+    entry_id: str,
+    *,
+    confession: str,
+    witnesses: Optional[List[str]] = None,
+    wait_window_seconds: Optional[int] = None,
+    summary: Optional[str] = None,
+    store: Optional[JournalStore] = None,
+    now_epoch: Optional[int] = None,
+) -> PromotionResult:
+    """Promote a journal seed to the central seed bank.
+
+    The path: translate the seed's categorization into a packet,
+    run it through the four gates (RED/FLOOR/WAY/BROTHERS/GOD), and
+    on PASS seal it to the audit chain as a precedent. The original
+    journal entry is preserved verbatim; on success it gains a
+    `sealed` user-tag and the precedent_id stored in annotations
+    so the trail back is intact.
+
+    Failures are NOT exceptions — they're returned in the
+    PromotionResult with overall=REJECT/QUARANTINE/ERROR and the
+    full gate trail. The elimination is the reasoning. The seed
+    survives in the library and can be promoted again later (after
+    annotation, more witnesses, or wait-window elapse).
+    """
+    if not confession or not confession.strip():
+        raise ValueError(
+            "promotion requires a confession — a humility statement "
+            "naming the seed's claim. The engine never invents this."
+        )
+    witnesses = list(witnesses or [])
+
+    store = store or JournalStore()
+    entry = store.load(entry_id)
+    if entry is None:
+        raise ValueError(f"no journal entry found with id {entry_id}")
+
+    packet = _entry_to_packet(
+        entry,
+        confession=confession,
+        witnesses=witnesses,
+        wait_window_seconds=wait_window_seconds,
+    )
+
+    # Run the gates. Lazy-import to keep journal.py loadable even when
+    # the engine pipeline has issues at import time.
+    try:
+        from .engine import EngineConfig, validate_and_seal
+        from . import ledger as _ledger
+    except ImportError as e:
+        return PromotionResult(
+            entry_id=entry_id,
+            overall="ERROR",
+            promoted=False,
+            reasons=[f"engine pipeline not available: {e}"],
+            packet_used=packet,
+        )
+
+    cfg = EngineConfig(schema_path="", run_verifiers=True)
+
+    try:
+        record = validate_and_seal(
+            packet,
+            now_epoch=now_epoch,
+            config=cfg,
+            packet_id=entry_id,
+        )
+    except Exception as e:
+        return PromotionResult(
+            entry_id=entry_id,
+            overall="ERROR",
+            promoted=False,
+            reasons=[f"engine raised: {type(e).__name__}: {e}"],
+            packet_used=packet,
+        )
+
+    # Collect the gate trail for the result, regardless of overall.
+    gate_results: List[Dict[str, Any]] = []
+    reasons: List[str] = []
+    for gr in record.gate_results or []:
+        gate_results.append({
+            "gate": gr.gate,
+            "status": gr.status,
+            "reasons": list(gr.reasons or []),
+        })
+        if gr.status in ("REJECT", "QUARANTINE") and gr.reasons:
+            for r in gr.reasons:
+                reasons.append(f"{gr.gate}: {r}")
+
+    if record.overall != "PASS":
+        # Elimination trail visible; seed unchanged.
+        return PromotionResult(
+            entry_id=entry_id,
+            overall=record.overall,
+            promoted=False,
+            gate_results=gate_results,
+            reasons=reasons,
+            packet_used=packet,
+        )
+
+    # PASS — seal to the ledger.
+    try:
+        target = _ledger.seal_to_ledger(
+            record,
+            summary=summary or entry.text[:120],
+        )
+    except Exception as e:
+        return PromotionResult(
+            entry_id=entry_id,
+            overall="ERROR",
+            promoted=False,
+            gate_results=gate_results,
+            reasons=[f"seal_to_ledger raised: {type(e).__name__}: {e}"],
+            packet_used=packet,
+        )
+
+    # Mark the journal entry: tag + annotation pointing at the
+    # sealed precedent. Original text is preserved.
+    precedent_id = None
+    try:
+        from pathlib import Path as _P
+        # The seal_to_ledger return is a Path to the file; the
+        # precedent_id is in the file's content.
+        if isinstance(target, _P) and target.exists():
+            data = json.loads(target.read_text(encoding="utf-8"))
+            precedent_id = data.get("precedent_id")
+    except Exception:
+        pass
+
+    if "sealed" not in entry.user_tags:
+        entry.user_tags = list(entry.user_tags) + ["sealed"]
+    entry.modified_at = _now()
+    entry.annotations.append(Annotation(
+        note=f"sealed to central as {precedent_id or '(unknown id)'}",
+        timestamp=_now(),
+        author="engine",
+    ))
+    store.save(entry)
+
+    return PromotionResult(
+        entry_id=entry_id,
+        overall="PASS",
+        promoted=True,
+        precedent_id=precedent_id,
+        gate_results=gate_results,
+        reasons=[],
+        packet_used=packet,
+    )
+
+
+def render_promotion(result: PromotionResult) -> str:
+    """Render a PromotionResult as human-readable markdown.
+
+    PASS rendering names the new precedent and the path through the
+    gates. REJECT/QUARANTINE rendering surfaces the elimination
+    trail — what was NOT the answer — so the user can see what to
+    address. Never directs the user; only names what happened.
+    """
+    lines: List[str] = []
+    lines.append(f"## Promotion of `{result.entry_id}`")
+    lines.append("")
+
+    if result.promoted:
+        lines.append(
+            f"_Sealed to the central seed bank as_ "
+            f"`{result.precedent_id or '(unknown id)'}`."
+        )
+        lines.append("")
+        lines.append("### Gates the seed survived")
+        lines.append("")
+        for gr in result.gate_results:
+            lines.append(f"- **{gr['gate']}** — {gr['status']}")
+        lines.append("")
+        lines.append(
+            "_The original journal entry remains in your library, "
+            "now tagged `sealed` with an annotation pointing to the "
+            "precedent. Both records are kept; neither replaces the "
+            "other._"
+        )
+    else:
+        lines.append(f"_Outcome:_ **{result.overall}** — not promoted.")
+        lines.append("")
+        lines.append("### Where elimination fired")
+        lines.append("")
+        for gr in result.gate_results:
+            lines.append(f"- **{gr['gate']}** — {gr['status']}")
+            for r in gr.get("reasons") or []:
+                lines.append(f"    - {r}")
+        if result.reasons and not result.gate_results:
+            lines.append("")
+            for r in result.reasons:
+                lines.append(f"- {r}")
+        lines.append("")
+        lines.append(
+            "_The seed survives in your library unchanged. The "
+            "elimination trail is the reasoning — address what's "
+            "missing (a witness, a wait, an anchor) and try again, "
+            "or leave the seed where it is._"
+        )
+
+    return "\n".join(lines)
+
+
 __all__ = [
     "Categorization",
     "Annotation",
@@ -1111,6 +1412,7 @@ __all__ = [
     "JournalStore",
     "Calibration",
     "Emergence",
+    "PromotionResult",
     "categorize",
     "calibrate",
     "render_calibration",
@@ -1119,4 +1421,6 @@ __all__ = [
     "thread",
     "emergence",
     "render_emergence",
+    "promote",
+    "render_promotion",
 ]
