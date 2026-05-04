@@ -745,6 +745,37 @@ def main() -> None:
         help="Don't print observations as they fire. Log still fills.",
     )
 
+    # ── dawn subcommand (optional, read-only) ──────────────────────
+    # Per KoA Trilogy (Anna's chapter): the perimeter walk before the
+    # settlement wakes. Dawn surfaces what's been kept across keeping +
+    # ledger + quarantine, in one read-only narrative. Always available
+    # but never required — nothing else in the engine depends on it.
+    dn = sub.add_parser(
+        "dawn",
+        help="The perimeter walk — read what the kingdom has kept while "
+             "you were away (read-only, no side effects).",
+        description=(
+            "Surfaces a narrative across keeping observations, recent "
+            "precedents, and held quarantine packets. Closes with a "
+            "Socratic question, never a directive."
+        ),
+    )
+    dn.add_argument(
+        "--since", type=float, default=None,
+        help="Unix epoch seconds; only include observations / precedents "
+             "after this time. Default: last 24 hours.",
+    )
+    dn.add_argument(
+        "--hours", type=float, default=None,
+        help="Convenience: look back N hours (overrides --since if both "
+             "given).",
+    )
+    dn.add_argument(
+        "--json", action="store_true",
+        help="Emit the structured DawnSurface as JSON instead of the "
+             "rendered narrative.",
+    )
+
     # ── lsp subcommand ─────────────────────────────────────────────
     lsp_p = sub.add_parser(
         "lsp",
@@ -1553,6 +1584,27 @@ def main() -> None:
                 stop.set()
                 print("keeper stopped", file=sys.stderr)
             sys.exit(0)
+
+    if args.cmd == "dawn":
+        # Optional, defensive import: if dawn or any of its dependencies
+        # cannot be loaded, fail with a clear message rather than crashing
+        # the whole CLI binary at startup.
+        try:
+            from . import dawn as _dawn
+        except ImportError as exc:
+            print(f"error: dawn module unavailable: {exc}", file=sys.stderr)
+            sys.exit(4)
+
+        since = args.since
+        if args.hours is not None:
+            since = time.time() - (args.hours * 3600.0)
+
+        surface = _dawn.gather_dawn(since=since)
+        if args.json:
+            print(json.dumps(surface.to_dict(), indent=2, default=str))
+        else:
+            print(_dawn.render_dawn(surface))
+        sys.exit(0)
 
     if args.cmd == "lsp":
         from . import lsp as lsp_mod

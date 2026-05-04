@@ -1081,6 +1081,53 @@ def keeping_walk():
     }
 
 
+# ── Dawn (optional, read-only perimeter walk) ──────────────────────
+#
+# Per KoA Trilogy (Anna's chapter): the walk before the settlement
+# wakes. Surfaces what's been kept across keeping + ledger +
+# quarantine, in one read-only call. Always available when the engine
+# is loaded, but defensively imported — if dawn.py or any dependency
+# is missing, the endpoint reports unavailable rather than 500.
+
+
+@app.get("/dawn", include_in_schema=True)
+def dawn_endpoint(
+    since: Optional[float] = Query(
+        None,
+        description="Unix epoch seconds; default: last 24h.",
+    ),
+    hours: Optional[float] = Query(
+        None,
+        description="Convenience: look back N hours (overrides `since`).",
+    ),
+    rendered: bool = Query(
+        True,
+        description="Include the rendered markdown narrative alongside "
+                    "the structured surface (default: true).",
+    ),
+):
+    """Read what the kingdom has been keeping while you were away.
+
+    Read-only. No side effects. No verdicts — names what's been kept.
+    Closes with a Socratic question, never a directive.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+    try:
+        from concordance_engine import dawn as _dawn
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503, detail=f"dawn module unavailable: {exc}"
+        )
+    if hours is not None:
+        since = time.time() - (hours * 3600.0)
+    surface = _dawn.gather_dawn(since=since)
+    out = {"surface": surface.to_dict()}
+    if rendered:
+        out["rendered"] = _dawn.render_dawn(surface)
+    return out
+
+
 # ── Ask (search the seed bank or capture a new seed) ────────────────
 
 

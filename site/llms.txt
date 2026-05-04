@@ -192,6 +192,16 @@ POST /keeping/walk                   — run one tick of the keeper
 GET  /keeping/log                    — read the practice log
 ```
 
+### Dawn — the perimeter walk (optional, read-only)
+```
+GET  /dawn                           — narrative across keeping + ledger + quarantine
+```
+Read-only. Surfaces what's been kept across all three layers in one
+call. Closes with a Socratic question, never a directive. Query
+params: `since` (epoch), `hours` (convenience, overrides `since`),
+`rendered` (default true — include markdown narrative). The CLI
+equivalent is `concordance dawn [--hours N] [--json]`.
+
 ### Service
 ```
 GET  /identity                       — canonical identity statement (what we serve)
