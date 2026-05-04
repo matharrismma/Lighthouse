@@ -571,6 +571,12 @@ def capture(
     # Optional closest-precedent lookup. We synthesize a minimal packet
     # from the categorization so `find_closest` can match against the
     # audit chain's scaffold dimensions.
+    #
+    # The packet shape coming out of categorize() is in two-part form
+    # (e.g. "governance.proposal", "scripture.anchor-cluster"); the
+    # ledger's find_closest expects the base axis ("governance",
+    # "scripture") since dimensions are indexed by that. Strip the
+    # subtype before lookup.
     if look_up_precedent and entry.categorization.detected_packet_shape:
         try:
             from .ledger import find_closest
@@ -579,13 +585,12 @@ def capture(
                 stub_packet["scripture_anchors"] = list(
                     entry.categorization.detected_anchors
                 )
-            if entry.categorization.detected_packet_shape:
-                stub_packet["domain"] = entry.categorization.detected_packet_shape
-            if stub_packet:
-                cc = find_closest(stub_packet)
-                if cc is not None and cc.precedent_id is not None:
-                    entry.categorization.closest_precedent_id = cc.precedent_id
-                    entry.categorization.closest_precedent_distance = cc.distance
+            base_axis = entry.categorization.detected_packet_shape.split(".")[0]
+            stub_packet["domain"] = base_axis
+            cc = find_closest(stub_packet)
+            if cc is not None and cc.precedent_id is not None:
+                entry.categorization.closest_precedent_id = cc.precedent_id
+                entry.categorization.closest_precedent_distance = cc.distance
         except Exception:
             # Audit chain access is best-effort. A capture is more
             # important than a precedent lookup.

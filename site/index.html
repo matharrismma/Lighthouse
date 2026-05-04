@@ -572,6 +572,74 @@
       color: var(--accent);
     }
 
+    /* Closest-case overlay — the well catching your thought as you write.
+       Visible but quiet: a thin left rule in the warm accent color marks
+       the section without drawing the eye. Per the doctrine: descriptive,
+       not prescriptive. */
+    .closest-overlay {
+      margin: 14px 0 0;
+      padding: 10px 12px 10px 14px;
+      background: var(--bg);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+    }
+    .closest-h {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .closest-id {
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .closest-id code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      background: transparent;
+      padding: 0;
+      font-size: 11px;
+    }
+    .closest-id .meta {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .closest-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text);
+      opacity: 0.92;
+      margin: 4px 0 6px;
+    }
+    .closest-overlay-details {
+      margin-top: 8px;
+    }
+    .closest-overlay-details summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      list-style: none;
+    }
+    .closest-overlay-details summary::-webkit-details-marker { display: none; }
+    .closest-overlay-details summary::before {
+      content: '▸ ';
+      color: var(--accent-soft);
+    }
+    .closest-overlay-details[open] summary::before { content: '▾ '; }
+    .closest-overlay-body {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: var(--surface);
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+
     /* Seed actions row — annotate / publish / open */
     .seed-actions {
       margin-top: 12px;
@@ -1983,6 +2051,43 @@
       if (calLines.length) {
         h += '<div class="calibration-h">Calibration</div>';
         calLines.forEach(line => { h += '<div class="cal-line">' + line + '</div>'; });
+      }
+      // Closest-case overlay — the well caught your thought as you wrote it.
+      // Descriptive, not prescriptive. Surfaces an existing kept record
+      // whose scaffold dimensions overlap with what was just written.
+      const closest = data.closest_precedent;
+      if (closest && closest.precedent_id) {
+        h += '<div class="closest-overlay">';
+        h += '<div class="closest-h">Closest in the well — the well has kept</div>';
+        const dist = (cat.closest_precedent_distance != null)
+          ? ' · distance ' + (Math.round(cat.closest_precedent_distance * 100) / 100)
+          : '';
+        h += '<div class="closest-id"><code>' + esc(closest.precedent_id) + '</code>'
+          + (closest.axis ? ' <span class="meta">(' + esc(closest.axis) + dist + ')</span>' : '')
+          + '</div>';
+        if (closest.summary) {
+          h += '<div class="closest-summary">' + esc(closest.summary) + '</div>';
+        }
+        const anchors = (closest.anchors || [])
+          .map(a => (typeof a === 'string') ? a : (a && a.ref) || '')
+          .filter(Boolean);
+        if (anchors.length) {
+          h += '<div class="cal-line"><span class="meta">anchors:</span> '
+            + anchors.map(a => '<code>' + esc(a) + '</code>').join(', ')
+            + '</div>';
+        }
+        const overlay = closest.reasoning_overlay;
+        if (overlay && Object.keys(overlay).length) {
+          h += '<details class="closest-overlay-details">';
+          h += '<summary>how that one was kept</summary>';
+          h += '<div class="closest-overlay-body">';
+          Object.keys(overlay).forEach(k => {
+            h += '<div class="cal-line"><span class="meta">' + esc(k) + ':</span> '
+              + esc(overlay[k]) + '</div>';
+          });
+          h += '</div></details>';
+        }
+        h += '</div>';
       }
       const isPublished = (entry.user_tags || []).indexOf('shelf') !== -1;
       h += '<div class="seed-actions">';

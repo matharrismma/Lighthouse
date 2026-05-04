@@ -1083,12 +1083,31 @@ def capture(req: CaptureRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
     cal = _journal.calibrate(entry)
+    closest = _resolve_closest_precedent(entry.categorization.closest_precedent_id)
     return {
         "entry": entry.to_dict(),
         "calibration": cal.to_dict(),
+        "closest_precedent": closest,
         "source": req.source,
         "rendered_calibration": _journal.render_calibration(entry, cal),
     }
+
+
+def _resolve_closest_precedent(precedent_id: Optional[str]) -> Optional[Dict[str, Any]]:
+    """Look up the full body of a precedent by id, for closest-case
+    overlay. Returns None if not found or on error — closest-case is
+    descriptive, not prescriptive, so a missing precedent is just
+    silence, not an error."""
+    if not precedent_id:
+        return None
+    try:
+        from concordance_engine import ledger as _ledger
+        for p in _ledger.list_precedents():
+            if p.get("precedent_id") == precedent_id:
+                return p
+    except (ImportError, OSError, ValueError):
+        return None
+    return None
 
 
 @app.post("/journal/write", include_in_schema=True)
@@ -1101,6 +1120,9 @@ def journal_write(req: WriteRequest):
       * what was heard (anchors / actions / scope / shape)
       * calibration measurements (drift / pattern / tempo against
         history) — descriptive only, never prescriptive
+      * closest precedent body — if the well already holds a record
+        whose scaffold dimensions overlap, the user sees it at the
+        moment of writing (assist in wisdom; show engineering)
     """
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
@@ -1121,9 +1143,17 @@ def journal_write(req: WriteRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     cal = _journal.calibrate(entry)
+
+    # Closest-case overlay: enrich the response with the full
+    # precedent body when one was matched. Frontend renders this
+    # as a small "this resembles..." card so the user sees the
+    # well catch their thought as they write it.
+    closest = _resolve_closest_precedent(entry.categorization.closest_precedent_id)
+
     return {
         "entry": entry.to_dict(),
         "calibration": cal.to_dict(),
+        "closest_precedent": closest,
         "rendered_calibration": _journal.render_calibration(entry, cal),
     }
 
