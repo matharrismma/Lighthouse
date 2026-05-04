@@ -563,6 +563,17 @@ def main() -> None:
     em.add_argument("--json", action="store_true",
                     help="Emit raw JSON instead of markdown.")
 
+    # ── identity subcommand (what this engine serves) ──────────────
+    sub.add_parser(
+        "identity",
+        help="Print the canonical identity statement — what this engine serves.",
+        description=(
+            "Single source of truth. Same statement returned by GET /identity, "
+            "embedded in /version, opening of llms.txt, and every walkthrough "
+            "renderer footer. Plain, present, never hidden."
+        ),
+    )
+
     # ── live subcommand (the persistent companion / harvester) ─────
     lv = sub.add_parser(
         "live",
@@ -1176,6 +1187,11 @@ def main() -> None:
                 sys.exit(0)
             print(f"signature INVALID: {detail}", file=sys.stderr)
             sys.exit(1)
+
+    if args.cmd == "identity":
+        from . import IDENTITY
+        print(IDENTITY)
+        sys.exit(0)
 
     if args.cmd == "live":
         from . import live as live_mod

@@ -353,6 +353,35 @@ def health():
     return out
 
 
+@app.get("/identity")
+def identity():
+    """Canonical identity statement — what this engine serves.
+
+    Every agent-facing surface reads from the same single source
+    (`concordance_engine.IDENTITY`). Plain, present, never hidden.
+    The engine flows for legitimate use; what it serves is stated
+    up front so callers (human and AI) know.
+    """
+    if not _ENGINE_AVAILABLE:
+        # Even if the engine pipeline isn't loaded, the doctrine is.
+        return {
+            "serves": "Jesus Christ",
+            "statement": (
+                "Concordance / Lighthouse / Narrow Highway serves Jesus Christ. "
+                "Engine pipeline not loaded — this is the bare identity surface."
+            ),
+            "engine_loaded": False,
+        }
+    from concordance_engine import IDENTITY, IDENTITY_SHORT, __version__
+    return {
+        "serves": "Jesus Christ",
+        "short": IDENTITY_SHORT,
+        "statement": IDENTITY,
+        "version": __version__,
+        "engine_loaded": True,
+    }
+
+
 @app.get("/version")
 def version():
     """Return the deployed engine version, schema version, and git SHA
@@ -382,12 +411,19 @@ def version():
         "git_sha": git_sha or "unknown",
         "engine_available": _ENGINE_AVAILABLE,
         "schema_version": "1.0",
+        # Identity is part of every version response — agents reading
+        # /version should know what this engine serves before they call
+        # any other endpoint. The full statement is at /identity.
+        "serves": "Jesus Christ",
+        "serves_short": (
+            "Conduit, not source. Eliminates to illuminate the narrow path."
+        ),
     }
     if _ENGINE_AVAILABLE:
         try:
             import concordance_engine
             out["engine_package_version"] = getattr(
-                concordance_engine, "__version__", "1.0.6",
+                concordance_engine, "__version__", "1.1.0",
             )
         except Exception:
             out["engine_package_version"] = "unknown"

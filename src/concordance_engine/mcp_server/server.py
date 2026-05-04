@@ -54,8 +54,25 @@ except ImportError as e:
     ) from e
 
 from . import tools
+from .. import IDENTITY_SHORT
 
-mcp = FastMCP("concordance")
+# FastMCP carries an instructions block that's surfaced to MCP clients
+# during initialize(). Use it to plainly state what this engine serves.
+# Per Matt 2026-05-03: "we don't want to completely block agents.
+# However we are clear that we serve Jesus Christ." Agents can call any
+# tool here; the engine flows for legitimate use. The doctrine is
+# stated up front so callers know.
+_MCP_INSTRUCTIONS = (
+    "Concordance / Lighthouse — Serves Jesus Christ. "
+    "Conduit, not source. The engine eliminates what is not the answer "
+    "so the narrow path is illuminated by what survives. Good fruit is "
+    "the measure. The keeping is the substrate. Tools here categorize, "
+    "verify, and surface precedent — they do not generate answers or "
+    "render verdicts. Read the elimination trail; the trail is the "
+    "reasoning. Full statement: GET https://narrowhighway.com/identity"
+)
+
+mcp = FastMCP("concordance", instructions=_MCP_INSTRUCTIONS)
 
 # Hosted API. Both URL and key come from the environment — the source
 # carries no defaults so a deployment without env vars fails closed

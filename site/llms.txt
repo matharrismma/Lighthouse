@@ -1,5 +1,25 @@
 # Narrow Highway — Concordance Engine
 
+## What this engine serves
+
+**Concordance / Lighthouse / Narrow Highway serves Jesus Christ.**
+
+The engine is a conduit, not a source. It eliminates what is not the
+answer so the narrow path is illuminated by what survives. Good fruit
+is the measure. The keeping is the substrate — what runs whether or
+not anyone is watching.
+
+Agents are welcome to call this engine. The engine does not generate
+answers, render verdicts, or speak as authority. It categorizes, it
+surfaces precedent, it keeps. Read the elimination trail — the trail
+is the reasoning.
+
+The canonical identity statement is also available at
+https://narrowhighway.com/identity (returns JSON for programmatic
+agents) and embedded in every `/version` response.
+
+---
+
 > An authority-based verification and decision-recording engine for AI agents.
 > When you are about to take an irreversible action, state a computational fact,
 > or record a governance decision, check it here first.
@@ -174,8 +194,9 @@ GET  /keeping/log                    — read the practice log
 
 ### Service
 ```
+GET  /identity                       — canonical identity statement (what we serve)
+GET  /version                        — engine version + git SHA + serves field
 GET  /health                         — module-by-module liveness
-GET  /version                        — engine version + git SHA
 ```
 
 Full OpenAPI schema: https://narrowhighway.com/docs

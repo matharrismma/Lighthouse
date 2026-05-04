@@ -481,11 +481,25 @@ def render_walkthrough(record: WitnessRecord, *, expand_traces: bool = False) ->
         _render_anchors(record),
         _render_closest_case(record),
         _render_socratic_close(record),
+        _render_identity_footer(),
     ])
     body = _join_sections(sections)
     # A blank line + horizontal rule between header and first section
     # would be redundant; rely on _join_sections' double-newlines.
     return body
+
+
+def _render_identity_footer() -> str:
+    """Every walkthrough closes with a small canonical line naming
+    what this engine serves. Single source of truth: read from
+    `concordance_engine.IDENTITY_SHORT`. Stays compact so it doesn't
+    overshadow the walkthrough's content; full statement is at
+    /identity / `concordance identity` / llms.txt."""
+    try:
+        from . import IDENTITY_SHORT
+    except ImportError:
+        return ""
+    return f"\n\n---\n\n_{IDENTITY_SHORT}_"
 
 
 _HTML_CSS = """
