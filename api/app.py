@@ -983,6 +983,115 @@ def audit_chain_by_id(packet_id: str):
 # the well is free. Anyone can fetch any sealed precedent.
 
 
+# ── /chain/receive — federation push (inverse of /chain/since) ─────
+#
+# Symmetric with /chain/since: that endpoint serves entries to peers
+# pulling from us; this one accepts entries from peers pushing to us.
+# Both store into the same fetched/<remote_slug>.jsonl mirror — pull
+# vs push is just direction.
+#
+# Per "free use, alignment to execute": receiving is read-shaped from
+# our perspective (we don't validate the sender's authority; we
+# accept and store, tagged with their claimed origin URL). The four
+# gates already ran on the sender's side; we mirror what they sealed.
+# If a malicious peer pushes garbage, it lands in their slug only
+# and never enters our chain.
+
+
+class ChainReceiveRequest(BaseModel):
+    from_: str = ""  # alias for "from" — handled below
+    entries: List[Dict[str, Any]] = []
+
+    class Config:
+        # Accept either "from" or "from_" since "from" is a Python keyword.
+        # Pydantic v2 uses populate_by_name + Field alias; for compatibility
+        # we accept both via the json schema validation in the handler.
+        pass
+
+
+@app.post("/chain/receive", include_in_schema=True)
+def chain_receive(payload: Dict[str, Any]):
+    """Receive sealed precedents pushed by a peer.
+
+    Body shape: `{from: <url>, entries: [...]}`. Entries are the
+    same audit-chain rows a remote's /chain/since would emit. We
+    don't validate the chain's hash continuity here — the sending
+    instance is responsible for the integrity of its own chain;
+    we just mirror what they sent us.
+
+    Stored in the same fetched/<slug>.jsonl files as pulled
+    entries, so consumers (concordance fetch --list, the dawn
+    surface, etc.) see push-received and pull-received entries
+    together.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="engine unavailable")
+
+    from_url = (payload.get("from") or payload.get("from_") or "").strip()
+    if not from_url:
+        raise HTTPException(status_code=400, detail="`from` url is required")
+
+    entries = payload.get("entries") or []
+    if not isinstance(entries, list):
+        raise HTTPException(status_code=400, detail="`entries` must be a list")
+
+    try:
+        from concordance_engine import fetch as _fetch
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503, detail=f"fetch module not available: {exc}"
+        )
+
+    # Light validation: each entry must at least have a seq + packet_id +
+    # entry_hash. Anything else is the sender's chain, not ours.
+    accepted_entries = []
+    rejected = []
+    seen_seqs = set()
+    for e in entries:
+        if not isinstance(e, dict):
+            rejected.append({"seq": None, "reason": "entry not a dict"})
+            continue
+        seq = e.get("seq")
+        if seq is None:
+            rejected.append({"seq": None, "reason": "missing seq"})
+            continue
+        if seq in seen_seqs:
+            rejected.append({"seq": seq, "reason": "duplicate seq in payload"})
+            continue
+        if not e.get("packet_id"):
+            rejected.append({"seq": seq, "reason": "missing packet_id"})
+            continue
+        if not e.get("entry_hash"):
+            rejected.append({"seq": seq, "reason": "missing entry_hash"})
+            continue
+        seen_seqs.add(seq)
+        # Tag with origin + receive timestamp, same shape as fetch path.
+        e.setdefault("_origin", from_url)
+        e.setdefault("_fetched_at", time.time())
+        e.setdefault("_received_via", "push")
+        accepted_entries.append(e)
+
+    if accepted_entries:
+        base = _fetch._default_base_dir()
+        _fetch._append_entries(base, from_url, accepted_entries)
+        # Update the per-remote state so subsequent pulls don't re-pull
+        # things we already received via push.
+        state = _fetch._load_state(base, from_url)
+        max_seq = max(int(e.get("seq", 0)) for e in accepted_entries)
+        if max_seq > state.last_seq:
+            state.last_seq = max_seq
+        state.last_fetched_at = time.time()
+        state.last_status = "received_push"
+        _fetch._save_state(base, state)
+
+    return {
+        "from": from_url,
+        "accepted": len(accepted_entries),
+        "rejected": rejected,
+        "next_seq": max((int(e.get("seq", 0)) for e in accepted_entries), default=0),
+    }
+
+
 @app.get("/chain/since", include_in_schema=True)
 def chain_since(
     seq: int = Query(0, ge=0,

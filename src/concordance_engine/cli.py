@@ -776,6 +776,78 @@ def main() -> None:
              "rendered narrative.",
     )
 
+    # ── witness subcommand (Ed25519 attestations on precedents) ────
+    # A witness signature is cryptographic proof that a named
+    # individual (with a given pubkey) attested to the existence of a
+    # specific precedent at a specific moment. The BROTHERS gate
+    # already requires N witnesses by name; this adds verifiable
+    # cryptographic teeth.
+    wt = sub.add_parser(
+        "witness",
+        help="Sign or verify witness attestations on sealed precedents.",
+        description=(
+            "A witness signs the canonical bytes of "
+            "{precedent_id, entry_hash, signed_at} with their Ed25519 "
+            "private key. The resulting attestation is verifiable by "
+            "anyone holding the public key — no engine required."
+        ),
+    )
+    wt_sub = wt.add_subparsers(dest="wt_cmd", required=True)
+
+    wt_sign = wt_sub.add_parser(
+        "sign",
+        help="Produce a signed witness attestation for a precedent.",
+    )
+    wt_sign.add_argument("precedent_id", help="Precedent to witness.")
+    wt_sign.add_argument("entry_hash",
+                         help="Audit-chain entry_hash being witnessed.")
+    wt_sign.add_argument("--name", required=True,
+                         help="Witness's name as it should appear on record.")
+    wt_sign.add_argument("--role", required=True,
+                         help="Witness's role (elder, brother, sister, deacon, etc.)")
+    wt_sign.add_argument("--key", required=True,
+                         help="Path to file containing the witness's b64u "
+                              "private key, or the literal key string.")
+    wt_sign.add_argument("--append", action="store_true",
+                         help="Append the attestation to the local witness "
+                              "store (~/.concordance/witness/<slug>.jsonl).")
+    wt_sign.add_argument("--out", type=str, default=None,
+                         help="Write the attestation JSON to this path. "
+                              "Defaults to stdout.")
+
+    wt_verify = wt_sub.add_parser(
+        "verify",
+        help="Verify a witness attestation. Reads JSON from --file or stdin.",
+    )
+    wt_verify.add_argument("--file", type=str, default=None,
+                           help="Path to attestation JSON. Stdin if omitted.")
+
+    wt_list = wt_sub.add_parser(
+        "list",
+        help="List local witness attestations for a precedent.",
+    )
+    wt_list.add_argument("precedent_id")
+
+    # ── push subcommand (federation: send our chain to a peer) ─────
+    # The other half of `fetch`. Sends locally-sealed precedents that
+    # the remote doesn't yet have, via the remote's /chain/receive
+    # endpoint. Idempotent on the remote side: receivers store entries
+    # tagged with our origin URL; they don't merge into their chain.
+    ps = sub.add_parser(
+        "push",
+        help="Push locally-sealed precedents to a remote engine. "
+             "Inverse of `fetch`. Idempotent.",
+    )
+    ps.add_argument("--remote", required=True,
+                    help="Remote URL to push to (e.g. https://peer.example).")
+    ps.add_argument("--from-url", default=None,
+                    help="The URL the remote should record as our origin. "
+                         "Defaults to local hostname.")
+    ps.add_argument("--limit", type=int, default=100,
+                    help="Max entries to push per call (default: 100).")
+    ps.add_argument("--json", action="store_true",
+                    help="Emit machine-readable JSON output.")
+
     # ── fetch subcommand (optional, offline-tolerant federation) ───
     # Like `git fetch`. Pulls new sealed precedents from a remote
     # engine and mirrors them locally. Works offline (no-op when
@@ -1684,6 +1756,137 @@ def main() -> None:
                 stop.set()
                 print("keeper stopped", file=sys.stderr)
             sys.exit(0)
+
+    if args.cmd == "witness":
+        try:
+            from . import witness as _witness
+        except ImportError as exc:
+            print(f"error: witness module unavailable: {exc}", file=sys.stderr)
+            sys.exit(4)
+
+        if args.wt_cmd == "sign":
+            # The --key argument may be either an inline b64u string or
+            # a path to a file containing one. Files are preferred for
+            # safety; inline is acceptable for scripted use.
+            key_in = args.key
+            if Path(key_in).exists():
+                key_in = Path(key_in).read_text(encoding="utf-8").strip()
+            try:
+                att = _witness.sign(
+                    precedent_id=args.precedent_id,
+                    entry_hash=args.entry_hash,
+                    private_key_b64u=key_in,
+                    witness_name=args.name,
+                    witness_role=args.role,
+                )
+            except (ValueError, ImportError) as exc:
+                print(f"error: {exc}", file=sys.stderr)
+                sys.exit(1)
+            payload = json.dumps(att.to_dict(), indent=2)
+            if args.out:
+                Path(args.out).write_text(payload + "\n", encoding="utf-8")
+                print(f"wrote attestation to {args.out}")
+            else:
+                print(payload)
+            if args.append:
+                p = _witness.append(att)
+                print(f"appended to {p}", file=sys.stderr)
+            sys.exit(0)
+
+        if args.wt_cmd == "verify":
+            if args.file:
+                raw = Path(args.file).read_text(encoding="utf-8")
+            else:
+                raw = sys.stdin.read()
+            try:
+                d = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                print(f"error: invalid JSON: {exc}", file=sys.stderr)
+                sys.exit(4)
+            ok, reason = _witness.verify_dict(d)
+            print(json.dumps({"ok": ok, "reason": reason}, indent=2))
+            sys.exit(0 if ok else 1)
+
+        if args.wt_cmd == "list":
+            attestations = _witness.list_for_precedent(args.precedent_id)
+            if not attestations:
+                print(f"(no attestations on file for {args.precedent_id})")
+            else:
+                for att in attestations:
+                    ok, reason = _witness.verify(att)
+                    mark = "✓" if ok else "✗"
+                    print(f"  {mark} {att.witness_name} ({att.witness_role}) "
+                          f"at {att.signed_at} — {reason}")
+            sys.exit(0)
+
+    if args.cmd == "push":
+        # Federation push: send our locally-sealed precedents to a
+        # remote's /chain/receive endpoint. Symmetric with fetch.
+        try:
+            import urllib.error
+            import urllib.request
+            from api import ledger as api_ledger
+        except ImportError as exc:
+            print(f"error: cannot import ledger or urllib: {exc}",
+                  file=sys.stderr)
+            sys.exit(4)
+
+        from_url = args.from_url
+        if not from_url:
+            import socket
+            from_url = f"http://{socket.gethostname()}"
+
+        # Read local chain entries.
+        try:
+            ledger_inst = api_ledger.get_ledger()
+            entries = ledger_inst.recent(n=args.limit, offset=0)
+        except Exception as exc:  # noqa: BLE001
+            print(f"error: could not read local ledger: {exc}", file=sys.stderr)
+            sys.exit(1)
+        # Send oldest-first.
+        entries.sort(key=lambda e: e.get("seq", 0))
+
+        if not entries:
+            msg = "no local precedents to push"
+            print(json.dumps({"status": "empty", "message": msg})
+                  if args.json else f"= {msg}")
+            sys.exit(0)
+
+        url = args.remote.rstrip("/") + "/chain/receive"
+        body = json.dumps({
+            "from": from_url,
+            "entries": entries,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.URLError as exc:
+            print(f"× push to {args.remote} failed: {exc}",
+                  file=sys.stderr)
+            sys.exit(1)
+        except json.JSONDecodeError as exc:
+            print(f"× malformed response from {args.remote}: {exc}",
+                  file=sys.stderr)
+            sys.exit(1)
+
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            count = result.get("accepted", 0)
+            print(f"✓ pushed {count} precedent(s) to {args.remote}")
+            rejected = result.get("rejected", []) or []
+            for r in rejected:
+                print(f"  rejected seq#{r.get('seq')}: {r.get('reason')}")
+        sys.exit(0)
 
     if args.cmd == "fetch":
         try:

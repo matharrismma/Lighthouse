@@ -254,19 +254,46 @@ ELEVENLABS_VOICE_ID           — TTS voice id
 Operator dashboard at `/setup.html`. Public reach directory at
 `/reach.html`. Both consume `/reach` JSON.
 
-### Federation — `concordance fetch`
+### Federation — pull (`fetch`) and push
 
-The engine works offline; the chain is local; federation is opt-in.
-`concordance fetch [--remote URL]` pulls new sealed precedents from
-a remote engine into a local mirror tagged with the remote's URL.
-Idempotent (only entries with seq > last_seq are fetched). Offline-
-tolerant (unreachable remote returns `status: offline`, no error).
-The local chain is unaffected; fetched entries live in a parallel
-`fetched/` store, one file per remote.
+```
+GET  /chain/since?seq=N&limit=M      — peer pulls our entries past N
+POST /chain/receive                  — peer pushes their entries to us
+```
 
-The `/chain/since` endpoint is the server side. Read-only and free
-to call (per "free use, alignment to execute" — reading the well
-costs nothing).
+The engine works offline; the chain is local; federation is opt-in
+on both directions.
+
+**Pull (fetch):** `concordance fetch [--remote URL]` pulls new
+sealed precedents from a remote engine into a local mirror tagged
+with the remote's URL. Idempotent. Offline-tolerant (unreachable
+remote returns `status: offline`, no error).
+
+**Push:** `concordance push --remote URL` sends our locally-sealed
+precedents to a peer's `/chain/receive`. Inverse of fetch; same
+storage on the receiving side. The receiver doesn't merge into
+their chain — they store as a mirror tagged with our origin URL.
+
+Both directions are free to call (reading the well costs nothing;
+receiving someone else's reading costs nothing either). Misalign-
+ment is caught by the four gates on the sealing side, not by
+trusting senders.
+
+### Witness signatures (Ed25519)
+
+```
+concordance witness sign <precedent_id> <entry_hash> --name X --role Y --key K
+concordance witness verify [--file path]      (reads JSON from stdin if no file)
+concordance witness list <precedent_id>
+```
+
+A witness signs the canonical bytes of `{precedent_id, entry_hash,
+signed_at}` with their Ed25519 private key. The resulting attestation
+is verifiable by anyone holding the public key — no engine needed.
+
+The BROTHERS gate already requires N witnesses by name; signatures
+add cryptographic proof. Required for federation across instances
+that don't share the same chain.
 
 Full OpenAPI schema: https://narrowhighway.com/docs
 
