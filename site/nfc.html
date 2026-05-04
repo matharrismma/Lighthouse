@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NFC — Concordance</title>
+  <meta name="description" content="Write or scan NFC tags to capture seeds.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#161318">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NFC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --border-bright: #3f3845;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+      --pass: #7ec488;
+      --reject: #d97c7c;
+      --warn: #d9b66c;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 22px;
+      min-height: 100vh;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.78;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 26px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 22px;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 14px;
+    }
+    .card h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+    .card p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      font-family: 'Inter', sans-serif;
+    }
+    textarea:focus, input:focus { border-color: var(--accent); }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 10px 16px;
+      font: inherit;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.15s;
+      flex: 1;
+    }
+    button:hover { background: var(--accent); color: var(--bg); }
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: var(--border);
+    }
+    button.ghost:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: transparent;
+    }
+    button:disabled { opacity: 0.4; cursor: default; }
+    .status {
+      width: 100%;
+      max-width: 540px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 6px;
+      display: none;
+    }
+    .status.show { display: block; }
+    .status.ok { background: #0d2b22; border: 1px solid #1a4a38; color: var(--pass); }
+    .status.err { background: #2b0d0d; border: 1px solid #4a1a1a; color: var(--reject); }
+    .status.warn { background: #2b2208; border: 1px solid #4a3a10; color: var(--warn); }
+    .status code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .unsupported {
+      max-width: 540px;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+    .unsupported strong { color: var(--text); }
+    .alignment {
+      margin-top: 22px;
+      max-width: 540px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .alignment a {
+      color: var(--muted);
+      border-bottom: 1px solid var(--accent-soft);
+      text-decoration: none;
+    }
+    .nav {
+      max-width: 540px;
+      width: 100%;
+      margin-top: 14px;
+      text-align: center;
+    }
+    .nav a {
+      color: var(--muted);
+      font-size: 12px;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .nav a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wordmark">narrow highway · nfc</div>
+  <h1>tap a tag, plant a seed</h1>
+  <div class="sub">write a capture URL to an NFC tag, or scan one to ingest</div>
+
+  <div id="unsupported" class="unsupported" style="display:none;">
+    <strong>NFC not available in this browser.</strong>
+    The Web NFC API is currently supported only in Chrome on Android.
+    On iOS, Safari does not expose NFC; the engine's other capture
+    paths (Apple Shortcut, Web Share Target) cover the iOS case.
+    On desktop, no browser exposes NFC; visit this page on an
+    Android phone with Chrome.
+  </div>
+
+  <div id="supported" style="width:100%; max-width:540px; display:none;">
+    <div class="card">
+      <h2>Write a tag</h2>
+      <p>
+        Type a thought. Tap your phone to a writable NFC tag (cheap
+        NTAG213/215/216 stickers work). The tag will then carry a
+        URL that, when later tapped by any Android phone, opens
+        the capture flow with this text pre-filled.
+      </p>
+      <textarea id="writeText" placeholder="what do you want this tag to plant when scanned?"></textarea>
+      <div class="actions">
+        <button id="writeBtn">Write to tag</button>
+      </div>
+      <div id="writeStatus" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Scan a tag</h2>
+      <p>
+        Place your phone near an existing NFC tag. If the tag carries
+        plain text or a Concordance capture URL, you'll see it here
+        and can plant it as a seed.
+      </p>
+      <div class="actions">
+        <button id="scanBtn">Start scanning</button>
+        <button id="stopBtn" class="ghost" style="display:none;">Stop</button>
+      </div>
+      <div id="scanStatus" class="status"></div>
+      <div id="scanResult" style="margin-top:14px; display:none;">
+        <input type="text" id="scanText" readonly>
+        <div class="actions" style="margin-top:8px;">
+          <button id="plantScanBtn">Plant as seed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alignment">
+    By writing or planting via NFC, you acknowledge the canonical
+    identity statement at <a href="/identity">/identity</a> —
+    Concordance serves Jesus Christ; a well of knowledge yields
+    wisdom in alignment with God.
+  </div>
+
+  <div class="nav">
+    <a href="/">← journal</a>
+    <a href="/share.html">share</a>
+    <a href="/identity">identity</a>
+  </div>
+
+  <script>
+    const supported = ('NDEFReader' in window);
+    document.getElementById('unsupported').style.display = supported ? 'none' : 'block';
+    document.getElementById('supported').style.display  = supported ? 'block' : 'none';
+
+    if (supported) setupNfc();
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function showStatus(el, kind, html) {
+      el.className = 'status show ' + kind;
+      el.innerHTML = html;
+    }
+    function hideStatus(el) { el.className = 'status'; }
+
+    function setupNfc() {
+      const writeBtn   = document.getElementById('writeBtn');
+      const writeText  = document.getElementById('writeText');
+      const writeStatus = document.getElementById('writeStatus');
+
+      const scanBtn   = document.getElementById('scanBtn');
+      const stopBtn   = document.getElementById('stopBtn');
+      const scanText  = document.getElementById('scanText');
+      const scanResult = document.getElementById('scanResult');
+      const scanStatus = document.getElementById('scanStatus');
+      const plantScanBtn = document.getElementById('plantScanBtn');
+
+      let activeReader = null;
+      let scanAbort = null;
+
+      // ── Write flow ───────────────────────────────────────────
+      writeBtn.addEventListener('click', async () => {
+        const text = writeText.value.trim();
+        if (!text) {
+          showStatus(writeStatus, 'err', 'Type something first.');
+          return;
+        }
+        // Build a capture URL the OS will handle when scanned.
+        const captureUrl = window.location.origin + '/share.html?text='
+                         + encodeURIComponent(text);
+
+        showStatus(writeStatus, 'warn',
+          'Hold your phone near a writable NFC tag…');
+        writeBtn.disabled = true;
+
+        try {
+          const writer = new NDEFReader();
+          await writer.write({
+            records: [
+              { recordType: 'url', data: captureUrl },
+              { recordType: 'text', data: text },
+            ],
+          });
+          showStatus(writeStatus, 'ok',
+            'Tag written. Tap it later from any Android phone to plant '
+            + '<code>' + escapeHtml(text.slice(0, 60))
+            + (text.length > 60 ? '…' : '') + '</code>'
+          );
+        } catch (err) {
+          showStatus(writeStatus, 'err',
+            'Write failed: ' + escapeHtml(String(err && err.message || err))
+          );
+        } finally {
+          writeBtn.disabled = false;
+        }
+      });
+
+      // ── Scan flow ───────────────────────────────────────────
+      scanBtn.addEventListener('click', async () => {
+        try {
+          activeReader = new NDEFReader();
+          scanAbort = new AbortController();
+          await activeReader.scan({ signal: scanAbort.signal });
+          showStatus(scanStatus, 'warn',
+            'Scanning… hold your phone near a tag.');
+          scanBtn.style.display = 'none';
+          stopBtn.style.display = 'block';
+
+          activeReader.addEventListener('reading', (event) => {
+            // Pull the first usable record (text or URL).
+            let captured = '';
+            for (const record of event.message.records) {
+              if (record.recordType === 'text') {
+                const dec = new TextDecoder(record.encoding || 'utf-8');
+                captured = dec.decode(record.data);
+                break;
+              } else if (record.recordType === 'url' || record.recordType === 'absolute-url') {
+                const url = new TextDecoder().decode(record.data);
+                // If it's a /share.html?text=... URL, pull the text out.
+                try {
+                  const u = new URL(url);
+                  const t = u.searchParams.get('text');
+                  captured = t || url;
+                } catch {
+                  captured = url;
+                }
+                break;
+              }
+            }
+            if (!captured) {
+              showStatus(scanStatus, 'err', 'Tag had no readable text or URL.');
+              return;
+            }
+            scanText.value = captured;
+            scanResult.style.display = 'block';
+            showStatus(scanStatus, 'ok', 'Read. Review and plant.');
+          });
+
+          activeReader.addEventListener('readingerror', () => {
+            showStatus(scanStatus, 'err', 'Could not read that tag.');
+          });
+        } catch (err) {
+          showStatus(scanStatus, 'err',
+            'Scan failed: ' + escapeHtml(String(err && err.message || err))
+          );
+          scanBtn.style.display = 'block';
+          stopBtn.style.display = 'none';
+        }
+      });
+
+      stopBtn.addEventListener('click', () => {
+        if (scanAbort) scanAbort.abort();
+        scanBtn.style.display = 'block';
+        stopBtn.style.display = 'none';
+        hideStatus(scanStatus);
+      });
+
+      // ── Plant the scanned text via /capture ────────────────
+      plantScanBtn.addEventListener('click', async () => {
+        const text = scanText.value.trim();
+        if (!text) return;
+        plantScanBtn.disabled = true;
+        plantScanBtn.textContent = 'planting…';
+        try {
+          const r = await fetch('/capture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text,
+              source: 'nfc',
+              source_meta: {
+                received_via: 'nfc',
+                ua: navigator.userAgent,
+              },
+              identity_acknowledged: true,
+            })
+          });
+          const data = await r.json();
+          if (!r.ok) {
+            const detail = (data && data.detail) ? data.detail
+                         : ('error: ' + r.status);
+            throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+          }
+          const id = (data.entry && data.entry.id) || '?';
+          showStatus(scanStatus, 'ok',
+            'Seed planted: <code>' + escapeHtml(id) + '</code>. '
+            + '<a href="/" style="color:var(--pass);">return to journal →</a>'
+          );
+          plantScanBtn.textContent = 'planted';
+        } catch (err) {
+          showStatus(scanStatus, 'err',
+            'Plant failed: ' + escapeHtml(String(err && err.message || err))
+          );
+          plantScanBtn.disabled = false;
+          plantScanBtn.textContent = 'Plant as seed';
+        }
+      });
+    }
+
+    // Register the service worker (PWA install + offline shell).
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

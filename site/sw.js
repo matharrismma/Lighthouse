@@ -30,6 +30,7 @@ const SHELL = [
   '/icon-512.svg',
   '/share.html',
   '/offline.html',
+  '/nfc.html',
   '/llms.txt',
 ];
 
