@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capture — Concordance</title>
+  <meta name="description" content="Receive shared text and capture as a seed.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+      --pass: #7ec488;
+      --reject: #d97c7c;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px;
+      min-height: 100vh;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.78;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 22px;
+      letter-spacing: 0.04em;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      width: 100%;
+      max-width: 540px;
+      margin-bottom: 16px;
+    }
+    .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: var(--text);
+    }
+    .value.url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 12px;
+      min-height: 140px;
+      max-height: 360px;
+      resize: vertical;
+      outline: none;
+    }
+    textarea:focus { border-color: var(--accent); }
+    .actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 540px;
+      margin-top: 6px;
+    }
+    button {
+      flex: 1;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+    button:hover { background: var(--accent); color: var(--bg); }
+    button.ghost {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    button.ghost:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+    button:disabled { opacity: 0.4; cursor: default; }
+    .status {
+      max-width: 540px;
+      width: 100%;
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+    }
+    .status.show { display: block; }
+    .status.ok { background: #0d2b22; border: 1px solid #1a4a38; color: var(--pass); }
+    .status.err { background: #2b0d0d; border: 1px solid #4a1a1a; color: var(--reject); }
+    .status code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--bg);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .alignment {
+      margin-top: 20px;
+      max-width: 540px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .alignment a {
+      color: var(--muted);
+      border-bottom: 1px solid var(--accent-soft);
+      text-decoration: none;
+    }
+    .alignment a:hover { color: var(--accent); }
+    .empty {
+      max-width: 540px;
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+      padding: 20px 0;
+    }
+    .empty a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wordmark">narrow highway · capture</div>
+  <h1>received</h1>
+  <div class="sub">a share landed here. review it, then plant.</div>
+
+  <div id="emptyMsg" class="empty" style="display:none;">
+    Nothing was shared with this page.<br>
+    <a href="/">← back to the journal</a>
+  </div>
+
+  <div id="content" style="width:100%; max-width:540px;">
+    <div id="titleCard" class="card" style="display:none;">
+      <div class="label">title</div>
+      <div id="titleVal" class="value"></div>
+    </div>
+    <div id="urlCard" class="card" style="display:none;">
+      <div class="label">source url</div>
+      <div id="urlVal" class="value url"></div>
+    </div>
+    <div class="card">
+      <div class="label">text · edit if you want</div>
+      <textarea id="textVal" autofocus></textarea>
+    </div>
+    <div class="actions">
+      <button id="cancelBtn" class="ghost">Cancel</button>
+      <button id="plantBtn">Plant seed</button>
+    </div>
+  </div>
+
+  <div id="status" class="status"></div>
+
+  <div class="alignment">
+    By planting, you acknowledge the canonical identity statement at
+    <a href="/identity">/identity</a> — Concordance serves Jesus Christ;
+    a well of knowledge yields wisdom in alignment with God.
+  </div>
+
+  <script>
+    // Web Share Target params arrive as ?title=...&text=...&url=...
+    const params = new URLSearchParams(window.location.search);
+    const sharedTitle = params.get('title') || '';
+    const sharedText  = params.get('text')  || '';
+    const sharedUrl   = params.get('url')   || '';
+
+    const titleCard = document.getElementById('titleCard');
+    const titleVal  = document.getElementById('titleVal');
+    const urlCard   = document.getElementById('urlCard');
+    const urlVal    = document.getElementById('urlVal');
+    const textVal   = document.getElementById('textVal');
+    const emptyMsg  = document.getElementById('emptyMsg');
+    const content   = document.getElementById('content');
+    const status    = document.getElementById('status');
+    const plantBtn  = document.getElementById('plantBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    // If the page was opened with no share content, show empty state.
+    const anyContent = sharedTitle || sharedText || sharedUrl;
+    if (!anyContent) {
+      emptyMsg.style.display = 'block';
+      content.style.display = 'none';
+    } else {
+      if (sharedTitle) {
+        titleCard.style.display = 'block';
+        titleVal.textContent = sharedTitle;
+      }
+      if (sharedUrl) {
+        urlCard.style.display = 'block';
+        urlVal.textContent = sharedUrl;
+      }
+      // Compose the textarea: title + text + url, joined with blank lines.
+      const parts = [];
+      if (sharedTitle) parts.push(sharedTitle);
+      if (sharedText)  parts.push(sharedText);
+      if (sharedUrl && !sharedText.includes(sharedUrl)) parts.push(sharedUrl);
+      textVal.value = parts.join('\n\n');
+    }
+
+    cancelBtn.addEventListener('click', () => {
+      // History back, then home as fallback.
+      if (history.length > 1) history.back();
+      else window.location.href = '/';
+    });
+
+    plantBtn.addEventListener('click', async () => {
+      const text = textVal.value.trim();
+      if (!text) {
+        showStatus('err', 'Nothing to plant. Type or paste something first.');
+        return;
+      }
+      plantBtn.disabled = true;
+      plantBtn.textContent = 'planting…';
+      try {
+        const r = await fetch('/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: text,
+            source: 'web_share',
+            source_meta: {
+              shared_title: sharedTitle || null,
+              shared_url:   sharedUrl   || null,
+              ua: navigator.userAgent
+            },
+            identity_acknowledged: true
+          })
+        });
+        const data = await r.json();
+        if (!r.ok) {
+          const detail = (data && data.detail) ? data.detail : ('error: ' + r.status);
+          throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+        }
+        const id = (data.entry && data.entry.id) || '?';
+        showStatus('ok',
+          'Seed planted: <code>' + escapeHtml(id) + '</code>. ' +
+          '<a href="/" style="color:var(--pass); border-bottom:1px solid currentColor; text-decoration:none;">return to journal →</a>'
+        );
+        plantBtn.textContent = 'planted';
+        // Clear the form so we don't double-plant if the user hits back.
+        textVal.value = '';
+      } catch (err) {
+        showStatus('err', escapeHtml(String(err && err.message || err)));
+        plantBtn.disabled = false;
+        plantBtn.textContent = 'Plant seed';
+      }
+    });
+
+    function showStatus(kind, html) {
+      status.className = 'status show ' + kind;
+      status.innerHTML = html;
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Register the service worker (required for Web Share Target on
+    // some browsers, and gives us PWA install eligibility).
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

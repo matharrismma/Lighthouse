@@ -1,0 +1,29 @@
+{
+  "name": "Concordance — Narrow Highway",
+  "short_name": "Concordance",
+  "description": "A well of knowledge. Wisdom in alignment with God. Capture seeds, draw from the well.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#161318",
+  "theme_color": "#161318",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/share.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "categories": ["productivity", "education"]
+}

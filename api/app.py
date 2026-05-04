@@ -959,6 +959,95 @@ class AnnotateRequest(BaseModel):
     author: Optional[str] = ""
 
 
+# ── /capture — unified capture-anywhere funnel ─────────────────────
+#
+# One endpoint, many sources. Drop a file in a watch folder, share
+# from an iOS app, forward an email, send a Telegram message — all
+# arrive here with `source` set, and all become seeds in the same
+# journal. The source is recorded as a tag (`source:<name>`) so
+# any later audit can see where a seed came from.
+#
+# This endpoint is intentionally tolerant: text is required, every-
+# thing else is optional. Source authenticity is informational, not
+# authoritative — misalignment is caught by the four gates downstream
+# (RED/FLOOR/BROTHERS/GOD), not by trusting the source claim.
+#
+# Per the kingdom-economy substrate: capture works with whatever the
+# user already has (email, file system, phone share sheet) — no
+# proprietary client required.
+
+
+class CaptureRequest(BaseModel):
+    text: str
+    source: Optional[str] = None       # e.g. "watch_folder", "email", "telegram", "apple_shortcut", "web_share"
+    source_meta: Optional[Dict[str, Any]] = None  # arbitrary metadata about origin
+    tags: Optional[List[str]] = None
+    identity_acknowledged: bool = True
+    look_up_precedent: bool = True
+
+
+@app.post("/capture", include_in_schema=True)
+def capture(req: CaptureRequest):
+    """Unified capture funnel. Accepts text from any source; records
+    the source as a tag; forwards to the journal capture mechanism.
+
+    Sources are tagged but not validated — any caller can claim any
+    source. The four gates downstream check alignment by content,
+    not by claimed origin. This is the wise-serpent + innocent-dove
+    posture: trusting source claims would be naive; refusing to
+    record them would erase useful provenance. We record what was
+    claimed, run the gates on the content.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+
+    # Build the tag list: user tags + source tag + acknowledgment marker.
+    # The source tag is namespaced ("source:email") so later filters
+    # can find all seeds from a given source.
+    tags = list(req.tags or [])
+    if req.source:
+        # Normalize source — lowercase, alnum + underscore only.
+        clean = "".join(c for c in req.source.lower() if c.isalnum() or c == "_")
+        if clean:
+            src_tag = f"source:{clean}"
+            if src_tag not in tags:
+                tags.append(src_tag)
+    if req.identity_acknowledged:
+        # Mark the seed as having passed the alignment doorway.
+        if "identity_acknowledged" not in tags:
+            tags.append("identity_acknowledged")
+
+    try:
+        from concordance_engine import journal as _journal
+    except ImportError as e:
+        raise HTTPException(
+            status_code=503, detail=f"journal module not available: {e}"
+        )
+
+    try:
+        entry = _journal.capture(
+            text,
+            tags=tags or None,
+            look_up_precedent=req.look_up_precedent,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    cal = _journal.calibrate(entry)
+    return {
+        "entry": entry.to_dict(),
+        "calibration": cal.to_dict(),
+        "source": req.source,
+        "rendered_calibration": _journal.render_calibration(entry, cal),
+    }
+
+
 @app.post("/journal/write", include_in_schema=True)
 def journal_write(req: WriteRequest):
     """Capture a stream-of-consciousness seed.

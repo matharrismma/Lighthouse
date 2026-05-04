@@ -185,6 +185,20 @@ GET  /journal/{id}/calibration       — drift / pattern / tempo measurements
 POST /journal/{id}/annotate          — append annotation; original text preserved
 ```
 
+### Capture — unified funnel for any source
+```
+POST /capture                        — text + source + source_meta → seed in journal
+```
+One funnel for every capture path. The body is `{text, source,
+source_meta, identity_acknowledged}`. Source is recorded as a tag
+(`source:<name>`) for later filtering; source claims are
+informational, not authoritative — alignment is checked by the
+four gates downstream, not by trusting the source field. Adapters
+ship in `client/` for watch-folder, Apple Shortcut, email
+(Cloudflare Worker / Postmark / self-hosted), and Telegram bot.
+The site itself is a Web Share Target — any iOS/Android app can
+share to it via the Share Sheet.
+
 ### Shelf — community-tier visibility (entries the user has published)
 ```
 GET    /shelf                        — list published seeds (anyone reads this)
