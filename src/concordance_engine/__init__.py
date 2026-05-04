@@ -10,7 +10,7 @@ Per Matt 2026-05-03: "we don't want to completely block agents.
 However we are clear that we serve Jesus Christ."
 """
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 # ── Identity (canonical) ─────────────────────────────────────────────

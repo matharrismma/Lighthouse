@@ -1,6 +1,180 @@
 # Changelog
 
-## v1.2.0 — 2026-05-02 (V1: 100% benchmark, single canonical engine, append-only ledger)
+## v1.2.0 — 2026-05-04 (substrate: capture-anywhere, federation, witness signatures, 7th deployment channel)
+
+### Headline (substrate work, 2026-05-04)
+
+The engine becomes parasitic on every channel believers already pay for.
+Capture-anywhere bundle, four federation paths (LoRa mesh, Tor onion, IPFS,
+Nostr), Ed25519 witness signatures with /witness/{id} endpoint, operator
+setup checklist, closest-case overlay catches your thought as you write,
+energy verifier (37th axis) for off-grid power, federation push + fetch
+both directions. Per the kingdom-economy substrate doctrine.
+
+**1303 tests passing.**
+
+### Capture-anywhere
+
+Six surfaces, all routing to a single `POST /capture` funnel:
+
+- **`watch_folder.py`** — drop a `.txt` / `.md` in any directory (incl.
+  iCloud / Dropbox / GDrive sync folders); becomes a seed
+- **Apple Shortcut** — Share Sheet from any iOS app → /share.html
+- **Web Share Target (PWA)** — Android share sheet
+- **NFC tap** (`/nfc.html`) — write/scan tags via Web NFC API (Android)
+- **Email-in** — Cloudflare Worker / Postmark / self-hosted Postfix
+- **Telegram bot** — allow-listed via Telegram user id
+
+`POST /capture` accepts `{text, source, source_meta, identity_acknowledged}`
+and tags the seed with `source:<name>` for later filtering.
+
+### LoRa-mesh substrate (the wilderness layer)
+
+- **Compact wire format** (`concordance_engine.wire`) — 4-byte tagged binary
+  envelope; pre-shared dictionary of 78 common Scripture anchors compresses
+  Mt 5:37 from 8 bytes to 4. Typical seed: 84 bytes (vs 276 JSON), 3.3x
+  compression. 200-char + 1 anchor: 226 bytes; fits LoRa SF7 (230B limit).
+- **`concordance broadcast` CLI** — encode/decode/size; pipe to xxd or radio
+  tools.
+- **`client/meshtastic_bridge.py`** — receive-only / `--send <id>` /
+  `--bridge` daemon. Stdlib on engine side; user installs `pip install
+  meshtastic` for the radio driver.
+
+### Federation (read both directions)
+
+- **`GET /chain/since?seq=N&limit=M`** — peers pull our entries past N
+- **`POST /chain/receive`** — peers push their entries to us
+- **`concordance fetch [--remote URL]`** — pull, offline-tolerant; stores in
+  `<base>/fetched/<slug>.jsonl` per remote
+- **`concordance push --remote URL`** — push our chain to a peer
+- Both idempotent. Receivers don't merge into their chain — they store as
+  a mirror tagged with the sender's URL.
+
+### Witness signatures (Ed25519)
+
+The BROTHERS gate already requires N witnesses by name. Now they can carry
+cryptographic teeth.
+
+- **`concordance witness sign <pid> <hash> --name X --role Y --key K`**
+- **`concordance witness verify [--file path]`** (stdin if no file)
+- **`concordance witness list <pid>`** with verify marks
+- **`GET /witness/{precedent_id}`** — public, read-only, returns each
+  attestation with `verified` boolean + `verify_reason` string
+- **Well-list UI surfaces attestations** — open the "carry the witness"
+  details on any precedent and see the witness list with ✓/✗ marks.
+- Storage: `<base>/witness/<slug>.jsonl` per precedent.
+- Signature covers canonical bytes of `{precedent_id, entry_hash,
+  signed_at}`. Tampering any signed field invalidates.
+
+### Closest-case on write
+
+When a user writes a seed, the engine surfaces the closest already-walked
+precedent inline with summary, anchors, and step-by-step reasoning. *The
+well catches the thought as it's being thought.*
+
+- `_resolve_closest_precedent()` enriches `/journal/write` and `/capture`
+  responses with the matched precedent body
+- **Multi-directory search**: `_load_precedents` now walks the primary
+  ledger AND `CONCORDANCE_PRECEDENT_DIRS` (os.pathsep-separated) AND
+  `<CONCORDANCE_DATA_DIR or ~/.concordance>/fetched_precedents/`. Local
+  seals take precedence on id collision.
+- Bug fix: `detected_packet_shape` is two-part (`governance.proposal`)
+  but `find_closest` expects the base axis (`governance`). Strip the
+  subtype before lookup. Without this fix, closest_precedent_id was
+  always None for packets the categorizer detected.
+- Frontend: thin warm-accent left rule on a darker background under the
+  Calibration block; collapsible "how that one was kept" drawer with the
+  precedent's reasoning_overlay step-by-step.
+
+### Verify mode polish — gates revealed in sequence
+
+The four gates run server-side in <50 ms; the user saw the result as a
+wall of HTML. Now the reveal cadence makes the order legible: each gate's
+heading + verdict + reasons fade in in turn (~280ms beats for h3, 180ms
+for h2, 90ms for prose).
+
+Verify-mode empty-state callout sharpened: `red → floor → brothers → god`.
+
+### Operator setup
+
+- **`GET /reach`** — JSON of operator-configured substrate addresses (Tor
+  onion, Telegram handle, Nostr npub, IPFS gateway, etc.) read from env
+  vars: `CONCORDANCE_TOR_ONION`, `CONCORDANCE_EMAIL_INBOUND`,
+  `CONCORDANCE_TELEGRAM_HANDLE`, `CONCORDANCE_LORA_FREQ`,
+  `CONCORDANCE_NOSTR_NPUB`, `CONCORDANCE_IPFS_GATEWAY`,
+  `CONCORDANCE_MAILING_LIST`, `CONCORDANCE_FETCH_REMOTE`.
+- **`/setup.html`** — operator dashboard with live ✓/○ marks per channel
+  + summary header (configured count, optional count, version, health).
+- **`/reach.html`** — public substrate directory; injects operator-
+  specific addresses where configured.
+
+### Energy verifier (37th axis)
+
+System-scale power: off-grid sizing, conservation. Per the kingdom-
+economy substrate doctrine, those refusing the mark may need off-grid
+power. 8 deterministic checks: `power_balance`, `battery_sizing`,
+`solar_daily_yield`, `wire_voltage_drop`, `kwh_wh_consistency`,
+`efficiency` (η ≤ 1 unless heat pump), `runtime`, `peak_load_vs_inverter`.
+Stdlib-only.
+
+Registered at `verifiers/energy.py`, axis added to grid (4-dim:
+metabolism, physical_substance, time_sequence, conservation_balance),
+exposed as `verify_energy(spec)` MCP tool.
+
+### Other substrate channels
+
+- **Tor onion service** (`client/tor_onion.md`) — setup recipe; no engine
+  code change. Wraps any instance behind a `xyz.onion` for clearnet-block
+  resistance.
+- **Nostr publication** (`client/nostr_publish.py`) — publish sealed
+  precedents as kind-30700 events to federated relays. `pip install
+  pynostr`. Idempotent via `~/.concordance/nostr_published.json`.
+- **IPFS pinning** (`client/ipfs_pin.py`) — content-addressed durable
+  distribution via local `ipfs daemon`. Stdlib-only on our side.
+- **Mailing list digest** (`client/digest_mail.py`) — SMTP digest of
+  newly-sealed precedents. Stdlib-only.
+- **`concordance qr <id>` / `qr --capture <text>`** — emit a QR-friendly
+  URL; phones already render. Per "wise as serpents — use the tools that
+  exist."
+
+### PWA polish
+
+- Stylized Chi-Rho icon set (favicon.svg + 192/512 manifest sizes) in the
+  warm site palette
+- iOS meta tags (apple-mobile-web-app-capable + apple-touch-icon) so
+  installs show the Chi-Rho instead of a screenshot
+- Service worker pre-caches the shell + offline.html graceful fallback
+- Dismissible install hint (`beforeinstallprompt`)
+
+### Dawn — perimeter walk
+
+- `concordance dawn` CLI + `GET /dawn` — read-only narrative across
+  keeping observations, recent precedents, and held quarantine packets.
+  Closes with a Socratic question, never a directive.
+
+### Doctrine surfaces
+
+- `IDENTITY` constant + `llms.txt` lead with: *"A well of knowledge leads
+  to wisdom when in alignment with God."*
+- `identity_acknowledged: true` field on `/journal/write` and `/capture`
+- Footer cleanup: `serves Jesus Christ · reach · llms.txt` (one new
+  word, two removed)
+- `/reach.html` directory with operator-config injection
+- Time on screen — topbar shows `tue, may 5 · 2:32 pm`, refreshes once
+  per minute on the boundary (e-ink-safe cadence)
+- Pulse attribution: italic line above stats: *"what the keeping has
+  noticed while you were away"*
+
+### Tests
+
+- 1303 passing, up from 1244 in v1.1.0 era
+- New suites: test_dawn, test_wire, test_broadcast_cli, test_fetch,
+  test_witness_signatures, test_clients, test_closest_overlay,
+  test_closest_multidir, test_qr_witness_cli, test_energy
+
+---
+
+## v1.2.0-engine-consolidation — 2026-05-02 (V1: 100% benchmark, single canonical engine, append-only ledger)
 
 ### Headline
 - **722 of 722 benchmark claims decided correctly** across all six domains (chemistry, physics, mathematics, statistics, computer science, governance). Up from 91.0% / 657 in v1.1.0. Wall time 32 s. Median per-claim latency 0.1 ms.
