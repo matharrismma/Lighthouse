@@ -776,6 +776,64 @@ def main() -> None:
              "rendered narrative.",
     )
 
+    # ── broadcast subcommand (optional, LoRa-mesh wire format) ─────
+    # Encode a journal entry as a compact wire packet suitable for
+    # transmission over LoRa mesh radios (Meshtastic et al). Per the
+    # project_lora_mesh_substrate memory: the wilderness layer of the
+    # deployment architecture.
+    bc = sub.add_parser(
+        "broadcast",
+        help="Encode a journal entry as a compact LoRa wire packet "
+             "(or decode one back). Used by the Meshtastic bridge.",
+        description=(
+            "Bridges the verbose JSON form of a journal entry to/from the "
+            "compact binary wire format defined in concordance_engine.wire. "
+            "Typical seeds compress 3-4x; suitable for LoRa packets "
+            "(50-230 bytes). Read-only on the engine side; transmission "
+            "happens via the Meshtastic radio over USB serial."
+        ),
+    )
+    bc_sub = bc.add_subparsers(dest="bc_cmd", required=True)
+
+    bc_encode = bc_sub.add_parser(
+        "encode",
+        help="Encode an entry to wire bytes. Reads JSON from stdin or --file.",
+    )
+    bc_encode.add_argument(
+        "--file", type=str, default=None,
+        help="Path to a journal entry JSON file. If omitted, reads stdin.",
+    )
+    bc_encode.add_argument(
+        "--out", type=str, default=None,
+        help="Write the binary wire packet to this path. If omitted, "
+             "writes hex to stdout.",
+    )
+    bc_encode.add_argument(
+        "--max-size", type=int, default=230,
+        help="Maximum acceptable packet size in bytes (default: 230, "
+             "LoRa SF7 limit). Encoder fails if the packet exceeds this.",
+    )
+
+    bc_decode = bc_sub.add_parser(
+        "decode",
+        help="Decode wire bytes back to a journal-shaped dict.",
+    )
+    bc_decode.add_argument(
+        "--file", type=str, default=None,
+        help="Path to a wire packet file (binary). If omitted, reads "
+             "hex from stdin.",
+    )
+
+    bc_size = bc_sub.add_parser(
+        "size",
+        help="Report the encoded size of an entry without writing it. "
+             "Useful for checking if a seed will fit in a LoRa packet.",
+    )
+    bc_size.add_argument(
+        "--file", type=str, default=None,
+        help="Path to a journal entry JSON file (or stdin if omitted).",
+    )
+
     # ── lsp subcommand ─────────────────────────────────────────────
     lsp_p = sub.add_parser(
         "lsp",
@@ -1583,6 +1641,84 @@ def main() -> None:
             except KeyboardInterrupt:
                 stop.set()
                 print("keeper stopped", file=sys.stderr)
+            sys.exit(0)
+
+    if args.cmd == "broadcast":
+        # Defensive import — wire is optional in the strongest sense.
+        try:
+            from . import wire as _wire
+        except ImportError as exc:
+            print(f"error: wire module unavailable: {exc}", file=sys.stderr)
+            sys.exit(4)
+
+        def _read_input(path: str | None) -> str:
+            if path:
+                return Path(path).read_text(encoding="utf-8")
+            return sys.stdin.read()
+
+        if args.bc_cmd == "encode":
+            try:
+                d = json.loads(_read_input(args.file))
+            except (OSError, json.JSONDecodeError) as exc:
+                print(f"error: could not read JSON: {exc}", file=sys.stderr)
+                sys.exit(4)
+            seed_wire = _wire.seed_dict_to_wire(d)
+            payload = seed_wire.to_bytes()
+            if len(payload) > args.max_size:
+                print(
+                    f"error: encoded packet is {len(payload)}B, exceeds "
+                    f"--max-size {args.max_size}B",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            if args.out:
+                Path(args.out).write_bytes(payload)
+                print(f"wrote {len(payload)}B to {args.out}")
+            else:
+                # Hex on stdout for piping to xxd / radio tools.
+                print(payload.hex())
+            sys.exit(0)
+
+        if args.bc_cmd == "decode":
+            if args.file:
+                try:
+                    payload = Path(args.file).read_bytes()
+                except OSError as exc:
+                    print(f"error: {exc}", file=sys.stderr)
+                    sys.exit(4)
+            else:
+                hex_in = sys.stdin.read().strip()
+                try:
+                    payload = bytes.fromhex(hex_in)
+                except ValueError as exc:
+                    print(f"error: stdin must be hex: {exc}", file=sys.stderr)
+                    sys.exit(4)
+            try:
+                seed_wire = _wire.SeedWire.from_bytes(payload)
+            except ValueError as exc:
+                print(f"error: not a valid wire packet: {exc}", file=sys.stderr)
+                sys.exit(1)
+            print(json.dumps(_wire.wire_to_capture_payload(seed_wire),
+                             indent=2, default=str))
+            sys.exit(0)
+
+        if args.bc_cmd == "size":
+            try:
+                d = json.loads(_read_input(args.file))
+            except (OSError, json.JSONDecodeError) as exc:
+                print(f"error: could not read JSON: {exc}", file=sys.stderr)
+                sys.exit(4)
+            seed_wire = _wire.seed_dict_to_wire(d)
+            payload = seed_wire.to_bytes()
+            print(json.dumps({
+                "wire_bytes": len(payload),
+                "fits_lora_sf7":  len(payload) <= 230,
+                "fits_lora_sf12": len(payload) <= 50,
+                "anchors_in_dict": sum(
+                    1 for a in seed_wire.anchors if _wire.dict_token(a) is not None
+                ),
+                "anchors_total": len(seed_wire.anchors),
+            }, indent=2))
             sys.exit(0)
 
     if args.cmd == "dawn":
