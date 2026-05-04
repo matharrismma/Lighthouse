@@ -31,6 +31,7 @@ const SHELL = [
   '/share.html',
   '/offline.html',
   '/nfc.html',
+  '/reach.html',
   '/llms.txt',
 ];
 

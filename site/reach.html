@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reach — Concordance</title>
+  <meta name="description" content="How the well meets you wherever you are. Substrate channels for Concordance / Narrow Highway.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#161318">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Reach">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #161318;
+      --surface: #1d191f;
+      --border: #2d2731;
+      --text: #efe9e0;
+      --muted: #8a8593;
+      --accent: #c9a87c;
+      --accent-soft: #6e5a45;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    body {
+      padding: 36px 22px 60px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .glyph {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.78;
+    }
+
+    h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 30px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      letter-spacing: -0.005em;
+    }
+    .lede {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      max-width: 540px;
+    }
+    .lede em {
+      color: var(--text);
+      font-style: italic;
+      opacity: 0.92;
+    }
+
+    .scripture {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0.82;
+      margin-top: 14px;
+      margin-bottom: 30px;
+      padding-left: 14px;
+      border-left: 1px solid var(--accent-soft);
+      max-width: 540px;
+    }
+
+    section {
+      margin-top: 28px;
+    }
+    section > h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    section > p.section-blurb {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      max-width: 540px;
+      font-style: italic;
+      font-family: 'Crimson Pro', Georgia, serif;
+      opacity: 0.85;
+    }
+
+    .row {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 14px;
+      align-items: baseline;
+    }
+    .row:last-child { border-bottom: none; }
+    .row .name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+    .row .desc {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .row .desc a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-soft);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .row .desc a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .row .desc small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+      letter-spacing: 0.02em;
+    }
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+
+    footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+    }
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    footer a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent-soft);
+    }
+    footer a.identity { color: var(--accent); opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+  <div class="top">
+    <svg class="glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="64" height="64" rx="12" fill="#161318"/>
+      <g stroke="#c9a87c" stroke-width="4" stroke-linecap="round" fill="none">
+        <line x1="16" y1="18" x2="48" y2="50"/>
+        <line x1="48" y1="18" x2="16" y2="50"/>
+        <line x1="32" y1="10" x2="32" y2="56"/>
+        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+      </g>
+    </svg>
+    <span class="wordmark">narrow highway · reach</span>
+  </div>
+
+  <h1>How the well meets you wherever you are.</h1>
+  <p class="lede">
+    The engine is one. The substrate is many. <em>Reading</em> the well is free
+    on every channel; <em>writing</em> requires alignment; <em>sealing</em> requires
+    the four gates. What follows is how to draw, plant, or carry — by whatever
+    you have access to.
+  </p>
+
+  <p class="scripture">
+    "Whoever desires, let him take the water of life freely." — Revelation 22:17
+  </p>
+
+  <!-- ── Through the page ─────────────────────────────────────── -->
+  <section>
+    <h2>through the page</h2>
+    <p class="section-blurb">browser-shaped paths — open, public, free</p>
+
+    <div class="row">
+      <span class="name">narrowhighway.com</span>
+      <span class="desc">
+        The web journal. Type to plant; click to draw.
+        <small>HTTPS · open to all · no account</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">tor onion</span>
+      <span class="desc">
+        The same engine reachable at a <code>.onion</code> address that survives
+        DNS hijacking, ISP blocks, and platform deplatforming.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/tor_onion.md">setup recipe</a> · v3 onion · operator runs Tor</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">pyodide.html</span>
+      <span class="desc">
+        The full engine compiled to WebAssembly, running in your browser tab.
+        Works offline once loaded.
+        <small><a href="/pyodide.html">open in browser</a> · no install · no server contact</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">add to home screen</span>
+      <span class="desc">
+        Make this site act like an app on your phone. Receives shares from any
+        other app via the system Share Sheet.
+        <small>iOS: Safari → Share → Add to Home Screen<br>
+        Android: Chrome → menu → Add to Home Screen</small>
+      </span>
+    </div>
+  </section>
+
+  <!-- ── Into the journal ─────────────────────────────────────── -->
+  <section>
+    <h2>into the journal — plant a seed</h2>
+    <p class="section-blurb">capture from wherever you already are</p>
+
+    <div class="row">
+      <span class="name">share sheet</span>
+      <span class="desc">
+        Highlight text in any iOS or Android app, hit Share, send to
+        Concordance. Already wired through the PWA — install the app and it
+        appears in the share menu.
+        <small>iOS / Android · no extra install</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">apple shortcut</span>
+      <span class="desc">
+        90-second one-time setup; turns the iOS Share Sheet (or Siri) into a
+        Concordance capture path.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/apple_shortcut.md">recipe</a> · iOS only</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">nfc tap</span>
+      <span class="desc">
+        Write a thought to a cheap NFC tag; tap the tag from any Android phone
+        to plant it as a seed.
+        <small><a href="/nfc.html">open</a> · Android (Chrome) only · iOS Safari does not expose NFC</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">watch folder</span>
+      <span class="desc">
+        Drop a <code>.txt</code> or <code>.md</code> file into a folder; it
+        becomes a seed. Works with iCloud, Dropbox, Google Drive, or any local
+        directory you already use.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/watch_folder.py">script</a> · stdlib Python · zero deps</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">email-in</span>
+      <span class="desc">
+        Forward an email to a configured inbound address; body becomes a seed.
+        Cloudflare Email Routing path is free.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/email_webhook.md">recipe</a> · operator-configured</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">telegram bot</span>
+      <span class="desc">
+        Send a message to your private capture bot; it replies with the seed
+        id. Allow-listed by Telegram user id.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/telegram_bot.py">script</a> · operator-run · @BotFather token</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">lora mesh</span>
+      <span class="desc">
+        Encode a seed as a compact wire packet; broadcast over license-free
+        sub-GHz radio via Meshtastic. Range 1–10+ km per node, no internet,
+        no SIM, no government identification.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/meshtastic_bridge.py">bridge</a> · ~$30 hardware · operator-run</small>
+      </span>
+    </div>
+  </section>
+
+  <!-- ── Out of the well ──────────────────────────────────────── -->
+  <section>
+    <h2>out of the well — carry the witness</h2>
+    <p class="section-blurb">distribute what survived the four gates</p>
+
+    <div class="row">
+      <span class="name">qr code</span>
+      <span class="desc">
+        Print a precedent's URL as a QR — paper sneakernet. Survives every
+        digital adversary. Books, bulletin boards, sermon notes.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/qr_share.md">recipe</a> · any QR app · no install on us</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">nostr</span>
+      <span class="desc">
+        Publish sealed precedents as Nostr events to federated relays.
+        Anyone with a Nostr client subscribes; no platform deplatforms.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/nostr_publish.py">script</a> · pip install pynostr · kind 30700</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">ipfs</span>
+      <span class="desc">
+        Pin precedents to IPFS for content-addressed durable distribution.
+        CID is the hash; the hash IS the address; the content cannot be tampered with.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/ipfs_pin.py">script</a> · ipfs daemon · stdlib only on our side</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">mailing list digest</span>
+      <span class="desc">
+        Send a digest of newly-sealed precedents over SMTP to a subscriber
+        list. SMTP is universal; mail providers are plentiful and free.
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/digest_mail.py">script</a> · stdlib smtplib · operator-run</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">audit chain federation</span>
+      <span class="desc">
+        Pull new precedents from a remote engine into a local mirror.
+        Works offline (no-op when remote unreachable). Idempotent.
+        <small><code>concordance fetch</code> · stdlib · GET /chain/since</small>
+      </span>
+    </div>
+  </section>
+
+  <!-- ── For AI agents ────────────────────────────────────────── -->
+  <section>
+    <h2>for ai agents</h2>
+    <p class="section-blurb">read the doctrine first; the gates do the rest</p>
+
+    <div class="row">
+      <span class="name">/identity</span>
+      <span class="desc">
+        Canonical identity statement. Read this before calling. Returns JSON.
+        <small><a href="/identity">/identity</a></small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">/llms.txt</span>
+      <span class="desc">
+        Tool inventory and doctrine block, plain text. The agent-discoverable
+        entry point.
+        <small><a href="/llms.txt">/llms.txt</a></small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">mcp server</span>
+      <span class="desc">
+        Native Model Context Protocol — Claude (and any MCP-compatible agent)
+        can call the verifiers and gates directly.
+        <small><code>pip install concordance-engine[mcp]</code> · <code>concordance-mcp</code></small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">rest api</span>
+      <span class="desc">
+        Full surface at <code>/docs</code> (OpenAPI). Every CLI subcommand is
+        exposed as an endpoint.
+        <small><a href="/docs">/docs</a> · public · no key for reads</small>
+      </span>
+    </div>
+    <div class="row">
+      <span class="name">python client</span>
+      <span class="desc">
+        Single-file sync client; one optional dep (<code>requests</code>) or
+        zero (stdlib).
+        <small><a href="https://github.com/matharrismma/Lighthouse/blob/main/client/concordance_client.py">concordance_client.py</a></small>
+      </span>
+    </div>
+  </section>
+
+  <p class="scripture" style="margin-top: 36px;">
+    "Behold, I send you out as sheep in the midst of wolves;
+    therefore be wise as serpents and harmless as doves." — Matthew 10:16
+  </p>
+
+  <footer>
+    <a href="/">← journal</a>
+    <a href="/identity" class="identity">serves Jesus Christ</a>
+    <a href="https://github.com/matharrismma/Lighthouse">source</a>
+    <a href="/llms.txt">llms.txt</a>
+  </footer>
+
+</body>
+</html>

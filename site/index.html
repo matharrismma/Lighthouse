@@ -410,6 +410,14 @@
       color: var(--text);
       letter-spacing: 0.01em;
     }
+    .pulse-attrib {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0.78;
+      margin-bottom: 12px;
+    }
     .pulse-stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -882,6 +890,7 @@
           <span class="label">journal</span>
           <span class="date" id="emptyHeadline"></span>
         </div>
+        <div class="pulse-attrib">what the keeping has noticed while you were away</div>
         <div class="pulse-stats" id="pulseStats"></div>
         <div class="pulse-callout" id="pulseCallout">— the page is open —</div>
       </div>
@@ -946,8 +955,7 @@
       <span class="footer-spacer"></span>
       <span class="group">
         <a href="/identity" class="identity" title="What this engine serves">serves Jesus Christ</a>
-        <a href="/pyodide.html" title="Run the engine entirely in your browser">in-browser</a>
-        <a href="/nfc.html" title="Tap to capture — Android only">nfc</a>
+        <a href="/reach.html" title="How the well meets you wherever you are">reach</a>
         <a href="/llms.txt" title="For AI agents">llms.txt</a>
       </span>
     </div>
@@ -1022,14 +1030,34 @@
   modeVerifyBtn.addEventListener('click', () => setMode('verify'));
 
   // ── Date helpers ────────────────────────────────────────────────
+  // The topbar carries date + time so the user always knows when they
+  // are while writing. Refresh cadence is one minute — fine-grained
+  // enough that the clock reads correctly, slow enough that it doesn't
+  // distract or burn an e-ink display. The hero (empty-state) date
+  // stays date-only since it's a daily-ledger heading, not a clock.
   function setTopbarDate() {
     const d = new Date();
-    const topOpts = { weekday: 'short', month: 'short', day: 'numeric' };
+    const dateOpts = { weekday: 'short', month: 'short', day: 'numeric' };
+    const timeOpts = { hour: 'numeric', minute: '2-digit' };
+    const datePart = d.toLocaleDateString(undefined, dateOpts).toLowerCase();
+    const timePart = d.toLocaleTimeString(undefined, timeOpts).toLowerCase();
     const topNode = document.getElementById('topbarDate');
-    if (topNode) topNode.textContent = d.toLocaleDateString(undefined, topOpts).toLowerCase();
+    if (topNode) topNode.textContent = datePart + ' · ' + timePart;
     const heroOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     if (headlineEl) headlineEl.textContent = d.toLocaleDateString(undefined, heroOpts);
   }
+  // Refresh the topbar clock once a minute on the boundary, so the
+  // displayed time stays accurate without polling. Aligns the first
+  // tick to the next minute boundary, then ticks every 60s.
+  function startClockTicker() {
+    const now = new Date();
+    const msToNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    setTimeout(() => {
+      setTopbarDate();
+      setInterval(setTopbarDate, 60_000);
+    }, Math.max(250, msToNextMinute));
+  }
+  startClockTicker();
 
   function ymd(d) {
     return d.getFullYear() + '-' +
@@ -1444,6 +1472,29 @@
       inputEl.dispatchEvent(new Event('input'));
     } else if (action === 'day') {
       openDay(target.getAttribute('data-ymd'));
+    } else if (action === 'copy-url') {
+      // Carry-the-witness affordance — copies a precedent URL.
+      // Quiet visual confirmation, then reverts after 1.4s.
+      const url = target.getAttribute('data-url') || '';
+      if (!url) return;
+      const original = target.textContent;
+      const restore = () => { target.textContent = original; };
+      const flash = (text) => {
+        target.textContent = text;
+        setTimeout(restore, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url)
+          .then(() => flash('copied · ' + url))
+          .catch(() => flash('copy failed'));
+      } else {
+        // Older browsers: select for manual Cmd/Ctrl+C.
+        const range = document.createRange();
+        range.selectNode(target);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
   });
 
@@ -1686,10 +1737,28 @@
         const id = r.precedent_id || r.id || '';
         const summary = r.summary || r.title || '';
         const axis = r.axis || r.kind || '';
-        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">'
+        const url = window.location.origin + '/ledger/' + encodeURIComponent(id);
+        html += '<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">'
               + '<code style="color:var(--accent);font-size:11px;">' + esc(id) + '</code>'
               + (axis ? ' <span style="color:var(--muted);font-size:11px;">(' + esc(axis) + ')</span>' : '')
               + '<br>' + esc(summary)
+              // <details> is closed by default — no chrome until invited.
+              // Per "carry the witness": opens to a copyable URL + paper
+              // hint + link to /reach.html for the other channels.
+              + '<details class="carry-details" style="margin-top:6px;">'
+              +   '<summary style="cursor:pointer;color:var(--muted);font-size:11px;letter-spacing:0.04em;list-style:none;">'
+              +     '<span style="border-bottom:1px solid var(--accent-soft);">carry the witness</span>'
+              +   '</summary>'
+              +   '<div style="margin-top:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);">'
+              +     '<div data-action="copy-url" data-url="' + esc(url) + '" '
+              +          'style="word-break:break-all;color:var(--accent);font-family:\'JetBrains Mono\',monospace;cursor:pointer;padding:4px 0;" '
+              +          'title="click to copy">' + esc(url) + '</div>'
+              +     '<div style="margin-top:4px;line-height:1.5;">'
+              +       'click to copy. paste into any QR app for paper distribution. '
+              +       '<a href="/reach.html" style="color:var(--muted);border-bottom:1px solid var(--accent-soft);text-decoration:none;">other channels →</a>'
+              +     '</div>'
+              +   '</div>'
+              + '</details>'
               + '</div>';
       });
       html += '</div>';
