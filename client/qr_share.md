@@ -77,14 +77,24 @@ appropriate URL given a precedent or seed id:
 
 ```
 $ concordance qr <precedent_id>
-https://narrowhighway.com/ledger/abc123def
+https://narrowhighway.com/ledger/<encoded-id>
 
 $ concordance qr <precedent_id> --host https://my-host.example
-https://my-host.example/ledger/abc123def
+https://my-host.example/ledger/<encoded-id>
 
 $ concordance qr --capture "Mt 5:37 — let your yes be yes."
-https://narrowhighway.com/share.html?text=Mt%205%3A37%20...
+https://narrowhighway.com/share.html?text=Mt%205%3A37%20%E2%80%94%20...
+
+$ concordance qr
+https://narrowhighway.com/
+
+$ CONCORDANCE_HOST=https://onion-mirror.onion concordance qr <id>
+https://onion-mirror.onion/ledger/<encoded-id>
 ```
+
+`--host` and `CONCORDANCE_HOST` are interchangeable; the explicit
+flag wins. Useful for printing onion-routed QRs that survive
+clearnet hostility.
 
 Pipe that into your favorite QR generator:
 

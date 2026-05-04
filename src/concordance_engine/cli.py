@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -893,6 +894,40 @@ def main() -> None:
     # ── broadcast subcommand (optional, LoRa-mesh wire format) ─────
     # Encode a journal entry as a compact wire packet suitable for
     # transmission over LoRa mesh radios (Meshtastic et al). Per the
+    # ── qr subcommand (URL helper for paper sneakernet) ────────────
+    # We do NOT ship a QR encoder. Phones already render QRs from URLs
+    # via any QR app (free on App Store / F-Droid / Linux qrencode /
+    # macOS shortcut etc.). This subcommand emits the appropriate URL;
+    # pipe to your favorite QR generator. See client/qr_share.md.
+    qr = sub.add_parser(
+        "qr",
+        help="Emit a QR-friendly URL for a precedent or capture intent. "
+             "Pipe the output to any QR generator.",
+        description=(
+            "Wise as serpents: phones already have QR rendering software. "
+            "We emit a URL the operator can pipe to qrencode, segno, or any "
+            "phone QR app. Three URL forms: precedent (direct link to "
+            "/ledger/<id>), capture (share.html with text= prefilled), "
+            "or home (the engine's home page)."
+        ),
+    )
+    qr.add_argument(
+        "subject", nargs="?", default=None,
+        help="Precedent id or seed id. If omitted, emits the home URL.",
+    )
+    qr.add_argument(
+        "--capture", type=str, default=None,
+        metavar="TEXT",
+        help="Emit a capture URL (share.html?text=...) carrying the "
+             "given text. Mutually exclusive with `subject`.",
+    )
+    qr.add_argument(
+        "--host", type=str,
+        default=os.environ.get("CONCORDANCE_HOST", "https://narrowhighway.com"),
+        help="Base URL of the engine instance (default: env "
+             "CONCORDANCE_HOST or https://narrowhighway.com).",
+    )
+
     # project_lora_mesh_substrate memory: the wilderness layer of the
     # deployment architecture.
     bc = sub.add_parser(
@@ -1957,6 +1992,29 @@ def main() -> None:
             else:
                 print(f"= already up to date with {result.remote_url} "
                       f"(seq {result.new_last_seq}).")
+        sys.exit(0)
+
+    if args.cmd == "qr":
+        # No encoding — just URL emission. The operator pipes this
+        # to whatever QR generator they prefer.
+        host = (args.host or "").rstrip("/")
+        if not host:
+            print("error: --host or CONCORDANCE_HOST is required",
+                  file=sys.stderr)
+            sys.exit(4)
+        if args.capture is not None:
+            if args.subject is not None:
+                print("error: --capture and a subject are mutually exclusive",
+                      file=sys.stderr)
+                sys.exit(4)
+            from urllib.parse import quote
+            url = f"{host}/share.html?text={quote(args.capture)}"
+        elif args.subject:
+            from urllib.parse import quote
+            url = f"{host}/ledger/{quote(args.subject, safe='')}"
+        else:
+            url = host + "/"
+        print(url)
         sys.exit(0)
 
     if args.cmd == "broadcast":
