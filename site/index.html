@@ -405,6 +405,40 @@
       color: var(--muted);
     }
 
+    /* Ledger heading — a desk-ledger feel, not a chat greeting */
+    .ledger-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 6px;
+    }
+    .ledger-heading .ledger-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    .ledger-heading .ledger-date {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.01em;
+      opacity: 0.95;
+    }
+    .ledger-rule {
+      text-align: center;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
     .elapsed {
       font-size: 11px;
       color: var(--muted);
@@ -664,13 +698,19 @@
   <main class="hud-center">
     <div class="history" id="history">
       <div class="empty" id="emptyState">
-        <h1 id="emptyHeadline">What's with you today?</h1>
-        <p id="emptyBlurb">Tasks, ideas, dates, names, feelings — anything you put down is kept. The engine listens; nothing replaces what you wrote.</p>
+        <div class="ledger-heading">
+          <span class="ledger-label">ledger</span>
+          <span class="ledger-date" id="emptyHeadline"></span>
+        </div>
+        <p class="ledger-rule">— the page is open —</p>
+        <!-- emptyBlurb retained as a hidden node so existing JS that
+             rewrites it for verify-mode doesn't error. -->
+        <p id="emptyBlurb" style="display:none;"></p>
       </div>
     </div>
 
     <div class="input-wrap">
-      <textarea id="input" rows="6" placeholder="a thought, a task, a date, a feeling — anything you put down is kept." autofocus></textarea>
+      <textarea id="input" rows="6" placeholder="" autofocus></textarea>
       <button class="keep" id="sendBtn" disabled title="Keep">Keep</button>
     </div>
     <div class="hint">
@@ -705,7 +745,7 @@
       <div id="emergenceList"><div class="panel-empty">— the keeping continues</div></div>
     </div>
     <div class="panel" id="panelCommunity">
-      <div class="panel-label">community feed <span class="count" id="communityCount"></span></div>
+      <div class="panel-label">community <span class="count" id="communityCount"></span></div>
       <div id="communityList"><div class="panel-empty">—</div></div>
     </div>
   </aside>
@@ -838,9 +878,14 @@
 
   function setTopbarDate() {
     const d = new Date();
-    const opts = { weekday: 'short', month: 'short', day: 'numeric' };
-    const node = el('topbarDate');
-    if (node) node.textContent = d.toLocaleDateString(undefined, opts).toLowerCase();
+    // Topbar — terse for the corner ("tue, may 5")
+    const topOpts = { weekday: 'short', month: 'short', day: 'numeric' };
+    const topNode = el('topbarDate');
+    if (topNode) topNode.textContent = d.toLocaleDateString(undefined, topOpts).toLowerCase();
+    // Hero — full ("Tuesday, May 5, 2026") for the ledger heading
+    const heroOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const heroNode = el('emptyHeadline');
+    if (heroNode) heroNode.textContent = d.toLocaleDateString(undefined, heroOpts);
   }
 
   function renderPanelList(listEl, items, formatter, emptyMsg) {
