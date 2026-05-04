@@ -30,6 +30,85 @@ and an expected diagnosis. Results from the 2026-05-02 run:
 
 ---
 
+## Substrate (v1.2.0)
+
+Beyond the verifier core, the engine now ships infrastructure for
+operating in hostile or constrained network environments. Per the
+kingdom-economy substrate doctrine: works for someone who refuses
+the mark of the beast. Every channel below uses tools the operator
+already pays for or that are open-source and free.
+
+**Capture from anywhere — six surfaces, one funnel:**
+
+| Surface | Lift | Where |
+|---|---|---|
+| Watch a folder (iCloud / Dropbox / GDrive) | stdlib only | [`client/watch_folder.py`](client/watch_folder.py) |
+| Apple Shortcut → Share Sheet | 90-second one-time setup | [`client/apple_shortcut.md`](client/apple_shortcut.md) |
+| Web Share Target (PWA) | works on any phone | [`site/share.html`](site/share.html) |
+| NFC tap (Android) | Web NFC API | [`site/nfc.html`](site/nfc.html) |
+| Email forward → seed | Cloudflare Worker recipe | [`client/email_webhook.md`](client/email_webhook.md) |
+| Telegram bot | allow-listed user IDs | [`client/telegram_bot.py`](client/telegram_bot.py) |
+
+All route to **`POST /capture`** with `{text, source, source_meta,
+identity_acknowledged}`.
+
+**Federation (both directions):**
+
+- **`GET /chain/since?seq=N`** — peer pulls our entries past `seq=N`
+- **`POST /chain/receive`** — peer pushes their entries to us
+- **`concordance fetch [--remote URL]`** — pull, offline-tolerant
+- **`concordance push --remote URL`** — push our chain to a peer
+- Both idempotent. Receiver stores entries tagged with sender's URL
+  (no merge into local chain).
+
+**Witness signatures (Ed25519):**
+
+The BROTHERS gate already requires N witnesses by name. Now they
+carry cryptographic teeth.
+
+- **`concordance witness sign <pid> <hash> --name X --role Y --key K`**
+- **`concordance witness verify`** (stdin or `--file`)
+- **`concordance witness list <pid>`** with verify marks
+- **`GET /witness/{precedent_id}`** — public; each attestation
+  carries `verified` boolean + `verify_reason`. Well-list UI shows
+  the attestation list with ✓/✗ marks.
+
+**Wilderness substrate (LoRa mesh):**
+
+- **`concordance_engine.wire`** — 4-byte tagged binary envelope; pre-
+  shared dictionary of 78 common Scripture anchors compresses Mt 5:37
+  from 8 bytes to 4. Typical seed: 84 bytes (3.3× JSON compression).
+- **`concordance broadcast` CLI** — encode/decode/size.
+- **[`client/meshtastic_bridge.py`](client/meshtastic_bridge.py)** —
+  drives a Meshtastic radio over USB serial. License-free sub-GHz
+  mesh; no internet, no SIM, no government identification required.
+
+**Other substrate channels:**
+
+- **Tor onion service** — [`client/tor_onion.md`](client/tor_onion.md)
+- **Nostr publication** — [`client/nostr_publish.py`](client/nostr_publish.py) (kind 30700)
+- **IPFS pinning** — [`client/ipfs_pin.py`](client/ipfs_pin.py)
+- **Mailing list digest** — [`client/digest_mail.py`](client/digest_mail.py)
+- **QR codes** — `concordance qr <id>` emits the URL; phones already
+  render QRs via any QR app
+
+**Closest-case overlay on write:**
+
+When a user writes a seed, the engine surfaces the closest already-
+walked precedent inline with summary, anchors, and step-by-step
+reasoning. Searches both the local ledger AND directories listed in
+`CONCORDANCE_PRECEDENT_DIRS` (peer-curated corpora), federating wisdom.
+
+**Operator setup:**
+
+- **`/setup.html`** — checklist with live ✓/○ status per channel
+- **`/reach.html`** — public substrate directory; injects operator-
+  specific addresses where configured
+- **`GET /reach`** — JSON of operator-configured addresses
+- See [`OPERATOR.md`](OPERATOR.md) for the full deployment guide
+
+---
+
 ## One-line Canon
 
 > *"We keep the Word close, protect the floor, listen to brothers, and wait on God before we act."*
@@ -253,6 +332,24 @@ Structural verification that a decision packet contains all required parts (titl
   "way_path": "Issue RFP through GNWTC partnership; scope limited to trades programs.",
   "execution_steps": ["Draft RFP", "Board review", "Issue", "Evaluate"],
   "witnesses": ["Board Chair", "GNWTC President", "County Commissioner"]
+}
+```
+
+### Energy
+
+System-scale power: off-grid sizing, conservation. 8 deterministic checks: power balance (gen − cons − losses), battery sizing (Ah from kWh × days / V·DoD), solar daily yield (panel × PSH × η), wire voltage drop (DC round-trip), kWh ↔ Wh, efficiency (η ≤ 1 unless heat pump COP), runtime (battery_Wh / load_W), peak load vs inverter rating.
+
+Per the kingdom-economy substrate doctrine: those refusing the mark may need off-grid power; this verifier turns napkin arithmetic into deterministic verification.
+
+```json
+"ENERGY_VERIFY": {
+  "panel_W": 400, "peak_sun_hours": 5.0,
+  "system_efficiency": 0.85, "claimed_daily_kwh": 1.7,
+  "daily_load_kwh": 5.0, "days_autonomy": 2,
+  "depth_of_discharge": 0.5, "system_voltage_V": 24,
+  "claimed_battery_Ah": 833.3,
+  "battery_wh": 1200, "load_W": 100, "claimed_runtime_hours": 12,
+  "peak_load_W": 2400, "inverter_continuous_W": 3000
 }
 ```
 
