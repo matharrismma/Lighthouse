@@ -523,11 +523,10 @@ def identity():
     up front so callers (human and AI) know.
     """
     if not _ENGINE_AVAILABLE:
-        # Even if the engine pipeline isn't loaded, the doctrine is.
         return {
             "serves": "Jesus Christ",
             "statement": (
-                "Concordance / Lighthouse / Narrow Highway serves Jesus Christ. "
+                "The Concordance Engine at narrowhighway.com serves Jesus Christ. "
                 "Engine pipeline not loaded — this is the bare identity surface."
             ),
             "engine_loaded": False,
@@ -2153,3 +2152,11 @@ def keeping_log(
         "count": len(observations),
         "observations": [o.to_dict() for o in observations],
     }
+
+
+# -- Static site (must be last — catches all unmatched paths) ------------
+# Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
+# API routes registered above take priority; this handles everything else.
+_SITE_DIR = Path(__file__).parent.parent / "site"
+if _SITE_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(_SITE_DIR), html=True), name="site")
