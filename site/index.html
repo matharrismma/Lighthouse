@@ -987,14 +987,138 @@
       background: var(--bg); padding: 1px 4px; border-radius: 3px;
       font-family: 'JetBrains Mono', monospace; font-size: 11px;
     }
+
+    /* ── Door sign ─────────────────────────────────────────────────── */
+    #doorSign {
+      position: fixed; inset: 0; z-index: 9000;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      transition: opacity 0.3s;
+    }
+    #doorSign.hidden { display: none; }
+
+    .door-inner {
+      max-width: 420px; width: 100%;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+
+    .door-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; letter-spacing: 0.06em;
+      color: var(--accent); text-transform: uppercase;
+    }
+
+    .door-tagline {
+      font-size: 14px; color: var(--muted); line-height: 1.7;
+    }
+
+    .door-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border);
+    }
+    .door-tab {
+      background: none; border: none; cursor: pointer;
+      font-size: 13px; padding: 6px 14px 8px;
+      color: var(--muted); border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: color 0.15s, border-color 0.15s;
+    }
+    .door-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    .door-form { display: flex; flex-direction: column; gap: 10px; }
+    .door-form.hidden { display: none; }
+    .door-form input {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 12px;
+      color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif;
+      outline: none; transition: border-color 0.15s;
+    }
+    .door-form input:focus { border-color: var(--accent); }
+    .door-form button {
+      background: var(--accent); color: #161318;
+      border: none; border-radius: 6px; padding: 10px 20px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      align-self: flex-start;
+      transition: opacity 0.15s;
+    }
+    .door-form button:hover { opacity: 0.88; }
+
+    .door-error { color: var(--reject); font-size: 13px; min-height: 1.2em; }
+    .door-success { color: var(--pass); font-size: 13px; }
+
+    .door-request-link {
+      font-size: 12px; color: var(--muted);
+      text-decoration: none; cursor: pointer;
+      align-self: flex-start;
+    }
+    .door-request-link:hover { color: var(--text); }
+
+    .door-request { display: flex; flex-direction: column; gap: 8px; }
+    .door-request.hidden { display: none; }
+    .door-request p { font-size: 13px; color: var(--muted); }
+    .door-request textarea, .door-request input {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 12px;
+      color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif;
+      outline: none; resize: vertical;
+    }
+    .door-request button {
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 16px; font-size: 13px; cursor: pointer;
+      align-self: flex-start;
+    }
   </style>
 </head>
 <body class="path-mode">
+
+<!-- ── DOOR SIGN (shown to unauthenticated visitors) ─────────────── -->
+<div id="doorSign">
+  <div class="door-inner">
+    <div>
+      <div class="door-name">Concordance Engine &nbsp;·&nbsp; narrowhighway.com</div>
+    </div>
+    <p class="door-tagline">
+      A keeping engine for questions that matter. Classifies what you carry,
+      returns a Scripture-anchored path, and records decisions that need to hold.
+      Four gates. 37 domain verifiers. Permanent ledger.
+    </p>
+    <div class="door-tabs">
+      <button class="door-tab active" id="tabPassphrase">Passphrase</button>
+      <button class="door-tab" id="tabInvite">Invite code</button>
+    </div>
+    <div id="formPassphrase" class="door-form">
+      <input type="password" id="passphraseInput" placeholder="enter passphrase"
+             autocomplete="current-password">
+      <button id="enterBtn">Enter</button>
+      <div class="door-error" id="authError"></div>
+    </div>
+    <div id="formInvite" class="door-form hidden">
+      <input type="text" id="inviteInput" placeholder="invite code"
+             autocomplete="off" spellcheck="false">
+      <button id="redeemBtn">Redeem</button>
+      <div class="door-error" id="inviteError"></div>
+    </div>
+    <a href="#" class="door-request-link" id="requestAccessLink">
+      I don't have access — request it
+    </a>
+    <div id="requestForm" class="door-request hidden">
+      <p>Tell us what you're carrying and how you found this.</p>
+      <textarea id="requestText" rows="3"
+        placeholder="what are you carrying?"></textarea>
+      <input type="text" id="requestContact"
+        placeholder="how to reach you (optional)">
+      <button id="requestSubmitBtn">Send request</button>
+      <div class="door-error" id="requestError"></div>
+      <div class="door-success hidden" id="requestSuccess">Received.</div>
+    </div>
+  </div>
+</div>
+
 <div class="hud">
 
   <!-- ── TOP BAR ─────────────────────────────────────────────────── -->
   <header class="hud-topbar">
-    <span class="wordmark">narrow highway</span>
+    <span class="wordmark">Concordance Engine</span>
     <div class="mode-toggle" role="tablist" aria-label="Mode">
       <button class="mode-btn"        id="modeWrite"  role="tab" aria-selected="false">Write</button>
       <button class="mode-btn"        id="modeVerify" role="tab" aria-selected="false">Verify</button>
@@ -1160,6 +1284,114 @@
     }
     return '';
   })();
+
+  // ── Auth / door sign ────────────────────────────────────────────────
+  const CE_TOKEN_KEY = 'ce_token';
+  const doorSign = document.getElementById('doorSign');
+
+  function doorHide() { doorSign.classList.add('hidden'); }
+  function doorShow() { doorSign.classList.remove('hidden'); }
+
+  async function authCheck() {
+    const token = localStorage.getItem(CE_TOKEN_KEY);
+    if (!token) { doorShow(); return; }
+    try {
+      const r = await fetch(API + '/auth/verify', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (r.ok) { doorHide(); } else { localStorage.removeItem(CE_TOKEN_KEY); doorShow(); }
+    } catch { doorHide(); } // network error → assume local dev, let through
+  }
+
+  async function doLogin(passphrase) {
+    document.getElementById('authError').textContent = '';
+    try {
+      const r = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passphrase })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        localStorage.setItem(CE_TOKEN_KEY, d.token);
+        doorHide();
+      } else {
+        document.getElementById('authError').textContent = 'Passphrase not recognized.';
+      }
+    } catch {
+      document.getElementById('authError').textContent = 'Could not reach server.';
+    }
+  }
+
+  async function doRedeem(code) {
+    document.getElementById('inviteError').textContent = '';
+    try {
+      const r = await fetch(API + '/auth/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code.trim() })
+      });
+      if (r.ok) {
+        const d = await r.json();
+        localStorage.setItem(CE_TOKEN_KEY, d.token);
+        doorHide();
+      } else {
+        document.getElementById('inviteError').textContent = 'Code not recognized or already used.';
+      }
+    } catch {
+      document.getElementById('inviteError').textContent = 'Could not reach server.';
+    }
+  }
+
+  async function doAccessRequest() {
+    const text = document.getElementById('requestText').value.trim();
+    const contact = document.getElementById('requestContact').value.trim();
+    if (!text) return;
+    document.getElementById('requestError').textContent = '';
+    try {
+      await fetch(API + '/auth/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, contact })
+      });
+      document.getElementById('requestSuccess').classList.remove('hidden');
+      document.getElementById('requestSubmitBtn').disabled = true;
+    } catch {
+      document.getElementById('requestError').textContent = 'Could not send request.';
+    }
+  }
+
+  // Door sign wiring
+  document.getElementById('tabPassphrase').addEventListener('click', () => {
+    document.getElementById('tabPassphrase').classList.add('active');
+    document.getElementById('tabInvite').classList.remove('active');
+    document.getElementById('formPassphrase').classList.remove('hidden');
+    document.getElementById('formInvite').classList.add('hidden');
+  });
+  document.getElementById('tabInvite').addEventListener('click', () => {
+    document.getElementById('tabInvite').classList.add('active');
+    document.getElementById('tabPassphrase').classList.remove('active');
+    document.getElementById('formInvite').classList.remove('hidden');
+    document.getElementById('formPassphrase').classList.add('hidden');
+  });
+  document.getElementById('enterBtn').addEventListener('click', () =>
+    doLogin(document.getElementById('passphraseInput').value));
+  document.getElementById('passphraseInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin(e.target.value);
+  });
+  document.getElementById('redeemBtn').addEventListener('click', () =>
+    doRedeem(document.getElementById('inviteInput').value));
+  document.getElementById('inviteInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doRedeem(e.target.value);
+  });
+  document.getElementById('requestAccessLink').addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('requestForm').classList.toggle('hidden');
+  });
+  document.getElementById('requestSubmitBtn').addEventListener('click', doAccessRequest);
+
+  authCheck();
+  // ── End auth ────────────────────────────────────────────────────────
 
   const historyEl  = document.getElementById('history');
   const emptyEl    = document.getElementById('emptyState');

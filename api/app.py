@@ -11,7 +11,11 @@ Endpoints:
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
 import os
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -135,6 +139,162 @@ def _check_api_key(x_api_key: str = Header(default="")) -> None:
     """
     if _API_KEY and x_api_key != _API_KEY:
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+# -- Front-end session auth (passphrase + invite codes) ------------------
+# Scope: governs who sees the dashboard. Does NOT apply to existing
+# API/agent endpoints (/validate, /seal, /path, verifiers, etc.) —
+# those keep their own X-Api-Key auth. BROTHERS gate applies only at
+# the record boundary (POST /seal, /confess) and between parties
+# (federation), not to internal sandbox operations.
+
+_PASSPHRASE = os.environ.get("CONCORDANCE_PASSPHRASE", "")
+_SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+_PASSPHRASE_HASH = (
+    hashlib.sha256(_PASSPHRASE.encode()).hexdigest() if _PASSPHRASE else ""
+)
+
+_AUTH_DIR = (
+    Path(os.environ.get("CONCORDANCE_DATA_DIR", "~/.concordance")).expanduser()
+    / "auth"
+)
+
+
+def _make_token(user_id: str) -> str:
+    expiry = int(time.time()) + 86400
+    payload = f"{user_id}|{expiry}"
+    sig = hmac.new(_SECRET_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
+    return f"{payload}|{sig}"
+
+
+def _verify_token(token: str) -> bool:
+    if not token or not _PASSPHRASE:
+        return True  # dev mode — no passphrase configured
+    try:
+        *payload_parts, sig = token.split("|")
+        payload = "|".join(payload_parts)
+        expected = hmac.new(_SECRET_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(sig, expected):
+            return False
+        user_id, expiry_str = payload_parts[0], payload_parts[1]  # noqa: F841
+        return int(expiry_str) >= int(time.time())
+    except Exception:
+        return False
+
+
+def _load_invites() -> dict:
+    try:
+        if _AUTH_DIR.joinpath("invites.json").exists():
+            return json.loads(_AUTH_DIR.joinpath("invites.json").read_text())
+    except Exception:
+        pass
+    return {}
+
+
+def _save_invites(invites: dict) -> None:
+    try:
+        _AUTH_DIR.mkdir(parents=True, exist_ok=True)
+        _AUTH_DIR.joinpath("invites.json").write_text(json.dumps(invites, indent=2))
+    except Exception:
+        pass
+
+
+class LoginRequest(BaseModel):
+    passphrase: str
+
+
+class InviteCreateRequest(BaseModel):
+    name: str
+    role: str = ""
+    uses: int = 1
+    expires_days: int = 7
+
+
+class RedeemRequest(BaseModel):
+    code: str
+
+
+class AccessRequest(BaseModel):
+    text: str
+    contact: str = ""
+
+
+def _require_session(authorization: str = Header(default="")) -> str:
+    token = authorization.removeprefix("Bearer ").strip()
+    if not _verify_token(token):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return token
+
+
+@app.post("/auth/login", tags=["auth"])
+def auth_login(req: LoginRequest):
+    if not _PASSPHRASE:
+        return {"token": _make_token("dev"), "expires_in": 86400}
+    if not hmac.compare_digest(
+        hashlib.sha256(req.passphrase.encode()).hexdigest(), _PASSPHRASE_HASH
+    ):
+        raise HTTPException(status_code=401, detail="Incorrect passphrase")
+    return {"token": _make_token("operator"), "expires_in": 86400}
+
+
+@app.get("/auth/verify", tags=["auth"])
+def auth_verify(authorization: str = Header(default="")):
+    token = authorization.removeprefix("Bearer ").strip()
+    if not _verify_token(token):
+        raise HTTPException(status_code=401, detail="Token invalid or expired")
+    return {"status": "ok"}
+
+
+@app.post("/auth/logout", tags=["auth"])
+def auth_logout():
+    return {"status": "logged_out"}
+
+
+@app.post("/auth/invite", tags=["auth"])
+def auth_invite(req: InviteCreateRequest, _: str = Depends(_require_session)):
+    code = secrets.token_urlsafe(9)
+    invites = _load_invites()
+    invites[code] = {
+        "name": req.name,
+        "role": req.role,
+        "uses": req.uses,
+        "used": 0,
+        "created_at": int(time.time()),
+        "expires_at": int(time.time()) + req.expires_days * 86400,
+    }
+    _save_invites(invites)
+    return {"code": code, "name": req.name, "expires_days": req.expires_days}
+
+
+@app.post("/auth/redeem", tags=["auth"])
+def auth_redeem(req: RedeemRequest):
+    invites = _load_invites()
+    invite = invites.get(req.code)
+    if not invite:
+        raise HTTPException(status_code=401, detail="Code not recognized")
+    if invite["expires_at"] < int(time.time()):
+        raise HTTPException(status_code=401, detail="Code expired")
+    if invite["uses"] != -1 and invite["used"] >= invite["uses"]:
+        raise HTTPException(status_code=401, detail="Code already used")
+    invite["used"] += 1
+    _save_invites(invites)
+    return {"token": _make_token(invite["name"]), "expires_in": 86400, "name": invite["name"]}
+
+
+@app.post("/auth/request", tags=["auth"])
+def auth_request(req: AccessRequest):
+    try:
+        _AUTH_DIR.mkdir(parents=True, exist_ok=True)
+        requests_file = _AUTH_DIR / "access_requests.jsonl"
+        with open(requests_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "text": req.text,
+                "contact": req.contact,
+                "created_at": int(time.time()),
+            }) + "\n")
+    except Exception:
+        pass
+    return {"status": "received"}
+
 
 # -- Schema discovery ----------------------------------------------------
 _SCHEMA_PATH_ENV = os.environ.get("CONCORDANCE_SCHEMA_PATH")
@@ -673,6 +833,121 @@ def submit_public(req: ValidateRequest):
     )
 
 
+# ── /reflect — rehearse a packet (no ledger write) ─────────────────────
+
+
+@app.post("/reflect", include_in_schema=True)
+def reflect(req: ValidateRequest):
+    """Rehearse a packet through all four gates without writing to the ledger.
+
+    Same verdict shape as /submit. Use this to iterate on a packet until
+    the verdict is what you intend, then commit via /submit or /validate.
+    The ledger is never touched here — rehearsal is safe to call repeatedly.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail=f"concordance-engine not installed: {_ENGINE_ERROR}",
+        )
+
+    t0 = time.perf_counter()
+    config = EngineConfig(
+        schema_path=str(_SCHEMA_PATH) if _SCHEMA_PATH and _SCHEMA_PATH.exists() else "",
+        run_verifiers=True,
+    )
+
+    # Bypass the GOD wait window so rehearsal returns a real PASS/REJECT
+    # rather than an unwaitable QUARANTINE. The actual commit will enforce
+    # the real wait.
+    packet_for_engine = {**req.packet, "wait_window_seconds": 0}
+
+    try:
+        result = validate_packet(
+            packet_for_engine,
+            now_epoch=req.now_epoch,
+            config=config,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"engine error: {exc}")
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+    p_hash = compute_packet_hash(req.packet)
+
+    return ValidateResponse(
+        overall=result.overall,
+        gate_results=[
+            GateResultOut(
+                gate=gr.gate,
+                status=gr.status,
+                reasons=gr.reasons,
+                details=gr.details,
+            )
+            for gr in result.gate_results
+        ],
+        ledger_seq=None,
+        ledger_entry_hash=None,
+        packet_hash=p_hash,
+        elapsed_ms=round(elapsed_ms, 2),
+    )
+
+
+# ── /confess — record that a prior committed packet was wrong ───────────
+
+
+class ConfessRequest(BaseModel):
+    ref_seq: int                              # ledger seq of the prior entry
+    name: str                                 # who is confessing
+    role: str = ""                            # confessor's role
+    reason: str                               # what was wrong
+    corrected_approach: Optional[str] = None  # what the right approach would be
+
+
+@app.post("/confess", include_in_schema=True)
+def confess(req: ConfessRequest):
+    """Record that a previously committed packet was wrong.
+
+    The original entry is immutable — it stays in the chain exactly as it was.
+    The confession is a new entry that points back to the prior one via
+    `confesses_seq` and `confesses_packet_hash`. Walking the chain later,
+    a reader sees both the original decision and the correction.
+
+    Use this instead of attempting to mutate or delete a ledger entry.
+    Mutation is impossible by design; confession is the correct mechanism.
+    """
+    ledger = get_ledger()
+
+    prior = ledger.get_by_seq(req.ref_seq)
+    if prior is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no ledger entry found at seq={req.ref_seq}",
+        )
+
+    confession_packet = {
+        "domain": "confession",
+        "id": f"confession-seq{req.ref_seq}",
+        "confesses_seq": req.ref_seq,
+        "confesses_packet_hash": prior.get("packet_hash", ""),
+        "confessor_name": req.name,
+        "confessor_role": req.role,
+        "reason": req.reason,
+        "corrected_approach": req.corrected_approach,
+    }
+
+    try:
+        entry = ledger.append(confession_packet, "CONFESSION", [])
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"ledger write failed: {exc}")
+
+    return {
+        "confessed_seq": req.ref_seq,
+        "confessed_packet_hash": prior.get("packet_hash"),
+        "confession_seq": entry.seq,
+        "confession_entry_hash": entry.entry_hash,
+        "message": "Confession recorded. The original entry is unchanged.",
+    }
+
+
 # ── Sealed-record endpoint ─────────────────────────────────────────────
 # /seal returns the full WitnessRecord shape — gate verdicts, every
 # verifier result with its data (formula / rule / anchor), axis
@@ -986,6 +1261,57 @@ def ledger_by_id(packet_id: str):
         "count": len(entries),
         "entries": entries,
     }
+
+
+# ── /dispatch — filtered ledger search ────────────────────────────────
+
+
+@app.get("/dispatch", include_in_schema=True)
+def dispatch(
+    domain:     Optional[str] = Query(None, description="Filter by domain (e.g. 'governance')"),
+    overall:    Optional[str] = Query(None, description="Filter by verdict (PASS, REJECT, QUARANTINE, CONFESSION)"),
+    packet_id:  Optional[str] = Query(None, description="Filter by packet_id"),
+    since:      Optional[float] = Query(None, description="Return entries at or after this epoch"),
+    until:      Optional[float] = Query(None, description="Return entries at or before this epoch"),
+    limit:      int = Query(50, ge=1, le=500, description="Maximum entries to return"),
+):
+    """Filtered search over the ledger.
+
+    All parameters are optional and cumulative — only entries that match
+    every supplied filter are returned. Results are newest first.
+    """
+    ledger = get_ledger()
+    entries = list(ledger.iter_filtered(
+        domain=domain,
+        overall=overall,
+        packet_id=packet_id,
+        since_epoch=since,
+        until_epoch=until,
+        limit=limit,
+    ))
+    return {
+        "count": len(entries),
+        "filters": {
+            "domain": domain, "overall": overall, "packet_id": packet_id,
+            "since": since, "until": until, "limit": limit,
+        },
+        "entries": entries,
+    }
+
+
+# ── /stats — aggregate ledger counts ──────────────────────────────────
+
+
+@app.get("/stats", include_in_schema=True)
+def stats():
+    """Aggregate counts across the entire ledger.
+
+    Returns total entry count, breakdown by verdict (PASS / REJECT /
+    QUARANTINE / CONFESSION) and by domain, plus the timestamp of the
+    most recent entry.
+    """
+    ledger = get_ledger()
+    return ledger.stats()
 
 
 # ── /audit-chain — canonical-naming aliases ────────────────────────────

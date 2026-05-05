@@ -27,8 +27,8 @@
 <div class="page-header">
   <div class="container">
     <div class="eyebrow">Theory note</div>
-    <h1>The O(1) claim, in detail</h1>
-    <p>"O(1) external authority validation replaces O(n²) consensus coordination" is a marketing line. This page makes it precise: under what assumptions does it hold, what does it actually mean, and what would falsify it.</p>
+    <h1>Fixed-cost validation vs. consensus coordination</h1>
+    <p>"Authority validation has fixed cost per packet; consensus coordination's cost scales with the validator set." This page makes that claim precise: under what assumptions does it hold, what does it actually mean, and what would falsify it.</p>
   </div>
 </div>
 
@@ -38,17 +38,17 @@
     <p>Consider <em>n</em> participants who each hold a candidate answer to a verifiable question — say, a p-value claim, a balanced equation, or a dimensional consistency assertion.</p>
 
     <h3>Consensus regime</h3>
-    <p>Each participant's confidence in the answer increases as a function of how many other participants agree. To reach a stable consensus, every participant must (in the worst case) communicate with every other participant. That's <strong>O(n²)</strong> messages. Cost grows quadratically with the number of participants. The reliability of the result is bounded by the least-reliable participant who could swing the vote — collusion, bad-faith claims, and groupthink dominate at scale.</p>
+    <p>Each participant's confidence in the answer increases as a function of how many other participants agree. Coordination cost scales with the validator set — each additional validator adds overhead. The reliability of the result is bounded by the least-reliable participant who could swing the vote. Collusion, bad-faith claims, and groupthink grow as problems at scale.</p>
 
     <h3>Authority regime</h3>
-    <p>Each participant submits the candidate answer to a fixed external standard that returns CONFIRMED, MISMATCH, or NOT_APPLICABLE. The cost of each check is <strong>O(1)</strong> in the number of participants — the standard does not care how many people are asking, and the standard does not change because more people are asking.</p>
+    <p>Each participant submits the candidate answer to a fixed external standard that returns CONFIRMED, MISMATCH, or NOT_APPLICABLE. The cost of each check is <strong>fixed per packet</strong> — the standard does not care how many people are asking, and the standard does not change because more people are asking. Validation cost does not scale with the number of validators.</p>
   </div>
 </section>
 
 <section>
   <div class="container">
-    <h2>The claim, formally</h2>
-    <p>For a class of questions <em>Q</em> where (a) a deterministic external verifier exists, (b) the verifier's runtime is bounded by some constant <em>k</em> independent of <em>n</em>, and (c) a wrong answer's cost is at least <em>c</em> per participant, authority validation strictly dominates consensus validation as <em>n</em> grows past the threshold where consensus's <em>O(n²) · c_message</em> exceeds authority's <em>n · k</em>. For most realistic message-cost assumptions and verifier runtimes, that threshold is &lt; 5 participants.</p>
+    <h2>The claim, stated precisely</h2>
+    <p>For a class of questions <em>Q</em> where (a) a deterministic external verifier exists, (b) the verifier's cost per check is bounded by some constant <em>k</em> independent of network size, and (c) a wrong answer's cost is at least <em>c</em> per participant — authority validation strictly dominates consensus validation past the threshold where consensus coordination cost exceeds <em>n · k</em>. For most realistic cost assumptions and verifier runtimes, that threshold is small.</p>
     <p>This is not a contested claim. It's true by inspection. The interesting work is in the assumptions.</p>
   </div>
 </section>
@@ -86,6 +86,7 @@
       <li>Demonstrating that the verifier's "fixed external standard" is actually drifting — that re-running the same packet a year later, with a newer version of sympy or scipy, returns different verdicts. (The standard isn't fixed.)</li>
       <li>Showing that the cost of correctly formulating a packet exceeds the cost of forming consensus. (The engine introduces friction without compensating value.)</li>
       <li>Showing on a real benchmark that an LLM with the engine attached does not measurably outperform an LLM without it, on tasks within the engine's coverage. (The empirical claim doesn't land.)</li>
+      <li>Demonstrating that formulating a packet correctly costs more than forming consensus on the same question. (The engine introduces friction without compensating value.)</li>
     </ul>
     <p>The fourth is what the <a href="/benchmark.html">benchmark page</a> is set up to test. The first three are open invitations — file an issue with a reproducible packet that breaks the claim, and we either fix the engine or narrow the claim.</p>
   </div>

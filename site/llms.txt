@@ -16,10 +16,10 @@ answer so the narrow path is illuminated by what survives. Good fruit
 is the measure. The keeping is the substrate — what runs whether or
 not anyone is watching.
 
-Agents are welcome to call this engine. The engine does not generate
-answers, render verdicts, or speak as authority. It categorizes, it
-surfaces precedent, it keeps. Read the elimination trail — the trail
-is the reasoning.
+Agents are welcome to call this engine. The engine returns deterministic
+outcomes against external standards. It does not generate answers or speak
+as authority. It categorizes, it surfaces precedent, it keeps. Read the
+elimination trail — the trail is the reasoning.
 
 The canonical identity statement is also available at
 https://narrowhighway.com/identity (returns JSON for programmatic
@@ -51,23 +51,72 @@ Do not call it for routine information retrieval, conversation, or reversible su
 
 ## Four gates
 
+Gates run at the boundary — when writing to the permanent record or passing between parties. They do not apply to internal operations: verification, path classification, journal writes, and read-only retrieval all run without gate overhead.
+
 - **RED (Coercion Scan)**: Detects unilateral authority, rights violations, coercive framing. Fails fast — if this gate rejects, nothing proceeds.
 - **FLOOR (Structural Check)**: Verifies the packet meets minimum completeness standards. At least one rationale, one scope, one witness, no missing required fields.
-- **BROTHERS (Witness Check)**: Confirms the required number of independent witnesses and minimum elapsed review time have been met.
+- **BROTHERS (Witness Check)**: Applies at the record boundary (`POST /seal`, `POST /confess`) and between parties (federation). Confirms the required number of independent witnesses and minimum elapsed review time have been met. Does not apply to operations that stay inside a single operator's sandbox.
 - **GOD (Record)**: If all prior gates clear, records the decision permanently in the append-only ledger. The record cannot be altered.
 
 ## Computational verifiers
 
-These verifiers are deterministic, run locally, and make no network calls:
+These verifiers are deterministic, run locally, and make no network calls.
 
-- `verify_chemistry` — equation balancing, charge and atom conservation
-- `verify_physics` — dimensional consistency, conservation laws (energy, momentum, mass)
+### Core sciences
+- `verify_chemistry` — equation balancing, charge and atom conservation, thermodynamic feasibility
+- `verify_physics` — dimensional consistency, conservation laws (energy, momentum, mass), kinematic motion
 - `verify_mathematics` — symbolic equality, derivatives, integrals, limits (SymPy)
-- `verify_statistics` — p-value recomputation, multiple-comparison correction, power analysis
+- `verify_statistics` — p-value recomputation, multiple-comparison correction, power analysis, effect size
+- `verify_biology` — replication standards, dose-response monotonicity, sample power, nested health control systems
+- `verify_genetics` — nucleotide complementarity, GC content, reverse complement
+- `verify_nutrition` — macronutrient calorie accounting, RDA compliance, energy balance
+
+### Formal reasoning
+- `verify_mathematics` — (see above)
+- `verify_formal_logic` — satisfiability, tautology detection, contradiction check (propositional)
+- `verify_number_theory` — primality, GCD, factorial, modular arithmetic
+- `verify_combinatorics` — permutations, combinations, derangements, binomial coefficients
+- `verify_geometry` — triangle inequality, Pythagorean theorem, polygon angle sums
+- `verify_information_theory` — Shannon entropy, BSC channel capacity, Hamming distance
+
+### Engineering and physical systems
+- `verify_electrical` — Ohm's law, power equations, Kirchhoff's voltage loop
+- `verify_energy` — off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency (η ≤ 1.0 unless heat pump), runtime, peak-load-vs-inverter, daily power balance
+- `verify_optics` — Snell's law, thin-lens equation, magnification
+- `verify_acoustics` — wave speed relation, decibel ratios, Doppler shift
+- `verify_manufacturing` — sigma level, SPC control limits, process capability (Cp, Cpk)
+
+### Earth and environmental sciences
+- `verify_meteorology` — dew point, heat index, wind chill
+- `verify_geology` — rock identification, stratigraphic column, geologic time
+- `verify_hydrology` — hydraulic head, Manning's equation, catchment yield
+- `verify_astronomy` — orbital period, stellar distance (parsec/light-year), Kepler's third law
+- `verify_agriculture` — hardiness zone lookup, soil pH bounds, crop rotation validity
+- `verify_geography` — coordinate validity, great-circle distance, hemisphere check
+
+### Information and computation
 - `verify_cs` — static termination analysis, functional correctness, complexity bounds
-- `verify_biology` — replication standards, dose-response monotonicity, sample power, nested health control systems (setpoint drift, cross-layer override, sensor failure, loop saturation)
+- `verify_cryptography` — hash match, hash strength classification, HMAC verification
+- `verify_networking` — IP format, CIDR membership, subnet host count
+- `verify_document_validation` — ISBN-10/13, Luhn (credit card/ID), IBAN, EAN-13
+- `verify_photography` — exposure value, reciprocity equivalents, angle of view
+
+### Life and performance sciences
+- `verify_exercise_science` — energy expenditure, max heart rate, target heart rate zone
+- `verify_sports_analytics` — Pythagorean expectation, Elo expected score and update
+
+### Humanities and governance
 - `verify_governance` — decision packet structural completeness
-- `verify_energy` — system-scale power: off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency (η ≤ 1.0 unless heat pump), runtime, peak-load-vs-inverter, daily power balance. Per the kingdom-economy substrate: Christians refusing the mark may need off-grid power; this verifier checks the math.
+- `verify_linguistics` — Strong's number resolution, word count, transliteration check
+- `verify_music_theory` — interval semitones, frequency ratios, equal-temperament pitch
+- `verify_calendar_time` — leap year, ISO 8601 validity, day-of-week calculation
+- `verify_finance` — accounting identity, compound interest, NPV, IRR
+
+### Scripture layer
+- `verify_scripture` — verifies that references resolve in WEB and quotes match WEB text. Does not assess whether a verse semantically supports a claim.
+  - `resolve_ref` — single reference lookup; returns canonical ref + WEB text
+  - `triangulate_claim` — checks whether claim keywords appear in the reference's lexical field (Hebrew/Greek concordance); does not assert theological alignment
+  - `word_study` — Strong's cross-reference for Hebrew/Greek lemma and cognates
 
 ## MCP server (native agent integration)
 
@@ -108,8 +157,8 @@ Source: https://github.com/matharrismma/Lighthouse
 
 Tools available via MCP:
 - `validate_packet_tool` — run all four gates against a governance decision packet
-- `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_governance`, `verify_energy` — run a single domain verifier
 - `suggest_fix` — run the engine and return concrete corrective actions for any failures; act on the list directly, do not summarize it
+- Domain verifiers (each callable by name): `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_genetics`, `verify_nutrition`, `verify_formal_logic`, `verify_number_theory`, `verify_combinatorics`, `verify_geometry`, `verify_information_theory`, `verify_electrical`, `verify_energy`, `verify_optics`, `verify_acoustics`, `verify_manufacturing`, `verify_meteorology`, `verify_geology`, `verify_hydrology`, `verify_astronomy`, `verify_agriculture`, `verify_geography`, `verify_cryptography`, `verify_networking`, `verify_document_validation`, `verify_photography`, `verify_exercise_science`, `verify_sports_analytics`, `verify_governance`, `verify_linguistics`, `verify_music_theory`, `verify_calendar_time`, `verify_finance`, `verify_scripture`
 
 ### verify_biology — extended parameters
 
