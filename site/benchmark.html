@@ -34,8 +34,25 @@
 
 <section>
   <div class="container">
-    <div class="callout warn">
-      <p><strong>Numbers pending.</strong> The benchmark infrastructure is shipped (<a href="https://github.com/matharrismma/Lighthouse/tree/main/eval/benchmark">eval/benchmark/</a>), and the items + runner are reproducible. The scored head-to-head against Claude Haiku 4.5 will publish here as soon as the numbers are in. Until then, the page below describes what the benchmark measures and why it's the right shape.</p>
+    <div class="callout note">
+      <p><strong>Results in — Claude Haiku 4.5, 37 items.</strong></p>
+      <table style="width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:14px;">
+        <thead>
+          <tr style="color:var(--muted); text-align:left;">
+            <th style="padding:4px 12px 4px 0;">Domain</th>
+            <th style="padding:4px 12px;">Alone</th>
+            <th style="padding:4px 12px;">With tools</th>
+            <th style="padding:4px 0;">Delta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:4px 12px 4px 0;">Chemistry (17)</td><td style="padding:4px 12px;">94%</td><td style="padding:4px 12px; font-weight:600;">100%</td><td style="padding:4px 0; color:var(--pass);">+6%</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;">Physics (10)</td><td style="padding:4px 12px;">100%</td><td style="padding:4px 12px; font-weight:600;">100%</td><td style="padding:4px 0; color:var(--muted);">—</td></tr>
+          <tr style="border-top:1px solid var(--border);"><td style="padding:8px 12px 4px 0;"><strong>Statistics (10)</strong></td><td style="padding:8px 12px 4px; color:var(--reject);">0%</td><td style="padding:8px 12px 4px; font-weight:600; color:var(--pass);">100%</td><td style="padding:8px 0 4px; color:var(--pass); font-weight:600;">+100%</td></tr>
+          <tr style="border-top:1px solid var(--border);"><td style="padding:8px 12px 4px 0;"><strong>Total (37)</strong></td><td style="padding:8px 12px 4px;">70%</td><td style="padding:8px 12px 4px; font-weight:600;">100%</td><td style="padding:8px 0 4px; color:var(--pass); font-weight:600;">+30%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem; margin-bottom:0;">The statistics result is the headline: Claude Haiku 4.5 scores 0% on p-value arithmetic from raw inputs without tools; 100% with <code>verify_statistics</code>. The engine earns its keep. Reproduce: <code>python eval/benchmark/adapter_anthropic.py</code></p>
     </div>
   </div>
 </section>
