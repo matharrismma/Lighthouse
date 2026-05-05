@@ -165,6 +165,34 @@ Pass a `bio_control` dict to verify nested health control system claims:
 
 Base URL: https://narrowhighway.com
 
+### Standalone model — classify, retrieve, compose
+```
+POST /path              — classify what you are carrying; return a Scripture-anchored path
+POST /speak             — proxy ElevenLabs TTS; returns audio/mpeg (requires ELEVENLABS_API_KEY)
+```
+
+`POST /path` body: `{"text": "<your submission>"}`. Returns a PathResult:
+
+```json
+{
+  "question_type": "WISDOM | DOCTRINE | DECISION | RELATIONAL | RESOURCE | TIMING | FORMATION | CRISIS | HISTORICAL",
+  "confidence": 0.0,
+  "gate_verdicts": {},
+  "scripture_anchor": {"primary": "Proverbs 2:6", "text": "...", "supporting": []},
+  "personal_context": {"relevant_packets": 0, "pattern": null, "precedent": null},
+  "path": "≤3 sentences pointing back to the text",
+  "next_step": "one thing — singular",
+  "timing": "WAIT | HOLD | MOVE | UNCLEAR",
+  "life_safety": false,
+  "needs_clarification": false,
+  "clarification_prompt": null
+}
+```
+
+The path is not an answer. It shows where to walk and points back to the text.
+If `life_safety` is true, the only output is: bring a human witness now.
+If `needs_clarification` is true, ask the `clarification_prompt` before proceeding.
+
 ### Verification + audit chain (the original engine surface)
 ```
 POST /validate          — four-gate validation (requires X-Api-Key header)

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance</title>
-  <meta name="description" content="A wisdom engine. Four gates. Permanent record. Built for AI agents.">
+  <meta name="description" content="A wisdom engine. Classifies what you are carrying. Returns a Scripture-anchored path. Four gates. Permanent record.">
   <!-- AI agent entry points: /llms.txt · /docs · /ledger · /ledger/verify -->
   <meta name="robots" content="all">
   <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — Concordance tool inventory for AI agents">
@@ -75,8 +75,12 @@
 
     body.verify-mode .hud-left,
     body.verify-mode .hud-right,
-    body.verify-mode .hud-strip { display: none; }
-    body.verify-mode .hud {
+    body.verify-mode .hud-strip,
+    body.path-mode .hud-left,
+    body.path-mode .hud-right,
+    body.path-mode .hud-strip { display: none; }
+    body.verify-mode .hud,
+    body.path-mode .hud {
       grid-template-columns: 1fr;
       grid-template-areas:
         "topbar"
@@ -883,6 +887,83 @@
       font-size: 11px; color: var(--muted);
     }
     .ledger-link code { color: var(--accent); }
+    /* ── PATH MODE result card ──────────────────────────────────── */
+    .path-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin-top: 4px;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .path-card .path-type-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .path-card .path-type-line .timing-badge {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+    }
+    .timing-wait   { background: rgba(217,182,108,0.15); color: var(--quarantine); border: 1px solid rgba(217,182,108,0.3); }
+    .timing-hold   { background: rgba(126,196,136,0.12); color: var(--pass);       border: 1px solid rgba(126,196,136,0.3); }
+    .timing-move   { background: rgba(201,168,124,0.12); color: var(--accent);     border: 1px solid rgba(201,168,124,0.3); }
+    .timing-unclear { background: var(--surface-2); color: var(--muted);           border: 1px solid var(--border); }
+    .path-card .path-anchor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .path-card .path-text {
+      color: var(--text);
+      margin-bottom: 16px;
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .path-card .path-next {
+      background: var(--surface-2);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .path-card .path-next .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .path-card .path-clarify {
+      color: var(--quarantine);
+      font-style: italic;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .path-card .path-life-safety {
+      color: var(--reject);
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid var(--reject);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+    }
+
     .error-bubble { color: var(--reject); font-size: 13px; }
     .error-bubble .templates { margin-top: 10px; color: var(--text); font-size: 12px; }
     .error-bubble .templates code {
@@ -891,15 +972,16 @@
     }
   </style>
 </head>
-<body>
+<body class="path-mode">
 <div class="hud">
 
   <!-- ── TOP BAR ─────────────────────────────────────────────────── -->
   <header class="hud-topbar">
     <span class="wordmark">narrow highway</span>
     <div class="mode-toggle" role="tablist" aria-label="Mode">
-      <button class="mode-btn active" id="modeWrite"  role="tab" aria-selected="true">Write</button>
+      <button class="mode-btn"        id="modeWrite"  role="tab" aria-selected="false">Write</button>
       <button class="mode-btn"        id="modeVerify" role="tab" aria-selected="false">Verify</button>
+      <button class="mode-btn active" id="modePath"   role="tab" aria-selected="true">Path</button>
     </div>
     <span class="topbar-spacer"></span>
     <span class="topbar-item" id="topbarDate" title="Today's date"></span>
@@ -960,7 +1042,7 @@
         </div>
         <div class="pulse-attrib">what the keeping has noticed while you were away</div>
         <div class="pulse-stats" id="pulseStats"></div>
-        <div class="pulse-callout" id="pulseCallout">— the page is open —</div>
+        <div class="pulse-callout" id="pulseCallout">classify → anchor → path</div>
       </div>
     </div>
 
@@ -968,8 +1050,8 @@
     <div id="threadHost"></div>
 
     <div class="input-wrap">
-      <textarea id="input" rows="6" placeholder="write what's on your mind…" autofocus></textarea>
-      <button class="keep" id="sendBtn" disabled title="Keep">Keep</button>
+      <textarea id="input" rows="6" placeholder="what are you carrying right now?" autofocus></textarea>
+      <button class="keep" id="sendBtn" disabled title="Send">Send</button>
     </div>
     <div class="hint">
       <span><kbd>⌘ Enter</kbd> keep · <kbd>Shift+Enter</kbd> new line</span>
@@ -1063,13 +1145,14 @@
   const threadHost = document.getElementById('threadHost');
   const modeWriteBtn  = document.getElementById('modeWrite');
   const modeVerifyBtn = document.getElementById('modeVerify');
+  const modePathBtn   = document.getElementById('modePath');
   const headlineEl    = document.getElementById('emptyHeadline');
   const calloutEl     = document.getElementById('pulseCallout');
 
   // Keep a small client-side cache of recent entries so we can do
   // anchor/person/date threading without server-side filters.
   let RECENT_CACHE = [];
-  let MODE = 'write';
+  let MODE = 'path';
   let RESPONSE_COUNT = 0;  // for compact subsequent responses
 
   const COPY = {
@@ -1080,22 +1163,31 @@
     verify: {
       placeholder: "submit a claim. equation. statistical test. governance decision.",
       callout:     "red → floor → brothers → god"
+    },
+    path: {
+      placeholder: "what are you carrying right now?",
+      callout:     "classify → anchor → path"
     }
   };
 
   function setMode(next) {
     MODE = next;
     document.body.classList.toggle('verify-mode', next === 'verify');
+    document.body.classList.toggle('path-mode',   next === 'path');
     modeWriteBtn.classList.toggle('active',  next === 'write');
     modeVerifyBtn.classList.toggle('active', next === 'verify');
+    modePathBtn.classList.toggle('active',   next === 'path');
     modeWriteBtn.setAttribute('aria-selected',  next === 'write');
     modeVerifyBtn.setAttribute('aria-selected', next === 'verify');
+    modePathBtn.setAttribute('aria-selected',   next === 'path');
     inputEl.placeholder = COPY[next].placeholder;
     if (calloutEl) calloutEl.textContent = COPY[next].callout;
+    sendBtn.textContent = next === 'path' ? 'Send' : 'Keep';
     inputEl.focus();
   }
   modeWriteBtn.addEventListener('click',  () => setMode('write'));
   modeVerifyBtn.addEventListener('click', () => setMode('verify'));
+  modePathBtn.addEventListener('click',   () => setMode('path'));
 
   // ── Date helpers ────────────────────────────────────────────────
   // The topbar carries date + time so the user always knows when they
@@ -1973,7 +2065,7 @@
       e.preventDefault(); document.getElementById('lnkLibrary').click();
     } else if (meta && e.key === '.') {
       e.preventDefault();
-      setMode(MODE === 'write' ? 'verify' : 'write');
+      setMode(MODE === 'write' ? 'verify' : MODE === 'verify' ? 'path' : 'write');
     } else if (e.key === 'Escape' && seekOverlay.classList.contains('open')) {
       closeSeek();
     }
@@ -2004,7 +2096,7 @@
     exchange.innerHTML = '<div class="bubble-user">' + esc(text) + '</div>';
     historyEl.appendChild(exchange);
 
-    const thinkingMsg = MODE === 'write' ? 'listening…' : 'running gates…';
+    const thinkingMsg = MODE === 'write' ? 'listening…' : MODE === 'path' ? 'tracing the path…' : 'running gates…';
     const thinking = document.createElement('div');
     thinking.className = 'thinking';
     thinking.innerHTML = '<div class="dots"><span></span><span></span><span></span></div><span>' + thinkingMsg + '</span>';
@@ -2016,8 +2108,9 @@
     inputEl.disabled = true;
     scrollBottom();
 
-    if (MODE === 'write') submitWrite(text, exchange, thinking);
-    else                  submitVerify(text, exchange, thinking);
+    if (MODE === 'write')   submitWrite(text, exchange, thinking);
+    else if (MODE === 'path') submitPath(text, exchange, thinking);
+    else                    submitVerify(text, exchange, thinking);
   }
 
   function submitWrite(text, exchange, thinking) {
@@ -2054,6 +2147,76 @@
       renderResult(exchange, thinking, body);
     })
     .catch(err => renderError(exchange, thinking, err));
+  }
+
+  function submitPath(text, exchange, thinking) {
+    fetch(API + '/path', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text })
+    })
+    .then(async r => {
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        const detail = body && body.detail ? body.detail : 'request failed: ' + r.status;
+        renderError(exchange, thinking, typeof detail === 'string' ? detail : JSON.stringify(detail));
+        return;
+      }
+      renderPathResult(exchange, thinking, body);
+    })
+    .catch(err => renderError(exchange, thinking, err));
+  }
+
+  function renderPathResult(exchange, thinking, data) {
+    thinking.remove();
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble-engine';
+
+    const timingClass = {
+      WAIT: 'timing-wait', HOLD: 'timing-hold',
+      MOVE: 'timing-move', UNCLEAR: 'timing-unclear'
+    }[data.timing] || 'timing-unclear';
+
+    const anchor = data.scripture_anchor || {};
+    const anchorRef  = anchor.primary || '';
+    const anchorText = anchor.text || '';
+    const supporting = (anchor.supporting || []).join(' · ');
+
+    let html = '<div class="path-card">';
+
+    if (data.life_safety) {
+      html += '<div class="path-life-safety">This is a life-safety situation. Bring a human witness now. Do not wait.</div>';
+    }
+
+    html += '<div class="path-type-line">'
+          + esc((data.question_type || '').toLowerCase())
+          + ' &nbsp;·&nbsp; ' + Math.round((data.confidence || 0) * 100) + '%'
+          + ' <span class="timing-badge ' + timingClass + '">' + esc(data.timing || 'UNCLEAR') + '</span>'
+          + '</div>';
+
+    if (anchorRef && anchorRef !== 'No anchor found') {
+      html += '<div class="path-anchor">' + esc(anchorRef);
+      if (anchorText) html += ' &nbsp;—&nbsp; <span style="color:var(--muted);font-family:\'Crimson Pro\',serif;font-size:12px;">' + esc(anchorText) + '</span>';
+      html += '</div>';
+      if (supporting) html += '<div style="font-size:11px;color:var(--muted);margin-bottom:12px;">' + esc(supporting) + '</div>';
+    }
+
+    if (data.path) {
+      html += '<div class="path-text">' + esc(data.path) + '</div>';
+    }
+
+    if (data.needs_clarification && data.clarification_prompt) {
+      html += '<div class="path-clarify">' + esc(data.clarification_prompt) + '</div>';
+    } else if (data.next_step) {
+      html += '<div class="path-next"><span class="label">next step</span>' + esc(data.next_step) + '</div>';
+    }
+
+    html += '</div>';
+    bubble.innerHTML = html;
+    exchange.appendChild(bubble);
+    inputEl.disabled = false;
+    inputEl.focus();
+    scrollBottom();
   }
 
   function renderWriteResult(exchange, thinking, data) {
