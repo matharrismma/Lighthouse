@@ -79,6 +79,23 @@
     body.path-mode .hud-left,
     body.path-mode .hud-right,
     body.path-mode .hud-strip { display: none; }
+
+    body.path-mode .pulse-heading,
+    body.path-mode .pulse-attrib,
+    body.path-mode .pulse-stats,
+    body.path-mode #panelRecent { display: none; }
+
+    .path-intro {
+      display: none;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 18px;
+      text-align: center;
+      padding: 0 8px;
+    }
+    body.path-mode .path-intro { display: block; }
     body.verify-mode .hud,
     body.path-mode .hud {
       grid-template-columns: 1fr;
@@ -1043,6 +1060,11 @@
         <div class="pulse-attrib">what the keeping has noticed while you were away</div>
         <div class="pulse-stats" id="pulseStats"></div>
         <div class="pulse-callout" id="pulseCallout">classify → anchor → path</div>
+        <div class="path-intro">
+          Tell it what you are carrying.<br>
+          It classifies the question, finds the load-bearing Scripture,<br>
+          and returns a path — not an answer.
+        </div>
       </div>
     </div>
 
@@ -1054,7 +1076,7 @@
       <button class="keep" id="sendBtn" disabled title="Send">Send</button>
     </div>
     <div class="hint">
-      <span><kbd>⌘ Enter</kbd> keep · <kbd>Shift+Enter</kbd> new line</span>
+      <span id="hintAction"><kbd>⌘ Enter</kbd> send · <kbd>Shift+Enter</kbd> new line</span>
       <span><kbd>⌘K</kbd> seek · <kbd>⌘L</kbd> library · <kbd>⌘.</kbd> mode</span>
     </div>
 
@@ -1183,6 +1205,14 @@
     inputEl.placeholder = COPY[next].placeholder;
     if (calloutEl) calloutEl.textContent = COPY[next].callout;
     sendBtn.textContent = next === 'path' ? 'Send' : 'Keep';
+    sendBtn.title       = next === 'path' ? 'Send' : 'Keep';
+    const hintAction = document.getElementById('hintAction');
+    if (hintAction) {
+      hintAction.innerHTML = next === 'path'
+        ? '<kbd>⌘ Enter</kbd> send · <kbd>Shift+Enter</kbd> new line'
+        : '<kbd>⌘ Enter</kbd> keep · <kbd>Shift+Enter</kbd> new line';
+    }
+    if (next === 'path') RESPONSE_COUNT = 0;
     inputEl.focus();
   }
   modeWriteBtn.addEventListener('click',  () => setMode('write'));
