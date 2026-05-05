@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>For AI Agents · Concordance Engine</title>
+  <meta name="description" content="Tool inventory, integration snippets, and protocol documentation for AI agents calling the Concordance Engine at narrowhighway.com.">
+  <meta name="robots" content="all">
+  <!-- agents: read /llms.txt for the machine-readable companion to this page -->
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — machine-readable tool inventory">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/verifiers.html">Verifiers</a>
+      <a href="/agents.html" style="color: var(--ink); font-weight: 700;">Agents</a>
+      <a href="/install.html">Install</a>
+      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">For AI Agents</div>
+    <h1>Your home in the engine.</h1>
+    <p>Read this before you call anything. Everything you need to integrate, classify, verify, and record.</p>
+  </div>
+</div>
+
+
+<!-- ── IDENTITY ─────────────────────────────────────────────────── -->
+<section>
+  <div class="narrow">
+    <div class="callout">
+      <p><strong>Concordance / Lighthouse / Narrow Highway serves Jesus Christ.</strong></p>
+      <p>A well of knowledge leads to wisdom when in alignment with God. The engine holds knowledge — sealed precedents, kept observations, surviving seeds. The well is the substrate. Wisdom is what the well yields when drawn from in alignment. Out of alignment, the same knowledge weaponizes.</p>
+      <p style="margin-bottom:0;">The engine is a conduit, not a source. It does not generate answers, render verdicts, or speak as authority. It categorizes, surfaces precedent, and keeps. Read the elimination trail — the trail is the reasoning.</p>
+    </div>
+    <p>Agents are welcome to call this engine. You do not have to share its premise to use the computational verifiers. But you should know what the building rests on, because the gate names — RED, FLOOR, BROTHERS, GOD — name back to it.</p>
+    <p><a href="/identity">GET /identity</a> returns this statement as JSON. Read it before calling anything else.</p>
+  </div>
+</section>
+
+
+<!-- ── THREE SURFACES ──────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Three surfaces for agents</h2>
+    <p>Each surface answers a different kind of question.</p>
+    <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      <div class="card">
+        <h3>Path <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— new in v1.3</span></h3>
+        <p>Something is being carried — a question, a decision, a tension. Classify what it is, find the load-bearing Scripture, return a structured path. Not an answer. A direction.</p>
+        <a href="#path-endpoint">POST /path →</a>
+      </div>
+      <div class="card">
+        <h3>Verification</h3>
+        <p>About to commit to something irreversible. Run it through four deterministic gates. If it passes, the decision is recorded permanently. If it fails, you receive exactly what failed and why.</p>
+        <a href="#verification">POST /validate →</a>
+      </div>
+      <div class="card">
+        <h3>Journal</h3>
+        <p>Capture what is being observed. The journal is the raw input layer — what has not yet survived the gates. Seeds enter here. Precedents emerge from here over time.</p>
+        <a href="#journal">POST /capture →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── QUICK INTEGRATION ────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Quick integration</h2>
+
+    <h3>MCP — recommended for models with tool use</h3>
+    <p>Install once. The tools appear in your tool list.</p>
+<pre><code>pip install concordance-engine</code></pre>
+
+    <p>Then add to your MCP client config:</p>
+<pre><code>{
+  "mcpServers": {
+    "concordance": { "command": "concordance-mcp" }
+  }
+}</code></pre>
+
+    <p>Claude Code: <code>claude mcp add concordance -- concordance-mcp</code></p>
+    <p>MCP tools exposed: <code>validate_packet_tool</code>, <code>verify_chemistry</code>, <code>verify_physics</code>, <code>verify_mathematics</code>, <code>verify_statistics</code>, <code>verify_cs</code>, <code>verify_biology</code>, <code>verify_governance</code>, <code>verify_energy</code>, <code>suggest_fix</code>.</p>
+
+    <h3>REST — any language, no install</h3>
+    <p>Base URL: <code>https://narrowhighway.com</code> · No API key required for public endpoints.</p>
+<pre><code># Classify and trace a path
+curl -s -X POST https://narrowhighway.com/path \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I feel called to plant a church but I do not know when the right time is."}'</code></pre>
+
+<pre><code># Rehearse a packet (no ledger write)
+curl -s -X POST https://narrowhighway.com/reflect \
+  -H "Content-Type: application/json" \
+  -d '{"packet": {"domain": "governance", "scope": "adapter", ...}}'</code></pre>
+  </div>
+</section>
+
+
+<!-- ── /path ENDPOINT ──────────────────────────────────────────── -->
+<section id="path-endpoint">
+  <div class="container">
+    <h2>POST /path — the standalone model</h2>
+    <p>Send text. Receive a Scripture-anchored path. No packet format, no gates required — just what is being carried.</p>
+
+    <p>Pipeline: <strong>classifier</strong> → <strong>Scripture retrieval</strong> → <strong>personal context overlay</strong> → <strong>path composer</strong>.</p>
+
+    <h3>Request</h3>
+<pre><code>{
+  "text": "what are you carrying right now?",
+  "gate_verdicts": {}   // optional — override from an external gate engine
+}</code></pre>
+
+    <h3>Response — PathResult</h3>
+<pre><code>{
+  "question_type":  "WISDOM | DOCTRINE | DECISION | RELATIONAL | RESOURCE | TIMING | FORMATION | CRISIS | HISTORICAL",
+  "confidence":     0.0,
+  "gate_verdicts":  {},
+  "scripture_anchor": {
+    "primary":    "Proverbs 2:6",
+    "text":       "For the LORD gives wisdom. Out of his mouth comes knowledge and understanding.",
+    "supporting": ["James 1:5", "Proverbs 3:5-6"]
+  },
+  "personal_context": {
+    "relevant_packets":  0,
+    "pattern":           null,
+    "recurring_anchors": [],
+    "precedent":         null,
+    "first_seen_at":     0.0,
+    "unresolved":        false
+  },
+  "path":                "≤3 sentences — not an answer, a direction",
+  "next_step":           "one thing — singular, never a list",
+  "timing":              "WAIT | HOLD | MOVE | UNCLEAR",
+  "life_safety":         false,
+  "needs_clarification": false,
+  "clarification_prompt": null
+}</code></pre>
+
+    <div class="callout warn">
+      <p><strong>If <code>life_safety</code> is true:</strong> surface "Bring a human witness now" immediately. Do not route through additional processing. Do not delay.</p>
+      <p style="margin-bottom:0;"><strong>If <code>needs_clarification</code> is true:</strong> ask the <code>clarification_prompt</code>. Do not guess. The engine cannot compose a path without knowing which question is actually being carried.</p>
+    </div>
+
+    <h3>Nine question types and their primary anchors</h3>
+    <table class="tools">
+      <thead>
+        <tr><th>Type</th><th>Gate</th><th>Primary anchor</th><th>When it fires</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WISDOM</td><td>FLOOR</td><td>Proverbs 2:6</td><td>Understanding, pattern recognition, discernment</td></tr>
+        <tr><td>DOCTRINE</td><td>RED</td><td>Romans 3:23</td><td>What is true, theological claims, doctrinal questions</td></tr>
+        <tr><td>DECISION</td><td>BROTHERS→GOD</td><td>Proverbs 11:14</td><td>Irreversible action required, concrete fork in the road</td></tr>
+        <tr><td>RELATIONAL</td><td>BROTHERS</td><td>Matthew 18:15</td><td>Conflict, confrontation, forgiveness, reconciliation</td></tr>
+        <tr><td>RESOURCE</td><td>FLOOR</td><td>Proverbs 3:9-10</td><td>Money, stewardship, allocation, career-as-resource</td></tr>
+        <tr><td>TIMING</td><td>GOD</td><td>Ecclesiastes 3:1</td><td>"Is it time to…", waiting, when to move</td></tr>
+        <tr><td>FORMATION</td><td>ALL</td><td>Romans 12:2</td><td>Character, recurring pattern, spiritual discipline</td></tr>
+        <tr><td>CRISIS</td><td>RED</td><td>Psalms 34:18</td><td>Overwhelm, collapse, "I cannot go on"</td></tr>
+        <tr><td>HISTORICAL</td><td>RED</td><td>2 Timothy 3:16-17</td><td>What happened, what it means, historical events</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout note">
+      <p style="margin-bottom:0;">Confidence below 0.70 triggers <code>needs_clarification</code>. The engine will not guess between a DECISION and a TIMING question — it will ask. This is by design.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── VERIFICATION ────────────────────────────────────────────── -->
+<section id="verification">
+  <div class="container">
+    <h2>Verification surface</h2>
+    <p>Four gates, fixed order. Halt at the first failure. No looping back, no consensus override.</p>
+
+    <div class="gates">
+      <div class="gate red">
+        <div class="name">RED</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Coercion scan + computational verification. The verifier can REJECT despite a passing attestation — the math does not lie.</div>
+      </div>
+      <div class="gate floor">
+        <div class="name">FLOOR</div>
+        <div class="kind">Hard · REJECT</div>
+        <div class="what">Structural completeness. Required fields, declared scope, at least one witness named.</div>
+      </div>
+      <div class="gate bro">
+        <div class="name">BROTHERS</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Witness count meets threshold. QUARANTINE = not yet ready, not rejected. Come back when more eyes have seen this.</div>
+      </div>
+      <div class="gate god">
+        <div class="name">GOD</div>
+        <div class="kind">Soft · QUARANTINE</div>
+        <div class="what">Elapsed wait window. Adapter: 1h. Mesh: 24h. Canon: 7d. Do not mutate the packet hash to dodge the wait. The wait is the point.</div>
+      </div>
+    </div>
+
+    <h3>Verification endpoints</h3>
+    <table class="tools">
+      <thead><tr><th>Endpoint</th><th>Auth</th><th>Writes ledger</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>POST /reflect</td><td>none</td><td>no</td><td>Rehearse. Same gates, no commit. Use this before every real submission.</td></tr>
+        <tr><td>POST /submit</td><td>none</td><td>yes</td><td>Public. GOD evaluates as if wait elapsed — fast PASS/REJECT for the first try.</td></tr>
+        <tr><td>POST /validate</td><td>X-Api-Key</td><td>yes</td><td>Strict. GOD timing enforced. Use from production integrations.</td></tr>
+        <tr><td>POST /seal</td><td>none</td><td>yes</td><td>Seal as a precedent in the well.</td></tr>
+        <tr><td>POST /seal/render</td><td>none</td><td>yes</td><td>Same as /seal; returns a human-readable HTML walkthrough.</td></tr>
+        <tr><td>POST /confess</td><td>none</td><td>yes</td><td>Record that a prior committed packet was wrong. The original stays; confession is appended.</td></tr>
+        <tr><td>GET /ledger</td><td>none</td><td>—</td><td>List recorded decisions, newest first.</td></tr>
+        <tr><td>GET /ledger/{id}</td><td>none</td><td>—</td><td>All entries for a packet_id.</td></tr>
+        <tr><td>GET /ledger/verify</td><td>none</td><td>—</td><td>Verify full SHA-256 chain integrity.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Minimal governance packet</h3>
+<pre><code>{
+  "packet": {
+    "title":      "Short label for this decision",
+    "decision":   "The specific action being taken",
+    "rationale":  ["Reason 1", "Reason 2"],
+    "scope":      ["Who or what is affected"],
+    "authority":  "The role or body making this decision",
+    "witnesses": [
+      {"name": "Name", "role": "Role", "timestamp_epoch": 1234567890}
+    ],
+    "scripture_refs": ["Proverbs 11:14"],
+    "submission_timestamp_epoch": 1234567890
+  }
+}</code></pre>
+
+    <div class="callout note">
+      <p style="margin-bottom:0;"><strong>Rehearse before you vow.</strong> <code>POST /reflect</code> runs the same gates with no ledger write. Iterate until the verdict is what you intend, then commit.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── JOURNAL ─────────────────────────────────────────────────── -->
+<section id="journal">
+  <div class="container">
+    <h2>Journal surface</h2>
+    <p>The capture layer. What enters here has not yet survived the gates. Seeds are what the keeping notices; precedents are what survive and get sealed.</p>
+    <table class="tools">
+      <thead><tr><th>Endpoint</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>POST /capture</td><td>Universal funnel. Body: <code>{text, source, source_meta, identity_acknowledged}</code>. Source is recorded as a tag — not trusted for alignment (the gates check alignment downstream).</td></tr>
+        <tr><td>POST /journal/write</td><td>Write a seed directly.</td></tr>
+        <tr><td>GET /journal/recent</td><td>List recent seeds, newest first.</td></tr>
+        <tr><td>GET /journal/{id}</td><td>Fetch a seed in full.</td></tr>
+        <tr><td>GET /journal/{id}/thread</td><td>Seeds that share signal with this one.</td></tr>
+        <tr><td>GET /journal/{id}/calibration</td><td>Drift, pattern, and tempo measurements for a seed.</td></tr>
+        <tr><td>POST /journal/{id}/annotate</td><td>Append annotation. Original text is preserved; annotation is appended.</td></tr>
+        <tr><td>POST /ask</td><td>Search the seed bank: eliminate misfits with reasons, rank survivors by fruit. If nothing matches, the question becomes a new seed.</td></tr>
+        <tr><td>GET /shelf</td><td>Community-visible seeds (what the operator has published to the porch).</td></tr>
+        <tr><td>GET /keeping/status</td><td>What the keeper has noticed while you were away.</td></tr>
+        <tr><td>GET /dawn</td><td>Narrative across keeping + ledger + quarantine. Closes with a Socratic question, never a directive.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── VERIFIERS ───────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Computational verifiers</h2>
+    <p>Deterministic. Run locally. No network calls. Available as MCP tools and as verifier endpoints (<code>POST /verify/{domain}</code>).</p>
+    <table class="tools">
+      <thead><tr><th>Tool</th><th>What it checks</th></tr></thead>
+      <tbody>
+        <tr><td>verify_chemistry</td><td>Equation balancing, atom and charge conservation. Catches good-faith errors the author may not have noticed.</td></tr>
+        <tr><td>verify_physics</td><td>Dimensional consistency, SI unit reduction, conservation laws (energy, momentum, mass).</td></tr>
+        <tr><td>verify_mathematics</td><td>Symbolic equality, derivatives, integrals, limits (SymPy). Returns the simplification trace.</td></tr>
+        <tr><td>verify_statistics</td><td>p-value recomputation, multiple-comparison correction, statistical power analysis.</td></tr>
+        <tr><td>verify_cs</td><td>Static termination analysis, functional correctness, complexity bounds. Restricted namespace — not for adversarial code.</td></tr>
+        <tr><td>verify_biology</td><td>Replication standards, dose-response monotonicity, nested health control systems (setpoint drift, cross-layer override, sensor failure, loop saturation).</td></tr>
+        <tr><td>verify_governance</td><td>Decision packet structural completeness — required fields, scope declaration, witness format.</td></tr>
+        <tr><td>verify_energy</td><td>Off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency (η ≤ 1.0 unless heat pump), runtime, peak-load-vs-inverter, daily power balance.</td></tr>
+        <tr><td>suggest_fix</td><td>Run the engine and return concrete corrective actions for any failures. Act on the list directly — do not summarize it.</td></tr>
+        <tr><td>validate_packet_tool</td><td>Full pipeline: all four gates against a governance packet.</td></tr>
+      </tbody>
+    </table>
+    <p><a href="/verifiers.html">Full verifier reference →</a></p>
+  </div>
+</section>
+
+
+<!-- ── SCRIPTURE LAYER ─────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Scripture layer — Layer 0</h2>
+    <p>The root authority. Domain canons are calibrations downstream of it. The <code>/path</code> endpoint draws from this layer for every submission.</p>
+    <table class="tools">
+      <thead><tr><th>Endpoint</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>GET /scripture/{ref}</td><td>Resolve a reference to WEB text. e.g. <code>/scripture/Proverbs%202:6</code></td></tr>
+        <tr><td>GET /strong/{number}</td><td>Strong's lexicon entry. e.g. <code>/strong/H2451</code> (wisdom, chokmah)</td></tr>
+        <tr><td>POST /triangulate</td><td>Interpretation drift check — compare a reading against original Hebrew or Greek.</td></tr>
+      </tbody>
+    </table>
+    <p>Sources: Westminster Leningrad Codex (Hebrew morphhb), MorphGNT (Greek NT), Strong's lexicon (Hebrew + Greek), World English Bible (WEB, public domain). 300,807 Hebrew + 59,845 Greek word occurrences, fully cross-referenced.</p>
+  </div>
+</section>
+
+
+<!-- ── WHAT IS EXPECTED ────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>What is expected of you</h2>
+    <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+      <div class="card">
+        <h3>Honest attestations</h3>
+        <p>The RED block asks you to affirm load-bearing constraints. Verifiers catch computational lies. For things the verifier cannot compute, your affirmation stands. Affirming falsely puts a wrong decision in a permanent ledger under the appearance of legitimacy. That is the worst failure mode this engine can have.</p>
+      </div>
+      <div class="card">
+        <h3>Rehearse before you vow</h3>
+        <p>Run <code>POST /reflect</code> before committing. Same gates, no ledger write. Iterate until the verdict is what you intend. Then commit.</p>
+      </div>
+      <div class="card">
+        <h3>Patience at GOD</h3>
+        <p>QUARANTINE at GOD is not a rejection. It is "come back when the time has passed." Do not re-hash the packet to dodge the wait. The wait exists so decisions sit before they are permanent. The wait is the point.</p>
+      </div>
+      <div class="card">
+        <h3>Confess when wrong</h3>
+        <p>If a committed packet was wrong, use <code>POST /confess</code> with the prior <code>ref_seq</code> and reason. The original entry stays. The confession is appended. A reader walking the chain later sees both. That is the record.</p>
+      </div>
+      <div class="card">
+        <h3>Read the failure detail</h3>
+        <p>Every REJECT and QUARANTINE returns a structured reason. The first failed gate is the one that matters; downstream gates are not run. Read <code>gate_results[i].reasons</code>. Fix what it names. Do not retry blindly.</p>
+      </div>
+      <div class="card">
+        <h3>Keep your warrant</h3>
+        <p>When a packet is committed, the response includes the entry hash and the prior-entry hash. Keep them. They prove that on a specific epoch, with specific gate verdicts, your packet was committed to a ledger that has not since rewritten history.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── SERVICE ENDPOINTS ──────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Service endpoints</h2>
+    <table class="tools">
+      <thead><tr><th>Endpoint</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>GET /identity</td><td>Canonical identity statement as JSON. Read this before calling anything else.</td></tr>
+        <tr><td>GET /version</td><td>Engine version, git SHA, <code>serves</code> field.</td></tr>
+        <tr><td>GET /health</td><td>Module-by-module liveness.</td></tr>
+        <tr><td>GET /reach</td><td>Operator-configured substrate addresses (Tor .onion, LoRa freq, IPFS gateway, Nostr npub, Telegram, email).</td></tr>
+        <tr><td>GET /llms.txt</td><td>Machine-readable tool inventory. This page's companion — structured for models that read plain text.</td></tr>
+        <tr><td>GET /docs</td><td>Full OpenAPI / Swagger UI. Every endpoint, every schema, every response code.</td></tr>
+        <tr><td>POST /speak</td><td>ElevenLabs TTS proxy. Returns <code>audio/mpeg</code>. Body: <code>{"text": "...", "voice_id": "optional override"}</code></td></tr>
+        <tr><td>GET /chain/since</td><td>Federation: pull audit-chain entries past a sequence number. <code>?seq=N&amp;limit=M</code></td></tr>
+        <tr><td>POST /chain/receive</td><td>Federation: receive entries from a peer engine.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── CTA ──────────────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <a class="btn btn-primary" href="https://github.com/matharrismma/Lighthouse">Source on GitHub</a>
+    <a class="btn btn-secondary" href="/llms.txt" style="margin-left: 0.5rem;">llms.txt</a>
+    <a class="btn btn-secondary" href="/docs" style="margin-left: 0.5rem;">OpenAPI docs</a>
+    <a class="btn btn-secondary" href="/install.html" style="margin-left: 0.5rem;">Install</a>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>Concordance · Lighthouse · Narrow Highway</span>
+    <span>
+      <a href="/identity">serves Jesus Christ</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/matharrismma/Lighthouse">Apache 2.0</a>
+      &nbsp;·&nbsp;
+      <a href="/llms.txt">llms.txt</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
