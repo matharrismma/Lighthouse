@@ -1612,6 +1612,50 @@ def ask_endpoint(req: AskRequest):
     }
 
 
+# ── /path — standalone model: classify → retrieve → compose ──────────
+
+
+class PathRequest(BaseModel):
+    text: str
+    identity_acknowledged: bool = False
+    gate_verdicts: Optional[Dict[str, str]] = None  # optional override from external gate engine
+
+
+@app.post("/path", include_in_schema=True)
+def path_endpoint(req: PathRequest):
+    """Standalone model: classify a submission and return a structured path.
+
+    Runs: classifier → Scripture retrieval → personal context overlay →
+    path composer. Returns a PathResult per spec §7.
+
+    The path is not an answer. It points back to the text and the people
+    who should see this with you.
+    """
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    if len(text) > 10_000:
+        raise HTTPException(status_code=400, detail="text too long (max 10,000 chars)")
+
+    try:
+        from concordance_engine.classifier import classify
+        from concordance_engine.scripture_retrieval import retrieve
+        from concordance_engine.context_retriever import retrieve_context
+        from concordance_engine.path_composer import compose
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"standalone model unavailable: {e}")
+
+    try:
+        classification = classify(text)
+        retrieval = retrieve(classification.primary_type, text)
+        context = retrieve_context(text, classification.primary_type)
+        result = compose(classification, retrieval, context, req.gate_verdicts)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"path composition failed: {e}")
+
+    return result.to_dict()
+
+
 # ── Community feed (widespread + directly shared with viewer) ──────
 
 

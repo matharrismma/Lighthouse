@@ -72,4 +72,8 @@ __all__ = [
     "packet",
     "domains",
     "gates",
+    "classifier",
+    "scripture_retrieval",
+    "context_retriever",
+    "path_composer",
 ]
