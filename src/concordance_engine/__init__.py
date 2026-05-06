@@ -79,4 +79,5 @@ __all__ = [
     "cas",
     "user_identity",
     "poly_record",
+    "axis_index",
 ]

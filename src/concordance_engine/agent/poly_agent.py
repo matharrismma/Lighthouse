@@ -315,6 +315,24 @@ def run_polymathic(
 
     domain_specs = domain_specs[:max_domains]
 
+    # ── Step 2.5: axis-precedent lookup ──────────────────────────────────
+    # Before firing workers, predict the scaffold dimensions from the
+    # classified domains and query the sealed-record index. If a prior
+    # PolymathicRecord shares significant axis overlap we surface it as a
+    # structural overlay — the queen walks the well before dispatching.
+    closest_precedent = None
+    try:
+        from ..axis_index import find_closest as _find_closest
+        predicted_dims: set = set()
+        for ds in domain_specs:
+            coords = axis_coords_for(ds.get("domain", ""))
+            if coords:
+                predicted_dims.update(coords.dimensions)
+        if predicted_dims:
+            closest_precedent = _find_closest(list(predicted_dims))
+    except Exception:
+        pass  # index unavailable is non-fatal
+
     all_results: List[DomainResult] = []
 
     if len(domain_specs) > split_threshold:
@@ -358,6 +376,7 @@ def run_polymathic(
         atomic_claims=tuple(atomic_claims),
         quarantined_claims=tuple(final_quarantined),
         keeper_manifest=keeper_manifest.to_dict() if keeper_manifest else None,
+        closest_precedent=closest_precedent,
         domain_results=tuple(all_results),
         axis_overlaps=tuple(axis_overlaps),
         composite_verdict=composite,

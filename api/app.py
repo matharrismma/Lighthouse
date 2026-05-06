@@ -2915,34 +2915,167 @@ def polymathic_endpoint(req: PolymathicRequest):
     if req.store:
         try:
             from concordance_engine.cas import store as _cas_store
-            from concordance_engine.user_identity import get_user_pubkey, get_user_id
+            from concordance_engine.user_identity import get_user_pubkey
+            from concordance_engine.poly_record import PolymathicRecord as _PR
             pub = get_user_pubkey()
-            record2 = record.__class__(
+            # Bind pubkey; preserve ALL fields including atomic_claims / keeper_manifest
+            record_with_key = _PR(
                 situation=record.situation,
                 domain_results=record.domain_results,
                 axis_overlaps=record.axis_overlaps,
                 composite_verdict=record.composite_verdict,
+                atomic_claims=record.atomic_claims,
+                quarantined_claims=record.quarantined_claims,
+                keeper_manifest=record.keeper_manifest,
+                closest_precedent=record.closest_precedent,
                 subject_pubkey=pub,
-                permanent_ref=record.permanent_ref,
                 schema_version=record.schema_version,
             )
-            d2 = record2.to_dict()
-            h = _cas_store(d2)
-            from concordance_engine.poly_record import PolymathicRecord as _PR
-            record3 = _PR(
+            d_with_key = record_with_key.to_dict()
+            h = _cas_store(d_with_key)
+            # Bind permanent_ref and re-serialize (content_hash re-computed)
+            sealed = _PR(
                 situation=record.situation,
                 domain_results=record.domain_results,
                 axis_overlaps=record.axis_overlaps,
                 composite_verdict=record.composite_verdict,
+                atomic_claims=record.atomic_claims,
+                quarantined_claims=record.quarantined_claims,
+                keeper_manifest=record.keeper_manifest,
+                closest_precedent=record.closest_precedent,
                 subject_pubkey=pub,
                 permanent_ref=h,
                 schema_version=record.schema_version,
             )
-            d = record3.to_dict()
+            d = sealed.to_dict()
         except Exception:
             pass  # store failure is non-fatal
 
     return d
+
+
+class SealPolymathicRequest(BaseModel):
+    """Body for `POST /seal/polymathic`.
+
+    The PolymathicRecord must already be in the CAS (store=true on /polymathic).
+    Four simplified gates then run and, if all pass, the record is written
+    to the audit chain and registered in the axis dimension index so future
+    runs can find it as a closest-precedent overlay.
+    """
+    content_hash: str
+
+
+@app.post("/seal/polymathic", include_in_schema=True)
+def seal_polymathic(req: SealPolymathicRequest):
+    """Seal a PolymathicRecord into the permanent audit chain.
+
+    Simplified gate chain for polymathic records:
+      RED      — composite_verdict must not be ERROR
+      FLOOR    — record must have domain results or quarantined claims
+      BROTHERS — subject_pubkey must be bound (CAS store binds it)
+      GOD      — always PASS (adapter scope)
+
+    On PASS: record is written to the ledger and indexed in the axis
+    dimension index so future poly runs can retrieve it as a precedent.
+    On QUARANTINE: subject_pubkey missing — run POST /polymathic with
+    store=true first. QUARANTINE does NOT write to the ledger.
+    On REJECT: nothing written.
+    """
+    record_dict = _cas_fetch(req.content_hash)
+    if record_dict is None:
+        raise HTTPException(status_code=404, detail=f"not found in CAS: {req.content_hash}")
+
+    verdict     = record_dict.get("composite_verdict", "")
+    dr_list     = record_dict.get("domain_results", [])
+    quarantined = record_dict.get("quarantined_claims", [])
+    subject_key = record_dict.get("subject_pubkey")
+
+    gates = []
+
+    # RED: no system ERROR
+    if verdict == "ERROR":
+        gates.append({"gate": "RED",      "status": "REJECT",
+                      "reasons": ["composite_verdict is ERROR — resolve the system failure before sealing"]})
+    else:
+        gates.append({"gate": "RED",      "status": "PASS", "reasons": []})
+
+    # FLOOR: something was verified or quarantined (not completely empty)
+    if not dr_list and not quarantined:
+        gates.append({"gate": "FLOOR",    "status": "REJECT",
+                      "reasons": ["no domain results — nothing to seal (OUT_OF_SCOPE)"]})
+    else:
+        gates.append({"gate": "FLOOR",    "status": "PASS", "reasons": []})
+
+    # BROTHERS: pubkey must be bound
+    if not subject_key:
+        gates.append({"gate": "BROTHERS", "status": "QUARANTINE",
+                      "reasons": ["subject_pubkey not bound — run POST /polymathic with store=true first"]})
+    else:
+        gates.append({"gate": "BROTHERS", "status": "PASS", "reasons": []})
+
+    # GOD: always pass (adapter scope — no elapsed-wait requirement)
+    gates.append({"gate": "GOD", "status": "PASS", "reasons": []})
+
+    statuses = [g["status"] for g in gates]
+    if "REJECT" in statuses:
+        overall = "REJECT"
+    elif "QUARANTINE" in statuses:
+        overall = "QUARANTINE"
+    else:
+        overall = "PASS"
+
+    if overall != "PASS":
+        return {"overall": overall, "gates": gates, "sealed": False,
+                "content_hash": req.content_hash}
+
+    # ── Write to audit chain ──────────────────────────────────────────
+    ledger = get_ledger()
+
+    class _GR:
+        def __init__(self, gate, status, reasons):
+            self.gate    = gate
+            self.status  = status
+            self.reasons = reasons
+
+    gate_objs = [_GR(g["gate"], g["status"], g["reasons"]) for g in gates]
+    packet = {
+        "id":                 req.content_hash,
+        "domain":             "POLYMATHIC",
+        "composite_verdict":  verdict,
+        "situation_summary":  record_dict.get("situation", "")[:160],
+        "content_hash":       req.content_hash,
+        "subject_pubkey":     subject_key,
+    }
+    entry = ledger.append(packet, overall, gate_objs)
+
+    # ── Update axis dimension index ───────────────────────────────────
+    try:
+        from concordance_engine.axis_index import update_index as _axis_update
+        all_dims: set = set()
+        for ao in record_dict.get("axis_overlaps", []):
+            if ao.get("dimension"):
+                all_dims.add(ao["dimension"])
+        for dr in dr_list:
+            for dim in dr.get("axis_dims", []):
+                all_dims.add(dim)
+        if all_dims:
+            _axis_update(
+                content_hash=req.content_hash,
+                composite_verdict=verdict,
+                situation=record_dict.get("situation", ""),
+                axis_dims=list(all_dims),
+            )
+    except Exception:
+        pass  # index failure is non-fatal
+
+    return {
+        "overall":          overall,
+        "gates":            gates,
+        "sealed":           True,
+        "ledger_seq":       entry.seq,
+        "ledger_entry_hash":entry.entry_hash,
+        "content_hash":     req.content_hash,
+    }
 
 
 @app.get("/agent/rules", include_in_schema=True)

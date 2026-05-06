@@ -115,6 +115,7 @@ class PolymathicRecord:
     atomic_claims: Tuple[str, ...] = ()
     quarantined_claims: Tuple[str, ...] = ()   # airlocked
     keeper_manifest: Optional[Dict[str, Any]] = None  # keeper's triage output
+    closest_precedent: Optional[Dict[str, Any]] = None  # axis-index match
     subject_pubkey: Optional[str] = None
     permanent_ref: Optional[str] = None
     schema_version: str = POLYMATHIC_SCHEMA_VERSION
@@ -149,6 +150,8 @@ class PolymathicRecord:
             out["quarantined_claims"] = list(self.quarantined_claims)
         if self.keeper_manifest is not None:
             out["keeper_manifest"] = self.keeper_manifest
+        if self.closest_precedent is not None:
+            out["closest_precedent"] = self.closest_precedent
         if self.subject_pubkey is not None:
             out["subject_pubkey"] = self.subject_pubkey
         # content_hash: SHA-256 of canonical JSON excluding itself + permanent_ref
@@ -168,6 +171,7 @@ class PolymathicRecord:
             atomic_claims=tuple(d.get("atomic_claims", [])),
             quarantined_claims=tuple(d.get("quarantined_claims", [])),
             keeper_manifest=d.get("keeper_manifest"),
+            closest_precedent=d.get("closest_precedent"),
             subject_pubkey=d.get("subject_pubkey"),
             permanent_ref=d.get("permanent_ref"),
             schema_version=d.get("schema_version", POLYMATHIC_SCHEMA_VERSION),

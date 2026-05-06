@@ -66,7 +66,89 @@ _DOMAIN_KEYWORDS: Dict[str, FrozenSet[str]] = {
 }
 
 
+# ── Socratic question templates ────────────────────────────────────────
+# One question per domain. Ultra-low-power: no oracle, pure lookup.
+# Each question asks for the *one piece of concrete data* that would
+# let the classifier dispatch the orphan claim to the right worker.
+# The keeper attaches the question to each orphan so the frontend can
+# surface it and let the user refine before re-running.
+
+_FALLBACK_QUESTION = (
+    "What specific values, measurements, or concrete facts would make this claim verifiable?"
+)
+
+_DOMAIN_QUESTIONS: Dict[str, str] = {
+    "mathematics":        "What is the equation, expression, or value being claimed? Include specific numbers.",
+    "chemistry":          "What is the chemical equation or compound formula? Include coefficients if known.",
+    "physics":            "What physical law applies and what are the before/after values? Include units.",
+    "biology":            "What organism, process, or measurement is being claimed? Include specific values.",
+    "genetics":           "What is the DNA sequence, gene name, or hereditary trait? Include allele notation if known.",
+    "agriculture":        "What crop, soil condition, or farming practice is described? Include location or USDA zone if known.",
+    "nutrition":          "What food, serving size, and nutritional claim is being made?",
+    "medicine":           "What is the specific diagnosis, medication name, dosage, and condition being treated?",
+    "labor":              "What was the hourly rate, weekly hours worked, employment classification, or wage being claimed?",
+    "governance":         "What decision, authority level, or policy is described? Who made it and under what scope?",
+    "finance":            "What is the principal amount, interest rate, time period, or specific financial calculation?",
+    "economics":          "What prices, quantities, or market conditions are being claimed? Include specific numbers.",
+    "law":                "What jurisdiction, statute name, or contractual term is being referenced?",
+    "construction":       "What material, structural specification, load value, or building code section applies?",
+    "real_estate":        "What property address, price, lease terms, or zoning classification is involved?",
+    "cryptography":       "What algorithm name, key length, or hash value is being described?",
+    "computer_science":   "What algorithm, data structure, or code behavior is claimed? Include a concrete example.",
+    "statistics":         "What test type, sample size, and statistical values (mean, SD, p-value) are being claimed?",
+    "astronomy":          "What celestial object, orbital period, or distance is being described? Include units.",
+    "hydrology":          "What water flow rate, watershed area, or precipitation values are involved? Include units.",
+    "meteorology":        "What temperature, pressure, humidity, or weather event is described? Include location and date.",
+    "geology":            "What rock type, mineral hardness, seismic magnitude, or dating method is being claimed?",
+    "energy":             "What power load (watts), storage capacity (Ah/kWh), or energy consumption is involved?",
+    "electrical":         "What voltage, current, resistance, or circuit configuration is described? Include units.",
+    "networking":         "What IP address, subnet mask, or CIDR range is being described?",
+    "acoustics":          "What frequency (Hz), decibel level, or wave properties are being claimed?",
+    "optics":             "What lens focal length, refractive indices, or angles of incidence/refraction are involved?",
+    "manufacturing":      "What tolerance, dimension, surface finish (Ra), or Cp/Cpk value is described?",
+    "thermodynamics":     "What temperature, pressure, entropy change, or thermodynamic process is described?",
+    "fluid_dynamics":     "What flow rate, viscosity, pressure, or Reynolds number is involved? Include units.",
+    "soil_science":       "What soil type, pH range, organic matter content, or amendment is described?",
+    "cybersecurity":      "What vulnerability type, CVE, attack vector, or security control is described?",
+    "photography":        "What aperture (f/), shutter speed, ISO, or exposure value is being claimed?",
+    "sports_analytics":   "What athlete, performance metric, game record, or statistical formula is claimed?",
+    "calendar_time":      "What date, time zone, or duration is described? Provide the full date in YYYY-MM-DD format.",
+    "information_theory": "What channel capacity, entropy value (bits), or signal-to-noise ratio is claimed?",
+    "number_theory":      "What number, divisibility property, or modular arithmetic relationship is claimed?",
+    "combinatorics":      "What counting problem, permutation P(n,k), or combination C(n,k) is described?",
+    "geometry":           "What shape, dimension, angle, or area/volume formula applies? Include values.",
+    "music_theory":       "What interval (semitones), chord quality, or frequency ratio is described?",
+    "exercise_science":   "What activity, duration, body weight, and MET or heart rate zone is described?",
+    "formal_logic":       "State the propositions and connectives symbolically (e.g. P → Q, ¬P ∨ Q).",
+    "linguistics":        "What word, Strong's number (G/H), or translation is being analyzed?",
+    "quantum_computing":  "What qubit operation, gate sequence, or quantum algorithm is described?",
+    "geography":          "What latitude/longitude coordinates, country, or geographic distance is involved?",
+    "cryptography":       "What algorithm name, key length, or hash value is being described?",
+}
+
+
 # ── Data structures ─────────────────────────────────────────────────────
+
+@dataclass(frozen=True)
+class QuarantineQuestion:
+    """The one Socratic question that would resolve an orphan claim.
+
+    Ultra-low-power: derived entirely from _DOMAIN_QUESTIONS lookup
+    on the nearest_domain. No oracle, no network. The frontend surfaces
+    this question and lets the user supply the missing concrete value,
+    then re-runs with the enriched situation.
+    """
+    claim: str
+    question: str
+    nearest_domain: Optional[str]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "claim": self.claim,
+            "question": self.question,
+            "nearest_domain": self.nearest_domain,
+        }
+
 
 @dataclass(frozen=True)
 class RecoveredClaim:
@@ -103,6 +185,7 @@ class QuarantineManifest:
     """The keeper's organized triage of the quarantine state."""
     recovered: List[RecoveredClaim] = field(default_factory=list)
     orphans: List[OrphanClaim] = field(default_factory=list)
+    questions: List[QuarantineQuestion] = field(default_factory=list)
 
     @property
     def recovery_count(self) -> int:
@@ -116,13 +199,16 @@ class QuarantineManifest:
         clusters: Dict[str, List[str]] = {}
         for o in self.orphans:
             clusters.setdefault(o.cluster_key, []).append(o.claim)
-        return {
+        out: Dict[str, Any] = {
             "recovery_count": self.recovery_count,
             "orphan_count": self.orphan_count,
             "recovered": [r.to_dict() for r in self.recovered],
             "orphans": [o.to_dict() for o in self.orphans],
             "clusters": {k: v for k, v in clusters.items() if v},
         }
+        if self.questions:
+            out["questions"] = [q.to_dict() for q in self.questions]
+        return out
 
 
 # ── Proximity scoring ───────────────────────────────────────────────────
@@ -207,7 +293,20 @@ def tend_quarantine(quarantined_claims: List[str]) -> QuarantineManifest:
                 proximity_score=score,
                 cluster_key=cluster,
             ))
+            # Socratic question — one targeted ask per orphan claim
+            question = _DOMAIN_QUESTIONS.get(nearest or "", _FALLBACK_QUESTION)
+            manifest.questions.append(QuarantineQuestion(
+                claim=claim,
+                question=question,
+                nearest_domain=nearest,
+            ))
 
     # Sort orphans: highest proximity first (easiest to resolve at top)
     manifest.orphans.sort(key=lambda o: -o.proximity_score)
+    # Questions follow the same order as orphans
+    manifest.questions.sort(
+        key=lambda q: -next(
+            (o.proximity_score for o in manifest.orphans if o.claim == q.claim), 0.0
+        )
+    )
     return manifest
