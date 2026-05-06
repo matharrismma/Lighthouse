@@ -862,6 +862,226 @@ _MANIFEST: List[Dict[str, Any]] = [
             "Magnification: {\"image_distance_mm\": 150, \"object_distance_mm\": 1000, \"claimed_magnification\": 0.15}"
         ),
     ),
+
+    # ── thermodynamics ───────────────────────────────────────────────────────
+    _tool(
+        "verify_thermodynamics",
+        (
+            "Verify thermodynamics claims — Carnot efficiency (η=1−Tc/Th), ideal gas law "
+            "(PV=nRT, R=8.314 J/mol·K), specific heat (Q=mcΔT), entropy change (ΔS=Q/T). "
+            "Thermodynamics is conservation_balance: energy transforms but the totals are exact. "
+            "CONFIRMED means the thermodynamic claim is exact. "
+            "Axis: conservation_balance, physical_substance."
+        ),
+        (
+            "Carnot:       {\"T_hot_K\": 600, \"T_cold_K\": 300, \"claimed_efficiency\": 0.5} "
+            "Specific heat:{\"mass_kg\": 1.0, \"specific_heat_J_per_kgK\": 4186, \"delta_T_K\": 10, \"claimed_heat_J\": 41860} "
+            "Entropy:      {\"heat_J\": 2000, \"temperature_K\": 400, \"claimed_entropy_change_J_per_K\": 5.0}"
+        ),
+    ),
+
+    # ── nuclear_physics ──────────────────────────────────────────────────────
+    _tool(
+        "verify_nuclear_physics",
+        (
+            "Verify nuclear physics claims — radioactive decay (N=N₀e^−λt, λ=ln2/T_half), "
+            "binding energy per nucleon (mass_defect_amu × 931.5 MeV / A), "
+            "half-life from activity (T_half=ln2·N/A), decay constant (λ=ln2/T_half). "
+            "Nuclear physics is conservation_balance + time_sequence: decay is exact, "
+            "binding energy is the most precise energy measurement in physics. "
+            "Axis: conservation_balance, time_sequence, physical_substance."
+        ),
+        (
+            "Decay:        {\"half_life_seconds\": 3600, \"elapsed_seconds\": 3600, \"initial_count\": 1e9, \"claimed_remaining_count\": 5e8} "
+            "Binding:      {\"mass_defect_amu\": 0.0304, \"nucleon_count\": 4, \"claimed_binding_energy_MeV_per_nucleon\": 7.075} "
+            "Decay const:  {\"half_life_seconds\": 3600, \"claimed_decay_constant\": 1.925e-4}"
+        ),
+    ),
+
+    # ── ecology ──────────────────────────────────────────────────────────────
+    _tool(
+        "verify_ecology",
+        (
+            "Verify ecology claims — logistic population growth (N(t)=K/(1+((K-N0)/N0)e^−rt)), "
+            "trophic efficiency (Lindeman's 10%% rule: output=input×eff^levels), "
+            "Shannon diversity index (H=−Σpᵢlnpᵢ), carbon footprint transport (CO₂=distance×factor). "
+            "Ecology is conservation_balance in living systems: energy flows and population "
+            "dynamics follow exact mathematical laws. "
+            "Axis: conservation_balance, information_encoding, time_sequence."
+        ),
+        (
+            "Trophic:      {\"energy_input\": 100000, \"trophic_levels_up\": 2, \"trophic_efficiency\": 0.10, \"claimed_energy_output\": 1000} "
+            "Shannon:      {\"species_proportions\": [0.5, 0.3, 0.2], \"claimed_shannon_index\": 1.0297} "
+            "Carbon:       {\"distance_km\": 500, \"emission_factor_kg_per_km\": 0.21, \"claimed_co2_kg\": 105}"
+        ),
+    ),
+
+    # ── rhetoric ─────────────────────────────────────────────────────────────
+    _tool(
+        "verify_rhetoric",
+        (
+            "Verify rhetoric and argumentation claims — fallacy classification (18-entry catalogue: "
+            "formal fallacies have invalid logical form; informal fallacies have bad content/relevance), "
+            "Aristotelian syllogism validity (20 valid mood-figure pairs), "
+            "argument structure completeness (premise + conclusion required). "
+            "Rhetoric is formal_reasoning applied to language: invalid arguments are exactly invalid. "
+            "Axis: formal_reasoning, authority_trust."
+        ),
+        (
+            "Fallacy:      {\"fallacy_name\": \"ad hominem\", \"claimed_is_formal_fallacy\": false} "
+            "Syllogism:    {\"major_premise\": \"All M are P\", \"minor_premise\": \"All S are M\", \"conclusion\": \"All S are P\", \"claimed_valid\": true} "
+            "Structure:    {\"has_premise\": true, \"has_conclusion\": true, \"has_warrant\": false, \"claimed_is_complete_argument\": true}"
+        ),
+    ),
+
+    # ── philosophy ───────────────────────────────────────────────────────────
+    _tool(
+        "verify_philosophy",
+        (
+            "Verify philosophy claims — modal logic K-axiom (necessarily-P implies possibly-P), "
+            "ethical framework classification (consequentialist focuses on outcomes; deontological "
+            "on duties; virtue ethics on character; contractarian on agreement), "
+            "epistemic claim type (a priori = knowable by reason alone; a posteriori = requires observation), "
+            "Leibniz identity (identical objects share all properties). "
+            "Philosophy is formal_reasoning about the structure of reality and knowledge. "
+            "Axis: formal_reasoning, authority_trust."
+        ),
+        (
+            "Modal:        {\"is_necessarily_true\": true, \"is_possibly_true\": true, \"claimed_consistent\": true} "
+            "Ethics:       {\"framework_name\": \"consequentialist\", \"claimed_focuses_on_outcomes\": true} "
+            "Epistemic:    {\"claim_requires_observation\": false, \"claimed_is_a_priori\": true}"
+        ),
+    ),
+
+    # ── operations_research ──────────────────────────────────────────────────
+    _tool(
+        "verify_operations_research",
+        (
+            "Verify operations research claims — LP feasibility (constraint evaluation with 1e-6 tolerance), "
+            "critical path makespan (topological sort + earliest-finish propagation), "
+            "0/1 knapsack optimal value (dynamic programming), "
+            "assignment cost (Σ cost_matrix[i][j]). "
+            "OR is formal_reasoning applied to resource allocation: optimal solutions are exact. "
+            "Axis: formal_reasoning, conservation_balance, time_sequence."
+        ),
+        (
+            "LP:           {\"variable_values\": {\"x\": 3, \"y\": 2}, \"constraints\": [{\"lhs_coeffs\": {\"x\": 1, \"y\": 1}, \"operator\": \"<=\", \"rhs\": 10}], \"claimed_feasible\": true} "
+            "Makespan:     {\"tasks\": [{\"id\": \"A\", \"duration\": 3, \"depends_on\": []}, {\"id\": \"B\", \"duration\": 2, \"depends_on\": [\"A\"]}], \"claimed_makespan\": 5} "
+            "Knapsack:     {\"items\": [{\"weight\": 2, \"value\": 6}, {\"weight\": 3, \"value\": 10}], \"capacity\": 5, \"claimed_optimal_value\": 16}"
+        ),
+    ),
+
+    # ── law ──────────────────────────────────────────────────────────────────
+    _tool(
+        "verify_law",
+        (
+            "Verify US federal law claims — contract formation (all 5 elements: offer, acceptance, "
+            "consideration, capacity, legality), constitutional age requirements (president=35, "
+            "senator=30, representative=25, per Art. I/II), FLSA overtime (1.5× rate for hours "
+            "over 40/week, per 29 U.S.C. § 207), Miranda completeness (4 required warnings). "
+            "Law is authority_trust with exact statutory requirements: compliance is binary. "
+            "Axis: authority_trust, formal_reasoning."
+        ),
+        (
+            "Contract:     {\"has_offer\": true, \"has_acceptance\": true, \"has_consideration\": true, \"has_capacity\": true, \"has_legality\": true, \"claimed_contract_valid\": true} "
+            "Age:          {\"office\": \"president\", \"age\": 38, \"claimed_meets_age_requirement\": true} "
+            "FLSA:         {\"hours_worked\": 50, \"regular_rate\": 20, \"claimed_overtime_pay\": 300}"
+        ),
+    ),
+
+    # ── theology_doctrine ────────────────────────────────────────────────────
+    _tool(
+        "verify_theology_doctrine",
+        (
+            "Verify orthodox Christian doctrine from Scripture — gospel core facts (1 Cor 15:3-4: "
+            "Christ died for sins, was buried, rose third day), Nicene Trinity (Father, Son, Holy "
+            "Spirit — co-equal, co-eternal), salvation by grace through faith not works (Eph 2:8-9), "
+            "bodily resurrection (Luke 24:39, John 20:27), creation ex nihilo (Gen 1:1, Heb 11:3). "
+            "Doctrinal hierarchy: Jesus' words primary; Bible secondary; apostles + recognized elders thereafter. "
+            "This verifier guards against fabricated doctrine the same way verify_scripture_anchors "
+            "guards against fabricated citations — the most load-bearing layer of the engine. "
+            "Axis: authority_trust, information_encoding, time_sequence."
+        ),
+        (
+            "Gospel:       {\"claimed_died_for_sins\": true, \"claimed_was_buried\": true, \"claimed_rose_third_day\": true, \"claimed_gospel_complete\": true} "
+            "Trinity:      {\"persons_named\": [\"Father\", \"Son\", \"Holy Spirit\"], \"claimed_trinitarian_complete\": true} "
+            "Salvation:    {\"claimed_salvation_mechanism\": \"grace_through_faith\", \"claimed_excludes_works\": true} "
+            "Resurrection: {\"claimed_resurrection_type\": \"bodily\", \"claimed_is_bodily\": true}"
+        ),
+    ),
+
+    # ── history_chronology ───────────────────────────────────────────────────
+    _tool(
+        "verify_history_chronology",
+        (
+            "Verify historical chronology claims — BCE/CE year arithmetic (signed integers, no year 0: "
+            "elapsed BCE→CE = from_BCE + to_CE - 1), century assignment (ceil(year/100)), "
+            "era classification (BCE/BC vs CE/AD), decade assignment ((year//10)*10). "
+            "Chronology is time_sequence made exact: the calendar is a formal system with "
+            "well-defined arithmetic. CONFIRMED means the date arithmetic is correct. "
+            "Axis: time_sequence, formal_reasoning."
+        ),
+        (
+            "BCE to CE:    {\"from_BCE\": 44, \"to_CE\": 476, \"claimed_elapsed\": 519} "
+            "Century:      {\"year_CE\": 1776, \"claimed_century\": 18} "
+            "Year arith:   {\"from_year\": 500, \"to_year\": 2000, \"claimed_elapsed_years\": 1500}"
+        ),
+    ),
+
+    # ── materials_science ────────────────────────────────────────────────────
+    _tool(
+        "verify_materials_science",
+        (
+            "Verify materials science claims — stress/strain relationships (σ=Eε, σ=F/A, ε=σ/E "
+            "with Young's modulus E), linear thermal expansion (ΔL=αL₀ΔT), density (ρ=m/V or m=ρV), "
+            "hardness comparison (higher Vickers/Brinell HV number = harder material). "
+            "Materials science is physical_substance: the mechanical properties of matter are exact. "
+            "Axis: physical_substance, conservation_balance."
+        ),
+        (
+            "Stress:       {\"youngs_modulus_Pa\": 200e9, \"strain\": 0.001, \"claimed_stress_Pa\": 2e8} "
+            "Thermal:      {\"thermal_expansion_coeff\": 12e-6, \"original_length_m\": 1.0, \"delta_T_K\": 100, \"claimed_delta_length_m\": 0.0012} "
+            "Density:      {\"mass_kg\": 2.7, \"volume_m3\": 0.001, \"claimed_density_kg_per_m3\": 2700}"
+        ),
+    ),
+
+    # ── architecture ─────────────────────────────────────────────────────────
+    _tool(
+        "verify_architecture",
+        (
+            "Verify architecture and building code claims — Floor Area Ratio (FAR=floor_area/lot_area), "
+            "occupant load (ceil(area/factor), IBC-style), IBC stair compliance (riser 102–178 mm, "
+            "tread ≥ 279 mm), window-wall ratio (WWR=window_area/gross_wall_area), "
+            "structural load superposition (dead + live + snow). "
+            "Architecture is physical_substance governed by formal code: compliance is exact. "
+            "Axis: physical_substance, formal_reasoning, conservation_balance."
+        ),
+        (
+            "FAR:          {\"total_floor_area_m2\": 3000, \"lot_area_m2\": 1000, \"claimed_far\": 3.0} "
+            "Occupant:     {\"floor_area_m2\": 200, \"occupant_load_factor_m2_per_person\": 2, \"claimed_occupant_count\": 100} "
+            "Stair:        {\"riser_height_mm\": 160, \"tread_depth_mm\": 300, \"claimed_compliant\": true}"
+        ),
+    ),
+
+    # ── oceanography ─────────────────────────────────────────────────────────
+    _tool(
+        "verify_oceanography",
+        (
+            "Verify oceanography claims — hydrostatic pressure at depth (P=Patm+ρgd, ρ_sw=1025 kg/m³, "
+            "g=9.81 m/s²), salinity classification (fresh <0.5 / brackish 0.5–30 / marine 30–40 / "
+            "hypersaline >40 ppt), deep-water wave phase speed (c=√(gλ/2π)), tidal range type "
+            "(microtidal <2m / mesotidal 2–4m / macrotidal >4m), pelagic zone (epipelagic 0–200m / "
+            "mesopelagic 200–1000m / bathypelagic 1000–4000m / abyssopelagic 4000–6000m / hadopelagic >6000m). "
+            "Oceanography is physical_substance in fluid systems: pressure and wave mechanics are exact. "
+            "Axis: physical_substance, conservation_balance, time_sequence."
+        ),
+        (
+            "Pressure:     {\"depth_m\": 100, \"claimed_pressure_atm\": 10.92} "
+            "Salinity:     {\"salinity_ppt\": 35, \"claimed_classification\": \"marine\"} "
+            "Wave speed:   {\"wavelength_m\": 200, \"claimed_wave_speed_m_per_s\": 17.67} "
+            "Zone:         {\"depth_m\": 500, \"claimed_zone\": \"mesopelagic\"}"
+        ),
+    ),
 ]
 
 
@@ -875,7 +1095,7 @@ def context_block() -> str:
     """
     return """\
 You have access to the Concordance verification engine — a system that verifies \
-claims against the precise structure of the created order across 45 domains.
+claims against the precise structure of the created order across 57 domains.
 
 When you call a Concordance tool and receive CONFIRMED, that means the claim was \
 independently computed and found to match — not inferred, not approximated, verified. \
@@ -896,7 +1116,7 @@ Surface the verification result and the detail field — do not hide DISCORDANT 
 A DISCORDANT finding is the most useful output: it is the engine saying "this \
 contradicts how the realm was built." \
 
-Benchmark accuracy: 135/135 items verified correctly (100%) across all 45 domains \
+Benchmark accuracy: 171/171 items verified correctly (100%) across all 57 domains \
 using claude-haiku-4-5. This is not a calculator. It is a witness to the structure \
 of the created order.\
 """
@@ -909,7 +1129,7 @@ def build_manifest() -> Dict[str, Any]:
     return {
         "schema_version": "1.0",
         "engine": "concordance",
-        "benchmark": {"score": "135/135", "accuracy": 1.0, "domains": 45},
+        "benchmark": {"score": "171/171", "accuracy": 1.0, "domains": 57},
         "axes": _AXES,
         "tools": _MANIFEST,
         "context_block": context_block(),

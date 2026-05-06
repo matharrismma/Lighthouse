@@ -67,7 +67,7 @@ def _parse_reply(reply: str, answer_kind: str) -> Any:
             return "yes"
         if re.search(r"\bno\b", reply):
             return "no"
-        return reply.split()[0] if reply else ""
+        return reply.split()[0].strip(".,!?;:") if reply else ""
     if answer_kind == "numeric":
         # Allow leading-decimal numbers like .300; use LAST match so "I = V/R = 5/10 = 0.5"
         # returns 0.5 rather than 5.

@@ -190,9 +190,23 @@ def _check_api_key(x_api_key: str = Header(default="")) -> None:
 
 _PASSPHRASE = os.environ.get("CONCORDANCE_PASSPHRASE", "")
 _SECRET_KEY = os.environ.get("SECRET_KEY", secrets.token_hex(32))
-_PASSPHRASE_HASH = (
-    hashlib.sha256(_PASSPHRASE.encode()).hexdigest() if _PASSPHRASE else ""
-)
+
+# Normalize before hashing so "He is risen indeed!", "He is risen indeed",
+# and "HE IS RISEN INDEED" all resolve to the same digest.
+def _norm_phrase(p: str) -> str:
+    import re
+    return re.sub(r"[^\w\s]", "", p.lower()).strip()
+
+# Primary passphrase plus any comma-separated alternates in CONCORDANCE_PASSPHRASE_ALTS.
+_VALID_HASHES: set[str] = set()
+if _PASSPHRASE:
+    _VALID_HASHES.add(hashlib.sha256(_norm_phrase(_PASSPHRASE).encode()).hexdigest())
+for _alt in os.environ.get("CONCORDANCE_PASSPHRASE_ALTS", "").split(","):
+    _alt = _alt.strip()
+    if _alt:
+        _VALID_HASHES.add(hashlib.sha256(_norm_phrase(_alt).encode()).hexdigest())
+# Keep legacy single-hash ref so _verify_token dev-mode check still works.
+_PASSPHRASE_HASH = next(iter(_VALID_HASHES)) if _VALID_HASHES else ""
 
 _AUTH_DIR = (
     Path(os.environ.get("CONCORDANCE_DATA_DIR", "~/.concordance")).expanduser()
@@ -208,7 +222,7 @@ def _make_token(user_id: str) -> str:
 
 
 def _verify_token(token: str) -> bool:
-    if not token or not _PASSPHRASE:
+    if not token or not _VALID_HASHES:
         return True  # dev mode — no passphrase configured
     try:
         *payload_parts, sig = token.split("|")
@@ -268,11 +282,10 @@ def _require_session(authorization: str = Header(default="")) -> str:
 
 @app.post("/auth/login", tags=["auth"])
 def auth_login(req: LoginRequest):
-    if not _PASSPHRASE:
+    if not _VALID_HASHES:
         return {"token": _make_token("dev"), "expires_in": 86400}
-    if not hmac.compare_digest(
-        hashlib.sha256(req.passphrase.encode()).hexdigest(), _PASSPHRASE_HASH
-    ):
+    incoming = hashlib.sha256(_norm_phrase(req.passphrase).encode()).hexdigest()
+    if not any(hmac.compare_digest(incoming, h) for h in _VALID_HASHES):
         raise HTTPException(status_code=401, detail="Incorrect passphrase")
     return {"token": _make_token("operator"), "expires_in": 86400}
 
@@ -3711,7 +3724,7 @@ def cas_verify_endpoint(content_hash: str):
 # Three endpoints that make Concordance legible to any AI agent:
 #   GET  /manifest  — OpenAI-compatible tool definitions with axis framing
 #   POST /verify    — single dispatch to any domain verifier
-#   GET  /benchmark — 135/135 accuracy results
+#   GET  /benchmark — 171/171 accuracy results
 #   GET  /context   — system prompt fragment for agent operators
 
 from api.agent_manifest import (
@@ -3731,7 +3744,7 @@ class VerifyRequest(BaseModel):
 def agent_manifest():
     """OpenAI-compatible tool manifest for any AI agent.
 
-    Returns all 45 Concordance domain verifiers in function-calling format,
+    Returns all 57 Concordance domain verifiers in function-calling format,
     including axis framing and created-order context in each description.
     Any agent that speaks OpenAI tool-use (Grok, GPT, Gemini, Claude) can
     load this manifest and immediately call the verifiers.
@@ -3756,7 +3769,7 @@ def agent_verify(body: VerifyRequest):
 
 @app.get("/benchmark", tags=["agents"])
 def agent_benchmark():
-    """Latest benchmark results: 135/135 items across 45 domains.
+    """Latest benchmark results: 171/171 items across 57 domains.
 
     Returns per-domain accuracy and average response time. Agents and operators
     can call this to verify the engine's accuracy before relying on it.

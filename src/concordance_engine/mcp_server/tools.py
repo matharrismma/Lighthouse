@@ -55,6 +55,18 @@ from ..verifiers import labor as _labor
 from ..verifiers import real_estate as _real_estate
 from ..verifiers import construction as _construction
 from ..verifiers import soil_science as _soil_science
+from ..verifiers import thermodynamics as _thermodynamics
+from ..verifiers import nuclear_physics as _nuclear_physics
+from ..verifiers import ecology as _ecology
+from ..verifiers import rhetoric as _rhetoric
+from ..verifiers import philosophy as _philosophy
+from ..verifiers import operations_research as _operations_research
+from ..verifiers import law as _law
+from ..verifiers import theology_doctrine as _theology_doctrine
+from ..verifiers import history_chronology as _history_chronology
+from ..verifiers import materials_science as _materials_science
+from ..verifiers import architecture as _architecture
+from ..verifiers import oceanography as _oceanography
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -613,6 +625,116 @@ def verify_soil_science(spec):
     return {"checks": [_r(r) for r in _soil_science.run({"SOIL_VERIFY": spec or {}})]}
 
 
+def verify_thermodynamics(spec):
+    """Carnot efficiency, ideal gas law (PV=nRT), specific heat (Q=mcΔT), entropy change (ΔS=Q/T).
+    Carnot: {"T_hot_K": 600, "T_cold_K": 300, "claimed_efficiency": 0.5}
+    Ideal gas: {"pressure_Pa": 101325, "volume_m3": 0.0224, "moles": 1.0, "claimed_temperature_K": 273.15}
+    Specific heat: {"mass_kg": 1.0, "specific_heat_J_per_kgK": 4186, "delta_T_K": 10, "claimed_heat_J": 41860}
+    Entropy: {"heat_J": 1000, "temperature_K": 500, "claimed_entropy_change_J_per_K": 2.0}"""
+    return {"checks": [_r(r) for r in _thermodynamics.run({"THERMO_VERIFY": spec or {}})]}
+
+
+def verify_nuclear_physics(spec):
+    """Radioactive decay, binding energy per nucleon, half-life from activity, decay constant.
+    Decay: {"half_life_seconds": 3600, "elapsed_seconds": 7200, "initial_count": 1e9, "claimed_remaining_count": 2.5e8}
+    Binding energy: {"mass_defect_amu": 0.0304, "nucleon_count": 4, "claimed_binding_energy_MeV_per_nucleon": 7.07}
+    Half-life: {"activity_Bq": 1e6, "atom_count": 1.44e9, "claimed_half_life_seconds": 1000}
+    Decay constant: {"half_life_seconds": 3600, "claimed_decay_constant": 1.925e-4}"""
+    return {"checks": [_r(r) for r in _nuclear_physics.run({"NUCLEAR_VERIFY": spec or {}})]}
+
+
+def verify_ecology(spec):
+    """Logistic population growth, trophic efficiency (10% rule), Shannon diversity index, carbon footprint.
+    Logistic: {"carrying_capacity_K": 1000, "initial_population_N0": 100, "growth_rate_r": 0.5, "time_t": 5, "claimed_population": 731}
+    Trophic: {"energy_input": 10000, "trophic_levels_up": 2, "trophic_efficiency": 0.10, "claimed_energy_output": 100}
+    Shannon: {"species_proportions": [0.5, 0.3, 0.2], "claimed_shannon_index": 1.0297}
+    Carbon: {"distance_km": 500, "emission_factor_kg_per_km": 0.21, "claimed_co2_kg": 105}"""
+    return {"checks": [_r(r) for r in _ecology.run({"ECO_VERIFY": spec or {}})]}
+
+
+def verify_rhetoric(spec):
+    """Fallacy classification (formal vs informal), syllogism validity, argument structure completeness.
+    Fallacy: {"fallacy_name": "ad hominem", "claimed_is_formal_fallacy": false}
+    Syllogism: {"major_premise": "All M are P", "minor_premise": "All S are M", "conclusion": "All S are P", "claimed_valid": true}
+    Structure: {"has_premise": true, "has_conclusion": true, "has_warrant": false, "claimed_is_complete_argument": true}"""
+    return {"checks": [_r(r) for r in _rhetoric.run({"RHET_VERIFY": spec or {}})]}
+
+
+def verify_philosophy(spec):
+    """Modal logic (K-axiom), ethical framework classification, epistemic claim type, Leibniz identity principle.
+    Modal: {"is_necessarily_true": true, "is_possibly_true": true, "claimed_consistent": true}
+    Ethics: {"framework_name": "consequentialist", "claimed_focuses_on_outcomes": true}
+    Epistemic: {"claim_requires_observation": false, "claimed_is_a_priori": true}
+    Identity: {"object_a_properties": ["red","round"], "object_b_properties": ["round","red"], "claimed_are_identical": true}"""
+    return {"checks": [_r(r) for r in _philosophy.run({"PHIL_VERIFY": spec or {}})]}
+
+
+def verify_operations_research(spec):
+    """LP feasibility, critical path (makespan), 0/1 knapsack optimal value, assignment cost.
+    LP: {"variable_values": {"x": 3, "y": 2}, "constraints": [{"lhs_coeffs": {"x": 1, "y": 1}, "operator": "<=", "rhs": 10}], "claimed_feasible": true}
+    Critical path: {"tasks": [{"id": "A", "duration": 3, "depends_on": []}, {"id": "B", "duration": 2, "depends_on": ["A"]}], "claimed_makespan": 5}
+    Knapsack: {"items": [{"weight": 2, "value": 6}, {"weight": 3, "value": 10}], "capacity": 5, "claimed_optimal_value": 16}
+    Assignment: {"assignment": [[0, 1], [1, 0]], "cost_matrix": [[3, 2], [5, 4]], "claimed_total_cost": 7}"""
+    return {"checks": [_r(r) for r in _operations_research.run({"OR_VERIFY": spec or {}})]}
+
+
+def verify_law(spec):
+    """US federal law: contract formation, constitutional age requirements, FLSA overtime, Miranda completeness.
+    Contract: {"has_offer": true, "has_acceptance": true, "has_consideration": true, "has_capacity": true, "has_legality": true, "claimed_contract_valid": true}
+    Age: {"office": "president", "age": 38, "claimed_meets_age_requirement": true}
+    FLSA: {"hours_worked": 50, "regular_rate": 20, "claimed_overtime_pay": 300}
+    Miranda: {"warnings_given": ["You have the right to remain silent", "used against you in court", "right to attorney", "appointed attorney"], "claimed_miranda_complete": true}"""
+    return {"checks": [_r(r) for r in _law.run({"LAW_VERIFY": spec or {}})]}
+
+
+def verify_theology_doctrine(spec):
+    """Orthodox Christian doctrine: gospel core facts (1 Cor 15:3-4), Trinity, salvation by grace, bodily resurrection, creation ex nihilo.
+    Gospel: {"claimed_died_for_sins": true, "claimed_was_buried": true, "claimed_rose_third_day": true, "claimed_gospel_complete": true}
+    Trinity: {"persons_named": ["Father", "Son", "Holy Spirit"], "claimed_trinitarian_complete": true}
+    Salvation: {"claimed_salvation_mechanism": "grace_through_faith", "claimed_excludes_works": true}
+    Resurrection: {"claimed_resurrection_type": "bodily", "claimed_is_bodily": true}
+    Creation: {"claimed_creation_from_preexisting_matter": false, "claimed_ex_nihilo": true}"""
+    return {"checks": [_r(r) for r in _theology_doctrine.run({"THEOL_VERIFY": spec or {}})]}
+
+
+def verify_history_chronology(spec):
+    """Year arithmetic (BCE/CE), century assignment, era classification, elapsed years BCE→CE, decade assignment.
+    Year arithmetic: {"from_year": 100, "to_year": 2000, "claimed_elapsed_years": 1900}
+    Century: {"year_CE": 1776, "claimed_century": 18}
+    Era: {"year": -44, "claimed_era": "BCE"}
+    BCE to CE: {"from_BCE": 44, "to_CE": 1066, "claimed_elapsed": 1109}
+    Decade: {"year_CE": 1985, "claimed_decade_start": 1980}"""
+    return {"checks": [_r(r) for r in _history_chronology.run({"HIST_VERIFY": spec or {}})]}
+
+
+def verify_materials_science(spec):
+    """Stress/strain (Young's modulus), thermal expansion, density, hardness comparison.
+    Stress: {"youngs_modulus_Pa": 200e9, "strain": 0.001, "claimed_stress_Pa": 2e8}
+    Thermal: {"thermal_expansion_coeff": 12e-6, "original_length_m": 1.0, "delta_T_K": 100, "claimed_delta_length_m": 0.0012}
+    Density: {"mass_kg": 2.7, "volume_m3": 0.001, "claimed_density_kg_per_m3": 2700}
+    Hardness: {"material_a_hardness": 800, "material_b_hardness": 200, "claimed_a_harder_than_b": true}"""
+    return {"checks": [_r(r) for r in _materials_science.run({"MAT_VERIFY": spec or {}})]}
+
+
+def verify_architecture(spec):
+    """FAR, occupant load, stair compliance (IBC riser/tread), window-wall ratio, structural load superposition.
+    FAR: {"total_floor_area_m2": 5000, "lot_area_m2": 2000, "claimed_far": 2.5}
+    Occupant load: {"floor_area_m2": 500, "occupant_load_factor_m2_per_person": 5, "claimed_occupant_count": 100}
+    Stair: {"riser_height_mm": 150, "tread_depth_mm": 280, "claimed_compliant": true}
+    Load: {"dead_load_kPa": 3.0, "live_load_kPa": 2.4, "snow_load_kPa": 1.0, "claimed_total_load_kPa": 6.4}"""
+    return {"checks": [_r(r) for r in _architecture.run({"ARCH_VERIFY": spec or {}})]}
+
+
+def verify_oceanography(spec):
+    """Hydrostatic pressure at depth, salinity classification, deep-water wave speed, tidal range type, pelagic zone.
+    Pressure: {"depth_m": 1000, "claimed_pressure_Pa": 10158825}
+    Salinity: {"salinity_ppt": 35, "claimed_classification": "marine"}
+    Wave speed: {"wavelength_m": 100, "claimed_wave_speed_m_per_s": 12.47}
+    Tidal: {"tidal_range_m": 3.0, "claimed_tidal_type": "mesotidal"}
+    Zone: {"depth_m": 500, "claimed_zone": "mesopelagic"}"""
+    return {"checks": [_r(r) for r in _oceanography.run({"OCEAN_VERIFY": spec or {}})]}
+
+
 # ---------------------------------------------------------------------
 # Domain-attestation tools
 # ---------------------------------------------------------------------
@@ -1117,6 +1239,91 @@ TOOLS: List[Dict[str, Any]] = [
                     "Irrigation: spec={\"reference_et0_mm_per_day\":5.0,\"crop_coefficient\":1.15,\"claimed_etc_mm_per_day\":5.75}.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_soil_science(a["spec"])},
+    {"name": "verify_thermodynamics",
+     "description": "Carnot efficiency (η=1−Tc/Th), ideal gas law (PV=nRT), specific heat (Q=mcΔT), entropy change (ΔS=Q/T). "
+                    "Carnot: spec={\"T_hot_K\":600,\"T_cold_K\":300,\"claimed_efficiency\":0.5}. "
+                    "Specific heat: spec={\"mass_kg\":1.0,\"specific_heat_J_per_kgK\":4186,\"delta_T_K\":10,\"claimed_heat_J\":41860}. "
+                    "Entropy: spec={\"heat_J\":1000,\"temperature_K\":500,\"claimed_entropy_change_J_per_K\":2.0}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_thermodynamics(a["spec"])},
+    {"name": "verify_nuclear_physics",
+     "description": "Radioactive decay (N=N0·e^-λt), binding energy per nucleon (mass_defect_amu×931.5/A), half-life from activity (T=ln2·N/A), decay constant (λ=ln2/T). "
+                    "Decay: spec={\"half_life_seconds\":3600,\"elapsed_seconds\":7200,\"initial_count\":1e9,\"claimed_remaining_count\":2.5e8}. "
+                    "Binding: spec={\"mass_defect_amu\":0.0304,\"nucleon_count\":4,\"claimed_binding_energy_MeV_per_nucleon\":7.07}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_nuclear_physics(a["spec"])},
+    {"name": "verify_ecology",
+     "description": "Logistic population growth, trophic efficiency (10% rule), Shannon diversity (H=−Σp·lnp), carbon footprint transport. "
+                    "Logistic: spec={\"carrying_capacity_K\":1000,\"initial_population_N0\":100,\"growth_rate_r\":0.5,\"time_t\":5,\"claimed_population\":731}. "
+                    "Trophic: spec={\"energy_input\":10000,\"trophic_levels_up\":2,\"claimed_energy_output\":100}. "
+                    "Shannon: spec={\"species_proportions\":[0.5,0.3,0.2],\"claimed_shannon_index\":1.0297}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_ecology(a["spec"])},
+    {"name": "verify_rhetoric",
+     "description": "Fallacy classification (formal vs informal, 18-entry catalogue), Aristotelian syllogism validity (20 valid mood-figure pairs), argument structure completeness. "
+                    "Fallacy: spec={\"fallacy_name\":\"ad hominem\",\"claimed_is_formal_fallacy\":false}. "
+                    "Syllogism: spec={\"major_premise\":\"All M are P\",\"minor_premise\":\"All S are M\",\"conclusion\":\"All S are P\",\"claimed_valid\":true}. "
+                    "Structure: spec={\"has_premise\":true,\"has_conclusion\":true,\"has_warrant\":false,\"claimed_is_complete_argument\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_rhetoric(a["spec"])},
+    {"name": "verify_philosophy",
+     "description": "Modal logic K-axiom (necessarily-P→possibly-P), ethical framework classification (deontological/consequentialist/virtue/contractarian), epistemic claim type (a priori vs a posteriori), Leibniz identity principle. "
+                    "Modal: spec={\"is_necessarily_true\":true,\"is_possibly_true\":true,\"claimed_consistent\":true}. "
+                    "Ethics: spec={\"framework_name\":\"consequentialist\",\"claimed_focuses_on_outcomes\":true}. "
+                    "Epistemic: spec={\"claim_requires_observation\":false,\"claimed_is_a_priori\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_philosophy(a["spec"])},
+    {"name": "verify_operations_research",
+     "description": "LP feasibility (constraint evaluation), critical path makespan (topological sort), 0/1 knapsack optimal value (DP), assignment cost (Σ cost_matrix[i][j]). "
+                    "LP: spec={\"variable_values\":{\"x\":3,\"y\":2},\"constraints\":[{\"lhs_coeffs\":{\"x\":1,\"y\":1},\"operator\":\"<=\",\"rhs\":10}],\"claimed_feasible\":true}. "
+                    "Critical path: spec={\"tasks\":[{\"id\":\"A\",\"duration\":3,\"depends_on\":[]},{\"id\":\"B\",\"duration\":2,\"depends_on\":[\"A\"]}],\"claimed_makespan\":5}. "
+                    "Knapsack: spec={\"items\":[{\"weight\":2,\"value\":6},{\"weight\":3,\"value\":10}],\"capacity\":5,\"claimed_optimal_value\":16}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_operations_research(a["spec"])},
+    {"name": "verify_law",
+     "description": "US federal law: contract formation (5 elements), constitutional age requirements (president=35/senator=30/rep=25), FLSA overtime (1.5×rate for hours>40), Miranda completeness (4 warnings). "
+                    "Contract: spec={\"has_offer\":true,\"has_acceptance\":true,\"has_consideration\":true,\"has_capacity\":true,\"has_legality\":true,\"claimed_contract_valid\":true}. "
+                    "Age: spec={\"office\":\"president\",\"age\":38,\"claimed_meets_age_requirement\":true}. "
+                    "FLSA: spec={\"hours_worked\":50,\"regular_rate\":20,\"claimed_overtime_pay\":300}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_law(a["spec"])},
+    {"name": "verify_theology_doctrine",
+     "description": "Orthodox Christian doctrine from Scripture: gospel core facts (1 Cor 15:3-4 — died/buried/rose), Nicene Trinity (Father/Son/Holy Spirit), salvation by grace (Eph 2:8-9, not works), bodily resurrection (Luke 24:39), creation ex nihilo (Gen 1:1/Heb 11:3). "
+                    "Gospel: spec={\"claimed_died_for_sins\":true,\"claimed_was_buried\":true,\"claimed_rose_third_day\":true,\"claimed_gospel_complete\":true}. "
+                    "Trinity: spec={\"persons_named\":[\"Father\",\"Son\",\"Holy Spirit\"],\"claimed_trinitarian_complete\":true}. "
+                    "Salvation: spec={\"claimed_salvation_mechanism\":\"grace_through_faith\",\"claimed_excludes_works\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_theology_doctrine(a["spec"])},
+    {"name": "verify_history_chronology",
+     "description": "BCE/CE year arithmetic, century assignment (ceil(year/100)), era classification, elapsed years BCE→CE (no year 0: from_BCE+to_CE-1), decade assignment. "
+                    "Year arithmetic: spec={\"from_year\":100,\"to_year\":2000,\"claimed_elapsed_years\":1900}. "
+                    "Century: spec={\"year_CE\":1776,\"claimed_century\":18}. "
+                    "BCE to CE: spec={\"from_BCE\":44,\"to_CE\":1066,\"claimed_elapsed\":1109}. "
+                    "Era: spec={\"year\":-44,\"claimed_era\":\"BCE\"}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_history_chronology(a["spec"])},
+    {"name": "verify_materials_science",
+     "description": "Stress/strain (σ=Eε, σ=F/A), thermal expansion (ΔL=αL₀ΔT), density (ρ=m/V), hardness comparison (Vickers/Brinell HV). "
+                    "Stress: spec={\"youngs_modulus_Pa\":200e9,\"strain\":0.001,\"claimed_stress_Pa\":2e8}. "
+                    "Thermal: spec={\"thermal_expansion_coeff\":12e-6,\"original_length_m\":1.0,\"delta_T_K\":100,\"claimed_delta_length_m\":0.0012}. "
+                    "Density: spec={\"mass_kg\":2.7,\"volume_m3\":0.001,\"claimed_density_kg_per_m3\":2700}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_materials_science(a["spec"])},
+    {"name": "verify_architecture",
+     "description": "FAR (floor_area/lot_area), occupant load (ceil(area/factor)), IBC stair compliance (riser 102–178mm, tread ≥279mm), window-wall ratio, structural load superposition. "
+                    "FAR: spec={\"total_floor_area_m2\":5000,\"lot_area_m2\":2000,\"claimed_far\":2.5}. "
+                    "Occupant: spec={\"floor_area_m2\":500,\"occupant_load_factor_m2_per_person\":5,\"claimed_occupant_count\":100}. "
+                    "Stair: spec={\"riser_height_mm\":150,\"tread_depth_mm\":280,\"claimed_compliant\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_architecture(a["spec"])},
+    {"name": "verify_oceanography",
+     "description": "Hydrostatic pressure at depth (P=Patm+ρgd, ρ=1025 kg/m³), salinity classification (fresh/brackish/marine/hypersaline), deep-water wave speed (c=√(gλ/2π)), tidal range type (micro/meso/macrotidal), pelagic zone (epipelagic→hadopelagic). "
+                    "Pressure: spec={\"depth_m\":1000,\"claimed_pressure_Pa\":10158825}. "
+                    "Salinity: spec={\"salinity_ppt\":35,\"claimed_classification\":\"marine\"}. "
+                    "Wave: spec={\"wavelength_m\":100,\"claimed_wave_speed_m_per_s\":12.47}. "
+                    "Zone: spec={\"depth_m\":500,\"claimed_zone\":\"mesopelagic\"}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_oceanography(a["spec"])},
 ]
 
 
@@ -1188,6 +1395,18 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_real_estate": verify_real_estate,
     "verify_construction": verify_construction,
     "verify_soil_science": verify_soil_science,
+    "verify_thermodynamics": verify_thermodynamics,
+    "verify_nuclear_physics": verify_nuclear_physics,
+    "verify_ecology": verify_ecology,
+    "verify_rhetoric": verify_rhetoric,
+    "verify_philosophy": verify_philosophy,
+    "verify_operations_research": verify_operations_research,
+    "verify_law": verify_law,
+    "verify_theology_doctrine": verify_theology_doctrine,
+    "verify_history_chronology": verify_history_chronology,
+    "verify_materials_science": verify_materials_science,
+    "verify_architecture": verify_architecture,
+    "verify_oceanography": verify_oceanography,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

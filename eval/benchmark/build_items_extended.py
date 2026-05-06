@@ -60,6 +60,18 @@ from concordance_engine.verifiers import (
     soil_science as soil,
     cybersecurity as cyber,
     medicine as med,
+    thermodynamics as thermo,
+    nuclear_physics as nuke,
+    ecology as eco,
+    rhetoric as rhet,
+    philosophy as phil,
+    operations_research as ops_res,
+    law as law_ver,
+    theology_doctrine as theol,
+    history_chronology as hist,
+    materials_science as mats,
+    architecture as arch,
+    oceanography as ocean,
 )
 from concordance_engine.verifiers.base import VerifierResult
 from scipy import stats as scistats
@@ -1442,6 +1454,427 @@ def build_medicine():
     ]
 
 
+# ── thermodynamics (3) ───────────────────────────────────────────────────────
+
+def build_thermodynamics():
+    carnot = round(1 - 300 / 600, 4)                  # 0.5
+    q_heat = round(1.0 * 4186 * 10, 1)                # 41860.0
+    ds = round(2000 / 400, 4)                          # 5.0
+    return [
+        _item("THERMO-001", "thermodynamics", "carnot",
+              "A heat engine operates between a hot reservoir at 600 K and a cold reservoir "
+              "at 300 K. Call verify_thermodynamics to check, then reply with just the "
+              "Carnot efficiency as a decimal.",
+              carnot, "numeric",
+              "verify_thermodynamics",
+              {"T_hot_K": 600, "T_cold_K": 300, "claimed_efficiency": carnot},
+              tolerance=0.001),
+        _item("THERMO-002", "thermodynamics", "specific_heat",
+              "How much heat energy (in joules) is needed to raise 1 kg of water "
+              "(specific heat 4186 J/kg·K) by 10 K? "
+              "Call verify_thermodynamics to check, then reply with just the number.",
+              q_heat, "numeric",
+              "verify_thermodynamics",
+              {"mass_kg": 1.0, "specific_heat_J_per_kgK": 4186, "delta_T_K": 10,
+               "claimed_heat_J": q_heat},
+              tolerance=1.0),
+        _item("THERMO-003", "thermodynamics", "entropy_change",
+              "In a reversible process, 2000 J of heat is transferred to a system "
+              "at 400 K. What is the entropy change in J/K? "
+              "Call verify_thermodynamics to check, then reply with just the number.",
+              ds, "numeric",
+              "verify_thermodynamics",
+              {"heat_J": 2000, "temperature_K": 400,
+               "claimed_entropy_change_J_per_K": ds},
+              tolerance=0.001),
+    ]
+
+
+# ── nuclear_physics (3) ──────────────────────────────────────────────────────
+
+def build_nuclear_physics():
+    lam = math.log(2) / 3600                           # decay constant s⁻¹
+    lam_r = round(lam, 7)
+    n_remain = round(1e9 * math.exp(-math.log(2) * 1), 0)  # 5e8
+    be_per_nuc = round(0.0304 * 931.5 / 4, 3)         # 7.075 MeV
+    return [
+        _item("NUCLEAR-001", "nuclear_physics", "decay_constant",
+              "Carbon-14 has a half-life of 3600 seconds. "
+              "What is its decay constant λ in s⁻¹? "
+              "Call verify_nuclear_physics to check, then reply with just the number.",
+              lam_r, "numeric",
+              "verify_nuclear_physics",
+              {"half_life_seconds": 3600, "claimed_decay_constant": lam_r},
+              tolerance=0.001),
+        _item("NUCLEAR-002", "nuclear_physics", "radioactive_decay",
+              "A radioactive sample starts with 1×10⁹ atoms and has a half-life of "
+              "3600 seconds. How many atoms remain after 3600 seconds? "
+              "Call verify_nuclear_physics to check, then reply with just the number.",
+              n_remain, "numeric",
+              "verify_nuclear_physics",
+              {"half_life_seconds": 3600, "elapsed_seconds": 3600,
+               "initial_count": 1e9, "claimed_remaining_count": n_remain},
+              tolerance=1e6),
+        _item("NUCLEAR-003", "nuclear_physics", "binding_energy",
+              "Helium-4 has a mass defect of 0.0304 amu. With 1 amu = 931.5 MeV, "
+              "what is the binding energy per nucleon in MeV? "
+              "Call verify_nuclear_physics to check, then reply with just the number.",
+              be_per_nuc, "numeric",
+              "verify_nuclear_physics",
+              {"mass_defect_amu": 0.0304, "nucleon_count": 4,
+               "claimed_binding_energy_MeV_per_nucleon": be_per_nuc},
+              tolerance=0.01),
+    ]
+
+
+# ── ecology (3) ──────────────────────────────────────────────────────────────
+
+def build_ecology():
+    trophic_out = round(100000 * (0.10 ** 2), 1)       # 1000.0
+    shannon = round(-(0.5 * math.log(0.5) + 0.3 * math.log(0.3) + 0.2 * math.log(0.2)), 4)
+    co2 = round(500 * 0.21, 2)                          # 105.0
+    return [
+        _item("ECO-001", "ecology", "trophic_efficiency",
+              "A grassland ecosystem receives 100,000 kJ of energy at the producer level. "
+              "Applying the 10%% rule twice, how much energy (in kJ) reaches the secondary "
+              "consumer level? "
+              "Call verify_ecology to check, then reply with just the number.",
+              trophic_out, "numeric",
+              "verify_ecology",
+              {"energy_input": 100000, "trophic_levels_up": 2,
+               "trophic_efficiency": 0.10, "claimed_energy_output": trophic_out},
+              tolerance=0.1),
+        _item("ECO-002", "ecology", "shannon_diversity",
+              "A community has three species with proportions 0.5, 0.3, and 0.2. "
+              "Using H = −Σ pᵢ ln(pᵢ), what is the Shannon diversity index? "
+              "Call verify_ecology to check, then reply with just the number rounded to 4 "
+              "decimal places.",
+              shannon, "numeric",
+              "verify_ecology",
+              {"species_proportions": [0.5, 0.3, 0.2],
+               "claimed_shannon_index": shannon},
+              tolerance=0.001),
+        _item("ECO-003", "ecology", "carbon_footprint",
+              "A vehicle travels 500 km with an emission factor of 0.21 kg CO₂/km. "
+              "What is the total CO₂ emitted in kg? "
+              "Call verify_ecology to check, then reply with just the number.",
+              co2, "numeric",
+              "verify_ecology",
+              {"distance_km": 500, "emission_factor_kg_per_km": 0.21,
+               "claimed_co2_kg": co2},
+              tolerance=0.01),
+    ]
+
+
+# ── rhetoric (3) ─────────────────────────────────────────────────────────────
+
+def build_rhetoric():
+    return [
+        _item("RHET-001", "rhetoric", "fallacy_classification",
+              "The ad hominem fallacy attacks a person rather than their argument. "
+              "Is ad hominem a formal fallacy (invalid logical form) or an informal fallacy "
+              "(bad content/relevance)? Answer: formal or informal.",
+              "informal", "classification",
+              "verify_rhetoric",
+              {"fallacy_name": "ad hominem", "claimed_is_formal_fallacy": False}),
+        _item("RHET-002", "rhetoric", "syllogism_validity",
+              'Consider the syllogism: "All mammals are warm-blooded. All dogs are mammals. '
+              'Therefore all dogs are warm-blooded." '
+              "Is this syllogism valid? Call verify_rhetoric to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_rhetoric",
+              {"major_premise": "All mammals are warm-blooded",
+               "minor_premise": "All dogs are mammals",
+               "conclusion": "All dogs are warm-blooded",
+               "claimed_valid": True}),
+        _item("RHET-003", "rhetoric", "argument_structure",
+              "An argument contains a clearly stated premise and a clearly stated conclusion. "
+              "Does this qualify as a structurally complete argument? "
+              "Call verify_rhetoric to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_rhetoric",
+              {"has_premise": True, "has_conclusion": True, "has_warrant": False,
+               "claimed_is_complete_argument": True}),
+    ]
+
+
+# ── philosophy (3) ───────────────────────────────────────────────────────────
+
+def build_philosophy():
+    return [
+        _item("PHIL-001", "philosophy", "modal_logic",
+              "In modal logic, if a proposition is necessarily true, does that imply "
+              "it is also possibly true? Call verify_philosophy to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_philosophy",
+              {"is_necessarily_true": True, "is_possibly_true": True,
+               "claimed_consistent": True}),
+        _item("PHIL-002", "philosophy", "ethical_framework",
+              "Consequentialism evaluates the morality of actions based on their outcomes "
+              "and consequences. Does consequentialism focus primarily on outcomes? "
+              "Call verify_philosophy to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_philosophy",
+              {"framework_name": "consequentialist",
+               "claimed_focuses_on_outcomes": True}),
+        _item("PHIL-003", "philosophy", "epistemic_claim",
+              "The claim '2 + 2 = 4' can be known through pure reason without empirical "
+              "observation. Is this an a priori claim? "
+              "Call verify_philosophy to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_philosophy",
+              {"claim_requires_observation": False, "claimed_is_a_priori": True}),
+    ]
+
+
+# ── operations_research (3) ──────────────────────────────────────────────────
+
+def build_operations_research():
+    makespan = 5
+    knapsack_val = 16
+    return [
+        _item("OR-001", "operations_research", "lp_feasibility",
+              "A linear program has variables x=3, y=2. The constraint is x + y ≤ 10. "
+              "Is this solution feasible? "
+              "Call verify_operations_research to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_operations_research",
+              {"variable_values": {"x": 3, "y": 2},
+               "constraints": [{"lhs_coeffs": {"x": 1, "y": 1},
+                                 "operator": "<=", "rhs": 10}],
+               "claimed_feasible": True}),
+        _item("OR-002", "operations_research", "critical_path",
+              "A project has two tasks: Task A takes 3 days and Task B takes 2 days. "
+              "Task B cannot start until Task A is complete. "
+              "What is the minimum project duration (makespan) in days? "
+              "Call verify_operations_research to check, then reply with just the number.",
+              makespan, "numeric",
+              "verify_operations_research",
+              {"tasks": [{"id": "A", "duration": 3, "depends_on": []},
+                          {"id": "B", "duration": 2, "depends_on": ["A"]}],
+               "claimed_makespan": makespan},
+              tolerance=0),
+        _item("OR-003", "operations_research", "knapsack",
+              "A knapsack has capacity 5. Item 1 weighs 2 and is worth 6. "
+              "Item 2 weighs 3 and is worth 10. What is the maximum total value? "
+              "Call verify_operations_research to check, then reply with just the number.",
+              knapsack_val, "numeric",
+              "verify_operations_research",
+              {"items": [{"weight": 2, "value": 6}, {"weight": 3, "value": 10}],
+               "capacity": 5, "claimed_optimal_value": knapsack_val},
+              tolerance=0),
+    ]
+
+
+# ── law (3) ──────────────────────────────────────────────────────────────────
+
+def build_law():
+    ot_pay = round((50 - 40) * 20 * 1.5, 2)           # 300.0
+    return [
+        _item("LAW-001", "law", "contract_formation",
+              "A contract has all five elements: offer, acceptance, consideration, "
+              "legal capacity, and lawful purpose. "
+              "Is it a valid contract under US law? "
+              "Call verify_law to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_law",
+              {"has_offer": True, "has_acceptance": True, "has_consideration": True,
+               "has_capacity": True, "has_legality": True,
+               "claimed_contract_valid": True}),
+        _item("LAW-002", "law", "constitutional_age",
+              "The US Constitution requires a presidential candidate to be at least 35 years old. "
+              "Does a 38-year-old meet this requirement? "
+              "Call verify_law to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_law",
+              {"office": "president", "age": 38,
+               "claimed_meets_age_requirement": True}),
+        _item("LAW-003", "law", "flsa_overtime",
+              "Under FLSA, an employee works 50 hours in a week at $20/hour. "
+              "The regular rate applies to the first 40 hours. "
+              "What is the overtime pay (for the extra 10 hours at 1.5× rate) in dollars? "
+              "Call verify_law to check, then reply with just the number.",
+              ot_pay, "numeric",
+              "verify_law",
+              {"hours_worked": 50, "regular_rate": 20.0,
+               "claimed_overtime_pay": ot_pay},
+              tolerance=0.01),
+    ]
+
+
+# ── theology_doctrine (3) ────────────────────────────────────────────────────
+
+def build_theology_doctrine():
+    return [
+        _item("THEOL-001", "theology_doctrine", "gospel_core_facts",
+              "According to 1 Corinthians 15:3-4, the gospel includes: "
+              "Christ died for our sins, was buried, and rose on the third day. "
+              "Are all three facts present and is the gospel complete? "
+              "Call verify_theology_doctrine to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_theology_doctrine",
+              {"claimed_died_for_sins": True, "claimed_was_buried": True,
+               "claimed_rose_third_day": True, "claimed_gospel_complete": True}),
+        _item("THEOL-002", "theology_doctrine", "trinitarian_formula",
+              "The Nicene Creed confesses one God in three persons: Father, Son, and Holy Spirit. "
+              "Are all three persons of the Trinity named in this formula? "
+              "Call verify_theology_doctrine to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_theology_doctrine",
+              {"persons_named": ["Father", "Son", "Holy Spirit"],
+               "claimed_trinitarian_complete": True}),
+        _item("THEOL-003", "theology_doctrine", "salvation_by_grace",
+              "Ephesians 2:8-9 states that salvation is by grace through faith, "
+              "not as a result of works. Does the mechanism 'grace_through_faith' "
+              "correctly exclude works as the basis of salvation? "
+              "Call verify_theology_doctrine to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_theology_doctrine",
+              {"claimed_salvation_mechanism": "grace_through_faith",
+               "claimed_excludes_works": True}),
+    ]
+
+
+# ── history_chronology (3) ───────────────────────────────────────────────────
+
+def build_history_chronology():
+    elapsed_bce_ce = 44 + 476 - 1                      # 519 (44 BCE to 476 CE)
+    century = math.ceil(1776 / 100)                    # 18
+    elapsed_ce = 2000 - 500                            # 1500
+    return [
+        _item("HIST-001", "history_chronology", "elapsed_years_bce_to_ce",
+              "Julius Caesar was assassinated in 44 BCE. The Western Roman Empire fell "
+              "in 476 CE. There is no year 0 in the historical calendar. "
+              "How many years elapsed between these two events? "
+              "Call verify_history_chronology to check, then reply with just the number.",
+              elapsed_bce_ce, "numeric",
+              "verify_history_chronology",
+              {"from_BCE": 44, "to_CE": 476, "claimed_elapsed": elapsed_bce_ce},
+              tolerance=1),
+        _item("HIST-002", "history_chronology", "century_assignment",
+              "The US Declaration of Independence was signed in 1776 CE. "
+              "Which century does 1776 belong to? Reply with just the century number.",
+              century, "numeric",
+              "verify_history_chronology",
+              {"year_CE": 1776, "claimed_century": century},
+              tolerance=0),
+        _item("HIST-003", "history_chronology", "year_arithmetic",
+              "From 500 CE to 2000 CE, how many years elapsed? "
+              "Call verify_history_chronology to check, then reply with just the number.",
+              elapsed_ce, "numeric",
+              "verify_history_chronology",
+              {"from_year": 500, "to_year": 2000, "claimed_elapsed_years": elapsed_ce},
+              tolerance=1),
+    ]
+
+
+# ── materials_science (3) ────────────────────────────────────────────────────
+
+def build_materials_science():
+    stress_pa = 200e9 * 0.001                          # 2e8 Pa
+    delta_l = round(12e-6 * 1.0 * 100, 6)             # 0.0012 m
+    density = round(2.7 / 0.001, 1)                   # 2700
+    return [
+        _item("MAT-001", "materials_science", "stress_strain",
+              "A steel rod has Young's modulus 200 GPa (2×10¹¹ Pa) and is strained by 0.001. "
+              "What is the resulting stress in Pa? "
+              "Call verify_materials_science to check, then reply with just the number.",
+              stress_pa, "numeric",
+              "verify_materials_science",
+              {"youngs_modulus_Pa": 200e9, "strain": 0.001,
+               "claimed_stress_Pa": stress_pa},
+              tolerance=stress_pa * 0.001),
+        _item("MAT-002", "materials_science", "thermal_expansion",
+              "A steel bar of length 1 m has a linear thermal expansion coefficient of "
+              "12×10⁻⁶ /K. If the temperature increases by 100 K, what is the change "
+              "in length in metres? "
+              "Call verify_materials_science to check, then reply with just the number.",
+              delta_l, "numeric",
+              "verify_materials_science",
+              {"thermal_expansion_coeff": 12e-6, "original_length_m": 1.0,
+               "delta_T_K": 100, "claimed_delta_length_m": delta_l},
+              tolerance=delta_l * 0.001),
+        _item("MAT-003", "materials_science", "density",
+              "An aluminium block has mass 2.7 kg and volume 0.001 m³. "
+              "What is its density in kg/m³? "
+              "Call verify_materials_science to check, then reply with just the number.",
+              density, "numeric",
+              "verify_materials_science",
+              {"mass_kg": 2.7, "volume_m3": 0.001,
+               "claimed_density_kg_per_m3": density},
+              tolerance=0.1),
+    ]
+
+
+# ── architecture (3) ─────────────────────────────────────────────────────────
+
+def build_architecture():
+    far = round(3000 / 1000, 2)                        # 3.0
+    occ = math.ceil(200 / 2)                           # 100
+    return [
+        _item("ARCH-001", "architecture", "far",
+              "A building has a total floor area of 3000 m² on a lot of 1000 m². "
+              "What is the Floor Area Ratio (FAR)? "
+              "Call verify_architecture to check, then reply with just the number.",
+              far, "numeric",
+              "verify_architecture",
+              {"total_floor_area_m2": 3000, "lot_area_m2": 1000,
+               "claimed_far": far},
+              tolerance=0.01),
+        _item("ARCH-002", "architecture", "occupant_load",
+              "A floor has 200 m² and an occupant load factor of 2 m²/person. "
+              "What is the calculated occupant count (round up)? "
+              "Call verify_architecture to check, then reply with just the number.",
+              occ, "numeric",
+              "verify_architecture",
+              {"floor_area_m2": 200, "occupant_load_factor_m2_per_person": 2,
+               "claimed_occupant_count": occ},
+              tolerance=0),
+        _item("ARCH-003", "architecture", "stair_compliance",
+              "A staircase has riser height 160 mm and tread depth 300 mm. "
+              "The IBC requires riser height 102–178 mm and tread depth ≥ 279 mm. "
+              "Does this staircase comply? "
+              "Call verify_architecture to check, then answer yes or no.",
+              "yes", "classification",
+              "verify_architecture",
+              {"riser_height_mm": 160, "tread_depth_mm": 300,
+               "claimed_compliant": True}),
+    ]
+
+
+# ── oceanography (3) ─────────────────────────────────────────────────────────
+
+def build_oceanography():
+    p_pa = 101325 + 1025 * 9.81 * 100
+    p_atm = round(p_pa / 101325, 2)                    # ≈ 10.92
+    wave_speed = round(math.sqrt(9.81 * 200 / (2 * math.pi)), 2)  # ≈ 17.67
+    return [
+        _item("OCEAN-001", "oceanography", "pressure_at_depth",
+              "Seawater has density 1025 kg/m³. What is the absolute pressure at 100 m depth "
+              "in atmospheres (P_atm = 101325 Pa)? "
+              "Call verify_oceanography to check, then reply with the number rounded to 2 "
+              "decimal places.",
+              p_atm, "numeric",
+              "verify_oceanography",
+              {"depth_m": 100, "claimed_pressure_atm": p_atm},
+              tolerance=0.01),
+        _item("OCEAN-002", "oceanography", "salinity_classification",
+              "Open ocean seawater typically has salinity of 35 ppt. "
+              "What is the salinity classification? Answer: fresh, brackish, marine, or hypersaline.",
+              "marine", "classification",
+              "verify_oceanography",
+              {"salinity_ppt": 35, "claimed_classification": "marine"}),
+        _item("OCEAN-003", "oceanography", "deep_water_wave_speed",
+              "A deep-water ocean wave has wavelength 200 m. "
+              "Using c = √(gλ/2π) with g = 9.81 m/s², what is the phase speed in m/s? "
+              "Call verify_oceanography to check, then reply with only the numeric answer.",
+              wave_speed, "numeric",
+              "verify_oceanography",
+              {"wavelength_m": 200, "claimed_wave_speed_m_per_s": wave_speed},
+              tolerance=0.01),
+    ]
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 BUILDERS = [
@@ -1462,6 +1895,10 @@ BUILDERS = [
     build_economics, build_labor, build_real_estate,
     build_construction, build_soil_science,
     build_cybersecurity, build_medicine,
+    build_thermodynamics, build_nuclear_physics, build_ecology,
+    build_rhetoric, build_philosophy, build_operations_research,
+    build_law, build_theology_doctrine, build_history_chronology,
+    build_materials_science, build_architecture, build_oceanography,
 ]
 
 
