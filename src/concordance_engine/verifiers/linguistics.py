@@ -286,6 +286,29 @@ def verify_cognate(pair: List[str]) -> VerifierResult:
                     data)
 
 
+def verify_transliteration_normalized_match(a: str, b: str) -> VerifierResult:
+    """Check whether two transliterations are equivalent after diacritic normalization.
+
+    DB-free: compares purely via _normalize_translit (strip combining marks + non-alphanumeric).
+    Useful for confirming that 'agape' is an acceptable normalized form of 'agapē'.
+    """
+    name = "linguistics.transliteration_normalized_match"
+    if not a or not b:
+        return na(name, "both transliteration_a and transliteration_b required")
+    na_a = _normalize_translit(a)
+    na_b = _normalize_translit(b)
+    match = na_a == na_b
+    data = {"transliteration_a": a, "transliteration_b": b,
+            "normalized_a": na_a, "normalized_b": na_b, "match": match}
+    if match:
+        return confirm(name,
+                       f"{a!r} and {b!r} are equivalent after diacritic normalization",
+                       data)
+    return mismatch(name,
+                    f"{a!r} ({na_a!r}) ≠ {b!r} ({na_b!r}) after diacritic normalization",
+                    data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     """Dispatch every applicable linguistics check for the packet's LING_VERIFY block."""
     results: List[VerifierResult] = []
@@ -303,6 +326,11 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
 
     if "cognate_pair" in lv:
         results.append(verify_cognate(lv["cognate_pair"]))
+
+    if "transliteration_a" in lv and "transliteration_b" in lv:
+        results.append(verify_transliteration_normalized_match(
+            lv["transliteration_a"], lv["transliteration_b"]
+        ))
 
     if not results:
         results.append(na("linguistics", "no LING_VERIFY artifacts present"))

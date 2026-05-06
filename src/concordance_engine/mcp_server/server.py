@@ -418,6 +418,248 @@ def verify_energy(spec: Dict[str, Any]) -> Dict[str, Any]:
     return tools.verify_energy(spec)
 
 
+# ---------------------------------------------------------------------------
+# Extended domain verifiers (all 37 domains now wired)
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def verify_acoustics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Wave speed/frequency/wavelength (v=fλ), decibel ratios (dB SPL/IL),
+    Doppler shift, harmonic frequency series.
+    Pass spec as ACOUS_VERIFY contents."""
+    return tools.verify_acoustics(spec)
+
+
+@mcp.tool()
+def verify_agriculture(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """USDA plant hardiness zone lookup, soil pH range for named crops,
+    crop rotation compatibility, livestock stocking density.
+    Pass spec as AG_VERIFY contents."""
+    return tools.verify_agriculture(spec)
+
+
+@mcp.tool()
+def verify_astronomy(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Kepler's third law (T²∝a³), Newton gravitational force, stellar
+    parallax distance, distance modulus (m-M=5log₁₀(d/10pc)).
+    Pass spec as ASTRO_VERIFY contents."""
+    return tools.verify_astronomy(spec)
+
+
+@mcp.tool()
+def verify_calendar_time(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Gregorian leap-year rule, ISO 8601 datetime validity,
+    day-of-week computation (Zeller/Tomohiko), duration addition.
+    Pass spec as CAL_VERIFY contents."""
+    return tools.verify_calendar_time(spec)
+
+
+@mcp.tool()
+def verify_combinatorics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Permutations P(n,k), combinations C(n,k), derangements D(n),
+    multinomial coefficients.
+    Pass spec as COMB_VERIFY contents."""
+    return tools.verify_combinatorics(spec)
+
+
+@mcp.tool()
+def verify_cryptography(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Hash match (SHA-256/SHA-512/MD5/SHA-1), hash strength rating,
+    HMAC verification, base64/hex encoding roundtrip, key-length strength.
+    Pass spec as CRYPTO_VERIFY contents."""
+    return tools.verify_cryptography(spec)
+
+
+@mcp.tool()
+def verify_document_validation(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Governance document structural check: required fields present,
+    date ordering valid, signatory consistency.
+    Pass spec as DOC_VERIFY contents."""
+    return tools.verify_document_validation(spec)
+
+
+@mcp.tool()
+def verify_electrical(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Ohm's law (V=IR), power equations (P=VI/I²R/V²/R),
+    Kirchhoff voltage loop sum, RC time constant (τ=RC).
+    Pass spec as ELEC_VERIFY contents."""
+    return tools.verify_electrical(spec)
+
+
+@mcp.tool()
+def verify_exercise_science(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Energy expenditure (MET×kg×hours×0.0175), max heart rate (220−age),
+    target HR zone (Karvonen), MET activity lookup.
+    Pass spec as EX_VERIFY contents."""
+    return tools.verify_exercise_science(spec)
+
+
+@mcp.tool()
+def verify_finance(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Accounting identity (Assets=Liabilities+Equity), compound interest
+    A=P(1+r/n)^(nt), NPV, present value PV=FV/(1+r)^t.
+    Pass spec as FIN_VERIFY contents."""
+    return tools.verify_finance(spec)
+
+
+@mcp.tool()
+def verify_formal_logic(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Propositional logic: satisfiability, tautology, contradiction,
+    entailment (premises→conclusion), logical equivalence.
+    Pass spec as LOGIC_VERIFY contents (formula + claimed_*)."""
+    return tools.verify_formal_logic(spec)
+
+
+@mcp.tool()
+def verify_genetics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """DNA/RNA base complementarity, reverse complement, GC content,
+    codon→amino-acid translation, ORF start/stop bounds.
+    Pass spec as GENETICS_VERIFY contents."""
+    return tools.verify_genetics(spec)
+
+
+@mcp.tool()
+def verify_geography(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Lat/lon range validity, Haversine great-circle distance,
+    initial bearing, UTM zone assignment.
+    Pass spec as GEO_LOC_VERIFY contents."""
+    return tools.verify_geography(spec)
+
+
+@mcp.tool()
+def verify_geology(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Radiometric decay dating (N=N₀·e^(−λt)), Mohs hardness scratch test,
+    Richter scale amplitude ratio between magnitudes.
+    Pass spec as GEO_VERIFY contents."""
+    return tools.verify_geology(spec)
+
+
+@mcp.tool()
+def verify_geometry(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Areas and volumes of standard shapes, Pythagorean theorem,
+    circle/sphere relationships, triangle angle sum.
+    Pass spec as GEOM_VERIFY contents."""
+    return tools.verify_geometry(spec)
+
+
+@mcp.tool()
+def verify_hydrology(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Manning's equation (open channel flow), Darcy's law (porous media),
+    continuity equation Q=Av.
+    Pass spec as HYD_VERIFY contents."""
+    return tools.verify_hydrology(spec)
+
+
+@mcp.tool()
+def verify_information_theory(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Shannon entropy H(X)=−Σp·log₂p, channel capacity C=B·log₂(1+SNR),
+    mutual information, Huffman minimum code length bounds.
+    Pass spec as INFO_VERIFY contents."""
+    return tools.verify_information_theory(spec)
+
+
+@mcp.tool()
+def verify_linguistics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Strong's number resolution (G1-G5624 Greek, H1-H8674 Hebrew),
+    occurrence count, transliteration normalization, gloss consistency,
+    cognate pair detection. Bridges scripture and original-language claims.
+    Pass spec as LING_VERIFY contents."""
+    return tools.verify_linguistics(spec)
+
+
+@mcp.tool()
+def verify_manufacturing(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Tolerance stack-up (worst-case/RSS), GD&T fit class
+    (clearance/interference/transition), surface roughness Ra,
+    process capability Cp/Cpk.
+    Pass spec as MFG_VERIFY contents."""
+    return tools.verify_manufacturing(spec)
+
+
+@mcp.tool()
+def verify_meteorology(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Dew point (Magnus formula), relative humidity, pressure altitude,
+    wind chill (NWS 2001 formula), heat index.
+    Pass spec as MET_VERIFY contents."""
+    return tools.verify_meteorology(spec)
+
+
+@mcp.tool()
+def verify_music_theory(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Interval semitone counts, chord quality (major/minor/dom7/dim),
+    equal-temperament frequency ratios (fn=440·2^(n/12)).
+    Pass spec as MUS_VERIFY contents."""
+    return tools.verify_music_theory(spec)
+
+
+@mcp.tool()
+def verify_networking(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Subnet mask validity, CIDR notation, IP address range checks,
+    network and broadcast address computation.
+    Pass spec as NET_VERIFY contents."""
+    return tools.verify_networking(spec)
+
+
+@mcp.tool()
+def verify_number_theory(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Primality testing, GCD/LCM, modular arithmetic,
+    Fibonacci membership, perfect/abundant/deficient number classification.
+    Pass spec as NUM_VERIFY contents."""
+    return tools.verify_number_theory(spec)
+
+
+@mcp.tool()
+def verify_nutrition(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Macronutrient caloric values (protein/carbs=4 kcal/g, fat=9 kcal/g),
+    BMR (Mifflin-St Jeor), TDEE with activity factor, nutrient density.
+    Pass spec as NUT_VERIFY contents."""
+    return tools.verify_nutrition(spec)
+
+
+@mcp.tool()
+def verify_optics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Snell's law (n₁sinθ₁=n₂sinθ₂), thin-lens equation (1/f=1/do+1/di),
+    diffraction grating (d·sinθ=mλ), Rayleigh angular resolution criterion.
+    Pass spec as OPT_VERIFY contents."""
+    return tools.verify_optics(spec)
+
+
+@mcp.tool()
+def verify_photography(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Exposure value (EV=log₂(N²/t)), equivalent exposure combinations
+    (aperture/shutter/ISO triangle), depth-of-field / hyperfocal distance.
+    Pass spec as PHOTO_VERIFY contents."""
+    return tools.verify_photography(spec)
+
+
+@mcp.tool()
+def verify_sports_analytics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Batting average, ERA, NFL passer rating, Pythagorean win expectation
+    W%=RS²/(RS²+RA²), Elo rating change.
+    Pass spec as SPORT_VERIFY contents."""
+    return tools.verify_sports_analytics(spec)
+
+
+@mcp.tool()
+def verify_witness(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Witness / attestation record structural check: gate-chain completeness,
+    reasoning trace present, anchor resolution, no-fabricated-answer.
+    Pass spec as WIT_VERIFY contents (claimed_gate_verdicts, etc.)."""
+    return tools.verify_witness(spec)
+
+
+@mcp.tool()
+def verify_quantum_computing(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Quantum computing verifier: qubit normalization (Σ|aᵢ|²=1),
+    Grover optimal iterations (T=floor(π√N/4)), Shor period (a^r≡1 mod N),
+    BB84 QKD security (QBER<11%), von Neumann entropy, fidelity.
+    Pass spec as QCOMP_VERIFY contents.
+    Normalization: spec={"amplitudes":[0.6,0.8],"claimed_normalized":true}
+    Grover: spec={"n_items":64,"claimed_grover_iterations":6}
+    BB84: spec={"qber":0.09,"claimed_secure":true}"""
+    return tools.verify_quantum_computing(spec)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()

@@ -150,6 +150,59 @@ def verify_wind_chill(spec: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
+def verify_wind_chill_metric(spec: Dict[str, Any]) -> VerifierResult:
+    """Environment Canada / NWS metric wind-chill formula.
+    WC = 13.12 + 0.6215·T − 11.37·V^0.16 + 0.3965·T·V^0.16
+    Valid for T < 10°C and V ≥ 5 km/h.
+    Accepts claimed_wc_c (exact value) or claimed_below_c (threshold comparison).
+    """
+    name = "meteorology.wind_chill_metric"
+    T = spec.get("temp_c")
+    V = spec.get("wind_kmh")
+    if T is None or V is None:
+        return na(name)
+    try:
+        Tc, Vc = float(T), float(V)
+    except (TypeError, ValueError):
+        return error(name, "temp_c and wind_kmh must be numeric")
+    if Tc >= 10 or Vc < 5:
+        return error(name,
+                     f"metric WC valid for T < 10°C and V ≥ 5 km/h; got T={Tc}, V={Vc}")
+    v_pow = Vc ** 0.16
+    wc = 13.12 + 0.6215 * Tc - 11.37 * v_pow + 0.3965 * Tc * v_pow
+    data = {"temp_c": Tc, "wind_kmh": Vc, "wind_chill_c": round(wc, 2),
+            "formula": "13.12 + 0.6215T − 11.37V^0.16 + 0.3965TV^0.16"}
+    # Exact value check
+    claimed_wc = spec.get("claimed_wc_c")
+    if claimed_wc is not None:
+        try:
+            c = float(claimed_wc)
+        except (TypeError, ValueError):
+            return error(name, "claimed_wc_c must be numeric")
+        tol = float(spec.get("tolerance_c", 0.5))
+        diff = abs(wc - c)
+        if diff <= tol:
+            return confirm(name, f"WC = {wc:.2f}°C (matches claim {c})", data)
+        return mismatch(name, f"WC = {wc:.2f}°C, claimed {c} (diff {diff:.2f})", data)
+    # Threshold comparison
+    threshold = spec.get("claimed_below_c")
+    if threshold is not None:
+        try:
+            thresh = float(threshold)
+        except (TypeError, ValueError):
+            return error(name, "claimed_below_c must be numeric")
+        is_below = wc < thresh
+        claimed_is_below = bool(spec.get("is_below", True))
+        if is_below == claimed_is_below:
+            return confirm(name,
+                           f"WC = {wc:.2f}°C {'<' if is_below else '>='} {thresh}°C "
+                           f"(matches claim)", data)
+        return mismatch(name,
+                        f"WC = {wc:.2f}°C, claimed {'below' if claimed_is_below else 'at or above'} "
+                        f"{thresh}°C", data)
+    return na(name, "no claimed_wc_c or claimed_below_c provided")
+
+
 def verify_saturation_vapor_pressure(spec: Dict[str, Any]) -> VerifierResult:
     name = "meteorology.saturation_vapor_pressure"
     T = spec.get("temperature_c_for_es")
@@ -188,6 +241,8 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_wind_chill(mv))
     if all(k in mv for k in ("temperature_c_for_es", "claimed_saturation_vapor_pressure_hpa")):
         results.append(verify_saturation_vapor_pressure(mv))
+    if "temp_c" in mv and "wind_kmh" in mv:
+        results.append(verify_wind_chill_metric(mv))
     if not results:
         results.append(na("meteorology", "no MET_VERIFY artifacts present"))
     return results

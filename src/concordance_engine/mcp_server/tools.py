@@ -19,6 +19,35 @@ from ..verifiers import (
     computer_science, biology, governance, scripture,
 )
 from ..verifiers import energy as _energy
+from ..verifiers import acoustics as _acoustics
+from ..verifiers import agriculture as _agriculture
+from ..verifiers import astronomy as _astronomy
+from ..verifiers import calendar_time as _calendar_time
+from ..verifiers import combinatorics as _combinatorics
+from ..verifiers import cryptography as _cryptography
+from ..verifiers import document_validation as _document_validation
+from ..verifiers import electrical as _electrical
+from ..verifiers import exercise_science as _exercise_science
+from ..verifiers import finance as _finance
+from ..verifiers import formal_logic as _formal_logic
+from ..verifiers import genetics as _genetics
+from ..verifiers import geography as _geography
+from ..verifiers import geology as _geology
+from ..verifiers import geometry as _geometry
+from ..verifiers import hydrology as _hydrology
+from ..verifiers import information_theory as _information_theory
+from ..verifiers import linguistics as _linguistics
+from ..verifiers import manufacturing as _manufacturing
+from ..verifiers import meteorology as _meteorology
+from ..verifiers import music_theory as _music_theory
+from ..verifiers import networking as _networking
+from ..verifiers import number_theory as _number_theory
+from ..verifiers import nutrition as _nutrition
+from ..verifiers import optics as _optics
+from ..verifiers import photography as _photography
+from ..verifiers import sports_analytics as _sports_analytics
+from ..verifiers import witness as _witness
+from ..verifiers import quantum_computing as _quantum_computing
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -313,6 +342,165 @@ def verify_energy(spec):
     packet = {"ENERGY_VERIFY": spec or {}}
     results = _energy.run(packet)
     return {"checks": [_r(r) for r in results]}
+
+
+def verify_acoustics(spec):
+    """Wave speed/frequency/wavelength, decibel ratios, Doppler shift, harmonic frequencies."""
+    return {"checks": [_r(r) for r in _acoustics.run({"ACOUS_VERIFY": spec or {}})]}
+
+
+def verify_agriculture(spec):
+    """Hardiness zones, soil pH range, crop rotation rules, livestock stocking density."""
+    return {"checks": [_r(r) for r in _agriculture.run({"AG_VERIFY": spec or {}})]}
+
+
+def verify_astronomy(spec):
+    """Kepler's third law, gravitational force, stellar parallax distance, distance modulus."""
+    return {"checks": [_r(r) for r in _astronomy.run({"ASTRO_VERIFY": spec or {}})]}
+
+
+def verify_calendar_time(spec):
+    """Leap-year rule, ISO 8601 validity, day-of-week computation, duration addition."""
+    return {"checks": [_r(r) for r in _calendar_time.run({"CAL_VERIFY": spec or {}})]}
+
+
+def verify_combinatorics(spec):
+    """Permutations, combinations, derangements, multinomial coefficients."""
+    return {"checks": [_r(r) for r in _combinatorics.run({"COMB_VERIFY": spec or {}})]}
+
+
+def verify_cryptography(spec):
+    """Hash match, hash strength, key strength.
+    Hash match: {"message": "hello", "claimed_hash": "2cf24dba...", "algorithm": "sha256"}
+    Hash strength: {"algorithm": "md5", "claimed_strong": false}
+    Key strength: {"key_bits": 256, "algorithm": "aes", "claimed_strong": true}"""
+    return {"checks": [_r(r) for r in _cryptography.run({"CRYPTO_VERIFY": spec or {}})]}
+
+
+def verify_document_validation(spec):
+    """ISBN-13 check-digit validation and Luhn algorithm for credit card numbers.
+    ISBN-13: {"isbn13": "9780306406157", "claimed_valid": true}
+    Luhn:    {"luhn": "4532015112830366", "claimed_valid": true}"""
+    return {"checks": [_r(r) for r in _document_validation.run({"DOC_VERIFY": spec or {}})]}
+
+
+def verify_electrical(spec):
+    """Ohm's law, power equations, Kirchhoff voltage loop, RC time constant."""
+    return {"checks": [_r(r) for r in _electrical.run({"ELEC_VERIFY": spec or {}})]}
+
+
+def verify_exercise_science(spec):
+    """Energy expenditure, heart rate formulas, MET lookup.
+    Energy: {"claimed_met": 8.0, "weight_kg": 70, "duration_hours": 1.0, "claimed_kcal": 560}
+    Max HR (Tanaka): {"age_years": 30, "claimed_max_hr": 187}
+    HR zone (Karvonen): {"age_years": 30, "resting_hr": 60, "intensity_low": 0.7, "intensity_high": 0.8,
+                         "claimed_zone_low_bpm": 149, "claimed_zone_high_bpm": 162}"""
+    return {"checks": [_r(r) for r in _exercise_science.run({"EX_VERIFY": spec or {}})]}
+
+
+def verify_finance(spec):
+    """Accounting identity (A=L+E), compound interest, NPV, present value."""
+    return {"checks": [_r(r) for r in _finance.run({"FIN_VERIFY": spec or {}})]}
+
+
+def verify_formal_logic(spec):
+    """Satisfiability, tautology, contradiction, entailment, logical equivalence (propositional)."""
+    return {"checks": [_r(r) for r in _formal_logic.run({"LOGIC_VERIFY": spec or {}})]}
+
+
+def verify_genetics(spec):
+    """DNA/RNA complementarity, reverse complement, GC content, codon translation, ORF bounds."""
+    return {"checks": [_r(r) for r in _genetics.run({"GENETICS_VERIFY": spec or {}})]}
+
+
+def verify_geography(spec):
+    """Lat/lon validity, Haversine distance, initial bearing, UTM zone assignment."""
+    return {"checks": [_r(r) for r in _geography.run({"GEO_LOC_VERIFY": spec or {}})]}
+
+
+def verify_geology(spec):
+    """Radiometric decay dating, Mohs hardness scratch test, Richter amplitude ratio."""
+    return {"checks": [_r(r) for r in _geology.run({"GEO_VERIFY": spec or {}})]}
+
+
+def verify_geometry(spec):
+    """Areas, volumes, perimeters, Pythagorean theorem, circle/sphere relationships."""
+    return {"checks": [_r(r) for r in _geometry.run({"GEOM_VERIFY": spec or {}})]}
+
+
+def verify_hydrology(spec):
+    """Manning's equation, Darcy's law, unit hydrograph, flow-rate/velocity/area."""
+    return {"checks": [_r(r) for r in _hydrology.run({"HYD_VERIFY": spec or {}})]}
+
+
+def verify_information_theory(spec):
+    """Shannon entropy, channel capacity, mutual information, Huffman code length bounds."""
+    return {"checks": [_r(r) for r in _information_theory.run({"INFO_VERIFY": spec or {}})]}
+
+
+def verify_linguistics(spec):
+    """Strong's resolution, occurrence count, transliteration, gloss consistency, cognate pairs."""
+    return {"checks": [_r(r) for r in _linguistics.run({"LING_VERIFY": spec or {}})]}
+
+
+def verify_manufacturing(spec):
+    """Tolerance stack-up, GD&T fits, surface roughness, process capability (Cp/Cpk)."""
+    return {"checks": [_r(r) for r in _manufacturing.run({"MFG_VERIFY": spec or {}})]}
+
+
+def verify_meteorology(spec):
+    """Dew point, relative humidity, pressure altitude, wind chill, heat index."""
+    return {"checks": [_r(r) for r in _meteorology.run({"MET_VERIFY": spec or {}})]}
+
+
+def verify_music_theory(spec):
+    """Interval semitone counts, chord quality (major/minor/dom7), frequency ratios."""
+    return {"checks": [_r(r) for r in _music_theory.run({"MUS_VERIFY": spec or {}})]}
+
+
+def verify_networking(spec):
+    """Subnet masks, CIDR notation, IP address validity, broadcast/network address."""
+    return {"checks": [_r(r) for r in _networking.run({"NET_VERIFY": spec or {}})]}
+
+
+def verify_number_theory(spec):
+    """Primality, GCD, LCM, modular arithmetic, Fibonacci membership, divisibility."""
+    return {"checks": [_r(r) for r in _number_theory.run({"NUM_VERIFY": spec or {}})]}
+
+
+def verify_nutrition(spec):
+    """Macronutrient caloric values, BMR (Mifflin-St Jeor), TDEE, nutrient density."""
+    return {"checks": [_r(r) for r in _nutrition.run({"NUT_VERIFY": spec or {}})]}
+
+
+def verify_optics(spec):
+    """Snell's law, thin-lens equation, diffraction grating, angular resolution."""
+    return {"checks": [_r(r) for r in _optics.run({"OPT_VERIFY": spec or {}})]}
+
+
+def verify_photography(spec):
+    """Exposure triangle (aperture/shutter/ISO), EV calculation, depth-of-field."""
+    return {"checks": [_r(r) for r in _photography.run({"PHOTO_VERIFY": spec or {}})]}
+
+
+def verify_sports_analytics(spec):
+    """Batting average, ERA, passer rating, Pythagorean win expectation, Elo rating."""
+    return {"checks": [_r(r) for r in _sports_analytics.run({"SPORT_VERIFY": spec or {}})]}
+
+
+def verify_witness(spec):
+    """Gate-chain completeness, reasoning trace presence, anchor resolution, no-fabricated-answer check."""
+    return {"checks": [_r(r) for r in _witness.run({"WIT_VERIFY": spec or {}})]}
+
+
+def verify_quantum_computing(spec):
+    """Qubit normalization, Grover iterations, Shor period, BB84 QKD security, von Neumann entropy, fidelity.
+    Normalization: {"amplitudes": [0.6, 0.8], "claimed_normalized": true}
+    Grover: {"n_items": 64, "claimed_grover_iterations": 6}
+    Shor period: {"shor_a": 2, "shor_N": 15, "shor_r": 4, "claimed_period_valid": true}
+    BB84: {"qber": 0.09, "claimed_secure": true}
+    vN entropy: {"density_eigenvalues": [0.5, 0.5], "claimed_entropy_bits": 1.0}"""
+    return {"checks": [_r(r) for r in _quantum_computing.run({"QCOMP_VERIFY": spec or {}})]}
 
 
 # ---------------------------------------------------------------------
@@ -611,6 +799,140 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"name": {"type": "string"}},
                      "required": ["name"]},
      "fn": lambda a: get_example_packet(a["name"])},
+    # ── Extended domain verifiers ────────────────────────────────────
+    {"name": "verify_energy",
+     "description": "Off-grid sizing, wire voltage drop, battery/solar sizing, peak-load-vs-inverter, runtime, kWh↔Wh, efficiency, power balance. Pass spec as ENERGY_VERIFY contents.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_energy(a["spec"])},
+    {"name": "verify_acoustics",
+     "description": "Wave speed/frequency/wavelength (v=fλ), decibel ratios, Doppler shift, harmonic frequencies.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_acoustics(a["spec"])},
+    {"name": "verify_agriculture",
+     "description": "USDA hardiness zone lookup, soil pH range for crops, crop rotation compatibility, livestock stocking density.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_agriculture(a["spec"])},
+    {"name": "verify_astronomy",
+     "description": "Kepler's third law (T²∝a³), gravitational force, stellar parallax distance, distance modulus (m-M).",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_astronomy(a["spec"])},
+    {"name": "verify_calendar_time",
+     "description": "Gregorian leap-year rule, ISO 8601 datetime validity, day-of-week (Zeller/Tomohiko), duration addition.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_calendar_time(a["spec"])},
+    {"name": "verify_combinatorics",
+     "description": "Permutations P(n,k), combinations C(n,k), derangements D(n), multinomial coefficients.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_combinatorics(a["spec"])},
+    {"name": "verify_cryptography",
+     "description": "Hash match, hash strength, key strength. "
+                    "Hash match: spec={\"message\":\"hello\",\"claimed_hash\":\"2cf24...\",\"algorithm\":\"sha256\"}. "
+                    "Hash strength: spec={\"algorithm\":\"md5\",\"claimed_strong\":false}. "
+                    "Key strength: spec={\"key_bits\":256,\"algorithm\":\"aes\",\"claimed_strong\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_cryptography(a["spec"])},
+    {"name": "verify_document_validation",
+     "description": "ISBN-13 check-digit and Luhn algorithm for credit card numbers. "
+                    "ISBN-13: spec={\"isbn13\":\"9780306406157\",\"claimed_valid\":true}. "
+                    "Luhn: spec={\"luhn\":\"4532015112830366\",\"claimed_valid\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_document_validation(a["spec"])},
+    {"name": "verify_electrical",
+     "description": "Ohm's law (V=IR), power (P=VI/I²R/V²/R), Kirchhoff voltage loop sum, RC time constant (τ=RC).",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_electrical(a["spec"])},
+    {"name": "verify_exercise_science",
+     "description": "Energy expenditure (MET×kg×hours), max heart rate Tanaka (208-0.7×age), Karvonen HR zone, MET lookup. "
+                    "Energy: spec={\"claimed_met\":8,\"weight_kg\":70,\"duration_hours\":1,\"claimed_kcal\":560}. "
+                    "Max HR: spec={\"age_years\":30,\"claimed_max_hr\":187}. "
+                    "HR zone: spec={\"age_years\":30,\"resting_hr\":60,\"intensity_low\":0.7,\"intensity_high\":0.8,"
+                    "\"claimed_zone_low_bpm\":149,\"claimed_zone_high_bpm\":162}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_exercise_science(a["spec"])},
+    {"name": "verify_finance",
+     "description": "Accounting identity (A=L+E), compound interest A=P(1+r/n)^(nt), NPV, present value PV=FV/(1+r)^t.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_finance(a["spec"])},
+    {"name": "verify_formal_logic",
+     "description": "Propositional logic: satisfiability, tautology, contradiction, entailment (premises→conclusion), logical equivalence.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_formal_logic(a["spec"])},
+    {"name": "verify_genetics",
+     "description": "DNA/RNA base complementarity, reverse complement, GC content, codon→amino-acid translation, ORF start/stop bounds.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_genetics(a["spec"])},
+    {"name": "verify_geography",
+     "description": "Lat/lon range validity, Haversine great-circle distance, initial bearing, UTM zone assignment.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_geography(a["spec"])},
+    {"name": "verify_geology",
+     "description": "Radiometric decay dating (N=N₀·e^(−λt)), Mohs hardness scratch test, Richter scale amplitude ratio.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_geology(a["spec"])},
+    {"name": "verify_geometry",
+     "description": "Areas and volumes of standard shapes, Pythagorean theorem, circle/sphere relationships, triangle angle sum.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_geometry(a["spec"])},
+    {"name": "verify_hydrology",
+     "description": "Manning's equation (open channel flow), Darcy's law (porous media), continuity equation Q=Av.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_hydrology(a["spec"])},
+    {"name": "verify_information_theory",
+     "description": "Shannon entropy H(X), channel capacity C=B·log₂(1+SNR), mutual information, Huffman minimum code length.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_information_theory(a["spec"])},
+    {"name": "verify_linguistics",
+     "description": "Strong's number resolution (G/H range), occurrence count, transliteration normalization, gloss consistency, cognate pair detection.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_linguistics(a["spec"])},
+    {"name": "verify_manufacturing",
+     "description": "Tolerance stack-up (worst-case/RSS), GD&T fit class (clearance/interference), surface roughness Ra, process capability Cp/Cpk.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_manufacturing(a["spec"])},
+    {"name": "verify_meteorology",
+     "description": "Dew point (Magnus formula), relative humidity, pressure altitude, wind chill (NWS), heat index.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_meteorology(a["spec"])},
+    {"name": "verify_music_theory",
+     "description": "Interval semitone counts, chord quality (major/minor/dom7/dim), frequency ratio for equal temperament.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_music_theory(a["spec"])},
+    {"name": "verify_networking",
+     "description": "Subnet mask validity, CIDR notation, IP address range, network/broadcast address computation.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_networking(a["spec"])},
+    {"name": "verify_number_theory",
+     "description": "Primality testing, GCD/LCM, modular arithmetic, Fibonacci membership, perfect/abundant/deficient classification.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_number_theory(a["spec"])},
+    {"name": "verify_nutrition",
+     "description": "Macro caloric values (4/4/9 kcal/g), BMR (Mifflin-St Jeor), TDEE with activity factor, nutrient density.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_nutrition(a["spec"])},
+    {"name": "verify_optics",
+     "description": "Snell's law (n₁sinθ₁=n₂sinθ₂), thin-lens equation (1/f=1/do+1/di), diffraction grating, Rayleigh criterion.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_optics(a["spec"])},
+    {"name": "verify_photography",
+     "description": "Exposure value (EV), equivalent exposures (aperture/shutter/ISO triangle), depth-of-field hyperfocal distance.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_photography(a["spec"])},
+    {"name": "verify_sports_analytics",
+     "description": "Batting average, ERA, NFL passer rating, Pythagorean win expectation, Elo rating change.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_sports_analytics(a["spec"])},
+    {"name": "verify_witness",
+     "description": "Gate-chain completeness, reasoning trace presence, anchor resolution, no-fabricated-answer check. Verifies a witness/attestation record is structurally sound.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_witness(a["spec"])},
+    {"name": "verify_quantum_computing",
+     "description": "Qubit normalization (Σ|aᵢ|²=1), Grover optimal iterations (T=floor(π√N/4)), "
+                    "Shor period (a^r≡1 mod N), BB84 QKD security (QBER<11%), von Neumann entropy, fidelity. "
+                    "Normalization: spec={\"amplitudes\":[0.6,0.8],\"claimed_normalized\":true}. "
+                    "Grover: spec={\"n_items\":64,\"claimed_grover_iterations\":6}. "
+                    "BB84: spec={\"qber\":0.09,\"claimed_secure\":true}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_quantum_computing(a["spec"])},
 ]
 
 
@@ -633,6 +955,8 @@ def call_tool(name, arguments):
 
 ALL_TOOLS: Dict[str, Any] = {
     "validate_packet": validate_packet,
+    "seal_packet": seal_packet,
+    "walkthrough_packet": walkthrough_packet,
     "verify_chemistry": verify_chemistry,
     "verify_physics_dimensional": verify_physics_dimensional,
     "verify_physics_conservation": verify_physics_conservation,
@@ -643,6 +967,36 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_computer_science": verify_computer_science,
     "verify_biology": verify_biology,
     "verify_governance_decision_packet": verify_governance_decision_packet,
+    "verify_energy": verify_energy,
+    "verify_acoustics": verify_acoustics,
+    "verify_agriculture": verify_agriculture,
+    "verify_astronomy": verify_astronomy,
+    "verify_calendar_time": verify_calendar_time,
+    "verify_combinatorics": verify_combinatorics,
+    "verify_cryptography": verify_cryptography,
+    "verify_document_validation": verify_document_validation,
+    "verify_electrical": verify_electrical,
+    "verify_exercise_science": verify_exercise_science,
+    "verify_finance": verify_finance,
+    "verify_formal_logic": verify_formal_logic,
+    "verify_genetics": verify_genetics,
+    "verify_geography": verify_geography,
+    "verify_geology": verify_geology,
+    "verify_geometry": verify_geometry,
+    "verify_hydrology": verify_hydrology,
+    "verify_information_theory": verify_information_theory,
+    "verify_linguistics": verify_linguistics,
+    "verify_manufacturing": verify_manufacturing,
+    "verify_meteorology": verify_meteorology,
+    "verify_music_theory": verify_music_theory,
+    "verify_networking": verify_networking,
+    "verify_number_theory": verify_number_theory,
+    "verify_nutrition": verify_nutrition,
+    "verify_optics": verify_optics,
+    "verify_photography": verify_photography,
+    "verify_sports_analytics": verify_sports_analytics,
+    "verify_witness": verify_witness,
+    "verify_quantum_computing": verify_quantum_computing,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,
