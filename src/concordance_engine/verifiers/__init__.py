@@ -89,6 +89,9 @@ VERIFIERS: Dict[str, str] = {
     "sports":               "concordance_engine.verifiers.sports_analytics",
     "witness":              "concordance_engine.verifiers.witness",
     "testimony":            "concordance_engine.verifiers.witness",
+    "quantum_computing":    "concordance_engine.verifiers.quantum_computing",
+    "quantum":              "concordance_engine.verifiers.quantum_computing",
+    "qc":                   "concordance_engine.verifiers.quantum_computing",
 }
 
 

@@ -2154,6 +2154,168 @@ def keeping_log(
     }
 
 
+# ── Domain Verifier REST API ────────────────────────────────────────────
+#
+# POST /verify/{domain}   — run a verifier, record in packet store
+# GET  /verifiers         — list available domain verifiers
+# GET  /packets           — list domains with stored entries
+# GET  /packets/{domain}  — list entries for a domain (newest first)
+# GET  /packets/{domain}/{entry_id} — fetch one entry
+#
+# {domain} is the suffix of a tool name in ALL_TOOLS after "verify_".
+# Examples: number_theory, cryptography, quantum_computing, mathematics,
+# chemistry, physics_dimensional, statistics_pvalue, biology ...
+# Call GET /verifiers for the full list.
+#
+# Packet store: data/packets/{domain}.jsonl — one line per verified packet.
+# Each entry carries the input spec, the tool output, and a summary.
+
+
+class VerifyRequest(BaseModel):
+    spec: Dict[str, Any]
+
+
+def _verify_summary(result: Any) -> str:
+    """Derive CONFIRMED/MISMATCH/PARTIAL/NOT_APPLICABLE/ERROR from tool output.
+
+    Handles two shapes returned by ALL_TOOLS wrappers:
+      {"checks": [{"status": "CONFIRMED", ...}, ...]}   <- array form
+      {"check_name": {"status": "CONFIRMED", ...}, ...} <- flat dict form
+    """
+    if not isinstance(result, dict):
+        return "UNKNOWN"
+    if "checks" in result and isinstance(result["checks"], list):
+        statuses = [c.get("status", "") for c in result["checks"]
+                    if isinstance(c, dict)]
+    else:
+        statuses = [v["status"] for v in result.values()
+                    if isinstance(v, dict) and "status" in v]
+    if not statuses:
+        return "NOT_APPLICABLE"
+    if any(s == "ERROR" for s in statuses):
+        return "ERROR"
+    if any(s == "MISMATCH" for s in statuses):
+        return "MISMATCH"
+    if all(s == "CONFIRMED" for s in statuses):
+        return "CONFIRMED"
+    if all(s == "NOT_APPLICABLE" for s in statuses):
+        return "NOT_APPLICABLE"
+    if any(s == "CONFIRMED" for s in statuses):
+        return "PARTIAL"
+    return "NOT_APPLICABLE"
+
+
+@app.get("/verifiers", include_in_schema=True)
+def list_verifiers():
+    """List all available domain verifiers and registered domain aliases.
+
+    Use the tool names as the {domain} segment in POST /verify/{domain}.
+    """
+    try:
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+        from concordance_engine.verifiers import VERIFIERS
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"engine unavailable: {e}")
+    tools = sorted(k for k in ALL_TOOLS if k.startswith("verify_"))
+    return {
+        "count": len(tools),
+        "tools": tools,
+        "domain_aliases": {k: v.rsplit(".", 1)[-1] for k, v in VERIFIERS.items()},
+        "usage": "POST /verify/{domain} with body {\"spec\": {<domain fields>}}",
+    }
+
+
+@app.post("/verify/{domain}", include_in_schema=True)
+def verify_domain(domain: str, req: VerifyRequest):
+    """Run a domain verifier and record the result in the packet store.
+
+    {domain} must match a tool name suffix — e.g. `number_theory` maps to
+    the `verify_number_theory` tool. Spec fields are domain-specific; see
+    the verifier's docstring or the benchmark items for examples.
+
+    Result is written to data/packets/{domain}.jsonl and returned in the
+    response alongside the entry_id for later retrieval.
+    """
+    try:
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"engine unavailable: {e}")
+
+    tool_name = f"verify_{domain}"
+    fn = ALL_TOOLS.get(tool_name)
+    if fn is None:
+        available = sorted(k for k in ALL_TOOLS if k.startswith("verify_"))
+        raise HTTPException(status_code=404, detail={
+            "error": f"no verifier for '{domain}'",
+            "tool_tried": tool_name,
+            "available": available,
+        })
+
+    try:
+        result = fn(req.spec)
+    except Exception as e:
+        raise HTTPException(status_code=500,
+                            detail=f"verifier error: {type(e).__name__}: {e}")
+
+    from api.packet_store import get_packet_store
+    entry = get_packet_store().append(domain, req.spec, result)
+    summary = _verify_summary(result)
+
+    return {
+        "domain": domain,
+        "tool": tool_name,
+        "entry_id": entry["id"],
+        "timestamp_iso": entry["timestamp_iso"],
+        "summary": summary,
+        "results": result,
+    }
+
+
+@app.get("/packets", include_in_schema=True)
+def packets_domains():
+    """List all domains that have stored packet entries, with counts."""
+    from api.packet_store import get_packet_store
+    store = get_packet_store()
+    return {
+        "domains": store.domains(),
+        "stats": store.stats(),
+    }
+
+
+@app.get("/packets/{domain}", include_in_schema=True)
+def packets_list(
+    domain: str,
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+):
+    """List verified packet entries for a domain, newest first.
+
+    Returns the stored spec + verification results for every packet
+    submitted to this domain via POST /verify/{domain}.
+    """
+    from api.packet_store import get_packet_store
+    entries = get_packet_store().list(domain, limit=limit, offset=offset)
+    return {
+        "domain": domain,
+        "count": len(entries),
+        "offset": offset,
+        "entries": entries,
+    }
+
+
+@app.get("/packets/{domain}/{entry_id}", include_in_schema=True)
+def packets_get(domain: str, entry_id: str):
+    """Fetch one packet entry by domain and entry_id."""
+    from api.packet_store import get_packet_store
+    entry = get_packet_store().get(domain, entry_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no entry '{entry_id}' in domain '{domain}'",
+        )
+    return entry
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.
