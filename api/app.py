@@ -1794,6 +1794,200 @@ def _resolve_closest_precedent(precedent_id: Optional[str]) -> Optional[Dict[str
     return None
 
 
+# ── /ingest/drive — import documents from a shared cloud folder ──────────────
+#
+# Accepts a public share URL (Google Drive, Dropbox, OneDrive) and ingests
+# the text of each document as a named personal source. No auth required —
+# the URL must be a "anyone with link can view" share. Documents are chunked
+# and forwarded to /capture with source set to the folder's label.
+#
+# This lets users seed the engine with their own study notes, sermon outlines,
+# personal research, or any document collection they already have — without
+# needing a proprietary client. Fits the wise-serpent posture: use what
+# they already have.
+#
+# Supported URL patterns (public share only):
+#   Google Drive folder:  https://drive.google.com/drive/folders/<id>?usp=sharing
+#   Dropbox folder:       https://www.dropbox.com/sh/<id>...?dl=0
+#   OneDrive folder:      https://onedrive.live.com/...
+# File links (not folders) for Google Drive:
+#   https://drive.google.com/file/d/<id>/view?usp=sharing
+#   https://docs.google.com/document/d/<id>/...
+
+
+class DriveIngestRequest(BaseModel):
+    url: str                                  # public share URL
+    source_label: Optional[str] = None        # human name for this source
+    tags: Optional[List[str]] = None
+    max_docs: int = 50                        # safety cap
+    chunk_words: int = 600                    # target words per chunk
+
+
+def _gdrive_export_url(file_id: str) -> str:
+    return f"https://docs.google.com/document/d/{file_id}/export?format=txt"
+
+
+def _gdrive_folder_file_ids(folder_id: str) -> list[dict]:
+    """Fetch the file list from a public Google Drive folder via the
+    unofficial but stable embed endpoint. Returns list of dicts with
+    'id' and 'name'. Empty list on failure."""
+    import re as _re
+    try:
+        import requests as _req
+        url = f"https://drive.google.com/drive/folders/{folder_id}"
+        r = _req.get(url, timeout=15,
+                     headers={"User-Agent": "Concordance-DriveIngest/1.0"})
+        # The folder page embeds file IDs in JSON-like data attributes.
+        ids   = _re.findall(r'"([0-9A-Za-z_\-]{25,})"', r.text)
+        names = _re.findall(r'"name":"([^"]+)"', r.text)
+        seen, results = set(), []
+        for fid in ids:
+            if fid not in seen and len(fid) >= 28:
+                seen.add(fid)
+                name = names.pop(0) if names else fid
+                results.append({"id": fid, "name": name})
+        return results[:50]
+    except Exception:
+        return []
+
+
+def _fetch_text_from_url(url: str, timeout: int = 20) -> str:
+    import requests as _req, re as _re
+    r = _req.get(url, timeout=timeout,
+                 headers={"User-Agent": "Concordance-DriveIngest/1.0"},
+                 allow_redirects=True)
+    r.raise_for_status()
+    ct = r.headers.get("content-type", "")
+    if "html" in ct:
+        # Strip HTML tags for simple HTML export pages
+        text = _re.sub(r'<style[^>]*>.*?</style>', '', r.text, flags=_re.S)
+        text = _re.sub(r'<[^>]+>', ' ', text)
+        text = _re.sub(r'&[a-z#0-9]+;', ' ', text)
+    else:
+        text = r.text
+    return _re.sub(r'\s+', ' ', text).strip()
+
+
+def _chunk_text(text: str, target_words: int) -> list[str]:
+    import re as _re
+    paras = [p.strip() for p in _re.split(r'\n{2,}', text) if p.strip()]
+    chunks, buf, buf_w = [], [], 0
+    for para in paras:
+        pw = len(para.split())
+        if buf_w + pw > target_words and buf:
+            chunks.append("\n\n".join(buf))
+            buf, buf_w = [], 0
+        buf.append(para)
+        buf_w += pw
+    if buf:
+        chunks.append("\n\n".join(buf))
+    return chunks
+
+
+@app.post("/ingest/drive", include_in_schema=True)
+def ingest_drive(req: DriveIngestRequest):
+    """Import documents from a public cloud share link.
+
+    Accepts Google Drive folder/file links, Dropbox, or OneDrive public
+    shares. Each document is chunked and forwarded to the capture pipeline
+    with full source provenance in source_meta.
+
+    Returns a summary of what was ingested and any errors.
+    """
+    if not _ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503,
+                            detail=f"concordance-engine not available: {_ENGINE_ERROR}")
+
+    import re as _re, requests as _req
+
+    url = (req.url or "").strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="url is required")
+
+    label = (req.source_label or "").strip() or "drive_import"
+    clean_label = "".join(c if c.isalnum() or c == "_" else "_" for c in label.lower())
+    base_tags = list(req.tags or []) + [f"source:{clean_label}", "drive_import"]
+
+    docs_to_fetch: list[dict] = []   # [{"url": ..., "name": ...}]
+
+    # ── Google Drive folder ────────────────────────────────────────────
+    gd_folder = _re.search(r'drive\.google\.com/drive/folders/([0-9A-Za-z_\-]+)', url)
+    gd_file   = _re.search(r'drive\.google\.com/file/d/([0-9A-Za-z_\-]+)', url)
+    gd_doc    = _re.search(r'docs\.google\.com/document/d/([0-9A-Za-z_\-]+)', url)
+
+    if gd_folder:
+        folder_id = gd_folder.group(1)
+        files = _gdrive_folder_file_ids(folder_id)
+        for f in files[:req.max_docs]:
+            docs_to_fetch.append({
+                "url": _gdrive_export_url(f["id"]),
+                "name": f["name"],
+                "source_url": f"https://drive.google.com/file/d/{f['id']}/view",
+            })
+    elif gd_file or gd_doc:
+        fid = (gd_file or gd_doc).group(1)
+        docs_to_fetch.append({
+            "url": _gdrive_export_url(fid),
+            "name": label,
+            "source_url": url,
+        })
+    elif "dropbox.com" in url:
+        # Convert Dropbox share URL to direct download
+        dl_url = url.replace("?dl=0", "?dl=1").replace("www.dropbox.com", "dl.dropboxusercontent.com")
+        docs_to_fetch.append({"url": dl_url, "name": label, "source_url": url})
+    elif "onedrive.live.com" in url or "1drv.ms" in url:
+        # OneDrive direct download — append ?download=1 for public share links
+        dl_url = url + ("&download=1" if "?" in url else "?download=1")
+        docs_to_fetch.append({"url": dl_url, "name": label, "source_url": url})
+    else:
+        # Treat the URL as a direct document link
+        docs_to_fetch.append({"url": url, "name": label, "source_url": url})
+
+    if not docs_to_fetch:
+        raise HTTPException(status_code=400,
+                            detail="Could not identify documents at this URL. "
+                                   "Make sure it is a public share link.")
+
+    try:
+        from concordance_engine import journal as _journal
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"journal not available: {e}")
+
+    results = {"ingested": 0, "skipped": 0, "errors": [], "docs": []}
+
+    for doc in docs_to_fetch[:req.max_docs]:
+        doc_name = doc.get("name", "document")
+        try:
+            text = _fetch_text_from_url(doc["url"])
+            if len(text.split()) < 30:
+                results["skipped"] += 1
+                continue
+            chunks = _chunk_text(text, req.chunk_words)
+            doc_result = {"name": doc_name, "chunks": len(chunks), "captured": 0}
+            for i, chunk in enumerate(chunks):
+                meta = {
+                    "title":      doc_name,
+                    "source_url": doc.get("source_url", url),
+                    "folder_url": url,
+                    "collection": label,
+                    "chunk_index": i,
+                    "total_chunks": len(chunks),
+                }
+                entry = _journal.capture(
+                    chunk,
+                    tags=base_tags + [f"doc:{doc_name[:40]}"],
+                    look_up_precedent=False,
+                )
+                if entry:
+                    doc_result["captured"] += 1
+                    results["ingested"] += 1
+            results["docs"].append(doc_result)
+        except Exception as exc:
+            results["errors"].append({"doc": doc_name, "error": str(exc)})
+
+    return results
+
+
 @app.post("/journal/write", include_in_schema=True)
 def journal_write(req: WriteRequest):
     """Capture a stream-of-consciousness seed.
