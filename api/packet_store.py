@@ -27,11 +27,30 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 import time
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Make the engine importable when running from the api/ directory.
+_engine_path = os.environ.get("CONCORDANCE_ENGINE_PATH")
+if _engine_path:
+    sys.path.insert(0, str(Path(_engine_path) / "src"))
+
+
+def _try_sign(data: dict) -> dict:
+    """Sign a dict with the instance key if the engine is available.
+    Returns the original dict if signing is unavailable (no private key,
+    cryptography not installed, etc.) — signing is best-effort so the
+    packet store works even in minimal deployments.
+    """
+    try:
+        from concordance_engine.instance_identity import sign_dict
+        return sign_dict(data)
+    except Exception:
+        return data
 
 
 def _store_dir() -> Path:
@@ -100,6 +119,7 @@ class PacketStore:
             "results": results,
             "summary": _summarize(results),
         }
+        entry = _try_sign(entry)
         path = self._path(domain)
         lock = self._lock_for(domain)
         with lock:
@@ -154,6 +174,16 @@ class PacketStore:
         if not self._base.exists():
             return []
         return sorted(p.stem for p in self._base.glob("*.jsonl"))
+
+    def verify_signature(self, entry: Dict[str, Any]) -> tuple:
+        """Verify the instance signature on a stored packet entry.
+        Returns (ok: bool, detail: str).
+        """
+        try:
+            from concordance_engine.instance_identity import verify_dict
+            return verify_dict(entry)
+        except Exception as exc:
+            return False, f"signature check unavailable: {exc}"
 
     def stats(self) -> Dict[str, Any]:
         """Per-domain entry counts and summary breakdowns."""

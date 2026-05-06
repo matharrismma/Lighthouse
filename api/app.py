@@ -2452,6 +2452,104 @@ def verify_chain_endpoint(req: ChainRequest):
     }
 
 
+# ── Instance identity + packet signing ─────────────────────────────────
+#
+# Every packet stored via POST /verify/{domain} is signed with the
+# instance's Ed25519 private key. The public key is served freely here
+# so any recipient can verify a packet offline, without calling home.
+#
+# GET  /identity/pubkey                         — instance public key
+# GET  /packets/{domain}/{entry_id}/export      — self-contained signed bundle
+# POST /packets/{domain}/{entry_id}/verify-sig  — verify a packet signature
+
+
+@app.get("/identity/pubkey", include_in_schema=True)
+def identity_pubkey():
+    """Return this instance's Ed25519 public key.
+
+    Any recipient of a signed packet can call this endpoint (or cache the
+    key) to verify the packet's signature independently — no network access
+    needed at verification time once the key is known.
+
+    The key is URL-safe base64-encoded raw Ed25519 public key bytes (32 bytes).
+    """
+    try:
+        from concordance_engine.instance_identity import get_public_key, get_instance_id
+        return {
+            "instance_id": get_instance_id(),
+            "public_key_b64u": get_public_key(),
+            "algorithm": "Ed25519",
+            "encoding": "url-safe base64 (no padding)",
+            "usage": "verify _sig fields on stored packets",
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"instance key unavailable: {exc}")
+
+
+@app.get("/packets/{domain}/{entry_id}/export", include_in_schema=True)
+def packets_export(domain: str, entry_id: str):
+    """Export a self-contained signed packet bundle.
+
+    The bundle includes the full entry plus the instance public key so
+    the recipient can verify the signature without any network call.
+    Carry on a USB drive, sync over LoRa, or share peer-to-peer — the
+    signature proves provenance regardless of transport.
+    """
+    from api.packet_store import get_packet_store
+    entry = get_packet_store().get(domain, entry_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no entry '{entry_id}' in domain '{domain}'",
+        )
+    try:
+        from concordance_engine.instance_identity import get_public_key, get_instance_id
+        pubkey = get_public_key()
+        instance_id = get_instance_id()
+    except Exception:
+        pubkey = entry.get("_instance_pubkey", "")
+        instance_id = entry.get("_instance_id", "")
+    return {
+        "bundle_version": 1,
+        "instance_id": instance_id,
+        "instance_pubkey": pubkey,
+        "entry": entry,
+        "verify_instructions": (
+            "To verify offline: compute canonical JSON of `entry` "
+            "excluding _sig/_instance_pubkey/_instance_id fields, "
+            "then verify `entry._sig` against `instance_pubkey` "
+            "using Ed25519."
+        ),
+    }
+
+
+@app.post("/packets/{domain}/{entry_id}/verify-sig", include_in_schema=True)
+def packets_verify_sig(domain: str, entry_id: str):
+    """Verify the Ed25519 signature on a stored packet entry.
+
+    Returns ok=true if the packet has not been tampered with since it
+    was written by this instance. ok=false means the entry was altered
+    or the key has changed.
+    """
+    from api.packet_store import get_packet_store
+    store = get_packet_store()
+    entry = store.get(domain, entry_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no entry '{entry_id}' in domain '{domain}'",
+        )
+    ok, detail = store.verify_signature(entry)
+    return {
+        "entry_id": entry_id,
+        "domain": domain,
+        "ok": ok,
+        "detail": detail,
+        "instance_pubkey": entry.get("_instance_pubkey"),
+        "instance_id": entry.get("_instance_id"),
+    }
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.
