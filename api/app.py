@@ -562,13 +562,26 @@ def identity():
     }
 
 
-# ── /speak — ElevenLabs TTS proxy (optional) ────────────────────────
+# ── /speak + /voices — ElevenLabs TTS proxy (optional) ──────────────
 #
 # Returns audio/mpeg synthesized in the configured voice. Optional in
 # every sense: requires `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`
 # in the environment; without them the endpoint reports unavailable.
 # Nothing else in the engine depends on this — it's a phone-friendly
 # surface for hearing precedents read aloud.
+#
+# Models (ElevenLabs, as of 2026-05):
+#   eleven_flash_v2_5       — lowest latency, real-time use
+#   eleven_turbo_v2_5       — balanced speed + quality (default)
+#   eleven_multilingual_v2  — highest quality, 29 languages
+
+
+def _el_api_key() -> str:
+    return os.environ.get("ELEVENLABS_API_KEY", "")
+
+
+def _el_voice_id() -> str:
+    return os.environ.get("ELEVENLABS_VOICE_ID", "")
 
 
 class SpeakRequest(BaseModel):
@@ -640,6 +653,70 @@ def speak(req: SpeakRequest):
     # read-aloud (< 30s of audio), the buffered approach is fine.
     audio_bytes = r.content
     return Response(content=audio_bytes, media_type="audio/mpeg")
+
+
+@app.get("/voices", include_in_schema=True)
+def list_voices():
+    """Return available ElevenLabs voices for this instance.
+
+    Proxies the ElevenLabs /v1/voices endpoint so callers can discover
+    available voice_ids without leaving the engine API. Returns a
+    simplified list: id, name, category, and description only — no raw
+    ElevenLabs metadata.
+
+    Returns 503 if ELEVENLABS_API_KEY is not configured.
+    """
+    api_key = _el_api_key()
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="voices unavailable: ELEVENLABS_API_KEY not configured",
+        )
+    try:
+        import requests as _requests
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="voices unavailable: `requests` not installed",
+        )
+    try:
+        r = _requests.get(
+            "https://api.elevenlabs.io/v1/voices",
+            headers={"xi-api-key": api_key},
+            timeout=10,
+        )
+    except _requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"upstream voices error: {exc}")
+
+    if r.status_code != 200:
+        try:
+            detail = r.json()
+        except ValueError:
+            detail = {"upstream_status": r.status_code}
+        raise HTTPException(status_code=502, detail=detail)
+
+    raw = r.json().get("voices", [])
+    configured_voice_id = _el_voice_id()
+    voices = [
+        {
+            "voice_id": v["voice_id"],
+            "name": v.get("name", ""),
+            "category": v.get("category", ""),
+            "description": (v.get("labels") or {}).get("description", ""),
+            "is_default": v["voice_id"] == configured_voice_id,
+        }
+        for v in raw
+    ]
+    return {
+        "count": len(voices),
+        "configured_voice_id": configured_voice_id,
+        "voices": sorted(voices, key=lambda v: (not v["is_default"], v["name"])),
+        "models": [
+            {"model_id": "eleven_flash_v2_5", "note": "lowest latency — real-time"},
+            {"model_id": "eleven_turbo_v2_5", "note": "balanced speed + quality (default)"},
+            {"model_id": "eleven_multilingual_v2", "note": "highest quality, 29 languages"},
+        ],
+    }
 
 
 # ── /reach — operator-configured substrate addresses (read-only) ──
@@ -2226,6 +2303,37 @@ def _verify_summary(result: Any) -> str:
     return "NOT_APPLICABLE"
 
 
+def _broadcast_packet(entry: Dict[str, Any]) -> None:
+    """Push a signed packet to all known peers (best-effort, daemon thread)."""
+    import threading
+
+    def _push():
+        try:
+            import urllib.request
+            peers = _peer_list()
+            if not peers:
+                return
+            payload = json.dumps(entry, default=str).encode("utf-8")
+            for peer in peers:
+                url = peer.get("url", "").rstrip("/") + "/packets/import"
+                try:
+                    req = urllib.request.Request(
+                        url,
+                        data=payload,
+                        headers={"Content-Type": "application/json"},
+                        method="POST",
+                    )
+                    with urllib.request.urlopen(req, timeout=5):
+                        pass
+                    _peer_update_seen(peer["instance_id"], packets_synced=1)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    threading.Thread(target=_push, daemon=True, name="peer-broadcast").start()
+
+
 @app.get("/verifiers", include_in_schema=True)
 def list_verifiers():
     """List all available domain verifiers and registered domain aliases.
@@ -2781,6 +2889,148 @@ def agent_training_stats():
     return {"domains": stats, "total": total}
 
 
+class AgentSpeakRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] = None
+    model_id: str = "eleven_turbo_v2_5"
+    use_oracle: bool = True
+    oracle_model: str = "claude-haiku-4-5-20251001"
+
+
+@app.post("/agent/speak", include_in_schema=True)
+def agent_speak(req: AgentSpeakRequest):
+    """Natural language → verify → speak the result as audio/mpeg.
+
+    Combines POST /agent (NL dispatch + verification) with POST /speak
+    (ElevenLabs TTS). The caller provides plain-language text; the engine:
+      1. Classifies the domain and extracts spec fields (rule-based or oracle)
+      2. Runs the deterministic verifier (or returns corpus hit)
+      3. Synthesizes the verification result as speech and returns audio/mpeg
+
+    The spoken output is a concise narration of the verification summary —
+    domain, CONFIRMED/MISMATCH/PARTIAL, and the first check's detail line.
+
+    Requires both ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID to be set.
+    Returns 503 if TTS is unavailable; caller can fall back to GET /agent for JSON.
+    """
+    # 1. Verify TTS is available before running the verifier
+    api_key = _el_api_key()
+    voice_id = req.voice_id or _el_voice_id()
+    if not api_key or not voice_id:
+        raise HTTPException(
+            status_code=503,
+            detail="speak unavailable: ELEVENLABS_API_KEY / ELEVENLABS_VOICE_ID not configured",
+        )
+    try:
+        import requests as _requests
+    except ImportError:
+        raise HTTPException(status_code=503, detail="speak unavailable: `requests` not installed")
+
+    # 2. Run the agent (reuse agent_endpoint logic without duplicating it)
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+
+    try:
+        from concordance_engine.agent.dispatch import dispatch as _dispatch
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"agent layer unavailable: {e}")
+
+    source = "rule"
+    result_dispatch = _dispatch(text)
+    domain = None
+    spec: Dict[str, Any] = {}
+    rule_id = "miss"
+
+    if result_dispatch is not None:
+        domain = result_dispatch.domain
+        spec = result_dispatch.spec
+        rule_id = result_dispatch.rule_id
+    elif req.use_oracle:
+        oracle_out = _call_oracle(text, req.oracle_model)
+        if oracle_out and "domain" in oracle_out and "spec" in oracle_out:
+            domain = oracle_out["domain"]
+            spec = oracle_out.get("spec") or {}
+            rule_id = f"oracle:{req.oracle_model}"
+            source = "oracle"
+
+    if domain is None:
+        raise HTTPException(
+            status_code=422,
+            detail="Could not classify domain from text. Try more structured input.",
+        )
+
+    fn = ALL_TOOLS.get(f"verify_{domain}")
+    if fn is None:
+        raise HTTPException(status_code=404, detail=f"no verifier for domain '{domain}'")
+
+    # Corpus check
+    from api.packet_store import get_packet_store
+    from api.trust_index import spec_hash as _spec_hash
+    store = get_packet_store()
+    trust = _trust_get(domain, spec)
+    verifier_result = None
+    if trust and trust.get("count", 0) >= 1 and trust.get("summary") == "CONFIRMED":
+        target_hash = _spec_hash(spec)
+        for candidate in store.list(domain, limit=200, offset=0):
+            if _spec_hash(candidate.get("spec", {})) == target_hash:
+                verifier_result = candidate.get("results")
+                summary_val = candidate.get("summary", "CONFIRMED")
+                break
+
+    if verifier_result is None:
+        try:
+            verifier_result = fn(spec)
+        except Exception as e:
+            verifier_result = {"error": str(e)}
+        _log_training(domain, text, spec, verifier_result, source)
+        entry = store.append(domain, spec, verifier_result)
+        summary_val = entry.get("summary", "UNKNOWN")
+        _trust_record(domain, spec, entry.get("_instance_id", ""), summary=summary_val)
+        _broadcast_packet(entry)
+
+    # 3. Compose spoken text from verification result
+    checks = verifier_result.get("checks", []) if isinstance(verifier_result, dict) else []
+    if checks:
+        first = checks[0] if isinstance(checks[0], dict) else {}
+        detail_line = first.get("detail") or first.get("name") or ""
+        spoken = (
+            f"Domain: {domain.replace('_', ' ')}. "
+            f"Result: {summary_val}. "
+            f"{detail_line[:200]}"
+        ).strip()
+    else:
+        spoken = f"Domain: {domain.replace('_', ' ')}. Result: {summary_val}."
+
+    # 4. TTS
+    tts_payload = {
+        "text": spoken,
+        "model_id": req.model_id,
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
+    }
+    tts_headers = {
+        "xi-api-key": api_key,
+        "accept": "audio/mpeg",
+        "content-type": "application/json",
+    }
+    tts_url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+    try:
+        r = _requests.post(tts_url, json=tts_payload, headers=tts_headers,
+                           stream=True, timeout=30)
+    except _requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"upstream tts error: {exc}")
+
+    if r.status_code != 200:
+        try:
+            detail = r.json()
+        except ValueError:
+            detail = {"upstream_status": r.status_code}
+        raise HTTPException(status_code=502, detail=detail)
+
+    return Response(content=r.content, media_type="audio/mpeg")
+
+
 # ── Offline queue endpoints ─────────────────────────────────────────────
 
 
@@ -2930,37 +3180,6 @@ def packets_verify_sig(domain: str, entry_id: str):
 #
 # Trust accumulates without authority: N independent instances reaching
 # the same summary on the same spec = trust_count N.
-
-
-def _broadcast_packet(entry: Dict[str, Any]) -> None:
-    """Push a signed packet to all known peers (best-effort, async thread)."""
-    import threading
-
-    def _push():
-        try:
-            import urllib.request
-            peers = _peer_list()
-            if not peers:
-                return
-            payload = json.dumps(entry, default=str).encode("utf-8")
-            for peer in peers:
-                url = peer.get("url", "").rstrip("/") + "/packets/import"
-                try:
-                    req = urllib.request.Request(
-                        url,
-                        data=payload,
-                        headers={"Content-Type": "application/json"},
-                        method="POST",
-                    )
-                    with urllib.request.urlopen(req, timeout=5):
-                        pass
-                    _peer_update_seen(peer["instance_id"], packets_synced=1)
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-    threading.Thread(target=_push, daemon=True, name="peer-broadcast").start()
 
 
 class PeerRegisterRequest(BaseModel):

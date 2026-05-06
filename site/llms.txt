@@ -63,60 +63,63 @@ Gates run at the boundary — when writing to the permanent record or passing be
 These verifiers are deterministic, run locally, and make no network calls.
 
 ### Core sciences
-- `verify_chemistry` — equation balancing, charge and atom conservation, thermodynamic feasibility
-- `verify_physics` — dimensional consistency, conservation laws (energy, momentum, mass), kinematic motion
-- `verify_mathematics` — symbolic equality, derivatives, integrals, limits (SymPy)
-- `verify_statistics` — p-value recomputation, multiple-comparison correction, power analysis, effect size
-- `verify_biology` — replication standards, dose-response monotonicity, sample power, nested health control systems
-- `verify_genetics` — nucleotide complementarity, GC content, reverse complement
-- `verify_nutrition` — macronutrient calorie accounting, RDA compliance, energy balance
+- `verify_chemistry` — equation balancing, charge and atom conservation, optional temperature_K positivity
+- `verify_physics_dimensional` — both sides of an equation reduce to identical SI units
+- `verify_physics_conservation` — before/after values match within tolerance; optional named law (energy|momentum|charge|mass)
+- `verify_mathematics` — symbolic equality, derivatives, integrals, limits, solve, matrix, inequality, series, ODE (SymPy)
+- `verify_statistics_pvalue` — recompute p from raw inputs (two_sample_t, paired_t, z, chi2, f, fisher_exact, etc.)
+- `verify_statistics_multiple_comparisons` — Bonferroni / BH-FDR correction with rejection-set check
+- `verify_statistics_confidence_interval` — CI well-formed and contains estimate; optional recomputation from raw inputs
+- `verify_biology` — replication standards, dose-response monotonicity, Hardy-Weinberg, primer Tm/GC, Mendelian, molarity
+- `verify_genetics` — nucleotide complementarity, reverse complement, GC content, codon translation, ORF bounds
+- `verify_nutrition` — macronutrient caloric values (4/4/9 kcal/g), BMR, TDEE with activity factor
 
 ### Formal reasoning
-- `verify_mathematics` — (see above)
-- `verify_formal_logic` — satisfiability, tautology detection, contradiction check (propositional)
-- `verify_number_theory` — primality, GCD, factorial, modular arithmetic
-- `verify_combinatorics` — permutations, combinations, derangements, binomial coefficients
-- `verify_geometry` — triangle inequality, Pythagorean theorem, polygon angle sums
-- `verify_information_theory` — Shannon entropy, BSC channel capacity, Hamming distance
+- `verify_formal_logic` — satisfiability, tautology, contradiction, entailment, logical equivalence (propositional)
+- `verify_number_theory` — primality, GCD, LCM, modular arithmetic, Fibonacci, perfect/abundant/deficient
+- `verify_combinatorics` — permutations P(n,k), combinations C(n,k), derangements D(n), multinomial
+- `verify_geometry` — areas, volumes, Pythagorean theorem, circle/sphere, triangle angle sum
+- `verify_information_theory` — Shannon entropy, channel capacity C=B·log₂(1+SNR), mutual information
 
 ### Engineering and physical systems
-- `verify_electrical` — Ohm's law, power equations, Kirchhoff's voltage loop
-- `verify_energy` — off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency (η ≤ 1.0 unless heat pump), runtime, peak-load-vs-inverter, daily power balance
-- `verify_optics` — Snell's law, thin-lens equation, magnification
-- `verify_acoustics` — wave speed relation, decibel ratios, Doppler shift
-- `verify_manufacturing` — sigma level, SPC control limits, process capability (Cp, Cpk)
+- `verify_electrical` — Ohm's law V=IR, power P=VI/I²R/V²/R, Kirchhoff voltage loop, RC time constant τ=RC
+- `verify_energy` — off-grid sizing (battery Ah, solar daily yield), wire voltage drop, kWh↔Wh, efficiency, runtime, peak-load-vs-inverter, power balance
+- `verify_optics` — Snell's law n₁sinθ₁=n₂sinθ₂, thin-lens 1/f=1/do+1/di, diffraction grating, Rayleigh criterion
+- `verify_acoustics` — wave speed v=fλ, decibel ratios (SPL/IL), Doppler shift, harmonic frequency series
+- `verify_manufacturing` — tolerance stack-up (worst-case/RSS), GD&T fit class, surface roughness Ra, Cp/Cpk
 
 ### Earth and environmental sciences
-- `verify_meteorology` — dew point, heat index, wind chill
-- `verify_geology` — rock identification, stratigraphic column, geologic time
-- `verify_hydrology` — hydraulic head, Manning's equation, catchment yield
-- `verify_astronomy` — orbital period, stellar distance (parsec/light-year), Kepler's third law
-- `verify_agriculture` — hardiness zone lookup, soil pH bounds, crop rotation validity
-- `verify_geography` — coordinate validity, great-circle distance, hemisphere check
+- `verify_meteorology` — dew point (Magnus formula), relative humidity, pressure altitude, wind chill (NWS), heat index
+- `verify_geology` — radiometric decay dating N=N₀·e^(−λt), Mohs hardness scratch test, Richter amplitude ratio
+- `verify_hydrology` — Manning's equation (open channel), Darcy's law (porous media), continuity Q=Av
+- `verify_astronomy` — Kepler's third law T²∝a³, gravitational force, stellar parallax distance, distance modulus m-M
+- `verify_agriculture` — USDA hardiness zone lookup, soil pH range for crops, crop rotation compatibility, stocking density
+- `verify_geography` — lat/lon validity, Haversine great-circle distance, initial bearing, UTM zone
 
 ### Information and computation
-- `verify_cs` — static termination analysis, functional correctness, complexity bounds
-- `verify_cryptography` — hash match, hash strength classification, HMAC verification
-- `verify_networking` — IP format, CIDR membership, subnet host count
-- `verify_document_validation` — ISBN-10/13, Luhn (credit card/ID), IBAN, EAN-13
-- `verify_photography` — exposure value, reciprocity equivalents, angle of view
+- `verify_computer_science` — static termination analysis, functional correctness, runtime O(.) complexity, space O(.), determinism
+- `verify_cryptography` — hash match (SHA-256/SHA-512/MD5), hash strength, HMAC, base64/hex roundtrip, key-length strength
+- `verify_networking` — subnet mask validity, CIDR notation, IP address range, network/broadcast address
+- `verify_document_validation` — governance document structural check: required fields, date ordering, signatory consistency
+- `verify_photography` — exposure value EV=log₂(N²/t), equivalent exposures, depth-of-field hyperfocal distance
 
 ### Life and performance sciences
-- `verify_exercise_science` — energy expenditure, max heart rate, target heart rate zone
-- `verify_sports_analytics` — Pythagorean expectation, Elo expected score and update
+- `verify_exercise_science` — energy expenditure MET×kg×hours, max heart rate 220−age, target HR zone (Karvonen), MET lookup
+- `verify_sports_analytics` — batting average, ERA, NFL passer rating, Pythagorean win expectation W%=RS²/(RS²+RA²), Elo
 
 ### Humanities and governance
-- `verify_governance` — decision packet structural completeness
-- `verify_linguistics` — Strong's number resolution, word count, transliteration check
-- `verify_music_theory` — interval semitones, frequency ratios, equal-temperament pitch
-- `verify_calendar_time` — leap year, ISO 8601 validity, day-of-week calculation
-- `verify_finance` — accounting identity, compound interest, NPV, IRR
+- `verify_governance_decision_packet` — decision packet structural check; optional domain profile (governance|business|household|education|church)
+- `verify_witness` — gate-chain completeness, reasoning trace present, anchor resolution, no-fabricated-answer check
+- `verify_linguistics` — Strong's number resolution (G/H range), occurrence count, transliteration normalization, gloss consistency, cognate pairs
+- `verify_music_theory` — interval semitone counts, chord quality (major/minor/dom7/dim), equal-temperament frequency ratios
+- `verify_calendar_time` — Gregorian leap-year rule, ISO 8601 validity, day-of-week (Zeller/Tomohiko), duration addition
+- `verify_finance` — accounting identity A=L+E, compound interest A=P(1+r/n)^(nt), NPV, present value PV=FV/(1+r)^t
 
 ### Scripture layer
-- `verify_scripture` — verifies that references resolve in WEB and quotes match WEB text. Does not assess whether a verse semantically supports a claim.
-  - `resolve_ref` — single reference lookup; returns canonical ref + WEB text
-  - `triangulate_claim` — checks whether claim keywords appear in the reference's lexical field (Hebrew/Greek concordance); does not assert theological alignment
-  - `word_study` — Strong's cross-reference for Hebrew/Greek lemma and cognates
+- `resolve_scripture_ref` — look up a reference in the World English Bible; returns canonical ref + WEB text. Accepts `Jn3:16`, `John 3:16`, `1Co13:4`.
+- `verify_scripture_anchors` — confirm each ref in a list resolves to a real WEB verse (catches fabricated citations)
+- `triangulate_claim` — check whether an interpretation claim survives WEB text + Strong's lexical field. Without strongs_keys returns NEEDS_MANUAL_VERIFICATION + instructions.
+- `word_study` — Strong's-keyed study: pass `G26` (agape) or `H2617` (chesed); returns definition, derivation, every verse, occurrence count.
 
 ## MCP server (native agent integration)
 
@@ -155,10 +158,29 @@ Or for development without installing:
 
 Source: https://github.com/matharrismma/Lighthouse
 
-Tools available via MCP:
-- `validate_packet_tool` — run all four gates against a governance decision packet
-- `suggest_fix` — run the engine and return concrete corrective actions for any failures; act on the list directly, do not summarize it
-- Domain verifiers (each callable by name): `verify_chemistry`, `verify_physics`, `verify_mathematics`, `verify_statistics`, `verify_cs`, `verify_biology`, `verify_genetics`, `verify_nutrition`, `verify_formal_logic`, `verify_number_theory`, `verify_combinatorics`, `verify_geometry`, `verify_information_theory`, `verify_electrical`, `verify_energy`, `verify_optics`, `verify_acoustics`, `verify_manufacturing`, `verify_meteorology`, `verify_geology`, `verify_hydrology`, `verify_astronomy`, `verify_agriculture`, `verify_geography`, `verify_cryptography`, `verify_networking`, `verify_document_validation`, `verify_photography`, `verify_exercise_science`, `verify_sports_analytics`, `verify_governance`, `verify_linguistics`, `verify_music_theory`, `verify_calendar_time`, `verify_finance`, `verify_scripture`
+Tools available via MCP (47 total):
+
+**Packet tools:** `validate_packet` · `seal_packet` · `walkthrough_packet`
+
+**Gate attestation:** `attest_red` · `attest_floor`
+
+**Core sciences:** `verify_chemistry` · `verify_physics_dimensional` · `verify_physics_conservation` · `verify_mathematics` · `verify_statistics_pvalue` · `verify_statistics_multiple_comparisons` · `verify_statistics_confidence_interval` · `verify_biology` · `verify_genetics` · `verify_nutrition`
+
+**Formal reasoning:** `verify_formal_logic` · `verify_number_theory` · `verify_combinatorics` · `verify_geometry` · `verify_information_theory`
+
+**Engineering:** `verify_electrical` · `verify_energy` · `verify_optics` · `verify_acoustics` · `verify_manufacturing`
+
+**Earth sciences:** `verify_meteorology` · `verify_geology` · `verify_hydrology` · `verify_astronomy` · `verify_agriculture` · `verify_geography`
+
+**Information/computation:** `verify_computer_science` · `verify_cryptography` · `verify_networking` · `verify_document_validation` · `verify_photography`
+
+**Life sciences:** `verify_exercise_science` · `verify_sports_analytics`
+
+**Humanities/governance:** `verify_governance_decision_packet` · `verify_witness` · `verify_linguistics` · `verify_music_theory` · `verify_calendar_time` · `verify_finance`
+
+**Scripture layer:** `resolve_scripture_ref` · `verify_scripture_anchors` · `triangulate_claim` · `word_study`
+
+**Utility:** `get_example_packet`
 
 ### verify_biology — extended parameters
 
@@ -228,6 +250,64 @@ Base URL: https://narrowhighway.com
 ```
 POST /path              — classify what you are carrying; return a Scripture-anchored path
 POST /speak             — proxy ElevenLabs TTS; returns audio/mpeg (requires ELEVENLABS_API_KEY)
+GET  /voices            — list available ElevenLabs voices + models for this instance
+```
+
+### Domain verifier layer (48 domains)
+```
+GET  /verifiers                          — list all registered domain verifiers + aliases
+POST /verify/{domain}                    — run a domain verifier and store the result
+                                           body: {"spec": {<domain-specific fields>}}
+                                           returns: {domain, tool, entry_id, summary, trust_count, results}
+POST /verify/chain                       — multi-step cross-domain verification chain
+                                           body: {"steps": [{"domain": "...", "spec": {...}}, ...]}
+GET  /packets                            — list all domains with stored packet entries
+GET  /packets/{domain}                   — list packets for a domain (newest first)
+GET  /packets/{domain}/{id}              — fetch one packet; includes _trust_count + _confirmed_instances
+POST /packets/{domain}/search            — find closest prior packets by spec-field overlap (Jaccard)
+                                           body: {"spec": {...}, "limit": 10, "confirmed_only": false}
+GET  /packets/{domain}/{id}/export       — self-contained signed bundle (carry on USB, sync over LoRa)
+POST /packets/{domain}/{id}/verify-sig   — verify Ed25519 signature on a stored packet
+POST /packets/import                     — accept a signed packet from a peer instance
+```
+
+### Natural language agent layer
+```
+POST /agent             — NL → rule dispatch → verifier (or corpus hit); logs training examples
+                          body: {"text": "...", "use_oracle": true, "oracle_model": "claude-haiku-4-5-20251001"}
+                          returns: {matched, source, domain, spec, entry_id, summary, trust_count, results}
+                          source: "rule" | "oracle" | "corpus"  ("corpus" = returned from verified store, zero compute)
+POST /agent/speak       — NL → verify → speak result as audio/mpeg (requires ELEVENLABS_API_KEY)
+                          body: {"text": "...", "voice_id": null, "model_id": "eleven_turbo_v2_5"}
+GET  /agent/rules       — list all registered NL dispatch rules (32 rules, 13 domains)
+GET  /agent/training    — training data statistics by domain (rule vs oracle source counts)
+GET  /agent/training/proposals  — extract regex rule candidates from oracle training logs
+                                  ?min_examples=2&min_confidence=0.5
+                                  returns proposals for manual promotion to dispatch.py
+```
+
+### Offline queue
+```
+POST /queue             — manually enqueue a verify request for offline/retry processing
+                          body: {"domain": "...", "spec": {...}, "reason": "..."}
+GET  /queue             — queue statistics (pending / failed / completed) + recent pending list
+```
+
+### Instance identity + signing
+```
+GET  /identity/pubkey   — this instance's Ed25519 public key (safe to publish; verify packets offline)
+```
+
+### Cross-instance trust (federation)
+```
+POST /peers/register    — register a peer instance: {"url": "...", "pubkey": "...", "instance_id": "..."}
+GET  /peers             — list all registered peer instances
+GET  /trust             — trust index statistics: per-domain count of spec_hashes with multi-instance confirmation
+
+Trust mechanism: every POST /verify/{domain} records this instance's confirmation in the trust index
+and broadcasts the signed packet to all registered peers. POST /packets/import accepts a peer packet,
+verifies the Ed25519 signature, and increments the trust count for that spec_hash.
+N independent instances confirming the same spec = trust_count N — no institution required.
 ```
 
 `POST /path` body: `{"text": "<your submission>"}`. Returns a PathResult:

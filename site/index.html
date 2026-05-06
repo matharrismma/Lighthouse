@@ -405,6 +405,16 @@
     }
     .bubble-engine .expand-link:hover { color: var(--accent); }
 
+    /* Speak button — appears on results when ElevenLabs is configured */
+    .speak-btn {
+      background: none; border: none; cursor: pointer; padding: 2px 6px;
+      color: var(--muted); font-size: 14px; line-height: 1;
+      border-radius: 4px; transition: color 0.15s, background 0.15s;
+      vertical-align: middle; margin-left: 6px;
+    }
+    .speak-btn:hover { color: var(--text); background: var(--surface); }
+    .speak-result-row { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; }
+
     /* Today's pulse — replaces the decorative empty state */
     .empty {
       margin-bottom: 24px;
@@ -1287,6 +1297,38 @@
     }
     return '';
   })();
+
+  // ── Voice (ElevenLabs) capability ───────────────────────────────────
+  let _speakAvailable = false;
+  fetch(API + '/reach').then(r => r.ok ? r.json() : null).then(d => {
+    _speakAvailable = !!(d && d.speak_voice);
+  }).catch(() => {});
+
+  function speakText(text) {
+    if (!text || !_speakAvailable) return;
+    fetch(API + '/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text.slice(0, 2000) })
+    })
+    .then(r => r.ok ? r.blob() : Promise.reject(r.status))
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = new Audio(url);
+      a.onended = () => URL.revokeObjectURL(url);
+      a.play();
+    })
+    .catch(() => {});
+  }
+
+  function makeSpeakBtn(getText) {
+    const btn = document.createElement('button');
+    btn.className = 'speak-btn';
+    btn.title = 'Read aloud';
+    btn.innerHTML = '&#128266;';
+    btn.addEventListener('click', () => speakText(getText()));
+    return btn;
+  }
 
   // ── Auth / door sign ────────────────────────────────────────────────
   const CE_TOKEN_KEY = 'ce_token';
@@ -2480,6 +2522,17 @@
     html += '</div>';
     bubble.innerHTML = html;
     exchange.appendChild(bubble);
+
+    // Speak button — shown only when ElevenLabs is configured
+    if (_speakAvailable && data.path) {
+      const speakText = [
+        data.path,
+        data.next_step ? 'Next step: ' + data.next_step : '',
+        (data.scripture_anchor && data.scripture_anchor.text) ? data.scripture_anchor.text : '',
+      ].filter(Boolean).join(' ');
+      bubble.appendChild(makeSpeakBtn(() => speakText));
+    }
+
     inputEl.disabled = false;
     inputEl.focus();
     scrollBottom();
