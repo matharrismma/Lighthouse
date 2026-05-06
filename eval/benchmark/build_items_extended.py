@@ -53,6 +53,13 @@ from concordance_engine.verifiers import (
     photography as photo,
     witness as wit,
     quantum_computing as qcomp,
+    economics as econ,
+    labor as labor_ver,
+    real_estate as re_ver,
+    construction as constr,
+    soil_science as soil,
+    cybersecurity as cyber,
+    medicine as med,
 )
 from concordance_engine.verifiers.base import VerifierResult
 from scipy import stats as scistats
@@ -1218,6 +1225,218 @@ def build_cross_domain():
     ]
 
 
+# ── economics (3) ────────────────────────────────────────────────────────────
+
+def build_economics():
+    return [
+        _item("ECON-001", "economics", "simple_interest",
+              "Using the simple interest formula (I = P × r × t), what is the interest "
+              "on a principal of $1,000 at 5% annual rate for 3 years? "
+              "Reply with just the number.",
+              150.0, "numeric",
+              "verify_economics",
+              {"principal": 1000, "rate": 0.05, "time_years": 3,
+               "claimed_simple_interest": 150.0},
+              tolerance=0.01),
+        _item("ECON-002", "economics", "rule_of_72",
+              "Using the Rule of 72, at an 8% annual growth rate, "
+              "approximately how many years does it take to double an investment? "
+              "Reply with just the number.",
+              9.0, "numeric",
+              "verify_economics",
+              {"rate_percent": 8, "claimed_doubling_years": 9.0},
+              tolerance=0.5),
+        _item("ECON-003", "economics", "gdp_per_capita",
+              "A country has GDP of $21 trillion and a population of 331 million. "
+              "What is the GDP per capita? Reply with the number rounded to the nearest integer.",
+              round(21e12 / 331e6), "numeric",
+              "verify_economics",
+              {"gdp": 21_000_000_000_000, "population": 331_000_000,
+               "claimed_gdp_per_capita": round(21e12 / 331e6)},
+              tolerance=1.0),
+    ]
+
+
+# ── labor (3) ────────────────────────────────────────────────────────────────
+
+def build_labor():
+    ot_pay = round(40 * 20.0 + 5 * 20.0 * 1.5, 2)  # FLSA: regular + 1.5x OT
+    return [
+        _item("LAB-001", "labor", "gross_pay",
+              "An employee earns $18.50/hour and works 40 hours. "
+              "What is their gross pay? Reply with just the number.",
+              740.0, "numeric",
+              "verify_labor",
+              {"hourly_rate": 18.50, "hours_worked": 40, "claimed_gross_pay": 740.0},
+              tolerance=0.01),
+        _item("LAB-002", "labor", "overtime_pay",
+              "Under FLSA, an employee earning $20/hour works 45 hours in a week. "
+              "The first 40 hours are at regular rate; hours over 40 are at 1.5×. "
+              "What is the total gross pay? Reply with just the number.",
+              ot_pay, "numeric",
+              "verify_labor",
+              {"hourly_rate": 20.0, "regular_hours": 40, "overtime_hours": 5,
+               "claimed_overtime_pay": ot_pay},
+              tolerance=0.01),
+        _item("LAB-003", "labor", "annual_to_hourly",
+              "A salaried employee earns $52,000 per year (2,080 work hours/year). "
+              "What is the equivalent hourly rate? Reply with just the number.",
+              25.0, "numeric",
+              "verify_labor",
+              {"annual_salary": 52000, "claimed_hourly_equivalent": 25.0},
+              tolerance=0.01),
+    ]
+
+
+# ── real_estate (3) ──────────────────────────────────────────────────────────
+
+def build_real_estate():
+    return [
+        _item("RE-001", "real_estate", "loan_to_value",
+              "A borrower takes a $240,000 loan on a property appraised at $300,000. "
+              "What is the loan-to-value (LTV) ratio? Reply with the decimal number.",
+              0.80, "numeric",
+              "verify_real_estate",
+              {"loan_amount": 240_000, "appraised_value": 300_000, "claimed_ltv": 0.80},
+              tolerance=0.001),
+        _item("RE-002", "real_estate", "cap_rate",
+              "A property generates $24,000 net operating income and is valued at $400,000. "
+              "What is the cap rate? Reply with the decimal number.",
+              0.06, "numeric",
+              "verify_real_estate",
+              {"net_operating_income": 24_000, "property_value": 400_000,
+               "claimed_cap_rate": 0.06},
+              tolerance=0.001),
+        _item("RE-003", "real_estate", "gross_rent_multiplier",
+              "A property is priced at $300,000 and generates $24,000 annual gross rent. "
+              "What is the Gross Rent Multiplier (GRM)? Reply with just the number.",
+              12.5, "numeric",
+              "verify_real_estate",
+              {"property_price": 300_000, "annual_gross_rent": 24_000,
+               "claimed_grm": 12.5},
+              tolerance=0.01),
+    ]
+
+
+# ── construction (3) ─────────────────────────────────────────────────────────
+
+def build_construction():
+    return [
+        _item("CONSTR-001", "construction", "concrete_volume",
+              "A concrete slab is 10 m long, 5 m wide, and 0.15 m deep. "
+              "What is the volume of concrete needed in cubic metres? Reply with just the number.",
+              7.5, "numeric",
+              "verify_construction",
+              {"length_m": 10, "width_m": 5, "depth_m": 0.15, "claimed_concrete_m3": 7.5},
+              tolerance=0.01),
+        _item("CONSTR-002", "construction", "rectangular_area",
+              "A rectangular room is 10 m long and 5 m wide. "
+              "What is the floor area in square metres? Reply with just the number.",
+              50.0, "numeric",
+              "verify_construction",
+              {"length_m": 10, "width_m": 5, "claimed_rect_area_m2": 50.0},
+              tolerance=0.01),
+        _item("CONSTR-003", "construction", "paint_coverage",
+              "A wall has 80 m² of paintable surface. Each can covers 10 m². "
+              "How many cans are needed? Reply with just the number.",
+              8, "numeric",
+              "verify_construction",
+              {"paint_area_m2": 80, "coverage_m2_per_can": 10, "claimed_paint_cans": 8},
+              tolerance=0.0),
+    ]
+
+
+# ── soil_science (3) ─────────────────────────────────────────────────────────
+
+def build_soil_science():
+    etc = round(5.0 * 1.15, 2)
+    return [
+        _item("SOIL-001", "soil_science", "ph_suitability",
+              "Maize grows best at soil pH 5.8–7.0. Is a soil pH of 6.2 suitable for maize? "
+              "Answer yes or no.",
+              "yes", "classification",
+              "verify_soil_science",
+              {"crop": "maize", "soil_ph": 6.2, "claimed_ph_suitable": True}),
+        _item("SOIL-002", "soil_science", "ph_suitability",
+              "Blueberries require acidic soil with pH 4.0–5.5. "
+              "Is a soil pH of 6.0 suitable for blueberries? Answer yes or no.",
+              "no", "classification",
+              "verify_soil_science",
+              {"crop": "blueberry", "soil_ph": 6.0, "claimed_ph_suitable": False}),
+        _item("SOIL-003", "soil_science", "irrigation_req",
+              "Reference evapotranspiration ET₀ is 5.0 mm/day and the crop coefficient Kc is 1.15. "
+              "What is the crop water requirement ETc in mm/day? Reply with just the number.",
+              etc, "numeric",
+              "verify_soil_science",
+              {"reference_et0_mm_per_day": 5.0, "crop_coefficient": 1.15,
+               "claimed_etc_mm_per_day": etc},
+              tolerance=0.01),
+    ]
+
+
+# ── cybersecurity (3) ────────────────────────────────────────────────────────
+
+def build_cybersecurity():
+    entropy = round(16 * math.log2(94), 2)
+    return [
+        _item("CYBER-001", "cybersecurity", "password_entropy",
+              "A password is 16 characters long drawn from a charset of 94 printable ASCII characters. "
+              "Using H = L × log₂(N), what is the entropy in bits? "
+              "Reply with the number rounded to 2 decimal places.",
+              entropy, "numeric",
+              "verify_cybersecurity",
+              {"password_length": 16, "charset_size": 94,
+               "claimed_entropy_bits": entropy},
+              tolerance=0.05),
+        _item("CYBER-002", "cybersecurity", "subnet_hosts",
+              "How many usable host addresses are in a /24 subnet (IPv4)? "
+              "Reply with just the number.",
+              254, "numeric",
+              "verify_cybersecurity",
+              {"cidr_prefix": 24, "claimed_host_count": 254},
+              tolerance=0.0),
+        _item("CYBER-003", "cybersecurity", "cvss_severity",
+              "A vulnerability has a CVSS v3 base score of 9.1. "
+              "What is the severity label? "
+              "Answer: none, low, medium, high, or critical.",
+              "critical", "string",
+              "verify_cybersecurity",
+              {"cvss_base_score": 9.1, "claimed_cvss_severity": "critical"}),
+    ]
+
+
+# ── medicine (3) ─────────────────────────────────────────────────────────────
+
+def build_medicine():
+    bmi = round(70 / 1.75**2, 1)
+    map_val = round(80 + (120 - 80) / 3, 1)
+    return [
+        _item("MED-001", "medicine", "bmi_class",
+              "A person weighs 70 kg and is 1.75 m tall. "
+              "Using BMI = weight / height², what BMI class do they fall into? "
+              "Answer: underweight, normal, overweight, or obese.",
+              "normal", "string",
+              "verify_medicine",
+              {"weight_kg": 70, "height_m": 1.75,
+               "claimed_bmi": bmi, "claimed_bmi_class": "normal"}),
+        _item("MED-002", "medicine", "drug_dosage",
+              "A drug is dosed at 5 mg/kg. What is the correct dose for a 70 kg patient? "
+              "Reply with just the number in mg.",
+              350.0, "numeric",
+              "verify_medicine",
+              {"dose_mg_per_kg": 5.0, "weight_kg": 70, "claimed_dose_mg": 350.0},
+              tolerance=0.01),
+        _item("MED-003", "medicine", "map",
+              "A patient has systolic BP 120 mmHg and diastolic BP 80 mmHg. "
+              "Using MAP = DBP + (SBP − DBP)/3, what is the mean arterial pressure? "
+              "Reply with the number rounded to 1 decimal place.",
+              map_val, "numeric",
+              "verify_medicine",
+              {"systolic": 120, "diastolic": 80, "claimed_map_mmhg": map_val},
+              tolerance=0.5),
+    ]
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 BUILDERS = [
@@ -1235,6 +1454,9 @@ BUILDERS = [
     build_photography, build_linguistics, build_witness,
     build_quantum_computing,
     build_cross_domain,
+    build_economics, build_labor, build_real_estate,
+    build_construction, build_soil_science,
+    build_cybersecurity, build_medicine,
 ]
 
 
