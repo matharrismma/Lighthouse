@@ -50,6 +50,11 @@ from ..verifiers import witness as _witness
 from ..verifiers import quantum_computing as _quantum_computing
 from ..verifiers import medicine as _medicine
 from ..verifiers import cybersecurity as _cybersecurity
+from ..verifiers import economics as _economics
+from ..verifiers import labor as _labor
+from ..verifiers import real_estate as _real_estate
+from ..verifiers import construction as _construction
+from ..verifiers import soil_science as _soil_science
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -525,6 +530,50 @@ def verify_cybersecurity(spec):
     Subnet: {"cidr_prefix": 24, "claimed_host_count": 254}
     Port: {"port_number": 443, "claimed_port_class": "well_known"}"""
     return {"checks": [_r(r) for r in _cybersecurity.run({"CYBER_VERIFY": spec or {}})]}
+
+
+def verify_economics(spec):
+    """Simple/compound interest, PV/FV, Rule of 72, inflation adjustment, GDP per capita, price elasticity.
+    Simple interest: {"principal": 1000, "rate": 0.05, "time_years": 3, "claimed_simple_interest": 150}
+    Compound: {"principal": 1000, "rate": 0.05, "time_years": 3, "compounding_periods": 12, "claimed_compound_amount": 1161.62}
+    Rule of 72: {"rate_percent": 7, "claimed_doubling_years": 10.3}
+    Inflation: {"nominal_value": 1000, "inflation_rate": 0.03, "years": 10, "claimed_real_value": 744.09}"""
+    return {"checks": [_r(r) for r in _economics.run({"ECON_VERIFY": spec or {}})]}
+
+
+def verify_labor(spec):
+    """Gross pay, FLSA overtime, annual-to-hourly, take-home pay, minimum wage compliance.
+    Gross: {"hourly_rate": 18.5, "hours_worked": 45, "claimed_gross_pay": 832.5}
+    Overtime: {"hourly_rate": 18.5, "regular_hours": 40, "overtime_hours": 5, "claimed_overtime_pay": 878.75}
+    Take-home: {"gross_pay": 1000, "total_tax_rate": 0.28, "claimed_take_home": 720}
+    Annual/hourly: {"annual_salary": 52000, "claimed_hourly_equivalent": 25.0}"""
+    return {"checks": [_r(r) for r in _labor.run({"LABOR_VERIFY": spec or {}})]}
+
+
+def verify_real_estate(spec):
+    """Monthly mortgage payment, cap rate, GRM, LTV, DSCR, rental yield.
+    Mortgage: {"loan_principal": 300000, "annual_rate": 0.065, "loan_term_months": 360, "claimed_monthly_payment": 1896.20}
+    Cap rate: {"net_operating_income": 24000, "property_value": 400000, "claimed_cap_rate": 0.06}
+    LTV: {"loan_amount": 240000, "appraised_value": 300000, "claimed_ltv": 0.80}
+    DSCR: {"net_operating_income": 24000, "annual_debt_service": 22755, "claimed_dscr": 1.055}"""
+    return {"checks": [_r(r) for r in _real_estate.run({"RE_VERIFY": spec or {}})]}
+
+
+def verify_construction(spec):
+    """Concrete volume, area (rect/circle), rebar weight, wall area, paint cans, floor tiles, beam load.
+    Concrete: {"length_m": 10, "width_m": 5, "depth_m": 0.15, "claimed_concrete_m3": 7.5}
+    Tiles: {"tile_area_m2": 50, "tile_size_m2": 0.25, "waste_factor": 0.10, "claimed_tile_count": 220}
+    Beam: {"total_load_kn": 120, "span_m": 6, "claimed_load_intensity_kn_per_m": 20.0}"""
+    return {"checks": [_r(r) for r in _construction.run({"CONSTR_VERIFY": spec or {}})]}
+
+
+def verify_soil_science(spec):
+    """Soil pH suitability, NPK fertilizer requirements, irrigation ETc, lime requirement, texture classification.
+    pH: {"crop": "maize", "soil_ph": 6.2, "claimed_ph_suitable": true}
+    NPK: {"crop_npk": "wheat", "area_hectares": 2.0, "claimed_n_kg": 240, "claimed_p_kg": 120, "claimed_k_kg": 120}
+    Irrigation: {"reference_et0_mm_per_day": 5.0, "crop_coefficient": 1.15, "claimed_etc_mm_per_day": 5.75}
+    Texture: {"sand_pct": 40, "silt_pct": 40, "clay_pct": 20, "claimed_texture_class": "loam"}"""
+    return {"checks": [_r(r) for r in _soil_science.run({"SOIL_VERIFY": spec or {}})]}
 
 
 # ---------------------------------------------------------------------
@@ -1023,6 +1072,11 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_quantum_computing": verify_quantum_computing,
     "verify_medicine": verify_medicine,
     "verify_cybersecurity": verify_cybersecurity,
+    "verify_economics": verify_economics,
+    "verify_labor": verify_labor,
+    "verify_real_estate": verify_real_estate,
+    "verify_construction": verify_construction,
+    "verify_soil_science": verify_soil_science,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

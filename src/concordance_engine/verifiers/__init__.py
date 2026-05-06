@@ -98,6 +98,22 @@ VERIFIERS: Dict[str, str] = {
     "cybersecurity":        "concordance_engine.verifiers.cybersecurity",
     "cyber":                "concordance_engine.verifiers.cybersecurity",
     "infosec":              "concordance_engine.verifiers.cybersecurity",
+    "economics":            "concordance_engine.verifiers.economics",
+    "economy":              "concordance_engine.verifiers.economics",
+    "macro":                "concordance_engine.verifiers.economics",
+    "micro":                "concordance_engine.verifiers.economics",
+    "labor":                "concordance_engine.verifiers.labor",
+    "labour":               "concordance_engine.verifiers.labor",
+    "employment":           "concordance_engine.verifiers.labor",
+    "wages":                "concordance_engine.verifiers.labor",
+    "real_estate":          "concordance_engine.verifiers.real_estate",
+    "property":             "concordance_engine.verifiers.real_estate",
+    "mortgage":             "concordance_engine.verifiers.real_estate",
+    "construction":         "concordance_engine.verifiers.construction",
+    "building":             "concordance_engine.verifiers.construction",
+    "soil_science":         "concordance_engine.verifiers.soil_science",
+    "soil":                 "concordance_engine.verifiers.soil_science",
+    "agronomy":             "concordance_engine.verifiers.soil_science",
 }
 
 
