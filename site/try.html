@@ -3,26 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Try Concordance</title>
+  <title>Concordance — Verify a Claim</title>
+  <meta name="description" content="Enter any claim. The engine classifies it, extracts the spec, and returns a verifiable result.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #08090d;
-      --surface: #0f1117;
-      --border: #1e2130;
-      --text: #e8eaf0;
-      --muted: #5a6072;
-      --accent: #4f8ef7;
-      --pass: #2dd4a0;
-      --reject: #f75f5f;
-      --quarantine: #f7b84f;
+      --bg:            #161318;
+      --surface:       #1d191f;
+      --surface-2:     #232028;
+      --border:        #2d2731;
+      --border-bright: #3f3845;
+      --text:          #efe9e0;
+      --muted:         #8a8593;
+      --accent:        #c9a87c;
+      --pass:          #7ec488;
+      --reject:        #d97c7c;
+      --quarantine:    #d9b66c;
     }
 
     html, body {
-      height: 100%;
       background: var(--bg);
       color: var(--text);
       font-family: 'Inter', sans-serif;
@@ -34,39 +37,63 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      padding: 24px;
+      padding: 32px 20px 48px;
     }
 
     .shell {
       width: 100%;
-      max-width: 680px;
+      max-width: 660px;
       display: flex;
       flex-direction: column;
       gap: 0;
     }
 
-    /* History */
+    /* ── Header ── */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    .brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .brand:hover { opacity: 0.8; }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── History ── */
     .history {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      margin-bottom: 32px;
-      min-height: 0;
+      gap: 28px;
+      margin-bottom: 28px;
+      min-height: 40px;
     }
 
     .exchange { display: flex; flex-direction: column; gap: 10px; }
 
     .bubble-user {
       align-self: flex-end;
-      background: #151929;
-      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
       border-radius: 14px 14px 4px 14px;
-      padding: 12px 16px;
-      max-width: 90%;
+      padding: 11px 15px;
+      max-width: 88%;
       color: var(--text);
       font-size: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .bubble-engine {
@@ -75,85 +102,189 @@
       border: 1px solid var(--border);
       border-radius: 4px 14px 14px 14px;
       padding: 14px 16px;
-      max-width: 92%;
+      max-width: 94%;
       font-size: 14px;
     }
 
+    /* ── Verdict badge ── */
     .verdict {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 3px 9px;
+      letter-spacing: 0.1em;
+      padding: 3px 10px;
       border-radius: 20px;
       margin-bottom: 10px;
     }
-    .verdict.PASS       { background: #0d2b22; color: var(--pass);       border: 1px solid #1a4a38; }
-    .verdict.REJECT     { background: #2b0d0d; color: var(--reject);     border: 1px solid #4a1a1a; }
-    .verdict.QUARANTINE { background: #2b2208; color: var(--quarantine); border: 1px solid #4a3a10; }
-    .verdict.ERROR      { background: #1a1a24; color: var(--muted);      border: 1px solid var(--border); }
+    .verdict.CONFIRMED   { background: #122a1c; color: var(--pass);       border: 1px solid #1e4530; }
+    .verdict.MISMATCH    { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
+    .verdict.NOT_APPLICABLE { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .verdict.PASS        { background: #122a1c; color: var(--pass);       border: 1px solid #1e4530; }
+    .verdict.REJECT      { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
+    .verdict.QUARANTINE  { background: #2a2010; color: var(--quarantine); border: 1px solid #4a3a18; }
+    .verdict.ERROR       { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    .gates {
+    /* ── Domain/rule row ── */
+    .meta-row {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 4px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
     }
-
-    .gate-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-    }
-
-    .gate-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      width: 80px;
-      flex-shrink: 0;
-      margin-top: 2px;
-      color: var(--muted);
-    }
-
-    .gate-status {
+    .pill {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      font-weight: 500;
-      padding: 1px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-top: 2px;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: #22192e;
+      color: var(--accent);
+      border: 1px solid #3a2e4e;
     }
-    .gate-status.PASS       { background: #0d2b22; color: var(--pass); }
-    .gate-status.REJECT     { background: #2b0d0d; color: var(--reject); }
-    .gate-status.QUARANTINE { background: #2b2208; color: var(--quarantine); }
-    .gate-status.SKIP       { background: #0f1117; color: var(--muted); }
-
-    .gate-reasons {
+    .source-tag {
+      font-size: 11px;
       color: var(--muted);
-      font-size: 12.5px;
-      flex: 1;
+    }
+
+    /* ── Verifier detail ── */
+    .detail {
+      font-size: 13.5px;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1.55;
+    }
+
+    /* ── Data payload ── */
+    .data-block {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .data-block summary {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      user-select: none;
+      list-style: none;
+    }
+    .data-block summary::-webkit-details-marker { display: none; }
+    .data-block summary::before { content: '▶ '; font-size: 9px; }
+    details[open] summary::before { content: '▼ '; }
+    .data-block pre {
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
       line-height: 1.5;
     }
 
+    /* ── Gate chain (from /seal) ── */
+    .gates { display: flex; flex-direction: column; gap: 5px; margin: 10px 0; }
+    .gate-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .gate-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      width: 70px;
+      flex-shrink: 0;
+      margin-top: 3px;
+      color: var(--muted);
+    }
+    .gate-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .gate-badge.PASS       { background: #122a1c; color: var(--pass); }
+    .gate-badge.REJECT     { background: #2b1212; color: var(--reject); }
+    .gate-badge.QUARANTINE { background: #2a2010; color: var(--quarantine); }
+    .gate-badge.SKIP       { background: var(--surface-2); color: var(--muted); }
+    .gate-reason { color: var(--muted); font-size: 12.5px; flex: 1; line-height: 1.5; }
+
+    /* ── Anchors ── */
+    .anchors { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .anchor-row {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      font-size: 13px;
+    }
+    .anchor-ref { color: var(--accent); font-size: 13px; }
+    .anchor-layer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .anchor-text { color: var(--muted); font-size: 13px; font-style: italic; }
+
+    /* ── Seal block ── */
+    .seal-block {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hash {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      word-break: break-all;
+      flex: 1;
+      min-width: 0;
+    }
+    .hash a { color: var(--accent); text-decoration: none; }
+    .hash a:hover { text-decoration: underline; }
+    button.action {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      background: var(--surface-2);
+      color: var(--muted);
+      border: 1px solid var(--border-bright);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color 0.12s, border-color 0.12s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    button.action:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
+    button.action:disabled { opacity: 0.4; cursor: default; }
+    button.action.sealing { color: var(--accent); border-color: var(--accent-soft); }
+
+    /* ── Thinking ── */
     .thinking {
       display: flex;
       align-items: center;
       gap: 6px;
       color: var(--muted);
       font-size: 13px;
-      padding: 10px 0;
+      padding: 8px 0;
     }
-
     .dots span {
       display: inline-block;
       width: 4px; height: 4px;
@@ -169,19 +300,27 @@
       40%            { opacity: 1; }
     }
 
-    /* Input row */
+    /* ── Miss message ── */
+    .miss {
+      color: var(--muted);
+      font-size: 13.5px;
+      padding: 4px 0 2px;
+      line-height: 1.55;
+    }
+    .miss strong { color: var(--text); }
+
+    /* ── Input ── */
     .input-wrap {
       position: relative;
       display: flex;
       align-items: flex-end;
-      gap: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px 14px;
       transition: border-color 0.15s;
     }
-    .input-wrap:focus-within { border-color: var(--accent); }
+    .input-wrap:focus-within { border-color: var(--accent-soft); }
 
     textarea {
       flex: 1;
@@ -203,71 +342,99 @@
       background: var(--accent);
       border: none;
       border-radius: 8px;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      margin-left: 8px;
-      transition: opacity 0.15s;
+      margin-left: 10px;
+      transition: opacity 0.12s;
       align-self: flex-end;
     }
-    button.send:hover { opacity: 0.85; }
-    button.send:disabled { opacity: 0.35; cursor: default; }
-    button.send svg { width: 14px; height: 14px; fill: #fff; }
+    button.send:hover:not(:disabled) { opacity: 0.82; }
+    button.send:disabled { opacity: 0.3; cursor: default; }
+    button.send svg { width: 13px; height: 13px; fill: #fff; }
 
     .hint {
       text-align: center;
       color: var(--muted);
       font-size: 12px;
-      margin-top: 12px;
+      margin-top: 10px;
+    }
+    kbd {
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: inherit;
     }
 
-    /* Empty state */
+    /* ── Empty state ── */
     .empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
+      gap: 6px;
       color: var(--muted);
-      margin-bottom: 48px;
+      padding-bottom: 40px;
     }
-    .empty h1 {
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    .empty p { font-size: 13px; line-height: 1.6; max-width: 380px; margin: 0 auto; }
-
-    .tag {
-      display: inline-block;
+    .empty-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--accent);
-      border: 1px solid #1e2a4a;
-      background: #0c1022;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-bottom: 14px;
+      margin-bottom: 6px;
     }
+    .empty h1 { font-size: 18px; font-weight: 500; color: var(--text); }
+    .empty p { font-size: 13px; max-width: 380px; line-height: 1.6; }
 
-    .elapsed {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 10px;
-      font-family: 'JetBrains Mono', monospace;
+    .examples {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+      width: 100%;
+      max-width: 380px;
     }
+    .example {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .example:hover { color: var(--text); border-color: var(--border-bright); }
   </style>
 </head>
 <body>
 <div class="shell">
 
+  <div class="top">
+    <a href="/" class="brand">CONCORDANCE</a>
+    <nav class="nav-links">
+      <a href="/benchmark.html">Benchmark</a>
+      <a href="/how-it-works.html">How it works</a>
+    </nav>
+  </div>
+
   <div class="history" id="history">
     <div class="empty" id="emptyState">
-      <div class="tag">CONCORDANCE ENGINE</div>
+      <div class="empty-tag">CONCORDANCE ENGINE</div>
       <h1>What do you want to verify?</h1>
-      <p>Enter any claim, equation, or decision. The engine will run it through four gates and return a verdict.</p>
+      <p>Enter any claim — math, chemistry, law, biology, governance. The engine classifies it and returns a verifiable result.</p>
+      <div class="examples" id="examples">
+        <button class="example" data-claim="The integral of x² from 0 to 1 equals 1/3.">The integral of x² from 0 to 1 equals 1/3.</button>
+        <button class="example" data-claim="Water (H₂O) has a molar mass of approximately 18 g/mol.">Water (H₂O) has a molar mass of approximately 18 g/mol.</button>
+        <button class="example" data-claim="An employee worked 45 hours at $20/hr. Their gross pay under FLSA is $950.">An employee worked 45 hours at $20/hr. Their gross pay under FLSA is $950.</button>
+      </div>
     </div>
   </div>
 
@@ -275,14 +442,16 @@
     <textarea
       id="input"
       rows="1"
-      placeholder="Enter a claim to validate…"
+      placeholder="Enter a claim to verify…"
       autofocus
     ></textarea>
-    <button class="send" id="sendBtn" disabled title="Send">
+    <button class="send" id="sendBtn" disabled title="Verify">
       <svg viewBox="0 0 16 16"><path d="M1 8L15 1 8 15 7 9z"/></svg>
     </button>
   </div>
-  <div class="hint">Press <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Enter</kbd> to send &nbsp;·&nbsp; <kbd style="background:#1e2130;padding:1px 5px;border-radius:4px;font-size:11px;">Shift+Enter</kbd> for new line</div>
+  <div class="hint">
+    <kbd>Enter</kbd> to verify &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> for new line
+  </div>
 
 </div>
 
@@ -293,6 +462,15 @@
   const emptyEl   = document.getElementById('emptyState');
   const inputEl   = document.getElementById('input');
   const sendBtn   = document.getElementById('sendBtn');
+
+  // Example button clicks
+  document.getElementById('examples').addEventListener('click', e => {
+    const btn = e.target.closest('[data-claim]');
+    if (!btn) return;
+    inputEl.value = btn.dataset.claim;
+    inputEl.dispatchEvent(new Event('input'));
+    submit();
+  });
 
   inputEl.addEventListener('input', () => {
     sendBtn.disabled = inputEl.value.trim() === '';
@@ -313,19 +491,16 @@
     const text = inputEl.value.trim();
     if (!text) return;
 
-    // Remove empty state
-    if (emptyEl) emptyEl.remove();
+    if (emptyEl) { emptyEl.remove(); }
 
-    // Add user bubble
     const exchange = document.createElement('div');
     exchange.className = 'exchange';
     exchange.innerHTML = `<div class="bubble-user">${esc(text)}</div>`;
     historyEl.appendChild(exchange);
 
-    // Add thinking indicator
     const thinking = document.createElement('div');
     thinking.className = 'thinking';
-    thinking.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span>Running gates…</span>`;
+    thinking.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span>Classifying…</span>`;
     exchange.appendChild(thinking);
 
     inputEl.value = '';
@@ -334,76 +509,197 @@
     inputEl.disabled = true;
     scrollBottom();
 
-    // Build packet from plain text
-    const now = Math.floor(Date.now() / 1000);
-    const packet = {
-      domain: 'governance',
-      witness_count: 1,
-      created_epoch: now - 60,
-      DECISION_PACKET: {
-        title: text.length > 60 ? text.slice(0, 57) + '…' : text,
-        decision: text,
-        rationale: 'User-submitted claim for validation.',
-        scope: 'adapter',
-        red_items: ['No coercion detected', 'No unilateral authority claimed'],
-        floor_items: ['Claim is internally coherent', 'Rationale provided'],
-        way_path: 'direct-submission',
-        execution_steps: ['Submit claim', 'Review result'],
-        witnesses: ['submitter'],
-        witness_count: 1
-      }
-    };
-
-    fetch(`${API}/submit`, {
+    fetch(`${API}/agent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ packet, run_verifiers: true })
+      body: JSON.stringify({ text, use_oracle: false }),
     })
-    .then(r => r.json())
-    .then(data => renderResult(exchange, thinking, data))
-    .catch(err => renderError(exchange, thinking, err));
+    .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
+    .then(data => renderAgent(exchange, thinking, data, text))
+    .catch(err  => renderError(exchange, thinking, err));
   }
 
-  function renderResult(exchange, thinking, data) {
+  function renderAgent(exchange, thinking, data, originalText) {
     thinking.remove();
-
-    const overall = data.overall || 'ERROR';
-    const gates   = data.gate_results || [];
-    const elapsed = data.elapsed_ms != null ? `${data.elapsed_ms} ms` : '';
-
-    const gateHTML = gates.map(g => {
-      const reasons = (g.reasons || []).filter(r => r && r.trim());
-      return `
-        <div class="gate-row">
-          <span class="gate-name">${esc(g.gate)}</span>
-          <span class="gate-status ${g.status}">${g.status}</span>
-          <span class="gate-reasons">${reasons.length ? esc(reasons.join(' · ')) : ''}</span>
-        </div>`;
-    }).join('');
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
-    bubble.innerHTML = `
-      <div class="verdict ${overall}"><span class="dot"></span>${overall}</div>
-      <div class="gates">${gateHTML}</div>
-      ${elapsed ? `<div class="elapsed">${elapsed}</div>` : ''}
-    `;
-    exchange.appendChild(bubble);
 
-    inputEl.disabled = false;
-    inputEl.focus();
+    if (!data.matched) {
+      bubble.innerHTML = `
+        <div class="miss">
+          <strong>No rule matched.</strong> The engine didn't recognise a verifiable claim here.
+          Try a specific equation, chemical formula, or measurable statement.
+        </div>`;
+      exchange.appendChild(bubble);
+      re_enable();
+      scrollBottom();
+      return;
+    }
+
+    const results = data.results || {};
+    const summary = data.summary || results.summary || results.status || 'UNKNOWN';
+    const detail  = results.detail || results.message || '';
+    const rawData = results.data || null;
+    const domain  = data.domain || '';
+    const source  = data.source || 'rule';
+    const ruleId  = data.rule_id || '';
+    const entryId = data.entry_id || '';
+
+    let html = '';
+
+    // Meta row: domain pill + source tag
+    html += `<div class="meta-row">
+      <span class="pill">${esc(domain)}</span>
+      ${source === 'corpus' ? '<span class="source-tag">cached</span>' : ''}
+      ${source === 'oracle' ? '<span class="source-tag">oracle</span>' : ''}
+    </div>`;
+
+    // Verdict
+    const verdictClass = verdictOf(summary);
+    html += `<div class="verdict ${verdictClass}"><span class="dot"></span>${esc(summary)}</div>`;
+
+    // Detail text
+    if (detail) {
+      html += `<div class="detail">${esc(detail)}</div>`;
+    }
+
+    // Data payload (collapsed)
+    if (rawData && Object.keys(rawData).length > 0) {
+      html += `<details class="data-block">
+        <summary>Computation trace</summary>
+        <pre>${esc(JSON.stringify(rawData, null, 2))}</pre>
+      </details>`;
+    }
+
+    bubble.innerHTML = html;
+
+    // Seal button
+    const sealWrap = document.createElement('div');
+    sealWrap.className = 'seal-block';
+
+    const sealBtn = document.createElement('button');
+    sealBtn.className = 'action';
+    sealBtn.textContent = 'Seal record →';
+    sealBtn.addEventListener('click', () => {
+      sealBtn.disabled = true;
+      sealBtn.className = 'action sealing';
+      sealBtn.textContent = 'Sealing…';
+      sealRecord(domain, originalText, sealWrap, sealBtn);
+    });
+    sealWrap.appendChild(sealBtn);
+    bubble.appendChild(sealWrap);
+
+    exchange.appendChild(bubble);
+    re_enable();
+    scrollBottom();
+  }
+
+  function sealRecord(domain, text, sealWrap, sealBtn) {
+    const now = Math.floor(Date.now() / 1000);
+    fetch(`${API}/seal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        packet: {
+          domain,
+          claims: [text],
+          created_epoch: now - 5,
+          witness_count: 0,
+          required_witnesses: 0,
+        },
+        now_epoch: now,
+      }),
+    })
+    .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
+    .then(data => renderSeal(data, sealWrap, sealBtn))
+    .catch(err  => {
+      sealBtn.textContent = 'Seal failed';
+      sealBtn.className = 'action';
+      sealBtn.disabled = false;
+    });
+  }
+
+  function renderSeal(data, sealWrap, sealBtn) {
+    sealBtn.remove();
+
+    const overall = data.overall || 'UNKNOWN';
+    const hash    = data.content_hash || data.permanent_ref || '';
+    const gates   = data.gate_results || [];
+    const anchors = data.anchors || [];
+    const version = data.schema_version || '';
+
+    // Overall verdict
+    const vdiv = document.createElement('div');
+    vdiv.className = `verdict ${verdictOf(overall)}`;
+    vdiv.innerHTML = `<span class="dot"></span>${esc(overall)}`;
+    sealWrap.insertBefore(vdiv, sealWrap.firstChild);
+
+    // Gate chain
+    if (gates.length) {
+      const gatesDiv = document.createElement('div');
+      gatesDiv.className = 'gates';
+      gatesDiv.style.width = '100%';
+      gatesDiv.innerHTML = gates.map(g => {
+        const reasons = (g.reasons || []).filter(r => r && r.trim());
+        return `<div class="gate-row">
+          <span class="gate-label">${esc(g.gate)}</span>
+          <span class="gate-badge ${g.status}">${g.status}</span>
+          <span class="gate-reason">${reasons.length ? esc(reasons.join(' · ')) : ''}</span>
+        </div>`;
+      }).join('');
+      sealWrap.appendChild(gatesDiv);
+    }
+
+    // Anchors
+    if (anchors.length) {
+      const anch = document.createElement('div');
+      anch.className = 'anchors';
+      anch.innerHTML = anchors.map(a =>
+        `<div class="anchor-row">
+          <span class="anchor-ref">${esc(a.ref)}</span>
+          <span class="anchor-layer">${esc(a.layer)}</span>
+          ${a.text ? `<span class="anchor-text">"${esc(a.text)}"</span>` : ''}
+        </div>`
+      ).join('');
+      sealWrap.appendChild(anch);
+    }
+
+    // Content hash
+    if (hash) {
+      const hashDiv = document.createElement('div');
+      hashDiv.className = 'hash';
+      hashDiv.innerHTML = `<a href="${API}/cas/${encodeURIComponent(hash)}" target="_blank" rel="noopener">${hash.slice(0, 12)}…${hash.slice(-8)}</a> sealed`;
+      sealWrap.appendChild(hashDiv);
+    }
+
     scrollBottom();
   }
 
   function renderError(exchange, thinking, err) {
     thinking.remove();
+    const msg = err && (err.detail || err.message || String(err));
     const bubble = document.createElement('div');
     bubble.className = 'bubble-engine';
-    bubble.innerHTML = `<div class="verdict ERROR"><span class="dot"></span>ERROR</div><div class="gate-reasons" style="margin-top:6px;color:#f75f5f">${esc(String(err))}</div>`;
+    bubble.innerHTML = `<div class="verdict ERROR"><span class="dot"></span>ERROR</div><div class="detail" style="color:var(--reject)">${esc(String(msg))}</div>`;
     exchange.appendChild(bubble);
-    inputEl.disabled = false;
-    inputEl.focus();
+    re_enable();
     scrollBottom();
+  }
+
+  function verdictOf(s) {
+    const v = (s || '').toUpperCase();
+    if (v === 'CONFIRMED' || v === 'PASS') return v;
+    if (v === 'MISMATCH'  || v === 'REJECT') return v;
+    if (v === 'QUARANTINE') return 'QUARANTINE';
+    if (v === 'NOT_APPLICABLE') return 'NOT_APPLICABLE';
+    return 'ERROR';
+  }
+
+  function re_enable() {
+    inputEl.disabled = false;
+    sendBtn.disabled = inputEl.value.trim() === '';
+    inputEl.focus();
   }
 
   function scrollBottom() {
@@ -412,10 +708,10 @@
 
   function esc(s) {
     return String(s)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;');
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 </script>
 </body>

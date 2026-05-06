@@ -786,7 +786,7 @@ def reach_config():
         "telegram":     os.environ.get("CONCORDANCE_TELEGRAM_HANDLE", ""),
         "email_in":     os.environ.get("CONCORDANCE_EMAIL_INBOUND", ""),
         "nostr_npub":   os.environ.get("CONCORDANCE_NOSTR_NPUB", ""),
-        "ipfs_gateway": os.environ.get("CONCORDANCE_IPFS_GATEWAY", ""),
+        "arweave_gateway": os.environ.get("ARWEAVE_GATEWAY", "https://arweave.net"),
         "lora_freq":    os.environ.get("CONCORDANCE_LORA_FREQ", ""),
         "mailing_list": os.environ.get("CONCORDANCE_MAILING_LIST", ""),
         # Capability booleans — true when the corresponding secret /
@@ -2865,6 +2865,86 @@ def agent_endpoint(req: AgentRequest):
     }
 
 
+class PolymathicRequest(BaseModel):
+    situation: str
+    oracle_model: str = "claude-haiku-4-5-20251001"
+    max_domains: int = 10
+    split_threshold: int = 5   # cluster when domain count exceeds this
+    stop_on_discordant: bool = False  # early-exit on first DISCORDANT cluster
+    store: bool = True
+
+
+@app.post("/polymathic", include_in_schema=True)
+def polymathic_endpoint(req: PolymathicRequest):
+    """Natural language situation → all applicable domains fired in parallel.
+
+    Path C: the Hive. Individual domain verifiers are workers; this
+    endpoint is the hive coordinator. Returns a PolymathicRecord with
+    every worker's result, axis overlaps (shared scaffold dimensions),
+    and a composite verdict.
+
+    Composite verdicts:
+      CONCORDANT    — all fired domains confirmed
+      DISCORDANT    — at least one mismatch, none confirmed
+      MIXED         — some confirmed, some mismatched
+      OUT_OF_SCOPE  — no domain matched
+      ERROR         — system failure
+    """
+    situation = (req.situation or "").strip()
+    if not situation:
+        raise HTTPException(status_code=400, detail="situation is required")
+
+    try:
+        from concordance_engine.agent.poly_agent import run_polymathic
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=f"polymathic agent unavailable: {exc}")
+
+    try:
+        record = run_polymathic(
+            situation=situation,
+            model=req.oracle_model,
+            max_domains=req.max_domains,
+            split_threshold=req.split_threshold,
+            stop_on_discordant=req.stop_on_discordant,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"polymathic agent error: {exc}")
+
+    d = record.to_dict()
+
+    if req.store:
+        try:
+            from concordance_engine.cas import store as _cas_store
+            from concordance_engine.user_identity import get_user_pubkey, get_user_id
+            pub = get_user_pubkey()
+            record2 = record.__class__(
+                situation=record.situation,
+                domain_results=record.domain_results,
+                axis_overlaps=record.axis_overlaps,
+                composite_verdict=record.composite_verdict,
+                subject_pubkey=pub,
+                permanent_ref=record.permanent_ref,
+                schema_version=record.schema_version,
+            )
+            d2 = record2.to_dict()
+            h = _cas_store(d2)
+            from concordance_engine.poly_record import PolymathicRecord as _PR
+            record3 = _PR(
+                situation=record.situation,
+                domain_results=record.domain_results,
+                axis_overlaps=record.axis_overlaps,
+                composite_verdict=record.composite_verdict,
+                subject_pubkey=pub,
+                permanent_ref=h,
+                schema_version=record.schema_version,
+            )
+            d = record3.to_dict()
+        except Exception:
+            pass  # store failure is non-fatal
+
+    return d
+
+
 @app.get("/agent/rules", include_in_schema=True)
 def agent_rules():
     """List all registered NL dispatch rules (for introspection and debugging)."""
@@ -3173,6 +3253,27 @@ def identity_pubkey():
         raise HTTPException(status_code=503, detail=f"instance key unavailable: {exc}")
 
 
+@app.get("/identity/user_pubkey", include_in_schema=True)
+def identity_user_pubkey():
+    """Return this user's personal Ed25519 public key (soul anchor).
+
+    The subject_pubkey field in every sealed WitnessRecord matches this key —
+    confirming the receipt is soulbound to this specific person, not just an
+    instance or machine.
+    """
+    try:
+        from concordance_engine.user_identity import get_user_pubkey, get_user_id
+        return {
+            "user_id": get_user_id(),
+            "public_key_b64u": get_user_pubkey(),
+            "algorithm": "Ed25519",
+            "encoding": "url-safe base64 (no padding)",
+            "usage": "verify subject_pubkey binding in sealed WitnessRecords",
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"user key unavailable: {exc}")
+
+
 @app.get("/packets/{domain}/{entry_id}/export", include_in_schema=True)
 def packets_export(domain: str, entry_id: str):
     """Export a self-contained signed packet bundle.
@@ -3353,6 +3454,53 @@ def trust_index_stats():
         "stats": _trust_stats(),
         "note": "multi_confirmed = hashes seen from >1 independent instance",
     }
+
+
+# -- Content-addressable store (CAS) ------------------------------------
+
+from concordance_engine.cas import (
+    store as _cas_store, fetch as _cas_fetch,
+    exists as _cas_exists, list_hashes as _cas_list,
+    verify as _cas_verify, stats as _cas_stats,
+)
+
+
+@app.get("/cas/{content_hash}", include_in_schema=True)
+def cas_get(content_hash: str):
+    """Fetch a sealed record by its SHA-256 content hash.
+
+    Returns the record as JSON, or 404 if not found. The content_hash
+    embedded in the response can be recomputed to verify integrity.
+    """
+    record = _cas_fetch(content_hash)
+    if record is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"not found: {content_hash}")
+    return record
+
+
+@app.post("/cas", include_in_schema=True)
+def cas_put(body: Dict[str, Any], _: None = Depends(_check_api_key)):
+    """Store a sealed record in the CAS. Returns its content_hash.
+
+    Idempotent — storing the same record twice returns the same hash.
+    Requires API key.
+    """
+    h = _cas_store(body)
+    return {"content_hash": h, "stored": True}
+
+
+@app.get("/cas", include_in_schema=True)
+def cas_stats_endpoint():
+    """Return CAS statistics: record count, total bytes, base directory."""
+    return _cas_stats()
+
+
+@app.get("/cas/{content_hash}/verify", include_in_schema=True)
+def cas_verify_endpoint(content_hash: str):
+    """Re-hash the stored record and confirm it matches the requested hash."""
+    ok, detail = _cas_verify(content_hash)
+    return {"ok": ok, "detail": detail, "content_hash": content_hash}
 
 
 # -- Static site (must be last — catches all unmatched paths) ------------

@@ -20,6 +20,8 @@ Design constraints (load-bearing):
 """
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, FrozenSet, List, Literal, Optional, Tuple
 
@@ -176,6 +178,13 @@ class WitnessRecord:
     `axis_coords` — where this packet sits on the grid
     `closest_case`— the precedent overlay, or None if novel
     `packet_id`   — stable ID for the input packet (for the ledger)
+    `subject_pubkey` — user's personal Ed25519 public key (soul anchor);
+                       makes the receipt soulbound — verifiably tied to
+                       the holder of the matching private key
+    `witness_attestations` — Ed25519 witness signatures embedded in the
+                             record (portable; no sidecar file needed)
+    `arweave_txid` — Arweave transaction ID once the record is uploaded
+                     to permanent storage; None until uploaded
     `schema_version` — bumped when the shape changes; agents check it
 
     There is deliberately no `final_answer` field. The engine
@@ -188,7 +197,10 @@ class WitnessRecord:
     axis_coords: Optional[AxisCoordinates] = None
     closest_case: Optional[ClosestCase] = None
     packet_id: Optional[str] = None
-    schema_version: str = "1.0"
+    subject_pubkey: Optional[str] = None
+    witness_attestations: Tuple[Dict[str, Any], ...] = ()
+    permanent_ref: Optional[str] = None
+    schema_version: str = "1.1"
 
     # ── derived views ─────────────────────────────────────────────────
 
@@ -242,6 +254,16 @@ class WitnessRecord:
             out["closest_case"] = self.closest_case.to_dict()
         if self.packet_id is not None:
             out["packet_id"] = self.packet_id
+        if self.subject_pubkey is not None:
+            out["subject_pubkey"] = self.subject_pubkey
+        if self.witness_attestations:
+            out["witness_attestations"] = list(self.witness_attestations)
+        # content_hash: SHA-256 of canonical JSON of the record without
+        # itself or permanent_ref, so the hash is always reproducible.
+        canonical = json.dumps(out, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        out["content_hash"] = hashlib.sha256(canonical).hexdigest()
+        if self.permanent_ref is not None:
+            out["permanent_ref"] = self.permanent_ref
         return out
 
     @classmethod
@@ -281,6 +303,9 @@ class WitnessRecord:
             axis_coords=axis_coords,
             closest_case=closest_case,
             packet_id=d.get("packet_id"),
+            subject_pubkey=d.get("subject_pubkey"),
+            witness_attestations=tuple(d.get("witness_attestations") or []),
+            permanent_ref=d.get("permanent_ref"),
             schema_version=d.get("schema_version", "1.0"),
         )
 
@@ -337,6 +362,74 @@ def build_record(
         axis_coords=axis_coords,
         closest_case=closest_case,
         packet_id=packet_id,
+    )
+
+
+def bind_subject(record: WitnessRecord, subject_pubkey: str) -> WitnessRecord:
+    """Return a new WitnessRecord with subject_pubkey set.
+
+    The subject_pubkey is the user's personal Ed25519 public key — the
+    soul anchor that makes this receipt soulbound to a specific person.
+    Call this after sealing, before Arweave upload.
+    """
+    return WitnessRecord(
+        overall=record.overall,
+        gate_results=record.gate_results,
+        verifier_results=record.verifier_results,
+        anchors=record.anchors,
+        axis_coords=record.axis_coords,
+        closest_case=record.closest_case,
+        packet_id=record.packet_id,
+        subject_pubkey=subject_pubkey,
+        witness_attestations=record.witness_attestations,
+        permanent_ref=record.permanent_ref,
+        schema_version=record.schema_version,
+    )
+
+
+def embed_attestations(
+    record: WitnessRecord,
+    attestations: Tuple[Dict[str, Any], ...],
+) -> WitnessRecord:
+    """Return a new WitnessRecord with witness attestations embedded.
+
+    Pulls attestations out of the sidecar JSONL and buries them in the
+    record itself, so a single JSON object is self-contained for Arweave
+    upload and LoRa transport.
+    """
+    return WitnessRecord(
+        overall=record.overall,
+        gate_results=record.gate_results,
+        verifier_results=record.verifier_results,
+        anchors=record.anchors,
+        axis_coords=record.axis_coords,
+        closest_case=record.closest_case,
+        packet_id=record.packet_id,
+        subject_pubkey=record.subject_pubkey,
+        witness_attestations=tuple(attestations),
+        permanent_ref=record.permanent_ref,
+        schema_version=record.schema_version,
+    )
+
+
+def with_permanent_ref(record: WitnessRecord, ref: str) -> WitnessRecord:
+    """Return a new WitnessRecord with permanent_ref set.
+
+    ref is the content_hash after local CAS storage, confirming the
+    record is persisted and addressable by that hash.
+    """
+    return WitnessRecord(
+        overall=record.overall,
+        gate_results=record.gate_results,
+        verifier_results=record.verifier_results,
+        anchors=record.anchors,
+        axis_coords=record.axis_coords,
+        closest_case=record.closest_case,
+        packet_id=record.packet_id,
+        subject_pubkey=record.subject_pubkey,
+        witness_attestations=record.witness_attestations,
+        permanent_ref=ref,
+        schema_version=record.schema_version,
     )
 
 

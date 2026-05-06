@@ -321,3 +321,73 @@ def test_build_record_minimal_no_optional_fields():
     assert rec.anchors == ()
     assert rec.axis_coords is None
     assert rec.closest_case is None
+
+
+# ── Schema 1.1 fields ──────────────────────────────────────────────────────
+
+def test_schema_version_is_1_1():
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    assert rec.schema_version == "1.1"
+    assert rec.to_dict()["schema_version"] == "1.1"
+
+
+def test_content_hash_present_in_to_dict():
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    d = rec.to_dict()
+    assert "content_hash" in d
+    assert len(d["content_hash"]) == 64
+
+
+def test_content_hash_is_stable():
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=(), packet_id="p1")
+    d1 = rec.to_dict()
+    d2 = rec.to_dict()
+    assert d1["content_hash"] == d2["content_hash"]
+
+
+def test_content_hash_changes_with_content():
+    rec1 = WitnessRecord(overall="PASS", gate_results=(), verifier_results=(), packet_id="p1")
+    rec2 = WitnessRecord(overall="PASS", gate_results=(), verifier_results=(), packet_id="p2")
+    assert rec1.to_dict()["content_hash"] != rec2.to_dict()["content_hash"]
+
+
+def test_permanent_ref_in_to_dict_when_set():
+    from concordance_engine.witness_record import with_permanent_ref
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    ref_hash = "a" * 64
+    rec2 = with_permanent_ref(rec, ref_hash)
+    d = rec2.to_dict()
+    assert d["permanent_ref"] == ref_hash
+
+
+def test_permanent_ref_absent_when_not_set():
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    d = rec.to_dict()
+    assert "permanent_ref" not in d
+
+
+def test_permanent_ref_excluded_from_content_hash():
+    """permanent_ref must not affect the content_hash — it's added after hashing."""
+    from concordance_engine.witness_record import with_permanent_ref
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=(), packet_id="p1")
+    rec_with_ref = with_permanent_ref(rec, "b" * 64)
+    # The content_hash must be identical whether or not permanent_ref is set
+    assert rec.to_dict()["content_hash"] == rec_with_ref.to_dict()["content_hash"]
+
+
+def test_witness_attestations_round_trip():
+    from concordance_engine.witness_record import embed_attestations
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    atts = ({"witness_id": "w1", "sig": "sig_abc"}, {"witness_id": "w2", "sig": "sig_xyz"})
+    rec2 = embed_attestations(rec, atts)
+    d = rec2.to_dict()
+    assert len(d["witness_attestations"]) == 2
+    assert d["witness_attestations"][0]["witness_id"] == "w1"
+    rec3 = WitnessRecord.from_dict(d)
+    assert len(rec3.witness_attestations) == 2
+
+
+def test_witness_attestations_absent_when_empty():
+    rec = WitnessRecord(overall="PASS", gate_results=(), verifier_results=())
+    d = rec.to_dict()
+    assert "witness_attestations" not in d

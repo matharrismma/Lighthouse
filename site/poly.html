@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concordance — Polymathic</title>
+  <meta name="description" content="Describe a situation. The hive fires all applicable domain verifiers simultaneously and returns a composite verdict.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #161318;
+      --surface:       #1d191f;
+      --surface-2:     #232028;
+      --border:        #2d2731;
+      --border-bright: #3f3845;
+      --text:          #efe9e0;
+      --muted:         #8a8593;
+      --accent:        #c9a87c;
+      --accent-soft:   #6e5a45;
+      --pass:          #7ec488;
+      --reject:        #d97c7c;
+      --quarantine:    #d9b66c;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 20px 64px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    /* ── Header ── */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .brand:hover { opacity: 0.8; }
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── Input section ── */
+    .input-section { margin-bottom: 36px; }
+
+    .input-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
+    .input-label strong { color: var(--text); font-weight: 500; }
+
+    .input-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+    }
+    .input-wrap:focus-within { border-color: var(--accent-soft); }
+
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      resize: none;
+      min-height: 80px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    textarea::placeholder { color: var(--muted); }
+
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    kbd {
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: inherit;
+    }
+
+    button.run {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: opacity 0.12s;
+      white-space: nowrap;
+    }
+    button.run:hover:not(:disabled) { opacity: 0.85; }
+    button.run:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Results ── */
+    #results { display: flex; flex-direction: column; gap: 28px; }
+
+    /* Composite verdict */
+    .composite {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .composite-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .CONCORDANT   { background: #122a1c; color: var(--pass);       border: 1px solid #1e4530; }
+    .DISCORDANT   { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
+    .MIXED        { background: #2a2010; color: var(--quarantine); border: 1px solid #4a3a18; }
+    .QUARANTINE   { background: #2a2010; color: var(--quarantine); border: 1px solid #4a3a18; }
+    .OUT_OF_SCOPE { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .ERROR        { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+
+    .composite-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .composite-stat {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .composite-stat strong { color: var(--text); }
+
+    .hash-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .hash-link:hover { text-decoration: underline; }
+
+    /* Axis overlaps */
+    .section-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .overlaps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .overlap-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dim-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      min-width: 170px;
+      flex-shrink: 0;
+    }
+    .overlap-domains {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .domain-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      background: #22192e;
+      color: var(--accent);
+      border: 1px solid #3a2e4e;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Domain cards */
+    .domain-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .domain-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .domain-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .domain-card-header:hover { background: var(--surface-2); }
+    .domain-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      flex: 1;
+    }
+    .verdict-mini {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .verdict-mini.CONFIRMED     { background: #122a1c; color: var(--pass);       border: 1px solid #1e4530; }
+    .verdict-mini.MISMATCH      { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
+    .verdict-mini.NOT_APPLICABLE{ background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .verdict-mini.ERROR         { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 10px;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+    .domain-card.open .chevron { transform: rotate(90deg); }
+
+    .domain-card-body {
+      display: none;
+      padding: 0 14px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .domain-card.open .domain-card-body { display: block; }
+
+    .card-detail {
+      font-size: 13.5px;
+      color: var(--text);
+      margin-top: 10px;
+      line-height: 1.55;
+    }
+    .card-dims {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .dim-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    details.spec-block {
+      margin-top: 10px;
+    }
+    details.spec-block summary {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      user-select: none;
+      list-style: none;
+    }
+    details.spec-block summary::-webkit-details-marker { display: none; }
+    details.spec-block summary::before { content: '▶ '; font-size: 9px; }
+    details.spec-block[open] summary::before { content: '▼ '; }
+    details.spec-block pre {
+      margin-top: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    /* Thinking */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13.5px;
+      padding: 20px 0;
+    }
+    .dots span {
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin: 0 2px;
+      animation: blink 1.2s infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.2; }
+      40%            { opacity: 1; }
+    }
+
+    /* Examples */
+    .examples {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .examples-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .example-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: color 0.12s, border-color 0.12s;
+      line-height: 1.5;
+    }
+    .example-btn:hover { color: var(--text); border-color: var(--border-bright); }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top">
+    <a href="/" class="brand">CONCORDANCE</a>
+    <nav class="nav-links">
+      <a href="/try.html">Single claim</a>
+      <a href="/benchmark.html">Benchmark</a>
+    </nav>
+  </div>
+
+  <div class="input-section">
+    <div class="input-label">
+      <strong>Polymathic scan.</strong> Describe a situation — not just a single claim.
+      The hive fires all applicable domain verifiers simultaneously.
+    </div>
+    <div class="input-wrap">
+      <textarea
+        id="input"
+        placeholder="Describe a situation that spans multiple domains — biology + labor + law, chemistry + medicine + nutrition, or anything complex…"
+        autofocus
+      ></textarea>
+      <div class="input-footer">
+        <span class="hint"><kbd>Ctrl+Enter</kbd> to run</span>
+        <button class="run" id="runBtn" disabled>Run hive</button>
+      </div>
+    </div>
+
+    <div class="examples" id="exampleBlock">
+      <div class="examples-label">Try an example:</div>
+      <button class="example-btn" data-claim="I've been working 55 hours a week for the past 8 months as a 1099 contractor doing construction framing. My employer classifies me as exempt from overtime. I'm also experiencing repetitive strain injuries in my wrists and lower back. I need to understand my rights and whether the classification is lawful.">
+        Construction contractor — misclassification, overtime, and occupational injury
+      </button>
+      <button class="example-btn" data-claim="We're breeding a drought-resistant corn variety. The parent lines are homozygous dominant (TT) and homozygous recessive (tt) for a drought-tolerance gene. We want to understand the F2 phenotype ratios, the soil nitrogen requirements for the growing season, and whether a 400mm annual rainfall regime is sufficient for germination.">
+        Agricultural genetics cross — Mendelian ratios, soil science, and hydrology
+      </button>
+      <button class="example-btn" data-claim="A community organization wants to govern its shared treasury. The voting rule under consideration is a simple majority (51%). The treasury holds 12 ETH. They propose distributing 40% to active contributors this quarter. Evaluate the governance structure, the distribution math, and whether the cryptographic wallet controls are sound.">
+        DAO governance — voting theory, finance, and cryptographic controls
+      </button>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+</div>
+
+<script>
+  const API = 'https://lighthouse-production-3f9a.up.railway.app';
+
+  const inputEl  = document.getElementById('input');
+  const runBtn   = document.getElementById('runBtn');
+  const resultsEl= document.getElementById('results');
+  const exBlock  = document.getElementById('exampleBlock');
+
+  inputEl.addEventListener('input', () => {
+    runBtn.disabled = inputEl.value.trim() === '';
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 260) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!runBtn.disabled) run();
+    }
+  });
+
+  runBtn.addEventListener('click', run);
+
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      inputEl.value = btn.dataset.claim;
+      inputEl.dispatchEvent(new Event('input'));
+      run();
+    });
+  });
+
+  function run() {
+    const situation = inputEl.value.trim();
+    if (!situation) return;
+
+    exBlock.style.display = 'none';
+    resultsEl.innerHTML = '';
+
+    const thinking = document.createElement('div');
+    thinking.className = 'thinking';
+    thinking.innerHTML = `<div class="dots"><span></span><span></span><span></span></div><span id="thinkLabel">Identifying domains…</span>`;
+    resultsEl.appendChild(thinking);
+
+    runBtn.disabled = true;
+    inputEl.disabled = true;
+    scrollBottom();
+
+    // Animate the label after a moment
+    setTimeout(() => {
+      const lbl = document.getElementById('thinkLabel');
+      if (lbl) lbl.textContent = 'Running workers…';
+    }, 1200);
+
+    fetch(`${API}/polymathic`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ situation, max_domains: 10 }),
+    })
+    .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
+    .then(data => renderRecord(data))
+    .catch(err  => renderError(err));
+  }
+
+  function renderRecord(d) {
+    resultsEl.innerHTML = '';
+
+    const composite = d.composite_verdict || 'UNKNOWN';
+    const domains   = d.domain_results || [];
+    const overlaps  = d.axis_overlaps  || [];
+    const hash      = d.content_hash   || d.permanent_ref || '';
+    const confirmed = domains.filter(r => r.verdict === 'CONFIRMED').length;
+    const total     = domains.length;
+
+    // ── Composite verdict ──
+    const compEl = document.createElement('div');
+    compEl.className = 'composite';
+    compEl.innerHTML = `
+      <span class="composite-badge ${composite}">${composite.replace('_', ' ')}</span>
+      <div class="composite-meta">
+        <div class="composite-stat">
+          <strong>${confirmed}</strong> of <strong>${total}</strong> domains confirmed
+        </div>
+        ${hash ? `<a class="hash-link" href="${API}/cas/${encodeURIComponent(hash)}" target="_blank" rel="noopener">${hash.slice(0,10)}…${hash.slice(-6)}</a>` : ''}
+      </div>`;
+    resultsEl.appendChild(compEl);
+
+    // ── Quarantine airlock + keeper manifest ──
+    const quarantined = d.quarantined_claims || [];
+    const keeper = d.keeper_manifest || null;
+    if (quarantined.length || (keeper && keeper.recovery_count > 0)) {
+      const qSec = document.createElement('div');
+      let qHTML = `<div class="section-title">Quarantine airlock</div>`;
+
+      if (keeper && keeper.recovery_count > 0) {
+        qHTML += `<div style="font-size:12px;color:var(--pass);margin-bottom:8px">Keeper recovered ${keeper.recovery_count} claim${keeper.recovery_count > 1 ? 's' : ''} via dispatch rules</div>`;
+      }
+
+      if (quarantined.length) {
+        const clusters = keeper && keeper.clusters ? keeper.clusters : {};
+        const orphans  = keeper && keeper.orphans  ? keeper.orphans  : [];
+        const orphanMap = {};
+        orphans.forEach(o => { orphanMap[o.claim] = o; });
+
+        quarantined.forEach(c => {
+          const o = orphanMap[c];
+          const nearest = o && o.nearest_domain ? ` <span style="font-family:monospace;font-size:10px;color:var(--muted)">nearest: ${esc(o.nearest_domain)}</span>` : '';
+          qHTML += `<div style="font-size:13px;color:var(--quarantine);padding:8px 12px;background:#2a2010;border:1px solid #4a3a18;border-radius:8px;margin-bottom:6px;line-height:1.5">${esc(c)}${nearest}</div>`;
+        });
+      }
+
+      qSec.innerHTML = qHTML;
+      resultsEl.appendChild(qSec);
+    }
+
+    // ── Axis overlaps ──
+    if (overlaps.length) {
+      const overlapSec = document.createElement('div');
+      overlapSec.innerHTML = `<div class="section-title">Shared axes</div>`;
+      const overlapList = document.createElement('div');
+      overlapList.className = 'overlaps';
+      overlaps.forEach(ao => {
+        const row = document.createElement('div');
+        row.className = 'overlap-row';
+        row.innerHTML = `
+          <span class="dim-name">${esc(ao.dimension)}</span>
+          <div class="overlap-domains">
+            ${(ao.domains || []).map(d => `<span class="domain-chip">${esc(d)}</span>`).join('')}
+          </div>`;
+        overlapList.appendChild(row);
+      });
+      overlapSec.appendChild(overlapList);
+      resultsEl.appendChild(overlapSec);
+    }
+
+    // ── Domain cards ──
+    if (domains.length) {
+      const domainSec = document.createElement('div');
+      domainSec.innerHTML = `<div class="section-title">Domain results</div>`;
+      const grid = document.createElement('div');
+      grid.className = 'domain-grid';
+
+      domains.forEach(dr => {
+        const card = document.createElement('div');
+        card.className = 'domain-card';
+
+        const header = document.createElement('div');
+        header.className = 'domain-card-header';
+        header.innerHTML = `
+          <span class="domain-name">${esc(dr.domain)}</span>
+          <span class="verdict-mini ${esc(dr.verdict)}">${esc(dr.verdict.replace('_', ' '))}</span>
+          <span class="chevron">▶</span>`;
+        header.addEventListener('click', () => card.classList.toggle('open'));
+
+        const body = document.createElement('div');
+        body.className = 'domain-card-body';
+
+        let bodyHTML = '';
+        if (dr.detail) {
+          bodyHTML += `<div class="card-detail">${esc(dr.detail)}</div>`;
+        }
+        if (dr.axis_dims && dr.axis_dims.length) {
+          bodyHTML += `<div class="card-dims">
+            ${dr.axis_dims.map(d => `<span class="dim-chip">${esc(d)}</span>`).join('')}
+          </div>`;
+        }
+        const hasData = dr.result && Object.keys(dr.result).some(k => k !== 'status' && k !== 'detail' && k !== 'message');
+        if (hasData || (dr.spec && Object.keys(dr.spec).length)) {
+          bodyHTML += `<details class="spec-block">
+            <summary>Spec + trace</summary>
+            <pre>${esc(JSON.stringify({spec: dr.spec, result: dr.result}, null, 2))}</pre>
+          </details>`;
+        }
+
+        body.innerHTML = bodyHTML;
+        card.appendChild(header);
+        card.appendChild(body);
+
+        // Auto-open mismatches
+        if (dr.verdict === 'MISMATCH') card.classList.add('open');
+
+        grid.appendChild(card);
+      });
+
+      domainSec.appendChild(grid);
+      resultsEl.appendChild(domainSec);
+    }
+
+    re_enable();
+    scrollBottom();
+  }
+
+  function renderError(err) {
+    resultsEl.innerHTML = '';
+    const msg = err && (err.detail || err.message || String(err));
+    const div = document.createElement('div');
+    div.style.cssText = 'color:var(--reject);font-size:13.5px;padding:12px 0';
+    div.textContent = String(msg);
+    resultsEl.appendChild(div);
+    re_enable();
+  }
+
+  function re_enable() {
+    inputEl.disabled = false;
+    runBtn.disabled = inputEl.value.trim() === '';
+  }
+
+  function scrollBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>

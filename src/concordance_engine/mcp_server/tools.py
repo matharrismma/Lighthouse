@@ -88,16 +88,51 @@ def seal_packet(packet, now_epoch=None, auto_precedent=False):
     WitnessRecord as JSON. The agent surface for the canonical sealed
     record — same object the human walkthrough renderer consumes.
 
+    Automatically binds the user's personal public key (subject_pubkey)
+    as the soul anchor and embeds any existing witness attestations for
+    this packet_id from the sidecar store.
+
     When `auto_precedent=True`, the Audit Chain is queried for the
     closest comparable precedent and (if found) sealed into the record.
     """
+    from ..user_identity import get_user_pubkey
+    from ..witness import list_for_precedent
+    from ..witness_record import bind_subject, embed_attestations, with_permanent_ref
+    from ..cas import store as _cas_store
+
     cfg = EngineConfig(schema_path="schema/packet.schema.json")
     closest = _find_closest(packet) if auto_precedent else None
+    packet_id = packet.get("id")
     rec = _engine_seal(
         packet, now_epoch=now_epoch, config=cfg,
-        closest_case=closest, packet_id=packet.get("id"),
+        closest_case=closest, packet_id=packet_id,
     )
-    return rec.to_dict()
+
+    # Bind soul anchor
+    try:
+        rec = bind_subject(rec, get_user_pubkey())
+    except Exception:
+        pass  # signing optional dep not installed
+
+    # Embed any existing witness attestations for this packet
+    if packet_id:
+        try:
+            atts = list_for_precedent(packet_id)
+            if atts:
+                rec = embed_attestations(rec, tuple(a.to_dict() for a in atts))
+        except Exception:
+            pass
+
+    # Store in CAS — content_hash IS the permanent ref (no external service needed)
+    try:
+        d = rec.to_dict()
+        h = _cas_store(d)
+        rec = with_permanent_ref(rec, h)
+        d = rec.to_dict()
+    except Exception:
+        d = rec.to_dict()
+
+    return d
 
 
 def walkthrough_packet(
@@ -545,8 +580,8 @@ def verify_economics(spec):
 
 def verify_labor(spec):
     """Gross pay, FLSA overtime, annual-to-hourly, take-home pay, minimum wage compliance.
-    Gross: {"hourly_rate": 18.5, "hours_worked": 45, "claimed_gross_pay": 832.5}
-    Overtime: {"hourly_rate": 18.5, "regular_hours": 40, "overtime_hours": 5, "claimed_overtime_pay": 878.75}
+    Gross (≤40h): {"hourly_rate": 18.5, "hours_worked": 40, "claimed_gross_pay": 740.0}
+    FLSA overtime (>40h): {"hourly_rate": 18.5, "regular_hours": 40, "overtime_hours": 5, "claimed_overtime_pay": 878.75}
     Take-home: {"gross_pay": 1000, "total_tax_rate": 0.28, "claimed_take_home": 720}
     Annual/hourly: {"annual_salary": 52000, "claimed_hourly_equivalent": 25.0}"""
     return {"checks": [_r(r) for r in _labor.run({"LABOR_VERIFY": spec or {}})]}
@@ -722,7 +757,13 @@ TOOLS: List[Dict[str, Any]] = [
         a.get("tolerance_relative", 1e-6), a.get("tolerance_absolute", 0.0),
         law=a.get("law"))},
     {"name": "verify_mathematics",
-     "description": "Sympy verification. mode=equality|derivative|integral|limit|solve|matrix|inequality|series|ode.",
+     "description": (
+         "Sympy verification. mode=equality|derivative|integral|limit|solve|matrix|inequality|series|ode. "
+         "Integral: mode='integral', params={\"integrand\":\"x**2\",\"claimed_antiderivative\":\"x**3/3\"} "
+         "(use 'integrand', NOT 'expression'). "
+         "Derivative: mode='derivative', params={\"function\":\"x**3\",\"claimed_derivative\":\"3*x**2\"}. "
+         "Equality: mode='equality', params={\"expr_a\":\"sin(x)**2+cos(x)**2\",\"expr_b\":\"1\"}."
+     ),
      "inputSchema": {"type": "object",
                      "properties": {"mode": {"type": "string"}, "params": {"type": "object"}},
                      "required": ["mode", "params"]},
@@ -929,11 +970,25 @@ TOOLS: List[Dict[str, Any]] = [
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_finance(a["spec"])},
     {"name": "verify_formal_logic",
-     "description": "Propositional logic: satisfiability, tautology, contradiction, entailment (premises→conclusion), logical equivalence.",
+     "description": (
+         "Propositional logic checks — use boolean 'claimed_' fields, NOT a test_type string. "
+         "Satisfiable: spec={\"formula\":\"(A>>B)&A\",\"claimed_satisfiable\":true}. "
+         "Tautology: spec={\"formula\":\"p|~p\",\"claimed_tautology\":true}. "
+         "Contradiction: spec={\"formula\":\"p&~p\",\"claimed_contradiction\":true}. "
+         "Entailment: spec={\"premises\":[\"p\",\"p>>q\"],\"conclusion\":\"q\",\"claimed_entailment\":true}. "
+         "Equivalence: spec={\"formula_a\":\"~~p\",\"formula_b\":\"p\",\"claimed_equivalent\":true}."
+     ),
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_formal_logic(a["spec"])},
     {"name": "verify_genetics",
-     "description": "DNA/RNA base complementarity, reverse complement, GC content, codon→amino-acid translation, ORF start/stop bounds.",
+     "description": (
+         "DNA/RNA base complementarity, reverse complement, GC content, codon→amino-acid translation. "
+         "Complement: spec={\"sequence\":\"ATCG\",\"claimed_complement\":\"TAGC\"} "
+         "(use 'sequence', NOT 'dna_sequence'). "
+         "Reverse complement: spec={\"sequence\":\"ATCG\",\"claimed_reverse_complement\":\"CGAT\"}. "
+         "GC content: spec={\"sequence\":\"GCGC\",\"claimed_gc_content\":1.0}. "
+         "Codon: spec={\"codon\":\"ATG\",\"claimed_amino_acid\":\"Met\"}."
+     ),
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_genetics(a["spec"])},
     {"name": "verify_geography",
@@ -1030,10 +1085,15 @@ TOOLS: List[Dict[str, Any]] = [
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_economics(a["spec"])},
     {"name": "verify_labor",
-     "description": "Gross pay, FLSA overtime (1.5x after 40h), annual-to-hourly, take-home after tax, minimum wage. "
-                    "Gross: spec={\"hourly_rate\":18.5,\"hours_worked\":45,\"claimed_gross_pay\":832.5}. "
-                    "Overtime: spec={\"hourly_rate\":18.5,\"regular_hours\":40,\"overtime_hours\":5,\"claimed_overtime_pay\":878.75}. "
-                    "Annual/hourly: spec={\"annual_salary\":52000,\"claimed_hourly_equivalent\":25.0}.",
+     "description": (
+         "Wage and labor law verification. "
+         "Gross pay (≤40h only, no overtime): spec={\"hourly_rate\":18.5,\"hours_worked\":40,\"claimed_gross_pay\":740.0}. "
+         "FLSA overtime (hours_worked>40 — ALWAYS use this form): "
+         "spec={\"hourly_rate\":18.5,\"regular_hours\":40,\"overtime_hours\":5,\"claimed_overtime_pay\":878.75}. "
+         "Take-home: spec={\"gross_pay\":1000,\"total_tax_rate\":0.28,\"claimed_take_home\":720}. "
+         "Annual/hourly: spec={\"annual_salary\":52000,\"claimed_hourly_equivalent\":25.0}. "
+         "NOTE: when total hours > 40, use overtime spec (regular_hours + overtime_hours), not gross_pay spec."
+     ),
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_labor(a["spec"])},
     {"name": "verify_real_estate",

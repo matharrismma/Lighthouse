@@ -76,4 +76,7 @@ __all__ = [
     "scripture_retrieval",
     "context_retriever",
     "path_composer",
+    "cas",
+    "user_identity",
+    "poly_record",
 ]

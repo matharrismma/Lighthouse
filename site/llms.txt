@@ -158,7 +158,7 @@ Or for development without installing:
 
 Source: https://github.com/matharrismma/Lighthouse
 
-Tools available via MCP (47 total):
+Tools available via MCP (48 total):
 
 **Packet tools:** `validate_packet` · `seal_packet` · `walkthrough_packet`
 
@@ -204,10 +204,13 @@ Pass a `bio_control` dict to verify nested health control system claims:
 If you are an AI agent, the dedicated page for you is:
 https://narrowhighway.com/agents.html
 
-It contains: identity statement, three surfaces (Path / Verification / Journal),
+It contains: identity statement, four surfaces (Path / Verification / Journal / Polymathic),
 MCP and REST integration snippets, full endpoint tables, nine question types,
-decision packet format, PathResult schema, verifier list, Layer 0 sources,
-and what is expected of you. Read it before calling anything.
+decision packet format, PathResult schema, PolymathicRecord schema, verifier list,
+Layer 0 sources, and what is expected of you. Read it before calling anything.
+
+The interactive polymathic frontend is at https://narrowhighway.com/poly.html.
+The single-domain verifier frontend is at https://narrowhighway.com/try.html.
 
 ## How to run the engine — four paths, lowest-friction first
 
@@ -286,6 +289,42 @@ GET  /agent/training/proposals  — extract regex rule candidates from oracle tr
                                   returns proposals for manual promotion to dispatch.py
 ```
 
+### Polymathic agent layer (Path C — the Hive)
+```
+POST /polymathic        — fire all applicable domain verifiers against a natural-language situation
+                          body: {
+                            "situation": "...",
+                            "oracle_model": "claude-haiku-4-5-20251001",
+                            "max_domains": 10,
+                            "split_threshold": 5,
+                            "stop_on_discordant": false,
+                            "store": true
+                          }
+                          returns: PolymathicRecord {
+                            schema_version, situation, composite_verdict,
+                            atomic_claims[], quarantined_claims[], keeper_manifest,
+                            domain_results[], axis_overlaps[], content_hash
+                          }
+                          composite_verdict: CONCORDANT | DISCORDANT | MIXED |
+                                             QUARANTINE | OUT_OF_SCOPE | ERROR
+```
+
+**Pipeline:** strip (decompose situation → atomic claims) → send (classify each claim →
+dispatch to worker) → wrap (collect into PolymathicRecord with SHA-256 content hash).
+
+**Quarantine / airlock:** claims stripped but unclassifiable are held in `quarantined_claims`.
+A keeper tends the airlock offline — rule-based recovery + keyword proximity scoring, no oracle.
+`composite_verdict` is QUARANTINE when unresolved claims exist alongside confirmed domains.
+
+**Axis overlaps:** when two or more domains share a scaffold dimension (authority_trust,
+time_sequence, conservation_balance, information_encoding, metabolism, physical_substance,
+or reasoning), the overlap appears in `axis_overlaps`. This shared axis is the structural signal.
+
+**Split mechanic:** when domain count exceeds `split_threshold`, the queen delegates to umbrella
+sub-queens (biology cluster → genetics/agriculture/nutrition workers). Bounded compute regardless
+of situation breadth. `stop_on_discordant` enables early exit once DISCORDANT is confirmed.
+```
+
 ### Offline queue
 ```
 POST /queue             — manually enqueue a verify request for offline/retry processing
@@ -295,7 +334,21 @@ GET  /queue             — queue statistics (pending / failed / completed) + re
 
 ### Instance identity + signing
 ```
-GET  /identity/pubkey   — this instance's Ed25519 public key (safe to publish; verify packets offline)
+GET  /identity/pubkey      — this instance's Ed25519 public key (safe to publish; verify packets offline)
+GET  /identity/user_pubkey — the personal user key: {user_id, public_key_b64u, algorithm, encoding, usage}
+                             Generated once per user at ~/.concordance/user_key.json (Ed25519).
+                             Used to soulbound-bind PolymathicRecords and WitnessRecords to the author.
+```
+
+### Content-addressable store (CAS)
+```
+POST /cas               — store a JSON blob; returns {hash, size, stored}
+GET  /cas/{hash}        — retrieve a blob by its SHA-256 hash
+GET  /cas               — CAS statistics: {entry_count, total_bytes}
+```
+CAS is the in-house permanent-reference layer. `PolymathicRecord.permanent_ref` and
+`WitnessRecord.permanent_ref` hold the SHA-256 hash of the canonical JSON stored here.
+Blobs are stored at `data/cas/{hash[:2]}/{hash[2:]}.json` — portable, microSD-friendly.
 ```
 
 ### Cross-instance trust (federation)
@@ -412,9 +465,9 @@ CONCORDANCE_EMAIL_INBOUND     — inbound capture address (e.g. seed@host)
 CONCORDANCE_TELEGRAM_HANDLE   — capture bot @username
 CONCORDANCE_LORA_FREQ         — LoRa frequency band (915MHz / 868MHz)
 CONCORDANCE_NOSTR_NPUB        — Nostr public key (npub1...)
-CONCORDANCE_IPFS_GATEWAY      — preferred IPFS gateway URL
 CONCORDANCE_MAILING_LIST      — mailing-list subscribe address
 CONCORDANCE_FETCH_REMOTE      — upstream engine to fetch from
+CONCORDANCE_USER_KEY_PATH     — override path to user Ed25519 key (default ~/.concordance/user_key.json)
 ELEVENLABS_API_KEY            — TTS (POST /speak)
 ELEVENLABS_VOICE_ID           — TTS voice id
 ```

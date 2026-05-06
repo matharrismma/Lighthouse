@@ -175,31 +175,49 @@ RULES:
 # ---------------------------------------------------------------------------
 
 def _extract_verdict(result: Any) -> str:
+    """Walk a tool result and return the dominant meaningful verdict.
+
+    NOT_APPLICABLE results mean the spec didn't trigger any check (missing
+    fields). They are neutral — not a real engine disagreement. Only
+    MISMATCH from a check that actually computed something is negative.
+    """
     if not isinstance(result, dict):
         return "UNKNOWN"
     top = result.get("status")
-    if top:
+    if top and top not in ("", None):
         return top
-    statuses: List[str] = []
+
+    # Collect statuses from checks list and nested dicts
+    all_statuses: List[str] = []
     for c in result.get("checks", []):
         if isinstance(c, dict):
             s = c.get("status", "")
             if s:
-                statuses.append(s)
+                all_statuses.append(s)
     for v in result.values():
         if isinstance(v, dict):
             s = v.get("status", "")
             if s:
-                statuses.append(s)
-    if "MISMATCH" in statuses:
+                all_statuses.append(s)
+
+    # Meaningful statuses: checks that actually ran (not just "no artifact")
+    meaningful = [s for s in all_statuses if s not in ("NOT_APPLICABLE",)]
+    ranked = meaningful if meaningful else all_statuses
+
+    if "MISMATCH" in ranked:
         return "MISMATCH"
-    if "ERROR" in statuses:
+    if "ERROR" in ranked:
         return "ERROR"
-    if "CONFIRMED" in statuses:
+    if "CONFIRMED" in ranked:
         return "CONFIRMED"
-    if "NOT_APPLICABLE" in statuses:
+    if "NOT_APPLICABLE" in all_statuses:
         return "NOT_APPLICABLE"
-    return statuses[0] if statuses else "UNKNOWN"
+    return ranked[0] if ranked else "UNKNOWN"
+
+
+def _is_meaningful_call(tool_call: Dict[str, Any]) -> bool:
+    """Return True if the tool call produced an actual verdict (not just NOT_APPLICABLE)."""
+    return tool_call.get("verdict") not in ("NOT_APPLICABLE", "UNKNOWN", "ERROR")
 
 
 # ---------------------------------------------------------------------------
@@ -355,7 +373,21 @@ def verify_claim(
                 break
 
     # Aggregate results
+    # Per-domain best verdict: when the same domain is called multiple times (agent
+    # refining its spec), take the best result — CONFIRMED from any call counts.
+    # This prevents a first-call spec miss from overriding a later correct CONFIRMED.
+    _verdict_rank = {"CONFIRMED": 0, "MISMATCH": 1, "NOT_APPLICABLE": 2, "ERROR": 3, "UNKNOWN": 4}
+    per_domain_best: Dict[str, str] = {}
+    for tc in tool_calls:
+        d, v = tc["domain"], tc["verdict"]
+        prev = per_domain_best.get(d, "UNKNOWN")
+        if _verdict_rank.get(v, 99) < _verdict_rank.get(prev, 99):
+            per_domain_best[d] = v
+
+    meaningful_calls = [tc for tc in tool_calls if _is_meaningful_call(tc)]
     all_verdicts = [tc["verdict"] for tc in tool_calls]
+    # Use per-domain best for the cross-domain aggregate
+    meaningful_domain_verdicts = [v for v in per_domain_best.values() if v not in ("NOT_APPLICABLE", "UNKNOWN", "ERROR")]
     domains_fired = [tc["domain"] for tc in tool_calls]
     axes_touched: List[str] = []
     for d in domains_fired:
@@ -363,12 +395,14 @@ def verify_claim(
             if ax not in axes_touched:
                 axes_touched.append(ax)
 
-    if "MISMATCH" in all_verdicts:
+    # Priority: MISMATCH > CONFIRMED > NOT_APPLICABLE
+    # A domain is MISMATCH only if the BEST call for that domain was MISMATCH
+    if "MISMATCH" in meaningful_domain_verdicts:
         aggregate = "MISMATCH"
-    elif "ERROR" in all_verdicts:
-        aggregate = "ERROR"
-    elif "CONFIRMED" in all_verdicts:
+    elif "CONFIRMED" in meaningful_domain_verdicts:
         aggregate = "CONFIRMED"
+    elif meaningful_domain_verdicts:
+        aggregate = meaningful_domain_verdicts[0]
     elif "NOT_APPLICABLE" in all_verdicts:
         aggregate = "NOT_APPLICABLE"
     elif all_verdicts:

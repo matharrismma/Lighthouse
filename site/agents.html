@@ -20,6 +20,8 @@
       <a href="/how-it-works.html">How it works</a>
       <a href="/verifiers.html">Verifiers</a>
       <a href="/agents.html" style="color: var(--ink); font-weight: 700;">Agents</a>
+      <a href="/try.html">Verify</a>
+      <a href="/poly.html">Polymathic</a>
       <a href="/install.html">Install</a>
       <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
     </nav>
@@ -49,10 +51,10 @@
 </section>
 
 
-<!-- ── THREE SURFACES ──────────────────────────────────────────── -->
+<!-- ── FOUR SURFACES ──────────────────────────────────────────── -->
 <section>
   <div class="container">
-    <h2>Three surfaces for agents</h2>
+    <h2>Four surfaces for agents</h2>
     <p>Each surface answers a different kind of question.</p>
     <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
       <div class="card">
@@ -69,6 +71,11 @@
         <h3>Journal</h3>
         <p>Capture what is being observed. The journal is the raw input layer — what has not yet survived the gates. Seeds enter here. Precedents emerge from here over time.</p>
         <a href="#journal">POST /capture →</a>
+      </div>
+      <div class="card">
+        <h3>Polymathic <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— Path C</span></h3>
+        <p>A situation spans many domains simultaneously. The hive fires all applicable verifiers at once — strip the situation into atomic claims, send each to the right worker, wrap the collective result. Concordant, Discordant, Mixed, or Quarantine.</p>
+        <a href="#polymathic">POST /polymathic →</a>
       </div>
     </div>
   </div>
@@ -373,11 +380,90 @@ curl -s -X POST https://narrowhighway.com/reflect \
 </section>
 
 
+<!-- ── POLYMATHIC ───────────────────────────────────────────────── -->
+<section id="polymathic">
+  <div class="container">
+    <h2>Polymathic surface — Path C</h2>
+    <p>A single situation can span chemistry, labor law, construction, finance, and governance simultaneously. The polymathic agent (the hive queen) fires all applicable verifiers at once and synthesizes a composite verdict.</p>
+
+    <h3>Architecture: workers, drones, queens</h3>
+    <ul style="max-width:52rem;color:var(--muted);padding-left:1.5rem;margin-bottom:1.5rem;">
+      <li><strong>Workers</strong> — the 48 <code>verify_*</code> functions. One domain, deterministic, offline.</li>
+      <li><strong>Drones</strong> — dispatch rules. Carry natural-language claims to the right worker.</li>
+      <li><strong>Queen</strong> — the polymathic agent. Coordinates all workers, synthesizes the collective result.</li>
+    </ul>
+
+    <h3>Three-phase pipeline</h3>
+    <div class="cards" style="grid-template-columns: repeat(3,1fr);margin-bottom:1.5rem;">
+      <div class="card">
+        <h3>1 · Strip</h3>
+        <p>The situation is decomposed into atomic, self-contained verifiable claims. Each claim stands alone and maps to a single domain. Unclassifiable claims go to the airlock (quarantine).</p>
+      </div>
+      <div class="card">
+        <h3>2 · Send</h3>
+        <p>Each atomic claim is classified to a domain and dispatched to the matching worker. When domain count exceeds the split threshold, umbrella sub-queens handle bounded clusters (biology → genetics/agriculture/nutrition).</p>
+      </div>
+      <div class="card">
+        <h3>3 · Wrap</h3>
+        <p>All worker results are collected into a <code>PolymathicRecord</code> with full provenance: original situation, stripped claims, keeper triage, domain results, shared axis overlaps, and a SHA-256 content hash.</p>
+      </div>
+    </div>
+
+    <h3>Quarantine — the airlock</h3>
+    <p>Claims that were stripped but could not be classified to any domain are airlocked: not wrong, not confirmed, just unverifiable with the information at hand. A quarantine keeper tends the airlock without any oracle calls — pure rule-based recovery and keyword proximity scoring, suitable for offline / LoRa deployment. The composite verdict is <code>QUARANTINE</code> when unresolved claims remain alongside confirmed domains.</p>
+
+    <h3>POST /polymathic</h3>
+    <p>Request body:</p>
+<pre><code>{
+  "situation": "I worked 55 h/wk as a misclassified contractor for three years...",
+  "oracle_model": "claude-haiku-4-5-20251001",   // optional
+  "max_domains": 10,                              // optional, default 10
+  "split_threshold": 5,                           // optional, default 5
+  "stop_on_discordant": false,                    // optional
+  "store": true                                   // optional — store result in CAS
+}</code></pre>
+
+    <p>Response — <code>PolymathicRecord</code>:</p>
+<pre><code>{
+  "schema_version":    "1.0",
+  "situation":         "...",
+  "composite_verdict": "CONCORDANT | DISCORDANT | MIXED | QUARANTINE | OUT_OF_SCOPE | ERROR",
+  "atomic_claims":     ["claim 1", "claim 2", ...],
+  "quarantined_claims": [],
+  "keeper_manifest":   null,
+  "domain_results": [
+    {
+      "domain":       "labor",
+      "verdict":      "CONFIRMED | MISMATCH | NOT_APPLICABLE | ERROR",
+      "detail":       "...",
+      "spec":         {...},
+      "axis_dims":    ["time_sequence", "authority_trust"],
+      "source_claim": "I worked 55 hours per week..."
+    }
+  ],
+  "axis_overlaps": [
+    {"dimension": "authority_trust", "domains": ["governance", "labor", "finance"]}
+  ],
+  "content_hash": "sha256..."
+}</code></pre>
+
+    <div class="callout note">
+      <p><strong>Axis overlaps are the structural signal.</strong> When <code>labor</code>, <code>governance</code>, and <code>finance</code> all sit on <code>authority_trust</code>, that shared scaffold dimension is load-bearing — the situation crosses those domains along a common axis. The overlap IS the insight.</p>
+      <p style="margin-bottom:0;"><strong>Composite verdict precedence:</strong> DISCORDANT beats QUARANTINE. QUARANTINE fires when confirmed domains exist alongside unresolved claims. CONCORDANT requires all domains confirmed AND no quarantined claims.</p>
+    </div>
+
+    <p><a href="/poly.html">Try the polymathic agent live →</a></p>
+  </div>
+</section>
+
+
 <!-- ── CTA ──────────────────────────────────────────────────────── -->
 <section>
   <div class="container">
     <a class="btn btn-primary" href="https://github.com/matharrismma/Lighthouse">Source on GitHub</a>
     <a class="btn btn-secondary" href="/llms.txt" style="margin-left: 0.5rem;">llms.txt</a>
+    <a class="btn btn-secondary" href="/poly.html" style="margin-left: 0.5rem;">Try Polymathic</a>
+    <a class="btn btn-secondary" href="/try.html" style="margin-left: 0.5rem;">Try Verifier</a>
     <a class="btn btn-secondary" href="/docs" style="margin-left: 0.5rem;">OpenAPI docs</a>
     <a class="btn btn-secondary" href="/install.html" style="margin-left: 0.5rem;">Install</a>
   </div>
