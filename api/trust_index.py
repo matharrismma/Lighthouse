@@ -67,13 +67,22 @@ def _read_index(domain: str) -> Dict[str, Any]:
 def _write_index(domain: str, index: Dict[str, Any]) -> None:
     path = _index_path(domain)
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(index, f, indent=2, default=str)
-        f.flush()
+    tmp = path.with_suffix(".tmp")
+    try:
+        with tmp.open("w", encoding="utf-8") as f:
+            json.dump(index, f, indent=2, default=str)
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except (OSError, AttributeError):
+                pass
+        tmp.replace(path)
+    except Exception:
         try:
-            os.fsync(f.fileno())
-        except (OSError, AttributeError):
+            tmp.unlink(missing_ok=True)
+        except Exception:
             pass
+        raise
 
 
 def spec_hash(spec: Dict[str, Any]) -> str:
@@ -92,10 +101,13 @@ def record_confirmation(
     spec: Dict[str, Any],
     instance_id: str,
     summary: str = "CONFIRMED",
+    entry_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Record that `instance_id` confirmed a verification of `spec` in `domain`.
 
     Returns the updated trust record for this spec_hash.
+    entry_id, when provided, is stored so the agent can do O(1) corpus lookup
+    instead of scanning store.list().
     """
     h = spec_hash(spec)
     now = int(time.time())
@@ -109,6 +121,7 @@ def record_confirmation(
                 "first_seen": now,
                 "last_seen": now,
                 "summary": summary,
+                "latest_entry_id": None,
             }
         record = index[h]
         if instance_id and instance_id not in record["instance_ids"]:
@@ -116,6 +129,8 @@ def record_confirmation(
             record["count"] = len(record["instance_ids"])
         record["last_seen"] = now
         record["summary"] = summary
+        if entry_id:
+            record["latest_entry_id"] = entry_id
         _write_index(domain, index)
         return dict(record)
 

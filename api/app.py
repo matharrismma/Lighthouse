@@ -13,13 +13,22 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import ipaddress
 import json
+import logging
 import os
 import secrets
 import sys
 import time
+import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+_log = logging.getLogger("concordance.app")
+
+# Bounded pool for peer broadcast — prevents unbounded thread creation.
+_BROADCAST_POOL = ThreadPoolExecutor(max_workers=10, thread_name_prefix="peer-broadcast")
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -150,6 +159,13 @@ app.add_middleware(
 @app.on_event("startup")
 def _startup():
     _start_retry(interval_seconds=30)
+
+
+@app.on_event("shutdown")
+def _shutdown():
+    from api.offline_queue import stop_retry_thread
+    stop_retry_thread()
+    _BROADCAST_POOL.shutdown(wait=False)
 
 # -- Optional API key auth -----------------------------------------------
 _API_KEY = os.environ.get("API_KEY", "")
@@ -524,6 +540,28 @@ def health():
             }
         except Exception as e:
             out["modules"]["verifiers"] = {"reachable": False, "error": str(e)}
+
+    # Offline queue health
+    try:
+        q = _queue_stats()
+        pending_count = q.get("pending", 0)
+        out["modules"]["offline_queue"] = {
+            "reachable": True,
+            "pending": pending_count,
+            "failed": q.get("failed", 0),
+            "completed": q.get("completed", 0),
+        }
+        if pending_count > 500:
+            out["modules"]["offline_queue"]["warning"] = "high queue depth"
+    except Exception as e:
+        out["modules"]["offline_queue"] = {"reachable": False, "error": str(e)}
+
+    # Trust index health
+    try:
+        from api.trust_index import trust_stats
+        out["modules"]["trust_index"] = {"reachable": True, **trust_stats()}
+    except Exception as e:
+        out["modules"]["trust_index"] = {"reachable": False, "error": str(e)}
 
     # Overall status downgrade if any module is unreachable.
     if any(
@@ -2303,19 +2341,41 @@ def _verify_summary(result: Any) -> str:
     return "NOT_APPLICABLE"
 
 
+def _is_safe_peer_url(url: str) -> bool:
+    """Return True only if the URL targets a non-private, non-loopback host (SSRF guard)."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        host = parsed.hostname or ""
+        if not host:
+            return False
+        # Block loopback and private ranges
+        addr = ipaddress.ip_address(host)
+        return not (addr.is_loopback or addr.is_private or addr.is_link_local)
+    except ValueError:
+        # hostname is a DNS name — allow it; resolution happens at urlopen time
+        host_lower = (urllib.parse.urlparse(url).hostname or "").lower()
+        blocked = ("localhost", "metadata.google.internal", "169.254.")
+        return not any(host_lower == b or host_lower.startswith(b) for b in blocked)
+
+
 def _broadcast_packet(entry: Dict[str, Any]) -> None:
-    """Push a signed packet to all known peers (best-effort, daemon thread)."""
-    import threading
+    """Push a signed packet to all known peers (best-effort, bounded thread pool)."""
+    import urllib.request
 
     def _push():
         try:
-            import urllib.request
             peers = _peer_list()
             if not peers:
                 return
             payload = json.dumps(entry, default=str).encode("utf-8")
             for peer in peers:
-                url = peer.get("url", "").rstrip("/") + "/packets/import"
+                raw_url = peer.get("url", "").rstrip("/")
+                if not _is_safe_peer_url(raw_url):
+                    _log.warning("broadcast: skipping peer with unsafe URL %r", raw_url)
+                    continue
+                url = raw_url + "/packets/import"
                 try:
                     req = urllib.request.Request(
                         url,
@@ -2326,12 +2386,12 @@ def _broadcast_packet(entry: Dict[str, Any]) -> None:
                     with urllib.request.urlopen(req, timeout=5):
                         pass
                     _peer_update_seen(peer["instance_id"], packets_synced=1)
-                except Exception:
-                    pass
-        except Exception:
-            pass
+                except Exception as exc:
+                    _log.debug("broadcast to %s failed: %s", url, exc)
+        except Exception as exc:
+            _log.error("broadcast thread error: %s", exc, exc_info=True)
 
-    threading.Thread(target=_push, daemon=True, name="peer-broadcast").start()
+    _BROADCAST_POOL.submit(_push)
 
 
 @app.get("/verifiers", include_in_schema=True)
@@ -2398,7 +2458,7 @@ def verify_domain(domain: str, req: VerifyRequest):
 
     # Record in trust index so multi-instance confirmations accumulate.
     instance_id = entry.get("_instance_id", "")
-    trust_record = _trust_record(domain, req.spec, instance_id, summary=summary)
+    trust_record = _trust_record(domain, req.spec, instance_id, summary=summary, entry_id=entry.get("id"))
 
     # Broadcast to known peers (fire-and-forget, best-effort).
     _broadcast_packet(entry)
@@ -2752,25 +2812,30 @@ def agent_endpoint(req: AgentRequest):
     store = get_packet_store()
     trust = _trust_get(domain, spec)
     if trust and trust.get("count", 0) >= 1 and trust.get("summary") == "CONFIRMED":
-        # Find the most recent matching packet to return its full results.
-        candidates = store.list(domain, limit=200, offset=0)
-        from api.trust_index import spec_hash as _spec_hash
-        target_hash = _spec_hash(spec)
-        for candidate in candidates:
-            if _spec_hash(candidate.get("spec", {})) == target_hash:
-                return {
-                    "matched": True,
-                    "source": "corpus",
-                    "rule_id": rule_id if result_dispatch else f"oracle:{req.oracle_model}",
-                    "domain": domain,
-                    "spec": spec,
-                    "entry_id": candidate["id"],
-                    "summary": candidate.get("summary"),
-                    "trust_count": trust.get("count", 1),
-                    "confirmed_instances": trust.get("instance_ids", []),
-                    "results": candidate.get("results"),
-                    "note": "Returned from verified corpus — verifier not re-run.",
-                }
+        # O(1) lookup via stored entry_id — avoids scanning store.list(limit=200).
+        candidate = None
+        latest_eid = trust.get("latest_entry_id")
+        if latest_eid:
+            try:
+                candidate = store.get(domain, latest_eid)
+            except Exception:
+                candidate = None
+        if candidate:
+            return {
+                "matched": True,
+                "source": "corpus",
+                "rule_id": rule_id if result_dispatch else f"oracle:{req.oracle_model}",
+                "domain": domain,
+                "spec": spec,
+                "entry_id": candidate["id"],
+                "summary": candidate.get("summary"),
+                "trust_count": trust.get("count", 1),
+                "confirmed_instances": trust.get("instance_ids", []),
+                "verified_at_epoch": trust.get("last_seen"),
+                "retrieved_from_cache_at_epoch": int(time.time()),
+                "results": candidate.get("results"),
+                "note": "Returned from verified corpus — verifier not re-run.",
+            }
     # ── Corpus miss: run verifier ───────────────────────────────────────
     try:
         verifier_result = fn(spec)
@@ -2784,7 +2849,7 @@ def agent_endpoint(req: AgentRequest):
     # Record in trust index and broadcast.
     instance_id = entry.get("_instance_id", "")
     summary_val = entry.get("summary", "UNKNOWN")
-    trust_record = _trust_record(domain, spec, instance_id, summary=summary_val)
+    trust_record = _trust_record(domain, spec, instance_id, summary=summary_val, entry_id=entry.get("id"))
     _broadcast_packet(entry)
 
     return {
@@ -2987,7 +3052,7 @@ def agent_speak(req: AgentSpeakRequest):
         _log_training(domain, text, spec, verifier_result, source)
         entry = store.append(domain, spec, verifier_result)
         summary_val = entry.get("summary", "UNKNOWN")
-        _trust_record(domain, spec, entry.get("_instance_id", ""), summary=summary_val)
+        _trust_record(domain, spec, entry.get("_instance_id", ""), summary=summary_val, entry_id=entry.get("id"))
         _broadcast_packet(entry)
 
     # 3. Compose spoken text from verification result
@@ -3189,13 +3254,15 @@ class PeerRegisterRequest(BaseModel):
 
 
 @app.post("/peers/register", include_in_schema=True)
-def peers_register(req: PeerRegisterRequest):
+def peers_register(req: PeerRegisterRequest, _: None = Depends(_check_api_key)):
     """Register a known peer instance by URL, Ed25519 public key, and instance_id.
 
     Once registered, this instance will broadcast verified packets to the peer
     and accept imports from it. The registry is append-on-register, durable
     across restarts, and never auto-removes entries.
     """
+    if not _is_safe_peer_url(req.url):
+        raise HTTPException(status_code=422, detail="Peer URL must use http/https and must not target loopback or private IPs.")
     peer = _peer_register(url=req.url, pubkey=req.pubkey, instance_id=req.instance_id)
     return {"status": "registered", "peer": peer}
 

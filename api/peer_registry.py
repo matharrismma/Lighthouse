@@ -50,13 +50,22 @@ def _read_all() -> List[Dict[str, Any]]:
 def _write_all(peers: List[Dict[str, Any]]) -> None:
     path = _registry_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(peers, f, indent=2, default=str)
-        f.flush()
+    tmp = path.with_suffix(".tmp")
+    try:
+        with tmp.open("w", encoding="utf-8") as f:
+            json.dump(peers, f, indent=2, default=str)
+            f.flush()
+            try:
+                os.fsync(f.fileno())
+            except (OSError, AttributeError):
+                pass
+        tmp.replace(path)
+    except Exception:
         try:
-            os.fsync(f.fileno())
-        except (OSError, AttributeError):
+            tmp.unlink(missing_ok=True)
+        except Exception:
             pass
+        raise
 
 
 def register(url: str, pubkey: str, instance_id: str) -> Dict[str, Any]:

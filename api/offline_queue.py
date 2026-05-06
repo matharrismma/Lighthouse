@@ -70,10 +70,11 @@ def enqueue(domain: str, spec: Dict[str, Any], reason: str = "") -> str:
 
 
 def list_pending(limit: int = 100) -> List[Dict[str, Any]]:
-    """Return pending queue entries, oldest first."""
+    """Return pending queue entries that are due for retry, oldest first."""
     path = _queue_path()
     if not path.exists():
         return []
+    now = int(time.time())
     entries = []
     with _QUEUE_LOCK:
         with path.open("r", encoding="utf-8") as f:
@@ -84,7 +85,9 @@ def list_pending(limit: int = 100) -> List[Dict[str, Any]]:
                 try:
                     e = json.loads(stripped)
                     if e.get("status") == "pending":
-                        entries.append(e)
+                        next_retry = e.get("next_retry_at")
+                        if next_retry is None or now >= next_retry:
+                            entries.append(e)
                 except json.JSONDecodeError:
                     continue
     return entries[:limit]
@@ -120,6 +123,21 @@ def queue_stats() -> Dict[str, Any]:
     return {"pending": pending, "failed": failed, "completed": completed}
 
 
+def _atomic_write_queue(path: Path, lines: list) -> None:
+    """Write queue lines atomically via temp file + rename."""
+    tmp = path.with_suffix(".tmp")
+    content = "\n".join(lines) + ("\n" if lines else "")
+    try:
+        tmp.write_text(content, encoding="utf-8")
+        tmp.replace(path)
+    except Exception:
+        try:
+            tmp.unlink(missing_ok=True)
+        except Exception:
+            pass
+        raise
+
+
 def _mark_completed(entry_id: str, result: Any) -> None:
     """Remove entry from queue and append to completed log."""
     path = _queue_path()
@@ -146,7 +164,7 @@ def _mark_completed(entry_id: str, result: Any) -> None:
                     kept.append(stripped)
             except json.JSONDecodeError:
                 kept.append(stripped)
-        path.write_text("\n".join(kept) + ("\n" if kept else ""), encoding="utf-8")
+        _atomic_write_queue(path, kept)
 
     if completed_entry:
         with _COMPLETED_LOCK:
@@ -156,7 +174,7 @@ def _mark_completed(entry_id: str, result: Any) -> None:
 
 
 def _mark_failed(entry_id: str, error: str, max_attempts: int) -> None:
-    """Increment attempt count; mark failed if max_attempts exceeded."""
+    """Increment attempt count; mark failed if max_attempts exceeded. Schedule next retry with exponential backoff."""
     path = _queue_path()
     with _QUEUE_LOCK:
         if not path.exists():
@@ -175,10 +193,14 @@ def _mark_failed(entry_id: str, error: str, max_attempts: int) -> None:
                     e["last_error"] = error
                     if e["attempts"] >= max_attempts:
                         e["status"] = "failed"
+                    else:
+                        # Exponential backoff: 30s, 60s, 120s, 240s, ...
+                        backoff = 30 * (2 ** (e["attempts"] - 1))
+                        e["next_retry_at"] = int(time.time()) + backoff
                 updated.append(json.dumps(e, separators=(",", ":"), default=str))
             except json.JSONDecodeError:
                 updated.append(stripped)
-        path.write_text("\n".join(updated) + ("\n" if updated else ""), encoding="utf-8")
+        _atomic_write_queue(path, updated)
 
 
 def process_one(entry: Dict[str, Any], max_attempts: int = 5) -> bool:
@@ -212,6 +234,9 @@ _STOP_EVENT = threading.Event()
 
 def start_retry_thread(interval_seconds: int = 30, max_attempts: int = 5) -> None:
     """Start the background retry thread (idempotent — safe to call multiple times)."""
+    import logging
+    _log = logging.getLogger("concordance.offline_queue")
+
     global _RETRY_THREAD
     if _RETRY_THREAD is not None and _RETRY_THREAD.is_alive():
         return
@@ -224,8 +249,8 @@ def start_retry_thread(interval_seconds: int = 30, max_attempts: int = 5) -> Non
                     if _STOP_EVENT.is_set():
                         break
                     process_one(entry, max_attempts=max_attempts)
-            except Exception:
-                pass
+            except Exception as exc:
+                _log.error("offline_queue retry loop error: %s", exc, exc_info=True)
 
     _RETRY_THREAD = threading.Thread(target=_run, daemon=True, name="offline-queue-retry")
     _RETRY_THREAD.start()

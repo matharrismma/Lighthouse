@@ -360,6 +360,42 @@
       </span>
     </div>
 
+    <div class="item" data-key="peer_registry">
+      <span class="mark">○</span>
+      <span class="name">peer registry path</span>
+      <span class="desc">
+        Durable list of known peer instances for cross-node trust sync. Defaults to <code>data/peers.json</code>.
+        <small>set <code class="env">PEER_REGISTRY_PATH</code> (optional override)</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="trust_index">
+      <span class="mark">○</span>
+      <span class="name">trust index directory</span>
+      <span class="desc">
+        Per-domain JSON files accumulating independent instance confirmations. Defaults to <code>data/trust_index/</code>.
+        <small>set <code class="env">TRUST_INDEX_DIR</code> (optional override)</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="offline_queue">
+      <span class="mark">○</span>
+      <span class="name">offline queue directory</span>
+      <span class="desc">
+        Durable retry queue for verifications attempted while offline. Defaults to <code>data/offline_queue.jsonl</code>.
+        <small>set <code class="env">OFFLINE_QUEUE_DIR</code> (optional override)</small>
+      </span>
+    </div>
+
+    <div class="item" data-key="concordance_key_path">
+      <span class="mark">○</span>
+      <span name="name">instance key path</span>
+      <span class="desc">
+        Ed25519 keypair for packet signing and instance identity. Auto-generated on first boot at <code>~/.concordance/instance_key.json</code>.
+        <small>set <code class="env">CONCORDANCE_KEY_PATH</code> to override location</small>
+      </span>
+    </div>
+
     <div class="item" data-key="fetch_remote">
       <span class="mark">○</span>
       <span class="name">fetch upstream</span>
