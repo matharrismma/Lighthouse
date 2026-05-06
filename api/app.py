@@ -56,6 +56,9 @@ except ImportError as _e:
 # -- Ledger import -------------------------------------------------------
 from api.ledger import get_ledger
 
+# -- Offline queue import ------------------------------------------------
+from api.offline_queue import enqueue as _queue_enqueue, queue_stats as _queue_stats, start_retry_thread as _start_retry
+
 # -- App setup -----------------------------------------------------------
 app = FastAPI(
     title="Concordance",
@@ -129,6 +132,11 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def _startup():
+    _start_retry(interval_seconds=30)
 
 # -- Optional API key auth -----------------------------------------------
 _API_KEY = os.environ.get("API_KEY", "")
@@ -2254,8 +2262,14 @@ def verify_domain(domain: str, req: VerifyRequest):
     try:
         result = fn(req.spec)
     except Exception as e:
-        raise HTTPException(status_code=500,
-                            detail=f"verifier error: {type(e).__name__}: {e}")
+        # Verifier threw — enqueue for retry rather than dropping the request.
+        queue_id = _queue_enqueue(domain, req.spec, reason=f"{type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail={
+            "error": f"verifier error: {type(e).__name__}: {e}",
+            "queued": True,
+            "queue_id": queue_id,
+            "message": "Request enqueued for retry when verifier is available.",
+        })
 
     from api.packet_store import get_packet_store
     entry = get_packet_store().append(domain, req.spec, result)
@@ -2449,6 +2463,257 @@ def verify_chain_endpoint(req: ChainRequest):
         "step_count": len(step_results),
         "chain_summary": chain_summary,
         "steps": step_results,
+    }
+
+
+# ── Agent dispatch (NL → verifier) ─────────────────────────────────────
+#
+# POST /agent   — natural language in, verifier results out
+# GET  /agent/rules — list all registered NL dispatch rules
+#
+# The rule-based dispatcher runs first (zero cost, offline-capable).
+# On a miss, the oracle adapter is called if an oracle key is configured.
+# Every call — rule-hit or oracle — is logged as a training example in
+# data/agent_training/{domain}.jsonl so coverage improves over time.
+
+
+class AgentRequest(BaseModel):
+    text: str
+    use_oracle: bool = True   # fall through to oracle on rule miss
+    oracle_model: str = "claude-haiku-4-5-20251001"
+
+
+def _log_training(domain: str, text: str, spec: Dict[str, Any],
+                  result: Any, source: str) -> None:
+    """Append one training example to data/agent_training/{domain}.jsonl."""
+    import uuid as _uuid
+    from api.packet_store import _summarize
+    path = Path("data/agent_training") / f"{domain}.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "id": str(_uuid.uuid4()),
+        "timestamp_epoch": int(time.time()),
+        "domain": domain,
+        "nl_input": text,
+        "spec": spec,
+        "verifier_summary": _summarize(result) if isinstance(result, dict) else "UNKNOWN",
+        "source": source,
+    }
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, separators=(",", ":"), default=str) + "\n")
+
+
+def _call_oracle(text: str, model: str) -> Optional[Dict[str, Any]]:
+    """Ask an AI oracle to extract {domain, spec} from text.
+    Returns None if oracle is unavailable or fails.
+    Oracle response must be valid JSON with 'domain' and 'spec' keys.
+    """
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return None
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        system = (
+            "You are a field extractor for a deterministic verification engine. "
+            "Given natural language describing a calculation or claim, output ONLY "
+            "valid JSON with exactly two keys: 'domain' and 'spec'. "
+            "domain must be one of: chemistry, physics, statistics, mathematics, "
+            "computer_science, economics, labor, real_estate, construction, "
+            "soil_science, medicine, cybersecurity, nutrition, finance, governance, "
+            "biology, genetics, agriculture, cryptography, energy, networking, "
+            "electrical, acoustics, optics, geology, information_theory, "
+            "music_theory, number_theory, geography, combinatorics, geometry, "
+            "meteorology, hydrology, photography, sports_analytics, astronomy, "
+            "calendar_time, manufacturing, exercise_science, formal_logic, "
+            "linguistics, quantum_computing. "
+            "spec must contain the numeric/string fields the verifier needs. "
+            "Output only the JSON object, nothing else."
+        )
+        msg = client.messages.create(
+            model=model,
+            max_tokens=512,
+            system=system,
+            messages=[{"role": "user", "content": text}],
+        )
+        content = msg.content[0].text.strip()
+        # Strip markdown code fences if present
+        if content.startswith("```"):
+            content = content.split("```")[1]
+            if content.startswith("json"):
+                content = content[4:]
+        return json.loads(content)
+    except Exception:
+        return None
+
+
+@app.post("/agent", include_in_schema=True)
+def agent_endpoint(req: AgentRequest):
+    """Natural language → domain classification → spec extraction → verifier.
+
+    Runs the rule-based dispatcher first (offline-capable, zero cost).
+    On a miss, optionally calls the configured oracle (any AI) to extract
+    the domain and spec fields. Every call is logged as a training example
+    so rule coverage grows over time and oracle dependency decreases.
+
+    This is the 'new substrate' endpoint: the caller speaks plain language;
+    the engine speaks verified math. No probabilistic answer is returned —
+    only the deterministic verifier result.
+    """
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+
+    try:
+        from concordance_engine.agent.dispatch import dispatch as _dispatch
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"agent layer unavailable: {e}")
+
+    source = "rule"
+    result_dispatch = _dispatch(text)
+    domain = None
+    spec: Dict[str, Any] = {}
+
+    if result_dispatch is not None:
+        domain = result_dispatch.domain
+        spec = result_dispatch.spec
+        rule_id = result_dispatch.rule_id
+    elif req.use_oracle:
+        oracle_out = _call_oracle(text, req.oracle_model)
+        if oracle_out and "domain" in oracle_out and "spec" in oracle_out:
+            domain = oracle_out["domain"]
+            spec = oracle_out.get("spec") or {}
+            rule_id = f"oracle:{req.oracle_model}"
+            source = "oracle"
+        else:
+            return {
+                "matched": False,
+                "text": text,
+                "message": "No rule matched and oracle unavailable or failed.",
+                "hint": "Provide more structured input or configure ANTHROPIC_API_KEY.",
+            }
+    else:
+        return {
+            "matched": False,
+            "text": text,
+            "rule_coverage": "miss",
+            "message": "No rule matched. Set use_oracle=true to fall through to AI extraction.",
+        }
+
+    tool_name = f"verify_{domain}"
+    fn = ALL_TOOLS.get(tool_name)
+    if fn is None:
+        return {
+            "matched": True,
+            "domain": domain,
+            "spec": spec,
+            "error": f"no verifier registered for domain '{domain}'",
+        }
+
+    try:
+        verifier_result = fn(spec)
+    except Exception as e:
+        verifier_result = {"error": str(e)}
+
+    _log_training(domain, text, spec, verifier_result, source)
+
+    from api.packet_store import get_packet_store
+    entry = get_packet_store().append(domain, spec, verifier_result)
+
+    return {
+        "matched": True,
+        "source": source,
+        "rule_id": rule_id if result_dispatch else f"oracle:{req.oracle_model}",
+        "domain": domain,
+        "spec": spec,
+        "entry_id": entry["id"],
+        "summary": entry.get("summary"),
+        "results": verifier_result,
+    }
+
+
+@app.get("/agent/rules", include_in_schema=True)
+def agent_rules():
+    """List all registered NL dispatch rules (for introspection and debugging)."""
+    try:
+        from concordance_engine.agent.dispatch import list_rules
+        rules = list_rules()
+        return {
+            "count": len(rules),
+            "rules": rules,
+            "note": "Rules run in priority order; first match wins.",
+        }
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"agent layer unavailable: {e}")
+
+
+@app.get("/agent/training", include_in_schema=True)
+def agent_training_stats():
+    """Return training data statistics — how many labeled examples per domain."""
+    training_dir = Path("data/agent_training")
+    if not training_dir.exists():
+        return {"domains": {}, "total": 0}
+    stats: Dict[str, Any] = {}
+    total = 0
+    for path in sorted(training_dir.glob("*.jsonl")):
+        domain = path.stem
+        count = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+        by_source: Dict[str, int] = {}
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                e = json.loads(line)
+                s = e.get("source", "unknown")
+                by_source[s] = by_source.get(s, 0) + 1
+            except json.JSONDecodeError:
+                continue
+        stats[domain] = {"count": count, "by_source": by_source}
+        total += count
+    return {"domains": stats, "total": total}
+
+
+# ── Offline queue endpoints ─────────────────────────────────────────────
+
+
+class QueueRequest(BaseModel):
+    domain: str
+    spec: Dict[str, Any]
+    reason: str = "manually_queued"
+
+
+@app.post("/queue", include_in_schema=True)
+def queue_submit(req: QueueRequest):
+    """Manually enqueue a verify request for offline/retry processing.
+
+    Use this when the caller knows the verifier is temporarily unavailable
+    (e.g. on a LoRa node without engine access). The background retry
+    thread will process the entry when the verifier becomes available.
+    The entry is durable — it survives server restarts.
+    """
+    queue_id = _queue_enqueue(req.domain, req.spec, reason=req.reason)
+    return {
+        "queue_id": queue_id,
+        "domain": req.domain,
+        "status": "pending",
+        "message": "Queued for background retry.",
+    }
+
+
+@app.get("/queue", include_in_schema=True)
+def queue_status():
+    """Return offline queue statistics: pending, failed, completed counts."""
+    from api.offline_queue import list_pending
+    stats = _queue_stats()
+    pending = list_pending(limit=20)
+    return {
+        "stats": stats,
+        "recent_pending": [
+            {"id": e["id"], "domain": e["domain"], "queued_at": e["queued_at_iso"],
+             "attempts": e["attempts"]}
+            for e in pending
+        ],
     }
 
 
