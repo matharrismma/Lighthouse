@@ -3707,6 +3707,75 @@ def cas_verify_endpoint(content_hash: str):
     return {"ok": ok, "detail": detail, "content_hash": content_hash}
 
 
+# ── Agent interop layer ───────────────────────────────────────────────────────
+# Three endpoints that make Concordance legible to any AI agent:
+#   GET  /manifest  — OpenAI-compatible tool definitions with axis framing
+#   POST /verify    — single dispatch to any domain verifier
+#   GET  /benchmark — 135/135 accuracy results
+#   GET  /context   — system prompt fragment for agent operators
+
+from api.agent_manifest import (
+    build_manifest as _build_manifest,
+    dispatch as _manifest_dispatch,
+    benchmark_summary as _benchmark_summary,
+    context_block as _context_block,
+)
+
+
+class VerifyRequest(BaseModel):
+    tool: str
+    spec: Dict[str, Any]
+
+
+@app.get("/manifest", tags=["agents"])
+def agent_manifest():
+    """OpenAI-compatible tool manifest for any AI agent.
+
+    Returns all 45 Concordance domain verifiers in function-calling format,
+    including axis framing and created-order context in each description.
+    Any agent that speaks OpenAI tool-use (Grok, GPT, Gemini, Claude) can
+    load this manifest and immediately call the verifiers.
+    """
+    return _build_manifest()
+
+
+@app.post("/verify", tags=["agents"])
+def agent_verify(body: VerifyRequest):
+    """Call any Concordance domain verifier by name.
+
+    Pass the tool name (e.g. 'verify_physics') and a flat spec dict with the
+    fields the verifier expects. Returns the verifier result with status
+    CONFIRMED, DISCORDANT, or NOT_APPLICABLE.
+
+    Example:
+      {"tool": "verify_physics",
+       "spec": {"mass_kg": 2.0, "velocity_ms": 5.0, "claimed_ke_j": 25.0}}
+    """
+    return _manifest_dispatch(body.tool, body.spec)
+
+
+@app.get("/benchmark", tags=["agents"])
+def agent_benchmark():
+    """Latest benchmark results: 135/135 items across 45 domains.
+
+    Returns per-domain accuracy and average response time. Agents and operators
+    can call this to verify the engine's accuracy before relying on it.
+    """
+    return _benchmark_summary()
+
+
+@app.get("/context", tags=["agents"], include_in_schema=False)
+def agent_context():
+    """System prompt fragment for agent operators.
+
+    Returns a ~200-word block of text that any operator can include in a
+    system prompt to orient an AI agent to what Concordance is and how to
+    interpret CONFIRMED / DISCORDANT results in terms of the created order.
+    """
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(_context_block(), media_type="text/plain")
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.
