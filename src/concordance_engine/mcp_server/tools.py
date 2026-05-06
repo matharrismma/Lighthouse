@@ -48,6 +48,8 @@ from ..verifiers import photography as _photography
 from ..verifiers import sports_analytics as _sports_analytics
 from ..verifiers import witness as _witness
 from ..verifiers import quantum_computing as _quantum_computing
+from ..verifiers import medicine as _medicine
+from ..verifiers import cybersecurity as _cybersecurity
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -501,6 +503,28 @@ def verify_quantum_computing(spec):
     BB84: {"qber": 0.09, "claimed_secure": true}
     vN entropy: {"density_eigenvalues": [0.5, 0.5], "claimed_entropy_bits": 1.0}"""
     return {"checks": [_r(r) for r in _quantum_computing.run({"QCOMP_VERIFY": spec or {}})]}
+
+
+def verify_medicine(spec):
+    """BMI, drug dosage, blood pressure (AHA 2017), A1C→eAG, eGFR Cockcroft-Gault, IBW Devine, MAP.
+    BMI: {"weight_kg": 70, "height_m": 1.75, "claimed_bmi": 22.86, "claimed_bmi_class": "normal"}
+    Dosage: {"dose_mg_per_kg": 5, "weight_kg": 70, "claimed_dose_mg": 350}
+    BP: {"systolic": 125, "diastolic": 82, "claimed_bp_class": "hypertension_stage_1"}
+    A1C: {"a1c_pct": 7.0, "claimed_eag_mg_dl": 154.1}
+    eGFR: {"age_years": 45, "weight_kg": 70, "serum_creatinine": 1.1, "sex": "male", "claimed_egfr": 75.0}
+    IBW: {"height_in": 70, "sex_ibw": "male", "claimed_ibw_kg": 75.5}
+    MAP: {"systolic": 120, "diastolic": 80, "claimed_map_mmhg": 93.3}"""
+    return {"checks": [_r(r) for r in _medicine.run({"MED_VERIFY": spec or {}})]}
+
+
+def verify_cybersecurity(spec):
+    """Password entropy, TLS version status, CVSS severity, subnet host count, port classification.
+    Entropy: {"password_length": 16, "charset_size": 94, "claimed_entropy_bits": 104.9}
+    TLS: {"tls_version": "1.3", "claimed_tls_status": "recommended"}
+    CVSS: {"cvss_base_score": 9.1, "claimed_cvss_severity": "critical"}
+    Subnet: {"cidr_prefix": 24, "claimed_host_count": 254}
+    Port: {"port_number": 443, "claimed_port_class": "well_known"}"""
+    return {"checks": [_r(r) for r in _cybersecurity.run({"CYBER_VERIFY": spec or {}})]}
 
 
 # ---------------------------------------------------------------------
@@ -997,6 +1021,8 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_sports_analytics": verify_sports_analytics,
     "verify_witness": verify_witness,
     "verify_quantum_computing": verify_quantum_computing,
+    "verify_medicine": verify_medicine,
+    "verify_cybersecurity": verify_cybersecurity,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

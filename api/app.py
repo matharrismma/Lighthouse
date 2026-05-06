@@ -2316,6 +2316,142 @@ def packets_get(domain: str, entry_id: str):
     return entry
 
 
+class SearchRequest(BaseModel):
+    spec: Dict[str, Any]
+    limit: int = 10
+    confirmed_only: bool = False
+
+
+@app.post("/packets/{domain}/search", include_in_schema=True)
+def packets_search(domain: str, req: SearchRequest):
+    """Find closest prior packets for a domain by spec-field overlap.
+
+    Uses Jaccard similarity on spec keys + exact-value matches to rank
+    stored entries. Returns the top matches (newest first within each
+    score tier) so the caller can overlay their situation onto the
+    closest precedent's verification trace.
+
+    confirmed_only=true restricts results to CONFIRMED entries — useful
+    when looking for verified precedents rather than all attempts.
+    """
+    from api.packet_store import get_packet_store
+    store = get_packet_store()
+    candidates = store.list(domain, limit=500, offset=0)  # read all
+    if req.confirmed_only:
+        candidates = [c for c in candidates if c.get("summary") == "CONFIRMED"]
+
+    query_keys = set(req.spec.keys())
+
+    def _score(entry: Dict[str, Any]) -> float:
+        stored_spec = entry.get("spec") or {}
+        stored_keys = set(stored_spec.keys())
+        if not query_keys and not stored_keys:
+            return 0.0
+        union = query_keys | stored_keys
+        intersection = query_keys & stored_keys
+        jaccard = len(intersection) / len(union) if union else 0.0
+        # Bonus for matching values
+        value_hits = sum(
+            1 for k in intersection
+            if req.spec.get(k) == stored_spec.get(k)
+        )
+        value_bonus = value_hits / len(union) if union else 0.0
+        return jaccard + value_bonus * 0.5
+
+    scored = sorted(candidates, key=_score, reverse=True)
+    top = scored[: max(1, req.limit)]
+    return {
+        "domain": domain,
+        "query_keys": sorted(query_keys),
+        "count": len(top),
+        "matches": [
+            {**e, "similarity_score": round(_score(e), 4)}
+            for e in top
+        ],
+    }
+
+
+class ChainStep(BaseModel):
+    domain: str
+    spec: Dict[str, Any]
+
+
+class ChainRequest(BaseModel):
+    steps: List[ChainStep]
+    label: Optional[str] = None
+
+
+@app.post("/verify/chain", include_in_schema=True)
+def verify_chain_endpoint(req: ChainRequest):
+    """Run a multi-step cross-domain verification chain.
+
+    Each step names a domain + spec. Steps run in order. Each result is
+    stored in the packet store. The chain_summary is CONFIRMED only if
+    every step confirms; MISMATCH if any step mismatches; ERROR if any
+    step errors; PARTIAL otherwise.
+
+    Use this for compound claims that span domains — e.g. a clinical
+    decision that involves a BMI check (medicine), a drug-interaction
+    formula (chemistry), and a dosing calculation (medicine again).
+    """
+    try:
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"engine unavailable: {e}")
+
+    from api.packet_store import get_packet_store
+    store = get_packet_store()
+
+    if not req.steps:
+        raise HTTPException(status_code=400, detail="steps list is empty")
+
+    step_results = []
+    all_summaries = []
+
+    for i, step in enumerate(req.steps):
+        tool_name = f"verify_{step.domain}"
+        fn = ALL_TOOLS.get(tool_name)
+        if fn is None:
+            available = sorted(k for k in ALL_TOOLS if k.startswith("verify_"))
+            raise HTTPException(status_code=404, detail={
+                "error": f"step {i}: no verifier for '{step.domain}'",
+                "available": available,
+            })
+        try:
+            result = fn(step.spec)
+        except Exception as e:
+            result = {"error": f"{type(e).__name__}: {e}"}
+
+        entry = store.append(step.domain, step.spec, result)
+        summary = _verify_summary(result)
+        all_summaries.append(summary)
+        step_results.append({
+            "step": i,
+            "domain": step.domain,
+            "entry_id": entry["id"],
+            "summary": summary,
+            "results": result,
+        })
+
+    if any(s == "ERROR" for s in all_summaries):
+        chain_summary = "ERROR"
+    elif any(s == "MISMATCH" for s in all_summaries):
+        chain_summary = "MISMATCH"
+    elif all(s == "CONFIRMED" for s in all_summaries):
+        chain_summary = "CONFIRMED"
+    elif all(s == "NOT_APPLICABLE" for s in all_summaries):
+        chain_summary = "NOT_APPLICABLE"
+    else:
+        chain_summary = "PARTIAL"
+
+    return {
+        "label": req.label,
+        "step_count": len(step_results),
+        "chain_summary": chain_summary,
+        "steps": step_results,
+    }
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.

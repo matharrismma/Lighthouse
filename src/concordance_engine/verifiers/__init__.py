@@ -92,6 +92,12 @@ VERIFIERS: Dict[str, str] = {
     "quantum_computing":    "concordance_engine.verifiers.quantum_computing",
     "quantum":              "concordance_engine.verifiers.quantum_computing",
     "qc":                   "concordance_engine.verifiers.quantum_computing",
+    "medicine":             "concordance_engine.verifiers.medicine",
+    "clinical":             "concordance_engine.verifiers.medicine",
+    "medical":              "concordance_engine.verifiers.medicine",
+    "cybersecurity":        "concordance_engine.verifiers.cybersecurity",
+    "cyber":                "concordance_engine.verifiers.cybersecurity",
+    "infosec":              "concordance_engine.verifiers.cybersecurity",
 }
 
 
