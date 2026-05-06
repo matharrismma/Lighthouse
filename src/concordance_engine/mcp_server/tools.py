@@ -423,8 +423,8 @@ def verify_cryptography(spec):
 
 def verify_document_validation(spec):
     """ISBN-13 check-digit validation and Luhn algorithm for credit card numbers.
-    ISBN-13: {"isbn13": "9780306406157", "claimed_valid": true}
-    Luhn:    {"luhn": "4532015112830366", "claimed_valid": true}"""
+    ISBN-13: {"isbn13": "9780306406157", "claimed_isbn13_valid": true}
+    Luhn:    {"luhn_number": "4532015112830366", "claimed_luhn_valid": true}"""
     return {"checks": [_r(r) for r in _document_validation.run({"DOC_VERIFY": spec or {}})]}
 
 
@@ -949,8 +949,8 @@ TOOLS: List[Dict[str, Any]] = [
      "fn": lambda a: verify_cryptography(a["spec"])},
     {"name": "verify_document_validation",
      "description": "ISBN-13 check-digit and Luhn algorithm for credit card numbers. "
-                    "ISBN-13: spec={\"isbn13\":\"9780306406157\",\"claimed_valid\":true}. "
-                    "Luhn: spec={\"luhn\":\"4532015112830366\",\"claimed_valid\":true}.",
+                    "ISBN-13: spec={\"isbn13\":\"9780306406157\",\"claimed_isbn13_valid\":true}. "
+                    "Luhn: spec={\"luhn_number\":\"4532015112830366\",\"claimed_luhn_valid\":true}.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_document_validation(a["spec"])},
     {"name": "verify_electrical",
@@ -986,7 +986,7 @@ TOOLS: List[Dict[str, Any]] = [
          "Complement: spec={\"sequence\":\"ATCG\",\"claimed_complement\":\"TAGC\"} "
          "(use 'sequence', NOT 'dna_sequence'). "
          "Reverse complement: spec={\"sequence\":\"ATCG\",\"claimed_reverse_complement\":\"CGAT\"}. "
-         "GC content: spec={\"sequence\":\"GCGC\",\"claimed_gc_content\":1.0}. "
+         "GC content: spec={\"sequence\":\"GCGC\",\"claimed_gc_fraction\":1.0}. "
          "Codon: spec={\"codon\":\"ATG\",\"claimed_amino_acid\":\"Met\"}."
      ),
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},

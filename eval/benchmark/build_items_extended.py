@@ -1129,8 +1129,9 @@ def build_witness():
               "verify_witness",
               {"claimed_gate_verdicts": full_chain}),
         _item("WIT-002", "witness", "gate_chain",
-              "A record only has verdicts for RED and FLOOR but is missing WAY, BROTHERS and GOD. "
-              "Is the gate chain complete? Answer yes or no.",
+              f"Use verify_witness to check this gate record: "
+              f"{json.dumps({'claimed_gate_verdicts': partial_chain})}. "
+              "Is the gate chain structurally complete (all 5 gates present)? Answer yes or no.",
               "no", "classification",
               "verify_witness",
               {"claimed_gate_verdicts": partial_chain}),
@@ -1236,7 +1237,7 @@ def build_economics():
         _item("ECON-001", "economics", "simple_interest",
               "Using the simple interest formula (I = P × r × t), what is the interest "
               "on a principal of $1,000 at 5% annual rate for 3 years? "
-              "Reply with just the number.",
+              "Call verify_economics to check your answer, then reply with just the number.",
               150.0, "numeric",
               "verify_economics",
               {"principal": 1000, "rate": 0.05, "time_years": 3,
