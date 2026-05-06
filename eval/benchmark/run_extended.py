@@ -1,13 +1,15 @@
-"""Run the extended 108-item benchmark across all domains.
+"""Run the extended benchmark across all domains.
 
 Two modes:
   alone  — Claude with no tools
-  tools  — Claude with all 47 concordance-engine MCP tools
+  tools  — Claude with all concordance-engine MCP tools
 
 Usage:
     python eval/benchmark/run_extended.py
     python eval/benchmark/run_extended.py --model claude-sonnet-4-6
     python eval/benchmark/run_extended.py --alone-only   (skip tools run)
+    python eval/benchmark/run_extended.py --tools-only   (skip alone run)
+    python eval/benchmark/run_extended.py --diagnose     (print details on failures)
 """
 from __future__ import annotations
 import argparse
@@ -138,6 +140,8 @@ class ItemResult:
     reply: str
     ground_truth: Any
     parsed: Any
+    elapsed_s: float = 0.0
+    tool_calls: List[Dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -150,19 +154,46 @@ class BenchResult:
         if total == 0:
             return f"{self.label}: no items"
         correct = sum(r.correct for r in self.items)
+        elapsed = [r.elapsed_s for r in self.items if r.elapsed_s > 0]
+        total_s = sum(elapsed)
+        avg_s = total_s / len(elapsed) if elapsed else 0.0
+        p95_s = sorted(elapsed)[int(len(elapsed) * 0.95)] if elapsed else 0.0
         lines = [f"\n{'='*60}",
                  f"  {self.label}",
                  f"  Total: {correct}/{total} = {correct/total:.1%}",
+                 f"  Time:  {total_s:.1f}s total  |  {avg_s:.2f}s avg  |  {p95_s:.2f}s p95",
                  f"{'─'*60}"]
-        # by domain
+        # by domain with timing
         domains: Dict[str, list] = {}
         for r in self.items:
             domains.setdefault(r.domain, []).append(r)
         for d, rs in sorted(domains.items()):
             ok = sum(r.correct for r in rs)
             marker = "+" if ok == len(rs) else ("x" if ok == 0 else "~")
-            lines.append(f"  {marker} {d:30s}: {ok}/{len(rs)}")
+            d_elapsed = [r.elapsed_s for r in rs if r.elapsed_s > 0]
+            d_avg = sum(d_elapsed) / len(d_elapsed) if d_elapsed else 0.0
+            lines.append(f"  {marker} {d:30s}: {ok}/{len(rs)}  ({d_avg:.2f}s avg)")
         lines.append(f"{'='*60}")
+        return "\n".join(lines)
+
+    def diagnose(self) -> str:
+        """Return detailed failure report: expected vs got, tool calls made."""
+        failures = [r for r in self.items if not r.correct]
+        if not failures:
+            return "  All items correct."
+        lines = [f"\n  FAILURES ({len(failures)}):", "─" * 60]
+        for r in failures:
+            lines.append(f"  {r.id} [{r.domain}]")
+            lines.append(f"    expected : {r.ground_truth!r}")
+            lines.append(f"    parsed   : {r.parsed!r}")
+            lines.append(f"    reply    : {r.reply[:200]!r}")
+            if r.tool_calls:
+                for tc in r.tool_calls:
+                    lines.append(f"    tool     : {tc['name']}({json.dumps(tc['args'])[:120]})")
+                    lines.append(f"    result   : {json.dumps(tc.get('result', {}))[:120]}")
+            else:
+                lines.append(f"    tool     : (none called)")
+            lines.append("")
         return "\n".join(lines)
 
     def to_jsonl(self, path: Path) -> None:
@@ -170,15 +201,23 @@ class BenchResult:
             for r in self.items:
                 f.write(json.dumps({
                     "id": r.id, "domain": r.domain, "task": r.task,
-                    "correct": r.correct, "reply": r.reply[:200],
-                    "ground_truth": r.ground_truth, "parsed": r.parsed,
+                    "correct": r.correct,
+                    "reply": r.reply[:400],
+                    "ground_truth": r.ground_truth,
+                    "parsed": r.parsed,
+                    "elapsed_s": round(r.elapsed_s, 3),
+                    "tool_calls": [
+                        {"name": tc["name"], "args": tc["args"],
+                         "result_summary": json.dumps(tc.get("result", {}))[:200]}
+                        for tc in r.tool_calls
+                    ],
                 }) + "\n")
 
 
-# ── tool schemas (all 47) ─────────────────────────────────────────────────────
+# ── tool schemas ─────────────────────────────────────────────────────────────
 
 def _build_tool_schemas() -> List[Dict]:
-    """Build minimal Anthropic tool schemas for all 47 MCP tools."""
+    """Build minimal Anthropic tool schemas for all MCP tools."""
     from concordance_engine.mcp_server.tools import TOOLS
     schemas = []
     for t in TOOLS:
@@ -228,8 +267,9 @@ def make_alone(client, model: str, max_tokens: int = 128):
 
 def make_with_tools(client, model: str, tool_schemas: List[Dict],
                     max_tokens: int = 1024, max_iters: int = 6):
-    def fn(prompt: str) -> str:
+    def fn(prompt: str) -> tuple[str, List[Dict]]:
         history = [{"role": "user", "content": prompt}]
+        calls: List[Dict] = []
         for _ in range(max_iters):
             resp = client.messages.create(
                 model=model, max_tokens=max_tokens, system=SYSTEM,
@@ -239,11 +279,12 @@ def make_with_tools(client, model: str, tool_schemas: List[Dict],
             if resp.stop_reason != "tool_use":
                 parts = [b.text for b in resp.content
                          if getattr(b, "type", "") == "text"]
-                return "".join(parts).strip()
+                return "".join(parts).strip(), calls
             results = []
             for block in resp.content:
                 if getattr(block, "type", "") == "tool_use":
                     out = _dispatch_tool(block.name, block.input)
+                    calls.append({"name": block.name, "args": dict(block.input), "result": out})
                     results.append({"type": "tool_result",
                                     "tool_use_id": block.id,
                                     "content": json.dumps(out)})
@@ -256,31 +297,41 @@ def make_with_tools(client, model: str, tool_schemas: List[Dict],
         if isinstance(last.get("content"), list):
             parts = [b.text for b in last["content"]
                      if getattr(b, "type", "") == "text"]
-        return "".join(parts).strip() or "[no text]"
+        return "".join(parts).strip() or "[no text]", calls
     return fn
 
 
 # ── runner ────────────────────────────────────────────────────────────────────
 
-def run_benchmark(items: List[dict], completion_fn: Callable[[str], str],
-                  label: str, delay: float = 0.3) -> BenchResult:
+def run_benchmark(items: List[dict], completion_fn,
+                  label: str, delay: float = 0.3,
+                  with_tool_trace: bool = False) -> BenchResult:
     result = BenchResult(label=label)
     total = len(items)
     for i, item in enumerate(items, 1):
         prompt = item["prompt"]
+        t0 = time.monotonic()
+        tool_calls: List[Dict] = []
         try:
-            reply = completion_fn(prompt)
+            raw = completion_fn(prompt)
+            if isinstance(raw, tuple):
+                reply, tool_calls = raw
+            else:
+                reply = raw
         except Exception as e:
             reply = f"[ERROR: {e}]"
+        elapsed = time.monotonic() - t0
         correct = _score(item, reply)
         parsed = _parse_reply(reply, item["answer_kind"])
         result.items.append(ItemResult(
             id=item["id"], domain=item["domain"], task=item["task"],
             correct=correct, reply=reply,
             ground_truth=item["ground_truth"], parsed=parsed,
+            elapsed_s=elapsed, tool_calls=tool_calls,
         ))
         marker = "+" if correct else "x"
-        print(f"  [{i:3d}/{total}] {marker} {item['id']:12s}  {reply[:50]}")
+        tools_info = f"  [{len(tool_calls)}t]" if with_tool_trace and tool_calls else ""
+        print(f"  [{i:3d}/{total}] {marker} {item['id']:12s}  {elapsed:4.1f}s{tools_info}  {reply[:40]}")
         if delay > 0:
             time.sleep(delay)
     return result
@@ -293,6 +344,8 @@ def main():
     parser.add_argument("--model", default="claude-haiku-4-5-20251001")
     parser.add_argument("--alone-only", action="store_true")
     parser.add_argument("--tools-only", action="store_true")
+    parser.add_argument("--diagnose", action="store_true",
+                        help="print failure details after each run")
     parser.add_argument("--delay", type=float, default=0.2,
                         help="seconds between API calls (default 0.2)")
     args = parser.parse_args()
@@ -320,9 +373,11 @@ def main():
         print(f"{'='*60}")
         alone_fn = make_alone(client, args.model)
         alone = run_benchmark(items, alone_fn, f"{args.model} (alone)",
-                              delay=args.delay)
+                              delay=args.delay, with_tool_trace=False)
         alone.to_jsonl(out_dir / f"results_ext_{model_tag}_alone.jsonl")
         print(alone.summary())
+        if args.diagnose:
+            print(alone.diagnose())
         results.append(alone)
 
     if not args.alone_only:
@@ -332,9 +387,11 @@ def main():
         tools_fn = make_with_tools(client, args.model, tool_schemas)
         with_tools = run_benchmark(items, tools_fn,
                                    f"{args.model} (with tools)",
-                                   delay=args.delay)
+                                   delay=args.delay, with_tool_trace=True)
         with_tools.to_jsonl(out_dir / f"results_ext_{model_tag}_tools.jsonl")
         print(with_tools.summary())
+        if args.diagnose:
+            print(with_tools.diagnose())
         results.append(with_tools)
 
     # delta summary

@@ -124,8 +124,8 @@ def build_statistics():
         items.append(_item(
             f"STAT-{i:03d}", "statistics", "two_tailed_pvalue",
             f"Two-sample t-test: n1={n1}, n2={n2}, mean1={m1}, mean2={m2}, "
-            f"sd1={s1}, sd2={s2}. Compute the two-tailed p-value. "
-            f"Reply with only the decimal number, rounded to 4 significant figures.",
+            f"sd1={s1}, sd2={s2}. Call verify_statistics_pvalue to compute the "
+            f"two-tailed p-value. Reply with only the decimal number.",
             p, "numeric",
             "verify_statistics_pvalue",
             {"spec": {"test": "two_sample_t", "n1": n1, "n2": n2,
@@ -644,11 +644,13 @@ def build_geology():
               {"scratcher_hardness": 7, "target_hardness": 10,
                "claimed_can_scratch": False}),
         _item("GEOL-003", "geology", "richter",
+              "Call verify_geology with richter_M1=6.0, richter_M2=7.0, "
+              "claimed_amplitude_ratio=10.0. "
               "A magnitude 7.0 earthquake has how many times the ground motion amplitude "
               "of a magnitude 6.0 earthquake? Reply with just the number.",
               10.0, "numeric",
               "verify_geology",
-              {"magnitude_a": 7.0, "magnitude_b": 6.0,
+              {"richter_M1": 6.0, "richter_M2": 7.0,
                "claimed_amplitude_ratio": 10.0},
               tolerance=0.01),
     ]
@@ -1026,10 +1028,11 @@ def build_document_validation():
     # 978-0-306-40615-7
     return [
         _item("DOC-001", "document_validation", "isbn13",
-              "Is 9780306406157 a valid ISBN-13? Answer yes or no.",
+              "Call verify_document_validation with isbn13='9780306406157' and "
+              "claimed_isbn13_valid=true. Is 9780306406157 a valid ISBN-13? Answer yes or no.",
               "yes", "classification",
               "verify_document_validation",
-              {"isbn13": "9780306406157", "claimed_valid": True}),
+              {"isbn13": "9780306406157", "claimed_isbn13_valid": True}),
         _item("DOC-002", "document_validation", "isbn13",
               "Is 9780306406158 a valid ISBN-13? (The last digit is wrong.) "
               "Answer yes or no.",
@@ -1037,11 +1040,12 @@ def build_document_validation():
               "verify_document_validation",
               {"isbn13": "9780306406158", "claimed_valid": False}),
         _item("DOC-003", "document_validation", "luhn",
-              "Is the credit card number 4532015112830366 valid according to the Luhn algorithm? "
+              "Call verify_document_validation with luhn_number='4532015112830366' and "
+              "claimed_luhn_valid=true. Is 4532015112830366 valid by the Luhn algorithm? "
               "Answer yes or no.",
               "yes", "classification",
               "verify_document_validation",
-              {"luhn": "4532015112830366", "claimed_valid": True}),
+              {"luhn_number": "4532015112830366", "claimed_luhn_valid": True}),
     ]
 
 
