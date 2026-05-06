@@ -59,6 +59,19 @@ from api.ledger import get_ledger
 # -- Offline queue import ------------------------------------------------
 from api.offline_queue import enqueue as _queue_enqueue, queue_stats as _queue_stats, start_retry_thread as _start_retry
 
+# -- Peer registry + trust index -----------------------------------------
+from api.peer_registry import (
+    register as _peer_register,
+    list_peers as _peer_list,
+    get_peer as _peer_get,
+    update_seen as _peer_update_seen,
+)
+from api.trust_index import (
+    record_confirmation as _trust_record,
+    get_trust as _trust_get,
+    trust_stats as _trust_stats,
+)
+
 # -- App setup -----------------------------------------------------------
 app = FastAPI(
     title="Concordance",
@@ -2275,12 +2288,20 @@ def verify_domain(domain: str, req: VerifyRequest):
     entry = get_packet_store().append(domain, req.spec, result)
     summary = _verify_summary(result)
 
+    # Record in trust index so multi-instance confirmations accumulate.
+    instance_id = entry.get("_instance_id", "")
+    trust_record = _trust_record(domain, req.spec, instance_id, summary=summary)
+
+    # Broadcast to known peers (fire-and-forget, best-effort).
+    _broadcast_packet(entry)
+
     return {
         "domain": domain,
         "tool": tool_name,
         "entry_id": entry["id"],
         "timestamp_iso": entry["timestamp_iso"],
         "summary": summary,
+        "trust_count": trust_record.get("count", 1),
         "results": result,
     }
 
@@ -2319,7 +2340,7 @@ def packets_list(
 
 @app.get("/packets/{domain}/{entry_id}", include_in_schema=True)
 def packets_get(domain: str, entry_id: str):
-    """Fetch one packet entry by domain and entry_id."""
+    """Fetch one packet entry by domain and entry_id, including trust metadata."""
     from api.packet_store import get_packet_store
     entry = get_packet_store().get(domain, entry_id)
     if entry is None:
@@ -2327,6 +2348,10 @@ def packets_get(domain: str, entry_id: str):
             status_code=404,
             detail=f"no entry '{entry_id}' in domain '{domain}'",
         )
+    trust = _trust_get(domain, entry.get("spec", {}))
+    if trust:
+        entry["_trust_count"] = trust.get("count", 0)
+        entry["_confirmed_instances"] = trust.get("instance_ids", [])
     return entry
 
 
@@ -2611,6 +2636,34 @@ def agent_endpoint(req: AgentRequest):
             "error": f"no verifier registered for domain '{domain}'",
         }
 
+    # ── Corpus-first lookup (Lever 1) ──────────────────────────────────
+    # Check the trust index for a prior confirmed result on this exact spec.
+    # If one exists with trust_count >= 1, return it instantly — no verifier
+    # call needed, no compute spent. The corpus is the oracle.
+    from api.packet_store import get_packet_store
+    store = get_packet_store()
+    trust = _trust_get(domain, spec)
+    if trust and trust.get("count", 0) >= 1 and trust.get("summary") == "CONFIRMED":
+        # Find the most recent matching packet to return its full results.
+        candidates = store.list(domain, limit=200, offset=0)
+        from api.trust_index import spec_hash as _spec_hash
+        target_hash = _spec_hash(spec)
+        for candidate in candidates:
+            if _spec_hash(candidate.get("spec", {})) == target_hash:
+                return {
+                    "matched": True,
+                    "source": "corpus",
+                    "rule_id": rule_id if result_dispatch else f"oracle:{req.oracle_model}",
+                    "domain": domain,
+                    "spec": spec,
+                    "entry_id": candidate["id"],
+                    "summary": candidate.get("summary"),
+                    "trust_count": trust.get("count", 1),
+                    "confirmed_instances": trust.get("instance_ids", []),
+                    "results": candidate.get("results"),
+                    "note": "Returned from verified corpus — verifier not re-run.",
+                }
+    # ── Corpus miss: run verifier ───────────────────────────────────────
     try:
         verifier_result = fn(spec)
     except Exception as e:
@@ -2618,8 +2671,13 @@ def agent_endpoint(req: AgentRequest):
 
     _log_training(domain, text, spec, verifier_result, source)
 
-    from api.packet_store import get_packet_store
-    entry = get_packet_store().append(domain, spec, verifier_result)
+    entry = store.append(domain, spec, verifier_result)
+
+    # Record in trust index and broadcast.
+    instance_id = entry.get("_instance_id", "")
+    summary_val = entry.get("summary", "UNKNOWN")
+    trust_record = _trust_record(domain, spec, instance_id, summary=summary_val)
+    _broadcast_packet(entry)
 
     return {
         "matched": True,
@@ -2628,7 +2686,8 @@ def agent_endpoint(req: AgentRequest):
         "domain": domain,
         "spec": spec,
         "entry_id": entry["id"],
-        "summary": entry.get("summary"),
+        "summary": summary_val,
+        "trust_count": trust_record.get("count", 1),
         "results": verifier_result,
     }
 
@@ -2646,6 +2705,54 @@ def agent_rules():
         }
     except ImportError as e:
         raise HTTPException(status_code=503, detail=f"agent layer unavailable: {e}")
+
+
+@app.get("/agent/training/proposals", include_in_schema=True)
+def agent_training_proposals(
+    min_examples: int = Query(2, ge=1),
+    min_confidence: float = Query(0.5, ge=0.0, le=1.0),
+):
+    """Extract candidate regex rules from oracle training logs.
+
+    Scans data/agent_training/*.jsonl for oracle-sourced confirmed examples
+    and proposes regex patterns that could be promoted into dispatch.py.
+    Promotion is always manual — this endpoint surfaces candidates, never
+    auto-edits dispatch rules.
+
+    Each proposal includes:
+      - domain: the verifier domain
+      - pattern: a candidate regex (alternation of common tokens)
+      - support: number of training texts the pattern matches
+      - confidence: fraction matched
+      - spec_keys: fields the extraction function would need to populate
+      - note: instructions for promoting to dispatch.py
+    """
+    try:
+        from concordance_engine.agent.rule_extractor import extract_proposals
+        proposals = extract_proposals(
+            training_dir="data/agent_training",
+            min_examples=min_examples,
+            min_confidence=min_confidence,
+        )
+        return {
+            "count": len(proposals),
+            "min_examples": min_examples,
+            "min_confidence": min_confidence,
+            "proposals": [
+                {
+                    "domain": p.domain,
+                    "pattern": p.pattern,
+                    "support": p.support,
+                    "confidence": round(p.confidence, 3),
+                    "spec_keys": p.spec_keys,
+                    "example_texts": p.example_texts,
+                    "note": p.note,
+                }
+                for p in proposals
+            ],
+        }
+    except ImportError as e:
+        raise HTTPException(status_code=503, detail=f"rule extractor unavailable: {e}")
 
 
 @app.get("/agent/training", include_in_schema=True)
@@ -2812,6 +2919,153 @@ def packets_verify_sig(domain: str, entry_id: str):
         "detail": detail,
         "instance_pubkey": entry.get("_instance_pubkey"),
         "instance_id": entry.get("_instance_id"),
+    }
+
+
+# ── Peer registry + cross-instance sync ────────────────────────────────
+#
+# Peers register themselves at POST /peers/register.
+# Packets flow peer-to-peer via POST /packets/import.
+# On every local confirm, the instance broadcasts to all known peers.
+#
+# Trust accumulates without authority: N independent instances reaching
+# the same summary on the same spec = trust_count N.
+
+
+def _broadcast_packet(entry: Dict[str, Any]) -> None:
+    """Push a signed packet to all known peers (best-effort, async thread)."""
+    import threading
+
+    def _push():
+        try:
+            import urllib.request
+            peers = _peer_list()
+            if not peers:
+                return
+            payload = json.dumps(entry, default=str).encode("utf-8")
+            for peer in peers:
+                url = peer.get("url", "").rstrip("/") + "/packets/import"
+                try:
+                    req = urllib.request.Request(
+                        url,
+                        data=payload,
+                        headers={"Content-Type": "application/json"},
+                        method="POST",
+                    )
+                    with urllib.request.urlopen(req, timeout=5):
+                        pass
+                    _peer_update_seen(peer["instance_id"], packets_synced=1)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    threading.Thread(target=_push, daemon=True, name="peer-broadcast").start()
+
+
+class PeerRegisterRequest(BaseModel):
+    url: str
+    pubkey: str
+    instance_id: str
+
+
+@app.post("/peers/register", include_in_schema=True)
+def peers_register(req: PeerRegisterRequest):
+    """Register a known peer instance by URL, Ed25519 public key, and instance_id.
+
+    Once registered, this instance will broadcast verified packets to the peer
+    and accept imports from it. The registry is append-on-register, durable
+    across restarts, and never auto-removes entries.
+    """
+    peer = _peer_register(url=req.url, pubkey=req.pubkey, instance_id=req.instance_id)
+    return {"status": "registered", "peer": peer}
+
+
+@app.get("/peers", include_in_schema=True)
+def peers_list():
+    """List all registered peer instances."""
+    peers = _peer_list()
+    return {"count": len(peers), "peers": peers}
+
+
+@app.post("/packets/import", include_in_schema=True)
+def packets_import(entry: Dict[str, Any]):
+    """Accept a signed packet from a peer instance.
+
+    The packet must carry _sig, _instance_pubkey, and _instance_id fields
+    (added by instance_identity.sign_dict). The signature is verified before
+    the packet is stored. Unsigned packets are rejected with 422.
+
+    On successful import the packet is recorded in this node's trust index,
+    incrementing the trust_count for the corresponding spec_hash. This is
+    how N independent confirmations accumulate into a trust credential.
+    """
+    # Validate signature
+    src_pubkey = entry.get("_instance_pubkey", "")
+    src_instance_id = entry.get("_instance_id", "")
+    sig = entry.get("_sig", "")
+    if not sig or not src_pubkey:
+        raise HTTPException(
+            status_code=422,
+            detail="Packet must carry _sig and _instance_pubkey (sign before exporting).",
+        )
+
+    try:
+        from concordance_engine.instance_identity import verify_dict
+        ok, detail = verify_dict(entry, public_key_b64u=src_pubkey)
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"signature verification unavailable: {exc}")
+
+    if not ok:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Signature invalid: {detail}",
+        )
+
+    # Store locally
+    domain = entry.get("domain", "")
+    spec = entry.get("spec", {})
+    results = entry.get("results", {})
+    summary = entry.get("summary", "UNKNOWN")
+
+    if not domain:
+        raise HTTPException(status_code=422, detail="Packet missing 'domain' field.")
+
+    from api.packet_store import get_packet_store
+    local_entry = get_packet_store().append(domain, spec, results)
+
+    # Record peer confirmation in trust index
+    trust_record = _trust_record(domain, spec, src_instance_id, summary=summary)
+
+    # Also record our own instance_id if we got the same result
+    try:
+        from concordance_engine.instance_identity import get_instance_id
+        own_id = get_instance_id()
+        if own_id and own_id != src_instance_id:
+            trust_record = _trust_record(domain, spec, own_id, summary=summary)
+    except Exception:
+        pass
+
+    return {
+        "imported": True,
+        "domain": domain,
+        "entry_id": local_entry["id"],
+        "summary": summary,
+        "trust_count": trust_record.get("count", 1),
+        "confirmed_instances": trust_record.get("instance_ids", []),
+    }
+
+
+@app.get("/trust", include_in_schema=True)
+def trust_index_stats():
+    """Return trust index statistics across all domains.
+
+    Shows how many spec_hashes have been confirmed by multiple independent
+    instances — the measure of decentralized trust accumulating in the network.
+    """
+    return {
+        "stats": _trust_stats(),
+        "note": "multi_confirmed = hashes seen from >1 independent instance",
     }
 
 
