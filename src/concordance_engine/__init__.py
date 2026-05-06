@@ -80,4 +80,5 @@ __all__ = [
     "user_identity",
     "poly_record",
     "axis_index",
+    "lora_packet",
 ]

@@ -155,6 +155,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Deployment mode gate — must be registered AFTER CORS (outermost wins).
+from api.deployment_mode import mode_gate_middleware
+app.middleware("http")(mode_gate_middleware)
+
 
 @app.on_event("startup")
 def _startup():
@@ -842,6 +846,18 @@ def version():
         except Exception:
             out["engine_package_version"] = "unknown"
     return out
+
+
+@app.get("/mode")
+def deployment_mode():
+    """Return the current deployment mode and write-access status.
+
+    Modes: open | restricted | lockdown | quantum
+    In restricted/quantum mode, writes require the physical token file
+    at token_path. In lockdown, writes are disabled unconditionally.
+    """
+    from api.deployment_mode import mode_info
+    return mode_info()
 
 
 @app.post("/validate", response_model=ValidateResponse)
@@ -3068,6 +3084,23 @@ def seal_polymathic(req: SealPolymathicRequest):
     except Exception:
         pass  # index failure is non-fatal
 
+    # ── Broadcast to federation peers ────────────────────────────────
+    # Same pattern as domain-verify broadcasts: fire-and-forget, bounded
+    # thread pool. Peers receive the seal receipt and can pull full content
+    # via GET /cas/{content_hash} on this instance.
+    try:
+        _broadcast_packet({
+            "id":                req.content_hash,
+            "domain":            "POLYMATHIC",
+            "composite_verdict": verdict,
+            "content_hash":      req.content_hash,
+            "ledger_seq":        entry.seq,
+            "ledger_entry_hash": entry.entry_hash,
+            "situation_summary": record_dict.get("situation", "")[:120],
+        })
+    except Exception:
+        pass  # broadcast failure is non-fatal
+
     return {
         "overall":          overall,
         "gates":            gates,
@@ -3076,6 +3109,44 @@ def seal_polymathic(req: SealPolymathicRequest):
         "ledger_entry_hash":entry.entry_hash,
         "content_hash":     req.content_hash,
     }
+
+
+@app.get("/axis/index", include_in_schema=True)
+def axis_index_stats():
+    """Return statistics about the axis dimension index.
+
+    The index grows each time a PolymathicRecord is sealed. It is the
+    substrate for closest-precedent retrieval on future poly runs.
+    """
+    try:
+        from concordance_engine.axis_index import index_stats
+        return index_stats()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+
+@app.get("/axis/query", include_in_schema=True)
+def axis_query(dims: str = ""):
+    """Query the axis index for sealed records sharing the given dimensions.
+
+    ?dims=authority_trust,time_sequence  (comma-separated scaffold dimensions)
+    Returns all sealed PolymathicRecords that touch at least one of those dims.
+    """
+    if not dims:
+        raise HTTPException(status_code=400, detail="dims query param required")
+    dim_list = [d.strip() for d in dims.split(",") if d.strip()]
+    try:
+        from concordance_engine.axis_index import query_index, find_closest
+        results = query_index(dim_list)
+        closest = find_closest(dim_list)
+        return {
+            "queried_dims": dim_list,
+            "match_count":  len(results),
+            "matches":      results,
+            "closest":      closest,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
 
 
 @app.get("/agent/rules", include_in_schema=True)
