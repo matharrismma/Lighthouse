@@ -464,9 +464,12 @@ def verify_combinatorics(spec: Dict[str, Any]) -> Dict[str, Any]:
 
 @mcp.tool()
 def verify_cryptography(spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Hash match (SHA-256/SHA-512/MD5/SHA-1), hash strength rating,
-    HMAC verification, base64/hex encoding roundtrip, key-length strength.
-    Pass spec as CRYPTO_VERIFY contents."""
+    """Hash match, hash strength (NIST), HMAC, base64/hex encoding roundtrip, key-length strength.
+    Pass spec as CRYPTO_VERIFY contents.
+    Hash match:    spec={"hash_algorithm":"sha256","data":"hello","claimed_hash_hex":"2cf24dba..."}
+    Hash strength: spec={"hash_strength_algorithm":"md5","claimed_hash_strength":"broken"}
+    HMAC:          spec={"hmac_algorithm":"sha256","hmac_key":"secret","hmac_data":"hello","claimed_hmac_hex":"..."}
+    Key strength:  spec={"cipher":"AES","key_bits":256,"claimed_key_strength":"strong"}"""
     return tools.verify_cryptography(spec)
 
 
@@ -658,6 +661,83 @@ def verify_quantum_computing(spec: Dict[str, Any]) -> Dict[str, Any]:
     Grover: spec={"n_items":64,"claimed_grover_iterations":6}
     BB84: spec={"qber":0.09,"claimed_secure":true}"""
     return tools.verify_quantum_computing(spec)
+
+
+@mcp.tool()
+def verify_medicine(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """BMI, drug dosage, blood pressure classification (AHA 2017), A1C→eAG,
+    eGFR (Cockcroft-Gault), IBW (Devine), mean arterial pressure.
+    Pass spec as MED_VERIFY contents.
+    BMI: spec={"weight_kg":70,"height_m":1.75,"claimed_bmi":22.86}
+    BP: spec={"systolic":125,"diastolic":82,"claimed_bp_class":"hypertension_stage_1"}
+    MAP: spec={"systolic":120,"diastolic":80,"claimed_map_mmhg":93.3}"""
+    return tools.verify_medicine(spec)
+
+
+@mcp.tool()
+def verify_cybersecurity(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Password entropy (bits=len*log2(charset)), TLS version status,
+    CVSS severity classification, subnet host count, port classification.
+    Pass spec as CYBER_VERIFY contents.
+    Entropy: spec={"password_length":16,"charset_size":94,"claimed_entropy_bits":104.9}
+    CVSS: spec={"cvss_base_score":9.1,"claimed_cvss_severity":"critical"}
+    Port: spec={"port_number":443,"claimed_port_class":"well_known"}"""
+    return tools.verify_cybersecurity(spec)
+
+
+@mcp.tool()
+def verify_economics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Simple/compound interest, present/future value, Rule of 72,
+    inflation adjustment, GDP per capita, price elasticity of demand.
+    Pass spec as ECON_VERIFY contents.
+    Simple interest: spec={"principal":1000,"rate":0.05,"time_years":3,"claimed_simple_interest":150}
+    Rule of 72: spec={"rate_percent":7,"claimed_doubling_years":10.3}
+    Inflation: spec={"nominal_value":1000,"inflation_rate":0.03,"years":10,"claimed_real_value":744.09}"""
+    return tools.verify_economics(spec)
+
+
+@mcp.tool()
+def verify_labor(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Gross pay, FLSA overtime (1.5x after 40h), annual-to-hourly,
+    take-home pay after tax, minimum wage compliance.
+    Pass spec as LABOR_VERIFY contents.
+    Gross: spec={"hourly_rate":18.5,"hours_worked":45,"claimed_gross_pay":832.5}
+    Overtime: spec={"hourly_rate":18.5,"regular_hours":40,"overtime_hours":5,"claimed_overtime_pay":878.75}
+    Annual/hourly: spec={"annual_salary":52000,"claimed_hourly_equivalent":25.0}"""
+    return tools.verify_labor(spec)
+
+
+@mcp.tool()
+def verify_real_estate(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Monthly mortgage payment, cap rate, gross rent multiplier,
+    loan-to-value, debt service coverage ratio, rental yield.
+    Pass spec as RE_VERIFY contents.
+    Mortgage: spec={"loan_principal":300000,"annual_rate":0.065,"loan_term_months":360,"claimed_monthly_payment":1896.20}
+    Cap rate: spec={"net_operating_income":24000,"property_value":400000,"claimed_cap_rate":0.06}
+    LTV: spec={"loan_amount":240000,"appraised_value":300000,"claimed_ltv":0.80}"""
+    return tools.verify_real_estate(spec)
+
+
+@mcp.tool()
+def verify_construction(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Concrete volume, rectangular/circular areas, rebar weight,
+    wall area, paint coverage, floor tile count, beam load intensity.
+    Pass spec as CONSTR_VERIFY contents.
+    Concrete: spec={"length_m":10,"width_m":5,"depth_m":0.15,"claimed_concrete_m3":7.5}
+    Tiles: spec={"tile_area_m2":50,"tile_size_m2":0.25,"waste_factor":0.10,"claimed_tile_count":220}
+    Beam: spec={"total_load_kn":120,"span_m":6,"claimed_load_intensity_kn_per_m":20.0}"""
+    return tools.verify_construction(spec)
+
+
+@mcp.tool()
+def verify_soil_science(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Soil pH suitability for crops, NPK fertilizer requirements,
+    irrigation ETc (Kc×ET₀), lime requirement, USDA texture classification.
+    Pass spec as SOIL_VERIFY contents.
+    pH: spec={"crop":"maize","soil_ph":6.2,"claimed_ph_suitable":true}
+    Texture: spec={"sand_pct":40,"silt_pct":40,"clay_pct":20,"claimed_texture_class":"loam"}
+    Irrigation: spec={"reference_et0_mm_per_day":5.0,"crop_coefficient":1.15,"claimed_etc_mm_per_day":5.75}"""
+    return tools.verify_soil_science(spec)
 
 
 def main() -> None:

@@ -377,10 +377,12 @@ def verify_combinatorics(spec):
 
 
 def verify_cryptography(spec):
-    """Hash match, hash strength, key strength.
-    Hash match: {"message": "hello", "claimed_hash": "2cf24dba...", "algorithm": "sha256"}
-    Hash strength: {"algorithm": "md5", "claimed_strong": false}
-    Key strength: {"key_bits": 256, "algorithm": "aes", "claimed_strong": true}"""
+    """Hash match, hash strength, HMAC, encoding roundtrip, key strength.
+    Hash match:   {"hash_algorithm": "sha256", "data": "hello", "claimed_hash_hex": "2cf24dba..."}
+    Hash strength:{"hash_strength_algorithm": "md5", "claimed_hash_strength": "broken"}
+    HMAC:         {"hmac_algorithm": "sha256", "hmac_key": "secret", "hmac_data": "hello", "claimed_hmac_hex": "..."}
+    Encoding:     {"encoded": "aGVsbG8=", "encoded_form": "base64", "claimed_decoded": "hello"}
+    Key strength: {"cipher": "AES", "key_bits": 256, "claimed_key_strength": "strong"}"""
     return {"checks": [_r(r) for r in _cryptography.run({"CRYPTO_VERIFY": spec or {}})]}
 
 
@@ -898,10 +900,10 @@ TOOLS: List[Dict[str, Any]] = [
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_combinatorics(a["spec"])},
     {"name": "verify_cryptography",
-     "description": "Hash match, hash strength, key strength. "
-                    "Hash match: spec={\"message\":\"hello\",\"claimed_hash\":\"2cf24...\",\"algorithm\":\"sha256\"}. "
-                    "Hash strength: spec={\"algorithm\":\"md5\",\"claimed_strong\":false}. "
-                    "Key strength: spec={\"key_bits\":256,\"algorithm\":\"aes\",\"claimed_strong\":true}.",
+     "description": "Hash match, hash strength (NIST), HMAC, base64/hex roundtrip, key-length strength. "
+                    "Hash match: spec={\"hash_algorithm\":\"sha256\",\"data\":\"hello\",\"claimed_hash_hex\":\"2cf24dba...\"}. "
+                    "Hash strength: spec={\"hash_strength_algorithm\":\"md5\",\"claimed_hash_strength\":\"broken\"}. "
+                    "Key strength: spec={\"cipher\":\"AES\",\"key_bits\":256,\"claimed_key_strength\":\"strong\"}.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_cryptography(a["spec"])},
     {"name": "verify_document_validation",
@@ -1006,6 +1008,55 @@ TOOLS: List[Dict[str, Any]] = [
                     "BB84: spec={\"qber\":0.09,\"claimed_secure\":true}.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_quantum_computing(a["spec"])},
+    {"name": "verify_medicine",
+     "description": "BMI, drug dosage, blood pressure (AHA 2017), A1C→eAG, eGFR (Cockcroft-Gault), IBW (Devine), MAP. "
+                    "BMI: spec={\"weight_kg\":70,\"height_m\":1.75,\"claimed_bmi\":22.86}. "
+                    "BP: spec={\"systolic\":125,\"diastolic\":82,\"claimed_bp_class\":\"hypertension_stage_1\"}. "
+                    "MAP: spec={\"systolic\":120,\"diastolic\":80,\"claimed_map_mmhg\":93.3}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_medicine(a["spec"])},
+    {"name": "verify_cybersecurity",
+     "description": "Password entropy, TLS version status, CVSS severity, subnet host count, port classification. "
+                    "Entropy: spec={\"password_length\":16,\"charset_size\":94,\"claimed_entropy_bits\":104.9}. "
+                    "CVSS: spec={\"cvss_base_score\":9.1,\"claimed_cvss_severity\":\"critical\"}. "
+                    "Port: spec={\"port_number\":443,\"claimed_port_class\":\"well_known\"}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_cybersecurity(a["spec"])},
+    {"name": "verify_economics",
+     "description": "Simple/compound interest, PV/FV, Rule of 72, inflation adjustment, GDP per capita, price elasticity. "
+                    "Simple interest: spec={\"principal\":1000,\"rate\":0.05,\"time_years\":3,\"claimed_simple_interest\":150}. "
+                    "Rule of 72: spec={\"rate_percent\":7,\"claimed_doubling_years\":10.3}. "
+                    "Inflation: spec={\"nominal_value\":1000,\"inflation_rate\":0.03,\"years\":10,\"claimed_real_value\":744.09}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_economics(a["spec"])},
+    {"name": "verify_labor",
+     "description": "Gross pay, FLSA overtime (1.5x after 40h), annual-to-hourly, take-home after tax, minimum wage. "
+                    "Gross: spec={\"hourly_rate\":18.5,\"hours_worked\":45,\"claimed_gross_pay\":832.5}. "
+                    "Overtime: spec={\"hourly_rate\":18.5,\"regular_hours\":40,\"overtime_hours\":5,\"claimed_overtime_pay\":878.75}. "
+                    "Annual/hourly: spec={\"annual_salary\":52000,\"claimed_hourly_equivalent\":25.0}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_labor(a["spec"])},
+    {"name": "verify_real_estate",
+     "description": "Monthly mortgage, cap rate, GRM, LTV, DSCR, rental yield. "
+                    "Mortgage: spec={\"loan_principal\":300000,\"annual_rate\":0.065,\"loan_term_months\":360,\"claimed_monthly_payment\":1896.20}. "
+                    "Cap rate: spec={\"net_operating_income\":24000,\"property_value\":400000,\"claimed_cap_rate\":0.06}. "
+                    "LTV: spec={\"loan_amount\":240000,\"appraised_value\":300000,\"claimed_ltv\":0.80}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_real_estate(a["spec"])},
+    {"name": "verify_construction",
+     "description": "Concrete volume, rect/circle areas, rebar weight, wall area, paint coverage, tile count, beam load. "
+                    "Concrete: spec={\"length_m\":10,\"width_m\":5,\"depth_m\":0.15,\"claimed_concrete_m3\":7.5}. "
+                    "Tiles: spec={\"tile_area_m2\":50,\"tile_size_m2\":0.25,\"waste_factor\":0.10,\"claimed_tile_count\":220}. "
+                    "Beam: spec={\"total_load_kn\":120,\"span_m\":6,\"claimed_load_intensity_kn_per_m\":20.0}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_construction(a["spec"])},
+    {"name": "verify_soil_science",
+     "description": "Soil pH suitability, NPK fertilizer requirements, irrigation ETc (Kc*ET0), lime requirement, USDA texture class. "
+                    "pH: spec={\"crop\":\"maize\",\"soil_ph\":6.2,\"claimed_ph_suitable\":true}. "
+                    "Texture: spec={\"sand_pct\":40,\"silt_pct\":40,\"clay_pct\":20,\"claimed_texture_class\":\"loam\"}. "
+                    "Irrigation: spec={\"reference_et0_mm_per_day\":5.0,\"crop_coefficient\":1.15,\"claimed_etc_mm_per_day\":5.75}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_soil_science(a["spec"])},
 ]
 
 
