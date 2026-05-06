@@ -1163,6 +1163,61 @@ def build_quantum_computing():
     ]
 
 
+# ── cross-domain: Shor → Number Theory → Cryptography (3) ───────────────────
+#
+# A complete quantum-factoring chain.  Each item adds one link:
+#   XDOM-001  Shor period check alone          (1 tool: verify_quantum_computing)
+#   XDOM-002  Primality of extracted factors    (1 tool: verify_number_theory × 2)
+#   XDOM-003  Full chain synthesis             (3 tools: all of the above + verify_cryptography)
+#
+# Math: a=7, N=15, r=4
+#   7^4 mod 15 = 1  ✓   r even  ✓
+#   gcd(7²−1, 15) = gcd(48, 15) = 3   →  prime
+#   gcd(7²+1, 15) = gcd(50, 15) = 5   →  prime
+#   RSA modulus N=15 = 4 bits < 2048  →  weak (NIST)
+
+def build_cross_domain():
+    shor_spec = {"shor_a": 7, "shor_N": 15, "shor_r": 4, "claimed_period_valid": True}
+    prime3_spec = {"n_prime": 3, "claimed_prime": True}
+    prime5_spec = {"n_prime": 5, "claimed_prime": True}
+    rsa_spec = {"cipher": "RSA", "key_bits": 4, "claimed_key_strength": "weak"}
+
+    return [
+        # ── link 1: Shor period ──────────────────────────────────────────────
+        _item("XDOM-001", "cross_domain", "shor_period",
+              "Shor's algorithm attempted to factor N=15 using base a=7 and found period r=4. "
+              "Call verify_quantum_computing with shor_a=7, shor_N=15, shor_r=4, "
+              "claimed_period_valid=true. Is the period valid? Answer yes or no.",
+              "yes", "classification",
+              "verify_quantum_computing", shor_spec),
+
+        # ── link 2: primality of the extracted factors ───────────────────────
+        _item("XDOM-002", "cross_domain", "factor_primality",
+              "Shor's factoring of N=15 with a=7, r=4 yielded factors 3 and 5. "
+              "Call verify_number_theory twice — once for n_prime=3 and once for n_prime=5, "
+              "each with claimed_prime=true. Are both factors prime? Answer yes or no.",
+              "yes", "classification",
+              "verify_number_theory",
+              {"check_a": prime3_spec, "check_b": prime5_spec}),
+
+        # ── link 3: full synthesis ────────────────────────────────────────────
+        _item("XDOM-003", "cross_domain", "rsa_broken_chain",
+              "Run the full Shor factoring chain on RSA modulus N=15 with a=7, r=4:\n"
+              "Step 1 — call verify_quantum_computing with shor_a=7, shor_N=15, shor_r=4, "
+              "claimed_period_valid=true (confirms period and extracts factors 3 and 5).\n"
+              "Step 2 — call verify_number_theory twice: n_prime=3 claimed_prime=true, "
+              "then n_prime=5 claimed_prime=true (confirms both factors are prime).\n"
+              "Step 3 — call verify_cryptography with cipher=RSA, key_bits=4, "
+              "claimed_key_strength=weak (confirms this 4-bit RSA key fails NIST ≥2048-bit standard).\n"
+              "After all three steps confirm, answer: is this RSA key cryptographically broken? "
+              "Answer yes or no.",
+              "yes", "classification",
+              "cross_domain",
+              {"shor": shor_spec, "prime3": prime3_spec,
+               "prime5": prime5_spec, "rsa": rsa_spec}),
+    ]
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 BUILDERS = [
@@ -1179,6 +1234,7 @@ BUILDERS = [
     build_calendar_time, build_governance, build_document_validation,
     build_photography, build_linguistics, build_witness,
     build_quantum_computing,
+    build_cross_domain,
 ]
 
 
