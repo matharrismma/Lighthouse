@@ -25,8 +25,17 @@ from .base import VerifierResult, na, confirm, mismatch, error
 # inflate the false-positive rate on legitimate but unrecognised syntax.
 _PARSE_ERRORS = (_SympifyError, SyntaxError, TypeError, ValueError, NotImplementedError)
 
+import re as _re
+# Characters that are NOT part of any valid math expression string.
+# SymPy's sympify treats '#' as a Python-style comment, silently dropping
+# the rest of the string, which can cause strings like "INVALID###" to parse
+# successfully as a bare symbol.  We reject such inputs early.
+_INVALID_EXPR_RE = _re.compile(r"[#@!$%&\[\]\{\}\\|`]")
+
 
 def _parse(expr: str, var_names: List[str] = None):
+    if _INVALID_EXPR_RE.search(str(expr)):
+        raise _SympifyError(f"invalid characters in expression: {expr!r}")
     locals_ = {n: Symbol(n) for n in (var_names or [])}
     # Allow common aliases
     locals_.setdefault("oo", oo)
