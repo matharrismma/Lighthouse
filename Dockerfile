@@ -13,9 +13,10 @@ RUN pip install --no-cache-dir -e ".[mcp]"
 # Install API dependencies
 RUN pip install --no-cache-dir -r api/requirements.txt
 
-# Ledger persists in a mounted volume
+# Ledger and case store persist in a mounted volume
 RUN mkdir -p /data
 ENV LEDGER_PATH=/data/ledger.jsonl
+ENV CASE_STORE_PATH=/data/case_store.db
 ENV CONCORDANCE_SCHEMA_PATH=/app/schema/packet.schema.json
 
 EXPOSE 8000

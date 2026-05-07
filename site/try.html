@@ -873,7 +873,7 @@
     const sealWrap = document.createElement('div');
     sealWrap.className = 'seal-block';
 
-    // Questions container — populated asynchronously by /ask
+    // Questions container — populated asynchronously by /intake
     const askBlock = document.createElement('div');
     askBlock.className = 'ask-block';
     sealWrap.appendChild(askBlock);
@@ -892,8 +892,8 @@
     sealWrap.appendChild(sealBtn);
     bubble.appendChild(sealWrap);
 
-    // Fetch questions from /ask (non-blocking — seal still works without answers)
-    fetch(`${API}/ask`, {
+    // Fetch questions from /intake (non-blocking — seal still works without answers)
+    fetch(`${API}/intake`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: originalText, domain }),

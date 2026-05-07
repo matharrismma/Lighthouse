@@ -1646,7 +1646,7 @@ def cases_spokes(hash_: str, depth: int = 1):
     return {"origin_hash": hash_, "depth": depth, "spokes": spokes, "count": len(spokes)}
 
 
-# ── /ask — Socratic intake ─────────────────────────────────────────────
+# ── /intake — Socratic intake ──────────────────────────────────────────
 
 
 # Per-axis question templates. Each axis surfaces the verification gap
@@ -1698,13 +1698,13 @@ _AXIS_PRIORITY: Dict[str, List[str]] = {
 }
 
 
-class AskRequest(BaseModel):
+class IntakeRequest(BaseModel):
     text: str
     domain: Optional[str] = None
 
 
-@app.post("/ask", include_in_schema=True)
-def ask(req: AskRequest):
+@app.post("/intake", include_in_schema=True)
+def intake(req: IntakeRequest):
     """Socratic intake: return 2 targeted questions before the four-gate seal.
 
     Identifies the 2 scaffold axes most critical for verification of this
