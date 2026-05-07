@@ -1,37 +1,30 @@
-"""smart_seed.py — Convergence-aware seed generator.
+"""smart_seed.py — Hub-and-spoke convergence-aware seed generator.
 
-Uses the case store to find coverage gaps, axis adjacency to inform
-generation, and novelty screening to skip near-duplicates.
+Each domain is seeded in two phases:
+  Phase 1 — HUB: one broad claim that sits at the domain's centre.
+             It connects to adjacent domains via axis overlap.
+             The hub is posted first so it can be walked from.
+  Phase 2 — SPOKES: N specific sub-topic seeds that branch from
+             the hub. Each spoke is generated knowing the hub text
+             so it fills the gap around it rather than duplicating it.
 
-Three modes:
-  --analyze          Print coverage map and novelty priorities, no posting.
-  --fill [--top N]   Fill the N coldest domains (default 10).
+Navigation is graph-based. To reach new seeds, you only move from
+the nearest seed. The case store wires neighbor edges on every insert
+(SPOKE_K = 5 outgoing edges), so the entire corpus becomes navigable
+without ever scanning all rows.
+
+Modes
+─────
+  --analyze          Coverage map + hub inventory. No posting.
+  --fill [--top N]   Fill N coldest domains hub-first (default 10).
   --domain D         Smart-seed a single domain.
-
-How it works
-────────────
-1. Pull coverage from GET /cases/stats → per-domain verdict counts.
-2. Rank domains: cold (0 verdicts) first, then cool (< COOL_FLOOR),
-   then warm — weighted by axis depth so structurally deep domains that
-   are cold get highest priority.
-3. For each target domain, find its warm axis-neighbors (Jaccard ≥ 0.3
-   on AXIS_DIMENSIONS). Pull their top verifier_summary snippets and
-   pass them to Haiku as "what the engine already knows nearby" — so
-   the generated seeds fill the actual gap, not the adjacent ground.
-4. Generate candidates via Claude Haiku.
-5. Novelty screen: POST /cases/closest for each candidate. If closest
-   distance < NOVELTY_FLOOR (0.25) → near-duplicate, skip.
-   If distance ≥ NOVELTY_CEIL (0.70) → genuinely novel, boost label.
-6. Post only seeds that clear the novelty floor.
-7. Report novelty rate per domain so you can tune thresholds.
-
-Result: each new verdict is chosen because it fills a gap; the ledger
-converges instead of saturating the same clusters.
+  --walk D           Walk the graph from domain D's hub; print what's near.
 
 Usage:
   python scripts/seed/smart_seed.py --analyze
   python scripts/seed/smart_seed.py --fill --top 10 --count 50
   python scripts/seed/smart_seed.py --domain theology_doctrine --count 30
+  python scripts/seed/smart_seed.py --walk mathematics
   python scripts/seed/smart_seed.py --fill --top 20 --dry-run
 """
 from __future__ import annotations
@@ -59,18 +52,17 @@ try:
 except ImportError:
     sys.exit("pip install anthropic")
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# ── Configuration ──────────────────────────────────────────────────────────────
 
 API_BASE   = os.environ.get("CONCORDANCE_API", "http://localhost:8000")
 STATE_FILE = Path(__file__).parent / "smart_seed_state.json"
 
-NOVELTY_FLOOR = 0.25   # distance below → near-duplicate, skip
-NOVELTY_CEIL  = 0.70   # distance above → genuinely novel, flag
-COOL_FLOOR    = 20     # verdicts below this = "cool" domain
-NEIGHBOR_K    = 3      # warm neighbors to pull context from
+COOL_FLOOR    = 20    # verdicts below this = "cool" domain
+NEIGHBOR_K    = 3     # warm neighbors to pull hub context from
+SPOKE_BATCH   = 10    # spokes generated per hub in one Haiku call
 
 
-# ── Load API key ──────────────────────────────────────────────────────────────
+# ── API key ────────────────────────────────────────────────────────────────────
 
 def _load_key() -> str:
     k = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -88,86 +80,61 @@ def _load_key() -> str:
 ANTHROPIC_KEY = _load_key()
 
 
-# ── Grid adjacency ────────────────────────────────────────────────────────────
+# ── Grid adjacency ─────────────────────────────────────────────────────────────
 
 def _load_axis_dimensions() -> Dict[str, FrozenSet[str]]:
-    """Import AXIS_DIMENSIONS from the engine package, or define a minimal
-    fallback inline so this script works even outside a venv."""
+    repo_src = Path(__file__).parent.parent.parent / "src"
+    if str(repo_src) not in sys.path:
+        sys.path.insert(0, str(repo_src))
     try:
-        # Try to import from installed/editable package first
-        repo_src = Path(__file__).parent.parent.parent / "src"
-        if str(repo_src) not in sys.path:
-            sys.path.insert(0, str(repo_src))
         from concordance_engine.grid import AXIS_DIMENSIONS  # type: ignore
         return AXIS_DIMENSIONS
     except ImportError:
         pass
-
-    # Minimal inline fallback — seven scaffold axes per canonical domain
+    # Minimal inline fallback
     return {
-        "chemistry":            frozenset({"metabolism", "physical_substance", "conservation_balance"}),
-        "physics":              frozenset({"physical_substance", "conservation_balance", "reasoning"}),
-        "mathematics":          frozenset({"reasoning"}),
-        "statistics_pvalue":    frozenset({"reasoning"}),
-        "computer_science":     frozenset({"encoding", "reasoning", "time_sequence"}),
-        "biology":              frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence"}),
-        "governance":           frozenset({"reasoning", "authority_trust", "time_sequence"}),
-        "scripture_anchors":    frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
-        "linguistics":          frozenset({"encoding", "reasoning"}),
-        "formal_logic":         frozenset({"reasoning"}),
-        "cryptography":         frozenset({"encoding", "reasoning", "authority_trust"}),
-        "finance":              frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
-        "economics":            frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
-        "theology_doctrine":    frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+        "chemistry":         frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+        "physics":           frozenset({"physical_substance", "conservation_balance", "reasoning"}),
+        "mathematics":       frozenset({"reasoning"}),
+        "computer_science":  frozenset({"encoding", "reasoning", "time_sequence"}),
+        "biology":           frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence"}),
+        "governance":        frozenset({"reasoning", "authority_trust", "time_sequence"}),
+        "scripture_anchors": frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+        "linguistics":       frozenset({"encoding", "reasoning"}),
+        "formal_logic":      frozenset({"reasoning"}),
+        "cryptography":      frozenset({"encoding", "reasoning", "authority_trust"}),
+        "finance":           frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
+        "economics":         frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
+        "theology_doctrine": frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+        "law":               frozenset({"reasoning", "authority_trust", "time_sequence"}),
+        "labor":             frozenset({"metabolism", "authority_trust", "time_sequence", "conservation_balance"}),
+        "medicine":          frozenset({"metabolism", "physical_substance", "authority_trust", "time_sequence"}),
+        "real_estate":       frozenset({"physical_substance", "authority_trust", "time_sequence", "conservation_balance"}),
+        "cybersecurity":     frozenset({"encoding", "reasoning", "authority_trust"}),
+        "quantum_computing": frozenset({"encoding", "reasoning", "physical_substance"}),
+        "operations_research": frozenset({"reasoning", "time_sequence", "conservation_balance"}),
+        "thermodynamics":    frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+        "energy":            frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "ecology":           frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "genetics":          frozenset({"encoding", "physical_substance"}),
+        "agriculture":       frozenset({"metabolism", "physical_substance", "time_sequence"}),
+        "nutrition":         frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+        "exercise_science":  frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "nuclear_physics":   frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
+        "geology":           frozenset({"metabolism", "physical_substance", "time_sequence"}),
+        "meteorology":       frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "hydrology":         frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "soil_science":      frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+        "manufacturing":     frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "construction":      frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+        "architecture":      frozenset({"physical_substance", "authority_trust", "time_sequence"}),
+        "networking":        frozenset({"encoding", "physical_substance", "authority_trust", "time_sequence"}),
+        "information_theory": frozenset({"encoding", "reasoning"}),
+        "theology_doctrine": frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+        "witness":           frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
         "governance_decision_packet": frozenset({"reasoning", "authority_trust", "time_sequence"}),
-        "law":                  frozenset({"reasoning", "authority_trust", "time_sequence"}),
-        "labor":                frozenset({"metabolism", "authority_trust", "time_sequence", "conservation_balance"}),
-        "medicine":             frozenset({"metabolism", "physical_substance", "authority_trust", "time_sequence"}),
-        "real_estate":          frozenset({"physical_substance", "authority_trust", "time_sequence", "conservation_balance"}),
-        "cybersecurity":        frozenset({"encoding", "reasoning", "authority_trust"}),
-        "quantum_computing":    frozenset({"encoding", "reasoning", "physical_substance"}),
-        "operations_research":  frozenset({"reasoning", "time_sequence", "conservation_balance"}),
-        "thermodynamics":       frozenset({"metabolism", "physical_substance", "conservation_balance"}),
-        "energy":               frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "ecology":              frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "biology":              frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence"}),
-        "genetics":             frozenset({"encoding", "physical_substance"}),
-        "agriculture":          frozenset({"metabolism", "physical_substance", "time_sequence"}),
-        "nutrition":            frozenset({"metabolism", "physical_substance", "conservation_balance"}),
-        "exercise_science":     frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "physics_conservation": frozenset({"physical_substance", "conservation_balance"}),
-        "physics_dimensional":  frozenset({"physical_substance", "reasoning"}),
-        "nuclear_physics":      frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
-        "astronomy":            frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
-        "geology":              frozenset({"metabolism", "physical_substance", "time_sequence"}),
-        "meteorology":          frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "hydrology":            frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "oceanography":         frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "soil_science":         frozenset({"metabolism", "physical_substance", "conservation_balance"}),
-        "manufacturing":        frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "construction":         frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
-        "architecture":         frozenset({"physical_substance", "authority_trust", "time_sequence"}),
-        "electrical":           frozenset({"physical_substance", "conservation_balance"}),
-        "networking":           frozenset({"encoding", "physical_substance", "authority_trust", "time_sequence"}),
-        "information_theory":   frozenset({"encoding", "reasoning"}),
-        "document_validation":  frozenset({"encoding", "authority_trust"}),
-        "music_theory":         frozenset({"encoding", "reasoning", "physical_substance"}),
-        "acoustics":            frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
-        "optics":               frozenset({"physical_substance", "conservation_balance"}),
-        "photography":          frozenset({"encoding", "physical_substance"}),
-        "number_theory":        frozenset({"reasoning"}),
-        "combinatorics":        frozenset({"reasoning"}),
-        "geometry":             frozenset({"reasoning", "physical_substance"}),
-        "sports_analytics":     frozenset({"reasoning", "time_sequence"}),
-        "philosophy":           frozenset({"reasoning", "authority_trust"}),
-        "rhetoric":             frozenset({"encoding", "reasoning", "authority_trust"}),
-        "calendar_time":        frozenset({"time_sequence"}),
-        "geography":            frozenset({"physical_substance"}),
-        "history_chronology":   frozenset({"authority_trust", "time_sequence"}),
-        "materials_science":    frozenset({"physical_substance", "conservation_balance"}),
-        "witness":              frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
-        "statistics_multiple_comparisons": frozenset({"reasoning"}),
-        "statistics_confidence_interval":  frozenset({"reasoning"}),
+        "rhetoric":          frozenset({"encoding", "reasoning", "authority_trust"}),
+        "philosophy":        frozenset({"reasoning", "authority_trust"}),
     }
 
 
@@ -176,46 +143,46 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = _load_axis_dimensions()
 
 def _jaccard(a: FrozenSet[str], b: FrozenSet[str]) -> float:
     union = a | b
-    if not union:
-        return 0.0
-    return len(a & b) / len(union)
+    return len(a & b) / len(union) if union else 0.0
 
 
-def axis_neighbors(
-    domain: str,
-    top_k: int = 5,
-    min_sim: float = 0.20,
-) -> List[Tuple[str, float]]:
-    """Return (neighbor_domain, jaccard_sim) pairs, best first."""
+def axis_neighbors(domain: str, top_k: int = 5, min_sim: float = 0.20) -> List[Tuple[str, float]]:
     dims = AXIS_DIMENSIONS.get(domain, frozenset())
-    scores: List[Tuple[str, float]] = []
-    for other, other_dims in AXIS_DIMENSIONS.items():
-        if other == domain:
-            continue
-        sim = _jaccard(dims, other_dims)
-        if sim >= min_sim:
-            scores.append((other, round(sim, 3)))
+    scores = [
+        (other, round(_jaccard(dims, other_dims), 3))
+        for other, other_dims in AXIS_DIMENSIONS.items()
+        if other != domain
+    ]
+    scores = [(n, s) for n, s in scores if s >= min_sim]
     scores.sort(key=lambda x: -x[1])
     return scores[:top_k]
 
 
 def axis_depth(domain: str) -> int:
-    """Number of scaffold dimensions the domain sits on."""
     return len(AXIS_DIMENSIONS.get(domain, frozenset()))
 
 
-# ── Coverage ──────────────────────────────────────────────────────────────────
+# ── Coverage ───────────────────────────────────────────────────────────────────
 
 def get_coverage(session: requests.Session) -> Dict[str, int]:
-    """Query /cases/stats → {domain: count}.  Returns empty dict on error."""
     try:
         r = session.get(f"{API_BASE}/cases/stats", timeout=10)
         if r.status_code == 200:
-            data = r.json()
-            return dict(data.get("by_domain", {}))
+            return dict(r.json().get("by_domain", {}))
     except Exception as exc:
-        print(f"  [WARN] /cases/stats failed: {exc}", flush=True)
+        print(f"  [WARN] /cases/stats: {exc}", flush=True)
     return {}
+
+
+def get_hub(domain: str, session: requests.Session) -> Optional[Dict[str, Any]]:
+    """Fetch the hub (highest-degree case) for a domain from the API."""
+    try:
+        r = session.get(f"{API_BASE}/cases/hub/{domain}", timeout=8)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return None
 
 
 def coverage_priority(
@@ -223,99 +190,82 @@ def coverage_priority(
     coverage: Dict[str, int],
     top_n: Optional[int] = None,
 ) -> List[Tuple[str, int, int]]:
-    """Sort domains by (verdicts ASC, depth DESC).
-
-    Returns list of (domain, verdicts, depth).
-    cold + deep first — they provide the most new information.
-    """
-    ranked: List[Tuple[str, int, int]] = []
-    for d in domains:
-        v = coverage.get(d, 0)
-        depth = axis_depth(d)
-        ranked.append((d, v, depth))
-
-    # Sort: fewest verdicts first; break ties by most dimensions (deep → rich)
+    """Sort by (verdicts ASC, axis_depth DESC) — cold + deep domains first."""
+    ranked = [(d, coverage.get(d, 0), axis_depth(d)) for d in domains]
     ranked.sort(key=lambda x: (x[1], -x[2]))
-    if top_n:
-        ranked = ranked[:top_n]
-    return ranked
+    return ranked[:top_n] if top_n else ranked
 
 
-# ── Novelty screening ─────────────────────────────────────────────────────────
+# ── Graph walk (via API) ───────────────────────────────────────────────────────
 
-def novelty_score(
+def walk_from_domain(
     domain: str,
     session: requests.Session,
-) -> Optional[float]:
-    """Domain-level novelty check via POST /cases/closest.
-
-    The endpoint auto-derives scaffold dimensions from the domain name,
-    giving a meaningful axis-based distance to the closest indexed case.
-
-    Returns distance (0=duplicate-saturated, 1=totally novel),
-    or None if the endpoint is unavailable (don't block seeding).
-    """
+    top_k: int = 5,
+) -> List[Dict[str, Any]]:
+    """Walk the case graph from a domain's hub, return closest cases found."""
     try:
         r = session.post(
             f"{API_BASE}/cases/closest",
-            json={"domain": domain, "top_k": 1},
+            json={"domain": domain, "top_k": top_k},
             timeout=10,
         )
         if r.status_code == 200:
             data = r.json()
-            cases = data.get("cases", data.get("results", []))
-            if cases:
-                return float(cases[0].get("distance", 1.0))
-            return 1.0   # no cases yet → completely novel
-    except Exception:
-        pass
-    return None  # endpoint unavailable — don't block
+            return data.get("cases", data.get("results", []))
+    except Exception as exc:
+        print(f"  [WARN] graph walk failed: {exc}", flush=True)
+    return []
 
 
-# ── Neighbor context ──────────────────────────────────────────────────────────
+# ── Hub context ────────────────────────────────────────────────────────────────
 
-def warm_neighbor_context(
+def hub_context_for_domain(
     domain: str,
     coverage: Dict[str, int],
     session: requests.Session,
-    k: int = NEIGHBOR_K,
-) -> str:
-    """Pull verifier snippets from warm axis-neighbors as generation context."""
-    neighbors = axis_neighbors(domain, top_k=10)
-    warm = [(n, sim) for n, sim in neighbors if coverage.get(n, 0) >= COOL_FLOOR]
-    if not warm:
-        return ""
+) -> Tuple[Optional[str], str]:
+    """Return (existing_hub_text, neighbor_context_string).
 
+    existing_hub_text: text of the domain's current hub (if any), so
+    spokes know what the hub already says and branch from it.
+
+    neighbor_context: verifier snippets from warm axis-neighbors.
+    """
+    # Try to get the domain's existing hub
+    existing_hub: Optional[str] = None
+    cases = walk_from_domain(domain, session, top_k=3)
+    if cases:
+        # The first result (closest) is the most central — treat as hub
+        vs = cases[0].get("verifier_summary") or []
+        if vs:
+            existing_hub = vs[0].get("note", "")[:200] if vs else None
+
+    # Pull neighbor context from warm adjacent domains
     snippets: List[str] = []
-    for n, sim in warm[:k]:
-        try:
-            r = session.post(
-                f"{API_BASE}/cases/closest",
-                json={"domain": n, "top_k": 2},
-                timeout=8,
-            )
-            if r.status_code == 200:
-                data = r.json()
-                for case in (data.get("cases") or data.get("results") or [])[:2]:
-                    vs = case.get("verifier_summary") or []
-                    for entry in vs[:1]:
-                        note = entry.get("note", "")
-                        if note:
-                            snippets.append(f"[{n}] {note[:120]}")
-        except Exception:
-            pass
+    neighbors = axis_neighbors(domain, top_k=8)
+    warm = [(n, sim) for n, sim in neighbors if coverage.get(n, 0) >= COOL_FLOOR]
 
-    if not snippets:
-        return ""
+    for n, sim in warm[:NEIGHBOR_K]:
+        nbr_cases = walk_from_domain(n, session, top_k=2)
+        for case in nbr_cases[:1]:
+            vs = case.get("verifier_summary") or []
+            note = vs[0].get("note", "") if vs else ""
+            if note:
+                snippets.append(f"[{n}] {note[:120]}")
 
-    return (
-        "\n\nThe engine already knows this from adjacent domains "
-        "(do NOT repeat — fill the GAP, not the adjacent ground):\n"
-        + "\n".join(f"  • {s}" for s in snippets[:6])
-    )
+    neighbor_ctx = ""
+    if snippets:
+        neighbor_ctx = (
+            "\n\nThe engine already knows this from adjacent domains "
+            "(your seeds must fill the GAP, not repeat this):\n"
+            + "\n".join(f"  • {s}" for s in snippets)
+        )
+
+    return existing_hub, neighbor_ctx
 
 
-# ── Seed generation ───────────────────────────────────────────────────────────
+# ── Generation ─────────────────────────────────────────────────────────────────
 
 DOMAIN_HINTS = {
     "acoustics":            "sound waves, acoustics, decibels, Fourier, room acoustics, hearing",
@@ -381,46 +331,14 @@ DOMAIN_HINTS = {
 }
 
 
-def generate_seeds(
-    domain: str,
-    count: int,
-    neighbor_context: str = "",
-    existing: Optional[List[str]] = None,
-    batch_size: int = 30,
-) -> List[str]:
-    """Generate seeds via Claude Haiku, informed by neighbor context."""
+def _haiku(prompt: str, max_tokens: int = 4096) -> List[str]:
+    """Send one Haiku call; return parsed JSON array of strings."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-    hints  = DOMAIN_HINTS.get(domain, domain)
-    seeds  = list(existing or [])
-
-    while len(seeds) < count:
-        n = min(batch_size, count - len(seeds))
-        if n <= 0:
-            break
-
-        excl = ""
-        if seeds:
-            prior = "; ".join(s[:60] for s in seeds[:20])
-            excl  = f"\n\nALREADY GENERATED (avoid repeating):\n{prior}"
-
-        prompt = (
-            f"Generate exactly {n} distinct, factual knowledge seeds for domain: {domain}\n"
-            f"Topic hints: {hints}"
-            f"{neighbor_context}"
-            f"{excl}\n\n"
-            "Rules:\n"
-            "- Each seed: 1-3 sentences, dense factual content\n"
-            "- Cover DIFFERENT sub-topics — no repeats\n"
-            "- Include formulas, numbers, names, laws, dates where applicable\n"
-            "- Do NOT start multiple seeds with the same opening phrase\n"
-            f"- Output ONLY a JSON array of {n} strings, nothing else\n\n"
-            '["Seed one.", "Seed two.", ...]'
-        )
-
+    for attempt in range(3):
         try:
             resp = client.messages.create(
                 model="claude-haiku-4-5-20251001",
-                max_tokens=8192,
+                max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
             )
             raw   = resp.content[0].text.strip()
@@ -428,33 +346,112 @@ def generate_seeds(
             end   = raw.rfind("]") + 1
             if start >= 0 and end > start:
                 batch = json.loads(raw[start:end])
-                seeds.extend(str(s).strip() for s in batch if s and len(str(s)) > 20)
-            else:
-                print("  [WARN] could not parse JSON batch", flush=True)
+                return [str(s).strip() for s in batch if s and len(str(s)) > 20]
+            print("  [WARN] JSON not found in response", flush=True)
         except json.JSONDecodeError as e:
             print(f"  [WARN] JSON parse error: {e}", flush=True)
             time.sleep(1)
         except Exception as e:
-            print(f"  [WARN] API error: {e}", flush=True)
-            time.sleep(3)
+            print(f"  [WARN] Haiku error: {e}", flush=True)
+            time.sleep(3 * (attempt + 1))
+    return []
 
+
+def generate_hub(
+    domain: str,
+    neighbor_ctx: str,
+) -> Optional[str]:
+    """Generate the one broad hub claim for a domain.
+
+    The hub is the domain's centre-of-gravity: the claim that everything
+    else connects back to. It should be broad enough to link to adjacent
+    domains but specific enough to be verifiable.
+    """
+    hints = DOMAIN_HINTS.get(domain, domain)
+    prompt = (
+        f"You are building the hub node for domain: {domain}\n"
+        f"Topic hints: {hints}\n"
+        f"{neighbor_ctx}\n\n"
+        "Generate exactly 1 HUB seed: the single most central, broadly applicable, "
+        "verifiable factual claim for this domain. It should:\n"
+        "  • Connect to adjacent domains (span multiple sub-topics)\n"
+        "  • Be specific enough to verify (include a formula, law, or measurement)\n"
+        "  • Be broad enough that many specific claims branch from it\n"
+        "Output ONLY a JSON array with 1 string. No markdown.\n\n"
+        '["Hub claim here."]'
+    )
+    results = _haiku(prompt, max_tokens=512)
+    return results[0] if results else None
+
+
+def generate_spokes(
+    domain: str,
+    hub_text: str,
+    count: int,
+    neighbor_ctx: str,
+    existing: Optional[List[str]] = None,
+) -> List[str]:
+    """Generate spoke seeds that branch from the hub.
+
+    Each spoke is a specific sub-topic that connects back to the hub.
+    The spokes collectively cover the territory around the hub.
+    """
+    hints = DOMAIN_HINTS.get(domain, domain)
+    excl  = ""
+    if existing:
+        prior = "; ".join(s[:60] for s in existing[:20])
+        excl  = f"\n\nALREADY GENERATED (do NOT repeat):\n{prior}"
+
+    prompt = (
+        f"You are building SPOKE seeds branching from this HUB for domain: {domain}\n"
+        f"Topic hints: {hints}\n\n"
+        f"HUB (every spoke must connect back to this):\n{hub_text}\n"
+        f"{neighbor_ctx}"
+        f"{excl}\n\n"
+        f"Generate exactly {count} SPOKE seeds. Each spoke:\n"
+        "  • Covers ONE specific sub-topic that branches from the hub\n"
+        "  • Is 1-3 sentences, dense with facts (formulas, measurements, names)\n"
+        "  • Is clearly distinct from all other spokes\n"
+        "  • Should make a reader say 'that connects back to the hub'\n"
+        f"Output ONLY a JSON array of {count} strings. No markdown.\n\n"
+        '["Spoke one.", "Spoke two.", ...]'
+    )
+    seeds: List[str] = []
+    while len(seeds) < count:
+        n = min(SPOKE_BATCH, count - len(seeds))
+        batch = _haiku(prompt.replace(f"exactly {count}", f"exactly {n}"), max_tokens=4096)
+        seeds.extend(batch)
+        if not batch:
+            break
     return seeds[:count]
 
 
-# ── Posting ───────────────────────────────────────────────────────────────────
+# ── Post ───────────────────────────────────────────────────────────────────────
 
-def post_seed(text: str, domain: str, session: requests.Session, dry_run: bool) -> bool:
+def post_seed(
+    text: str,
+    domain: str,
+    is_hub: bool,
+    session: requests.Session,
+    dry_run: bool,
+) -> bool:
     title   = text[:72].rstrip() + ("…" if len(text) > 72 else "")
+    tags    = [domain, "seed", "hub" if is_hub else "spoke", "smart_seed"]
     payload = {
         "title": title,
         "text":  text,
-        "tags":  [domain, "seed", "smart_seed"],
-        "metadata": {"domain": domain, "source": "smart_seed"},
+        "tags":  tags,
+        "metadata": {
+            "domain": domain,
+            "source": "smart_seed",
+            "node_type": "hub" if is_hub else "spoke",
+        },
         "look_up_precedent": False,
         "calibrate": False,
     }
     if dry_run:
-        print(f"  [DRY] {title[:70]}", flush=True)
+        node = "HUB  " if is_hub else "spoke"
+        print(f"  [DRY/{node}] {title[:65]}", flush=True)
         return True
     try:
         r = session.post(f"{API_BASE}/capture", json=payload, timeout=30)
@@ -464,7 +461,7 @@ def post_seed(text: str, domain: str, session: requests.Session, dry_run: bool) 
         return False
 
 
-# ── State ─────────────────────────────────────────────────────────────────────
+# ── State ──────────────────────────────────────────────────────────────────────
 
 def load_state() -> dict:
     if STATE_FILE.exists():
@@ -483,7 +480,7 @@ def fingerprint(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
-# ── Domain runner ─────────────────────────────────────────────────────────────
+# ── Domain runner ──────────────────────────────────────────────────────────────
 
 def run_domain(
     domain: str,
@@ -493,7 +490,6 @@ def run_domain(
     state: dict,
     dry_run: bool,
     delay: float,
-    skip_novelty: bool,
 ) -> None:
     already = state.get(domain, {}).get("posted", 0)
     if already >= count:
@@ -501,158 +497,199 @@ def run_domain(
         return
 
     remaining = count - already
-    current_v = coverage.get(domain, 0)
     depth     = axis_depth(domain)
-    neighbors = axis_neighbors(domain, top_k=5)
+    neighbors = axis_neighbors(domain, top_k=4)
+    nbr_str   = ", ".join(f"{n}({s:.2f})" for n, s in neighbors[:3])
 
-    print(f"\n▶ {domain}  [verdicts={current_v} depth={depth}]", flush=True)
-    if neighbors:
-        nbr_str = ", ".join(f"{n}({s:.2f})" for n, s in neighbors[:4])
-        print(f"  neighbors: {nbr_str}", flush=True)
-
-    # Build neighbor context for generation
-    ctx = warm_neighbor_context(domain, coverage, session)
-
-    # Generate candidates — ask for 2× target since novelty screening will drop some
-    gen_count = min(remaining * 2, remaining + 20)
-    print(f"  generating {gen_count} candidates...", flush=True)
-    candidates = generate_seeds(domain, gen_count, neighbor_context=ctx)
-    if not candidates:
-        print("  [WARN] no candidates generated", flush=True)
-        return
+    print(f"\n▶ {domain}  [verdicts={coverage.get(domain, 0)} depth={depth}]", flush=True)
+    if nbr_str:
+        print(f"  axis neighbors: {nbr_str}", flush=True)
 
     fp_set  = set(state.get(domain, {}).get("fingerprints", []))
     posted  = already
-    skipped = 0
-    novel   = 0
 
-    # Domain-level novelty check: one call tells us how saturated this domain is.
-    # Per-seed calls would all return the same score (domain dims don't change),
-    # so we do it once up front and use it as a domain gate, not a per-seed gate.
-    domain_dist: Optional[float] = None
-    if not skip_novelty and current_v > 0:
-        domain_dist = novelty_score(domain, session)
-        if domain_dist is not None:
-            label_prefix = f"dist={domain_dist:.3f}"
-            if domain_dist < NOVELTY_FLOOR:
-                print(
-                    f"  [SATURATED] domain_dist={domain_dist:.3f} — "
-                    f"this domain is already well-covered. Posting anyway to reach target.",
-                    flush=True,
-                )
-            elif domain_dist >= NOVELTY_CEIL:
-                novel += 1
-                print(f"  [NOVEL★] domain_dist={domain_dist:.3f}", flush=True)
-            else:
-                print(f"  [PARTIAL] domain_dist={domain_dist:.3f}", flush=True)
+    # Pull hub context from warm neighbors
+    existing_hub, neighbor_ctx = hub_context_for_domain(domain, coverage, session)
 
-    for i, text in enumerate(candidates):
+    # ── Phase 1: Hub ──────────────────────────────────────────────────────
+    hub_text: Optional[str] = existing_hub  # reuse existing hub if present
+
+    if not hub_text:
+        print("  [PHASE 1] generating hub…", flush=True)
+        hub_text = generate_hub(domain, neighbor_ctx)
+        if hub_text:
+            fp = fingerprint(hub_text)
+            if fp not in fp_set:
+                ok = post_seed(hub_text, domain, is_hub=True, session=session, dry_run=dry_run)
+                if ok:
+                    posted += 1
+                    fp_set.add(fp)
+                    print(f"  [HUB ✓] {hub_text[:80]}…", flush=True)
+                    if delay > 0:
+                        time.sleep(delay)
+    else:
+        print(f"  [HUB existing] {hub_text[:80]}", flush=True)
+
+    if not hub_text:
+        print("  [WARN] no hub generated — skipping spokes", flush=True)
+        state[domain] = {"posted": posted, "fingerprints": list(fp_set)}
+        save_state(state)
+        return
+
+    # ── Phase 2: Spokes ───────────────────────────────────────────────────
+    spoke_target = remaining - (posted - already)  # how many spokes we still need
+    if spoke_target <= 0:
+        state[domain] = {"posted": posted, "fingerprints": list(fp_set)}
+        save_state(state)
+        return
+
+    print(f"  [PHASE 2] generating {spoke_target} spokes from hub…", flush=True)
+    spokes = generate_spokes(
+        domain=domain,
+        hub_text=hub_text,
+        count=spoke_target,
+        neighbor_ctx=neighbor_ctx,
+        existing=state.get(domain, {}).get("spoke_texts", []),
+    )
+
+    spoke_texts_done = list(state.get(domain, {}).get("spoke_texts", []))
+
+    for i, text in enumerate(spokes):
         if posted - already >= remaining:
             break
-
         fp = fingerprint(text)
         if fp in fp_set:
             continue
-
-        label = f"  [{domain_dist:.3f}]" if domain_dist is not None else ""
-        ok = post_seed(text, domain, session, dry_run)
+        ok = post_seed(text, domain, is_hub=False, session=session, dry_run=dry_run)
         if ok:
             posted += 1
             fp_set.add(fp)
-            print(f"  [{posted}/{count}]{label} {text[:60]}…", flush=True)
-
-        if delay > 0 and i < len(candidates) - 1:
+            spoke_texts_done.append(text[:120])
+            print(f"  [spoke {posted}/{count}] {text[:65]}…", flush=True)
+        if delay > 0 and i < len(spokes) - 1:
             time.sleep(delay)
 
-    state[domain] = {"posted": posted, "fingerprints": list(fp_set)}
+    state[domain] = {
+        "posted":      posted,
+        "fingerprints": list(fp_set),
+        "spoke_texts": spoke_texts_done[-50:],  # keep last 50 for exclusion hints
+    }
     save_state(state)
-
-    novelty_label = f"domain_dist={domain_dist:.3f}" if domain_dist is not None else "dist=n/a"
-    print(
-        f"  ✓ {domain}: posted {posted - already}  {novelty_label}",
-        flush=True,
-    )
+    print(f"  ✓ {domain}: {posted - already} new seeds (1 hub + spokes)", flush=True)
 
 
-# ── Analysis report ───────────────────────────────────────────────────────────
+# ── Walk report ────────────────────────────────────────────────────────────────
+
+def print_walk_report(domain: str, session: requests.Session) -> None:
+    print(f"\n{'─'*60}")
+    print(f"  GRAPH WALK from {domain}")
+    print(f"{'─'*60}")
+    cases = walk_from_domain(domain, session, top_k=8)
+    if not cases:
+        print("  (no cases indexed yet)")
+        return
+    for i, c in enumerate(cases):
+        dist     = c.get("distance", "?")
+        verdict  = c.get("verdict", "")
+        dom      = c.get("domain", "")
+        nbrs     = len(c.get("neighbors") or [])
+        vs       = c.get("verifier_summary") or []
+        note     = vs[0].get("note", "")[:80] if vs else ""
+        print(f"  {i+1}. dist={dist:.3f}  {dom}  [{verdict}]  degree={nbrs}")
+        if note:
+            print(f"     {note}")
+    print(f"{'─'*60}\n")
+
+
+# ── Coverage report ────────────────────────────────────────────────────────────
 
 def print_coverage_report(
     domains: List[str],
     coverage: Dict[str, int],
+    session: requests.Session,
 ) -> None:
     ranked = coverage_priority(domains, coverage)
     cold   = [(d, v, dep) for d, v, dep in ranked if v == 0]
     cool   = [(d, v, dep) for d, v, dep in ranked if 0 < v < COOL_FLOOR]
     warm   = [(d, v, dep) for d, v, dep in ranked if v >= COOL_FLOOR]
-    total  = sum(v for _, v, _ in ranked)
+    total  = sum(coverage.get(d, 0) for d in domains)
 
-    print(f"\n{'─'*60}")
-    print(f"  COVERAGE MAP   total verdicts: {total:,}")
-    print(f"  cold (0):  {len(cold):>3}   cool (<{COOL_FLOOR}): {len(cool):>3}   warm (≥{COOL_FLOOR}): {len(warm):>3}")
-    print(f"{'─'*60}")
+    # Fetch hub stats from API
+    try:
+        r = session.get(f"{API_BASE}/cases/stats", timeout=8)
+        avg_degree = r.json().get("avg_degree", "?") if r.status_code == 200 else "?"
+    except Exception:
+        avg_degree = "?"
+
+    print(f"\n{'═'*60}")
+    print(f"  COVERAGE MAP   total={total:,}  avg_degree={avg_degree}")
+    print(f"  cold={len(cold)}  cool={len(cool)}  warm={len(warm)}")
+    print(f"{'═'*60}")
 
     if cold:
-        print(f"\n  COLD (priority 1):")
+        print(f"\n  COLD — needs hub-and-spokes:")
         for d, v, dep in cold[:20]:
             nbrs = [n for n, _ in axis_neighbors(d, top_k=3)]
-            print(f"    {d:<40} depth={dep}  nbrs={','.join(nbrs[:2])}")
+            print(f"    {d:<40} depth={dep}  adj={','.join(nbrs[:2])}")
 
     if cool:
-        print(f"\n  COOL (priority 2):")
-        for d, v, dep in cool[:20]:
-            print(f"    {d:<40} verdicts={v:>4}  depth={dep}")
+        print(f"\n  COOL — hub exists, needs more spokes:")
+        for d, v, dep in cool[:15]:
+            print(f"    {d:<40} v={v:>4}  depth={dep}")
 
-    print(f"\n  WARM (top 10):")
+    print(f"\n  WARM (top 10 by verdicts):")
     for d, v, dep in sorted(warm, key=lambda x: -x[1])[:10]:
-        print(f"    {d:<40} verdicts={v:>4}  depth={dep}")
+        print(f"    {d:<40} v={v:>4}  depth={dep}")
 
-    print(f"\n  TOP AXIS ADJACENCY:")
-    print(f"  (domains with most structural neighbors at ≥0.4 Jaccard)")
-    depth_sorted = sorted(
+    print(f"\n  HIGHEST CONNECTIVITY (most axis neighbors at ≥0.4 Jaccard):")
+    conn = sorted(
         [(d, len(axis_neighbors(d, top_k=20, min_sim=0.4))) for d in domains],
         key=lambda x: -x[1],
     )
-    for d, n in depth_sorted[:10]:
-        v = coverage.get(d, 0)
-        print(f"    {d:<40} neighbors={n:>2}  verdicts={v:>4}")
-    print(f"{'─'*60}\n")
+    for d, n in conn[:8]:
+        print(f"    {d:<40} neighbors={n:>2}  verdicts={coverage.get(d, 0):>4}")
+    print(f"{'═'*60}\n")
 
 
-# ── All 60 canonical domains ──────────────────────────────────────────────────
+# ── All canonical domains ──────────────────────────────────────────────────────
 
 ALL_DOMAINS = list(DOMAIN_HINTS.keys())
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Main ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Convergence-aware seed generator for the Concordance engine."
+        description="Hub-and-spoke convergence-aware seed generator."
     )
-    ap.add_argument("--analyze",      action="store_true", help="Coverage report only, no posting")
-    ap.add_argument("--fill",         action="store_true", help="Fill top-N coldest domains")
-    ap.add_argument("--domain",       help="Smart-seed a single domain")
-    ap.add_argument("--top",          type=int, default=10, help="Number of domains to fill (default 10)")
-    ap.add_argument("--count",        type=int, default=50, help="Target verdicts per domain (default 50)")
-    ap.add_argument("--delay",        type=float, default=0.2, help="Delay between posts (default 0.2)")
-    ap.add_argument("--skip-novelty", action="store_true", help="Skip novelty screening (faster, less precise)")
-    ap.add_argument("--dry-run",      action="store_true", help="Generate but do not post")
-    ap.add_argument("--reset",        action="store_true", help="Clear state file")
-    ap.add_argument("--url",          help="Override API base URL")
+    ap.add_argument("--analyze",  action="store_true", help="Coverage + hub report, no posting")
+    ap.add_argument("--fill",     action="store_true", help="Fill top-N coldest domains")
+    ap.add_argument("--domain",   help="Seed a single domain")
+    ap.add_argument("--walk",     help="Walk the graph from this domain's hub")
+    ap.add_argument("--top",      type=int,   default=10,  help="Domains to fill (default 10)")
+    ap.add_argument("--count",    type=int,   default=50,  help="Seeds per domain (default 50)")
+    ap.add_argument("--delay",    type=float, default=0.2, help="Delay between posts (default 0.2)")
+    ap.add_argument("--dry-run",  action="store_true",     help="Generate but don't post")
+    ap.add_argument("--reset",    action="store_true",     help="Clear state")
+    ap.add_argument("--url",      help="Override API base URL")
     args = ap.parse_args()
 
     global API_BASE
     if args.url:
         API_BASE = args.url
 
-    if not ANTHROPIC_KEY and not args.dry_run:
+    if not ANTHROPIC_KEY and not args.dry_run and not args.analyze and not args.walk:
         sys.exit("Set ANTHROPIC_API_KEY environment variable")
 
-    session = requests.Session()
+    session  = requests.Session()
     coverage = get_coverage(session)
 
+    if args.walk:
+        print_walk_report(args.walk, session)
+        return
+
     if args.analyze or not (args.fill or args.domain):
-        print_coverage_report(ALL_DOMAINS, coverage)
+        print_coverage_report(ALL_DOMAINS, coverage, session)
         if args.analyze:
             return
 
@@ -667,8 +704,8 @@ def main() -> None:
         return
 
     print(f"\n{'═'*60}")
-    print(f"  SMART SEED  target={args.count}/domain  "
-          f"novelty_floor={NOVELTY_FLOOR}  fill={len(domains_to_run)} domains")
+    print(f"  SMART SEED (hub-and-spoke)  target={args.count}/domain  "
+          f"domains={len(domains_to_run)}")
     print(f"{'═'*60}\n")
 
     for domain, verdicts, depth in domains_to_run:
@@ -680,7 +717,6 @@ def main() -> None:
             state=state,
             dry_run=args.dry_run,
             delay=args.delay,
-            skip_novelty=args.skip_novelty,
         )
 
     print(f"\n{'═'*60}")

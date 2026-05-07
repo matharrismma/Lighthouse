@@ -1218,7 +1218,7 @@ def seal(req: SealRequest):
             _dims = list(_ac.dimensions) if _ac else []
             _anchor_refs = [a.ref for a in anchors]
 
-            _candidates = get_case_store().find_closest(
+            _candidates = get_case_store().graph_walk(
                 domain=_domain,
                 dims=_dims,
                 anchors=_anchor_refs,
@@ -1609,8 +1609,41 @@ def dispatch(
 
 @app.get("/cases/stats", include_in_schema=True)
 def cases_stats():
-    """Case store counts: total indexed verdicts, breakdown by verdict and domain."""
+    """Case store counts: total indexed verdicts, breakdown by verdict and domain.
+    Also returns avg_degree — the average number of outgoing spoke edges per case,
+    which tracks how well-connected the hub-and-spoke graph has become.
+    """
     return get_case_store().stats()
+
+
+@app.get("/cases/hub/{domain}", include_in_schema=True)
+def cases_hub(domain: str):
+    """Return the hub case for a domain — the highest-degree node.
+
+    The hub is the case with the most outgoing spoke edges; it sits at the
+    structural centre of the domain's sub-graph and is the starting point
+    for graph-walk retrieval and spoke generation.
+    """
+    hub = get_case_store().hub_for_domain(domain)
+    if hub is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"No cases indexed for domain '{domain}'")
+    return hub
+
+
+@app.get("/cases/spokes/{hash_}", include_in_schema=True)
+def cases_spokes(hash_: str, depth: int = 1):
+    """Return cases reachable within `depth` hops from a given case hash.
+
+    depth=1 returns direct spokes (immediate neighbors).
+    depth=2 returns spokes-of-spokes.
+    Useful for rendering the local neighborhood of a case on the frontend.
+    """
+    if depth < 1 or depth > 3:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="depth must be 1-3")
+    spokes = get_case_store().spokes_from(hash_, depth=depth)
+    return {"origin_hash": hash_, "depth": depth, "spokes": spokes, "count": len(spokes)}
 
 
 class ClosestCaseRequest(BaseModel):
@@ -1650,7 +1683,7 @@ def cases_closest(req: ClosestCaseRequest):
         except Exception:
             pass
 
-    candidates = cs.find_closest(
+    candidates = cs.graph_walk(
         domain=req.domain,
         dims=resolved_dims,
         anchors=req.anchors,
