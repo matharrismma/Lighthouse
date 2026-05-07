@@ -2264,6 +2264,7 @@ class AskRequest(BaseModel):
     capture_if_no_survivors: bool = True
     max_survivors: int = 5
     max_eliminated: int = 10
+    max_journal_entries: int = 500  # cap journal scan to avoid O(n²) disk I/O
 
 
 @app.post("/ask", include_in_schema=True)
@@ -2287,6 +2288,7 @@ def ask_endpoint(req: AskRequest):
             capture_if_no_survivors=req.capture_if_no_survivors,
             max_survivors=req.max_survivors,
             max_eliminated=req.max_eliminated,
+            max_journal_entries=req.max_journal_entries,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

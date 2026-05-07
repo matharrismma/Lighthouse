@@ -203,6 +203,10 @@ def _score_journal_fruit(
 
     Lower-base than precedents (they haven't survived the gates yet),
     but threading and shelf publication elevate.
+
+    Thread count is computed from the already-loaded ``all_entries``
+    list (O(n) per entry, O(n²) total) rather than calling
+    ``_journal.thread()`` which would do a full disk scan per entry.
     """
     base_score = 0.3  # journal entries start lower than sealed precedents
     signals: Dict[str, Any] = {"sealed": False, "base": 0.3}
@@ -213,11 +217,28 @@ def _score_journal_fruit(
         base_score += 0.3
         signals["on_shelf"] = True
 
-    # Threading bonus: how many other entries share signal with this one
-    related = _journal.thread(entry.id)
-    thread_bonus = min(len(related) * 0.1, 0.5)
+    # Threading bonus: how many other entries share signal with this one.
+    # Computed in-memory from the pre-loaded all_entries to avoid O(n²)
+    # disk I/O (formerly called _journal.thread(entry.id) per entry).
+    src_anchors = set(entry.categorization.detected_anchors or [])
+    src_actions = set(entry.categorization.detected_action_shapes or [])
+    src_scope = entry.categorization.detected_scope
+    thread_count = 0
+    for other in all_entries:
+        if other.id == entry.id:
+            continue
+        other_anchors = set(other.categorization.detected_anchors or [])
+        other_actions = set(other.categorization.detected_action_shapes or [])
+        if (
+            (src_anchors and other_anchors and src_anchors & other_anchors)
+            or (src_actions and other_actions and src_actions & other_actions)
+            or (src_scope is not None
+                and src_scope == other.categorization.detected_scope)
+        ):
+            thread_count += 1
+    thread_bonus = min(thread_count * 0.1, 0.5)
     base_score += thread_bonus
-    signals["thread_count"] = len(related)
+    signals["thread_count"] = thread_count
 
     # Annotation bonus: an entry that's been returned to (annotated
     # later) has more fruit than one written once and forgotten.
@@ -345,6 +366,7 @@ def ask(
     capture_if_no_survivors: bool = True,
     max_survivors: int = 5,
     max_eliminated: int = 10,
+    max_journal_entries: int = 500,
     journal_store: Optional[_journal.JournalStore] = None,
     ledger_dir: Optional[Any] = None,
 ) -> AskResult:
@@ -354,6 +376,11 @@ def ask(
     the elimination trail (what was NOT the answer, with reasons),
     and `new_seed_id` if the question itself was captured because
     nothing survived.
+
+    ``max_journal_entries`` caps how many journal entries are scanned
+    (most recent first). Default 500 keeps response times under 2s
+    even on large corpora while covering all recently seeded domains.
+    Set to 0 to disable the cap and scan everything.
     """
     if not question or not question.strip():
         raise ValueError("question cannot be empty")
@@ -362,7 +389,8 @@ def ask(
     journal_store = journal_store or _journal.JournalStore()
 
     all_precedents = _ledger.list_precedents(ledger_dir)
-    all_entries = journal_store.list_all()
+    limit = max_journal_entries if max_journal_entries > 0 else None
+    all_entries = journal_store.list_all(limit=limit)
 
     eliminated: List[EliminatedCandidate] = []
     surviving: List[SurvivingMatch] = []

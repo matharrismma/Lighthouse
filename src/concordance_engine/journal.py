@@ -508,6 +508,7 @@ class JournalStore:
         *,
         since: Optional[float] = None,
         tag: Optional[str] = None,
+        limit: Optional[int] = None,
     ) -> List[JournalEntry]:
         if not self.base_dir.exists():
             return []
@@ -525,6 +526,8 @@ class JournalStore:
             out.append(entry)
         # Newest first — most recent writing is most relevant first read.
         out.sort(key=lambda e: e.written_at, reverse=True)
+        if limit is not None:
+            out = out[:limit]
         return out
 
     def delete(self, entry_id: str) -> bool:
