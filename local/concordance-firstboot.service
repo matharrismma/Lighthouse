@@ -1,0 +1,18 @@
+[Unit]
+Description=Concordance Node — First Boot Setup
+# Run after network stack is up but don't require it (we handle WiFi ourselves)
+After=local-fs.target sysinit.target
+Before=concordance.service
+# Only run if firstboot marker does NOT exist
+ConditionPathExists=!/var/lib/concordance/.firstboot_done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/concordance-firstboot.sh
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

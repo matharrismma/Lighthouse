@@ -1,0 +1,131 @@
+name: Build Pi Image
+
+# Triggers:
+#   - Push a tag:  git tag v1.0.0 && git push --tags
+#   - Manual run: GitHub → Actions → Build Pi Image → Run workflow
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string (e.g. 1.0.0)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    name: Build concordance-node arm64 image
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    permissions:
+      contents: write   # needed to create GitHub Release
+
+    steps:
+      # ── CHECKOUT ──────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── VERSION ───────────────────────────────────────────────────────
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VER="${GITHUB_REF_NAME#v}"   # strip leading v from tag
+          elif [ -n "${{ github.event.inputs.version }}" ]; then
+            VER="${{ github.event.inputs.version }}"
+          else
+            VER="$(date +%Y.%m.%d)-dev"
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VER"    >> "$GITHUB_OUTPUT"
+          echo "Building version: $VER"
+
+      # ── DEPENDENCIES ──────────────────────────────────────────────────
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            qemu-user-static binfmt-support \
+            kpartx parted e2fsprogs \
+            wget xz-utils rsync
+
+      # ── CACHE Pi OS ───────────────────────────────────────────────────
+      - name: Cache Pi OS download
+        uses: actions/cache@v4
+        with:
+          path: /tmp/concordance-build/raspios-lite-arm64.img.xz
+          key: raspios-lite-arm64-${{ hashFiles('local/build-image.sh') }}
+
+      # ── BUILD ─────────────────────────────────────────────────────────
+      - name: Build image
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
+          WORK_DIR: /tmp/concordance-build
+          KEEP_WORK: '0'
+        run: |
+          chmod +x local/build-image.sh
+          sudo -E bash local/build-image.sh
+          ls -lh /tmp/concordance-build/concordance-node-*.img.xz
+
+      # ── ARTIFACT ──────────────────────────────────────────────────────
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: concordance-node-${{ steps.ver.outputs.version }}-arm64
+          path: |
+            /tmp/concordance-build/concordance-node-*.img.xz
+            /tmp/concordance-build/concordance-node-*.img.xz.sha256
+          retention-days: 30
+
+      # ── RELEASE (tag pushes only) ──────────────────────────────────────
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Concordance Node ${{ steps.ver.outputs.version }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          body: |
+            ## Concordance Node ${{ steps.ver.outputs.version }}
+
+            **Flash-and-go Raspberry Pi image.**
+
+            ### What's included
+            - Full Concordance engine (48 domains, 4-gate protocol)
+            - Auto-starts as a systemd service on boot
+            - mDNS: accessible at `http://concordance.local:8000`
+            - Ed25519 node signing key generated on first boot
+            - No SSH, no terminal, no setup wizard required
+
+            ### Hardware
+            | Device | Notes |
+            |--------|-------|
+            | Raspberry Pi Zero 2W (~$15) | Recommended — 1W idle |
+            | Raspberry Pi 4 (2GB+) | Higher throughput |
+            | Any ARM64 Linux | Use `install.sh` instead |
+
+            ### Flash instructions
+            1. Download `concordance-node-${{ steps.ver.outputs.version }}-arm64.img.xz`
+            2. Flash with [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+            3. Open the boot drive → copy `concordance.txt.example` → rename to `concordance.txt`
+            4. Set your WiFi credentials in `concordance.txt`
+            5. Eject, insert in Pi, power on
+            6. Wait ~3 minutes → open `http://concordance.local:8000`
+
+            ### Verify download
+            ```
+            sha256sum -c concordance-node-${{ steps.ver.outputs.version }}-arm64.img.xz.sha256
+            ```
+
+            ### One-line install (existing Linux/Pi)
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/${{ github.repository }}/main/local/install.sh | bash
+            ```
+          files: |
+            /tmp/concordance-build/concordance-node-*.img.xz
+            /tmp/concordance-build/concordance-node-*.img.xz.sha256
+          draft: false
+          prerelease: ${{ contains(steps.ver.outputs.version, '-dev') }}

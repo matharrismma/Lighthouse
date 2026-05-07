@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────
+#  Concordance Node — First Boot Configuration
+# ─────────────────────────────────────────────────────
+#
+# 1. Copy this file to the SD card's boot drive
+#    (it shows up as a USB drive called "bootfs" or "boot")
+# 2. Rename it to:  concordance.txt
+# 3. Fill in your WiFi credentials below
+# 4. Eject and insert into the Pi
+# 5. Power on — wait ~3 minutes
+# 6. Open http://concordance.local:8000 from any device on the same network
+#
+# That's it. No SSH required.
+# ─────────────────────────────────────────────────────
+
+# WiFi (required)
+WIFI_SSID=YourNetworkName
+WIFI_PASS=YourPassword
+
+# Node identity (optional — defaults shown)
+NODE_NAME=concordance
+PORT=8000
+
+# Witness server — change to http://localhost:8000 for fully offline operation
+WITNESS_URL=https://concordance.run
+
+# Set to 1 to disable all outbound calls (air-gap mode)
+OFFLINE=0
+
+# Advanced: override the repo to pull from a fork
+# REPO_URL=https://github.com/matharrismma/Lighthouse.git
