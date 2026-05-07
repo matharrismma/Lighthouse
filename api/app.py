@@ -50,6 +50,7 @@ try:
     from concordance_engine.validate import compute_packet_hash
     from concordance_engine.witness_record import (
         Anchor, ClosestCase, WitnessRecord,
+        bind_subject,
     )
     from concordance_engine.walkthrough import (
         render_walkthrough, render_walkthrough_html,
@@ -397,6 +398,14 @@ class SealRequest(BaseModel):
     {ref, layer, text?}; closest_case is a dict of shape {precedent_id,
     shared_dimensions?, shared_anchors?, distance?, reasoning_overlay?}.
     Both default to absent/empty rather than fabricated.
+
+    `witness_tier` controls receipt strength:
+      "standard"  — engine gate verdicts only (default)
+      "quantum"   — reserved; routes to quantum-encrypted witness path
+                    when the Rossville quantum node is available
+    `bind_subject` — if True (default), automatically binds the instance
+                    user's Ed25519 public key so the receipt is soulbound
+                    to this person's private key.
     """
     packet: Dict[str, Any]
     now_epoch: Optional[int] = None
@@ -404,6 +413,8 @@ class SealRequest(BaseModel):
     anchors: Optional[List[Dict[str, Any]]] = None
     closest_case: Optional[Dict[str, Any]] = None
     packet_id: Optional[str] = None
+    witness_tier: str = "standard"   # "standard" | "quantum"
+    bind_subject: bool = True        # auto-bind user Ed25519 pubkey
 
 
 class GateResultOut(BaseModel):
@@ -1189,6 +1200,26 @@ def seal(req: SealRequest):
     except Exception as exc:
         raise HTTPException(status_code=422, detail=f"engine error: {exc}")
 
+    # ── Path A: soulbound binding ──────────────────────────────────────
+    # Bind the user's personal Ed25519 public key so the WitnessRecord is
+    # tied to the holder of the matching private key — not just a machine.
+    # This makes every receipt soulbound and portable (Rev 13:16-17 stance:
+    # the record can be verified offline without any central authority).
+    subject_pubkey: Optional[str] = None
+    if req.bind_subject:
+        try:
+            from concordance_engine.user_identity import get_user_pubkey
+            subject_pubkey = get_user_pubkey()
+            record = bind_subject(record, subject_pubkey)
+        except Exception:
+            pass  # graceful degradation — seal still works without key
+
+    # ── Quantum witness tier stub ──────────────────────────────────────
+    # "quantum" tier is accepted and stored; the active routing to the
+    # Rossville quantum-encrypted node will be wired in a future release.
+    # For now it's a flag in the response so callers can differentiate.
+    witness_tier = req.witness_tier if req.witness_tier in ("standard", "quantum") else "standard"
+
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
     # Write to the audit ledger using the gate_results from the record
@@ -1209,6 +1240,9 @@ def seal(req: SealRequest):
         out["ledger_seq"] = ledger_seq
         out["ledger_entry_hash"] = ledger_hash
     out["elapsed_ms"] = round(elapsed_ms, 2)
+    out["witness_tier"] = witness_tier
+    if subject_pubkey:
+        out["soulbound"] = True
     return out
 
 
