@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Engine Grid · Concordance</title>
+  <meta name="description" content="Visual map of the Concordance engine — 60 knowledge domains connected by 7 structural axes.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #161318;
+      --surface:       #1d191f;
+      --surface-2:     #232028;
+      --border:        #2d2731;
+      --border-bright: #3f3845;
+      --text:          #efe9e0;
+      --muted:         #8a8593;
+      --accent:        #c9a87c;
+
+      --enc: #5b9bd5;
+      --met: #6ec98a;
+      --rsn: #d4c46a;
+      --phy: #d9945c;
+      --aut: #a87cd6;
+      --tim: #7fa8c0;
+      --csv: #5ec4b4;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 48px;
+      display: flex; align-items: center; gap: 24px;
+      padding: 0 20px;
+      background: rgba(22,19,24,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-weight: 600; font-size: 15px;
+      color: var(--accent); text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
+    .nav a:hover { color: var(--text); }
+    .nav a.active { color: var(--text); }
+    .nav-right { margin-left: auto; display: flex; gap: 20px; align-items: center; }
+    .node-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted);
+    }
+
+    /* ── Page layout ──────────────────────────────────────── */
+    .page {
+      position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+      display: flex;
+    }
+
+    /* ── Graph area ──────────────────────────────────────── */
+    #graph-wrap {
+      flex: 1; min-width: 0; position: relative; overflow: hidden;
+    }
+    #graph {
+      width: 100%; height: 100%;
+      cursor: grab;
+    }
+    #graph:active { cursor: grabbing; }
+
+    /* Tooltip */
+    #tooltip {
+      position: fixed; z-index: 200; pointer-events: none;
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px; line-height: 1.6;
+      max-width: 220px;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    #tooltip .tt-name {
+      font-weight: 600; font-size: 13px; color: var(--text);
+      margin-bottom: 4px;
+    }
+    #tooltip .tt-depth { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+    #tooltip .tt-dims { display: flex; gap: 4px; flex-wrap: wrap; }
+    .tt-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ── Panel ────────────────────────────────────────────── */
+    #panel {
+      width: 300px; flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    /* Detail section */
+    #detail {
+      flex-shrink: 0;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      min-height: 60px;
+    }
+    .detail-empty {
+      color: var(--muted); font-size: 12px; line-height: 1.5;
+    }
+    .detail-domain {
+      font-size: 16px; font-weight: 600; color: var(--text);
+      text-transform: capitalize;
+      margin-bottom: 2px;
+      word-break: break-word;
+    }
+    .detail-depth {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted); margin-bottom: 8px;
+    }
+    .detail-dims { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+    .dim-pill {
+      padding: 2px 8px; border-radius: 12px;
+      font-size: 11px; font-weight: 500; line-height: 1.6;
+    }
+    [data-dim="enc"] { background: #1e3550; color: var(--enc); border: 1px solid #2a4870; }
+    [data-dim="met"] { background: #1a3325; color: var(--met); border: 1px solid #264e38; }
+    [data-dim="rsn"] { background: #32300f; color: var(--rsn); border: 1px solid #4a4718; }
+    [data-dim="phy"] { background: #3a2515; color: var(--phy); border: 1px solid #5a3a20; }
+    [data-dim="aut"] { background: #2a1e40; color: var(--aut); border: 1px solid #40306a; }
+    [data-dim="tim"] { background: #1a2a35; color: var(--tim); border: 1px solid #284555; }
+    [data-dim="csv"] { background: #0f3230; color: var(--csv); border: 1px solid #1a4e4c; }
+
+    .detail-section-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .adj-list { display: flex; flex-direction: column; gap: 3px; }
+    .adj-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 6px; border-radius: 5px;
+      background: var(--surface-2);
+      font-size: 11px; cursor: pointer;
+    }
+    .adj-row:hover { background: var(--border); }
+    .adj-name {
+      flex: 1; color: var(--text);
+      text-transform: capitalize; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .adj-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+      flex-shrink: 0;
+    }
+    .adj-dots { display: flex; gap: 2px; flex-shrink: 0; }
+    .adj-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+
+    /* Feed section */
+    #feed-wrap {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .feed-header {
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .feed-title {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .feed-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+    }
+    #feed {
+      flex: 1; overflow-y: auto; padding: 8px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    #feed::-webkit-scrollbar { width: 4px; }
+    #feed::-webkit-scrollbar-track { background: transparent; }
+    #feed::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+    .feed-card {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 10px;
+      font-size: 11px; line-height: 1.5;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+    .feed-card-heads {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 5px; flex-wrap: wrap;
+    }
+    .feed-dom {
+      font-weight: 600; color: var(--text);
+      text-transform: capitalize;
+    }
+    .feed-sep { color: var(--muted); font-size: 10px; }
+    .feed-axes { display: flex; gap: 3px; margin-left: auto; }
+    .feed-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .feed-excerpt {
+      color: var(--muted); font-size: 10px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .feed-empty {
+      color: var(--muted); font-size: 11px;
+      text-align: center; padding: 20px 10px;
+      line-height: 1.7;
+    }
+
+    /* ── Legend ───────────────────────────────────────────── */
+    #legend {
+      position: absolute; bottom: 12px; left: 12px; z-index: 10;
+      display: flex; flex-wrap: wrap; gap: 6px 10px;
+      background: rgba(29,25,31,0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px;
+      max-width: 320px;
+    }
+    .leg-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--muted); cursor: default;
+    }
+    .leg-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ── Controls ─────────────────────────────────────────── */
+    #controls {
+      position: absolute; top: 12px; right: 12px; z-index: 10;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .ctrl-btn {
+      width: 32px; height: 32px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--muted);
+      font-size: 18px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .ctrl-btn:hover { color: var(--text); border-color: var(--border-bright); }
+
+    /* ── Loading ──────────────────────────────────────────── */
+    #loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+      font-size: 13px; color: var(--muted);
+      flex-direction: column; gap: 12px;
+    }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border-bright);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SVG ─────────────────────────────────────────────── */
+    .edge { transition: stroke-opacity 0.2s, stroke-width 0.2s; }
+    .node-circle { transition: r 0.2s, stroke-width 0.2s; }
+    .node-label {
+      font-family: 'Inter', sans-serif;
+      pointer-events: none; user-select: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="nav">
+  <a href="/" class="nav-logo">Concordance</a>
+  <a href="/try.html">Verify</a>
+  <a href="/theory.html">Theory</a>
+  <a href="/benchmark.html">Benchmark</a>
+  <a href="/poly.html">Polymathic</a>
+  <a href="/grid.html" class="active">Grid</a>
+  <div class="nav-right">
+    <span class="node-count" id="stats-label">loading…</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ── Graph ── -->
+  <div id="graph-wrap">
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Building engine map…</span>
+    </div>
+
+    <svg id="graph">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-strong" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Legend -->
+    <div id="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--enc)"></div>Encoding</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--aut)"></div>Authority</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--met)"></div>Metabolism</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--csv)"></div>Conservation</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--rsn)"></div>Reasoning</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--tim)"></div>Time</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--phy)"></div>Physical</div>
+    </div>
+
+    <!-- Zoom controls -->
+    <div id="controls">
+      <button class="ctrl-btn" id="zoom-in" title="Zoom in">+</button>
+      <button class="ctrl-btn" id="zoom-out" title="Zoom out">−</button>
+      <button class="ctrl-btn" id="zoom-reset" title="Reset view" style="font-size:13px">⊙</button>
+    </div>
+  </div>
+
+  <!-- ── Panel ── -->
+  <div id="panel">
+    <div class="panel-header">
+      <div class="panel-title">Engine Grid</div>
+    </div>
+
+    <div id="detail">
+      <div class="detail-empty">
+        Click any domain node to see its structural position — which of the 7 scaffold axes it occupies and which domains share those axes.
+      </div>
+    </div>
+
+    <div id="feed-wrap">
+      <div class="feed-header">
+        <span class="feed-title">Live Connections</span>
+        <span class="feed-badge" id="feed-count">—</span>
+      </div>
+      <div id="feed">
+        <div class="feed-empty">
+          Watching for cross-domain connections…<br>
+          Domains converge when they share structural axes — the same patterns God wove into different parts of creation.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════════════ */
+
+const API = (() => {
+  const h = location.hostname;
+  if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:8000';
+  return 'https://api.narrowhighway.com';
+})();
+
+const DIM_COLOR = {
+  enc: '#5b9bd5', met: '#6ec98a', rsn: '#d4c46a',
+  phy: '#d9945c', aut: '#a87cd6', tim: '#7fa8c0', csv: '#5ec4b4'
+};
+const DIM_LABEL = {
+  enc: 'Encoding', met: 'Metabolism', rsn: 'Reasoning',
+  phy: 'Physical',  aut: 'Authority',  tim: 'Time',     csv: 'Conservation'
+};
+const DIM_CODE = {
+  encoding: 'enc', metabolism: 'met', reasoning: 'rsn',
+  physical_substance: 'phy', authority_trust: 'aut',
+  time_sequence: 'tim', conservation_balance: 'csv'
+};
+// Priority: rarest/most-distinctive first → enc > aut > met > csv > rsn > tim > phy
+const DIM_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
+
+function primaryDim(dims) {
+  for (const d of DIM_PRIORITY) {
+    if (dims.includes(d)) return d;
+  }
+  return 'rsn';
+}
+
+// Static inline data — same 60 canonical domains, derived from /grid/scaffold
+// (also fetched live, but this lets the graph render even offline)
+const GRID_INLINE = {
+  acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
+  architecture:["aut","phy","tim"], astronomy:["csv","phy","tim"],
+  biology:["csv","enc","met","phy","tim"], calendar_time:["tim"],
+  chemistry:["csv","met","phy"], combinatorics:["rsn"],
+  computer_science:["enc","rsn","tim"], construction:["csv","met","phy","tim"],
+  cryptography:["aut","enc","rsn"], cybersecurity:["aut","enc","rsn"],
+  document_validation:["aut","enc"], ecology:["csv","met","phy","tim"],
+  economics:["aut","csv","rsn","tim"], electrical:["csv","phy"],
+  energy:["csv","met","phy","tim"], exercise_science:["csv","met","phy","tim"],
+  finance:["aut","csv","rsn","tim"], formal_logic:["rsn"],
+  genetics:["enc","phy"], geography:["phy"], geology:["met","phy","tim"],
+  geometry:["phy","rsn"], governance_decision_packet:["aut","rsn","tim"],
+  history_chronology:["aut","rsn","tim"], hydrology:["csv","met","phy","tim"],
+  information_theory:["enc","rsn"], labor:["aut","csv","met","tim"],
+  law:["aut","rsn","tim"], linguistics:["enc","rsn"],
+  manufacturing:["csv","met","phy","tim"], materials_science:["csv","met","phy"],
+  mathematics:["rsn"], medicine:["aut","met","phy","tim"],
+  meteorology:["csv","met","phy","tim"], music_theory:["enc","phy","rsn"],
+  networking:["aut","enc","phy","tim"], nuclear_physics:["csv","phy","tim"],
+  number_theory:["rsn"], nutrition:["csv","met","phy"],
+  oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
+  optics:["csv","phy"], philosophy:["aut","rsn"],
+  photography:["enc","phy"], physics_conservation:["csv","phy"],
+  physics_dimensional:["phy","rsn"], quantum_computing:["enc","phy","rsn"],
+  real_estate:["aut","csv","phy","tim"], rhetoric:["aut","enc","rsn"],
+  scripture_anchors:["aut","enc","rsn","tim"], soil_science:["csv","met","phy"],
+  sports_analytics:["rsn","tim"],
+  statistics_pvalue:["rsn"], statistics_multiple_comparisons:["rsn"],
+  statistics_confidence_interval:["rsn"],
+  theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
+  witness:["aut","enc","rsn","tim"]
+};
+
+const CANONICAL = Object.keys(GRID_INLINE);
+
+/* ═══════════════════════════════════════════════════════
+   BUILD GRAPH DATA
+═══════════════════════════════════════════════════════ */
+
+function buildData(gridData) {
+  const nodes = CANONICAL.map(id => {
+    const dims = gridData[id] || [];
+    return {
+      id, dims,
+      depth: dims.length,
+      primary: primaryDim(dims),
+      label: id.replace(/_/g, ' ')
+    };
+  });
+
+  const edges = [];
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j];
+      const shared = a.dims.filter(d => b.dims.includes(d));
+      if (shared.length >= 2) {
+        edges.push({ source: a.id, target: b.id, shared, count: shared.length });
+      }
+    }
+  }
+  return { nodes, edges };
+}
+
+/* ═══════════════════════════════════════════════════════
+   D3 SIMULATION
+═══════════════════════════════════════════════════════ */
+
+let simulation = null;
+let zoomBehavior = null;
+let selectedNode = null;
+let allNodes = [], allEdges = [];
+let linkSelection, nodeSelection, circleSelection, labelSelection;
+
+function buildGraph(nodes, edges) {
+  allNodes = nodes; allEdges = edges;
+
+  const wrap = document.getElementById('graph-wrap');
+  const W = wrap.clientWidth || 800;
+  const H = wrap.clientHeight || 600;
+
+  const svg = d3.select('#graph')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('width', W)
+    .attr('height', H);
+
+  // Zoom
+  const g = svg.append('g').attr('class', 'scene');
+  zoomBehavior = d3.zoom()
+    .scaleExtent([0.25, 5])
+    .on('zoom', e => g.attr('transform', e.transform));
+  svg.call(zoomBehavior);
+
+  // Deselect on background click
+  svg.on('click', (e) => {
+    if (e.target === svg.node() || e.target.tagName === 'svg') {
+      deselect();
+    }
+  });
+
+  // ── Edges ─────────────────────────────────────────────
+  const linkGroup = g.append('g').attr('class', 'links');
+  linkSelection = linkGroup.selectAll('line')
+    .data(edges)
+    .enter().append('line')
+    .attr('class', 'edge')
+    .attr('stroke', d => blendColors(DIM_COLOR[nodes.find(n=>n.id===d.source)?.primary||'rsn'],
+                                     DIM_COLOR[nodes.find(n=>n.id===d.target)?.primary||'rsn']))
+    .attr('stroke-width', d => 0.4 + d.count * 0.5)
+    .attr('stroke-opacity', d => 0.12 + d.count * 0.06);
+
+  // ── Nodes ─────────────────────────────────────────────
+  const nodeGroup = g.append('g').attr('class', 'nodes');
+  nodeSelection = nodeGroup.selectAll('g')
+    .data(nodes)
+    .enter().append('g')
+    .attr('class', 'node-g')
+    .style('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (e, d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end',   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }))
+    .on('click', (e, d) => { e.stopPropagation(); selectNode(d); })
+    .on('mouseover', (e, d) => showTooltip(e, d))
+    .on('mousemove', (e) => moveTooltip(e))
+    .on('mouseout', hideTooltip);
+
+  circleSelection = nodeSelection.append('circle')
+    .attr('class', 'node-circle')
+    .attr('r', d => nodeRadius(d))
+    .attr('fill', d => DIM_COLOR[d.primary])
+    .attr('fill-opacity', 0.80)
+    .attr('stroke', d => DIM_COLOR[d.primary])
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0.6);
+
+  labelSelection = nodeSelection.append('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', 'middle')
+    .attr('fill', 'rgba(239,233,224,0.55)')
+    .attr('font-size', '9.5px')
+    .attr('dy', d => nodeRadius(d) + 12)
+    .text(d => d.label);
+
+  // ── Simulation ────────────────────────────────────────
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(edges)
+      .id(d => d.id)
+      .distance(d => 90 - d.count * 8)
+      .strength(d => d.count === 4 ? 0.25 : d.count === 3 ? 0.15 : 0.07))
+    .force('charge', d3.forceManyBody()
+      .strength(d => -180 - d.depth * 30))
+    .force('center', d3.forceCenter(W / 2, H / 2).strength(0.04))
+    .force('collision', d3.forceCollide(d => nodeRadius(d) + 10))
+    .alphaDecay(0.025)
+    .on('tick', tick);
+
+  // ── Zoom controls ──────────────────────────────────────
+  document.getElementById('zoom-in').onclick = () =>
+    svg.transition().duration(300).call(zoomBehavior.scaleBy, 1.4);
+  document.getElementById('zoom-out').onclick = () =>
+    svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.7);
+  document.getElementById('zoom-reset').onclick = () =>
+    svg.transition().duration(500).call(zoomBehavior.transform, d3.zoomIdentity);
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('stats-label').textContent =
+    `${nodes.length} domains · ${edges.length} connections`;
+}
+
+function tick() {
+  linkSelection
+    .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  nodeSelection.attr('transform', d => `translate(${d.x},${d.y})`);
+}
+
+function nodeRadius(d) { return 6 + d.depth * 2.5; }
+
+function blendColors(c1, c2) {
+  // Parse hex → avg → hex
+  const p = s => parseInt(s.slice(1), 16);
+  const r1 = (p(c1) >> 16) & 0xff, g1 = (p(c1) >> 8) & 0xff, b1 = p(c1) & 0xff;
+  const r2 = (p(c2) >> 16) & 0xff, g2 = (p(c2) >> 8) & 0xff, b2 = p(c2) & 0xff;
+  const r = Math.round((r1+r2)/2), gv = Math.round((g1+g2)/2), b = Math.round((b1+b2)/2);
+  return `#${r.toString(16).padStart(2,'0')}${gv.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECTION & PANEL
+═══════════════════════════════════════════════════════ */
+
+function selectNode(d) {
+  selectedNode = d;
+
+  // Update node visuals
+  circleSelection
+    .attr('fill-opacity', n => n.id === d.id ? 1 : isAdjacent(d, n) ? 0.7 : 0.2)
+    .attr('stroke-width', n => n.id === d.id ? 3 : 1.5)
+    .attr('stroke-opacity', n => n.id === d.id ? 1 : isAdjacent(d, n) ? 0.5 : 0.2)
+    .attr('filter', n => n.id === d.id ? 'url(#glow)' : null);
+
+  labelSelection
+    .attr('fill', n => n.id === d.id ? '#efe9e0' : isAdjacent(d, n) ? 'rgba(239,233,224,0.7)' : 'rgba(239,233,224,0.15)');
+
+  linkSelection
+    .attr('stroke-opacity', e => (e.source.id === d.id || e.target.id === d.id)
+      ? 0.65 : 0.04)
+    .attr('stroke-width', e => (e.source.id === d.id || e.target.id === d.id)
+      ? 0.5 + e.count * 0.8 : 0.4 + e.count * 0.5);
+
+  // Build adjacent list from edges
+  const adj = allEdges
+    .filter(e => e.source.id === d.id || e.target.id === d.id)
+    .map(e => ({
+      id: e.source.id === d.id ? e.target.id : e.source.id,
+      shared: e.shared,
+      count: e.count
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  const detail = document.getElementById('detail');
+  detail.innerHTML = `
+    <div class="detail-domain">${d.label}</div>
+    <div class="detail-depth">depth&nbsp;${d.depth} · ${d.dims.length} scaffold ${d.dims.length === 1 ? 'axis' : 'axes'}</div>
+    <div class="detail-dims">
+      ${d.dims.map(dim => `<span class="dim-pill" data-dim="${dim}">${DIM_LABEL[dim] || dim}</span>`).join('')}
+    </div>
+    ${adj.length > 0 ? `
+    <div class="detail-section-label" style="margin-top:6px">${adj.length} connected domains (≥2 shared)</div>
+    <div class="adj-list">
+      ${adj.slice(0, 12).map(a => {
+        const neighbor = allNodes.find(n => n.id === a.id);
+        const dotColor = neighbor ? DIM_COLOR[neighbor.primary] : '#888';
+        return `
+        <div class="adj-row" data-id="${a.id}" onclick="focusNode('${a.id}')">
+          <span class="adj-name" title="${a.id.replace(/_/g,' ')}">${a.id.replace(/_/g,' ')}</span>
+          <span class="adj-count">${a.count}</span>
+          <div class="adj-dots">${a.shared.map(dim =>
+            `<div class="adj-dot" style="background:${DIM_COLOR[dim]||'#888'}" title="${DIM_LABEL[dim]||dim}"></div>`
+          ).join('')}</div>
+        </div>`;
+      }).join('')}
+      ${adj.length > 12 ? `<div style="font-size:10px;color:var(--muted);padding:3px 6px">+${adj.length-12} more</div>` : ''}
+    </div>` : '<div style="color:var(--muted);font-size:11px;margin-top:4px">No domains with ≥2 shared axes</div>'}
+  `;
+}
+
+function deselect() {
+  selectedNode = null;
+  circleSelection
+    .attr('fill-opacity', 0.80)
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0.6)
+    .attr('filter', null);
+  labelSelection.attr('fill', 'rgba(239,233,224,0.55)');
+  linkSelection
+    .attr('stroke-opacity', d => 0.12 + d.count * 0.06)
+    .attr('stroke-width', d => 0.4 + d.count * 0.5);
+  document.getElementById('detail').innerHTML = `
+    <div class="detail-empty">
+      Click any domain node to see its structural position — which of the 7 scaffold axes it occupies and which domains share those axes.
+    </div>
+  `;
+}
+
+function isAdjacent(selected, n) {
+  return allEdges.some(e =>
+    (e.source.id === selected.id && e.target.id === n.id) ||
+    (e.target.id === selected.id && e.source.id === n.id));
+}
+
+function focusNode(id) {
+  const node = allNodes.find(n => n.id === id);
+  if (node) selectNode(node);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TOOLTIP
+═══════════════════════════════════════════════════════ */
+
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(e, d) {
+  tooltip.innerHTML = `
+    <div class="tt-name">${d.label}</div>
+    <div class="tt-depth">depth ${d.depth}</div>
+    <div class="tt-dims">${d.dims.map(dim =>
+      `<span class="tt-dot" style="background:${DIM_COLOR[dim]}" title="${DIM_LABEL[dim]||dim}"></span>`
+    ).join('')}</div>
+  `;
+  tooltip.style.display = 'block';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const x = e.clientX + 14, y = e.clientY - 10;
+  tooltip.style.left = `${Math.min(x, window.innerWidth - 240)}px`;
+  tooltip.style.top = `${y}px`;
+}
+
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+/* ═══════════════════════════════════════════════════════
+   LIVE CONNECTIONS FEED
+═══════════════════════════════════════════════════════ */
+
+let feedSeenCount = 0;
+
+async function loadFeed() {
+  try {
+    const data = await fetch(`${API}/grid/connections?limit=60`).then(r => r.json());
+    const events = (data.events || []).sort((a, b) => b.ts - a.ts);
+    const feed = document.getElementById('feed');
+    const totalOnFile = data.total_on_file || data.count || events.length;
+
+    document.getElementById('feed-count').textContent = `${totalOnFile} pairs`;
+
+    if (events.length === 0) return;
+
+    if (feedSeenCount === events.length) return; // no change
+
+    feed.innerHTML = '';
+    feedSeenCount = events.length;
+
+    for (const ev of events.slice(0, 40)) {
+      const card = document.createElement('div');
+      card.className = 'feed-card';
+      // shared_axes from API are full names ("conservation_balance") or short codes
+      const dots = (ev.shared_axes || []).map(ax => {
+        const code = DIM_CODE[ax] || ax; // full→short, or already short
+        return `<div class="feed-dot" style="background:${DIM_COLOR[code]||'#888'}" title="${DIM_LABEL[code]||ax}"></div>`;
+      }).join('');
+      const ago = formatAgo(ev.ts);
+      card.innerHTML = `
+        <div class="feed-card-heads">
+          <span class="feed-dom" onclick="focusNode('${ev.domain_a}')" style="cursor:pointer">${ev.domain_a.replace(/_/g,' ')}</span>
+          <span class="feed-sep">↔</span>
+          <span class="feed-dom" onclick="focusNode('${ev.domain_b}')" style="cursor:pointer">${ev.domain_b.replace(/_/g,' ')}</span>
+          <div class="feed-axes">${dots}</div>
+        </div>
+        ${ev.sample_a ? `<div class="feed-excerpt">${ev.sample_a.slice(0,120)}</div>` : ''}
+      `;
+      feed.appendChild(card);
+    }
+  } catch (err) {
+    // silently fail — API might not be running
+  }
+}
+
+function formatAgo(ts) {
+  const diff = Math.floor(Date.now() / 1000 - ts);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  return `${Math.floor(diff/3600)}h ago`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+
+async function init() {
+  // Try to fetch live scaffold; fall back to inline
+  let gridData = GRID_INLINE;
+  try {
+    const resp = await fetch(`${API}/grid/scaffold`, { signal: AbortSignal.timeout(4000) });
+    if (resp.ok) {
+      const json = await resp.json();
+      const axes = json.axes || {};
+      // Map full dim names to short codes
+      const mapped = {};
+      for (const [dom, dims] of Object.entries(axes)) {
+        mapped[dom] = dims.map(d => DIM_CODE[d] || d).filter(Boolean);
+      }
+      // Only use canonical domains
+      const filtered = {};
+      for (const id of CANONICAL) {
+        if (mapped[id]) filtered[id] = mapped[id];
+        else filtered[id] = GRID_INLINE[id] || [];
+      }
+      gridData = filtered;
+    }
+  } catch (_) { /* use inline */ }
+
+  const { nodes, edges } = buildData(gridData);
+  buildGraph(nodes, edges);
+  await loadFeed();
+
+  // Poll connections every 45s
+  setInterval(loadFeed, 45000);
+}
+
+// Resize handler
+window.addEventListener('resize', () => {
+  const wrap = document.getElementById('graph-wrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  d3.select('#graph').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H);
+  if (simulation) simulation.force('center', d3.forceCenter(W/2, H/2)).alpha(0.1).restart();
+});
+
+init();
+</script>
+</body>
+</html>
