@@ -190,6 +190,70 @@
       line-height: 1.5;
     }
 
+    /* ── Structural scaffold ── */
+    .scaffold {
+      margin-top: 14px;
+      padding-top: 13px;
+      border-top: 1px solid var(--border);
+    }
+    .scaffold-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+    .scaffold-dims {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .dim-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 12px;
+      border: 1px solid;
+      letter-spacing: 0.04em;
+    }
+    /* per-dimension colours set inline via data-dim attribute */
+    .dim-pill[data-dim="enc"] { color: #5b9bd5; border-color: #2a4a70; background: #1a2c42; }
+    .dim-pill[data-dim="met"] { color: #6ec98a; border-color: #254d35; background: #162d1f; }
+    .dim-pill[data-dim="rsn"] { color: #d4c46a; border-color: #564d28; background: #322e17; }
+    .dim-pill[data-dim="phy"] { color: #d9945c; border-color: #5a3a22; background: #372316; }
+    .dim-pill[data-dim="aut"] { color: #a87cd6; border-color: #4a2f6a; background: #2c1c42; }
+    .dim-pill[data-dim="tim"] { color: #7fa8c0; border-color: #2e4756; background: #1a2c36; }
+    .dim-pill[data-dim="csv"] { color: #5ec4b4; border-color: #1f5249; background: #132f2c; }
+    .scaffold-adj-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .scaffold-adj {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .adj-pill {
+      font-size: 11.5px;
+      color: var(--muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 9px;
+      cursor: default;
+      transition: color 0.1s, border-color 0.1s;
+    }
+    .adj-pill:hover { color: var(--text); border-color: var(--border-bright); }
+    .adj-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--accent);
+      margin-left: 5px;
+      opacity: 0.75;
+    }
+
     /* ── Gate chain (from /seal) ── */
     .gates { display: flex; flex-direction: column; gap: 5px; margin: 10px 0; }
     .gate-row {
@@ -463,7 +527,138 @@
   const inputEl   = document.getElementById('input');
   const sendBtn   = document.getElementById('sendBtn');
 
-  // Example button clicks
+  // ── Structural scaffold data ──────────────────────────────────────────
+  // Seven scaffold dimensions — the axes every domain is located on.
+  const DIM_LABELS = {
+    enc: 'Encoding',
+    met: 'Flow & Transformation',
+    rsn: 'Logic & Reasoning',
+    phy: 'Matter & Space',
+    aut: 'Authority & Trust',
+    tim: 'Time & Sequence',
+    csv: 'Conservation',
+  };
+
+  // Canonical domain → dimension codes. Mirrors grid.AXIS_DIMENSIONS.
+  // enc=encoding  met=metabolism  rsn=reasoning  phy=physical_substance
+  // aut=authority_trust  tim=time_sequence  csv=conservation_balance
+  const GRID = {
+    acoustics:                      ['phy','tim','csv'],
+    agriculture:                    ['met','phy','tim'],
+    architecture:                   ['phy','aut','tim'],
+    astronomy:                      ['phy','tim','csv'],
+    biology:                        ['enc','met','phy','csv','tim'],
+    calendar_time:                  ['tim'],
+    chemistry:                      ['met','phy','csv'],
+    combinatorics:                  ['rsn'],
+    computer_science:               ['enc','rsn','tim'],
+    construction:                   ['met','phy','tim','csv'],
+    cryptography:                   ['enc','rsn','aut'],
+    cybersecurity:                  ['enc','rsn','aut'],
+    document_validation:            ['enc','aut'],
+    ecology:                        ['met','phy','tim','csv'],
+    economics:                      ['rsn','aut','tim','csv'],
+    electrical:                     ['phy','csv'],
+    energy:                         ['met','phy','tim','csv'],
+    exercise_science:               ['met','phy','tim','csv'],
+    finance:                        ['rsn','aut','tim','csv'],
+    formal_logic:                   ['rsn'],
+    genetics:                       ['enc','phy'],
+    geography:                      ['phy'],
+    geology:                        ['met','phy','tim'],
+    geometry:                       ['rsn','phy'],
+    governance_decision_packet:     ['rsn','aut','tim'],
+    history_chronology:             ['rsn','aut','tim'],
+    hydrology:                      ['met','phy','tim','csv'],
+    information_theory:             ['enc','rsn'],
+    labor:                          ['met','aut','tim','csv'],
+    law:                            ['rsn','aut','tim'],
+    linguistics:                    ['enc','rsn'],
+    manufacturing:                  ['met','phy','tim','csv'],
+    materials_science:              ['phy','met','csv'],
+    mathematics:                    ['rsn'],
+    medicine:                       ['met','phy','aut','tim'],
+    meteorology:                    ['met','phy','tim','csv'],
+    music_theory:                   ['enc','rsn','phy'],
+    networking:                     ['enc','phy','aut','tim'],
+    nuclear_physics:                ['phy','tim','csv'],
+    number_theory:                  ['rsn'],
+    nutrition:                      ['met','phy','csv'],
+    oceanography:                   ['met','phy','tim','csv'],
+    operations_research:            ['rsn','tim','csv'],
+    optics:                         ['phy','csv'],
+    philosophy:                     ['rsn','aut'],
+    photography:                    ['enc','phy'],
+    physics_conservation:           ['phy','csv'],
+    physics_dimensional:            ['phy','rsn'],
+    quantum_computing:              ['enc','rsn','phy'],
+    real_estate:                    ['phy','aut','tim','csv'],
+    rhetoric:                       ['enc','rsn','aut'],
+    scripture_anchors:              ['enc','rsn','aut','tim'],
+    soil_science:                   ['met','phy','csv'],
+    sports_analytics:               ['rsn','tim'],
+    statistics_pvalue:              ['rsn'],
+    statistics_multiple_comparisons:['rsn'],
+    statistics_confidence_interval: ['rsn'],
+    theology_doctrine:              ['enc','rsn','aut','tim'],
+    thermodynamics:                 ['met','phy','csv'],
+    witness:                        ['enc','rsn','aut','tim'],
+  };
+
+  // Find domains that share the most scaffold axes with the given domain.
+  function getAdjacent(domain) {
+    const dims = GRID[domain];
+    if (!dims) return [];
+    const dimSet = new Set(dims);
+    const adj = [];
+    for (const [other, otherDims] of Object.entries(GRID)) {
+      if (other === domain) continue;
+      const shared = otherDims.filter(d => dimSet.has(d));
+      if (shared.length > 0) {
+        adj.push({ name: other, shared, count: shared.length });
+      }
+    }
+    adj.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return adj;
+  }
+
+  // Append the structural position section to the engine bubble.
+  function appendScaffold(bubble, domain) {
+    const dims = GRID[domain];
+    if (!dims || !dims.length) return;
+
+    const adj = getAdjacent(domain);
+    const topAdj = adj.slice(0, 8);
+
+    const div = document.createElement('div');
+    div.className = 'scaffold';
+
+    // Dimension pills
+    const dimHtml = dims.map(d =>
+      `<span class="dim-pill" data-dim="${d}">${DIM_LABELS[d] || d}</span>`
+    ).join('');
+
+    // Adjacent domains
+    let adjHtml = '';
+    if (topAdj.length) {
+      const pillsHtml = topAdj.map(a => {
+        const label = a.name.replace(/_/g, ' ');
+        const sharedLabels = a.shared.map(d => DIM_LABELS[d] || d).join(', ');
+        return `<span class="adj-pill" title="${sharedLabels}">${esc(label)}<span class="adj-count">${a.count}</span></span>`;
+      }).join('');
+      adjHtml = `<div class="scaffold-adj-label">Same axes in</div><div class="scaffold-adj">${pillsHtml}</div>`;
+    }
+
+    div.innerHTML = `
+      <div class="scaffold-label">STRUCTURAL POSITION</div>
+      <div class="scaffold-dims">${dimHtml}</div>
+      ${adjHtml}
+    `;
+
+    bubble.appendChild(div);
+  }
+
+  // ── Example button clicks ─────────────────────────────────────────────
   document.getElementById('examples').addEventListener('click', e => {
     const btn = e.target.closest('[data-claim]');
     if (!btn) return;
@@ -543,8 +738,6 @@
     const rawData = results.data || null;
     const domain  = data.domain || '';
     const source  = data.source || 'rule';
-    const ruleId  = data.rule_id || '';
-    const entryId = data.entry_id || '';
 
     let html = '';
 
@@ -573,6 +766,9 @@
     }
 
     bubble.innerHTML = html;
+
+    // Structural position — shows scaffold axes and adjacent domains
+    appendScaffold(bubble, domain);
 
     // Seal button
     const sealWrap = document.createElement('div');
@@ -627,7 +823,6 @@
     const hash    = data.content_hash || data.permanent_ref || '';
     const gates   = data.gate_results || [];
     const anchors = data.anchors || [];
-    const version = data.schema_version || '';
 
     // Overall verdict
     const vdiv = document.createElement('div');

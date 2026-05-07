@@ -149,49 +149,63 @@ def fingerprint(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()[:16]
 
 
-def generate_seeds(domain: str, count: int, batch_size: int = 20) -> list[str]:
-    """Use Claude Haiku to generate domain knowledge seeds."""
+def generate_seeds(domain: str, count: int, batch_size: int = 75,
+                   existing: list[str] = None) -> list[str]:
+    """Use Claude Haiku to generate domain knowledge seeds.
+
+    Uses large batches (default 75) to minimize API round-trips and pass
+    previously-generated seeds as exclusions so each batch is diverse.
+    """
     client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
     hints = DOMAIN_HINTS.get(domain, domain)
-    seeds = []
+    seeds = list(existing or [])
 
-    batches = (count + batch_size - 1) // batch_size
-    for b in range(batches):
+    while len(seeds) < count:
         n = min(batch_size, count - len(seeds))
         if n <= 0:
             break
 
-        prompt = f"""Generate exactly {n} distinct, factual knowledge seeds for the domain: {domain}
-Topic hints: {hints}
+        # Build exclusion hint from already-generated seeds to reduce dups
+        excl = ""
+        if seeds:
+            # Summarize first words of each existing seed as exclusion hint
+            prior_topics = "; ".join(s[:60] for s in seeds[:30])
+            excl = f"\n\nALREADY COVERED (do NOT repeat these topics):\n{prior_topics}\n"
 
+        prompt = f"""Generate exactly {n} distinct, factual knowledge seeds for the domain: {domain}
+Topic hints: {hints}{excl}
 Rules:
 - Each seed is 1-3 sentences of dense, accurate factual content
-- No seed should repeat information from other seeds
-- Cover different sub-topics within {domain}
-- Be specific: include formulas, numbers, names, laws where relevant
-- Output ONLY a JSON array of strings, nothing else
-- Each string is one complete knowledge seed
+- Cover DIFFERENT sub-topics — no repeats of already-covered content
+- Be specific: include formulas, numbers, names, laws, dates where applicable
+- Do NOT start multiple seeds with the same opening phrase
+- Output ONLY a JSON array of {n} strings, nothing else
 - No markdown, no preamble, just the JSON array
 
-Example format:
 ["Seed text one here.", "Seed text two here.", ...]"""
 
         try:
             resp = client.messages.create(
                 model="claude-haiku-4-5-20251001",
-                max_tokens=4096,
+                max_tokens=8192,
                 messages=[{"role": "user", "content": prompt}],
             )
             raw = resp.content[0].text.strip()
-            # Extract JSON array
             start = raw.find("[")
             end = raw.rfind("]") + 1
             if start >= 0 and end > start:
                 batch = json.loads(raw[start:end])
-                seeds.extend([str(s).strip() for s in batch if s and len(str(s)) > 20])
+                new = [str(s).strip() for s in batch
+                       if s and len(str(s)) > 20]
+                seeds.extend(new)
+            else:
+                print(f"  [WARN] could not parse JSON from response", flush=True)
+        except json.JSONDecodeError as e:
+            print(f"  [WARN] JSON parse error for {domain}: {e}", flush=True)
+            time.sleep(1)
         except Exception as e:
-            print(f"  [WARN] generation error for {domain} batch {b}: {e}", flush=True)
-            time.sleep(2)
+            print(f"  [WARN] API error for {domain}: {e}", flush=True)
+            time.sleep(3)
 
     return seeds[:count]
 
@@ -226,6 +240,7 @@ def run_domain(domain: str, count: int, delay: float, batch: int,
     remaining = count - done
     print(f"\n▶ {domain}: generating {remaining} seeds...", flush=True)
 
+    existing_fps = state.get(domain, {}).get("fingerprints", [])
     seeds = generate_seeds(domain, remaining, batch_size=batch)
     if not seeds:
         print(f"  [WARN] no seeds generated for {domain}", flush=True)
