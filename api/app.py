@@ -4109,7 +4109,7 @@ def _grid_connector_scan():
         new_entries = [e for e in entries if e.id not in _connector_seen_ids]
         for entry in new_entries:
             _connector_seen_ids.add(entry.id)
-            tags = getattr(entry, "tags", None) or []
+            tags = getattr(entry, "user_tags", None) or []
             # Find the first tag that is a known grid axis
             domain = next(
                 (t for t in tags if t in _grid.AXIS_DIMENSIONS),
