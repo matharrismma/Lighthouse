@@ -4034,6 +4034,304 @@ def agent_context():
     return PlainTextResponse(_context_block(), media_type="text/plain")
 
 
+# ── Grid scaffold + background cross-domain connector ───────────────────
+#
+# The grid is the structural skeleton that makes the pattern visible
+# (Romans 1:20 — the design of creation made legible across domains).
+# These three endpoints serve the scaffold for both humans and agents:
+#
+#   GET /grid/scaffold              full domain→dimension static map
+#   GET /grid/domain/{domain}       one domain's position + adjacency
+#   GET /grid/connections           live cross-domain connection events
+#   GET /grid/connections/stream    SSE stream of new connections
+#
+# The background connector (_grid_connector_thread) is the "keeping"
+# layer: it runs whether or not anyone is submitting verifications,
+# watching the journal as seeds arrive and firing connection events
+# when two domains are discovered to share the same scaffold axes.
+# ─────────────────────────────────────────────────────────────────────
+
+import threading as _threading
+
+_GRID_CONNECTIONS_FILE = (
+    Path(__file__).parent.parent / "data" / "grid_connections.jsonl"
+)
+_GRID_CONNECTIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+# Module-level connection state — updated by background thread.
+_connector_domain_seeds: Dict[str, List[str]] = {}   # domain → recent seed texts
+_connector_fired_pairs: set = set()                  # frozenset({da, db}) pairs logged
+_connector_seen_ids: set = set()                     # journal entry IDs already scanned
+_connector_lock = _threading.Lock()
+
+
+def _grid_connector_worker():
+    """Background keeper — connects the dots as the journal grows.
+
+    Every 60 seconds:
+    1. Reads new journal entries (incremental cursor, fast)
+    2. Tags each entry to its domain (via its tag list)
+    3. When a new domain accumulates seeds AND shares scaffold axes
+       with another active domain, fires a 'connection event'
+
+    Connection events are appended to data/grid_connections.jsonl and
+    served via /grid/connections. This is the liturgical layer running
+    whether or not anyone is watching — the keeping that makes the
+    substrate real.
+    """
+    import time as _time
+
+    while True:
+        try:
+            _grid_connector_scan()
+        except Exception as exc:
+            _log.warning(f"grid connector error: {exc}")
+        _time.sleep(60)
+
+
+def _grid_connector_scan():
+    """One scan pass of the journal. Called by the background thread."""
+    import time as _time
+    try:
+        from concordance_engine import grid as _grid
+        from concordance_engine import journal as _journal
+    except ImportError:
+        return
+
+    with _connector_lock:
+        # Read recent entries (limit keeps it fast — we only need new ones)
+        try:
+            _store = _journal.JournalStore()
+            entries = _store.list_all(limit=500)
+        except Exception:
+            return
+
+        new_entries = [e for e in entries if e.id not in _connector_seen_ids]
+        for entry in new_entries:
+            _connector_seen_ids.add(entry.id)
+            tags = getattr(entry, "tags", None) or []
+            # Find the first tag that is a known grid axis
+            domain = next(
+                (t for t in tags if t in _grid.AXIS_DIMENSIONS),
+                None,
+            )
+            if not domain:
+                continue
+            if domain not in _connector_domain_seeds:
+                _connector_domain_seeds[domain] = []
+            text = (entry.text or "")[:200]
+            _connector_domain_seeds[domain].append(text)
+            # Keep only the 50 most recent seeds per domain
+            if len(_connector_domain_seeds[domain]) > 50:
+                _connector_domain_seeds[domain] = _connector_domain_seeds[domain][-50:]
+
+        # Find new domain pairs that share axes and have enough seeds
+        active = [
+            d for d, seeds in _connector_domain_seeds.items()
+            if len(seeds) >= 2
+        ]
+        for i, da in enumerate(active):
+            for db in active[i + 1:]:
+                pair = frozenset([da, db])
+                if pair in _connector_fired_pairs:
+                    continue
+                try:
+                    shared = _grid.axis_dimensions(da) & _grid.axis_dimensions(db)
+                except KeyError:
+                    continue
+                if not shared:
+                    continue
+                # New cross-domain connection found — fire the event.
+                event = {
+                    "ts": _time.time(),
+                    "domain_a": da,
+                    "domain_b": db,
+                    "shared_axes": sorted(shared),
+                    "axis_count": len(shared),
+                    "sample_a": _connector_domain_seeds[da][-1],
+                    "sample_b": _connector_domain_seeds[db][-1],
+                }
+                with open(_GRID_CONNECTIONS_FILE, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(event) + "\n")
+                _connector_fired_pairs.add(pair)
+                _log.info(
+                    f"grid connection: {da} ↔ {db}  "
+                    f"axes={sorted(shared)}"
+                )
+
+
+@app.get("/grid/scaffold", tags=["agents"])
+def grid_scaffold():
+    """Full domain→dimension mapping for the 7-axis scaffold.
+
+    Returns the complete static grid: every domain and which of the 7
+    scaffold dimensions (encoding, metabolism, reasoning, physical_substance,
+    authority_trust, time_sequence, conservation_balance) it sits on.
+
+    Agents: load this once at startup to understand the structural position
+    of any domain the engine might return.
+    """
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return {
+        "dimensions": list(_grid.DIMENSIONS),
+        "axes": {
+            axis: sorted(dims)
+            for axis, dims in _grid.AXIS_DIMENSIONS.items()
+        },
+        "umbrellas": {
+            parent: list(children)
+            for parent, children in _grid.UMBRELLAS.items()
+        },
+        "axis_count": len(_grid.AXIS_DIMENSIONS),
+        "dimension_count": len(_grid.DIMENSIONS),
+    }
+
+
+@app.get("/grid/domain/{domain}", tags=["agents"])
+def grid_domain_position(domain: str):
+    """Scaffold position of one domain.
+
+    Returns which of the 7 dimensions this domain sits on, its depth
+    (structural complexity), and the 20 most-adjacent domains ranked by
+    number of shared dimensions.
+
+    This is the data that try.html shows in the STRUCTURAL POSITION
+    section after every verification result.
+    """
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    if domain not in _grid.AXIS_DIMENSIONS:
+        raise HTTPException(status_code=404, detail=f"unknown domain: {domain!r}")
+
+    dims = sorted(_grid.axis_dimensions(domain))
+    adj = _grid.adjacent(domain)
+    return {
+        "domain": domain,
+        "dimensions": dims,
+        "depth": len(dims),
+        "adjacent": [
+            {
+                "domain": other,
+                "shared_axes": sorted(shared),
+                "count": len(shared),
+            }
+            for other, shared in adj[:20]
+        ],
+        "umbrella_children": list(_grid.umbrella_children(domain)),
+        "note": (
+            "depth >= 4 = structurally deep; "
+            "adjacent domains share at least one scaffold axis"
+        ),
+    }
+
+
+@app.get("/grid/connections", tags=["agents"])
+def grid_connections(
+    limit: int = Query(50, ge=1, le=500),
+    since: float = Query(0.0, description="Unix epoch; only events after this ts"),
+    domain: Optional[str] = Query(None, description="Filter to events involving this domain"),
+    min_axes: int = Query(1, ge=1, description="Only return events with >= N shared axes"),
+):
+    """Cross-domain connection events discovered by the background keeper.
+
+    Connection events fire when the background connector finds seeds
+    from two different domains in the journal that touch the same scaffold
+    axis — proving the structural pattern is present in actual content,
+    not just theory.
+
+    These are the moments the engine was built for: chemistry and covenant
+    law both speaking about conservation_balance; physics and economics
+    both running on reasoning + conservation; genetics and theology sharing
+    encoding + authority_trust.
+
+    Poll this endpoint or subscribe to /grid/connections/stream for live updates.
+    """
+    events: List[Dict] = []
+    if _GRID_CONNECTIONS_FILE.exists():
+        for line in _GRID_CONNECTIONS_FILE.read_text(
+            "utf-8", errors="replace"
+        ).splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                e = json.loads(line)
+            except Exception:
+                continue
+            if e.get("ts", 0) <= since:
+                continue
+            if e.get("axis_count", 0) < min_axes:
+                continue
+            if domain and domain not in (e.get("domain_a"), e.get("domain_b")):
+                continue
+            events.append(e)
+
+    events.sort(key=lambda x: -x.get("ts", 0))
+    return {
+        "count": len(events[:limit]),
+        "events": events[:limit],
+        "total_on_file": len(events),
+        "connector_status": {
+            "active_domains": len(_connector_domain_seeds),
+            "fired_pairs": len(_connector_fired_pairs),
+            "seen_entries": len(_connector_seen_ids),
+        },
+    }
+
+
+@app.get("/grid/connections/stream", tags=["agents"])
+def grid_connections_stream():
+    """Server-Sent Events stream of cross-domain connection events.
+
+    Subscribe once; receive events as the background keeper discovers them.
+    Each event is a JSON object with:
+      domain_a, domain_b — the two connected domains
+      shared_axes        — which scaffold dimensions they share
+      axis_count         — how many shared axes (higher = deeper connection)
+      sample_a, sample_b — representative seed text from each domain
+      ts                 — Unix epoch when the connection was first detected
+
+    For agents: subscribe at startup to receive live pattern notifications.
+    """
+    import time as _time
+    from fastapi.responses import StreamingResponse as _SR
+
+    def _generate():
+        last_size = 0
+        while True:
+            if _GRID_CONNECTIONS_FILE.exists():
+                lines = _GRID_CONNECTIONS_FILE.read_text(
+                    "utf-8", errors="replace"
+                ).splitlines()
+                if len(lines) > last_size:
+                    for line in lines[last_size:]:
+                        if line.strip():
+                            yield f"data: {line}\n\n"
+                    last_size = len(lines)
+            _time.sleep(5)
+
+    return _SR(
+        _generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+    )
+
+
+# Wire the background connector into the startup lifecycle.
+# It fires once on the first scan, then every 60 seconds.
+_connector_thread = _threading.Thread(
+    target=_grid_connector_worker,
+    name="grid-connector",
+    daemon=True,
+)
+_connector_thread.start()
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.
