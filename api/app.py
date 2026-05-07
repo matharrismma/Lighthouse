@@ -1745,6 +1745,10 @@ class CaptureRequest(BaseModel):
     tags: Optional[List[str]] = None
     identity_acknowledged: bool = True
     look_up_precedent: bool = True
+    # Set False for bulk/seed ingestion to skip the O(n) full-journal
+    # calibration scan. The entry is still written; calibration is just
+    # skipped and the response returns a minimal payload.
+    calibrate: bool = True
 
 
 @app.post("/capture", include_in_schema=True)
@@ -1799,6 +1803,17 @@ def capture(req: CaptureRequest):
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    # Fast path: skip the O(n) full-journal calibration scan when the
+    # caller doesn't need it (e.g. bulk seed ingestion).
+    if not req.calibrate:
+        return {
+            "entry": entry.to_dict(),
+            "calibration": None,
+            "closest_precedent": None,
+            "source": req.source,
+            "rendered_calibration": None,
+        }
 
     cal = _journal.calibrate(entry)
     closest = _resolve_closest_precedent(entry.categorization.closest_precedent_id)

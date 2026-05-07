@@ -218,12 +218,16 @@ def post_seed(text: str, domain: str, session: requests.Session, dry_run: bool) 
         "text": text,
         "tags": [domain, "seed", "generated"],
         "metadata": {"domain": domain, "source": "seed_generator"},
+        # Skip expensive O(n) per-entry operations — seeds don't need
+        # precedent lookup or calibration; we just want fast ingestion.
+        "look_up_precedent": False,
+        "calibrate": False,
     }
     if dry_run:
         print(f"  [DRY] {domain}: {title[:60]}", flush=True)
         return True
     try:
-        r = session.post(f"{API_BASE}/capture", json=payload, timeout=15)
+        r = session.post(f"{API_BASE}/capture", json=payload, timeout=30)
         return r.status_code in (200, 201)
     except Exception as e:
         print(f"  [ERR] {e}", flush=True)
