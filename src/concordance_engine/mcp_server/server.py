@@ -944,6 +944,34 @@ def get_example_packet(name: str) -> Dict[str, Any]:
     return tools.get_example_packet(name)
 
 
+@mcp.tool()
+def verify_physics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Physics umbrella: dimensional analysis and/or conservation law verification.
+    Pass 'dimensional' key for SI unit analysis, 'conservation' key for before/after balance.
+    Dimensional: spec={"dimensional": {"equation": "F=m*a", "symbols": {"F": "newton", "m": "kilogram", "a": "meter/second**2"}}}
+    Conservation: spec={"conservation": {"before": {"KE": 5.0, "PE": 10.0}, "after": {"KE": 8.0, "PE": 7.0}, "law": "energy"}}
+    Both keys fire independently if supplied."""
+    return tools.verify_physics(spec)
+
+
+@mcp.tool()
+def verify_statistics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Statistics umbrella: p-value recomputation, multiple comparisons correction, CI verification.
+    Pass 'pvalue', 'multiple_comparisons', and/or 'confidence_interval' keys — each fires if present.
+    p-value: spec={"pvalue": {"test": "paired_t", "n": 20, "mean_diff": 0.5, "sd_diff": 1.0, "tail": "two", "claimed_p": 0.0375}}
+    Multiple comparisons: spec={"multiple_comparisons": {"raw_p_values": [0.01, 0.04], "method": "bonferroni"}}
+    CI: spec={"confidence_interval": {"estimate": 5.0, "ci_low": 4.2, "ci_high": 5.8}}"""
+    return tools.verify_statistics(spec)
+
+
+@mcp.tool()
+def verify_phase(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Classify a packet by its declared 'phase': setup, positioning, or conversion (Prov 24:27).
+    Cross-cutting verifier — NA if no phase declared, CONFIRMED with canonical guidance if valid.
+    spec={"phase": "setup"} or {"phase": "positioning"} or {"phase": "conversion"}"""
+    return tools.verify_phase(spec)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()

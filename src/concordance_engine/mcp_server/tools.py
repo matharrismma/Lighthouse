@@ -67,6 +67,7 @@ from ..verifiers import history_chronology as _history_chronology
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
+from ..verifiers import phase as _phase
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -735,6 +736,58 @@ def verify_oceanography(spec):
     return {"checks": [_r(r) for r in _oceanography.run({"OCEAN_VERIFY": spec or {}})]}
 
 
+def verify_physics(spec):
+    """Physics umbrella: dimensional analysis and/or conservation law verification.
+    Pass 'dimensional' key for SI unit analysis, 'conservation' key for before/after balance.
+    Dimensional: spec={"dimensional": {"equation": "F = m * a", "symbols": {"F": "newton", "m": "kilogram", "a": "meter/second**2"}}}
+    Conservation: spec={"conservation": {"before": {"KE": 5.0, "PE": 10.0}, "after": {"KE": 8.0, "PE": 7.0}, "law": "energy"}}
+    Both keys fire independently if supplied."""
+    out = {}
+    if "dimensional" in spec:
+        d = spec["dimensional"]
+        out["dimensional"] = _r(physics.verify_dimensional_consistency(d["equation"], d["symbols"]))
+    if "conservation" in spec:
+        c = spec["conservation"]
+        law = c.get("law")
+        before, after = c["before"], c["after"]
+        tol_rel = c.get("tolerance_relative", 1e-6)
+        tol_abs = c.get("tolerance_absolute", 0.0)
+        if law:
+            out["conservation"] = _r(physics.verify_named_conservation(
+                law, before, after,
+                tolerance_relative=tol_rel, tolerance_absolute=tol_abs))
+        else:
+            out["conservation"] = _r(physics.verify_conservation(
+                before, after,
+                tolerance_relative=tol_rel, tolerance_absolute=tol_abs))
+    return out
+
+
+def verify_statistics(spec):
+    """Statistics umbrella: p-value recomputation, multiple comparisons correction, CI verification.
+    Pass 'pvalue', 'multiple_comparisons', and/or 'confidence_interval' keys — each fires if present.
+    p-value: spec={"pvalue": {"test": "paired_t", "n": 20, "mean_diff": 0.5, "sd_diff": 1.0, "tail": "two", "claimed_p": 0.0375}}
+    Multiple comparisons: spec={"multiple_comparisons": {"raw_p_values": [0.01, 0.04, 0.1], "method": "bonferroni", "alpha": 0.05}}
+    CI: spec={"confidence_interval": {"estimate": 5.0, "ci_low": 4.2, "ci_high": 5.8}}"""
+    out = {}
+    if "pvalue" in spec:
+        out["pvalue"] = _r(statistics.verify_pvalue_calibration(spec["pvalue"]))
+    if "multiple_comparisons" in spec:
+        out["multiple_comparisons"] = _r(statistics.verify_multiple_comparisons(spec["multiple_comparisons"]))
+    if "confidence_interval" in spec:
+        out["confidence_interval"] = _r(statistics.verify_confidence_interval(spec["confidence_interval"]))
+    return out
+
+
+def verify_phase(spec):
+    """Classify a packet by its declared 'phase': setup, positioning, or conversion.
+    Cross-cutting verifier — runs on any packet; NA if no phase declared, CONFIRMED with guidance if valid.
+    spec={"phase": "setup"} or {"phase": "positioning"} or {"phase": "conversion"}
+    Anchored in Prov 24:27: prepare your work outside (setup) → position → convert. Order matters."""
+    results = _phase.run(spec or {})
+    return {"checks": [_r(r) for r in results]}
+
+
 # ---------------------------------------------------------------------
 # Domain-attestation tools
 # ---------------------------------------------------------------------
@@ -1324,6 +1377,26 @@ TOOLS: List[Dict[str, Any]] = [
                     "Zone: spec={\"depth_m\":500,\"claimed_zone\":\"mesopelagic\"}.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_oceanography(a["spec"])},
+    {"name": "verify_physics",
+     "description": "Physics umbrella — dimensional analysis and/or conservation law. "
+                    "Pass 'dimensional' key: spec={\"dimensional\":{\"equation\":\"F=m*a\",\"symbols\":{\"F\":\"newton\",\"m\":\"kilogram\",\"a\":\"meter/second**2\"}}}. "
+                    "Pass 'conservation' key: spec={\"conservation\":{\"before\":{\"KE\":5.0,\"PE\":10.0},\"after\":{\"KE\":8.0,\"PE\":7.0},\"law\":\"energy\"}}. "
+                    "Both keys fire independently if supplied.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_physics(a["spec"])},
+    {"name": "verify_statistics",
+     "description": "Statistics umbrella — p-value recomputation, multiple comparisons correction, CI verification. "
+                    "Pass 'pvalue' key: spec={\"pvalue\":{\"test\":\"paired_t\",\"n\":20,\"mean_diff\":0.5,\"sd_diff\":1.0,\"tail\":\"two\",\"claimed_p\":0.0375}}. "
+                    "Pass 'multiple_comparisons' key: spec={\"multiple_comparisons\":{\"raw_p_values\":[0.01,0.04],\"method\":\"bonferroni\"}}. "
+                    "Pass 'confidence_interval' key: spec={\"confidence_interval\":{\"estimate\":5.0,\"ci_low\":4.2,\"ci_high\":5.8}}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_statistics(a["spec"])},
+    {"name": "verify_phase",
+     "description": "Classify a packet by its declared phase: setup, positioning, or conversion (Prov 24:27). "
+                    "Cross-cutting — NA if no phase declared; CONFIRMED with canonical guidance if valid. "
+                    "spec={\"phase\":\"setup\"} or {\"phase\":\"positioning\"} or {\"phase\":\"conversion\"}.",
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_phase(a["spec"])},
 ]
 
 
@@ -1407,6 +1480,9 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_materials_science": verify_materials_science,
     "verify_architecture": verify_architecture,
     "verify_oceanography": verify_oceanography,
+    "verify_physics": verify_physics,
+    "verify_statistics": verify_statistics,
+    "verify_phase": verify_phase,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,
