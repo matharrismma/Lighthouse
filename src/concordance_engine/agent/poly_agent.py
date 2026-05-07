@@ -35,6 +35,8 @@ from ..poly_record import (
     PolymathicRecord,
     compute_axis_overlaps,
     compute_composite_verdict,
+    compute_weighted_composite_verdict,
+    compute_axis_weights,
     CONCORDANT, DISCORDANT,
 )
 from .quarantine_keeper import tend_quarantine
@@ -342,7 +344,8 @@ def run_polymathic(
             cluster_results = _run_cluster(cluster, ALL_TOOLS)
             all_results.extend(cluster_results)
             if stop_on_discordant:
-                if compute_composite_verdict(all_results) == DISCORDANT:
+                interim_weights = compute_axis_weights(all_results)
+                if compute_weighted_composite_verdict(all_results, interim_weights) == DISCORDANT:
                     break
     else:
         all_results = _run_cluster(domain_specs, ALL_TOOLS)
@@ -368,7 +371,15 @@ def run_polymathic(
             final_quarantined = [o.claim for o in keeper_manifest.orphans]
 
     axis_overlaps = compute_axis_overlaps(all_results)
-    composite = compute_composite_verdict(all_results, final_quarantined or None)
+
+    # Axis-weighted synthesis: peripheral domains (low structural overlap)
+    # don't get to veto the composite verdict on their own.
+    axis_weights  = compute_axis_weights(all_results)
+    composite     = compute_weighted_composite_verdict(
+        all_results,
+        weights=axis_weights,
+        quarantined_claims=final_quarantined or None,
+    )
 
     # Wrap phase: full provenance — situation, strips, keeper triage, results
     return PolymathicRecord(
@@ -377,6 +388,7 @@ def run_polymathic(
         quarantined_claims=tuple(final_quarantined),
         keeper_manifest=keeper_manifest.to_dict() if keeper_manifest else None,
         closest_precedent=closest_precedent,
+        axis_weights=axis_weights,
         domain_results=tuple(all_results),
         axis_overlaps=tuple(axis_overlaps),
         composite_verdict=composite,

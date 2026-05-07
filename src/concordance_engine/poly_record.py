@@ -114,8 +114,9 @@ class PolymathicRecord:
     composite_verdict: str
     atomic_claims: Tuple[str, ...] = ()
     quarantined_claims: Tuple[str, ...] = ()   # airlocked
-    keeper_manifest: Optional[Dict[str, Any]] = None  # keeper's triage output
+    keeper_manifest: Optional[Dict[str, Any]] = None   # keeper's triage output
     closest_precedent: Optional[Dict[str, Any]] = None  # axis-index match
+    axis_weights: Optional[Dict[str, float]] = None     # per-domain structural weight
     subject_pubkey: Optional[str] = None
     permanent_ref: Optional[str] = None
     schema_version: str = POLYMATHIC_SCHEMA_VERSION
@@ -152,6 +153,8 @@ class PolymathicRecord:
             out["keeper_manifest"] = self.keeper_manifest
         if self.closest_precedent is not None:
             out["closest_precedent"] = self.closest_precedent
+        if self.axis_weights:
+            out["axis_weights"] = self.axis_weights
         if self.subject_pubkey is not None:
             out["subject_pubkey"] = self.subject_pubkey
         # content_hash: SHA-256 of canonical JSON excluding itself + permanent_ref
@@ -172,6 +175,7 @@ class PolymathicRecord:
             quarantined_claims=tuple(d.get("quarantined_claims", [])),
             keeper_manifest=d.get("keeper_manifest"),
             closest_precedent=d.get("closest_precedent"),
+            axis_weights=d.get("axis_weights"),
             subject_pubkey=d.get("subject_pubkey"),
             permanent_ref=d.get("permanent_ref"),
             schema_version=d.get("schema_version", POLYMATHIC_SCHEMA_VERSION),
@@ -226,11 +230,115 @@ def compute_axis_overlaps(domain_results: List[DomainResult]) -> List[AxisOverla
     ]
 
 
+# ── Axis-weight computation ─────────────────────────────────────────────
+
+def compute_axis_weights(domain_results: List[DomainResult]) -> Dict[str, float]:
+    """Structural weight for each domain relative to the full situation.
+
+    Weight = |domain.axis_dims ∩ situation_dims| / |situation_dims|
+
+    where situation_dims = union of all domains' axis_dims.
+
+    A domain that covers 4 of the 5 situation axes gets weight 0.8;
+    one that covers only 1 axis gets 0.2.  Domains with no overlap at all
+    get 0.0 — they fired but aren't structurally central.
+
+    If situation_dims is empty (no axes known), all domains get 1.0 so
+    the weighted verdict degrades gracefully to the unweighted logic.
+
+    Returns a dict keyed by domain name.  Values sum to ≤ len(results)
+    (not normalised to 1 — each domain's weight is independent).
+    """
+    situation_dims: FrozenSet[str] = frozenset().union(
+        *(dr.axis_dims for dr in domain_results)
+    )
+    if not situation_dims:
+        return {dr.domain: 1.0 for dr in domain_results}
+
+    return {
+        dr.domain: round(len(dr.axis_dims & situation_dims) / len(situation_dims), 3)
+        for dr in domain_results
+    }
+
+
+# Fraction of weighted mismatch above which the verdict becomes DISCORDANT.
+# Below this floor, peripheral mismatches (low-weight domains) yield MIXED.
+MISMATCH_FLOOR = 0.25
+
+
+def compute_weighted_composite_verdict(
+    domain_results: List[DomainResult],
+    weights: Optional[Dict[str, float]] = None,
+    quarantined_claims: Optional[List[str]] = None,
+    mismatch_floor: float = MISMATCH_FLOOR,
+) -> str:
+    """Axis-weight-aware composite verdict.
+
+    A MISMATCH from a peripheral domain (low structural weight) only
+    triggers DISCORDANT if it carries enough combined weight. Light
+    peripheral mismatches produce MIXED so the synthesis isn't vetoed by
+    a domain that barely touches the situation's core axes.
+
+    Weighting logic
+    ───────────────
+    mismatch_frac = Σ weight(mismatched domains) / Σ weight(all meaningful domains)
+
+    If mismatch_frac >= mismatch_floor (default 0.25) → DISCORDANT
+    If 0 < mismatch_frac < mismatch_floor → MIXED
+    If mismatch_frac == 0 and confirmations exist → CONCORDANT
+
+    Falls back to the unweighted `compute_composite_verdict` when weights
+    is None (e.g. the record was built before this feature existed).
+
+    Backward compatibility
+    ──────────────────────
+    Single-domain packets produce one result with weight 1.0, so the
+    weighted and unweighted paths always agree.  The benchmark is safe.
+    """
+    has_quarantined = bool(quarantined_claims)
+
+    if not domain_results and not has_quarantined:
+        return OUT_OF_SCOPE
+    if not domain_results and has_quarantined:
+        return QUARANTINE
+
+    verdicts = {dr.verdict for dr in domain_results}
+    if "ERROR" in verdicts:
+        return ERROR
+
+    meaningful = [dr for dr in domain_results if dr.verdict != "NOT_APPLICABLE"]
+    if not meaningful:
+        return QUARANTINE if has_quarantined else OUT_OF_SCOPE
+
+    if weights is None:
+        return compute_composite_verdict(domain_results, quarantined_claims)
+
+    w_total     = sum(weights.get(dr.domain, 1.0) for dr in meaningful)
+    w_mismatch  = sum(weights.get(dr.domain, 1.0) for dr in meaningful if dr.verdict == "MISMATCH")
+    w_confirmed = sum(weights.get(dr.domain, 1.0) for dr in meaningful if dr.verdict == "CONFIRMED")
+
+    mismatch_frac = (w_mismatch / w_total) if w_total > 0 else 0.0
+
+    if mismatch_frac >= mismatch_floor:
+        return DISCORDANT
+    if w_mismatch > 0:
+        # Peripheral dissent — structurally below the veto threshold
+        return QUARANTINE if has_quarantined else MIXED
+    if w_confirmed > 0 and has_quarantined:
+        return QUARANTINE
+    if w_confirmed > 0:
+        return CONCORDANT
+    return QUARANTINE if has_quarantined else OUT_OF_SCOPE
+
+
 __all__ = [
     "DomainResult",
     "AxisOverlap",
     "PolymathicRecord",
     "compute_composite_verdict",
+    "compute_weighted_composite_verdict",
+    "compute_axis_weights",
     "compute_axis_overlaps",
+    "MISMATCH_FLOOR",
     "CONCORDANT", "DISCORDANT", "MIXED", "OUT_OF_SCOPE", "ERROR",
 ]
