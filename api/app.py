@@ -1619,30 +1619,49 @@ class ClosestCaseRequest(BaseModel):
     anchors: List[str] = []
     top_k: int = 3
     exclude_hash: Optional[str] = None
+    # `text` is accepted but ignored — future: parse into dims via NL dispatch
+    text: Optional[str] = None
 
 
 @app.post("/cases/closest", include_in_schema=True)
 def cases_closest(req: ClosestCaseRequest):
     """Find the closest previously-solved cases for a given domain/axes.
 
-    Used by the Socratic intake and the try.html frontend to surface
-    the nearest precedent before the user runs the full four-gate seal.
+    Used by the Socratic intake, smart_seed.py, and the try.html frontend
+    to surface the nearest precedent before running the full four-gate seal.
     Each result includes distance (0=identical, 1=completely unlike),
-    verdict, domain, shared dimensions, shared anchors, and the
-    verifier summary for the reasoning overlay.
+    verdict, domain, shared dimensions, shared anchors, and the verifier
+    summary for the reasoning overlay.
+
+    If `dimensions` is empty, the endpoint auto-derives scaffold dimensions
+    from the domain name via `axis_coords_for` so callers can pass domain
+    alone and still get a meaningful distance score.
     """
     cs = get_case_store()
+
+    # Auto-derive scaffold dimensions when the caller passes none
+    resolved_dims = list(req.dimensions)
+    if not resolved_dims:
+        try:
+            from concordance_engine.witness_record import axis_coords_for
+            _ac = axis_coords_for(req.domain)
+            if _ac:
+                resolved_dims = list(_ac.dimensions)
+        except Exception:
+            pass
+
     candidates = cs.find_closest(
         domain=req.domain,
-        dims=req.dimensions,
+        dims=resolved_dims,
         anchors=req.anchors,
         top_k=min(req.top_k, 10),
         exclude_hash=req.exclude_hash,
     )
     return {
-        "domain": req.domain,
-        "query_dims": req.dimensions,
-        "results": candidates,
+        "domain":        req.domain,
+        "query_dims":    resolved_dims,
+        "cases":         candidates,  # primary key
+        "results":       candidates,  # alias for back-compat
         "total_indexed": cs.count(),
     }
 
