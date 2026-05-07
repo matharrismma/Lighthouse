@@ -362,11 +362,49 @@
     .precedent-nostr a { color: var(--muted); text-decoration: none; }
     .precedent-nostr a:hover { color: var(--accent); }
 
+    /* ── Socratic intake ── */
+    .ask-block { margin-bottom: 10px; width: 100%; }
+    .ask-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .ask-row { margin-bottom: 10px; }
+    .ask-q {
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.45;
+    }
+    .ask-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 7px 11px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .ask-input:focus { border-color: var(--accent); }
+    .ask-input::placeholder { color: var(--muted); }
+
     /* ── Seal block ── */
     .seal-block {
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+    }
+    .seal-actions {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -543,6 +581,8 @@
   <div class="top">
     <a href="/" class="brand">CONCORDANCE</a>
     <nav class="nav-links">
+      <a href="/grid.html">Grid</a>
+      <a href="/poly.html">Poly</a>
       <a href="/benchmark.html">Benchmark</a>
       <a href="/how-it-works.html">How it works</a>
     </nav>
@@ -829,21 +869,42 @@
     // Structural position — shows scaffold axes and adjacent domains
     appendScaffold(bubble, domain);
 
-    // Seal button
+    // Seal block — Socratic intake + seal button
     const sealWrap = document.createElement('div');
     sealWrap.className = 'seal-block';
+
+    // Questions container — populated asynchronously by /ask
+    const askBlock = document.createElement('div');
+    askBlock.className = 'ask-block';
+    sealWrap.appendChild(askBlock);
 
     const sealBtn = document.createElement('button');
     sealBtn.className = 'action';
     sealBtn.textContent = 'Seal record →';
     sealBtn.addEventListener('click', () => {
+      const enriched = buildEnrichedText(originalText, askBlock);
+      askBlock.innerHTML = '';  // clear questions once committed
       sealBtn.disabled = true;
       sealBtn.className = 'action sealing';
       sealBtn.textContent = 'Sealing…';
-      sealRecord(domain, originalText, sealWrap, sealBtn);
+      sealRecord(domain, enriched, sealWrap, sealBtn);
     });
     sealWrap.appendChild(sealBtn);
     bubble.appendChild(sealWrap);
+
+    // Fetch questions from /ask (non-blocking — seal still works without answers)
+    fetch(`${API}/ask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: originalText, domain }),
+    })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data || !data.questions || !data.questions.length) return;
+      renderAskBlock(askBlock, data.questions, sealBtn);
+      scrollBottom();
+    })
+    .catch(() => {});  // questions are optional — never block sealing
 
     exchange.appendChild(bubble);
     re_enable();
@@ -993,6 +1054,49 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  // ── Socratic intake helpers ──────────────────────────────────────────
+
+  function renderAskBlock(askBlock, questions, sealBtn) {
+    askBlock.innerHTML = `<div class="ask-label">Before sealing — help the verifier:</div>`;
+    questions.forEach(q => {
+      const row = document.createElement('div');
+      row.className = 'ask-row';
+
+      const qEl = document.createElement('div');
+      qEl.className = 'ask-q';
+      qEl.textContent = q;
+
+      const input = document.createElement('input');
+      input.className = 'ask-input';
+      input.type = 'text';
+      input.placeholder = 'optional — skip to seal as-is';
+      input.addEventListener('input', () => {
+        const hasAnswers = [...askBlock.querySelectorAll('.ask-input')]
+          .some(el => el.value.trim() !== '');
+        sealBtn.textContent = hasAnswers ? 'Seal with context →' : 'Seal record →';
+      });
+
+      row.appendChild(qEl);
+      row.appendChild(input);
+      askBlock.appendChild(row);
+    });
+  }
+
+  function buildEnrichedText(originalText, askBlock) {
+    const rows = [...askBlock.querySelectorAll('.ask-row')];
+    const answered = rows
+      .map(row => ({
+        q: row.querySelector('.ask-q')?.textContent?.trim() || '',
+        a: row.querySelector('.ask-input')?.value?.trim()  || '',
+      }))
+      .filter(({a}) => a !== '');
+
+    if (answered.length === 0) return originalText;
+
+    const ctx = answered.map(({q, a}) => `${q}\n→ ${a}`).join('\n\n');
+    return `${originalText}\n\n[Context]\n${ctx}`;
   }
 </script>
 </body>

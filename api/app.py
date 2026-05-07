@@ -1646,6 +1646,155 @@ def cases_spokes(hash_: str, depth: int = 1):
     return {"origin_hash": hash_, "depth": depth, "spokes": spokes, "count": len(spokes)}
 
 
+# ── /ask — Socratic intake ─────────────────────────────────────────────
+
+
+# Per-axis question templates. Each axis surfaces the verification gap
+# that its verifier cares most about. Used as scaffolding for the Haiku
+# personalisation call; returned as-is if Haiku is unavailable.
+_AXIS_QUESTIONS: Dict[str, str] = {
+    "authority_trust":     "Who or what is the authority for this claim — which institution, standard, law, or source establishes it?",
+    "time_sequence":       "Does this apply universally, or only within a specific time period, sequence, or set of conditions?",
+    "encoding":            "Is there a formal notation, formula, or symbolic representation that fully specifies this claim?",
+    "conservation_balance":"What quantity is conserved or must balance for this claim to hold?",
+    "reasoning":           "What is the step-by-step logical or mathematical basis — which rules, axioms, or theorems apply?",
+    "metabolism":          "What process, transformation, or flow is central to this claim?",
+    "physical_substance":  "What specific physical quantities, units, materials, or measurements define this claim?",
+}
+
+# Domains whose primary verification gaps map to these axes (priority order).
+# Used to pick which 2 axes to ask about when the domain sits on many.
+_AXIS_PRIORITY: Dict[str, List[str]] = {
+    "mathematics":         ["reasoning", "encoding"],
+    "chemistry":           ["physical_substance", "conservation_balance"],
+    "physics":             ["physical_substance", "conservation_balance"],
+    "physics_conservation":["conservation_balance", "physical_substance"],
+    "physics_dimensional": ["physical_substance", "encoding"],
+    "statistics_pvalue":   ["reasoning", "encoding"],
+    "statistics_multiple_comparisons": ["reasoning", "time_sequence"],
+    "statistics_confidence_interval":  ["reasoning", "encoding"],
+    "law":                 ["authority_trust", "time_sequence"],
+    "governance_decision_packet": ["authority_trust", "reasoning"],
+    "theology_doctrine":   ["authority_trust", "encoding"],
+    "scripture_anchors":   ["authority_trust", "encoding"],
+    "medicine":            ["authority_trust", "metabolism"],
+    "finance":             ["authority_trust", "conservation_balance"],
+    "economics":           ["authority_trust", "time_sequence"],
+    "labor":               ["authority_trust", "time_sequence"],
+    "real_estate":         ["authority_trust", "time_sequence"],
+    "cryptography":        ["encoding", "reasoning"],
+    "cybersecurity":       ["encoding", "authority_trust"],
+    "networking":          ["encoding", "time_sequence"],
+    "biology":             ["metabolism", "encoding"],
+    "genetics":            ["encoding", "physical_substance"],
+    "ecology":             ["metabolism", "time_sequence"],
+    "geology":             ["time_sequence", "physical_substance"],
+    "meteorology":         ["time_sequence", "conservation_balance"],
+    "thermodynamics":      ["conservation_balance", "metabolism"],
+    "energy":              ["conservation_balance", "metabolism"],
+    "quantum_computing":   ["encoding", "reasoning"],
+    "document_validation": ["authority_trust", "encoding"],
+    "witness":             ["authority_trust", "time_sequence"],
+}
+
+
+class AskRequest(BaseModel):
+    text: str
+    domain: Optional[str] = None
+
+
+@app.post("/ask", include_in_schema=True)
+def ask(req: AskRequest):
+    """Socratic intake: return 2 targeted questions before the four-gate seal.
+
+    Identifies the 2 scaffold axes most critical for verification of this
+    domain, then uses Claude Haiku to phrase them as questions specific to
+    the claim text. Falls back to axis-template questions if Haiku is
+    unavailable or the API key is not configured.
+
+    The caller (try.html) shows these questions in the seal block. Answers
+    are appended to the claim text before posting to /seal, enriching the
+    packet for the gate verifiers.
+    """
+    text   = (req.text or "").strip()
+    domain = (req.domain or "").strip()
+
+    # Resolve domain from text if not supplied
+    if not domain:
+        try:
+            from concordance_engine.nl_to_packet import nl_to_packet
+            result = nl_to_packet(text)
+            domain = result.get("domain", "") if isinstance(result, dict) else ""
+        except Exception:
+            pass
+    if not domain:
+        try:
+            from concordance_engine.classifier import classify
+            domain = classify(text) or ""
+        except Exception:
+            pass
+
+    # Get scaffold axes for the domain
+    axes: List[str] = []
+    try:
+        from concordance_engine.witness_record import axis_coords_for
+        ac = axis_coords_for(domain)
+        if ac:
+            axes = sorted(ac.dimensions)
+    except Exception:
+        pass
+
+    # Pick the 2 most-critical axes for this domain
+    priority = _AXIS_PRIORITY.get(domain, [])
+    # Fill from axes not already in priority
+    for ax in axes:
+        if ax not in priority:
+            priority.append(ax)
+    selected_axes = priority[:2]
+    if not selected_axes:
+        selected_axes = list(_AXIS_QUESTIONS.keys())[:2]
+
+    # Template questions for the selected axes
+    templates = [_AXIS_QUESTIONS.get(ax, f"What about {ax}?") for ax in selected_axes]
+
+    # Try to personalise via Haiku — makes questions specific to the claim text
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    questions = templates  # default
+    if api_key and text:
+        try:
+            import anthropic as _anthropic
+            _client = _anthropic.Anthropic(api_key=api_key)
+            prompt = (
+                f"Claim: {text[:400]}\n"
+                f"Domain: {domain or 'unknown'}\n"
+                f"Scaffold axes needing answers: {', '.join(selected_axes)}\n\n"
+                "Rephrase the following template questions to be specific to this exact claim. "
+                "Keep each question short (one sentence). Do not answer them.\n"
+                + "\n".join(f"{i+1}. {q}" for i, q in enumerate(templates))
+                + '\n\nOutput ONLY a JSON array of exactly 2 strings.\n["Question 1?", "Question 2?"]'
+            )
+            resp = _client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=256,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw   = resp.content[0].text.strip()
+            start = raw.find("[")
+            end   = raw.rfind("]") + 1
+            if start >= 0 and end > start:
+                parsed = json.loads(raw[start:end])
+                if isinstance(parsed, list) and len(parsed) >= 2:
+                    questions = [str(q).strip() for q in parsed[:2]]
+        except Exception as exc:
+            _log.debug("ask: Haiku personalisation failed (using templates): %s", exc)
+
+    return {
+        "domain":    domain,
+        "axes":      selected_axes,
+        "questions": questions,
+    }
+
+
 class ClosestCaseRequest(BaseModel):
     domain: str
     dimensions: List[str] = []
