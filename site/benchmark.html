@@ -156,6 +156,32 @@ python eval/benchmark/run_extended.py</code></pre>
 
 <section>
   <div class="container">
+    <h2>Polymathic synthesis benchmark</h2>
+    <p>A second benchmark tests cross-domain synthesis: given a multi-domain situation, the engine must assign one of five verdicts — CONCORDANT, DISCORDANT, MIXED, QUARANTINE, or OUT_OF_SCOPE — using axis-weighted scoring across all fired verifiers.</p>
+    <div class="callout note">
+      <p><strong>20-item synthesis benchmark — engine vs LLM alone.</strong></p>
+      <table style="width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:14px;">
+        <thead>
+          <tr style="color:var(--muted); text-align:left;">
+            <th style="padding:4px 12px 4px 0;">Mode</th>
+            <th style="padding:4px 12px;">Score</th>
+            <th style="padding:4px 12px;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:4px 12px 4px 0;">Engine (deterministic)</td><td style="padding:4px 12px; font-weight:600; color:var(--pass);">20/20 = 100%</td><td style="padding:4px 12px; color:var(--muted);">0.22s total</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;">Claude Haiku 4.5 alone</td><td style="padding:4px 12px; font-weight:600; color:var(--quarantine);">15/20 = 75%</td><td style="padding:4px 12px; color:var(--muted);">Same 5 failures as Sonnet</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;">Claude Sonnet 4.5 alone</td><td style="padding:4px 12px; font-weight:600; color:var(--quarantine);">15/20 = 75%</td><td style="padding:4px 12px; color:var(--muted);">Model scale doesn't close the gap</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem; margin-bottom:0;">The 25-point gap is structural: (1) p-value precision requires calibrated numerical verification tools cannot hallucinate; (2) MIXED vs DISCORDANT distinction requires axis-weighted mismatch fraction computation that language models cannot reliably perform across five domains in their heads.</p>
+    </div>
+    <p style="margin-top:1rem;">Reproduce: <code>python eval/benchmark/run_poly_comparative.py</code></p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
     <h2>What this benchmark cannot prove</h2>
     <p>171 items across 57 domains is a meaningful dataset — not a definitive one. It cannot:</p>
     <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">

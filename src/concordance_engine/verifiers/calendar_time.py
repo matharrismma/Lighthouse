@@ -63,7 +63,10 @@ def _is_leap_gregorian(year: int) -> bool:
 def verify_leap_year(spec: Dict[str, Any]) -> VerifierResult:
     name = "calendar_time.leap_year"
     year = spec.get("year")
+    # Accept both "claimed_leap" and the natural-language alias LLMs often use
     claimed = spec.get("claimed_leap")
+    if claimed is None:
+        claimed = spec.get("claimed_is_leap_year")
     if year is None or claimed is None:
         return na(name)
     try:
@@ -179,7 +182,7 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     cv = packet.get("CAL_VERIFY") or {}
 
-    if "year" in cv and "claimed_leap" in cv:
+    if "year" in cv and ("claimed_leap" in cv or "claimed_is_leap_year" in cv):
         results.append(verify_leap_year(cv))
     if "iso8601_string" in cv and "claimed_iso8601_valid" in cv:
         results.append(verify_iso8601_valid(cv))

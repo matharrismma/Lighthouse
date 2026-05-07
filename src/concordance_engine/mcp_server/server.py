@@ -740,6 +740,210 @@ def verify_soil_science(spec: Dict[str, Any]) -> Dict[str, Any]:
     return tools.verify_soil_science(spec)
 
 
+# ---------------------------------------------------------------------------
+# Late-night domains (added overnight 2026-05-06, now wired to MCP)
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def verify_thermodynamics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Carnot efficiency, ideal gas law (PV=nRT), specific heat (Q=mcDT), entropy change (DS=Q/T).
+    Pass spec as THERMO_VERIFY contents.
+    Carnot: spec={"T_hot_K":600,"T_cold_K":300,"claimed_efficiency":0.5}
+    Ideal gas: spec={"pressure_Pa":101325,"volume_m3":0.0224,"moles":1.0,"claimed_temperature_K":273.15}
+    Specific heat: spec={"mass_kg":1.0,"specific_heat_J_per_kg_K":4186,"delta_T_K":10,"claimed_heat_J":41860}
+    Entropy: spec={"heat_J":1000,"temperature_K":300,"claimed_entropy_change_J_per_K":3.33}"""
+    return tools.verify_thermodynamics(spec)
+
+
+@mcp.tool()
+def verify_nuclear_physics(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Radioactive decay (N=N0*exp(-lambda*t)), binding energy per nucleon, half-life from activity, decay constant.
+    Pass spec as NUCLEAR_VERIFY contents.
+    Decay: spec={"half_life_seconds":3600,"elapsed_seconds":7200,"initial_count":1e9,"claimed_remaining_count":2.5e8}
+    Binding energy: spec={"mass_defect_amu":0.0304,"nucleon_count":4,"claimed_binding_energy_MeV_per_nucleon":7.07}
+    Half-life: spec={"activity_Bq":1e6,"num_atoms":5.2e9,"claimed_half_life_seconds":3600}"""
+    return tools.verify_nuclear_physics(spec)
+
+
+@mcp.tool()
+def verify_ecology(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Logistic population growth, trophic efficiency (10% rule), Shannon diversity index, carbon footprint.
+    Pass spec as ECO_VERIFY contents.
+    Logistic: spec={"carrying_capacity_K":1000,"initial_population_N0":100,"growth_rate_r":0.5,"time_t":5,"claimed_population":731}
+    Trophic: spec={"energy_input":10000,"trophic_levels_up":2,"trophic_efficiency":0.1,"claimed_energy_available":100}
+    Shannon: spec={"species_counts":[10,20,30],"claimed_shannon_index":1.09}"""
+    return tools.verify_ecology(spec)
+
+
+@mcp.tool()
+def verify_rhetoric(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Fallacy classification (formal vs informal), syllogism validity, argument structure completeness.
+    Pass spec as RHET_VERIFY contents.
+    Fallacy: spec={"fallacy_name":"ad hominem","claimed_is_formal_fallacy":false}
+    Syllogism: spec={"major_premise":"All M are P","minor_premise":"All S are M","conclusion":"All S are P","claimed_valid":true}
+    Straw man: spec={"fallacy_name":"straw_man","claimed_is_formal_fallacy":false}"""
+    return tools.verify_rhetoric(spec)
+
+
+@mcp.tool()
+def verify_philosophy(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Modal logic (K-axiom), ethical framework classification, epistemic claim type, Leibniz identity principle.
+    Pass spec as PHIL_VERIFY contents.
+    Modal: spec={"is_necessarily_true":true,"is_possibly_true":true,"claimed_consistent":true}
+    Ethics: spec={"framework_name":"consequentialist","claimed_focuses_on_outcomes":true}
+    Epistemic: spec={"claim_type":"empirical","claimed_requires_observation":true}"""
+    return tools.verify_philosophy(spec)
+
+
+@mcp.tool()
+def verify_operations_research(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """LP feasibility, critical path (makespan), 0/1 knapsack optimal value, assignment cost.
+    Pass spec as OR_VERIFY contents.
+    Critical path: spec={"tasks":[{"id":"A","duration":3,"depends_on":[]},{"id":"B","duration":4,"depends_on":["A"]}],"claimed_makespan":7}
+    Knapsack: spec={"items":[{"weight":2,"value":3},{"weight":3,"value":4}],"capacity":5,"claimed_max_value":7}
+    LP: spec={"variable_values":{"x":3,"y":2},"constraints":[{"lhs_coeffs":{"x":1,"y":1},"operator":"<=","rhs":10}],"claimed_feasible":true}"""
+    return tools.verify_operations_research(spec)
+
+
+@mcp.tool()
+def verify_law(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """US federal law: contract formation (5 elements), constitutional age requirements, FLSA overtime, Miranda completeness.
+    Pass spec as LAW_VERIFY contents.
+    Contract: spec={"has_offer":true,"has_acceptance":true,"has_consideration":true,"has_capacity":true,"has_legality":true,"claimed_contract_valid":true}
+    Age: spec={"office":"president","age":35,"claimed_age_qualified":true}
+    Miranda: spec={"has_right_to_silence":true,"has_anything_used_against":true,"has_right_to_attorney":true,"has_appointed_attorney":true,"claimed_miranda_complete":true}"""
+    return tools.verify_law(spec)
+
+
+@mcp.tool()
+def verify_theology_doctrine(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Orthodox Christian doctrine: gospel core facts (1 Cor 15:3-4), Trinity, salvation by grace, bodily resurrection, creation ex nihilo.
+    Pass spec as THEOL_VERIFY contents.
+    Gospel: spec={"claimed_died_for_sins":true,"claimed_was_buried":true,"claimed_rose_third_day":true,"claimed_gospel_complete":true}
+    Trinity: spec={"persons_named":["Father","Son","Holy Spirit"],"claimed_is_trinity":true}
+    Salvation: spec={"is_by_grace":true,"is_through_faith":true,"claimed_salvation_orthodox":true}"""
+    return tools.verify_theology_doctrine(spec)
+
+
+@mcp.tool()
+def verify_history_chronology(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Year arithmetic (BCE/CE), century assignment, era classification, elapsed years BCE<->CE, decade assignment.
+    Pass spec as HIST_VERIFY contents.
+    Year arithmetic: spec={"from_year":100,"to_year":2000,"claimed_elapsed_years":1900}
+    Century: spec={"year_CE":1776,"claimed_century":18}
+    Era: spec={"year":-44,"claimed_era":"BCE"}
+    BCE-to-CE: spec={"from_year_bce":500,"to_year_ce":1000,"claimed_total_years":1499}"""
+    return tools.verify_history_chronology(spec)
+
+
+@mcp.tool()
+def verify_materials_science(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Stress/strain (Young's modulus), thermal expansion, density, hardness comparison.
+    Pass spec as MAT_VERIFY contents.
+    Stress: spec={"youngs_modulus_Pa":200e9,"strain":0.001,"claimed_stress_Pa":2e8}
+    Thermal: spec={"thermal_expansion_coeff":12e-6,"original_length_m":1.0,"delta_T_K":100,"claimed_delta_length_m":0.0012}
+    Density: spec={"mass_kg":2.7,"volume_m3":0.001,"claimed_density_kg_per_m3":2700}"""
+    return tools.verify_materials_science(spec)
+
+
+@mcp.tool()
+def verify_architecture(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """FAR, occupant load, stair compliance (IBC riser/tread), window-wall ratio, structural load superposition.
+    Pass spec as ARCH_VERIFY contents.
+    FAR: spec={"total_floor_area_m2":5000,"lot_area_m2":2000,"claimed_far":2.5}
+    Occupant load: spec={"floor_area_m2":500,"occupant_load_factor_m2_per_person":5,"claimed_occupant_count":100}
+    Stair: spec={"riser_height_mm":180,"tread_depth_mm":280,"claimed_ibc_compliant":true}"""
+    return tools.verify_architecture(spec)
+
+
+@mcp.tool()
+def verify_oceanography(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Hydrostatic pressure at depth, salinity classification, deep-water wave speed, tidal range type, pelagic zone.
+    Pass spec as OCEAN_VERIFY contents.
+    Pressure: spec={"depth_m":1000,"claimed_pressure_Pa":10158825}
+    Salinity: spec={"salinity_ppt":35,"claimed_classification":"marine"}
+    Wave speed: spec={"wavelength_m":100,"claimed_wave_speed_m_per_s":12.5}
+    Pelagic zone: spec={"depth_m":500,"claimed_zone":"mesopelagic"}"""
+    return tools.verify_oceanography(spec)
+
+
+# ---------------------------------------------------------------------------
+# Scripture / Layer 0 tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def verify_scripture_anchors(anchors: List[str]) -> Dict[str, Any]:
+    """Confirm each ref in anchors resolves to a real WEB verse.
+    Catches fabricated scripture citations — the most common LLM failure mode in this domain.
+    anchors: ["John 3:16", "Rom 1:20", "Gen 1:1"]
+    Returns CONFIRMED if all refs resolve, MISMATCH if any fail."""
+    return tools.verify_scripture_anchors(anchors)
+
+
+@mcp.tool()
+def resolve_scripture_ref(ref: str) -> Dict[str, Any]:
+    """Look up a scripture reference in the WEB Bible and return its text.
+    Accepts: "John 3:16", "Jn3:16", "1Co13:4", "Rom 8:28".
+    Returns {ref, web_text, status, detail}. status=source_missing if Layer 0 not provisioned."""
+    return tools.resolve_scripture_ref(ref)
+
+
+@mcp.tool()
+def word_study(strongs_num: str) -> Dict[str, Any]:
+    """Strong's-keyed word study: definition, derivation, every verse where the word appears.
+    Accepts: "G26" (agape/love), "H2617" (hesed/lovingkindness), "G4102" (pistis/faith).
+    Returns {strongs, word, transliteration, definition, derivation, verses, occurrence_count}
+    or source_missing status if Layer 0 data has not been provisioned."""
+    return tools.word_study(strongs_num)
+
+
+@mcp.tool()
+def triangulate_claim(
+    ref: str,
+    claim: str,
+    strongs_keys: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Check whether an interpretation claim about a scripture verse is consistent with
+    original-language Strong's definitions. Without strongs_keys returns
+    NEEDS_MANUAL_VERIFICATION with the WEB text and review instructions.
+    With strongs_keys (e.g. ['G142'] for airo), returns the semantic range per word
+    so the claim can be compared to attested meaning."""
+    return tools.triangulate_claim(ref, claim, strongs_keys=strongs_keys)
+
+
+# ---------------------------------------------------------------------------
+# Single-gate shortcuts (cheaper than validate_packet)
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def attest_red(packet: Dict[str, Any]) -> Dict[str, Any]:
+    """Run only the RED gate against a packet: coercion detection, authority violations, hard failures.
+    Cheaper than validate_packet when you only need the first-gate safety check.
+    packet must include a 'domain' field (e.g. "governance", "labor", "finance")."""
+    return tools.attest_red(packet)
+
+
+@mcp.tool()
+def attest_floor(packet: Dict[str, Any]) -> Dict[str, Any]:
+    """Run only the FLOOR gate against a packet: structural completeness, internal consistency.
+    Cheaper than validate_packet when you only need the completeness check.
+    packet must include a 'domain' field (e.g. "governance", "labor", "finance")."""
+    return tools.attest_floor(packet)
+
+
+# ---------------------------------------------------------------------------
+# Developer utilities
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def get_example_packet(name: str) -> Dict[str, Any]:
+    """Retrieve a sample packet by name from the examples/ directory.
+    Pass name="finance", "governance", "labor", etc. to get a ready-to-use packet.
+    Call with any name to get the list of available examples if the name is unknown.
+    Returns {name, packet} on success or {error, available} on miss."""
+    return tools.get_example_packet(name)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()
