@@ -25,6 +25,7 @@ Usage:
 """
 from __future__ import annotations
 
+import inspect
 import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
@@ -46,19 +47,49 @@ from ..witness_record import axis_coords_for
 # ── Domain registry ────────────────────────────────────────────────────
 
 _ALL_DOMAINS = [
-    "chemistry", "physics", "statistics", "mathematics",
-    "computer_science", "economics", "labor", "real_estate",
-    "construction", "soil_science", "medicine", "cybersecurity",
-    "nutrition", "finance", "governance", "biology", "genetics",
-    "agriculture", "cryptography", "energy", "networking",
-    "electrical", "acoustics", "optics", "geology",
-    "information_theory", "music_theory", "number_theory",
-    "geography", "combinatorics", "geometry", "meteorology",
-    "hydrology", "photography", "sports_analytics", "astronomy",
-    "calendar_time", "manufacturing", "exercise_science",
-    "formal_logic", "linguistics", "quantum_computing",
-    "thermodynamics", "fluid_dynamics",
+    # Core science
+    "chemistry", "physics_dimensional", "physics_conservation",
+    "mathematics", "statistics_pvalue", "statistics_multiple_comparisons",
+    "statistics_confidence_interval",
+    # Life sciences
+    "biology", "genetics", "medicine", "nutrition", "agriculture",
+    "exercise_science", "ecology",
+    # Earth / environment
+    "geology", "meteorology", "hydrology", "astronomy", "geography",
+    "soil_science", "oceanography",
+    # Engineering / physical
+    "physics", "electrical", "energy", "thermodynamics",
+    "nuclear_physics", "optics", "acoustics", "fluid_dynamics",
+    # Technology
+    "computer_science", "networking", "cybersecurity",
+    "cryptography", "quantum_computing", "information_theory",
+    # Social / economic
+    "economics", "labor", "finance", "real_estate",
+    "construction", "manufacturing", "operations_research",
+    # Formal / linguistic
+    "mathematics", "formal_logic", "linguistics", "number_theory",
+    "combinatorics", "geometry", "information_theory",
+    # Human / arts
+    "music_theory", "photography", "sports_analytics", "calendar_time",
+    "exercise_science", "geography",
+    # Governance / authority
+    "governance_decision_packet", "law", "document_validation", "witness",
+    # Humanities / theology
+    "scripture_anchors", "theology_doctrine", "history_chronology",
+    "rhetoric", "philosophy",
+    # Materials / cross-domain
+    "materials_science", "architecture",
 ]
+
+# Deduplicate while preserving order
+_seen: set = set()
+_ALL_DOMAINS_DEDUP: list = []
+for _d in _ALL_DOMAINS:
+    if _d not in _seen:
+        _seen.add(_d)
+        _ALL_DOMAINS_DEDUP.append(_d)
+_ALL_DOMAINS = _ALL_DOMAINS_DEDUP
+del _seen, _ALL_DOMAINS_DEDUP
 
 # umbrella → its child domains
 _UMBRELLA_CHILDREN: Dict[str, Tuple[str, ...]] = {
@@ -90,6 +121,10 @@ _CLASSIFY_SYSTEM = (
     "You are a domain classifier for the Concordance verification engine. "
     "Given a single atomic claim, identify the ONE best domain and extract the verifier spec. "
     "Valid domains: " + ", ".join(_ALL_DOMAINS) + ". "
+    "For physics: use physics_dimensional (equation + symbol units) or physics_conservation "
+    "(before/after quantities). For statistics: use statistics_pvalue, "
+    "statistics_multiple_comparisons, or statistics_confidence_interval. "
+    "For governance decisions: use governance_decision_packet. "
     'Return ONLY valid JSON: {"domain": "<name>", "spec": {<verifier fields>}}. '
     "If no domain matches with enough specificity, return null."
 )
@@ -99,6 +134,9 @@ _COMBINED_SYSTEM = (
     "Given a situation, identify ALL domains that are concretely applicable "
     "AND for which you can extract a verifiable spec from the text. "
     "Valid domains: " + ", ".join(_ALL_DOMAINS) + ". "
+    "For physics: use physics_dimensional or physics_conservation. "
+    "For statistics: use statistics_pvalue, statistics_multiple_comparisons, or "
+    "statistics_confidence_interval. "
     'Return ONLY valid JSON: {"domains": [{"domain": "<name>", "spec": {<verifier fields>}}, ...]}. '
     "Include a domain only if the text contains enough concrete detail. Nothing except JSON."
 )
@@ -229,6 +267,63 @@ def _cluster_domains(
     return clusters
 
 
+_KNOWN_VERDICTS = frozenset({"CONFIRMED", "MISMATCH", "NOT_APPLICABLE", "ERROR"})
+
+
+def _extract_verdict(raw: Dict[str, Any]) -> Tuple[str, str]:
+    """Normalise the return value of any verify_* tool into (verdict, detail).
+
+    Verifiers return one of three shapes:
+      1. Direct:  {"status": "CONFIRMED", "detail": "...", ...}
+      2. Checks:  {"checks": [{"status": "...", "detail": "..."}, ...]}
+         (packet-style — labor, economics, finance, music_theory, etc.)
+      3. Nested:  {"equation": {"status": "...", "detail": "..."}, ...}
+         (chemistry, some multi-result domains)
+
+    Aggregation rule (highest severity wins):
+      ERROR > MISMATCH > CONFIRMED > NOT_APPLICABLE > UNKNOWN
+    """
+    if not isinstance(raw, dict):
+        return "UNKNOWN", str(raw)
+
+    # Shape 1: direct top-level status
+    s = raw.get("status")
+    if s in _KNOWN_VERDICTS:
+        return s, str(raw.get("detail", raw.get("message", "")))
+
+    # Shape 2: checks list
+    checks = raw.get("checks")
+    if isinstance(checks, list) and checks:
+        precedence = ["ERROR", "MISMATCH", "CONFIRMED", "NOT_APPLICABLE"]
+        by_status: Dict[str, str] = {}
+        for c in checks:
+            if isinstance(c, dict) and c.get("status") in _KNOWN_VERDICTS:
+                st = c["status"]
+                if st not in by_status:
+                    by_status[st] = str(c.get("detail", ""))
+        for p in precedence:
+            if p in by_status:
+                return p, by_status[p]
+        return "UNKNOWN", ""
+
+    # Shape 3: nested sub-results (chemistry style)
+    nested: List[Tuple[str, str]] = []
+    for val in raw.values():
+        if isinstance(val, dict) and val.get("status") in _KNOWN_VERDICTS:
+            nested.append((val["status"], str(val.get("detail", ""))))
+    if nested:
+        precedence = ["ERROR", "MISMATCH", "CONFIRMED", "NOT_APPLICABLE"]
+        by_status2: Dict[str, str] = {}
+        for st, det in nested:
+            if st not in by_status2:
+                by_status2[st] = det
+        for p in precedence:
+            if p in by_status2:
+                return p, by_status2[p]
+
+    return "UNKNOWN", ""
+
+
 def _run_cluster(
     cluster: List[Dict[str, Any]],
     all_tools: Dict[str, Any],
@@ -244,13 +339,22 @@ def _run_cluster(
         if fn is None:
             continue
         try:
-            raw = fn(spec)
+            # Route by first-parameter name:
+            #   spec-named → fn(spec)         (labor, economics, music_theory …)
+            #   otherwise  → fn(**spec)       (chemistry, physics, mathematics …)
+            try:
+                first_param = next(iter(inspect.signature(fn).parameters))
+            except (ValueError, StopIteration):
+                first_param = "spec"
+            if first_param == "spec":
+                raw = fn(spec)
+            else:
+                raw = fn(**spec)
         except Exception as exc:
             raw = {"status": "ERROR", "detail": str(exc)}
 
         raw = raw if isinstance(raw, dict) else {"raw": str(raw)}
-        verdict = raw.get("status", "UNKNOWN")
-        detail  = str(raw.get("detail", raw.get("message", "")))
+        verdict, detail = _extract_verdict(raw)
         coords  = axis_coords_for(domain)
         dims    = coords.dimensions if coords else frozenset()
 
