@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance — Wisdom Engine</title>
-  <meta name="description" content="Bring what you are carrying. The engine classifies it, verifies it, and returns a Scripture-anchored path across 48 domains.">
+  <meta name="description" content="Bring what you are carrying. The engine classifies it, verifies it, and returns a Scripture-anchored path — 60 domains, seven scaffold axes.">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0f0d11">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -680,10 +680,86 @@
     /* ── JOURNAL COUNT ──────────────────────────────────────────── */
     #journalCount { font-variant-numeric: tabular-nums; }
 
+    /* ── NAV LINKS ──────────────────────────────────────────────── */
+    .nav-links {
+      display: flex;
+      gap: 2px;
+    }
+    .nav-link {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 4px 9px;
+      border-radius: var(--r-sm);
+      transition: color .15s, background .15s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--surface); opacity: 1; }
+
+    /* ── EXPLORE TOOLS ───────────────────────────────────────────── */
+    .tools-section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px 0;
+    }
+
+    .tools-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tool-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color .2s, background .2s;
+    }
+    .tool-card:hover { border-color: var(--accent-dim); background: var(--surface-2); opacity: 1; }
+
+    .tool-icon {
+      font-size: 18px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-dim);
+    }
+
+    .tool-content { flex: 1; min-width: 0; }
+    .tool-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .tool-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .tool-arrow {
+      font-size: 16px;
+      color: var(--muted-2);
+      flex-shrink: 0;
+      transition: color .2s, transform .2s;
+    }
+    .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(3px); }
+
     /* ── RESPONSIVE DESKTOP ─────────────────────────────────────── */
     @media (min-width: 768px) {
       .hero { padding: 80px 24px 56px; }
       .hero-headline { font-size: 58px; }
+      .tools-grid { flex-direction: row; gap: 10px; }
+      .tool-card { flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
+      .tool-arrow { align-self: flex-end; }
     }
   </style>
 </head>
@@ -693,6 +769,11 @@
   <nav>
     <span class="wordmark">Concordance</span>
     <div class="nav-right">
+      <div class="nav-links">
+        <a href="/grid.html" class="nav-link">Grid</a>
+        <a href="/poly.html" class="nav-link">Poly</a>
+        <a href="/try.html" class="nav-link">Try</a>
+      </div>
       <div class="status-dot">
         <div class="dot" id="statusDot"></div>
         <span id="statusText">live</span>
@@ -706,9 +787,9 @@
 
   <!-- ── HERO ──────────────────────────────────────────────────────── -->
   <div class="hero">
-    <p class="hero-eyebrow">Wisdom Engine · 48 Domains</p>
+    <p class="hero-eyebrow">60 Domains · 7 Axes · Rom. 1:20</p>
     <h1 class="hero-headline">What are you<br>carrying?</h1>
-    <p class="hero-sub">Bring a claim, a question, or a situation. The engine classifies it, runs it through the four gates, and returns a verified path.</p>
+    <p class="hero-sub">The structure of creation is already decided. The engine maps it — 60 domains, seven scaffold axes — so the step from knowledge to wisdom is small.</p>
   </div>
 
   <!-- ── INPUT ─────────────────────────────────────────────────────── -->
@@ -771,6 +852,37 @@
     </div>
   </div>
 
+  <!-- ── EXPLORE TOOLS ────────────────────────────────────────────── -->
+  <div class="tools-section">
+    <p class="section-label">Explore the engine</p>
+    <div class="tools-grid">
+      <a href="/grid.html" class="tool-card">
+        <div class="tool-icon">⬡</div>
+        <div class="tool-content">
+          <div class="tool-name">Engine Grid</div>
+          <div class="tool-desc">60 domains, 7 axes. The structural map — force-directed in 3D. Every node connected.</div>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+      <a href="/poly.html" class="tool-card">
+        <div class="tool-icon">◈</div>
+        <div class="tool-content">
+          <div class="tool-name">Polymathic</div>
+          <div class="tool-desc">Cross-domain synthesis. Run a claim across all 60 domains simultaneously.</div>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+      <a href="/benchmark.html" class="tool-card">
+        <div class="tool-icon">▦</div>
+        <div class="tool-content">
+          <div class="tool-name">Benchmark</div>
+          <div class="tool-desc">171/171 on 57 domains. Reproducible. The verifiers carry the weight language models cannot.</div>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+    </div>
+  </div>
+
   <!-- ── HOW IT WORKS ───────────────────────────────────────────────── -->
   <div class="how-section">
     <p class="section-label" style="margin-bottom:20px">How it works</p>
@@ -786,7 +898,7 @@
         <div class="step-num">02</div>
         <div class="step-content">
           <div class="step-title">The engine classifies and verifies</div>
-          <div class="step-desc">Across 48 domains — theology, law, medicine, labor, language, science. Each with its own verifier and rules. No guessing. No general AI.</div>
+          <div class="step-desc">Across 60 domains, seven scaffold axes — theology, law, medicine, labor, physics, mathematics, language. Each with its own verifier. No guessing. No general AI.</div>
         </div>
       </div>
       <div class="step">
@@ -837,6 +949,8 @@
       <div>
         <p class="footer-col-label">Engine</p>
         <div class="footer-links">
+          <a href="/grid.html">Grid</a>
+          <a href="/poly.html">Polymathic</a>
           <a href="/benchmark.html">Benchmark</a>
           <a href="/verifiers.html">Verifiers</a>
           <a href="/agents.html">Agents</a>
