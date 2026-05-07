@@ -82,6 +82,9 @@ from api.trust_index import (
     trust_stats as _trust_stats,
 )
 
+# -- Case store import ---------------------------------------------------
+from api.case_store import get_case_store
+
 # -- Nostr anchor helper -------------------------------------------------
 def _nostr_pubkey_safe() -> str:
     """Return this node's Nostr public key (hex) for /reach.
@@ -1189,6 +1192,12 @@ def seal(req: SealRequest):
             status_code=422,
             detail=f"malformed anchors: {exc}",
         )
+    # ── Closest-case lookup ────────────────────────────────────────────
+    # Before running the gates, query the case store for the nearest
+    # already-solved precedent.  If the caller supplied a closest_case
+    # override we honour it; otherwise we compute it from the index.
+    # The precedent is attached to the WitnessRecord and returned to the
+    # caller — it does NOT change the verdict, only informs the overlay.
     closest_case = None
     if req.closest_case is not None:
         try:
@@ -1198,6 +1207,37 @@ def seal(req: SealRequest):
                 status_code=422,
                 detail=f"malformed closest_case: {exc}",
             )
+    else:
+        try:
+            from concordance_engine.case_index import find_closest as _find_closest
+            from concordance_engine.witness_record import axis_coords_for
+            from concordance_engine import grid as _grid
+
+            _domain = str(req.packet.get("domain", ""))
+            _ac = axis_coords_for(_domain)
+            _dims = list(_ac.dimensions) if _ac else []
+            _anchor_refs = [a.ref for a in anchors]
+
+            _candidates = get_case_store().find_closest(
+                domain=_domain,
+                dims=_dims,
+                anchors=_anchor_refs,
+                top_k=1,
+                exclude_hash=None,
+                candidate_limit=5_000,
+            )
+            if _candidates:
+                closest_cases = _find_closest(
+                    domain=_domain,
+                    dims=frozenset(_dims),
+                    anchors=tuple(_anchor_refs),
+                    candidates=_candidates,
+                    top_k=1,
+                )
+                if closest_cases:
+                    closest_case = closest_cases[0]
+        except Exception as _ce:
+            _log.debug("closest-case lookup skipped: %s", _ce)
 
     try:
         record = validate_and_seal(
@@ -1277,6 +1317,38 @@ def seal(req: SealRequest):
         out["nostr_event_id"] = nostr_event_id
     except Exception as _ne:
         _log.debug("nostr anchor skipped: %s", _ne)
+
+    # ── Index in case store ────────────────────────────────────────────
+    # After the record is fully formed (hash, nostr_event_id, etc.),
+    # index it so future seals can find it as a closest-case precedent.
+    # Fire-and-forget: a failure here must never block the response.
+    try:
+        _cs = get_case_store()
+        _ac = None
+        try:
+            from concordance_engine.witness_record import axis_coords_for
+            _ac = axis_coords_for(str(req.packet.get("domain", "")))
+        except Exception:
+            pass
+        _dims    = list(_ac.dimensions) if _ac else []
+        _anchors = [a.ref for a in anchors]
+        _vsummary = [
+            {"name": v["name"], "status": v["status"],
+             "detail": str(v.get("detail", ""))[:200]}
+            for v in (out.get("verifier_results") or [])[:10]
+        ]
+        _cs.index_verdict(
+            content_hash=out.get("content_hash", ""),
+            domain=str(req.packet.get("domain", "")),
+            dims=_dims,
+            anchors=_anchors,
+            verdict=str(record.overall),
+            verifier_summary=_vsummary,
+            ledger_seq=ledger_seq,
+            nostr_event_id=out.get("nostr_event_id"),
+        )
+    except Exception as _ie:
+        _log.debug("case_store index skipped: %s", _ie)
 
     return out
 
@@ -1533,6 +1605,46 @@ def dispatch(
 
 
 # ── /stats — aggregate ledger counts ──────────────────────────────────
+
+
+@app.get("/cases/stats", include_in_schema=True)
+def cases_stats():
+    """Case store counts: total indexed verdicts, breakdown by verdict and domain."""
+    return get_case_store().stats()
+
+
+class ClosestCaseRequest(BaseModel):
+    domain: str
+    dimensions: List[str] = []
+    anchors: List[str] = []
+    top_k: int = 3
+    exclude_hash: Optional[str] = None
+
+
+@app.post("/cases/closest", include_in_schema=True)
+def cases_closest(req: ClosestCaseRequest):
+    """Find the closest previously-solved cases for a given domain/axes.
+
+    Used by the Socratic intake and the try.html frontend to surface
+    the nearest precedent before the user runs the full four-gate seal.
+    Each result includes distance (0=identical, 1=completely unlike),
+    verdict, domain, shared dimensions, shared anchors, and the
+    verifier summary for the reasoning overlay.
+    """
+    cs = get_case_store()
+    candidates = cs.find_closest(
+        domain=req.domain,
+        dims=req.dimensions,
+        anchors=req.anchors,
+        top_k=min(req.top_k, 10),
+        exclude_hash=req.exclude_hash,
+    )
+    return {
+        "domain": req.domain,
+        "query_dims": req.dimensions,
+        "results": candidates,
+        "total_indexed": cs.count(),
+    }
 
 
 @app.get("/stats", include_in_schema=True)

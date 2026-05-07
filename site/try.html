@@ -303,6 +303,65 @@
     }
     .anchor-text { color: var(--muted); font-size: 13px; font-style: italic; }
 
+    /* ── Precedent overlay ── */
+    .precedent {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .precedent-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .precedent-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .precedent-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .precedent-verdict {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid;
+    }
+    .precedent-verdict.PASS        { color: var(--pass);       border-color: rgba(126,196,136,.4); }
+    .precedent-verdict.REJECT      { color: var(--reject);     border-color: rgba(217,124,124,.4); }
+    .precedent-verdict.QUARANTINE  { color: var(--quarantine); border-color: rgba(217,182,108,.4); }
+    .precedent-sim {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .precedent-axes {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .precedent-nostr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted-2, #3d3848);
+      word-break: break-all;
+    }
+    .precedent-nostr a { color: var(--muted); text-decoration: none; }
+    .precedent-nostr a:hover { color: var(--accent); }
+
     /* ── Seal block ── */
     .seal-block {
       margin-top: 12px;
@@ -858,6 +917,33 @@
         </div>`
       ).join('');
       sealWrap.appendChild(anch);
+    }
+
+    // Closest-case precedent overlay
+    const cc = data.closest_case;
+    if (cc && cc.precedent_id && cc.distance !== null && cc.distance < 0.999) {
+      const ro = cc.reasoning_overlay || {};
+      const pVerdict = (ro.verdict || 'UNKNOWN').toUpperCase();
+      const pDomain  = ro.domain || 'unknown';
+      const simPct   = Math.round((1 - cc.distance) * 100);
+      const sharedDims = (cc.shared_dimensions || []).join(' · ') || 'none';
+      const sharedAnch = (cc.shared_anchors || []).join(', ');
+      const nostrId    = ro.nostr_event_id || '';
+
+      const pre = document.createElement('div');
+      pre.className = 'precedent';
+      pre.innerHTML = `
+        <div class="precedent-label">Closest precedent</div>
+        <div class="precedent-header">
+          <span class="precedent-domain">${esc(pDomain)}</span>
+          <span class="precedent-verdict ${pVerdict}">${pVerdict}</span>
+          <span class="precedent-sim">${simPct}% similar</span>
+        </div>
+        <div class="precedent-axes">shared axes: ${esc(sharedDims)}</div>
+        ${sharedAnch ? `<div class="precedent-axes">shared anchors: ${esc(sharedAnch)}</div>` : ''}
+        ${nostrId ? `<div class="precedent-nostr">nostr: <a href="https://njump.me/${esc(nostrId)}" target="_blank" rel="noopener">${nostrId.slice(0,16)}…</a></div>` : ''}
+      `;
+      sealWrap.appendChild(pre);
     }
 
     // Content hash
