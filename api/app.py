@@ -82,6 +82,17 @@ from api.trust_index import (
     trust_stats as _trust_stats,
 )
 
+# -- Nostr anchor helper -------------------------------------------------
+def _nostr_pubkey_safe() -> str:
+    """Return this node's Nostr public key (hex) for /reach.
+    Generates + persists the keypair on first call; returns '' on error."""
+    try:
+        from concordance_engine.nostr_anchor import nostr_pubkey
+        return nostr_pubkey()
+    except Exception:
+        return ""
+
+
 # -- App setup -----------------------------------------------------------
 app = FastAPI(
     title="Concordance",
@@ -813,8 +824,8 @@ def reach_config():
         "tor_onion":    os.environ.get("CONCORDANCE_TOR_ONION", ""),
         "telegram":     os.environ.get("CONCORDANCE_TELEGRAM_HANDLE", ""),
         "email_in":     os.environ.get("CONCORDANCE_EMAIL_INBOUND", ""),
-        "nostr_npub":   os.environ.get("CONCORDANCE_NOSTR_NPUB", ""),
-        "arweave_gateway": os.environ.get("ARWEAVE_GATEWAY", "https://arweave.net"),
+        "nostr_npub":   _nostr_pubkey_safe(),
+        "nostr_relays": os.environ.get("CONCORDANCE_NOSTR_RELAYS", ""),
         "lora_freq":    os.environ.get("CONCORDANCE_LORA_FREQ", ""),
         "mailing_list": os.environ.get("CONCORDANCE_MAILING_LIST", ""),
         # Capability booleans — true when the corresponding secret /
@@ -1243,6 +1254,30 @@ def seal(req: SealRequest):
     out["witness_tier"] = witness_tier
     if subject_pubkey:
         out["soulbound"] = True
+
+    # ── Nostr permanent anchor ─────────────────────────────────────────
+    # Publish a signed NIP-78 event to configured Nostr relays so the
+    # verdict is independently verifiable by anyone with the event_id.
+    # The event_id is computed synchronously (deterministic SHA-256);
+    # broadcast is fire-and-forget via the existing _BROADCAST_POOL so
+    # the seal response returns immediately without waiting for relays.
+    try:
+        from concordance_engine.nostr_anchor import anchor_verdict as _nostr_anchor
+        content_hash = out.get("content_hash", "")
+        domain = str(req.packet.get("domain", "unknown"))
+        verdict = str(record.overall)
+        nostr_event_id = _nostr_anchor(
+            verdict=verdict,
+            domain=domain,
+            content_hash=content_hash,
+            packet_id=req.packet_id or req.packet.get("id"),
+            broadcast=True,
+            executor=_BROADCAST_POOL,
+        )
+        out["nostr_event_id"] = nostr_event_id
+    except Exception as _ne:
+        _log.debug("nostr anchor skipped: %s", _ne)
+
     return out
 
 

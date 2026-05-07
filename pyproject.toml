@@ -41,6 +41,7 @@ Repository = "https://github.com/matharrismma/Lighthouse"
 schema = ["jsonschema>=4.21.0"]
 mcp = ["mcp>=1.0.0"]
 signing = ["cryptography>=41.0.0"]
+nostr = ["websockets>=12.0"]
 dev = [
   "pytest>=8.0.0",
   "ruff>=0.4.0",
