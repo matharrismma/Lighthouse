@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# Gradle wrapper script — generated for Concordance Android launcher
+#
+
+##############################################################################
+# Determine the Java command to use to start the JVM.
+##############################################################################
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME"
+    fi
+else
+    JAVACMD="java"
+    command -v java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found."
+fi
+
+##############################################################################
+# Determine APP_HOME, the directory of the Gradle wrapper.
+##############################################################################
+APP_HOME=$(cd "$(dirname "$0")" && pwd -P)
+
+##############################################################################
+# Download and execute the Gradle launcher JAR
+##############################################################################
+GRADLE_WRAPPER_JAR="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+
+# If the wrapper JAR doesn't exist, download it
+if [ ! -f "$GRADLE_WRAPPER_JAR" ]; then
+    mkdir -p "$APP_HOME/gradle/wrapper"
+    curl -fsSL -o "$GRADLE_WRAPPER_JAR" \
+      "https://github.com/gradle/gradle/raw/v8.6.0/gradle/wrapper/gradle-wrapper.jar" \
+      || wget -q -O "$GRADLE_WRAPPER_JAR" \
+         "https://github.com/gradle/gradle/raw/v8.6.0/gradle/wrapper/gradle-wrapper.jar"
+fi
+
+exec "$JAVACMD" \
+  -classpath "$GRADLE_WRAPPER_JAR" \
+  org.gradle.wrapper.GradleWrapperMain "$@"

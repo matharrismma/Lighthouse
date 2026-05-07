@@ -82,5 +82,8 @@ data class HomeUiState(
     val nodeState: NodeState? = null,
     val recentEntries: List<JournalEntry> = emptyList(),
     val gates: List<GateState> = Gate.entries.map { GateState(it) },
-    val showInstallPrompt: Boolean = false
-)
+    val showInstallPrompt: Boolean = false,
+    val termuxInstalled: Boolean = false   // Termux + Concordance detected on device
+) {
+    val nodeOnline get() = nodeState?.online == true
+}

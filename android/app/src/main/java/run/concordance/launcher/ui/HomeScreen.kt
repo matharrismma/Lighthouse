@@ -214,7 +214,7 @@ fun HomeScreen(
             }
         }
 
-        // ── Error message ─────────────────────────────────────────────────
+        // ── Error / offline prompt ────────────────────────────────────────
         uiState.error?.let { error ->
             item {
                 Card(
@@ -224,12 +224,29 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .border(1.dp, RejectRed.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
                 ) {
-                    Text(
-                        text = error,
-                        color = RejectRed,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(12.dp)
-                    )
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(text = error, color = RejectRed, fontSize = 13.sp)
+
+                        // If Termux is installed but node isn't running, show how to start it
+                        if (uiState.termuxInstalled && !uiState.nodeOnline) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Termux detected on this device. Open Termux to start your local node — it launches automatically.",
+                                color = AccentGold,
+                                fontSize = 12.sp,
+                                lineHeight = 17.sp
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            OutlinedButton(
+                                onClick = { /* handled by MainActivity */ },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(6.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, AccentGold.copy(alpha = 0.5f))
+                            ) {
+                                Text("Open Termux", color = AccentGold, fontSize = 13.sp)
+                            }
+                        }
+                    }
                 }
             }
         }

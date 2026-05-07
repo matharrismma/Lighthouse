@@ -15,7 +15,16 @@ private const val SERVICE_NAME_PREFIX = "Concordance"
 
 /**
  * Tries node URLs in order until one responds.
- * Priority: mDNS local → saved custom URL → fallback remote
+ *
+ * Priority:
+ *   1. localhost:8000 — Termux running on THIS device (fastest possible)
+ *   2. concordance.local — Pi or Linux server on local WiFi
+ *   3. custom URL — user-configured IP
+ *   4. concordance.run — remote fallback
+ *
+ * Termux detection: check if /data/data/com.termux exists and
+ * ~/concordance/.venv/bin/uvicorn is present. If so, prompt user to
+ * open Termux to start the local node.
  */
 class NodeDiscovery(
     private val context: Context,
@@ -23,11 +32,18 @@ class NodeDiscovery(
     private val remoteUrl: String = "https://concordance.run"
 ) {
 
+    /** True if Termux + Concordance are installed on this device */
+    val hasLocalTermux: Boolean by lazy {
+        java.io.File("/data/data/com.termux").exists() &&
+        java.io.File("/data/data/com.termux/files/home/concordance/.venv").exists()
+    }
+
     /** Ordered list of candidate URLs to probe */
     private val candidates: List<String> get() = buildList {
+        add("http://localhost:8000")            // Termux on THIS device — check first
+        add("http://127.0.0.1:8000")            // explicit loopback alias
         add("http://concordance.local:8000")    // Pi / Linux on local network
-        add("http://concordance.local:8000")    // (intentional duplicate; deduped below)
-        add("http://localhost:8000")            // Same device
+        add("http://concordance.local:8000")    // (deduped below)
         customUrl?.let { add(it) }
         add(remoteUrl)
     }.distinct()

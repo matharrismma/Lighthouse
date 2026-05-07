@@ -1,0 +1,109 @@
+name: Build Android APK
+
+# Triggers:
+#   - Same tag push that triggers the Pi image build
+#   - Manual run from GitHub Actions UI
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string (e.g. 1.0.0)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    name: Build concordance-launcher APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write   # needed to attach to GitHub Release
+
+    steps:
+      # ── CHECKOUT ────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── VERSION ─────────────────────────────────────────────────────
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VER="${GITHUB_REF_NAME#v}"
+          elif [ -n "${{ github.event.inputs.version }}" ]; then
+            VER="${{ github.event.inputs.version }}"
+          else
+            VER="$(date +%Y.%m.%d)-dev"
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VER"    >> "$GITHUB_OUTPUT"
+          echo "Building APK version: $VER"
+
+      # ── JAVA ────────────────────────────────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # ── UPDATE VERSION IN BUILD.GRADLE ──────────────────────────────
+      - name: Inject version
+        working-directory: android
+        run: |
+          VER="${{ steps.ver.outputs.version }}"
+          # versionName
+          sed -i "s/versionName \".*\"/versionName \"$VER\"/" app/build.gradle
+          # versionCode = integer from YYYYMMDD
+          VC=$(date +%Y%m%d)
+          sed -i "s/versionCode .*/versionCode $VC/" app/build.gradle
+          echo "versionName=$VER versionCode=$VC"
+
+      # ── BUILD DEBUG APK (no signing key needed) ─────────────────────
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew 2>/dev/null || true
+          # Use gradle wrapper if present, else system gradle
+          if [ -f "gradlew" ]; then
+            ./gradlew assembleDebug --no-daemon --quiet
+          else
+            gradle assembleDebug --no-daemon --quiet
+          fi
+
+      # ── LOCATE + RENAME APK ──────────────────────────────────────────
+      - name: Rename APK
+        run: |
+          VER="${{ steps.ver.outputs.version }}"
+          SRC=$(find android/app/build/outputs/apk -name "*.apk" | head -1)
+          DEST="concordance-launcher-${VER}-debug.apk"
+          cp "$SRC" "$DEST"
+          sha256sum "$DEST" > "${DEST}.sha256"
+          echo "apk_path=$DEST" >> "$GITHUB_ENV"
+          ls -lh "$DEST"
+
+      # ── UPLOAD ARTIFACT ──────────────────────────────────────────────
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: concordance-launcher-${{ steps.ver.outputs.version }}
+          path: |
+            concordance-launcher-*.apk
+            concordance-launcher-*.apk.sha256
+          retention-days: 30
+
+      # ── ATTACH TO RELEASE (tag pushes only) ──────────────────────────
+      - name: Attach APK to GitHub Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          # Don't recreate the release — just add files to the one
+          # already created by build-pi-image.yml
+          files: |
+            concordance-launcher-*.apk
+            concordance-launcher-*.apk.sha256

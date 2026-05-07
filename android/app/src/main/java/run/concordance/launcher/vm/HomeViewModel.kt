@@ -34,11 +34,14 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             // Load saved node preferences
-            prefs.data.first().let { prefs ->
-                val customUrl = prefs[KEY_CUSTOM_URL]
-                val remoteUrl = prefs[KEY_REMOTE_URL] ?: "https://concordance.run"
+            prefs.data.first().let { saved ->
+                val customUrl = saved[KEY_CUSTOM_URL]
+                val remoteUrl = saved[KEY_REMOTE_URL] ?: "https://concordance.run"
                 nodeDiscovery = NodeDiscovery(app, customUrl, remoteUrl)
             }
+            // Check for Termux + local node
+            val discovery = nodeDiscovery!!
+            _uiState.update { it.copy(termuxInstalled = discovery.hasLocalTermux) }
             discoverNode()
         }
     }
