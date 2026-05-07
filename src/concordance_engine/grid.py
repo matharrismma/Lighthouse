@@ -45,7 +45,7 @@ DIMENSIONS: Tuple[str, ...] = (
 AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     # Foundational
     "chemistry":           frozenset({"metabolism", "physical_substance", "conservation_balance"}),
-    "physics":             frozenset({"physical_substance", "conservation_balance"}),
+    "physics":             frozenset({"physical_substance", "conservation_balance", "reasoning"}),
     "mathematics":         frozenset({"reasoning"}),
     "statistics":          frozenset({"reasoning"}),
     "computer_science":    frozenset({"encoding", "reasoning", "time_sequence"}),
@@ -110,6 +110,111 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     # substantive content of its own; classifies WHERE in the lifecycle
     # a packet sits.
     "phase":               frozenset({"time_sequence", "reasoning"}),
+
+    # ── New canonical axes + aliases (wave 2026-05-06/07) ─────────────
+
+    # Architecture / construction
+    "architecture":        frozenset({"physical_substance", "authority_trust", "time_sequence"}),
+    "construction":        frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+    "building":            frozenset({"physical_substance", "time_sequence"}),
+    "building_design":     frozenset({"physical_substance", "authority_trust"}),
+    "structural":          frozenset({"physical_substance", "conservation_balance"}),
+
+    # Law / labor / economics
+    "law":                 frozenset({"reasoning", "authority_trust", "time_sequence"}),
+    "legal":               frozenset({"reasoning", "authority_trust", "time_sequence"}),
+    "contract":            frozenset({"reasoning", "authority_trust"}),
+    "labor":               frozenset({"metabolism", "authority_trust", "time_sequence", "conservation_balance"}),
+    "labour":              frozenset({"metabolism", "authority_trust", "time_sequence", "conservation_balance"}),
+    "employment":          frozenset({"authority_trust", "time_sequence"}),
+    "wages":               frozenset({"reasoning", "conservation_balance"}),
+    "economics":           frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
+    "economy":             frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
+    "macro":               frozenset({"reasoning", "conservation_balance"}),
+    "micro":               frozenset({"reasoning", "conservation_balance"}),
+
+    # Real estate / property
+    "real_estate":         frozenset({"physical_substance", "authority_trust", "time_sequence", "conservation_balance"}),
+    "property":            frozenset({"physical_substance", "authority_trust", "time_sequence"}),
+    "mortgage":            frozenset({"reasoning", "authority_trust", "time_sequence", "conservation_balance"}),
+
+    # Medicine / health
+    "medicine":            frozenset({"metabolism", "physical_substance", "authority_trust", "time_sequence"}),
+    "medical":             frozenset({"metabolism", "physical_substance", "authority_trust", "time_sequence"}),
+    "clinical":            frozenset({"metabolism", "physical_substance", "authority_trust"}),
+
+    # Ecology / environment / soil / oceanography
+    "ecology":             frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+    "ecosystem":           frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "environmental":       frozenset({"metabolism", "physical_substance", "time_sequence"}),
+    "soil_science":        frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "soil":                frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "agronomy":            frozenset({"metabolism", "physical_substance", "time_sequence"}),
+    "oceanography":        frozenset({"metabolism", "physical_substance", "time_sequence", "conservation_balance"}),
+    "ocean":               frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "marine_science":      frozenset({"metabolism", "physical_substance", "time_sequence"}),
+
+    # Physics sub-axes (canonical splits)
+    "physics_conservation": frozenset({"physical_substance", "conservation_balance"}),
+    "physics_dimensional":  frozenset({"physical_substance", "reasoning"}),
+    "thermodynamics":      frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "thermo":              frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+    "heat":                frozenset({"metabolism", "physical_substance", "conservation_balance"}),
+
+    # Nuclear physics
+    "nuclear_physics":     frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
+    "nuclear":             frozenset({"physical_substance", "time_sequence", "conservation_balance"}),
+    "radioactivity":       frozenset({"physical_substance", "time_sequence"}),
+
+    # Cybersecurity / infosec
+    "cybersecurity":       frozenset({"encoding", "reasoning", "authority_trust"}),
+    "cyber":               frozenset({"encoding", "reasoning", "authority_trust"}),
+    "infosec":             frozenset({"encoding", "authority_trust"}),
+
+    # Quantum computing
+    "quantum_computing":   frozenset({"encoding", "reasoning", "physical_substance"}),
+    "quantum":             frozenset({"encoding", "reasoning", "physical_substance"}),
+    "qc":                  frozenset({"encoding", "reasoning", "physical_substance"}),
+
+    # Operations research / optimization
+    "operations_research": frozenset({"reasoning", "time_sequence", "conservation_balance"}),
+    "optimization":        frozenset({"reasoning", "conservation_balance"}),
+    "or":                  frozenset({"reasoning", "time_sequence", "conservation_balance"}),
+
+    # Philosophy / rhetoric / argumentation
+    "philosophy":          frozenset({"reasoning", "authority_trust"}),
+    "epistemology":        frozenset({"reasoning", "authority_trust"}),
+    "ethics":              frozenset({"reasoning", "authority_trust"}),
+    "rhetoric":            frozenset({"encoding", "reasoning", "authority_trust"}),
+    "argumentation":       frozenset({"encoding", "reasoning"}),
+    "fallacy":             frozenset({"reasoning", "authority_trust"}),
+
+    # Theology / doctrine / scripture sub-axes
+    "theology_doctrine":   frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+    "theology":            frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+    "doctrine":            frozenset({"encoding", "reasoning", "authority_trust"}),
+    "scripture_anchors":   frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+    "scripture_doctrine":  frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
+    "apologetics":         frozenset({"reasoning", "authority_trust"}),
+    "eschatology":         frozenset({"reasoning", "authority_trust", "time_sequence"}),
+
+    # Statistics sub-axes
+    "statistics_pvalue":              frozenset({"reasoning"}),
+    "statistics_multiple_comparisons": frozenset({"reasoning"}),
+    "statistics_confidence_interval":  frozenset({"reasoning"}),
+
+    # History / chronology
+    "history_chronology":  frozenset({"reasoning", "authority_trust", "time_sequence"}),
+    "history":             frozenset({"reasoning", "authority_trust", "time_sequence"}),
+    "chronology":          frozenset({"time_sequence"}),
+
+    # Materials science / metallurgy
+    "materials_science":   frozenset({"physical_substance", "metabolism", "conservation_balance"}),
+    "materials":           frozenset({"physical_substance", "metabolism", "conservation_balance"}),
+    "metallurgy":          frozenset({"physical_substance", "metabolism"}),
+
+    # Governance canonical name
+    "governance_decision_packet": frozenset({"reasoning", "authority_trust", "time_sequence"}),
 }
 
 
@@ -118,7 +223,14 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
 # the umbrella connects them.
 UMBRELLAS: Dict[str, Tuple[str, ...]] = {
     "biology":    ("genetics", "agriculture", "nutrition", "exercise_science"),
-    "governance": (),  # business / household / education / church are aliases of governance, not separate axes
+    "governance": ("governance_decision_packet",),
+    "physics":    ("physics_conservation", "physics_dimensional"),
+    "statistics": (
+        "statistics_pvalue",
+        "statistics_multiple_comparisons",
+        "statistics_confidence_interval",
+    ),
+    "theology":   ("theology_doctrine", "scripture_anchors", "apologetics", "eschatology"),
 }
 
 

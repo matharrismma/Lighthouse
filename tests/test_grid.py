@@ -63,9 +63,11 @@ def test_every_grid_entry_has_a_verifier_or_is_a_subsystem():
     verifier (or be a known umbrella subsystem)."""
     canonical = _canonical_axes_from_registry()
     extra = set(grid.AXIS_DIMENSIONS.keys()) - canonical
-    # Subsystems of biology umbrella are first-class axes in the grid
-    # but verified via the biology module.
-    allowed_extra = set(grid.UMBRELLAS.get("biology", ()))
+    # Subsystems of any umbrella axis are first-class axes in the grid
+    # but verified via the parent module (e.g. physics_conservation via physics).
+    allowed_extra: set = set()
+    for children in grid.UMBRELLAS.values():
+        allowed_extra.update(children)
     truly_extra = extra - allowed_extra
     assert not truly_extra, f"grid entries without a verifier: {sorted(truly_extra)}"
 
