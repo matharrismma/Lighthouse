@@ -276,6 +276,43 @@
     }
     .ctrl-btn:hover { color: var(--text); border-color: var(--border-bright); }
 
+    /* ── Threshold control ──────────────────────────────────── */
+    #threshold-wrap {
+      position: absolute; top: 12px; left: 12px; z-index: 10;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .thresh-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--muted); padding-left: 2px;
+    }
+    .thresh-btns { display: flex; gap: 4px; }
+    .thresh-btn {
+      padding: 3px 9px; border-radius: 5px;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); transition: all 0.15s;
+    }
+    .thresh-btn:hover { border-color: var(--border-bright); color: var(--text); }
+    .thresh-btn.active {
+      background: var(--surface-2); border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Search ─────────────────────────────────────────────── */
+    #search-wrap {
+      position: absolute; top: 60px; left: 12px; z-index: 10;
+    }
+    #search {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      padding: 5px 10px; outline: none; width: 160px;
+      transition: border-color 0.15s;
+    }
+    #search::placeholder { color: var(--muted); }
+    #search:focus { border-color: var(--border-bright); }
+
     /* ── Loading ──────────────────────────────────────────── */
     #loading {
       position: absolute; inset: 0;
@@ -355,6 +392,21 @@
       <button class="ctrl-btn" id="zoom-in" title="Zoom in">+</button>
       <button class="ctrl-btn" id="zoom-out" title="Zoom out">−</button>
       <button class="ctrl-btn" id="zoom-reset" title="Reset view" style="font-size:13px">⊙</button>
+    </div>
+
+    <!-- Edge threshold filter -->
+    <div id="threshold-wrap">
+      <span class="thresh-label">Min shared axes</span>
+      <div class="thresh-btns">
+        <button class="thresh-btn active" data-thresh="2">2+</button>
+        <button class="thresh-btn" data-thresh="3">3+</button>
+        <button class="thresh-btn" data-thresh="4">4+</button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div id="search-wrap">
+      <input id="search" type="text" placeholder="Find domain…" autocomplete="off">
     </div>
   </div>
 
@@ -674,6 +726,7 @@ function selectNode(d) {
 
 function deselect() {
   selectedNode = null;
+  if (!circleSelection) return;
   circleSelection
     .attr('fill-opacity', 0.80)
     .attr('stroke-width', 1.5)
@@ -726,6 +779,62 @@ function moveTooltip(e) {
 }
 
 function hideTooltip() { tooltip.style.display = 'none'; }
+
+/* ═══════════════════════════════════════════════════════
+   THRESHOLD FILTER
+═══════════════════════════════════════════════════════ */
+
+let currentThreshold = 2;
+
+function setThreshold(t) {
+  currentThreshold = t;
+  document.querySelectorAll('.thresh-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.thresh) === t);
+  });
+  if (!linkSelection) return;
+  linkSelection
+    .style('display', d => d.count >= t ? null : 'none');
+  // Re-settle simulation slightly
+  if (simulation) simulation.alpha(0.15).restart();
+}
+
+document.querySelectorAll('.thresh-btn').forEach(btn => {
+  btn.addEventListener('click', () => setThreshold(parseInt(btn.dataset.thresh)));
+});
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH / HIGHLIGHT
+═══════════════════════════════════════════════════════ */
+
+function applySearch(term) {
+  if (!circleSelection) return;
+  if (!term) {
+    // Reset to normal or selected state
+    if (selectedNode) { selectNode(selectedNode); return; }
+    deselect(); return;
+  }
+  const t = term.toLowerCase();
+  circleSelection
+    .attr('fill-opacity', d => d.id.includes(t) || d.label.includes(t) ? 1 : 0.12)
+    .attr('stroke-opacity', d => d.id.includes(t) || d.label.includes(t) ? 1 : 0.1)
+    .attr('filter', d => d.id.includes(t) || d.label.includes(t) ? 'url(#glow)' : null);
+  labelSelection
+    .attr('fill', d => d.id.includes(t) || d.label.includes(t) ? '#efe9e0' : 'rgba(239,233,224,0.1)');
+  linkSelection.attr('stroke-opacity', 0.04);
+
+  // Auto-select exact match
+  const exact = allNodes.find(n => n.id === t || n.label === t || n.id.startsWith(t));
+  if (exact && document.getElementById('search').value.length > 4) {
+    selectNode(exact);
+  }
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  applySearch(e.target.value.trim().toLowerCase().replace(/\s+/g,'_'));
+});
+document.getElementById('search').addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.target.value = ''; applySearch(''); }
+});
 
 /* ═══════════════════════════════════════════════════════
    LIVE CONNECTIONS FEED
