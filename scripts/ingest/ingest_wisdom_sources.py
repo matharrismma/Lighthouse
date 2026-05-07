@@ -17,7 +17,7 @@ Usage:
   python scripts/ingest/ingest_wisdom_sources.py --source gutenberg
   python scripts/ingest/ingest_wisdom_sources.py --source westminster
   python scripts/ingest/ingest_wisdom_sources.py --source loc
-  python scripts/ingest/ingest_wisdom_sources.py --source vatican
+  python scripts/ingest/ingest_wisdom_sources.py --source archive  # alias: vatican
   python scripts/ingest/ingest_wisdom_sources.py --dry-run    # no POST
   python scripts/ingest/ingest_wisdom_sources.py --reset      # re-ingest all
 """
@@ -563,7 +563,7 @@ def main() -> None:
         description="Ingest wisdom sources into Concordance via /capture")
     parser.add_argument(
         "--source",
-        choices=["gutenberg", "westminster", "loc", "vatican", "all"],
+        choices=["gutenberg", "westminster", "loc", "vatican", "archive", "all"],
         default="all",
     )
     parser.add_argument("--dry-run", action="store_true",
@@ -609,8 +609,8 @@ def main() -> None:
         print("\n=== Library of Congress ===")
         ingest_loc(args.dry_run)
 
-    if run_all or args.source == "vatican":
-        print("\n=== Vatican Apostolic Library ===")
+    if run_all or args.source in ("vatican", "archive"):
+        print("\n=== Internet Archive — Patristic, Almanac, Nat'l Geographic ===")
         ingest_vatican(args.dry_run)
 
     state_after = len(_load_state().get("ingested", []))
