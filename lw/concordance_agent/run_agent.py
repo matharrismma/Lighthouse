@@ -36,6 +36,7 @@ if _env.exists():
                 os.environ[k] = v
 
 from concordance_engine.agent import verify_claim, adjacent_domains, DOMAIN_AXES, dispatch
+from concordance_engine.agent.rule_extractor import extract_proposals, load_training_examples
 
 MODEL = os.environ.get("CONCORDANCE_MODEL", "claude-haiku-4-5-20251001")
 
@@ -53,12 +54,12 @@ DEMO_CLAIMS = [
     "The equation H2 + O2 -> H2O is balanced.",
     # medicine + nutrition (life_system axis)
     "A person weighing 70 kg and 1.75 m tall has a BMI of 22.86.",
-    # economics + labor (conservation_balance axis)
-    "An employee earning $18.50/hour who works 45 hours in a week should receive $832.50 in gross pay.",
+    # economics + labor (conservation_balance axis) — FLSA overtime: 40 regular + 5 OT at 1.5x = $878.75
+    "An employee earning $18.50/hour who works 45 hours (40 regular + 5 overtime) should receive $878.75 under FLSA overtime rules.",
     # genetics + information_theory
     "The DNA sequence ATCG has a complement of TAGC.",
-    # formal_logic (time_sequence + measurement axis)
-    "The formula (A >> B) & A being satisfiable means there is an assignment where both A is true and A implies B.",
+    # formal_logic (time_sequence + measurement axis) — use claimed_satisfiable boolean
+    "The propositional formula (A >> B) & A is satisfiable.",
 ]
 
 
@@ -98,12 +99,34 @@ def main() -> None:
         return
 
     if args[0] == "--demo":
+        training_dir = repo / "data" / "agent_training"
         print(f"Running {len(DEMO_CLAIMS)} demo claims against {MODEL}...\n")
         for i, claim in enumerate(DEMO_CLAIMS, 1):
             print(f"[{i}/{len(DEMO_CLAIMS)}] {claim[:80]}{'...' if len(claim) > 80 else ''}")
-            r = verify_claim(claim, model=MODEL)
+            r = verify_claim(claim, model=MODEL, training_dir=training_dir)
             _print_result(r)
             print()
+        print(f"Training data written to: {training_dir}")
+        return
+
+    if args[0] == "--extract":
+        training_dir = repo / "data" / "agent_training"
+        min_ex = int(args[1]) if len(args) > 1 else 1
+        by_domain = load_training_examples(training_dir)
+        total = sum(len(v) for v in by_domain.items())
+        print(f"Training store: {training_dir}")
+        print(f"Domains with oracle data: {list(by_domain.keys())}\n")
+        proposals = extract_proposals(training_dir, min_examples=min_ex)
+        if not proposals:
+            print(f"No proposals (need >= {min_ex} confirmed example(s) per domain).")
+            print("Run --demo first, or pass a lower threshold: --extract 1")
+        else:
+            for p in proposals:
+                print(f"[{p.domain}]  conf={p.confidence:.0%}  support={p.support}")
+                print(f"  pattern   : {p.pattern}")
+                print(f"  spec_keys : {p.spec_keys}")
+                print(f"  note      : {p.note}")
+                print()
         return
 
     if args[0] == "--axes":
@@ -128,8 +151,9 @@ def main() -> None:
         print("Error: no claim provided.", file=sys.stderr)
         sys.exit(1)
 
+    training_dir = repo / "data" / "agent_training"
     print(f"Claim: {claim}")
-    r = verify_claim(claim, model=MODEL)
+    r = verify_claim(claim, model=MODEL, training_dir=training_dir)
     _print_result(r)
 
     if "--json" in sys.argv:

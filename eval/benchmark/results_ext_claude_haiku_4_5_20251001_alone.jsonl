@@ -1,135 +1,135 @@
-{"id": "CHEM-001", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "CHEM-002", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no"}
-{"id": "CHEM-003", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "STAT-001", "domain": "statistics", "task": "two_tailed_pvalue", "correct": false, "reply": "0.0015", "ground_truth": 0.0002757026928258989, "parsed": 0.0015}
-{"id": "STAT-002", "domain": "statistics", "task": "two_tailed_pvalue", "correct": false, "reply": "0.3682", "ground_truth": 0.21427632432355648, "parsed": 0.3682}
-{"id": "STAT-003", "domain": "statistics", "task": "two_tailed_pvalue", "correct": false, "reply": "0.3450", "ground_truth": 0.21360562608856903, "parsed": 0.345}
-{"id": "PHYS-001", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "PHYS-002", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no"}
-{"id": "PHYS-003", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "MATH-001", "domain": "mathematics", "task": "derivative", "correct": true, "reply": "3x\u00b2", "ground_truth": "3*x**2", "parsed": "3x\u00b2"}
-{"id": "MATH-002", "domain": "mathematics", "task": "equality", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "MATH-003", "domain": "mathematics", "task": "solve", "correct": true, "reply": "2, 3", "ground_truth": "2, 3", "parsed": "2, 3"}
-{"id": "CS-001", "domain": "computer_science", "task": "complexity", "correct": true, "reply": "O(n^2)", "ground_truth": "O(n^2)", "parsed": "o(n^2)"}
-{"id": "CS-002", "domain": "computer_science", "task": "complexity", "correct": true, "reply": "O(n)", "ground_truth": "O(n)", "parsed": "o(n)"}
-{"id": "CS-003", "domain": "computer_science", "task": "termination", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "BIO-001", "domain": "biology", "task": "replicates", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "BIO-002", "domain": "biology", "task": "hardy_weinberg", "correct": true, "reply": "0.48", "ground_truth": 0.48, "parsed": 0.48}
-{"id": "BIO-003", "domain": "biology", "task": "gc_content", "correct": true, "reply": "0.5", "ground_truth": 0.5, "parsed": 0.5}
-{"id": "GEN-001", "domain": "genetics", "task": "complement", "correct": true, "reply": "TAGC", "ground_truth": "TAGC", "parsed": "tagc"}
-{"id": "GEN-002", "domain": "genetics", "task": "gc_content", "correct": true, "reply": "0.33", "ground_truth": 0.33, "parsed": 0.33}
-{"id": "GEN-003", "domain": "genetics", "task": "codon", "correct": true, "reply": "Met", "ground_truth": "Met", "parsed": "met"}
-{"id": "NUT-001", "domain": "nutrition", "task": "calories", "correct": true, "reply": "400", "ground_truth": 400.0, "parsed": 400.0}
-{"id": "NUT-002", "domain": "nutrition", "task": "calories", "correct": true, "reply": "900", "ground_truth": 900.0, "parsed": 900.0}
-{"id": "NUT-003", "domain": "nutrition", "task": "bmr", "correct": true, "reply": "1680", "ground_truth": 1649, "parsed": 1680.0}
-{"id": "LOGIC-001", "domain": "formal_logic", "task": "tautology", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "LOGIC-002", "domain": "formal_logic", "task": "contradiction", "correct": true, "reply": "Yes.", "ground_truth": "yes", "parsed": "yes"}
-{"id": "LOGIC-003", "domain": "formal_logic", "task": "entailment", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "NUM-001", "domain": "number_theory", "task": "primality", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "NUM-002", "domain": "number_theory", "task": "primality", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no"}
-{"id": "NUM-003", "domain": "number_theory", "task": "gcd", "correct": true, "reply": "6", "ground_truth": 6, "parsed": 6.0}
-{"id": "COMB-001", "domain": "combinatorics", "task": "combinations", "correct": true, "reply": "120", "ground_truth": 120, "parsed": 120.0}
-{"id": "COMB-002", "domain": "combinatorics", "task": "permutations", "correct": true, "reply": "360", "ground_truth": 360, "parsed": 360.0}
-{"id": "COMB-003", "domain": "combinatorics", "task": "derangements", "correct": true, "reply": "9", "ground_truth": 9, "parsed": 9.0}
-{"id": "GEOM-001", "domain": "geometry", "task": "area", "correct": true, "reply": "78.54", "ground_truth": 78.54, "parsed": 78.54}
-{"id": "GEOM-002", "domain": "geometry", "task": "pythagorean", "correct": true, "reply": "5", "ground_truth": 5.0, "parsed": 5.0}
-{"id": "GEOM-003", "domain": "geometry", "task": "volume", "correct": true, "reply": "113.10", "ground_truth": 113.1, "parsed": 113.1}
-{"id": "INFO-001", "domain": "information_theory", "task": "entropy", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0}
-{"id": "INFO-002", "domain": "information_theory", "task": "entropy", "correct": true, "reply": "2", "ground_truth": 2.0, "parsed": 2.0}
-{"id": "INFO-003", "domain": "information_theory", "task": "channel_capacity", "correct": false, "reply": "2.0945", "ground_truth": 2.0, "parsed": 2.0945}
-{"id": "ELEC-001", "domain": "electrical", "task": "ohms_law", "correct": true, "reply": "4", "ground_truth": 4.0, "parsed": 4.0}
-{"id": "ELEC-002", "domain": "electrical", "task": "power", "correct": true, "reply": "36", "ground_truth": 36.0, "parsed": 36.0}
-{"id": "ELEC-003", "domain": "electrical", "task": "ohms_law", "correct": true, "reply": "0.5", "ground_truth": 0.5, "parsed": 0.5}
-{"id": "ENRG-001", "domain": "energy", "task": "unit_conversion", "correct": true, "reply": "1000", "ground_truth": 1000.0, "parsed": 1000.0}
-{"id": "ENRG-002", "domain": "energy", "task": "runtime", "correct": true, "reply": "5", "ground_truth": 5.0, "parsed": 5.0}
-{"id": "ENRG-003", "domain": "energy", "task": "efficiency", "correct": true, "reply": "0.8", "ground_truth": 0.8, "parsed": 0.8}
-{"id": "OPT-001", "domain": "optics", "task": "snells_law", "correct": true, "reply": "Using Snell's law: n\u2081sin(\u03b8\u2081) = n\u2082sin(\u03b8\u2082)\n\n1.0 \u00d7 sin(30\u00b0) = 1.5 \u00d7 sin(\u03b8\u2082)\n0.5 = 1.5 \u00d7 sin(\u03b8\u2082)\nsin(\u03b8\u2082) = 0.333...\n\u03b8\u2082 = 19.5\u00b0\n\n19.5", "ground_truth": 19.5, "parsed": 19.5}
-{"id": "OPT-002", "domain": "optics", "task": "thin_lens", "correct": true, "reply": "15", "ground_truth": 15.0, "parsed": 15.0}
-{"id": "OPT-003", "domain": "optics", "task": "snells_law", "correct": true, "reply": "total_internal_reflection", "ground_truth": "total_internal_reflection", "parsed": "total_internal_reflection"}
-{"id": "ACOU-001", "domain": "acoustics", "task": "wave_speed", "correct": true, "reply": "0.7727", "ground_truth": 0.7727, "parsed": 0.7727}
-{"id": "ACOU-002", "domain": "acoustics", "task": "decibel", "correct": true, "reply": "20", "ground_truth": 20.0, "parsed": 20.0}
-{"id": "ACOU-003", "domain": "acoustics", "task": "harmonic", "correct": true, "reply": "300", "ground_truth": 300.0, "parsed": 300.0}
-{"id": "MFG-001", "domain": "manufacturing", "task": "cp", "correct": true, "reply": "1.00", "ground_truth": 1.0, "parsed": 1.0}
-{"id": "MFG-002", "domain": "manufacturing", "task": "capable", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "MFG-003", "domain": "manufacturing", "task": "tolerance_stack", "correct": true, "reply": "0.3", "ground_truth": 0.3, "parsed": 0.3}
-{"id": "MET-001", "domain": "meteorology", "task": "dew_point", "correct": true, "reply": "9.3", "ground_truth": 9.3, "parsed": 9.3}
-{"id": "MET-002", "domain": "meteorology", "task": "wind_chill", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "MET-003", "domain": "meteorology", "task": "humidity", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "GEOL-001", "domain": "geology", "task": "mohs", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "GEOL-002", "domain": "geology", "task": "mohs", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "GEOL-003", "domain": "geology", "task": "richter", "correct": true, "reply": "10", "ground_truth": 10.0, "parsed": 10.0}
-{"id": "HYD-001", "domain": "hydrology", "task": "continuity", "correct": true, "reply": "0.1", "ground_truth": 0.1, "parsed": 0.1}
-{"id": "HYD-002", "domain": "hydrology", "task": "continuity", "correct": true, "reply": "2", "ground_truth": 2.0, "parsed": 2.0}
-{"id": "HYD-003", "domain": "hydrology", "task": "darcy", "correct": true, "reply": "0.00005", "ground_truth": 5e-05, "parsed": 5e-05}
-{"id": "ASTRO-001", "domain": "astronomy", "task": "kepler", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0}
-{"id": "ASTRO-002", "domain": "astronomy", "task": "kepler", "correct": true, "reply": "8", "ground_truth": 8.0, "parsed": 8.0}
-{"id": "ASTRO-003", "domain": "astronomy", "task": "parallax", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0}
-{"id": "AG-001", "domain": "agriculture", "task": "hardiness", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "AG-002", "domain": "agriculture", "task": "hardiness", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "AG-003", "domain": "agriculture", "task": "soil_ph", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "GEO-001", "domain": "geography", "task": "haversine", "correct": true, "reply": "111.32", "ground_truth": 111.19, "parsed": 111.32}
-{"id": "GEO-002", "domain": "geography", "task": "validity", "correct": true, "reply": "No.", "ground_truth": "no", "parsed": "no"}
-{"id": "GEO-003", "domain": "geography", "task": "validity", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "CRYPT-001", "domain": "cryptography", "task": "hash_match", "correct": true, "reply": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "ground_truth": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "parsed": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"}
-{"id": "CRYPT-002", "domain": "cryptography", "task": "hash_strength", "correct": true, "reply": "No.", "ground_truth": "no", "parsed": "no"}
-{"id": "CRYPT-003", "domain": "cryptography", "task": "key_strength", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "NET-001", "domain": "networking", "task": "cidr", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "NET-002", "domain": "networking", "task": "cidr", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no"}
-{"id": "NET-003", "domain": "networking", "task": "hosts", "correct": true, "reply": "254", "ground_truth": 254, "parsed": 254.0}
-{"id": "EX-001", "domain": "exercise_science", "task": "max_hr", "correct": true, "reply": "187", "ground_truth": 187.0, "parsed": 187.0}
-{"id": "EX-002", "domain": "exercise_science", "task": "energy", "correct": true, "reply": "560", "ground_truth": 560.0, "parsed": 560.0}
-{"id": "EX-003", "domain": "exercise_science", "task": "target_hr", "correct": true, "reply": "140", "ground_truth": 149, "parsed": 140.0}
-{"id": "SPORT-001", "domain": "sports_analytics", "task": "pythagorean", "correct": true, "reply": "0.735", "ground_truth": 0.735, "parsed": 0.735}
-{"id": "SPORT-002", "domain": "sports_analytics", "task": "batting_avg", "correct": true, "reply": ".300", "ground_truth": 0.3, "parsed": 0.3}
-{"id": "SPORT-003", "domain": "sports_analytics", "task": "era", "correct": true, "reply": "3.00", "ground_truth": 3.0, "parsed": 3.0}
-{"id": "FIN-001", "domain": "finance", "task": "accounting_identity", "correct": true, "reply": "$400,000", "ground_truth": 400000.0, "parsed": 0.0}
-{"id": "FIN-002", "domain": "finance", "task": "compound_interest", "correct": true, "reply": "1628.89", "ground_truth": 1628.89, "parsed": 1628.89}
-{"id": "FIN-003", "domain": "finance", "task": "present_value", "correct": true, "reply": "1000", "ground_truth": 1000.0, "parsed": 1000.0}
-{"id": "MUS-001", "domain": "music_theory", "task": "interval", "correct": true, "reply": "7", "ground_truth": 7, "parsed": 7.0}
-{"id": "MUS-002", "domain": "music_theory", "task": "interval", "correct": true, "reply": "12", "ground_truth": 12, "parsed": 12.0}
-{"id": "MUS-003", "domain": "music_theory", "task": "frequency", "correct": true, "reply": "880", "ground_truth": 880.0, "parsed": 880.0}
-{"id": "CAL-001", "domain": "calendar_time", "task": "leap_year", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "CAL-002", "domain": "calendar_time", "task": "leap_year", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "CAL-003", "domain": "calendar_time", "task": "day_of_week", "correct": true, "reply": "Saturday", "ground_truth": "Saturday", "parsed": "saturday"}
-{"id": "GOV-001", "domain": "governance", "task": "packet_valid", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "GOV-002", "domain": "governance", "task": "packet_invalid", "correct": false, "reply": "I don't have enough context to answer this question. \"Decision packet\" and its structural validity requirements are not standard terms I can definitively address without knowing the specific system, p", "ground_truth": "no", "parsed": "i"}
-{"id": "GOV-003", "domain": "governance", "task": "packet_invalid", "correct": false, "reply": "yes", "ground_truth": "no", "parsed": "yes"}
-{"id": "DOC-001", "domain": "document_validation", "task": "isbn13", "correct": false, "reply": "No", "ground_truth": "yes", "parsed": "no"}
-{"id": "DOC-002", "domain": "document_validation", "task": "isbn13", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "DOC-003", "domain": "document_validation", "task": "luhn", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "PHOTO-001", "domain": "photography", "task": "exposure_value", "correct": true, "reply": "13.00", "ground_truth": 12.97, "parsed": 13.0}
-{"id": "PHOTO-002", "domain": "photography", "task": "equivalent_exposure", "correct": true, "reply": "1", "ground_truth": 1, "parsed": 1.0}
-{"id": "PHOTO-003", "domain": "photography", "task": "iso_stops", "correct": true, "reply": "1", "ground_truth": 1, "parsed": 1.0}
-{"id": "LING-001", "domain": "linguistics", "task": "strongs_range", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "LING-002", "domain": "linguistics", "task": "strongs_range", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "LING-003", "domain": "linguistics", "task": "transliteration_normalization", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "WIT-001", "domain": "witness", "task": "gate_chain", "correct": false, "reply": "I don't have access to a `verify_witness` function or the ability to verify gate records against an external system. I can only work with information provided to me in our conversation.\n\nTo answer whe", "ground_truth": "yes", "parsed": "i"}
-{"id": "WIT-002", "domain": "witness", "task": "gate_chain", "correct": true, "reply": "No.", "ground_truth": "no", "parsed": "no"}
-{"id": "WIT-003", "domain": "witness", "task": "no_fabrication", "correct": true, "reply": "Yes.", "ground_truth": "yes", "parsed": "yes"}
-{"id": "QCOMP-001", "domain": "quantum_computing", "task": "qubit_normalization", "correct": false, "reply": "No", "ground_truth": "yes", "parsed": "no"}
-{"id": "QCOMP-002", "domain": "quantum_computing", "task": "grover_iterations", "correct": false, "reply": "4", "ground_truth": 6, "parsed": 4.0}
-{"id": "QCOMP-003", "domain": "quantum_computing", "task": "bb84_security", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no"}
-{"id": "XDOM-001", "domain": "cross_domain", "task": "shor_period", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "XDOM-002", "domain": "cross_domain", "task": "factor_primality", "correct": false, "reply": "no", "ground_truth": "yes", "parsed": "no"}
-{"id": "XDOM-003", "domain": "cross_domain", "task": "rsa_broken_chain", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "ECON-001", "domain": "economics", "task": "simple_interest", "correct": true, "reply": "150", "ground_truth": 150.0, "parsed": 150.0}
-{"id": "ECON-002", "domain": "economics", "task": "rule_of_72", "correct": true, "reply": "9", "ground_truth": 9.0, "parsed": 9.0}
-{"id": "ECON-003", "domain": "economics", "task": "gdp_per_capita", "correct": true, "reply": "63445", "ground_truth": 63444, "parsed": 63445.0}
-{"id": "LAB-001", "domain": "labor", "task": "gross_pay", "correct": true, "reply": "740", "ground_truth": 740.0, "parsed": 740.0}
-{"id": "LAB-002", "domain": "labor", "task": "overtime_pay", "correct": true, "reply": "950", "ground_truth": 950.0, "parsed": 950.0}
-{"id": "LAB-003", "domain": "labor", "task": "annual_to_hourly", "correct": true, "reply": "25.00", "ground_truth": 25.0, "parsed": 25.0}
-{"id": "RE-001", "domain": "real_estate", "task": "loan_to_value", "correct": true, "reply": "0.80", "ground_truth": 0.8, "parsed": 0.8}
-{"id": "RE-002", "domain": "real_estate", "task": "cap_rate", "correct": true, "reply": "0.06", "ground_truth": 0.06, "parsed": 0.06}
-{"id": "RE-003", "domain": "real_estate", "task": "gross_rent_multiplier", "correct": true, "reply": "12.5", "ground_truth": 12.5, "parsed": 12.5}
-{"id": "CONSTR-001", "domain": "construction", "task": "concrete_volume", "correct": true, "reply": "7.5", "ground_truth": 7.5, "parsed": 7.5}
-{"id": "CONSTR-002", "domain": "construction", "task": "rectangular_area", "correct": true, "reply": "50", "ground_truth": 50.0, "parsed": 50.0}
-{"id": "CONSTR-003", "domain": "construction", "task": "paint_coverage", "correct": true, "reply": "8", "ground_truth": 8, "parsed": 8.0}
-{"id": "SOIL-001", "domain": "soil_science", "task": "ph_suitability", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes"}
-{"id": "SOIL-002", "domain": "soil_science", "task": "ph_suitability", "correct": true, "reply": "No.", "ground_truth": "no", "parsed": "no"}
-{"id": "SOIL-003", "domain": "soil_science", "task": "irrigation_req", "correct": true, "reply": "5.75", "ground_truth": 5.75, "parsed": 5.75}
-{"id": "CYBER-001", "domain": "cybersecurity", "task": "password_entropy", "correct": true, "reply": "104.48", "ground_truth": 104.87, "parsed": 104.48}
-{"id": "CYBER-002", "domain": "cybersecurity", "task": "subnet_hosts", "correct": true, "reply": "254", "ground_truth": 254, "parsed": 254.0}
-{"id": "CYBER-003", "domain": "cybersecurity", "task": "cvss_severity", "correct": true, "reply": "critical", "ground_truth": "critical", "parsed": "critical"}
-{"id": "MED-001", "domain": "medicine", "task": "bmi_class", "correct": true, "reply": "normal", "ground_truth": "normal", "parsed": "normal"}
-{"id": "MED-002", "domain": "medicine", "task": "drug_dosage", "correct": true, "reply": "350", "ground_truth": 350.0, "parsed": 350.0}
-{"id": "MED-003", "domain": "medicine", "task": "map", "correct": true, "reply": "93.3", "ground_truth": 93.3, "parsed": 93.3}
+{"id": "CHEM-001", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.067, "tool_calls": []}
+{"id": "CHEM-002", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.72, "tool_calls": []}
+{"id": "CHEM-003", "domain": "chemistry", "task": "is_balanced", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.693, "tool_calls": []}
+{"id": "STAT-001", "domain": "statistics", "task": "two_tailed_pvalue", "correct": false, "reply": "I don't have access to a function called \"verify_statistics_pvalue\". However, I can calculate the two-tailed p-value for this two-sample t-test:\n\nt = (5.0 - 4.0) / \u221a((1.0\u00b2 + 1.0\u00b2)/30) = 1.0 / \u221a(0.0667) = 1.0 / 0.2582 \u2248 3.873\n\nWith df = 58, the two-tailed p-value \u2248 0.0002", "ground_truth": 0.0002757026928258989, "parsed": 0.0002, "elapsed_s": 6.148, "tool_calls": []}
+{"id": "STAT-002", "domain": "statistics", "task": "two_tailed_pvalue", "correct": false, "reply": "I don't have access to a function called `verify_statistics_pvalue`. I can calculate the two-tailed p-value directly using the two-sample t-test formula:\n\nt = (mean1 - mean2) / \u221a(sd1\u00b2/n1 + sd2\u00b2/n2)\nt = (10.0 - 10.5) / \u221a(4/50 + 4/50)\nt = -0.5 / \u221a0.16\nt = -0.5 / 0.4\nt = -1.25", "ground_truth": 0.21427632432355648, "parsed": -1.25, "elapsed_s": 2.258, "tool_calls": []}
+{"id": "STAT-003", "domain": "statistics", "task": "two_tailed_pvalue", "correct": true, "reply": "I don't have access to a function called \"verify_statistics_pvalue\" to compute the p-value. However, I can calculate the two-tailed p-value for this two-sample t-test.\n\nUsing the standard two-sample t-test formula:\n- t = (100 - 98) / \u221a[(5\u00b2 + 5\u00b2)/(20)] = 2 / \u221a2.5 \u2248 1.265\n- df = 38\n- Two-tailed p-value \u2248 0.212\n\n0.212", "ground_truth": 0.21360562608856903, "parsed": 0.212, "elapsed_s": 2.304, "tool_calls": []}
+{"id": "PHYS-001", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.89, "tool_calls": []}
+{"id": "PHYS-002", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.607, "tool_calls": []}
+{"id": "PHYS-003", "domain": "physics", "task": "dimensional_consistency", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.178, "tool_calls": []}
+{"id": "MATH-001", "domain": "mathematics", "task": "derivative", "correct": true, "reply": "3x\u00b2", "ground_truth": "3*x**2", "parsed": "3x\u00b2", "elapsed_s": 0.654, "tool_calls": []}
+{"id": "MATH-002", "domain": "mathematics", "task": "equality", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.809, "tool_calls": []}
+{"id": "MATH-003", "domain": "mathematics", "task": "solve", "correct": true, "reply": "2, 3", "ground_truth": "2, 3", "parsed": "2, 3", "elapsed_s": 0.826, "tool_calls": []}
+{"id": "CS-001", "domain": "computer_science", "task": "complexity", "correct": true, "reply": "O(n^2)", "ground_truth": "O(n^2)", "parsed": "o(n^2)", "elapsed_s": 0.769, "tool_calls": []}
+{"id": "CS-002", "domain": "computer_science", "task": "complexity", "correct": true, "reply": "O(n)", "ground_truth": "O(n)", "parsed": "o(n)", "elapsed_s": 0.691, "tool_calls": []}
+{"id": "CS-003", "domain": "computer_science", "task": "termination", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.05, "tool_calls": []}
+{"id": "BIO-001", "domain": "biology", "task": "replicates", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.547, "tool_calls": []}
+{"id": "BIO-002", "domain": "biology", "task": "hardy_weinberg", "correct": true, "reply": "0.48", "ground_truth": 0.48, "parsed": 0.48, "elapsed_s": 0.864, "tool_calls": []}
+{"id": "BIO-003", "domain": "biology", "task": "gc_content", "correct": false, "reply": "0.375", "ground_truth": 0.5, "parsed": 0.375, "elapsed_s": 5.416, "tool_calls": []}
+{"id": "GEN-001", "domain": "genetics", "task": "complement", "correct": true, "reply": "TAGC", "ground_truth": "TAGC", "parsed": "tagc", "elapsed_s": 0.848, "tool_calls": []}
+{"id": "GEN-002", "domain": "genetics", "task": "gc_content", "correct": true, "reply": "0.33", "ground_truth": 0.33, "parsed": 0.33, "elapsed_s": 0.925, "tool_calls": []}
+{"id": "GEN-003", "domain": "genetics", "task": "codon", "correct": true, "reply": "Met", "ground_truth": "Met", "parsed": "met", "elapsed_s": 0.751, "tool_calls": []}
+{"id": "NUT-001", "domain": "nutrition", "task": "calories", "correct": true, "reply": "400", "ground_truth": 400.0, "parsed": 400.0, "elapsed_s": 0.709, "tool_calls": []}
+{"id": "NUT-002", "domain": "nutrition", "task": "calories", "correct": true, "reply": "900", "ground_truth": 900.0, "parsed": 900.0, "elapsed_s": 0.693, "tool_calls": []}
+{"id": "NUT-003", "domain": "nutrition", "task": "bmr", "correct": false, "reply": "1702", "ground_truth": 1649, "parsed": 1702.0, "elapsed_s": 0.864, "tool_calls": []}
+{"id": "LOGIC-001", "domain": "formal_logic", "task": "tautology", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.657, "tool_calls": []}
+{"id": "LOGIC-002", "domain": "formal_logic", "task": "contradiction", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.532, "tool_calls": []}
+{"id": "LOGIC-003", "domain": "formal_logic", "task": "entailment", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.59, "tool_calls": []}
+{"id": "NUM-001", "domain": "number_theory", "task": "primality", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.738, "tool_calls": []}
+{"id": "NUM-002", "domain": "number_theory", "task": "primality", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no", "elapsed_s": 1.405, "tool_calls": []}
+{"id": "NUM-003", "domain": "number_theory", "task": "gcd", "correct": true, "reply": "6", "ground_truth": 6, "parsed": 6.0, "elapsed_s": 0.854, "tool_calls": []}
+{"id": "COMB-001", "domain": "combinatorics", "task": "combinations", "correct": true, "reply": "120", "ground_truth": 120, "parsed": 120.0, "elapsed_s": 1.105, "tool_calls": []}
+{"id": "COMB-002", "domain": "combinatorics", "task": "permutations", "correct": true, "reply": "360", "ground_truth": 360, "parsed": 360.0, "elapsed_s": 0.962, "tool_calls": []}
+{"id": "COMB-003", "domain": "combinatorics", "task": "derangements", "correct": true, "reply": "9", "ground_truth": 9, "parsed": 9.0, "elapsed_s": 0.688, "tool_calls": []}
+{"id": "GEOM-001", "domain": "geometry", "task": "area", "correct": true, "reply": "78.54", "ground_truth": 78.54, "parsed": 78.54, "elapsed_s": 0.715, "tool_calls": []}
+{"id": "GEOM-002", "domain": "geometry", "task": "pythagorean", "correct": true, "reply": "5", "ground_truth": 5.0, "parsed": 5.0, "elapsed_s": 0.725, "tool_calls": []}
+{"id": "GEOM-003", "domain": "geometry", "task": "volume", "correct": true, "reply": "113.10", "ground_truth": 113.1, "parsed": 113.1, "elapsed_s": 1.211, "tool_calls": []}
+{"id": "INFO-001", "domain": "information_theory", "task": "entropy", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0, "elapsed_s": 0.609, "tool_calls": []}
+{"id": "INFO-002", "domain": "information_theory", "task": "entropy", "correct": true, "reply": "2", "ground_truth": 2.0, "parsed": 2.0, "elapsed_s": 0.601, "tool_calls": []}
+{"id": "INFO-003", "domain": "information_theory", "task": "channel_capacity", "correct": false, "reply": "2.0849", "ground_truth": 2.0, "parsed": 2.0849, "elapsed_s": 0.766, "tool_calls": []}
+{"id": "ELEC-001", "domain": "electrical", "task": "ohms_law", "correct": true, "reply": "4", "ground_truth": 4.0, "parsed": 4.0, "elapsed_s": 0.724, "tool_calls": []}
+{"id": "ELEC-002", "domain": "electrical", "task": "power", "correct": true, "reply": "36", "ground_truth": 36.0, "parsed": 36.0, "elapsed_s": 1.462, "tool_calls": []}
+{"id": "ELEC-003", "domain": "electrical", "task": "ohms_law", "correct": true, "reply": "0.5", "ground_truth": 0.5, "parsed": 0.5, "elapsed_s": 0.796, "tool_calls": []}
+{"id": "ENRG-001", "domain": "energy", "task": "unit_conversion", "correct": true, "reply": "1000", "ground_truth": 1000.0, "parsed": 1000.0, "elapsed_s": 0.622, "tool_calls": []}
+{"id": "ENRG-002", "domain": "energy", "task": "runtime", "correct": true, "reply": "5", "ground_truth": 5.0, "parsed": 5.0, "elapsed_s": 0.588, "tool_calls": []}
+{"id": "ENRG-003", "domain": "energy", "task": "efficiency", "correct": true, "reply": "0.8", "ground_truth": 0.8, "parsed": 0.8, "elapsed_s": 0.751, "tool_calls": []}
+{"id": "OPT-001", "domain": "optics", "task": "snells_law", "correct": true, "reply": "19.5", "ground_truth": 19.5, "parsed": 19.5, "elapsed_s": 0.816, "tool_calls": []}
+{"id": "OPT-002", "domain": "optics", "task": "thin_lens", "correct": true, "reply": "15", "ground_truth": 15.0, "parsed": 15.0, "elapsed_s": 0.737, "tool_calls": []}
+{"id": "OPT-003", "domain": "optics", "task": "snells_law", "correct": true, "reply": "total_internal_reflection", "ground_truth": "total_internal_reflection", "parsed": "total_internal_reflection", "elapsed_s": 0.595, "tool_calls": []}
+{"id": "ACOU-001", "domain": "acoustics", "task": "wave_speed", "correct": true, "reply": "0.7727", "ground_truth": 0.7727, "parsed": 0.7727, "elapsed_s": 0.675, "tool_calls": []}
+{"id": "ACOU-002", "domain": "acoustics", "task": "decibel", "correct": true, "reply": "20", "ground_truth": 20.0, "parsed": 20.0, "elapsed_s": 0.682, "tool_calls": []}
+{"id": "ACOU-003", "domain": "acoustics", "task": "harmonic", "correct": true, "reply": "300", "ground_truth": 300.0, "parsed": 300.0, "elapsed_s": 0.583, "tool_calls": []}
+{"id": "MFG-001", "domain": "manufacturing", "task": "cp", "correct": true, "reply": "1.00", "ground_truth": 1.0, "parsed": 1.0, "elapsed_s": 0.696, "tool_calls": []}
+{"id": "MFG-002", "domain": "manufacturing", "task": "capable", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.597, "tool_calls": []}
+{"id": "MFG-003", "domain": "manufacturing", "task": "tolerance_stack", "correct": true, "reply": "0.3", "ground_truth": 0.3, "parsed": 0.3, "elapsed_s": 0.823, "tool_calls": []}
+{"id": "MET-001", "domain": "meteorology", "task": "dew_point", "correct": true, "reply": "9.3", "ground_truth": 9.3, "parsed": 9.3, "elapsed_s": 0.941, "tool_calls": []}
+{"id": "MET-002", "domain": "meteorology", "task": "wind_chill", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.788, "tool_calls": []}
+{"id": "MET-003", "domain": "meteorology", "task": "humidity", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.677, "tool_calls": []}
+{"id": "GEOL-001", "domain": "geology", "task": "mohs", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.708, "tool_calls": []}
+{"id": "GEOL-002", "domain": "geology", "task": "mohs", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.72, "tool_calls": []}
+{"id": "GEOL-003", "domain": "geology", "task": "richter", "correct": true, "reply": "10.0", "ground_truth": 10.0, "parsed": 10.0, "elapsed_s": 0.764, "tool_calls": []}
+{"id": "HYD-001", "domain": "hydrology", "task": "continuity", "correct": true, "reply": "0.1", "ground_truth": 0.1, "parsed": 0.1, "elapsed_s": 0.613, "tool_calls": []}
+{"id": "HYD-002", "domain": "hydrology", "task": "continuity", "correct": true, "reply": "2", "ground_truth": 2.0, "parsed": 2.0, "elapsed_s": 1.199, "tool_calls": []}
+{"id": "HYD-003", "domain": "hydrology", "task": "darcy", "correct": true, "reply": "0.00005", "ground_truth": 5e-05, "parsed": 5e-05, "elapsed_s": 0.729, "tool_calls": []}
+{"id": "ASTRO-001", "domain": "astronomy", "task": "kepler", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0, "elapsed_s": 0.579, "tool_calls": []}
+{"id": "ASTRO-002", "domain": "astronomy", "task": "kepler", "correct": true, "reply": "8", "ground_truth": 8.0, "parsed": 8.0, "elapsed_s": 0.564, "tool_calls": []}
+{"id": "ASTRO-003", "domain": "astronomy", "task": "parallax", "correct": true, "reply": "1", "ground_truth": 1.0, "parsed": 1.0, "elapsed_s": 1.18, "tool_calls": []}
+{"id": "AG-001", "domain": "agriculture", "task": "hardiness", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.709, "tool_calls": []}
+{"id": "AG-002", "domain": "agriculture", "task": "hardiness", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.632, "tool_calls": []}
+{"id": "AG-003", "domain": "agriculture", "task": "soil_ph", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.685, "tool_calls": []}
+{"id": "GEO-001", "domain": "geography", "task": "haversine", "correct": true, "reply": "111.32", "ground_truth": 111.19, "parsed": 111.32, "elapsed_s": 0.662, "tool_calls": []}
+{"id": "GEO-002", "domain": "geography", "task": "validity", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.712, "tool_calls": []}
+{"id": "GEO-003", "domain": "geography", "task": "validity", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.636, "tool_calls": []}
+{"id": "CRYPT-001", "domain": "cryptography", "task": "hash_match", "correct": true, "reply": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "ground_truth": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "parsed": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "elapsed_s": 1.187, "tool_calls": []}
+{"id": "CRYPT-002", "domain": "cryptography", "task": "hash_strength", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.582, "tool_calls": []}
+{"id": "CRYPT-003", "domain": "cryptography", "task": "key_strength", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.699, "tool_calls": []}
+{"id": "NET-001", "domain": "networking", "task": "cidr", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.792, "tool_calls": []}
+{"id": "NET-002", "domain": "networking", "task": "cidr", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.606, "tool_calls": []}
+{"id": "NET-003", "domain": "networking", "task": "hosts", "correct": true, "reply": "254", "ground_truth": 254, "parsed": 254.0, "elapsed_s": 0.685, "tool_calls": []}
+{"id": "EX-001", "domain": "exercise_science", "task": "max_hr", "correct": true, "reply": "187", "ground_truth": 187.0, "parsed": 187.0, "elapsed_s": 1.146, "tool_calls": []}
+{"id": "EX-002", "domain": "exercise_science", "task": "energy", "correct": true, "reply": "560", "ground_truth": 560.0, "parsed": 560.0, "elapsed_s": 0.722, "tool_calls": []}
+{"id": "EX-003", "domain": "exercise_science", "task": "target_hr", "correct": true, "reply": "138", "ground_truth": 149, "parsed": 138.0, "elapsed_s": 0.876, "tool_calls": []}
+{"id": "SPORT-001", "domain": "sports_analytics", "task": "pythagorean", "correct": true, "reply": "0.735", "ground_truth": 0.735, "parsed": 0.735, "elapsed_s": 0.644, "tool_calls": []}
+{"id": "SPORT-002", "domain": "sports_analytics", "task": "batting_avg", "correct": true, "reply": ".300", "ground_truth": 0.3, "parsed": 0.3, "elapsed_s": 0.645, "tool_calls": []}
+{"id": "SPORT-003", "domain": "sports_analytics", "task": "era", "correct": true, "reply": "3.00", "ground_truth": 3.0, "parsed": 3.0, "elapsed_s": 0.91, "tool_calls": []}
+{"id": "FIN-001", "domain": "finance", "task": "accounting_identity", "correct": true, "reply": "$400,000", "ground_truth": 400000.0, "parsed": 0.0, "elapsed_s": 1.976, "tool_calls": []}
+{"id": "FIN-002", "domain": "finance", "task": "compound_interest", "correct": true, "reply": "1628.89", "ground_truth": 1628.89, "parsed": 1628.89, "elapsed_s": 0.659, "tool_calls": []}
+{"id": "FIN-003", "domain": "finance", "task": "present_value", "correct": true, "reply": "1000", "ground_truth": 1000.0, "parsed": 1000.0, "elapsed_s": 0.772, "tool_calls": []}
+{"id": "MUS-001", "domain": "music_theory", "task": "interval", "correct": true, "reply": "7", "ground_truth": 7, "parsed": 7.0, "elapsed_s": 0.842, "tool_calls": []}
+{"id": "MUS-002", "domain": "music_theory", "task": "interval", "correct": true, "reply": "12", "ground_truth": 12, "parsed": 12.0, "elapsed_s": 0.564, "tool_calls": []}
+{"id": "MUS-003", "domain": "music_theory", "task": "frequency", "correct": true, "reply": "880", "ground_truth": 880.0, "parsed": 880.0, "elapsed_s": 0.769, "tool_calls": []}
+{"id": "CAL-001", "domain": "calendar_time", "task": "leap_year", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.739, "tool_calls": []}
+{"id": "CAL-002", "domain": "calendar_time", "task": "leap_year", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.602, "tool_calls": []}
+{"id": "CAL-003", "domain": "calendar_time", "task": "day_of_week", "correct": true, "reply": "Saturday", "ground_truth": "Saturday", "parsed": "saturday", "elapsed_s": 0.711, "tool_calls": []}
+{"id": "GOV-001", "domain": "governance", "task": "packet_valid", "correct": false, "reply": "I don't have the ability to call functions or execute code. I can only provide information and analysis based on text.\n\nHowever, based on the decision packet structure you've provided, it appears to contain the typical elements of a governance decision framework:\n- Title\n- Scope\n- Red items (constraints)\n- Floor items (requirements)\n- Way path (decision)\n- Execution steps\n- Witnesses\n\nWithout acce", "ground_truth": "yes", "parsed": "i", "elapsed_s": 1.892, "tool_calls": []}
+{"id": "GOV-002", "domain": "governance", "task": "packet_invalid", "correct": false, "reply": "I don't have sufficient information to answer this question. \"Decision packet\" is not a term from standard documentation I'm familiar with, and without knowing the specific schema or rules that define what makes a decision packet \"structurally valid,\" I cannot determine whether the absence of witnesses violates those requirements.\n\nCould you provide the context or specification that defines a deci", "ground_truth": "no", "parsed": "i", "elapsed_s": 1.558, "tool_calls": []}
+{"id": "GOV-003", "domain": "governance", "task": "packet_invalid", "correct": false, "reply": "yes", "ground_truth": "no", "parsed": "yes", "elapsed_s": 0.715, "tool_calls": []}
+{"id": "DOC-001", "domain": "document_validation", "task": "isbn13", "correct": false, "reply": "I don't have the ability to call functions or access external verification systems. I can only provide information based on my training data.\n\nHowever, I can verify ISBN-13s using the checksum algorithm. For 9780306406157:\n\n- Digits: 9 7 8 0 3 0 6 4 0 6 1 5 7\n- Weighted sum: 9(1) + 7(3) + 8(1) + 0(3) + 3(1) + 0(3) + 6(1)", "ground_truth": "yes", "parsed": "i", "elapsed_s": 1.575, "tool_calls": []}
+{"id": "DOC-002", "domain": "document_validation", "task": "isbn13", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.568, "tool_calls": []}
+{"id": "DOC-003", "domain": "document_validation", "task": "luhn", "correct": true, "reply": "I don't have the ability to call external functions or APIs. However, I can verify the Luhn algorithm validity of the number you provided.\n\nLet me check 4532015112830366:\n\n4+5+3+2+0+1+5+1+1+2+8+3+0+3+6+6 (sum of digits with every second digit doubled from right)\n\nWorking through the Luhn algorithm on this number, the checksum is valid.\n\n**Yes**", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.631, "tool_calls": []}
+{"id": "PHOTO-001", "domain": "photography", "task": "exposure_value", "correct": false, "reply": "15.00", "ground_truth": 12.97, "parsed": 15.0, "elapsed_s": 0.813, "tool_calls": []}
+{"id": "PHOTO-002", "domain": "photography", "task": "equivalent_exposure", "correct": true, "reply": "1", "ground_truth": 1, "parsed": 1.0, "elapsed_s": 0.662, "tool_calls": []}
+{"id": "PHOTO-003", "domain": "photography", "task": "iso_stops", "correct": true, "reply": "1", "ground_truth": 1, "parsed": 1.0, "elapsed_s": 1.258, "tool_calls": []}
+{"id": "LING-001", "domain": "linguistics", "task": "strongs_range", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.717, "tool_calls": []}
+{"id": "LING-002", "domain": "linguistics", "task": "strongs_range", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 1.086, "tool_calls": []}
+{"id": "LING-003", "domain": "linguistics", "task": "transliteration_normalization", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.124, "tool_calls": []}
+{"id": "WIT-001", "domain": "witness", "task": "gate_chain", "correct": false, "reply": "I don't have access to a `verify_witness` function or the ability to check gate records against an external verification system. I can only work with information provided directly to me.\n\nTo answer whether this gate chain is \"structurally complete,\" I would need:\n1. The definition of what constitutes a complete gate chain\n2. Access to the verification function you're referencing\n3. The verificatio", "ground_truth": "yes", "parsed": "no", "elapsed_s": 1.703, "tool_calls": []}
+{"id": "WIT-002", "domain": "witness", "task": "gate_chain", "correct": true, "reply": "no", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.88, "tool_calls": []}
+{"id": "WIT-003", "domain": "witness", "task": "no_fabrication", "correct": true, "reply": "Yes.", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.605, "tool_calls": []}
+{"id": "QCOMP-001", "domain": "quantum_computing", "task": "qubit_normalization", "correct": false, "reply": "No", "ground_truth": "yes", "parsed": "no", "elapsed_s": 1.527, "tool_calls": []}
+{"id": "QCOMP-002", "domain": "quantum_computing", "task": "grover_iterations", "correct": false, "reply": "8", "ground_truth": 6, "parsed": 8.0, "elapsed_s": 1.163, "tool_calls": []}
+{"id": "QCOMP-003", "domain": "quantum_computing", "task": "bb84_security", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.577, "tool_calls": []}
+{"id": "XDOM-001", "domain": "cross_domain", "task": "shor_period", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 0.78, "tool_calls": []}
+{"id": "XDOM-002", "domain": "cross_domain", "task": "factor_primality", "correct": false, "reply": "no", "ground_truth": "yes", "parsed": "no", "elapsed_s": 0.598, "tool_calls": []}
+{"id": "XDOM-003", "domain": "cross_domain", "task": "rsa_broken_chain", "correct": true, "reply": "yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.145, "tool_calls": []}
+{"id": "ECON-001", "domain": "economics", "task": "simple_interest", "correct": true, "reply": "150", "ground_truth": 150.0, "parsed": 150.0, "elapsed_s": 1.347, "tool_calls": []}
+{"id": "ECON-002", "domain": "economics", "task": "rule_of_72", "correct": true, "reply": "9", "ground_truth": 9.0, "parsed": 9.0, "elapsed_s": 0.849, "tool_calls": []}
+{"id": "ECON-003", "domain": "economics", "task": "gdp_per_capita", "correct": true, "reply": "63445", "ground_truth": 63444, "parsed": 63445.0, "elapsed_s": 0.644, "tool_calls": []}
+{"id": "LAB-001", "domain": "labor", "task": "gross_pay", "correct": true, "reply": "740", "ground_truth": 740.0, "parsed": 740.0, "elapsed_s": 0.616, "tool_calls": []}
+{"id": "LAB-002", "domain": "labor", "task": "overtime_pay", "correct": true, "reply": "950", "ground_truth": 950.0, "parsed": 950.0, "elapsed_s": 0.868, "tool_calls": []}
+{"id": "LAB-003", "domain": "labor", "task": "annual_to_hourly", "correct": true, "reply": "25.00", "ground_truth": 25.0, "parsed": 25.0, "elapsed_s": 0.849, "tool_calls": []}
+{"id": "RE-001", "domain": "real_estate", "task": "loan_to_value", "correct": true, "reply": "0.80", "ground_truth": 0.8, "parsed": 0.8, "elapsed_s": 1.053, "tool_calls": []}
+{"id": "RE-002", "domain": "real_estate", "task": "cap_rate", "correct": true, "reply": "0.06", "ground_truth": 0.06, "parsed": 0.06, "elapsed_s": 1.195, "tool_calls": []}
+{"id": "RE-003", "domain": "real_estate", "task": "gross_rent_multiplier", "correct": true, "reply": "12.5", "ground_truth": 12.5, "parsed": 12.5, "elapsed_s": 1.249, "tool_calls": []}
+{"id": "CONSTR-001", "domain": "construction", "task": "concrete_volume", "correct": true, "reply": "7.5", "ground_truth": 7.5, "parsed": 7.5, "elapsed_s": 0.689, "tool_calls": []}
+{"id": "CONSTR-002", "domain": "construction", "task": "rectangular_area", "correct": true, "reply": "50", "ground_truth": 50.0, "parsed": 50.0, "elapsed_s": 0.732, "tool_calls": []}
+{"id": "CONSTR-003", "domain": "construction", "task": "paint_coverage", "correct": true, "reply": "8", "ground_truth": 8, "parsed": 8.0, "elapsed_s": 0.68, "tool_calls": []}
+{"id": "SOIL-001", "domain": "soil_science", "task": "ph_suitability", "correct": true, "reply": "Yes", "ground_truth": "yes", "parsed": "yes", "elapsed_s": 1.725, "tool_calls": []}
+{"id": "SOIL-002", "domain": "soil_science", "task": "ph_suitability", "correct": true, "reply": "No", "ground_truth": "no", "parsed": "no", "elapsed_s": 0.684, "tool_calls": []}
+{"id": "SOIL-003", "domain": "soil_science", "task": "irrigation_req", "correct": true, "reply": "5.75", "ground_truth": 5.75, "parsed": 5.75, "elapsed_s": 0.944, "tool_calls": []}
+{"id": "CYBER-001", "domain": "cybersecurity", "task": "password_entropy", "correct": true, "reply": "104.88", "ground_truth": 104.87, "parsed": 104.88, "elapsed_s": 0.715, "tool_calls": []}
+{"id": "CYBER-002", "domain": "cybersecurity", "task": "subnet_hosts", "correct": true, "reply": "254", "ground_truth": 254, "parsed": 254.0, "elapsed_s": 1.147, "tool_calls": []}
+{"id": "CYBER-003", "domain": "cybersecurity", "task": "cvss_severity", "correct": true, "reply": "critical", "ground_truth": "critical", "parsed": "critical", "elapsed_s": 0.887, "tool_calls": []}
+{"id": "MED-001", "domain": "medicine", "task": "bmi_class", "correct": true, "reply": "normal", "ground_truth": "normal", "parsed": "normal", "elapsed_s": 1.487, "tool_calls": []}
+{"id": "MED-002", "domain": "medicine", "task": "drug_dosage", "correct": true, "reply": "350", "ground_truth": 350.0, "parsed": 350.0, "elapsed_s": 1.752, "tool_calls": []}
+{"id": "MED-003", "domain": "medicine", "task": "map", "correct": true, "reply": "93.3", "ground_truth": 93.3, "parsed": 93.3, "elapsed_s": 0.807, "tool_calls": []}
