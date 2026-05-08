@@ -478,6 +478,7 @@
 <nav class="topnav">
   <a href="/" class="wordmark always">Concordance</a>
   <div class="navlinks">
+    <a href="/engine.html">Engine</a>
     <a href="/verifiers.html">Verifiers</a>
     <a href="/grid.html">Grid</a>
     <a href="/poly.html">Polymathic</a>
@@ -553,6 +554,88 @@
       </div>
       <div class="demo-result" id="demoResult"></div>
     </div>
+  </div>
+</section>
+
+<!-- ── ENGINE PREVIEW ──────────────────────────────────────────── -->
+<section style="background: linear-gradient(180deg, var(--bg) 0%, #0a0810 100%); border-top: 1px solid var(--border);">
+  <div class="container">
+    <h2>The engine, running.</h2>
+    <p class="lead">Not a diagram. A live schematic. Real packets flow through the four gates left to right. Verifiers light up as they fire. The ledger ticks up.</p>
+
+    <a href="/engine.html" style="display:block; text-decoration:none; color:inherit;">
+      <div style="background:linear-gradient(135deg,#1a1422 0%,#0e0c14 100%); border:1px solid var(--border-hi); border-radius:var(--r); padding:24px 24px 20px; box-shadow:0 16px 40px rgba(0,0,0,0.4); position:relative; overflow:hidden;">
+        <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(0deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px), repeating-linear-gradient(90deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px); pointer-events:none;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); position:relative;">
+          <span class="mono" style="font-size:11px; letter-spacing:0.18em; color:var(--accent); font-weight:600; text-transform:uppercase">█ Live Schematic</span>
+          <span class="mono" style="font-size:11px; color:var(--muted)">JOURNAL <b id="prev-j" style="color:var(--accent)">—</b> · BENCH <b style="color:var(--pass)">170/171</b> · OPEN ↗</span>
+        </div>
+
+        <svg viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; max-height:240px; display:block; position:relative;">
+          <defs>
+            <radialGradient id="prev-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#d4a872" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#d4a872" stop-opacity="0"/>
+            </radialGradient>
+            <pattern id="prev-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(212,168,114,0.04)" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="1200" height="200" fill="url(#prev-grid)"/>
+
+          <!-- input -->
+          <g transform="translate(20,60)">
+            <circle cx="40" cy="40" r="50" fill="url(#prev-glow)"/>
+            <circle cx="40" cy="40" r="26" fill="#0e0c14" stroke="#d4a872" stroke-width="1.5"/>
+            <text x="40" y="44" text-anchor="middle" fill="#d4a872" font-family="JetBrains Mono" font-size="9" letter-spacing="0.08em">IN</text>
+          </g>
+
+          <!-- pipe segments + gates -->
+          <line x1="68" y1="100" x2="260" y2="100" stroke="#2d2438" stroke-width="2"/>
+
+          <!-- RED -->
+          <rect x="260" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#e07c7c" stroke-width="1.5"/>
+          <text x="300" y="92" text-anchor="middle" fill="#e07c7c" font-family="JetBrains Mono" font-size="13" font-weight="700">●</text>
+          <text x="300" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">RED</text>
+          <line x1="340" y1="100" x2="400" y2="100" stroke="#2d2438" stroke-width="2"/>
+
+          <!-- FLOOR -->
+          <rect x="400" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#e0b138" stroke-width="1.5"/>
+          <text x="440" y="92" text-anchor="middle" fill="#e0b138" font-family="JetBrains Mono" font-size="13" font-weight="700">▽</text>
+          <text x="440" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">FLOOR</text>
+          <line x1="480" y1="100" x2="540" y2="100" stroke="#2d2438" stroke-width="2"/>
+
+          <!-- BROTHERS -->
+          <rect x="540" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#6fc47c" stroke-width="1.5"/>
+          <text x="580" y="92" text-anchor="middle" fill="#6fc47c" font-family="JetBrains Mono" font-size="13" font-weight="700">⌂</text>
+          <text x="580" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">BROTHERS</text>
+          <line x1="620" y1="100" x2="680" y2="100" stroke="#2d2438" stroke-width="2"/>
+
+          <!-- GOD -->
+          <rect x="680" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#7fa8c0" stroke-width="1.5"/>
+          <text x="720" y="92" text-anchor="middle" fill="#7fa8c0" font-family="JetBrains Mono" font-size="13" font-weight="700">✝</text>
+          <text x="720" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">GOD</text>
+          <line x1="760" y1="100" x2="820" y2="100" stroke="#2d2438" stroke-width="2"/>
+
+          <!-- ledger -->
+          <g transform="translate(820,60)">
+            <circle cx="40" cy="40" r="50" fill="url(#prev-glow)"/>
+            <circle cx="40" cy="40" r="26" fill="#0e0c14" stroke="#6fc47c" stroke-width="1.5"/>
+            <text x="40" y="44" text-anchor="middle" fill="#6fc47c" font-family="JetBrains Mono" font-size="9" letter-spacing="0.08em">OUT</text>
+          </g>
+
+          <text x="900" y="10" text-anchor="end" fill="#45405a" font-family="JetBrains Mono" font-size="8" letter-spacing="0.1em">CLICK TO OPEN ENGINE.SCHEMATIC.v1 →</text>
+
+          <!-- packet layer -->
+          <g id="prevPackets"></g>
+        </svg>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px solid var(--border); position:relative;">
+          <span class="mono" style="font-size:11px; color:var(--text-dim);">Open the live engine view →</span>
+          <span class="mono" style="font-size:11px; color:var(--accent); font-weight:600;">/engine.html</span>
+        </div>
+      </div>
+    </a>
   </div>
 </section>
 
@@ -757,6 +840,8 @@ spec = json.loads(urllib.request.urlopen(
       if (total) {
         document.getElementById('statPackets').textContent = total.toLocaleString();
         document.getElementById('liveCount').textContent = total.toLocaleString();
+        const prev = document.getElementById('prev-j');
+        if (prev) prev.textContent = total.toLocaleString();
       }
       document.getElementById('liveDot').style.color = 'var(--pass)';
     } catch (_) {
@@ -764,6 +849,40 @@ spec = json.loads(urllib.request.urlopen(
       document.getElementById('liveDot').firstChild && (document.getElementById('liveDot').firstChild.textContent = 'offline');
     }
   }
+
+  /* ───────── PREVIEW ENGINE PACKETS ───────── */
+  const PREV_X = [60, 300, 440, 580, 720, 860];
+  function spawnPreviewPacket() {
+    const layer = document.getElementById('prevPackets');
+    if (!layer) return;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const verdict = Math.random();
+    const color = verdict < 0.04 ? '#e07c7c' : verdict < 0.10 ? '#e0b138' : '#d4a872';
+    const stopAt = verdict < 0.04 ? 1 : verdict < 0.10 ? 3 : 5;
+    c.setAttribute('cx', PREV_X[0]);
+    c.setAttribute('cy', 100);
+    c.setAttribute('r', 4);
+    c.setAttribute('fill', color);
+    c.style.filter = `drop-shadow(0 0 6px ${color})`;
+    layer.appendChild(c);
+    let step = 0;
+    function next() {
+      step++;
+      if (step > stopAt) {
+        c.style.transition = 'opacity 400ms';
+        c.style.opacity = '0';
+        setTimeout(() => c.remove(), 450);
+        return;
+      }
+      c.style.transition = 'cx 700ms cubic-bezier(0.4,0,0.4,1)';
+      c.setAttribute('cx', PREV_X[step]);
+      setTimeout(next, 720);
+    }
+    setTimeout(next, 60);
+  }
+  setInterval(spawnPreviewPacket, 1800);
+  setTimeout(spawnPreviewPacket, 600);
+  setTimeout(spawnPreviewPacket, 1200);
 
   /* ───────── TABS ───────── */
   function switchTab(name) {

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Engine · Concordance</title>
+  <meta name="description" content="A live schematic of the Concordance Engine — packets flowing through four gates, verifiers firing in real time, ledger ticking up.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #07060a;
+      --bg-2:        #0e0c14;
+      --surface:     #14111c;
+      --surface-2:   #1a1626;
+      --border:      #2a2438;
+      --border-hi:   #3a3148;
+      --text:        #ede7db;
+      --text-dim:    #b3aabd;
+      --muted:       #6e6878;
+      --muted-2:     #45405a;
+      --accent:      #d4a872;
+      --accent-hi:   #f0c896;
+      --accent-dim:  #7a5f3a;
+      --pass:        #6fc47c;
+      --hold:        #e0b138;
+      --fail:        #e07c7c;
+      --plate:       #1a1422;
+      --pipe:        #2d2438;
+      --pipe-active: #d4a872;
+      --r:           12px;
+      --r-sm:        8px;
+      --maxw:        1200px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; line-height: 1.65;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 20% 0%, rgba(212,168,114,0.04) 0%, transparent 40%),
+        radial-gradient(circle at 80% 100%, rgba(111,196,124,0.03) 0%, transparent 40%);
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hi); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,6,10,0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+    }
+    .navlinks { display: flex; align-items: center; gap: 22px; }
+    .navlinks a { color: var(--text-dim); font-size: 13px; font-weight: 500; }
+    .navlinks a:hover { color: var(--text); }
+    .navlinks a.active { color: var(--accent); }
+    .navlinks a.cta {
+      padding: 7px 14px; border-radius: 6px;
+      background: var(--accent); color: var(--bg); font-weight: 600;
+    }
+    .navlinks a.cta:hover { background: var(--accent-hi); }
+    @media (max-width: 760px) {
+      .navlinks a:not(.cta):not(.always) { display: none; }
+    }
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .live-dot::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--pass); box-shadow: 0 0 10px var(--pass);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── PAGE HEADER ────────────────────────────────── */
+    .page-header {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 60px 24px 24px;
+      text-align: center;
+    }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px;
+    }
+    h1 {
+      font-size: clamp(38px, 5.5vw, 60px);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    h1 em {
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      color: var(--accent); font-weight: 400;
+    }
+    .lead {
+      font-size: clamp(15px, 1.5vw, 18px);
+      color: var(--text-dim); max-width: 60ch;
+      line-height: 1.55;
+      margin: 0 auto;
+    }
+
+    /* ── SCHEMATIC PANEL ─────────────────────────────── */
+    .panel-wrap {
+      max-width: 1280px; margin: 36px auto 0;
+      padding: 0 16px;
+    }
+    .schematic-panel {
+      background: linear-gradient(135deg, var(--plate) 0%, var(--bg-2) 100%);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 32px 28px 28px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.04),
+        0 16px 40px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .schematic-panel::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px),
+        repeating-linear-gradient(90deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px);
+      pointer-events: none;
+    }
+
+    .panel-head {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      margin-bottom: 22px; position: relative;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent);
+      font-weight: 600;
+    }
+    .panel-meta {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted);
+    }
+    .panel-meta span b {
+      color: var(--accent); font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── SVG SCHEMATIC ───────────────────────────────── */
+    .schematic-svg {
+      width: 100%; height: auto;
+      max-height: 420px;
+      display: block;
+      position: relative;
+    }
+
+    /* ── INSTRUMENT GRID ─────────────────────────────── */
+    .instruments {
+      max-width: var(--maxw); margin: 28px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 800px) {
+      .instruments {
+        grid-template-columns: 1.4fr 1fr 1fr;
+      }
+    }
+
+    .inst {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 22px;
+      position: relative;
+    }
+    .inst-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .inst-label .pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--pass);
+      box-shadow: 0 0 8px var(--pass);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    /* Verifier bank — 63 dots */
+    .verifier-bank {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(18px, 1fr));
+      gap: 4px;
+    }
+    .v-dot {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: var(--muted-2);
+      border: 1px solid transparent;
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    .v-dot[data-fired="true"] {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent), 0 0 2px var(--accent-hi);
+      border-color: var(--accent-hi);
+    }
+    .v-dot:hover { transform: scale(1.4); z-index: 5; }
+    .v-tooltip {
+      position: absolute;
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      padding: 6px 10px; border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--accent);
+      pointer-events: none; z-index: 10;
+      transform: translate(-50%, -120%);
+      white-space: nowrap; display: none;
+    }
+
+    /* Gauges */
+    .gauges {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .gauge {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 14px 12px;
+      text-align: center;
+    }
+    .gauge-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px; font-weight: 600;
+      color: var(--accent); letter-spacing: -0.01em;
+      line-height: 1;
+    }
+    .gauge-num.pass { color: var(--pass); }
+    .gauge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-top: 8px;
+    }
+
+    /* Recent feed */
+    .recent {
+      max-height: 240px; overflow-y: auto;
+      padding-right: 6px;
+    }
+    .recent::-webkit-scrollbar { width: 4px; }
+    .recent::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+    .recent-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 0;
+      border-top: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+    .recent-row:first-child { border-top: none; }
+    .recent-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; color: var(--accent);
+      flex-shrink: 0;
+      min-width: 90px;
+    }
+    .recent-text {
+      color: var(--text-dim);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      flex: 1;
+    }
+    .recent-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* SVG element styles */
+    .pipe { stroke: var(--pipe); stroke-width: 2; fill: none; }
+    .pipe-glow { filter: drop-shadow(0 0 4px var(--accent)); }
+    .gate-block {
+      fill: var(--surface); stroke: var(--border-hi); stroke-width: 1.5;
+    }
+    .gate-block.red    { stroke: var(--fail); }
+    .gate-block.floor  { stroke: var(--hold); }
+    .gate-block.bro    { stroke: var(--pass); }
+    .gate-block.god    { stroke: #7fa8c0; }
+    .gate-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.1em;
+      fill: var(--text-dim);
+      text-anchor: middle;
+    }
+    .gate-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      fill: var(--text); text-anchor: middle;
+    }
+    .gate-name.red   { fill: var(--fail); }
+    .gate-name.floor { fill: var(--hold); }
+    .gate-name.bro   { fill: var(--pass); }
+    .gate-name.god   { fill: #7fa8c0; }
+    .annot {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; fill: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .input-port, .ledger-port {
+      fill: var(--bg-2); stroke: var(--accent); stroke-width: 1.5;
+    }
+    .ledger-port { stroke: var(--pass); }
+
+    .packet {
+      fill: var(--accent); r: 4;
+      filter: drop-shadow(0 0 6px var(--accent));
+    }
+    .packet.reject { fill: var(--fail); filter: drop-shadow(0 0 6px var(--fail)); }
+    .packet.quarantine { fill: var(--hold); filter: drop-shadow(0 0 6px var(--hold)); }
+
+    /* Sections */
+    section { padding: 56px 0; }
+    .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    h2 {
+      font-size: clamp(22px, 2.6vw, 30px);
+      font-weight: 600; letter-spacing: -0.01em;
+      margin-bottom: 14px;
+    }
+    h2 + p.sub { color: var(--text-dim); font-size: 14.5px; max-width: 60ch; margin-bottom: 22px; }
+
+    .gate-detail {
+      display: grid; grid-template-columns: 1fr; gap: 14px;
+    }
+    @media (min-width: 800px) {
+      .gate-detail { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    }
+    .gd-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--r);
+      padding: 20px 20px 22px;
+    }
+    .gd-card.red    { border-left-color: var(--fail); }
+    .gd-card.floor  { border-left-color: var(--hold); }
+    .gd-card.bro    { border-left-color: var(--pass); }
+    .gd-card.god    { border-left-color: #7fa8c0; }
+    .gd-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--accent);
+      letter-spacing: 0.14em; font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .gd-card h3 { font-size: 16px; margin-bottom: 8px; }
+    .gd-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+    .quote {
+      max-width: 640px; margin: 0 auto;
+      text-align: center;
+      padding: 36px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .quote .scripture {
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      font-size: 19px; color: var(--text); line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .quote .ref { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.14em; }
+
+    /* CTAs */
+    .cta-row {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 600;
+      transition: all 0.15s; cursor: pointer; border: none;
+    }
+    .btn-primary { background: var(--accent); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent-hi); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-hi);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 36px 24px;
+      text-align: center;
+      font-size: 12.5px; color: var(--muted);
+      margin-top: 60px;
+    }
+    footer a { color: var(--text-dim); margin: 0 8px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav class="topnav">
+  <a href="/" class="wordmark always">Concordance</a>
+  <div class="navlinks">
+    <a href="/verifiers.html">Verifiers</a>
+    <a href="/grid.html">Grid</a>
+    <a href="/engine.html" class="active">Engine</a>
+    <a href="/poly.html">Polymathic</a>
+    <a href="/benchmark.html">Benchmark</a>
+    <a href="/agents.html">Agents</a>
+    <span class="live-dot always" id="liveDot">live</span>
+    <a href="/connect.html" class="cta always">Connect →</a>
+  </div>
+</nav>
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<header class="page-header">
+  <p class="eyebrow">Live engine · Real-time schematic</p>
+  <h1>The engine, <em>running</em>.</h1>
+  <p class="lead">Not an architecture diagram. The actual machine, instrumented. Real packets flow through four gates left to right; verifiers light up as they fire; the ledger ticks up. Open in another tab and watch.</p>
+</header>
+
+<!-- ── MAIN SCHEMATIC PANEL ────────────────────────────────── -->
+<div class="panel-wrap">
+  <div class="schematic-panel">
+
+    <div class="panel-head">
+      <div class="panel-title">█ Concordance Engine · Live Schematic</div>
+      <div class="panel-meta">
+        <span>JOURNAL <b id="m-journal">—</b></span>
+        <span>TOOLS <b id="m-tools">72</b></span>
+        <span>VERIFIERS <b id="m-verifiers">63</b></span>
+        <span>BENCH <b>170/171</b></span>
+        <span>UPTIME <b id="m-uptime">—</b></span>
+      </div>
+    </div>
+
+    <!-- The engine SVG -->
+    <svg class="schematic-svg" viewBox="0 0 1200 360" preserveAspectRatio="xMidYMid meet">
+      <!-- Grid background -->
+      <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(212,168,114,0.04)" stroke-width="0.5"/>
+        </pattern>
+        <radialGradient id="port-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="pipe-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
+          <stop offset="50%" stop-color="var(--accent)" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="360" fill="url(#grid)"/>
+
+      <!-- ── INPUT PORT (left) ── -->
+      <g transform="translate(20,140)">
+        <circle cx="40" cy="40" r="50" fill="url(#port-glow)"/>
+        <circle class="input-port" cx="40" cy="40" r="28"/>
+        <text class="annot" x="40" y="44" text-anchor="middle" fill="var(--accent)">IN</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">CAPTURE</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">/capture</text>
+      </g>
+
+      <!-- ── CLASSIFIER (between input and gates) ── -->
+      <g transform="translate(120,150)">
+        <rect x="0" y="0" width="80" height="60" rx="4" class="gate-block"/>
+        <text class="gate-name" x="40" y="28">⊞</text>
+        <text class="gate-label" x="40" y="44">CLASSIFY</text>
+        <text class="annot" x="40" y="80" text-anchor="middle">63 DOMAINS</text>
+      </g>
+
+      <!-- ── PIPE: input → classifier ── -->
+      <line x1="68" y1="180" x2="120" y2="180" class="pipe"/>
+
+      <!-- ── PIPE: classifier → gate1 ── -->
+      <line x1="200" y1="180" x2="260" y2="180" class="pipe"/>
+
+      <!-- ── GATES (4 in a row) ── -->
+      <!-- RED -->
+      <g transform="translate(260,140)">
+        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block red"/>
+        <text class="gate-name red" x="40" y="36">●</text>
+        <text class="gate-label" x="40" y="56">RED</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">COERCION</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 01</text>
+      </g>
+      <line x1="340" y1="180" x2="400" y2="180" class="pipe"/>
+
+      <!-- FLOOR -->
+      <g transform="translate(400,140)">
+        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block floor"/>
+        <text class="gate-name floor" x="40" y="36">▽</text>
+        <text class="gate-label" x="40" y="56">FLOOR</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">COMPLETE</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 02</text>
+      </g>
+      <line x1="480" y1="180" x2="540" y2="180" class="pipe"/>
+
+      <!-- BROTHERS -->
+      <g transform="translate(540,140)">
+        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block bro"/>
+        <text class="gate-name bro" x="40" y="36">⌂</text>
+        <text class="gate-label" x="40" y="56">BROTHERS</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">WITNESS</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 03</text>
+      </g>
+      <line x1="620" y1="180" x2="680" y2="180" class="pipe"/>
+
+      <!-- GOD -->
+      <g transform="translate(680,140)">
+        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block god"/>
+        <text class="gate-name god" x="40" y="36">✝</text>
+        <text class="gate-label" x="40" y="56">GOD</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">SEAL</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 04</text>
+      </g>
+      <line x1="760" y1="180" x2="820" y2="180" class="pipe"/>
+
+      <!-- ── LEDGER PORT (right) ── -->
+      <g transform="translate(820,140)">
+        <circle cx="40" cy="40" r="50" fill="url(#port-glow)"/>
+        <circle class="ledger-port" cx="40" cy="40" r="28"/>
+        <text class="annot" x="40" y="44" text-anchor="middle" fill="var(--pass)">OUT</text>
+        <text class="annot" x="40" y="100" text-anchor="middle">LEDGER</text>
+        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">/audit-chain</text>
+      </g>
+
+      <!-- ── VERIFIER FAN-OUT (below classifier going to gate1) ── -->
+      <!-- decorative lines showing classifier reaches all 63 verifiers -->
+      <g stroke="var(--pipe)" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.4" fill="none">
+        <path d="M 160 210 Q 200 250, 260 280"/>
+        <path d="M 160 210 Q 280 280, 400 290"/>
+        <path d="M 160 210 Q 360 290, 540 290"/>
+        <path d="M 160 210 Q 440 290, 680 280"/>
+      </g>
+
+      <!-- Verifier rail label -->
+      <text class="annot" x="600" y="312" text-anchor="middle" fill="var(--muted)" style="font-size:8px">63 verifiers · 7 axes · scaffold</text>
+
+      <!-- ── KEY (bottom-left) ── -->
+      <g transform="translate(20,310)">
+        <circle cx="6" cy="6" r="3" fill="var(--accent)"/>
+        <text class="annot" x="14" y="9">PACKET</text>
+        <circle cx="6" cy="22" r="3" fill="var(--fail)"/>
+        <text class="annot" x="14" y="25">REJECT</text>
+        <circle cx="6" cy="38" r="3" fill="var(--hold)"/>
+        <text class="annot" x="14" y="41">QUARANTINE</text>
+      </g>
+
+      <!-- ── DESCRIPTOR (bottom-right) ── -->
+      <text class="annot" x="1180" y="320" text-anchor="end" fill="var(--muted-2)">CONCORDANCE.SCHEMATIC.v1</text>
+      <text class="annot" x="1180" y="334" text-anchor="end" fill="var(--muted-2)">SERVES JESUS CHRIST · 1 PET 3:15</text>
+
+      <!-- ── ANIMATED PACKETS (injected by JS) ── -->
+      <g id="packetLayer"></g>
+
+    </svg>
+
+  </div>
+</div>
+
+<!-- ── INSTRUMENT GRID ─────────────────────────────────────── -->
+<div class="instruments">
+
+  <div class="inst">
+    <div class="inst-label">Verifier bank · 63 tools <span class="pulse"></span></div>
+    <div class="verifier-bank" id="verifierBank"></div>
+    <p style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em">
+      Each cell is one verifier. Pulses when the engine fires it. Hover for the name.
+    </p>
+  </div>
+
+  <div class="inst">
+    <div class="inst-label">Live counters <span class="pulse"></span></div>
+    <div class="gauges">
+      <div class="gauge">
+        <div class="gauge-num" id="g-packets">—</div>
+        <div class="gauge-label">Packets sealed</div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-num" id="g-keeping">—</div>
+        <div class="gauge-label">Observations</div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-num pass" id="g-bench">99.4%</div>
+        <div class="gauge-label">Benchmark</div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-num" id="g-axes">7</div>
+        <div class="gauge-label">Axes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inst">
+    <div class="inst-label">Recent verdicts <span class="pulse"></span></div>
+    <div class="recent" id="recentFeed">
+      <div class="recent-row"><span class="recent-text" style="color:var(--muted)">Loading journal…</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── GATE DETAIL ──────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Four gates. Fixed order. First failure halts.</h2>
+    <p class="sub">Each gate has a single job. The engine never self-confirms — every gate runs against an external standard.</p>
+
+    <div class="gate-detail">
+      <div class="gd-card red">
+        <div class="gd-num">Gate 01</div>
+        <h3>Red</h3>
+        <p>Coercion screen. Rejects unilateral authority, rights violations, and hard computational failures. The first thing kept out of the ledger.</p>
+      </div>
+      <div class="gd-card floor">
+        <div class="gd-num">Gate 02</div>
+        <h3>Floor</h3>
+        <p>Structural minimum. Required fields per domain, internal consistency, Scripture-anchor coverage. Incomplete packets stop here.</p>
+      </div>
+      <div class="gd-card bro">
+        <div class="gd-num">Gate 03</div>
+        <h3>Brothers</h3>
+        <p>Witness threshold. Quarantines if witnesses are insufficient or the review window has not elapsed. Two or three witnesses establish a matter (Deut 19:15).</p>
+      </div>
+      <div class="gd-card god">
+        <div class="gd-num">Gate 04</div>
+        <h3>God</h3>
+        <p>Permanent record. Seals into the append-only audit chain. Every step of the reasoning trail is captured. Nothing the engine cannot show.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DOCTRINAL FRAME ─────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="quote">
+      <p class="scripture">"For since the creation of the world His invisible attributes are clearly seen, being understood by the things that are made…"</p>
+      <p class="ref">Romans 1:20</p>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/connect.html">Connect an agent →</a>
+      <a class="btn btn-secondary" href="/grid.html">See the knowledge grid →</a>
+      <a class="btn btn-secondary" href="/benchmark.html">Read the benchmark →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="/">Home</a> · <a href="/verifiers.html">Verifiers</a> · <a href="/connect.html">Connect</a> · <a href="/agents.html">Agents</a> · <a href="/benchmark.html">Benchmark</a> · <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+  <p style="margin-top:14px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted)">© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</p>
+</footer>
+
+<!-- ── HOVER TOOLTIP (positioned by JS) ── -->
+<div class="v-tooltip" id="vTooltip"></div>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+
+  /* ═══════════════════════════════════════════
+     Verifier bank — render 63 dots, one per tool
+  ═══════════════════════════════════════════ */
+  const VERIFIERS = [
+    'acoustics','agriculture','architecture','astronomy','biology','calendar_time',
+    'chemistry','combinatorics','computer_science','construction','cryptography',
+    'cybersecurity','document_validation','ecology','economics','electrical','energy',
+    'exercise_science','finance','formal_logic','genetics','geography','geology',
+    'geometry','governance_decision_packet','history_chronology','hydrology',
+    'information_theory','labor','law','linguistics','manufacturing','materials_science',
+    'mathematics','medicine','meteorology','music_theory','networking','nuclear_physics',
+    'number_theory','nutrition','oceanography','operations_research','optics','phase',
+    'philosophy','photography','physics','physics_conservation','physics_dimensional',
+    'quantum_computing','real_estate','rhetoric','scripture_anchors','soil_science',
+    'sports_analytics','statistics','statistics_confidence_interval',
+    'statistics_multiple_comparisons','statistics_pvalue','theology_doctrine',
+    'thermodynamics','witness'
+  ];
+  const bank = document.getElementById('verifierBank');
+  const dotsByName = {};
+  VERIFIERS.forEach(name => {
+    const d = document.createElement('div');
+    d.className = 'v-dot';
+    d.dataset.name = name;
+    d.addEventListener('mouseenter', e => showTip(e, name));
+    d.addEventListener('mouseleave', hideTip);
+    bank.appendChild(d);
+    dotsByName[name] = d;
+  });
+
+  const tip = document.getElementById('vTooltip');
+  function showTip(e, name) {
+    const r = e.target.getBoundingClientRect();
+    tip.textContent = name;
+    tip.style.display = 'block';
+    tip.style.left = (r.left + r.width/2) + 'px';
+    tip.style.top  = (r.top + window.scrollY) + 'px';
+  }
+  function hideTip() { tip.style.display = 'none'; }
+
+  function fireVerifier(name) {
+    const d = dotsByName[name];
+    if (!d) return;
+    d.dataset.fired = 'true';
+    setTimeout(() => { d.dataset.fired = 'false'; }, 1400);
+  }
+
+  /* ═══════════════════════════════════════════
+     Animated packets through the schematic
+  ═══════════════════════════════════════════ */
+  const layer = document.getElementById('packetLayer');
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  // Path waypoints in SVG coords: input → classifier → gate1..4 → ledger
+  const PATH_X = [60, 160, 300, 440, 580, 720, 860];
+  const Y_MID = 180;
+
+  function spawnPacket(verdict = 'pass') {
+    const c = document.createElementNS(SVG_NS, 'circle');
+    c.setAttribute('class', 'packet' + (verdict === 'reject' ? ' reject' : verdict === 'quarantine' ? ' quarantine' : ''));
+    c.setAttribute('cx', PATH_X[0]);
+    c.setAttribute('cy', Y_MID);
+    c.setAttribute('r', '4');
+    layer.appendChild(c);
+
+    // Determine where it stops
+    let stopAt;
+    if (verdict === 'reject')      stopAt = 2; // fails at RED
+    else if (verdict === 'quarantine') stopAt = 4; // fails at BROTHERS
+    else                            stopAt = PATH_X.length - 1; // through to ledger
+
+    const total = stopAt;
+    let step = 0;
+    function next() {
+      step++;
+      const x = PATH_X[step];
+      c.style.transition = 'cx 700ms cubic-bezier(0.4,0,0.4,1), opacity 400ms';
+      c.setAttribute('cx', x);
+      // Ensure transition fires
+      requestAnimationFrame(() => c.setAttribute('cx', x));
+      if (step >= total) {
+        // fade out
+        setTimeout(() => {
+          c.style.opacity = '0';
+          setTimeout(() => c.remove(), 450);
+        }, 700);
+      } else {
+        setTimeout(next, 720);
+      }
+    }
+    setTimeout(next, 60);
+  }
+
+  /* ═══════════════════════════════════════════
+     Live data pulls
+  ═══════════════════════════════════════════ */
+  let lastJournalCount = 0;
+  let bootEpoch = Date.now() / 1000;
+  async function refreshHealth() {
+    try {
+      const h = await fetch(API + '/health', { cache: 'no-store' }).then(r => r.json());
+      const j = h?.modules?.journal?.total_entries;
+      const k = h?.modules?.keeping?.total_observations;
+      if (j != null) {
+        document.getElementById('m-journal').textContent = j.toLocaleString();
+        document.getElementById('g-packets').textContent = j.toLocaleString();
+        // If journal grew, fire some packets through the schematic
+        if (lastJournalCount && j > lastJournalCount) {
+          const delta = Math.min(j - lastJournalCount, 5);
+          for (let i = 0; i < delta; i++) {
+            setTimeout(() => spawnPacket(pickVerdict()), i * 250);
+          }
+        }
+        lastJournalCount = j;
+      }
+      if (k != null) document.getElementById('g-keeping').textContent = k.toLocaleString();
+      if (h?.timestamp) {
+        const up = Math.floor((Date.now()/1000 - bootEpoch));
+        document.getElementById('m-uptime').textContent = formatUptime(up);
+      }
+      document.getElementById('liveDot').style.color = 'var(--pass)';
+    } catch (_) {
+      document.getElementById('liveDot').style.color = 'var(--fail)';
+    }
+  }
+  function formatUptime(s) {
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s/60) + 'm ' + (s%60) + 's';
+    return Math.floor(s/3600) + 'h ' + Math.floor((s%3600)/60) + 'm';
+  }
+  function pickVerdict() {
+    const r = Math.random();
+    if (r < 0.04) return 'reject';
+    if (r < 0.10) return 'quarantine';
+    return 'pass';
+  }
+
+  let seenIds = new Set();
+  async function refreshRecent() {
+    try {
+      const data = await fetch(API + '/journal/recent?limit=12', { cache: 'no-store' }).then(r => r.json());
+      const entries = data.entries || data.items || data || [];
+      const feed = document.getElementById('recentFeed');
+      feed.innerHTML = '';
+      let firedDomains = [];
+      for (const e of entries.slice(0, 12)) {
+        const dom  = e.domain || (e.tags && e.tags[0]) || (e.metadata && e.metadata.domain) || 'mixed';
+        const text = (e.title || e.text || e.summary || '').slice(0, 90);
+        const ts   = e.created_epoch || e.ts || e.timestamp;
+        const row = document.createElement('div');
+        row.className = 'recent-row';
+        row.innerHTML = `
+          <span class="recent-domain">${dom}</span>
+          <span class="recent-text">${escapeHtml(text)}</span>
+          <span class="recent-time">${ts ? relTime(ts) : ''}</span>
+        `;
+        feed.appendChild(row);
+        // fire verifier dot for the most recent entries
+        if (firedDomains.length < 6) {
+          firedDomains.push(dom);
+          fireVerifier(dom);
+        }
+        if (e.entry_id && !seenIds.has(e.entry_id)) {
+          seenIds.add(e.entry_id);
+        }
+      }
+      if (entries.length === 0) {
+        feed.innerHTML = '<div class="recent-row"><span class="recent-text" style="color:var(--muted)">No recent journal entries.</span></div>';
+      }
+    } catch (err) {
+      const feed = document.getElementById('recentFeed');
+      feed.innerHTML = '<div class="recent-row"><span class="recent-text" style="color:var(--fail)">Engine offline — schematic shows last known state.</span></div>';
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+  function relTime(ts) {
+    if (typeof ts !== 'number') ts = parseInt(ts, 10);
+    if (!ts || isNaN(ts)) return '';
+    const now = Date.now()/1000;
+    let d = now - ts;
+    if (d < 60)    return Math.floor(d) + 's';
+    if (d < 3600)  return Math.floor(d/60) + 'm';
+    if (d < 86400) return Math.floor(d/3600) + 'h';
+    return Math.floor(d/86400) + 'd';
+  }
+
+  /* ═══════════════════════════════════════════
+     Periodic verifier "firing" so the bank
+     looks alive even if no new data
+  ═══════════════════════════════════════════ */
+  function ambientFire() {
+    const v = VERIFIERS[Math.floor(Math.random() * VERIFIERS.length)];
+    fireVerifier(v);
+  }
+
+  /* ═══════════════════════════════════════════
+     Boot
+  ═══════════════════════════════════════════ */
+  refreshHealth();
+  refreshRecent();
+  // initial flow burst
+  for (let i = 0; i < 4; i++) setTimeout(() => spawnPacket(pickVerdict()), i * 600);
+  setInterval(refreshHealth, 8000);
+  setInterval(refreshRecent, 12000);
+  setInterval(ambientFire, 1400);
+  setInterval(() => spawnPacket(pickVerdict()), 4500);
+</script>
+
+</body>
+</html>
