@@ -51,6 +51,27 @@ $Script = @"
 `$env:API_KEY                 = '$ApiKey'
 `$env:PORT                    = '8000'
 
+# Load secrets from repo .env (gitignored). Picks up any KEY=value
+# lines: ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID,
+# CONCORDANCE_PASSPHRASE, SECRET_KEY, etc. Hardcoded vars above win
+# on conflict; .env adds, never overrides API_KEY/PORT/etc.
+`$envFile = '$RepoRoot\.env'
+if (Test-Path `$envFile) {
+    Get-Content `$envFile -Encoding utf8 | ForEach-Object {
+        `$line = `$_.Trim()
+        if (`$line -and `$line -notmatch '^\s*#' -and `$line -match '^([A-Z_][A-Z0-9_]*)\s*=\s*(.*)`$') {
+            `$name = `$Matches[1]
+            `$value = `$Matches[2].Trim()
+            # Strip surrounding single or double quotes
+            if (`$value -match '^"(.*)"`$' -or `$value -match "^'(.*)'`$") { `$value = `$Matches[1] }
+            # Don't overwrite vars set above
+            if (-not (Test-Path "env:`$name")) {
+                Set-Item -Path "env:`$name" -Value `$value
+            }
+        }
+    }
+}
+
 Set-Location '$RepoRoot'
 if (-not (Test-Path '$LogDir')) { New-Item -ItemType Directory -Path '$LogDir' -Force | Out-Null }
 
