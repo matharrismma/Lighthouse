@@ -557,82 +557,42 @@
   </div>
 </section>
 
-<!-- ── ENGINE PREVIEW ──────────────────────────────────────────── -->
-<section style="background: linear-gradient(180deg, var(--bg) 0%, #0a0810 100%); border-top: 1px solid var(--border);">
+<!-- ── ENGINE PREVIEW (brain network teaser) ──────────────────── -->
+<section style="background: linear-gradient(180deg, var(--bg) 0%, #06050b 100%); border-top: 1px solid var(--border);">
   <div class="container">
-    <h2>The engine, running.</h2>
-    <p class="lead">Not a diagram. A live schematic. Real packets flow through the four gates left to right. Verifiers light up as they fire. The ledger ticks up.</p>
+    <h2>The engine, as a brain.</h2>
+    <p class="lead">63 domains. 7 scaffold axes. The secret of the engine is that none of these are separate — every domain shares an axis with several others, and a packet that lights up one of them ripples through the connected region.</p>
 
     <a href="/engine.html" style="display:block; text-decoration:none; color:inherit;">
-      <div style="background:linear-gradient(135deg,#1a1422 0%,#0e0c14 100%); border:1px solid var(--border-hi); border-radius:var(--r); padding:24px 24px 20px; box-shadow:0 16px 40px rgba(0,0,0,0.4); position:relative; overflow:hidden;">
-        <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(0deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px), repeating-linear-gradient(90deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px); pointer-events:none;"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); position:relative;">
-          <span class="mono" style="font-size:11px; letter-spacing:0.18em; color:var(--accent); font-weight:600; text-transform:uppercase">█ Live Schematic</span>
-          <span class="mono" style="font-size:11px; color:var(--muted)">JOURNAL <b id="prev-j" style="color:var(--accent)">—</b> · BENCH <b style="color:var(--pass)">170/171</b> · OPEN ↗</span>
+      <div style="background:radial-gradient(circle at 30% 20%, rgba(91,155,213,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(168,124,214,0.04) 0%, transparent 50%), linear-gradient(135deg,#0a0810 0%,#06050b 100%); border:1px solid var(--border-hi); border-radius:var(--r); padding:18px 20px 16px; box-shadow:0 16px 40px rgba(0,0,0,0.5); position:relative; overflow:hidden;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); position:relative;">
+          <span class="mono" style="font-size:11px; letter-spacing:0.18em; color:var(--accent); font-weight:600; text-transform:uppercase">◉ Live Brain</span>
+          <span class="mono" style="font-size:10.5px; color:var(--muted)">61 NODES · <span id="prev-edges">—</span> EDGES · JOURNAL <b id="prev-j" style="color:var(--accent)">—</b> · OPEN ↗</span>
         </div>
 
-        <svg viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; max-height:240px; display:block; position:relative;">
+        <svg id="prevBrain" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; max-height:340px; display:block;">
           <defs>
-            <radialGradient id="prev-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#d4a872" stop-opacity="0.35"/>
-              <stop offset="100%" stop-color="#d4a872" stop-opacity="0"/>
+            <radialGradient id="prev-node-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#fff" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
             </radialGradient>
-            <pattern id="prev-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(212,168,114,0.04)" stroke-width="0.5"/>
-            </pattern>
+            <filter id="prev-glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
-          <rect width="1200" height="200" fill="url(#prev-grid)"/>
-
-          <!-- input -->
-          <g transform="translate(20,60)">
-            <circle cx="40" cy="40" r="50" fill="url(#prev-glow)"/>
-            <circle cx="40" cy="40" r="26" fill="#0e0c14" stroke="#d4a872" stroke-width="1.5"/>
-            <text x="40" y="44" text-anchor="middle" fill="#d4a872" font-family="JetBrains Mono" font-size="9" letter-spacing="0.08em">IN</text>
-          </g>
-
-          <!-- pipe segments + gates -->
-          <line x1="68" y1="100" x2="260" y2="100" stroke="#2d2438" stroke-width="2"/>
-
-          <!-- RED -->
-          <rect x="260" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#e07c7c" stroke-width="1.5"/>
-          <text x="300" y="92" text-anchor="middle" fill="#e07c7c" font-family="JetBrains Mono" font-size="13" font-weight="700">●</text>
-          <text x="300" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">RED</text>
-          <line x1="340" y1="100" x2="400" y2="100" stroke="#2d2438" stroke-width="2"/>
-
-          <!-- FLOOR -->
-          <rect x="400" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#e0b138" stroke-width="1.5"/>
-          <text x="440" y="92" text-anchor="middle" fill="#e0b138" font-family="JetBrains Mono" font-size="13" font-weight="700">▽</text>
-          <text x="440" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">FLOOR</text>
-          <line x1="480" y1="100" x2="540" y2="100" stroke="#2d2438" stroke-width="2"/>
-
-          <!-- BROTHERS -->
-          <rect x="540" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#6fc47c" stroke-width="1.5"/>
-          <text x="580" y="92" text-anchor="middle" fill="#6fc47c" font-family="JetBrains Mono" font-size="13" font-weight="700">⌂</text>
-          <text x="580" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">BROTHERS</text>
-          <line x1="620" y1="100" x2="680" y2="100" stroke="#2d2438" stroke-width="2"/>
-
-          <!-- GOD -->
-          <rect x="680" y="60" width="80" height="80" rx="4" fill="#14111c" stroke="#7fa8c0" stroke-width="1.5"/>
-          <text x="720" y="92" text-anchor="middle" fill="#7fa8c0" font-family="JetBrains Mono" font-size="13" font-weight="700">✝</text>
-          <text x="720" y="112" text-anchor="middle" fill="#b3aabd" font-family="JetBrains Mono" font-size="9" letter-spacing="0.1em" font-weight="600">GOD</text>
-          <line x1="760" y1="100" x2="820" y2="100" stroke="#2d2438" stroke-width="2"/>
-
-          <!-- ledger -->
-          <g transform="translate(820,60)">
-            <circle cx="40" cy="40" r="50" fill="url(#prev-glow)"/>
-            <circle cx="40" cy="40" r="26" fill="#0e0c14" stroke="#6fc47c" stroke-width="1.5"/>
-            <text x="40" y="44" text-anchor="middle" fill="#6fc47c" font-family="JetBrains Mono" font-size="9" letter-spacing="0.08em">OUT</text>
-          </g>
-
-          <text x="900" y="10" text-anchor="end" fill="#45405a" font-family="JetBrains Mono" font-size="8" letter-spacing="0.1em">CLICK TO OPEN ENGINE.SCHEMATIC.v1 →</text>
-
-          <!-- packet layer -->
-          <g id="prevPackets"></g>
+          <g id="prev-edges-layer"></g>
+          <g id="prev-nodes-layer"></g>
+          <g id="prev-act-layer"></g>
         </svg>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px solid var(--border); position:relative;">
-          <span class="mono" style="font-size:11px; color:var(--text-dim);">Open the live engine view →</span>
-          <span class="mono" style="font-size:11px; color:var(--accent); font-weight:600;">/engine.html</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); position:relative; flex-wrap:wrap; gap:8px;">
+          <span class="mono" style="font-size:10.5px; color:var(--text-dim);">Open the live brain →</span>
+          <span class="mono" style="font-size:10.5px; color:var(--accent); font-weight:600;">/engine.html</span>
         </div>
       </div>
     </a>
@@ -850,39 +810,184 @@ spec = json.loads(urllib.request.urlopen(
     }
   }
 
-  /* ───────── PREVIEW ENGINE PACKETS ───────── */
-  const PREV_X = [60, 300, 440, 580, 720, 860];
-  function spawnPreviewPacket() {
-    const layer = document.getElementById('prevPackets');
-    if (!layer) return;
-    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    const verdict = Math.random();
-    const color = verdict < 0.04 ? '#e07c7c' : verdict < 0.10 ? '#e0b138' : '#d4a872';
-    const stopAt = verdict < 0.04 ? 1 : verdict < 0.10 ? 3 : 5;
-    c.setAttribute('cx', PREV_X[0]);
-    c.setAttribute('cy', 100);
-    c.setAttribute('r', 4);
-    c.setAttribute('fill', color);
-    c.style.filter = `drop-shadow(0 0 6px ${color})`;
-    layer.appendChild(c);
-    let step = 0;
-    function next() {
-      step++;
-      if (step > stopAt) {
-        c.style.transition = 'opacity 400ms';
-        c.style.opacity = '0';
-        setTimeout(() => c.remove(), 450);
-        return;
-      }
-      c.style.transition = 'cx 700ms cubic-bezier(0.4,0,0.4,1)';
-      c.setAttribute('cx', PREV_X[step]);
-      setTimeout(next, 720);
+  /* ───────── PREVIEW BRAIN ─────────
+     Mini version of the /engine.html brain: 61 nodes, force-laid out
+     once (no continuous re-sim), edges colored by primary shared axis,
+     ambient activations ripple along edges.
+  ─────────────────────────────────────── */
+  const PREV_GRID = {
+    acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
+    architecture:["aut","phy","tim"], astronomy:["csv","phy","tim"],
+    biology:["csv","enc","met","phy","tim"], calendar_time:["tim"],
+    chemistry:["csv","met","phy"], combinatorics:["rsn"],
+    computer_science:["enc","rsn","tim"], construction:["csv","met","phy","tim"],
+    cryptography:["aut","enc","rsn"], cybersecurity:["aut","enc","rsn"],
+    document_validation:["aut","enc"], ecology:["csv","met","phy","tim"],
+    economics:["aut","csv","rsn","tim"], electrical:["csv","phy"],
+    energy:["csv","met","phy","tim"], exercise_science:["csv","met","phy","tim"],
+    finance:["aut","csv","rsn","tim"], formal_logic:["rsn"],
+    genetics:["enc","phy"], geography:["phy"], geology:["met","phy","tim"],
+    geometry:["phy","rsn"], governance_decision_packet:["aut","rsn","tim"],
+    history_chronology:["aut","rsn","tim"], hydrology:["csv","met","phy","tim"],
+    information_theory:["enc","rsn"], labor:["aut","csv","met","tim"],
+    law:["aut","rsn","tim"], linguistics:["enc","rsn"],
+    manufacturing:["csv","met","phy","tim"], materials_science:["csv","met","phy"],
+    mathematics:["rsn"], medicine:["aut","met","phy","tim"],
+    meteorology:["csv","met","phy","tim"], music_theory:["enc","phy","rsn"],
+    networking:["aut","enc","phy","tim"], nuclear_physics:["csv","phy","tim"],
+    number_theory:["rsn"], nutrition:["csv","met","phy"],
+    oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
+    optics:["csv","phy"], philosophy:["aut","rsn"],
+    photography:["enc","phy"], physics_conservation:["csv","phy"],
+    physics_dimensional:["phy","rsn"], quantum_computing:["enc","phy","rsn"],
+    real_estate:["aut","csv","phy","tim"], rhetoric:["aut","enc","rsn"],
+    scripture_anchors:["aut","enc","rsn","tim"], soil_science:["csv","met","phy"],
+    sports_analytics:["rsn","tim"],
+    statistics_pvalue:["rsn"], statistics_multiple_comparisons:["rsn"],
+    statistics_confidence_interval:["rsn"],
+    theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
+    witness:["aut","enc","rsn","tim"],
+    phase:["aut","rsn","tim"]
+  };
+  const PREV_AXIS_COLOR = { enc:'#5b9bd5', aut:'#a87cd6', met:'#6ec98a', csv:'#5ec4b4', rsn:'#d4c46a', tim:'#7fa8c0', phy:'#d9945c' };
+  const PREV_AXIS_PRI = ['enc','aut','met','csv','rsn','tim','phy'];
+
+  (function buildPreviewBrain() {
+    const svg = document.getElementById('prevBrain');
+    if (!svg) return;
+    const W = 1200, H = 320;
+    const NS = 'http://www.w3.org/2000/svg';
+    function pri(axes) { for (const a of PREV_AXIS_PRI) if (axes.includes(a)) return a; return 'rsn'; }
+
+    const nodes = Object.keys(PREV_GRID).map(id => {
+      const axes = PREV_GRID[id];
+      return { id, axes, depth: axes.length, primary: pri(axes), x:0, y:0, vx:0, vy:0, activation:0 };
+    });
+    const byId = {}; nodes.forEach(n => byId[n.id] = n);
+
+    const edges = [];
+    for (let i=0; i<nodes.length; i++) for (let j=i+1; j<nodes.length; j++) {
+      const sh = nodes[i].axes.filter(a => nodes[j].axes.includes(a));
+      if (sh.length) edges.push({ s:nodes[i], t:nodes[j], axes:sh, primary:pri(sh), w:sh.length });
     }
-    setTimeout(next, 60);
-  }
-  setInterval(spawnPreviewPacket, 1800);
-  setTimeout(spawnPreviewPacket, 600);
-  setTimeout(spawnPreviewPacket, 1200);
+    document.getElementById('prev-edges').textContent = edges.length;
+
+    /* seed positions in axis-clustered ring */
+    const angles = { enc:0, aut:1, met:2, csv:3, rsn:4, tim:5, phy:6 };
+    nodes.forEach(n => {
+      const a = (angles[n.primary] / 7) * Math.PI * 2;
+      const r = 110 + Math.random() * 30;
+      n.x = W/2 + Math.cos(a) * r + (Math.random()-0.5) * 60;
+      n.y = H/2 + Math.sin(a) * r * 0.55 + (Math.random()-0.5) * 50;
+    });
+
+    /* run 250 force iterations to settle, then freeze */
+    function tick() {
+      const REPEL = 1100, STIFF = 0.014, IDEAL = 65, CENTER = 0.006, DAMP = 0.84;
+      for (let i=0; i<nodes.length; i++) for (let j=i+1; j<nodes.length; j++) {
+        const a=nodes[i], b=nodes[j];
+        let dx=b.x-a.x, dy=b.y-a.y;
+        const d2 = dx*dx + dy*dy + 0.01;
+        const d = Math.sqrt(d2);
+        const f = REPEL / d2;
+        a.vx -= f*dx/d; a.vy -= f*dy/d;
+        b.vx += f*dx/d; b.vy += f*dy/d;
+      }
+      for (const e of edges) {
+        let dx = e.t.x - e.s.x, dy = e.t.y - e.s.y;
+        const d = Math.sqrt(dx*dx + dy*dy) + 0.01;
+        const ideal = IDEAL - e.w * 4;
+        const f = (d - ideal) * STIFF * (0.6 + e.w * 0.15);
+        e.s.vx += f*dx/d; e.s.vy += f*dy/d;
+        e.t.vx -= f*dx/d; e.t.vy -= f*dy/d;
+      }
+      for (const n of nodes) {
+        n.vx -= (n.x - W/2) * CENTER;
+        n.vy -= (n.y - H/2) * CENTER * 1.4; // squash vertically
+        n.vx *= DAMP; n.vy *= DAMP;
+        n.x += n.vx; n.y += n.vy;
+        n.x = Math.max(30, Math.min(W-30, n.x));
+        n.y = Math.max(20, Math.min(H-20, n.y));
+      }
+    }
+    for (let i = 0; i < 250; i++) tick();
+
+    const eLayer = document.getElementById('prev-edges-layer');
+    const nLayer = document.getElementById('prev-nodes-layer');
+    const aLayer = document.getElementById('prev-act-layer');
+
+    edges.forEach(e => {
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', e.s.x); ln.setAttribute('y1', e.s.y);
+      ln.setAttribute('x2', e.t.x); ln.setAttribute('y2', e.t.y);
+      ln.setAttribute('stroke', PREV_AXIS_COLOR[e.primary]);
+      ln.setAttribute('stroke-width', 0.3 + e.w * 0.25);
+      ln.setAttribute('opacity', 0.06 + e.w * 0.06);
+      e.el = ln;
+      eLayer.appendChild(ln);
+    });
+    nodes.forEach(n => {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
+      c.setAttribute('r', 2.5 + n.depth * 0.55);
+      c.setAttribute('fill', PREV_AXIS_COLOR[n.primary]);
+      c.setAttribute('stroke', PREV_AXIS_COLOR[n.primary]);
+      c.setAttribute('stroke-opacity', 0.5);
+      c.style.filter = 'url(#prev-glow-filter)';
+      n.el = c;
+      nLayer.appendChild(c);
+    });
+
+    function spawnPulse(from, to, edge) {
+      const ring = document.createElementNS(NS, 'circle');
+      ring.setAttribute('r', 2.5);
+      ring.setAttribute('cx', from.x); ring.setAttribute('cy', from.y);
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', PREV_AXIS_COLOR[edge.primary]);
+      ring.setAttribute('stroke-width', 1.2);
+      ring.setAttribute('opacity', 0.8);
+      aLayer.appendChild(ring);
+      const start = performance.now();
+      const dur = 500 + Math.random() * 200;
+      function step(t) {
+        const u = Math.min(1, (t - start) / dur);
+        ring.setAttribute('cx', from.x + (to.x - from.x) * u);
+        ring.setAttribute('cy', from.y + (to.y - from.y) * u);
+        ring.setAttribute('opacity', 0.8 * (1 - u));
+        if (u < 1) requestAnimationFrame(step);
+        else ring.remove();
+      }
+      requestAnimationFrame(step);
+    }
+
+    function activate(id) {
+      const n = byId[id]; if (!n) return;
+      // pulse the node briefly
+      n.el.style.transition = 'r 0.3s ease';
+      const baseR = 2.5 + n.depth * 0.55;
+      n.el.setAttribute('r', baseR + 3);
+      setTimeout(() => n.el.setAttribute('r', baseR), 350);
+      // ripple along a few edges
+      const adj = edges.filter(e => e.s.id === id || e.t.id === id).slice(0, 6);
+      adj.forEach((e, i) => {
+        const other = e.s.id === id ? e.t : e.s;
+        setTimeout(() => spawnPulse(n, other, e), i * 50);
+      });
+    }
+
+    /* ambient firing */
+    const HUBS = ['biology','energy','meteorology','witness','scripture_anchors','theology_doctrine','chemistry','medicine','networking'];
+    function ambient() {
+      const r = Math.random();
+      const id = r < 0.5 ? HUBS[Math.floor(Math.random()*HUBS.length)]
+                         : Object.keys(PREV_GRID)[Math.floor(Math.random()*Object.keys(PREV_GRID).length)];
+      activate(id);
+    }
+    setTimeout(() => activate('chemistry'), 600);
+    setTimeout(() => activate('biology'), 1100);
+    setTimeout(() => activate('mathematics'), 1700);
+    setInterval(ambient, 1100);
+  })();
 
   /* ───────── TABS ───────── */
   function switchTab(name) {

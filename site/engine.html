@@ -4,76 +4,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Engine · Concordance</title>
-  <meta name="description" content="A live schematic of the Concordance Engine — packets flowing through four gates, verifiers firing in real time, ledger ticking up.">
+  <meta name="description" content="The secret of the engine: 63 domains connected along seven scaffold axes. A live brain showing how creation's structure ties everything together. Watch packets activate paths in real time.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #07060a;
-      --bg-2:        #0e0c14;
-      --surface:     #14111c;
-      --surface-2:   #1a1626;
-      --border:      #2a2438;
-      --border-hi:   #3a3148;
-      --text:        #ede7db;
-      --text-dim:    #b3aabd;
-      --muted:       #6e6878;
-      --muted-2:     #45405a;
-      --accent:      #d4a872;
-      --accent-hi:   #f0c896;
-      --accent-dim:  #7a5f3a;
-      --pass:        #6fc47c;
-      --hold:        #e0b138;
-      --fail:        #e07c7c;
-      --plate:       #1a1422;
-      --pipe:        #2d2438;
-      --pipe-active: #d4a872;
-      --r:           12px;
-      --r-sm:        8px;
-      --maxw:        1200px;
+      --bg:        #06050b;
+      --bg-2:      #0a0810;
+      --surface:   #110e18;
+      --surface-2: #181323;
+      --border:    #251f31;
+      --border-hi: #382f46;
+      --text:      #e9e3d6;
+      --text-dim:  #aaa3b6;
+      --muted:     #6e6878;
+      --accent:    #d4a872;
+      --accent-hi: #f0c896;
+      --pass:      #6fc47c;
+      --fail:      #e07c7c;
+      --hold:      #e0b138;
+
+      /* Axis colors */
+      --enc: #5b9bd5;  /* encoding */
+      --aut: #a87cd6;  /* authority */
+      --met: #6ec98a;  /* metabolism */
+      --csv: #5ec4b4;  /* conservation */
+      --rsn: #d4c46a;  /* reasoning */
+      --tim: #7fa8c0;  /* time */
+      --phy: #d9945c;  /* physical */
+
+      --r: 12px;
+      --r-sm: 8px;
     }
 
-    html { scroll-behavior: smooth; }
-    body {
+    html, body {
+      margin: 0; padding: 0;
       background: var(--bg);
       color: var(--text);
       font-family: 'Inter', sans-serif;
-      font-size: 16px; line-height: 1.65;
+      font-size: 14px; line-height: 1.5;
       min-height: 100dvh;
+      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
-      background-image:
-        radial-gradient(circle at 20% 0%, rgba(212,168,114,0.04) 0%, transparent 40%),
-        radial-gradient(circle at 80% 100%, rgba(111,196,124,0.03) 0%, transparent 40%);
     }
 
     a { color: var(--accent); text-decoration: none; }
     a:hover { color: var(--accent-hi); }
     .mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* ── NAV ─────────────────────────────────────────── */
+    /* ── NAV ─────────────────────────────────── */
     nav.topnav {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(7,6,10,0.94);
+      background: rgba(6,5,11,0.92);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; height: 56px;
+      padding: 0 22px; height: 52px;
     }
     .wordmark {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
       color: var(--accent); font-weight: 600;
     }
-    .navlinks { display: flex; align-items: center; gap: 22px; }
-    .navlinks a { color: var(--text-dim); font-size: 13px; font-weight: 500; }
+    .navlinks { display: flex; align-items: center; gap: 20px; }
+    .navlinks a { color: var(--text-dim); font-size: 12.5px; font-weight: 500; }
     .navlinks a:hover { color: var(--text); }
     .navlinks a.active { color: var(--accent); }
     .navlinks a.cta {
-      padding: 7px 14px; border-radius: 6px;
+      padding: 6px 13px; border-radius: 6px;
       background: var(--accent); color: var(--bg); font-weight: 600;
     }
     .navlinks a.cta:hover { background: var(--accent-hi); }
@@ -87,324 +89,345 @@
       text-transform: uppercase;
     }
     .live-dot::before {
-      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
       background: var(--pass); box-shadow: 0 0 10px var(--pass);
       animation: pulse 2.4s ease-in-out infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    /* ── PAGE HEADER ────────────────────────────────── */
-    .page-header {
-      max-width: var(--maxw); margin: 0 auto;
-      padding: 60px 24px 24px;
-      text-align: center;
+    /* ── HEADER STRIP ─────────────────────────── */
+    .header-strip {
+      max-width: 1280px; margin: 0 auto;
+      padding: 30px 24px 12px;
+      display: flex; flex-wrap: wrap;
+      align-items: flex-end; justify-content: space-between;
+      gap: 16px;
     }
-    .eyebrow {
+    .header-strip h1 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700; letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .header-strip h1 em {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic; color: var(--accent); font-weight: 400;
+    }
+    .header-strip .lead {
+      color: var(--text-dim);
+      font-size: 14px; max-width: 60ch; margin-top: 8px; line-height: 1.55;
+    }
+    .header-strip .meta {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 14px;
+      font-size: 11px; color: var(--muted);
+      display: flex; gap: 16px; flex-wrap: wrap;
     }
-    h1 {
-      font-size: clamp(38px, 5.5vw, 60px);
-      font-weight: 700; line-height: 1.05;
-      letter-spacing: -0.02em; margin-bottom: 16px;
-    }
-    h1 em {
-      font-family: 'Crimson Pro', serif; font-style: italic;
-      color: var(--accent); font-weight: 400;
-    }
-    .lead {
-      font-size: clamp(15px, 1.5vw, 18px);
-      color: var(--text-dim); max-width: 60ch;
-      line-height: 1.55;
-      margin: 0 auto;
-    }
+    .header-strip .meta b { color: var(--accent); font-weight: 600; }
 
-    /* ── SCHEMATIC PANEL ─────────────────────────────── */
-    .panel-wrap {
-      max-width: 1280px; margin: 36px auto 0;
+    /* ── BRAIN STAGE ──────────────────────────── */
+    .stage-wrap {
+      max-width: 1280px; margin: 14px auto 0;
       padding: 0 16px;
     }
-    .schematic-panel {
-      background: linear-gradient(135deg, var(--plate) 0%, var(--bg-2) 100%);
+    .stage {
+      position: relative;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(91,155,213,0.06) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(168,124,214,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(110,201,138,0.04) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
       border: 1px solid var(--border-hi);
       border-radius: var(--r);
-      padding: 32px 28px 28px;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.04),
-        0 16px 40px rgba(0,0,0,0.4);
-      position: relative;
       overflow: hidden;
+      height: clamp(520px, 70vh, 760px);
     }
-    .schematic-panel::before {
+
+    /* Subtle scanline / grid overlay */
+    .stage::before {
       content: ''; position: absolute; inset: 0;
       background-image:
-        repeating-linear-gradient(0deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px),
-        repeating-linear-gradient(90deg, rgba(212,168,114,0.025) 0, rgba(212,168,114,0.025) 1px, transparent 1px, transparent 8px);
+        repeating-linear-gradient(0deg, rgba(212,168,114,0.018) 0, rgba(212,168,114,0.018) 1px, transparent 1px, transparent 24px),
+        repeating-linear-gradient(90deg, rgba(212,168,114,0.018) 0, rgba(212,168,114,0.018) 1px, transparent 1px, transparent 24px);
       pointer-events: none;
     }
 
-    .panel-head {
+    .stage svg {
+      width: 100%; height: 100%; display: block;
+    }
+
+    /* ── OVERLAY: AXIS FILTERS ────────────────── */
+    .axis-bar {
+      position: absolute; top: 14px; left: 14px;
+      display: flex; flex-direction: column; gap: 6px;
+      z-index: 10;
+    }
+    .axis-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .axis-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 11px;
+      border-radius: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: lowercase;
+      cursor: pointer;
+      background: rgba(17,14,24,0.78);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .axis-pill .swatch {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .axis-pill[data-axis="enc"] { color: var(--enc); }
+    .axis-pill[data-axis="enc"] .swatch { background: var(--enc); box-shadow: 0 0 8px var(--enc); }
+    .axis-pill[data-axis="aut"] { color: var(--aut); }
+    .axis-pill[data-axis="aut"] .swatch { background: var(--aut); box-shadow: 0 0 8px var(--aut); }
+    .axis-pill[data-axis="met"] { color: var(--met); }
+    .axis-pill[data-axis="met"] .swatch { background: var(--met); box-shadow: 0 0 8px var(--met); }
+    .axis-pill[data-axis="csv"] { color: var(--csv); }
+    .axis-pill[data-axis="csv"] .swatch { background: var(--csv); box-shadow: 0 0 8px var(--csv); }
+    .axis-pill[data-axis="rsn"] { color: var(--rsn); }
+    .axis-pill[data-axis="rsn"] .swatch { background: var(--rsn); box-shadow: 0 0 8px var(--rsn); }
+    .axis-pill[data-axis="tim"] { color: var(--tim); }
+    .axis-pill[data-axis="tim"] .swatch { background: var(--tim); box-shadow: 0 0 8px var(--tim); }
+    .axis-pill[data-axis="phy"] { color: var(--phy); }
+    .axis-pill[data-axis="phy"] .swatch { background: var(--phy); box-shadow: 0 0 8px var(--phy); }
+
+    .axis-pill:hover { border-color: var(--border-hi); }
+    .axis-pill.dim { opacity: 0.35; }
+    .axis-pill.solo { border-color: currentColor; box-shadow: 0 0 12px rgba(255,255,255,0.04); }
+
+    .axis-bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.16em; text-transform: uppercase;
+      margin-bottom: 2px;
+      padding-left: 4px;
+    }
+
+    /* ── OVERLAY: SEARCH ──────────────────────── */
+    .search-bar {
+      position: absolute; top: 14px; right: 14px; z-index: 10;
+    }
+    #search {
+      background: rgba(17,14,24,0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      padding: 7px 12px;
+      border-radius: 18px;
+      width: 180px;
+      outline: none;
+      transition: all 0.15s;
+    }
+    #search::placeholder { color: var(--muted); }
+    #search:focus { border-color: var(--accent); width: 220px; }
+
+    /* ── OVERLAY: NODE DETAIL CARD ────────────── */
+    .detail-card {
+      position: absolute; bottom: 14px; left: 14px;
+      width: clamp(220px, 28vw, 320px);
+      background: rgba(17,14,24,0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      z-index: 10;
+      display: none;
+    }
+    .detail-card.show { display: block; }
+    .detail-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--accent);
+      letter-spacing: 0.04em; text-transform: lowercase;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+    .detail-card .axes-row {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin-bottom: 10px;
+    }
+    .detail-card .axes-row span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; padding: 2px 7px;
+      border-radius: 10px; letter-spacing: 0.05em;
+    }
+    .detail-card .meta-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+      display: flex; justify-content: space-between;
+      letter-spacing: 0.06em;
+    }
+    .detail-card .meta-line b { color: var(--text-dim); font-weight: 500; }
+
+    /* ── OVERLAY: LIVE ACTIVITY ───────────────── */
+    .activity-card {
+      position: absolute; bottom: 14px; right: 14px;
+      width: clamp(220px, 28vw, 320px);
+      background: rgba(17,14,24,0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      z-index: 10;
+      max-height: 320px;
+      display: flex; flex-direction: column;
+    }
+    .activity-card .head {
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 12px;
-      margin-bottom: 22px; position: relative;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .panel-title {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; letter-spacing: 0.18em;
-      text-transform: uppercase; color: var(--accent);
-      font-weight: 600;
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 8px;
     }
-    .panel-meta {
-      display: flex; gap: 18px; flex-wrap: wrap;
+    .activity-card .head .pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--pass); box-shadow: 0 0 8px var(--pass);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    .activity-list {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 260px;
+      padding-right: 4px;
+    }
+    .activity-list::-webkit-scrollbar { width: 3px; }
+    .activity-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+    .act-row {
+      padding: 5px 0;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: center;
+      font-size: 11px;
+    }
+    .act-row:first-child { border-top: none; }
+    .act-row .dom {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; color: var(--muted);
+      font-size: 10px;
+      color: var(--accent);
+      min-width: 80px;
+      flex-shrink: 0;
     }
-    .panel-meta span b {
-      color: var(--accent); font-weight: 600;
-      letter-spacing: 0.05em;
+    .act-row .text {
+      color: var(--text-dim);
+      flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .act-row .when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; color: var(--muted);
+      flex-shrink: 0;
     }
 
-    /* ── SVG SCHEMATIC ───────────────────────────────── */
-    .schematic-svg {
-      width: 100%; height: auto;
-      max-height: 420px;
-      display: block;
-      position: relative;
+    /* ── BRAIN — node + edge styling ─────────── */
+    .edge {
+      transition: opacity 0.4s ease;
+    }
+    .node-circle {
+      cursor: pointer;
+      transition: r 0.18s ease, opacity 0.4s ease;
+    }
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      fill: var(--text-dim);
+      pointer-events: none;
+      letter-spacing: 0.02em;
+      transition: opacity 0.4s ease, fill 0.3s ease;
+    }
+    .node-label.dim { opacity: 0.25; }
+    .node-circle.dim { opacity: 0.18; }
+    .edge.dim { opacity: 0.06; }
+
+    .node-circle.selected { stroke: #fff; stroke-width: 1.5; }
+    .node-label.selected { fill: var(--accent); }
+
+    /* Activation pulse rings */
+    .activation-ring {
+      fill: none; stroke-width: 1.5;
+      pointer-events: none;
     }
 
-    /* ── INSTRUMENT GRID ─────────────────────────────── */
-    .instruments {
-      max-width: var(--maxw); margin: 28px auto 0;
+    /* ── INSTRUMENTS BELOW STAGE ──────────────── */
+    .below {
+      max-width: 1280px; margin: 18px auto 0;
       padding: 0 24px;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 14px;
     }
     @media (min-width: 800px) {
-      .instruments {
-        grid-template-columns: 1.4fr 1fr 1fr;
-      }
+      .below { grid-template-columns: 2fr 1fr 1fr; }
     }
-
-    .inst {
+    .panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 20px 22px;
-      position: relative;
+      padding: 18px 20px;
     }
-    .inst-label {
+    .panel-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px; color: var(--muted);
-      letter-spacing: 0.15em; text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex; justify-content: space-between; align-items: center;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 10px;
     }
-    .inst-label .pulse {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--pass);
-      box-shadow: 0 0 8px var(--pass);
-      animation: pulse 1.8s ease-in-out infinite;
+    .panel h3 {
+      font-size: 16px; font-weight: 600;
+      margin-bottom: 8px; letter-spacing: -0.01em;
     }
+    .panel p {
+      font-size: 13.5px; color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .panel p + p { margin-top: 8px; }
 
-    /* Verifier bank — 63 dots */
-    .verifier-bank {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18px, 1fr));
-      gap: 4px;
-    }
-    .v-dot {
-      aspect-ratio: 1;
-      border-radius: 3px;
-      background: var(--muted-2);
-      border: 1px solid transparent;
-      transition: all 0.4s ease;
-      cursor: pointer;
-    }
-    .v-dot[data-fired="true"] {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent), 0 0 2px var(--accent-hi);
-      border-color: var(--accent-hi);
-    }
-    .v-dot:hover { transform: scale(1.4); z-index: 5; }
-    .v-tooltip {
-      position: absolute;
-      background: var(--bg);
-      border: 1px solid var(--border-hi);
-      padding: 6px 10px; border-radius: 5px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; color: var(--accent);
-      pointer-events: none; z-index: 10;
-      transform: translate(-50%, -120%);
-      white-space: nowrap; display: none;
-    }
-
-    /* Gauges */
     .gauges {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
     }
     .gauge {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 14px 14px 12px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 12px 10px;
       text-align: center;
     }
     .gauge-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 26px; font-weight: 600;
-      color: var(--accent); letter-spacing: -0.01em;
-      line-height: 1;
+      font-size: 22px; font-weight: 600;
+      color: var(--accent); line-height: 1;
     }
     .gauge-num.pass { color: var(--pass); }
     .gauge-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px; color: var(--muted);
+      font-size: 9px; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.12em;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
-    /* Recent feed */
-    .recent {
-      max-height: 240px; overflow-y: auto;
-      padding-right: 6px;
+    /* ── SECRET COPY ──────────────────────────── */
+    .secret {
+      max-width: 920px; margin: 50px auto 30px;
+      padding: 0 24px;
+      text-align: center;
     }
-    .recent::-webkit-scrollbar { width: 4px; }
-    .recent::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
-    .recent-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 0;
-      border-top: 1px solid var(--border);
-      font-size: 12.5px;
-    }
-    .recent-row:first-child { border-top: none; }
-    .recent-domain {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px; color: var(--accent);
-      flex-shrink: 0;
-      min-width: 90px;
-    }
-    .recent-text {
-      color: var(--text-dim);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      flex: 1;
-    }
-    .recent-time {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    /* SVG element styles */
-    .pipe { stroke: var(--pipe); stroke-width: 2; fill: none; }
-    .pipe-glow { filter: drop-shadow(0 0 4px var(--accent)); }
-    .gate-block {
-      fill: var(--surface); stroke: var(--border-hi); stroke-width: 1.5;
-    }
-    .gate-block.red    { stroke: var(--fail); }
-    .gate-block.floor  { stroke: var(--hold); }
-    .gate-block.bro    { stroke: var(--pass); }
-    .gate-block.god    { stroke: #7fa8c0; }
-    .gate-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; font-weight: 600;
-      letter-spacing: 0.1em;
-      fill: var(--text-dim);
-      text-anchor: middle;
-    }
-    .gate-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700;
-      fill: var(--text); text-anchor: middle;
-    }
-    .gate-name.red   { fill: var(--fail); }
-    .gate-name.floor { fill: var(--hold); }
-    .gate-name.bro   { fill: var(--pass); }
-    .gate-name.god   { fill: #7fa8c0; }
-    .annot {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; fill: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .input-port, .ledger-port {
-      fill: var(--bg-2); stroke: var(--accent); stroke-width: 1.5;
-    }
-    .ledger-port { stroke: var(--pass); }
-
-    .packet {
-      fill: var(--accent); r: 4;
-      filter: drop-shadow(0 0 6px var(--accent));
-    }
-    .packet.reject { fill: var(--fail); filter: drop-shadow(0 0 6px var(--fail)); }
-    .packet.quarantine { fill: var(--hold); filter: drop-shadow(0 0 6px var(--hold)); }
-
-    /* Sections */
-    section { padding: 56px 0; }
-    .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-    h2 {
-      font-size: clamp(22px, 2.6vw, 30px);
-      font-weight: 600; letter-spacing: -0.01em;
-      margin-bottom: 14px;
-    }
-    h2 + p.sub { color: var(--text-dim); font-size: 14.5px; max-width: 60ch; margin-bottom: 22px; }
-
-    .gate-detail {
-      display: grid; grid-template-columns: 1fr; gap: 14px;
-    }
-    @media (min-width: 800px) {
-      .gate-detail { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    }
-    .gd-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: var(--r);
-      padding: 20px 20px 22px;
-    }
-    .gd-card.red    { border-left-color: var(--fail); }
-    .gd-card.floor  { border-left-color: var(--hold); }
-    .gd-card.bro    { border-left-color: var(--pass); }
-    .gd-card.god    { border-left-color: #7fa8c0; }
-    .gd-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; color: var(--accent);
-      letter-spacing: 0.14em; font-weight: 600;
-      text-transform: uppercase;
+    .secret .scripture {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic; font-size: 19px;
+      color: var(--text-dim); line-height: 1.55;
       margin-bottom: 8px;
     }
-    .gd-card h3 { font-size: 16px; margin-bottom: 8px; }
-    .gd-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
-
-    .quote {
-      max-width: 640px; margin: 0 auto;
-      text-align: center;
-      padding: 36px 24px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
+    .secret .ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--accent); letter-spacing: 0.14em;
     }
-    .quote .scripture {
-      font-family: 'Crimson Pro', serif; font-style: italic;
-      font-size: 19px; color: var(--text); line-height: 1.55;
-      margin-bottom: 12px;
-    }
-    .quote .ref { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 0.14em; }
-
-    /* CTAs */
     .cta-row {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: center;
-      margin-top: 24px;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-top: 22px;
     }
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 22px; border-radius: 8px;
-      font-size: 13.5px; font-weight: 600;
+      padding: 11px 20px; border-radius: 7px;
+      font-size: 13px; font-weight: 600;
       transition: all 0.15s; cursor: pointer; border: none;
     }
     .btn-primary { background: var(--accent); color: var(--bg); }
@@ -417,10 +440,10 @@
 
     footer {
       border-top: 1px solid var(--border);
-      padding: 36px 24px;
+      padding: 30px 24px;
       text-align: center;
-      font-size: 12.5px; color: var(--muted);
-      margin-top: 60px;
+      font-size: 12px; color: var(--muted);
+      margin-top: 40px;
     }
     footer a { color: var(--text-dim); margin: 0 8px; }
     footer a:hover { color: var(--text); }
@@ -428,13 +451,13 @@
 </head>
 <body>
 
-<!-- ── NAV ─────────────────────────────────────────────────── -->
+<!-- ── NAV ──────────────────────────────────────────── -->
 <nav class="topnav">
   <a href="/" class="wordmark always">Concordance</a>
   <div class="navlinks">
+    <a href="/engine.html" class="active">Engine</a>
     <a href="/verifiers.html">Verifiers</a>
     <a href="/grid.html">Grid</a>
-    <a href="/engine.html" class="active">Engine</a>
     <a href="/poly.html">Polymathic</a>
     <a href="/benchmark.html">Benchmark</a>
     <a href="/agents.html">Agents</a>
@@ -443,427 +466,668 @@
   </div>
 </nav>
 
-<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
-<header class="page-header">
-  <p class="eyebrow">Live engine · Real-time schematic</p>
-  <h1>The engine, <em>running</em>.</h1>
-  <p class="lead">Not an architecture diagram. The actual machine, instrumented. Real packets flow through four gates left to right; verifiers light up as they fire; the ledger ticks up. Open in another tab and watch.</p>
-</header>
+<!-- ── HEADER ───────────────────────────────────────── -->
+<div class="header-strip">
+  <div>
+    <h1>The engine, <em>as a brain</em>.</h1>
+    <p class="lead">63 domains. 7 scaffold axes. Every connection is a path the engine can walk — chemistry to thermodynamics along conservation, witness to scripture along authority, biology to genetics along encoding. The secret of the engine is that none of these are separate. Click an axis to isolate the network it forms.</p>
+  </div>
+  <div class="meta">
+    <span>NODES <b>61</b></span>
+    <span>EDGES <b id="edgeCount">—</b></span>
+    <span>JOURNAL <b id="m-journal">—</b></span>
+    <span>BENCH <b style="color:var(--pass)">170/171</b></span>
+  </div>
+</div>
 
-<!-- ── MAIN SCHEMATIC PANEL ────────────────────────────────── -->
-<div class="panel-wrap">
-  <div class="schematic-panel">
+<!-- ── STAGE ────────────────────────────────────────── -->
+<div class="stage-wrap">
+  <div class="stage">
 
-    <div class="panel-head">
-      <div class="panel-title">█ Concordance Engine · Live Schematic</div>
-      <div class="panel-meta">
-        <span>JOURNAL <b id="m-journal">—</b></span>
-        <span>TOOLS <b id="m-tools">72</b></span>
-        <span>VERIFIERS <b id="m-verifiers">63</b></span>
-        <span>BENCH <b>170/171</b></span>
-        <span>UPTIME <b id="m-uptime">—</b></span>
+    <!-- axis filter row (top-left) -->
+    <div class="axis-bar">
+      <div class="axis-bar-label">Axes — click to isolate</div>
+      <div class="axis-row" id="axisBar">
+        <span class="axis-pill" data-axis="enc"><span class="swatch"></span>encoding</span>
+        <span class="axis-pill" data-axis="aut"><span class="swatch"></span>authority</span>
+        <span class="axis-pill" data-axis="met"><span class="swatch"></span>metabolism</span>
+        <span class="axis-pill" data-axis="csv"><span class="swatch"></span>conservation</span>
+      </div>
+      <div class="axis-row">
+        <span class="axis-pill" data-axis="rsn"><span class="swatch"></span>reasoning</span>
+        <span class="axis-pill" data-axis="tim"><span class="swatch"></span>time</span>
+        <span class="axis-pill" data-axis="phy"><span class="swatch"></span>physical</span>
       </div>
     </div>
 
-    <!-- The engine SVG -->
-    <svg class="schematic-svg" viewBox="0 0 1200 360" preserveAspectRatio="xMidYMid meet">
-      <!-- Grid background -->
+    <!-- search (top-right) -->
+    <div class="search-bar">
+      <input id="search" placeholder="Find a domain…" autocomplete="off">
+    </div>
+
+    <!-- the brain itself -->
+    <svg id="brain" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(212,168,114,0.04)" stroke-width="0.5"/>
-        </pattern>
-        <radialGradient id="port-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.4"/>
-          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+        <radialGradient id="node-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fff" stop-opacity="0.7"/>
+          <stop offset="60%" stop-color="#fff" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
         </radialGradient>
-        <linearGradient id="pipe-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
-          <stop offset="50%" stop-color="var(--accent)" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-        </linearGradient>
+        <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
-      <rect width="1200" height="360" fill="url(#grid)"/>
-
-      <!-- ── INPUT PORT (left) ── -->
-      <g transform="translate(20,140)">
-        <circle cx="40" cy="40" r="50" fill="url(#port-glow)"/>
-        <circle class="input-port" cx="40" cy="40" r="28"/>
-        <text class="annot" x="40" y="44" text-anchor="middle" fill="var(--accent)">IN</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">CAPTURE</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">/capture</text>
-      </g>
-
-      <!-- ── CLASSIFIER (between input and gates) ── -->
-      <g transform="translate(120,150)">
-        <rect x="0" y="0" width="80" height="60" rx="4" class="gate-block"/>
-        <text class="gate-name" x="40" y="28">⊞</text>
-        <text class="gate-label" x="40" y="44">CLASSIFY</text>
-        <text class="annot" x="40" y="80" text-anchor="middle">63 DOMAINS</text>
-      </g>
-
-      <!-- ── PIPE: input → classifier ── -->
-      <line x1="68" y1="180" x2="120" y2="180" class="pipe"/>
-
-      <!-- ── PIPE: classifier → gate1 ── -->
-      <line x1="200" y1="180" x2="260" y2="180" class="pipe"/>
-
-      <!-- ── GATES (4 in a row) ── -->
-      <!-- RED -->
-      <g transform="translate(260,140)">
-        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block red"/>
-        <text class="gate-name red" x="40" y="36">●</text>
-        <text class="gate-label" x="40" y="56">RED</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">COERCION</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 01</text>
-      </g>
-      <line x1="340" y1="180" x2="400" y2="180" class="pipe"/>
-
-      <!-- FLOOR -->
-      <g transform="translate(400,140)">
-        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block floor"/>
-        <text class="gate-name floor" x="40" y="36">▽</text>
-        <text class="gate-label" x="40" y="56">FLOOR</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">COMPLETE</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 02</text>
-      </g>
-      <line x1="480" y1="180" x2="540" y2="180" class="pipe"/>
-
-      <!-- BROTHERS -->
-      <g transform="translate(540,140)">
-        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block bro"/>
-        <text class="gate-name bro" x="40" y="36">⌂</text>
-        <text class="gate-label" x="40" y="56">BROTHERS</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">WITNESS</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 03</text>
-      </g>
-      <line x1="620" y1="180" x2="680" y2="180" class="pipe"/>
-
-      <!-- GOD -->
-      <g transform="translate(680,140)">
-        <rect x="0" y="0" width="80" height="80" rx="4" class="gate-block god"/>
-        <text class="gate-name god" x="40" y="36">✝</text>
-        <text class="gate-label" x="40" y="56">GOD</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">SEAL</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">gate 04</text>
-      </g>
-      <line x1="760" y1="180" x2="820" y2="180" class="pipe"/>
-
-      <!-- ── LEDGER PORT (right) ── -->
-      <g transform="translate(820,140)">
-        <circle cx="40" cy="40" r="50" fill="url(#port-glow)"/>
-        <circle class="ledger-port" cx="40" cy="40" r="28"/>
-        <text class="annot" x="40" y="44" text-anchor="middle" fill="var(--pass)">OUT</text>
-        <text class="annot" x="40" y="100" text-anchor="middle">LEDGER</text>
-        <text class="annot" x="40" y="114" text-anchor="middle" style="font-size:8px">/audit-chain</text>
-      </g>
-
-      <!-- ── VERIFIER FAN-OUT (below classifier going to gate1) ── -->
-      <!-- decorative lines showing classifier reaches all 63 verifiers -->
-      <g stroke="var(--pipe)" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.4" fill="none">
-        <path d="M 160 210 Q 200 250, 260 280"/>
-        <path d="M 160 210 Q 280 280, 400 290"/>
-        <path d="M 160 210 Q 360 290, 540 290"/>
-        <path d="M 160 210 Q 440 290, 680 280"/>
-      </g>
-
-      <!-- Verifier rail label -->
-      <text class="annot" x="600" y="312" text-anchor="middle" fill="var(--muted)" style="font-size:8px">63 verifiers · 7 axes · scaffold</text>
-
-      <!-- ── KEY (bottom-left) ── -->
-      <g transform="translate(20,310)">
-        <circle cx="6" cy="6" r="3" fill="var(--accent)"/>
-        <text class="annot" x="14" y="9">PACKET</text>
-        <circle cx="6" cy="22" r="3" fill="var(--fail)"/>
-        <text class="annot" x="14" y="25">REJECT</text>
-        <circle cx="6" cy="38" r="3" fill="var(--hold)"/>
-        <text class="annot" x="14" y="41">QUARANTINE</text>
-      </g>
-
-      <!-- ── DESCRIPTOR (bottom-right) ── -->
-      <text class="annot" x="1180" y="320" text-anchor="end" fill="var(--muted-2)">CONCORDANCE.SCHEMATIC.v1</text>
-      <text class="annot" x="1180" y="334" text-anchor="end" fill="var(--muted-2)">SERVES JESUS CHRIST · 1 PET 3:15</text>
-
-      <!-- ── ANIMATED PACKETS (injected by JS) ── -->
-      <g id="packetLayer"></g>
-
+      <g id="edgeLayer"></g>
+      <g id="nodeLayer"></g>
+      <g id="activationLayer"></g>
     </svg>
 
+    <!-- selected-node detail card (bottom-left, hidden until select) -->
+    <div class="detail-card" id="detailCard">
+      <h3 id="d-name">—</h3>
+      <div class="axes-row" id="d-axes"></div>
+      <div class="meta-line"><span>connections</span><b id="d-conn">—</b></div>
+      <div class="meta-line"><span>depth</span><b id="d-depth">—</b></div>
+      <div class="meta-line"><span>journal hits</span><b id="d-journal">—</b></div>
+    </div>
+
+    <!-- live activity feed (bottom-right) -->
+    <div class="activity-card">
+      <div class="head"><span>live activity</span><span class="pulse"></span></div>
+      <div class="activity-list" id="actList">
+        <div class="act-row"><span class="text" style="color:var(--muted)">Waiting for activations…</span></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ── INSTRUMENT GRID ─────────────────────────────────────── -->
-<div class="instruments">
-
-  <div class="inst">
-    <div class="inst-label">Verifier bank · 63 tools <span class="pulse"></span></div>
-    <div class="verifier-bank" id="verifierBank"></div>
-    <p style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em">
-      Each cell is one verifier. Pulses when the engine fires it. Hover for the name.
-    </p>
+<!-- ── BELOW ────────────────────────────────────────── -->
+<div class="below">
+  <div class="panel">
+    <div class="panel-label">The secret</div>
+    <h3>The engine is not 63 verifiers. It is one brain.</h3>
+    <p>Each domain is a scaffold position — a place in the structure of created reality. Two domains share an edge whenever they sit on the same axis: chemistry and biology share <span style="color:var(--csv)">conservation</span>, <span style="color:var(--met)">metabolism</span>, and <span style="color:var(--phy)">physical-substance</span>. Witness and scripture share <span style="color:var(--aut)">authority</span>, <span style="color:var(--enc)">encoding</span>, <span style="color:var(--rsn)">reasoning</span>, and <span style="color:var(--tim)">time</span>.</p>
+    <p>When a packet enters the engine, it doesn't get checked by one verifier and stop. It activates a region of the brain. The polymathic synthesis you see at <a href="/poly.html">/poly</a> is exactly this: every relevant domain firing along its axis-shared connections.</p>
+    <p>That's why scoring works the way it does. The engine doesn't just answer — it shows which other parts of the structure light up. <em style="font-family:'Crimson Pro',serif">Rom 1:20: His invisible attributes are clearly seen, being understood by the things that are made.</em></p>
   </div>
 
-  <div class="inst">
-    <div class="inst-label">Live counters <span class="pulse"></span></div>
+  <div class="panel">
+    <div class="panel-label">Live counters</div>
     <div class="gauges">
-      <div class="gauge">
-        <div class="gauge-num" id="g-packets">—</div>
-        <div class="gauge-label">Packets sealed</div>
-      </div>
-      <div class="gauge">
-        <div class="gauge-num" id="g-keeping">—</div>
-        <div class="gauge-label">Observations</div>
-      </div>
-      <div class="gauge">
-        <div class="gauge-num pass" id="g-bench">99.4%</div>
-        <div class="gauge-label">Benchmark</div>
-      </div>
-      <div class="gauge">
-        <div class="gauge-num" id="g-axes">7</div>
-        <div class="gauge-label">Axes</div>
-      </div>
+      <div class="gauge"><div class="gauge-num" id="g-packets">—</div><div class="gauge-label">Packets sealed</div></div>
+      <div class="gauge"><div class="gauge-num" id="g-keep">—</div><div class="gauge-label">Observations</div></div>
+      <div class="gauge"><div class="gauge-num pass">99.4%</div><div class="gauge-label">Benchmark</div></div>
+      <div class="gauge"><div class="gauge-num" id="g-act">0</div><div class="gauge-label">Activations</div></div>
     </div>
   </div>
 
-  <div class="inst">
-    <div class="inst-label">Recent verdicts <span class="pulse"></span></div>
-    <div class="recent" id="recentFeed">
-      <div class="recent-row"><span class="recent-text" style="color:var(--muted)">Loading journal…</span></div>
-    </div>
+  <div class="panel">
+    <div class="panel-label">Hub domains — most connected</div>
+    <div id="topHubs" style="display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px"></div>
+    <p style="margin-top:10px; font-size:11.5px; color:var(--muted)">Multi-axis domains sit at the cortex. They share structure with the most other domains, so a packet in any of them activates the most paths.</p>
   </div>
-
 </div>
 
-<!-- ── GATE DETAIL ──────────────────────────────────────────── -->
-<section>
-  <div class="container">
-    <h2>Four gates. Fixed order. First failure halts.</h2>
-    <p class="sub">Each gate has a single job. The engine never self-confirms — every gate runs against an external standard.</p>
-
-    <div class="gate-detail">
-      <div class="gd-card red">
-        <div class="gd-num">Gate 01</div>
-        <h3>Red</h3>
-        <p>Coercion screen. Rejects unilateral authority, rights violations, and hard computational failures. The first thing kept out of the ledger.</p>
-      </div>
-      <div class="gd-card floor">
-        <div class="gd-num">Gate 02</div>
-        <h3>Floor</h3>
-        <p>Structural minimum. Required fields per domain, internal consistency, Scripture-anchor coverage. Incomplete packets stop here.</p>
-      </div>
-      <div class="gd-card bro">
-        <div class="gd-num">Gate 03</div>
-        <h3>Brothers</h3>
-        <p>Witness threshold. Quarantines if witnesses are insufficient or the review window has not elapsed. Two or three witnesses establish a matter (Deut 19:15).</p>
-      </div>
-      <div class="gd-card god">
-        <div class="gd-num">Gate 04</div>
-        <h3>God</h3>
-        <p>Permanent record. Seals into the append-only audit chain. Every step of the reasoning trail is captured. Nothing the engine cannot show.</p>
-      </div>
-    </div>
+<!-- ── SECRET COPY ────────────────────────────────── -->
+<div class="secret">
+  <p class="scripture">"For since the creation of the world His invisible attributes are clearly seen, being understood by the things that are made."</p>
+  <p class="ref">ROMANS 1:20</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="/connect.html">Connect an agent →</a>
+    <a class="btn btn-secondary" href="/poly.html">Run polymathic synthesis →</a>
+    <a class="btn btn-secondary" href="/grid.html">Open the 3D explorer →</a>
   </div>
-</section>
-
-<!-- ── DOCTRINAL FRAME ─────────────────────────────────────── -->
-<section>
-  <div class="container">
-    <div class="quote">
-      <p class="scripture">"For since the creation of the world His invisible attributes are clearly seen, being understood by the things that are made…"</p>
-      <p class="ref">Romans 1:20</p>
-    </div>
-
-    <div class="cta-row">
-      <a class="btn btn-primary" href="/connect.html">Connect an agent →</a>
-      <a class="btn btn-secondary" href="/grid.html">See the knowledge grid →</a>
-      <a class="btn btn-secondary" href="/benchmark.html">Read the benchmark →</a>
-    </div>
-  </div>
-</section>
+</div>
 
 <footer>
   <a href="/">Home</a> · <a href="/verifiers.html">Verifiers</a> · <a href="/connect.html">Connect</a> · <a href="/agents.html">Agents</a> · <a href="/benchmark.html">Benchmark</a> · <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
   <p style="margin-top:14px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted)">© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</p>
 </footer>
 
-<!-- ── HOVER TOOLTIP (positioned by JS) ── -->
-<div class="v-tooltip" id="vTooltip"></div>
-
 <script>
+  /* ═══════════════════════════════════════════════════
+     CONFIG
+  ═══════════════════════════════════════════════════ */
   const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:8000' : '';
 
-  /* ═══════════════════════════════════════════
-     Verifier bank — render 63 dots, one per tool
-  ═══════════════════════════════════════════ */
-  const VERIFIERS = [
-    'acoustics','agriculture','architecture','astronomy','biology','calendar_time',
-    'chemistry','combinatorics','computer_science','construction','cryptography',
-    'cybersecurity','document_validation','ecology','economics','electrical','energy',
-    'exercise_science','finance','formal_logic','genetics','geography','geology',
-    'geometry','governance_decision_packet','history_chronology','hydrology',
-    'information_theory','labor','law','linguistics','manufacturing','materials_science',
-    'mathematics','medicine','meteorology','music_theory','networking','nuclear_physics',
-    'number_theory','nutrition','oceanography','operations_research','optics','phase',
-    'philosophy','photography','physics','physics_conservation','physics_dimensional',
-    'quantum_computing','real_estate','rhetoric','scripture_anchors','soil_science',
-    'sports_analytics','statistics','statistics_confidence_interval',
-    'statistics_multiple_comparisons','statistics_pvalue','theology_doctrine',
-    'thermodynamics','witness'
-  ];
-  const bank = document.getElementById('verifierBank');
-  const dotsByName = {};
-  VERIFIERS.forEach(name => {
-    const d = document.createElement('div');
-    d.className = 'v-dot';
-    d.dataset.name = name;
-    d.addEventListener('mouseenter', e => showTip(e, name));
-    d.addEventListener('mouseleave', hideTip);
-    bank.appendChild(d);
-    dotsByName[name] = d;
-  });
+  const AXIS_COLOR = {
+    enc: '#5b9bd5', aut: '#a87cd6', met: '#6ec98a', csv: '#5ec4b4',
+    rsn: '#d4c46a', tim: '#7fa8c0', phy: '#d9945c'
+  };
+  const AXIS_NAME = {
+    enc: 'encoding', aut: 'authority', met: 'metabolism', csv: 'conservation',
+    rsn: 'reasoning', tim: 'time', phy: 'physical'
+  };
+  const AXIS_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
 
-  const tip = document.getElementById('vTooltip');
-  function showTip(e, name) {
-    const r = e.target.getBoundingClientRect();
-    tip.textContent = name;
-    tip.style.display = 'block';
-    tip.style.left = (r.left + r.width/2) + 'px';
-    tip.style.top  = (r.top + window.scrollY) + 'px';
+  /* ═══════════════════════════════════════════════════
+     SCAFFOLD — 61 domain nodes + their axis assignments
+     (matches grid.html GRID_INLINE — single source of truth)
+  ═══════════════════════════════════════════════════ */
+  const GRID = {
+    acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
+    architecture:["aut","phy","tim"], astronomy:["csv","phy","tim"],
+    biology:["csv","enc","met","phy","tim"], calendar_time:["tim"],
+    chemistry:["csv","met","phy"], combinatorics:["rsn"],
+    computer_science:["enc","rsn","tim"], construction:["csv","met","phy","tim"],
+    cryptography:["aut","enc","rsn"], cybersecurity:["aut","enc","rsn"],
+    document_validation:["aut","enc"], ecology:["csv","met","phy","tim"],
+    economics:["aut","csv","rsn","tim"], electrical:["csv","phy"],
+    energy:["csv","met","phy","tim"], exercise_science:["csv","met","phy","tim"],
+    finance:["aut","csv","rsn","tim"], formal_logic:["rsn"],
+    genetics:["enc","phy"], geography:["phy"], geology:["met","phy","tim"],
+    geometry:["phy","rsn"], governance_decision_packet:["aut","rsn","tim"],
+    history_chronology:["aut","rsn","tim"], hydrology:["csv","met","phy","tim"],
+    information_theory:["enc","rsn"], labor:["aut","csv","met","tim"],
+    law:["aut","rsn","tim"], linguistics:["enc","rsn"],
+    manufacturing:["csv","met","phy","tim"], materials_science:["csv","met","phy"],
+    mathematics:["rsn"], medicine:["aut","met","phy","tim"],
+    meteorology:["csv","met","phy","tim"], music_theory:["enc","phy","rsn"],
+    networking:["aut","enc","phy","tim"], nuclear_physics:["csv","phy","tim"],
+    number_theory:["rsn"], nutrition:["csv","met","phy"],
+    oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
+    optics:["csv","phy"], philosophy:["aut","rsn"],
+    photography:["enc","phy"], physics_conservation:["csv","phy"],
+    physics_dimensional:["phy","rsn"], quantum_computing:["enc","phy","rsn"],
+    real_estate:["aut","csv","phy","tim"], rhetoric:["aut","enc","rsn"],
+    scripture_anchors:["aut","enc","rsn","tim"], soil_science:["csv","met","phy"],
+    sports_analytics:["rsn","tim"],
+    statistics_pvalue:["rsn"], statistics_multiple_comparisons:["rsn"],
+    statistics_confidence_interval:["rsn"],
+    theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
+    witness:["aut","enc","rsn","tim"],
+    phase:["aut","rsn","tim"]
+  };
+
+  /* ═══════════════════════════════════════════════════
+     BUILD nodes + edges
+  ═══════════════════════════════════════════════════ */
+  function primaryAxis(axes) {
+    for (const a of AXIS_PRIORITY) if (axes.includes(a)) return a;
+    return 'rsn';
   }
-  function hideTip() { tip.style.display = 'none'; }
 
-  function fireVerifier(name) {
-    const d = dotsByName[name];
-    if (!d) return;
-    d.dataset.fired = 'true';
-    setTimeout(() => { d.dataset.fired = 'false'; }, 1400);
-  }
+  const NODES = Object.keys(GRID).map(id => ({
+    id,
+    axes: GRID[id],
+    depth: GRID[id].length,
+    primary: primaryAxis(GRID[id]),
+    label: id.replace(/_/g, ' '),
+    x: 0, y: 0, vx: 0, vy: 0,
+    fx: null, fy: null,
+    activation: 0,
+    journal_hits: 0,
+  }));
+  const NODE_BY_ID = {};
+  NODES.forEach(n => NODE_BY_ID[n.id] = n);
 
-  /* ═══════════════════════════════════════════
-     Animated packets through the schematic
-  ═══════════════════════════════════════════ */
-  const layer = document.getElementById('packetLayer');
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  // Path waypoints in SVG coords: input → classifier → gate1..4 → ledger
-  const PATH_X = [60, 160, 300, 440, 580, 720, 860];
-  const Y_MID = 180;
-
-  function spawnPacket(verdict = 'pass') {
-    const c = document.createElementNS(SVG_NS, 'circle');
-    c.setAttribute('class', 'packet' + (verdict === 'reject' ? ' reject' : verdict === 'quarantine' ? ' quarantine' : ''));
-    c.setAttribute('cx', PATH_X[0]);
-    c.setAttribute('cy', Y_MID);
-    c.setAttribute('r', '4');
-    layer.appendChild(c);
-
-    // Determine where it stops
-    let stopAt;
-    if (verdict === 'reject')      stopAt = 2; // fails at RED
-    else if (verdict === 'quarantine') stopAt = 4; // fails at BROTHERS
-    else                            stopAt = PATH_X.length - 1; // through to ledger
-
-    const total = stopAt;
-    let step = 0;
-    function next() {
-      step++;
-      const x = PATH_X[step];
-      c.style.transition = 'cx 700ms cubic-bezier(0.4,0,0.4,1), opacity 400ms';
-      c.setAttribute('cx', x);
-      // Ensure transition fires
-      requestAnimationFrame(() => c.setAttribute('cx', x));
-      if (step >= total) {
-        // fade out
-        setTimeout(() => {
-          c.style.opacity = '0';
-          setTimeout(() => c.remove(), 450);
-        }, 700);
-      } else {
-        setTimeout(next, 720);
+  const EDGES = [];
+  for (let i = 0; i < NODES.length; i++) {
+    for (let j = i + 1; j < NODES.length; j++) {
+      const a = NODES[i], b = NODES[j];
+      const shared = a.axes.filter(x => b.axes.includes(x));
+      if (shared.length >= 1) {
+        EDGES.push({
+          source: a, target: b,
+          axes: shared,
+          primary: primaryAxis(shared),
+          weight: shared.length,
+        });
       }
     }
-    setTimeout(next, 60);
+  }
+  document.getElementById('edgeCount').textContent = EDGES.length;
+
+  /* hub list */
+  const hubs = [...NODES].sort((a,b) => {
+    // count edges incident on each
+    const ca = EDGES.filter(e => e.source.id === a.id || e.target.id === a.id).length;
+    const cb = EDGES.filter(e => e.source.id === b.id || e.target.id === b.id).length;
+    return cb - ca;
+  }).slice(0, 8);
+
+  const hubsEl = document.getElementById('topHubs');
+  hubs.forEach(h => {
+    const conn = EDGES.filter(e => e.source.id === h.id || e.target.id === h.id).length;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer';
+    row.innerHTML = `
+      <span style="color:${AXIS_COLOR[h.primary]}">${h.label}</span>
+      <span style="color:var(--muted)">${conn}</span>
+    `;
+    row.addEventListener('click', () => selectNode(h.id));
+    hubsEl.appendChild(row);
+  });
+
+  /* ═══════════════════════════════════════════════════
+     LAYOUT — minimal verlet-style force simulation
+  ═══════════════════════════════════════════════════ */
+  const svg = document.getElementById('brain');
+  let W = 1000, H = 600;
+  function resize() {
+    const r = svg.getBoundingClientRect();
+    W = r.width; H = r.height;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  /* Initial positions: random spread with slight clustering by primary axis */
+  const AXIS_ANGLE = { enc: 0, aut: 1, met: 2, csv: 3, rsn: 4, tim: 5, phy: 6 };
+  NODES.forEach((n, i) => {
+    const a = (AXIS_ANGLE[n.primary] / 7) * Math.PI * 2;
+    const r = 220 + Math.random() * 80;
+    n.x = W/2 + Math.cos(a) * r + (Math.random() - 0.5) * 80;
+    n.y = H/2 + Math.sin(a) * r + (Math.random() - 0.5) * 80;
+  });
+
+  function tick() {
+    const REPEL = 1800;
+    const STIFF = 0.012;
+    const IDEAL = 95;
+    const CENTER = 0.005;
+    const DAMP = 0.85;
+
+    /* repulsion: O(n^2) */
+    for (let i = 0; i < NODES.length; i++) {
+      for (let j = i + 1; j < NODES.length; j++) {
+        const a = NODES[i], b = NODES[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        let d2 = dx*dx + dy*dy + 0.01;
+        let d = Math.sqrt(d2);
+        const f = REPEL / d2;
+        dx /= d; dy /= d;
+        a.vx -= f * dx; a.vy -= f * dy;
+        b.vx += f * dx; b.vy += f * dy;
+      }
+    }
+
+    /* edge attraction — weight scales with shared axes count */
+    for (const e of EDGES) {
+      let dx = e.target.x - e.source.x, dy = e.target.y - e.source.y;
+      const d = Math.sqrt(dx*dx + dy*dy) + 0.01;
+      const ideal = IDEAL - e.weight * 6;
+      const f = (d - ideal) * STIFF * (0.7 + e.weight * 0.15);
+      dx /= d; dy /= d;
+      e.source.vx += f * dx; e.source.vy += f * dy;
+      e.target.vx -= f * dx; e.target.vy -= f * dy;
+    }
+
+    /* center pull */
+    for (const n of NODES) {
+      n.vx -= (n.x - W/2) * CENTER;
+      n.vy -= (n.y - H/2) * CENTER;
+    }
+
+    /* integrate */
+    for (const n of NODES) {
+      if (n.fx != null) { n.x = n.fx; n.y = n.fy; n.vx = 0; n.vy = 0; continue; }
+      n.vx *= DAMP; n.vy *= DAMP;
+      n.x += n.vx; n.y += n.vy;
+      // soft margin
+      n.x = Math.max(40, Math.min(W - 40, n.x));
+      n.y = Math.max(40, Math.min(H - 40, n.y));
+    }
   }
 
-  /* ═══════════════════════════════════════════
-     Live data pulls
-  ═══════════════════════════════════════════ */
-  let lastJournalCount = 0;
-  let bootEpoch = Date.now() / 1000;
+  /* ═══════════════════════════════════════════════════
+     RENDER — first pass setup, then transform on tick
+  ═══════════════════════════════════════════════════ */
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const edgeLayer = document.getElementById('edgeLayer');
+  const nodeLayer = document.getElementById('nodeLayer');
+  const activationLayer = document.getElementById('activationLayer');
+
+  /* Edge elements */
+  EDGES.forEach((e, i) => {
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('class', 'edge');
+    line.setAttribute('stroke', AXIS_COLOR[e.primary]);
+    line.setAttribute('stroke-width', 0.4 + e.weight * 0.35);
+    line.setAttribute('opacity', 0.08 + e.weight * 0.07);
+    line.dataset.idx = i;
+    e.el = line;
+    edgeLayer.appendChild(line);
+  });
+
+  /* Node elements */
+  NODES.forEach(n => {
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('class', 'node');
+    g.dataset.id = n.id;
+
+    const halo = document.createElementNS(SVG_NS, 'circle');
+    halo.setAttribute('r', 16 + n.depth * 1.6);
+    halo.setAttribute('fill', 'url(#node-glow)');
+    halo.setAttribute('opacity', 0);
+    halo.classList.add('halo');
+    n.haloEl = halo;
+    g.appendChild(halo);
+
+    const c = document.createElementNS(SVG_NS, 'circle');
+    c.setAttribute('class', 'node-circle');
+    c.setAttribute('r', 4 + n.depth * 0.85);
+    c.setAttribute('fill', AXIS_COLOR[n.primary]);
+    c.setAttribute('stroke', AXIS_COLOR[n.primary]);
+    c.setAttribute('stroke-opacity', 0.6);
+    c.setAttribute('stroke-width', 1);
+    c.style.filter = 'url(#soft-glow)';
+    n.circleEl = c;
+    g.appendChild(c);
+
+    const lbl = document.createElementNS(SVG_NS, 'text');
+    lbl.setAttribute('class', 'node-label');
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('y', -(7 + n.depth));
+    lbl.textContent = n.label;
+    n.labelEl = lbl;
+    g.appendChild(lbl);
+
+    g.addEventListener('click', () => selectNode(n.id));
+    g.addEventListener('mouseenter', () => g.style.cursor = 'pointer');
+
+    n.el = g;
+    nodeLayer.appendChild(g);
+  });
+
+  /* Apply positions */
+  function paint() {
+    for (const e of EDGES) {
+      e.el.setAttribute('x1', e.source.x);
+      e.el.setAttribute('y1', e.source.y);
+      e.el.setAttribute('x2', e.target.x);
+      e.el.setAttribute('y2', e.target.y);
+    }
+    for (const n of NODES) {
+      n.el.setAttribute('transform', `translate(${n.x},${n.y})`);
+      // halo opacity follows activation
+      n.haloEl.setAttribute('opacity', Math.min(1, n.activation));
+      // node radius bump on activation
+      const baseR = 4 + n.depth * 0.85;
+      n.circleEl.setAttribute('r', baseR + n.activation * 4);
+      // decay
+      n.activation *= 0.94;
+      if (n.activation < 0.01) n.activation = 0;
+    }
+  }
+
+  /* Run simulation */
+  let simIters = 0;
+  function loop() {
+    if (simIters < 350) {
+      // heavier in first phase
+      for (let i = 0; i < 2; i++) tick();
+    } else {
+      // gentle ongoing
+      tick();
+    }
+    paint();
+    simIters++;
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  /* ═══════════════════════════════════════════════════
+     SELECTION + AXIS FILTERING
+  ═══════════════════════════════════════════════════ */
+  let selectedId = null;
+  let activeAxis = null;
+
+  function selectNode(id) {
+    selectedId = id;
+    activeAxis = null; // selecting clears axis solo
+    document.querySelectorAll('.axis-pill').forEach(p => p.classList.remove('solo','dim'));
+
+    const node = NODE_BY_ID[id];
+    if (!node) return;
+
+    const adj = new Set();
+    for (const e of EDGES) {
+      if (e.source.id === id) adj.add(e.target.id);
+      if (e.target.id === id) adj.add(e.source.id);
+    }
+
+    NODES.forEach(n => {
+      if (n.id === id) {
+        n.circleEl.classList.add('selected');
+        n.circleEl.classList.remove('dim');
+        n.labelEl.classList.add('selected');
+        n.labelEl.classList.remove('dim');
+      } else if (adj.has(n.id)) {
+        n.circleEl.classList.remove('selected','dim');
+        n.labelEl.classList.remove('selected','dim');
+      } else {
+        n.circleEl.classList.remove('selected');
+        n.circleEl.classList.add('dim');
+        n.labelEl.classList.remove('selected');
+        n.labelEl.classList.add('dim');
+      }
+    });
+    EDGES.forEach(e => {
+      if (e.source.id === id || e.target.id === id) e.el.classList.remove('dim');
+      else e.el.classList.add('dim');
+    });
+
+    // Detail card
+    document.getElementById('d-name').textContent = node.label;
+    const axesEl = document.getElementById('d-axes');
+    axesEl.innerHTML = node.axes.map(a => `<span style="background:${AXIS_COLOR[a]}22;color:${AXIS_COLOR[a]};border:1px solid ${AXIS_COLOR[a]}44">${AXIS_NAME[a]}</span>`).join('');
+    document.getElementById('d-conn').textContent = adj.size;
+    document.getElementById('d-depth').textContent = node.depth;
+    document.getElementById('d-journal').textContent = node.journal_hits || '—';
+    document.getElementById('detailCard').classList.add('show');
+
+    // small activation pulse on the selected node
+    activateNode(id, 1.0);
+  }
+
+  function clearSelection() {
+    selectedId = null;
+    NODES.forEach(n => {
+      n.circleEl.classList.remove('selected','dim');
+      n.labelEl.classList.remove('selected','dim');
+    });
+    EDGES.forEach(e => e.el.classList.remove('dim'));
+    document.getElementById('detailCard').classList.remove('show');
+    applyAxisFilter();
+  }
+
+  /* axis filter */
+  document.querySelectorAll('.axis-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const ax = pill.dataset.axis;
+      if (activeAxis === ax) {
+        activeAxis = null;
+        document.querySelectorAll('.axis-pill').forEach(p => p.classList.remove('solo','dim'));
+      } else {
+        activeAxis = ax;
+        document.querySelectorAll('.axis-pill').forEach(p => {
+          p.classList.toggle('solo', p.dataset.axis === ax);
+          p.classList.toggle('dim',  p.dataset.axis !== ax);
+        });
+      }
+      applyAxisFilter();
+    });
+  });
+
+  function applyAxisFilter() {
+    if (!activeAxis) {
+      NODES.forEach(n => { n.circleEl.classList.remove('dim'); n.labelEl.classList.remove('dim'); });
+      EDGES.forEach(e => e.el.classList.remove('dim'));
+      return;
+    }
+    NODES.forEach(n => {
+      const has = n.axes.includes(activeAxis);
+      n.circleEl.classList.toggle('dim', !has);
+      n.labelEl.classList.toggle('dim', !has);
+    });
+    EDGES.forEach(e => {
+      e.el.classList.toggle('dim', !e.axes.includes(activeAxis));
+    });
+  }
+
+  /* SVG background click clears selection */
+  svg.addEventListener('click', e => {
+    if (e.target === svg) clearSelection();
+  });
+
+  /* search */
+  document.getElementById('search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase().replace(/\s+/g,'_');
+    if (!q) { clearSelection(); return; }
+    NODES.forEach(n => {
+      const match = n.id.includes(q) || n.label.includes(q);
+      n.circleEl.classList.toggle('dim', !match);
+      n.labelEl.classList.toggle('dim', !match);
+    });
+    EDGES.forEach(e2 => {
+      const sm = e2.source.id.includes(q) || e2.source.label.includes(q);
+      const tm = e2.target.id.includes(q) || e2.target.label.includes(q);
+      e2.el.classList.toggle('dim', !(sm || tm));
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════
+     ACTIVATIONS — packets fire nodes, ripple along edges
+  ═══════════════════════════════════════════════════ */
+  let activationCount = 0;
+  function activateNode(id, intensity = 1.0) {
+    const n = NODE_BY_ID[id];
+    if (!n) return;
+    n.activation = Math.max(n.activation, intensity);
+    n.journal_hits = (n.journal_hits || 0) + 1;
+    activationCount++;
+    document.getElementById('g-act').textContent = activationCount;
+
+    // ripple along edges with delay
+    const adjEdges = EDGES.filter(e => e.source.id === id || e.target.id === id);
+    adjEdges.forEach((e, i) => {
+      const other = e.source.id === id ? e.target : e.source;
+      setTimeout(() => spawnPulse(n, other, e), 80 + i * 30);
+    });
+  }
+
+  function spawnPulse(from, to, edge) {
+    const ring = document.createElementNS(SVG_NS, 'circle');
+    ring.setAttribute('class', 'activation-ring');
+    ring.setAttribute('r', 4);
+    ring.setAttribute('cx', from.x);
+    ring.setAttribute('cy', from.y);
+    ring.setAttribute('stroke', AXIS_COLOR[edge.primary]);
+    ring.setAttribute('opacity', 0.9);
+    activationLayer.appendChild(ring);
+
+    const start = performance.now();
+    const dur = 600 + Math.random() * 200;
+    function step(t) {
+      const u = Math.min(1, (t - start) / dur);
+      const x = from.x + (to.x - from.x) * u;
+      const y = from.y + (to.y - from.y) * u;
+      ring.setAttribute('cx', x);
+      ring.setAttribute('cy', y);
+      ring.setAttribute('opacity', 0.9 * (1 - u));
+      ring.setAttribute('r', 4 + u * 6);
+      if (u < 1) requestAnimationFrame(step);
+      else {
+        ring.remove();
+        // partial activation propagates to neighbor
+        to.activation = Math.max(to.activation, 0.5);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     LIVE DATA — pull /journal/recent and /health
+  ═══════════════════════════════════════════════════ */
+  let lastJournal = 0;
+  let seenIds = new Set();
+
+  async function fetchJSON(path) {
+    const r = await fetch(API + path, { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
   async function refreshHealth() {
     try {
-      const h = await fetch(API + '/health', { cache: 'no-store' }).then(r => r.json());
+      const h = await fetchJSON('/health');
       const j = h?.modules?.journal?.total_entries;
       const k = h?.modules?.keeping?.total_observations;
       if (j != null) {
         document.getElementById('m-journal').textContent = j.toLocaleString();
         document.getElementById('g-packets').textContent = j.toLocaleString();
-        // If journal grew, fire some packets through the schematic
-        if (lastJournalCount && j > lastJournalCount) {
-          const delta = Math.min(j - lastJournalCount, 5);
-          for (let i = 0; i < delta; i++) {
-            setTimeout(() => spawnPacket(pickVerdict()), i * 250);
+        if (lastJournal && j > lastJournal) {
+          // journal grew — fire ambient activations
+          const burst = Math.min(j - lastJournal, 4);
+          for (let i = 0; i < burst; i++) {
+            setTimeout(ambientActivate, i * 220);
           }
         }
-        lastJournalCount = j;
+        lastJournal = j;
       }
-      if (k != null) document.getElementById('g-keeping').textContent = k.toLocaleString();
-      if (h?.timestamp) {
-        const up = Math.floor((Date.now()/1000 - bootEpoch));
-        document.getElementById('m-uptime').textContent = formatUptime(up);
-      }
-      document.getElementById('liveDot').style.color = 'var(--pass)';
+      if (k != null) document.getElementById('g-keep').textContent = k.toLocaleString();
+      document.getElementById('liveDot').style.color = '';
     } catch (_) {
-      document.getElementById('liveDot').style.color = 'var(--fail)';
+      // engine offline — keep ambient activations going so the brain still demos
+      const ld = document.getElementById('liveDot');
+      ld.style.color = 'var(--fail)';
+      ld.lastChild && (ld.lastChild.textContent = ' offline');
     }
   }
-  function formatUptime(s) {
-    if (s < 60) return s + 's';
-    if (s < 3600) return Math.floor(s/60) + 'm ' + (s%60) + 's';
-    return Math.floor(s/3600) + 'h ' + Math.floor((s%3600)/60) + 'm';
-  }
-  function pickVerdict() {
-    const r = Math.random();
-    if (r < 0.04) return 'reject';
-    if (r < 0.10) return 'quarantine';
-    return 'pass';
-  }
 
-  let seenIds = new Set();
   async function refreshRecent() {
     try {
-      const data = await fetch(API + '/journal/recent?limit=12', { cache: 'no-store' }).then(r => r.json());
+      const data = await fetchJSON('/journal/recent?limit=12');
       const entries = data.entries || data.items || data || [];
-      const feed = document.getElementById('recentFeed');
-      feed.innerHTML = '';
-      let firedDomains = [];
+      const list = document.getElementById('actList');
+      list.innerHTML = '';
+      let fired = 0;
       for (const e of entries.slice(0, 12)) {
-        const dom  = e.domain || (e.tags && e.tags[0]) || (e.metadata && e.metadata.domain) || 'mixed';
-        const text = (e.title || e.text || e.summary || '').slice(0, 90);
-        const ts   = e.created_epoch || e.ts || e.timestamp;
+        const dom = e.domain || (e.tags && e.tags[0]) || (e.metadata && e.metadata.domain) || 'mixed';
+        const text = (e.title || e.text || e.summary || '').slice(0, 80);
+        const ts = e.created_epoch || e.ts || e.timestamp;
+        const id = e.entry_id || e.id || (dom + ':' + ts);
+
         const row = document.createElement('div');
-        row.className = 'recent-row';
+        row.className = 'act-row';
         row.innerHTML = `
-          <span class="recent-domain">${dom}</span>
-          <span class="recent-text">${escapeHtml(text)}</span>
-          <span class="recent-time">${ts ? relTime(ts) : ''}</span>
+          <span class="dom">${dom}</span>
+          <span class="text">${escapeHtml(text)}</span>
+          <span class="when">${ts ? relTime(ts) : ''}</span>
         `;
-        feed.appendChild(row);
-        // fire verifier dot for the most recent entries
-        if (firedDomains.length < 6) {
-          firedDomains.push(dom);
-          fireVerifier(dom);
-        }
-        if (e.entry_id && !seenIds.has(e.entry_id)) {
-          seenIds.add(e.entry_id);
+        list.appendChild(row);
+
+        // fire activation for newly-seen entries
+        if (id && !seenIds.has(id) && fired < 6) {
+          seenIds.add(id);
+          if (NODE_BY_ID[dom]) {
+            setTimeout(() => activateNode(dom, 1.0), fired * 180);
+            fired++;
+          }
         }
       }
       if (entries.length === 0) {
-        feed.innerHTML = '<div class="recent-row"><span class="recent-text" style="color:var(--muted)">No recent journal entries.</span></div>';
+        list.innerHTML = '<div class="act-row"><span class="text" style="color:var(--muted)">No recent journal entries.</span></div>';
       }
     } catch (err) {
-      const feed = document.getElementById('recentFeed');
-      feed.innerHTML = '<div class="recent-row"><span class="recent-text" style="color:var(--fail)">Engine offline — schematic shows last known state.</span></div>';
+      // silently keep ambient brain alive
     }
+  }
+
+  function ambientActivate() {
+    // pick a random node, weighted slightly toward hubs
+    const r = Math.random();
+    const pick = r < 0.4
+      ? hubs[Math.floor(Math.random() * hubs.length)]
+      : NODES[Math.floor(Math.random() * NODES.length)];
+    activateNode(pick.id, 0.6 + Math.random() * 0.4);
   }
 
   function escapeHtml(s) {
@@ -872,34 +1136,25 @@
   function relTime(ts) {
     if (typeof ts !== 'number') ts = parseInt(ts, 10);
     if (!ts || isNaN(ts)) return '';
-    const now = Date.now()/1000;
-    let d = now - ts;
+    const d = Date.now()/1000 - ts;
     if (d < 60)    return Math.floor(d) + 's';
     if (d < 3600)  return Math.floor(d/60) + 'm';
     if (d < 86400) return Math.floor(d/3600) + 'h';
     return Math.floor(d/86400) + 'd';
   }
 
-  /* ═══════════════════════════════════════════
-     Periodic verifier "firing" so the bank
-     looks alive even if no new data
-  ═══════════════════════════════════════════ */
-  function ambientFire() {
-    const v = VERIFIERS[Math.floor(Math.random() * VERIFIERS.length)];
-    fireVerifier(v);
-  }
-
-  /* ═══════════════════════════════════════════
-     Boot
-  ═══════════════════════════════════════════ */
+  /* boot */
   refreshHealth();
   refreshRecent();
-  // initial flow burst
-  for (let i = 0; i < 4; i++) setTimeout(() => spawnPacket(pickVerdict()), i * 600);
-  setInterval(refreshHealth, 8000);
-  setInterval(refreshRecent, 12000);
-  setInterval(ambientFire, 1400);
-  setInterval(() => spawnPacket(pickVerdict()), 4500);
+  // initial activations so the brain is alive on load
+  setTimeout(() => activateNode('chemistry', 1.0), 800);
+  setTimeout(() => activateNode('mathematics', 1.0), 1400);
+  setTimeout(() => activateNode('biology', 1.0), 2000);
+  setTimeout(() => activateNode('scripture_anchors', 1.0), 2600);
+
+  setInterval(refreshHealth, 9000);
+  setInterval(refreshRecent, 13000);
+  setInterval(ambientActivate, 2400);
 </script>
 
 </body>
