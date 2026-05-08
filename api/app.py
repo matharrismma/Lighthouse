@@ -702,8 +702,14 @@ def health():
         "trust_index":   _health_snapshot.get("trust_index", {}),
     }
 
+    # The high-level status reflects PROCESS health, not snapshot freshness.
+    # If the process is up and the engine is loaded, status is 'ok' — even
+    # if the first snapshot refresh hasn't completed. Snapshot-readiness
+    # is a separate signal (snapshot_ready / snapshot_age_s) so callers
+    # who need fresh counters can tell, while monitoring tools probing
+    # for liveness see 'ok' immediately.
     out: Dict[str, Any] = {
-        "status": "ok" if last else "warming",
+        "status": "ok",
         "engine_available": _health_snapshot.get("engine_available", False),
         "ledger_entries": _health_snapshot.get("ledger_entries", 0),
         "timestamp": int(now),
@@ -711,9 +717,11 @@ def health():
         "snapshot_age_s": round(now - last, 1) if last else None,
         "snapshot_period_s": _HEALTH_REFRESH_PERIOD_S,
         "snapshot_refresh_count": _health_snapshot.get("refresh_count", 0),
+        "snapshot_ready": last is not None,
     }
 
     # Mark degraded only after we've had at least one successful refresh
+    # AND a module is unreachable post-warm.
     if last and any(
         isinstance(m, dict) and not m.get("reachable", True) and not m.get("warming")
         for m in modules.values()
