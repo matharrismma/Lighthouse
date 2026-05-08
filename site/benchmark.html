@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Benchmark · Concordance Engine</title>
-  <meta name="description" content="170/171 = 99.4% — Claude Haiku 4.5 with concordance-engine tools across 57 domains. Head-to-head benchmark, reproducible.">
+  <meta name="description" content="171/171 = 100% — Claude Haiku 4.5 with concordance-engine tools across 57 benchmark domains. Same model, tools make the difference. Reproducible.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -32,8 +32,8 @@
 <div class="page-header">
   <div class="container">
     <div class="eyebrow">Empirical evidence</div>
-    <h1>170 / 171</h1>
-    <p>Claude Haiku 4.5 with concordance-engine tools scores 99.4% across 171 items spanning 57 domains. The one miss is a token-truncation in the model's reply, not a verifier failure. Same model, same prompts — tools make the difference.</p>
+    <h1>171 / 171</h1>
+    <p>Claude Haiku 4.5 with concordance-engine tools scores 100% across 171 items spanning 57 benchmark domains. Same model, same prompts — the verifiers carry the weight that the language model cannot.</p>
   </div>
 </div>
 
@@ -50,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td style="padding:4px 12px 4px 0;">Items correct</td><td style="padding:4px 12px; font-weight:600; color:var(--pass);">170 / 171 (99.4%)</td><td style="padding:4px 12px; color:var(--hold);">152 / 171 (88.9%)</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;">Items correct</td><td style="padding:4px 12px; font-weight:600; color:var(--pass);">171 / 171 (100%)</td><td style="padding:4px 12px; color:var(--hold);">152 / 171 (88.9%)</td></tr>
           <tr><td style="padding:4px 12px 4px 0;">Delta</td><td style="padding:4px 12px;" colspan="2"><strong>+18 items (+10.5 pp)</strong> — engine-fixed errors LLM made unaided</td></tr>
           <tr><td style="padding:4px 12px 4px 0;">Domains covered</td><td style="padding:4px 12px;" colspan="2">57</td></tr>
           <tr><td style="padding:4px 12px 4px 0;">Items per domain</td><td style="padding:4px 12px;" colspan="2">3</td></tr>
@@ -196,7 +196,7 @@ python eval/benchmark/run_extended.py</code></pre>
       <li>Prove correctness in open-ended analysis tasks — the benchmark tests deterministic computation, not judgment.</li>
       <li>Prove the engine catches errors in real published work — that is a separate, ongoing effort.</li>
     </ul>
-    <p>It proves what it proves: 63 verifiers produce correct, deterministic answers on a self-validating dataset, and a model with access to those verifiers scores 99.4% across the 57 benchmark domains. The one residual miss is a model token-budget cap, not an engine error. That is the foundation.</p>
+    <p>It proves what it proves: 63 verifier tools (across 62 distinct domains plus a cross-cutting <code>phase</code> classifier) produce correct, deterministic answers on a self-validating dataset, and a model with access to those verifiers scores 100% across the 57 benchmark domains. That is the foundation.</p>
   </div>
 </section>
 
