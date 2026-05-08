@@ -506,15 +506,40 @@ def root():
     }
 
 
+# /health caches the heavy subsystem reads for 8s so the brain UI can
+# poll it every 9s without making the API spend 12-18 seconds per call
+# walking 21k+-entry stores. Each subsystem currently exposes only
+# list_all()/read(), so counting requires a full scan; the proper fix
+# is cheap count() methods on JournalStore/KeepingLog/QuarantineStore.
+# Until then this cache makes /health snappy without lying — TTL 8s.
+_health_cache: Dict[str, Any] = {"ts": 0.0, "body": None}
+_HEALTH_CACHE_TTL = 8.0
+
+
 @app.get("/health")
-def health():
+def health(refresh: bool = Query(False, description="Bypass the 8s cache and recompute")):
     """Comprehensive liveness check.
 
     Reports engine availability, audit chain reachability, journal
     store reachability, keeping log reachability, and verifier-layer
     importability. Each subsystem reports independently so a single
     degraded module doesn't make the whole API look down.
+
+    Cached for 8s. Pass ?refresh=true to force a recompute (slow —
+    walks 20k+-entry stores).
     """
+    import time as _time
+    _now = _time.time()
+
+    if (not refresh
+            and _health_cache["body"] is not None
+            and (_now - _health_cache["ts"]) < _HEALTH_CACHE_TTL):
+        cached = dict(_health_cache["body"])
+        cached["timestamp"] = int(_now)
+        cached["cached"] = True
+        cached["cache_age_s"] = round(_now - _health_cache["ts"], 2)
+        return cached
+
     ledger = get_ledger()
     recent = ledger.recent(n=1)
     out: Dict[str, Any] = {
@@ -611,6 +636,10 @@ def health():
         for m in out["modules"].values()
     ):
         out["status"] = "degraded"
+
+    # Cache for next 8s so the brain UI's 9s poll stays fast.
+    _health_cache["body"] = out
+    _health_cache["ts"] = _now
     return out
 
 
