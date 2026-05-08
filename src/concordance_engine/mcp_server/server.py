@@ -267,10 +267,21 @@ def verify_mathematics(mode: str, params: Dict[str, Any]) -> Dict[str, Any]:
 
 @mcp.tool()
 def verify_statistics_pvalue(spec: Dict[str, Any]) -> Dict[str, Any]:
-    """Recompute a p-value from supplied test inputs and verify against claimed_p.
+    """Recompute a p-value from raw inputs and verify against claimed_p.
 
-    spec must include 'test' (one of: two_sample_t, one_sample_t, z, chi2, f)
-    plus the corresponding inputs. Optional: claimed_p (to verify), tolerance (default 1e-3).
+    Supports twelve test types — pass spec.test as one of:
+      two_sample_t, one_sample_t, paired_t, z, chi2, f,
+      one_proportion_z, two_proportion_z, fisher_exact,
+      mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.
+
+    Plus the corresponding inputs. Optional: claimed_p (to verify),
+    tolerance (default 1e-3), tail ("one"|"two").
+
+    Examples:
+      Paired t:  spec={"test":"paired_t","n":20,"mean_diff":0.5,"sd_diff":1.0,"tail":"two","claimed_p":0.0375}
+      Fisher:    spec={"test":"fisher_exact","table":[[8,2],[1,9]],"claimed_p":0.005}
+      MW-U:      spec={"test":"mannwhitney","x":[1,2,3,4],"y":[3,4,5,6,7],"claimed_p":0.111}
+      Reg coef:  spec={"test":"regression_coefficient_t","beta":2.5,"se":0.8,"n":50,"k":3,"claimed_p":0.003}
     """
     return tools.verify_statistics_pvalue(spec)
 
@@ -282,8 +293,15 @@ def verify_statistics_multiple_comparisons(
     alpha: float = 0.05,
     claimed_rejected_indices: Optional[List[int]] = None,
 ) -> Dict[str, Any]:
-    """Apply Bonferroni or BH (Benjamini-Hochberg) correction and verify the
-    rejection set at alpha matches the claim, if a claim is provided.
+    """Apply a multiple-comparisons correction to a vector of raw p-values
+    and verify the rejection set at alpha matches the claim, if provided.
+
+    method: "bonferroni" | "holm" | "bh" (Benjamini-Hochberg FDR).
+    Returns the corrected p-values and the indices the method rejects.
+
+    Example:
+      raw_p_values=[0.001, 0.012, 0.04, 0.5], method="bh", alpha=0.05,
+      claimed_rejected_indices=[0, 1, 2]
     """
     return tools.verify_statistics_multiple_comparisons(
         raw_p_values, method, alpha, claimed_rejected_indices
@@ -426,7 +444,10 @@ def verify_energy(spec: Dict[str, Any]) -> Dict[str, Any]:
 def verify_acoustics(spec: Dict[str, Any]) -> Dict[str, Any]:
     """Wave speed/frequency/wavelength (v=fλ), decibel ratios (dB SPL/IL),
     Doppler shift, harmonic frequency series.
-    Pass spec as ACOUS_VERIFY contents."""
+    Pass spec as ACOUS_VERIFY contents.
+    Wave: spec={"frequency_hz":440,"wavelength_m":0.78,"claimed_speed_m_per_s":343}
+    dB:   spec={"intensity_W_per_m2":1e-4,"claimed_dB_SPL":80}
+    Doppler: spec={"source_freq_hz":500,"velocity_source_m_per_s":30,"observer_stationary":true,"claimed_observed_hz":548.7}"""
     return tools.verify_acoustics(spec)
 
 
@@ -533,7 +554,10 @@ def verify_geography(spec: Dict[str, Any]) -> Dict[str, Any]:
 def verify_geology(spec: Dict[str, Any]) -> Dict[str, Any]:
     """Radiometric decay dating (N=N₀·e^(−λt)), Mohs hardness scratch test,
     Richter scale amplitude ratio between magnitudes.
-    Pass spec as GEO_VERIFY contents."""
+    Pass spec as GEO_VERIFY contents.
+    Dating: spec={"half_life_years":5730,"sample_fraction_remaining":0.5,"claimed_age_years":5730}
+    Mohs:   spec={"mineral_a":"quartz","mineral_b":"calcite","claimed_a_scratches_b":true}
+    Richter: spec={"magnitude_a":7.0,"magnitude_b":5.0,"claimed_amplitude_ratio":100}"""
     return tools.verify_geology(spec)
 
 
@@ -549,7 +573,10 @@ def verify_geometry(spec: Dict[str, Any]) -> Dict[str, Any]:
 def verify_hydrology(spec: Dict[str, Any]) -> Dict[str, Any]:
     """Manning's equation (open channel flow), Darcy's law (porous media),
     continuity equation Q=Av.
-    Pass spec as HYD_VERIFY contents."""
+    Pass spec as HYD_VERIFY contents.
+    Manning: spec={"roughness_n":0.013,"hydraulic_radius_m":0.5,"slope":0.001,"claimed_velocity_m_per_s":1.21}
+    Darcy:   spec={"hydraulic_conductivity_m_per_s":1e-4,"hydraulic_gradient":0.01,"claimed_seepage_velocity_m_per_s":1e-6}
+    Continuity: spec={"area_m2":2.0,"velocity_m_per_s":1.5,"claimed_flow_m3_per_s":3.0}"""
     return tools.verify_hydrology(spec)
 
 
