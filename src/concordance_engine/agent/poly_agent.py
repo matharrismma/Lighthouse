@@ -120,13 +120,40 @@ _DECOMPOSE_SYSTEM = (
 
 _CLASSIFY_SYSTEM = (
     "You are a domain classifier for the Concordance verification engine. "
-    "Given a single atomic claim, identify the ONE best domain and extract the verifier spec. "
+    "Given a single atomic claim, identify the ONE best domain and extract the verifier spec "
+    "using the EXACT field names listed below. "
     "Valid domains: " + ", ".join(_ALL_DOMAINS) + ". "
-    "For physics: use physics_dimensional (equation + symbol units) or physics_conservation "
-    "(before/after quantities). For statistics: use statistics_pvalue, "
-    "statistics_multiple_comparisons, or statistics_confidence_interval. "
-    "For governance decisions: use governance_decision_packet. "
-    'Return ONLY valid JSON: {"domain": "<name>", "spec": {<verifier fields>}}. '
+    "\n\n"
+    "Required field names per domain (use these names verbatim, no synonyms):\n"
+    "  chemistry:               {equation: \"reactants -> products\"}\n"
+    "  physics_dimensional:     {equation: \"...\", symbols: {SYM: \"unit_string\", ...}}\n"
+    "  physics_conservation:    {before: {law: value}, after: {law: value}, law: \"energy|momentum|charge|mass\"}\n"
+    "  mathematics:             {mode: \"equality|derivative|integral|solve|simplify\","
+                                " params: {expr_a, expr_b}  OR  {function, variable, claimed_derivative}  etc.}\n"
+    "  statistics_pvalue:       {test: \"two_sample_t|paired_t|z|chi2|fisher_exact\","
+                                " n1, n2, mean1, mean2, sd1, sd2, claimed_p, tail}\n"
+    "  labor:                   {hourly_rate, hours_worked, claimed_gross_pay}  OR\n"
+    "                            {hourly_rate, regular_hours, overtime_hours, claimed_overtime_pay}  OR\n"
+    "                            {annual_salary, claimed_hourly_equivalent}\n"
+    "  economics:               {principal, rate, time_years, claimed_simple_interest}  OR\n"
+    "                            {rate_percent, claimed_doubling_years}  OR\n"
+    "                            {gdp, population, claimed_gdp_per_capita}\n"
+    "  finance:                 {assets, liabilities, equity}  OR  {principal, rate, years, claimed_future_value}\n"
+    "  music_theory:            {note_a, note_b, claimed_semitones}\n"
+    "  calendar_time:           {year, claimed_leap}  OR  {date, claimed_weekday}\n"
+    "  cryptography:            {algo: \"sha256|md5|...\", message: \"...\", claimed_digest}\n"
+    "  real_estate:             {loan_amount, appraised_value, claimed_ltv}  OR\n"
+    "                            {net_operating_income, property_value, claimed_cap_rate}\n"
+    "\n"
+    "Conventions:\n"
+    "  - rate fields are DECIMAL fractions, not percents: 5% → 0.05, 12% → 0.12.\n"
+    "  - physics symbols use SymPy unit syntax (singular, ASCII):\n"
+    "      newton, kilogram, meter, second, meter/second**2, kilogram*meter/second**2.\n"
+    "      Never 'meters per second squared' or other prose forms.\n"
+    "  - chemistry equations use ASCII -> for the arrow.\n"
+    "Do not invent extra fields (no verification_type, expected_result, is_balanced, variables, "
+    "expression, operation_type, etc.). Use ONLY the field names listed above. "
+    'Return ONLY valid JSON: {"domain": "<name>", "spec": {<exact verifier fields>}}. '
     "If no domain matches with enough specificity, return null."
 )
 
@@ -356,14 +383,28 @@ def _run_cluster(
             # Route by first-parameter name:
             #   spec-named → fn(spec)         (labor, economics, music_theory …)
             #   otherwise  → fn(**spec)       (chemistry, physics, mathematics …)
+            # Oracle-extracted specs often contain extra keys the verifier
+            # doesn't accept (verification_type, expected_result, etc.).
+            # In the **spec path, filter to the verifier's signature so an
+            # over-eager oracle doesn't crash the worker.
             try:
-                first_param = next(iter(inspect.signature(fn).parameters))
+                params = inspect.signature(fn).parameters
+                first_param = next(iter(params))
             except (ValueError, StopIteration):
-                first_param = "spec"
+                params, first_param = {}, "spec"
             if first_param == "spec":
                 raw = fn(spec)
             else:
-                raw = fn(**spec)
+                accepts_kwargs = any(
+                    p.kind == inspect.Parameter.VAR_KEYWORD
+                    for p in params.values()
+                )
+                if accepts_kwargs:
+                    raw = fn(**spec)
+                else:
+                    accepted = set(params.keys())
+                    filtered = {k: v for k, v in spec.items() if k in accepted}
+                    raw = fn(**filtered)
         except Exception as exc:
             raw = {"status": "ERROR", "detail": str(exc)}
 

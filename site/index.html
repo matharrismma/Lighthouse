@@ -666,24 +666,24 @@
       <textarea id="polyInput" rows="3" autofocus
         placeholder="Describe a situation that spans multiple domains. The hive will dispatch every applicable verifier and return a composite verdict in seconds."></textarea>
       <div class="poly-foot">
-        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–10s · oracle classifies, hive dispatches in parallel</span>
+        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–15s · oracle classifies, hive dispatches in parallel</span>
         <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
       </div>
     </div>
 
     <div class="poly-examples" id="polyExamples">
-      <span class="poly-examples-label">Try one — these score CONCORDANT in the benchmark:</span>
-      <button class="poly-ex" data-claim="An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at 5% for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000 (accounting identity A = L + E).">
+      <span class="poly-examples-label">Try one — these score CONCORDANT live:</span>
+      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
+        <span class="ex-tag">5-domain synthesis · the full hive</span>
+        Chem + physics + stats + math + labor (6/6 confirmed)
+      </button>
+      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. The mathematical statement 2 + 2 = 4 is true.">
+        <span class="ex-tag">chemistry + physics + math</span>
+        Conservation, dimensional analysis, equality (3/3)
+      </button>
+      <button class="poly-ex" data-claim="An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at a 0.05 annual rate for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000 (accounting identity A = L + E).">
         <span class="ex-tag">labor + economics + finance</span>
         Wage, simple interest, balance-sheet identity
-      </button>
-      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newtons, m in kilograms, and a in meters/second². The mathematical statement 2 + 2 = 4 is true.">
-        <span class="ex-tag">chemistry + physics + math</span>
-        Conservation, dimensional analysis, equality
-      </button>
-      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newtons, m in kilograms, and a in meters/second². A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
-        <span class="ex-tag">5-domain synthesis</span>
-        Chem + physics + stats + math + labor — the full hive
       </button>
     </div>
 
