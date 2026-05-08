@@ -6492,13 +6492,6 @@ def swarm_index():
                 "full_scan_complete": _janitor_state.get("full_scan_complete", False),
                 "last_tick_at": _janitor_stats.get("last_tick_at"),
             },
-            {
-                "name": "janitor",
-                "species": "Janitor",
-                "role": "dedup by content hash, flag malformed, archive stale low-yield",
-                "status": "planned",
-                "stats_endpoint": None,
-            },
         ],
         "now": now,
     }
