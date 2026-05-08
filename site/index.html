@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance — The deterministic verifier for AI agents</title>
-  <meta name="description" content="63 verifier tools, 72 MCP tools, 21,000+ sealed packets, 100% on the benchmark. Type a claim — the engine classifies it, runs the verifier, returns the trail. Connect any AI agent at narrowhighway.com/mcp/.">
+  <meta name="description" content="Describe a multi-domain situation. The hive fires every applicable verifier in parallel and returns a composite verdict an LLM alone cannot give. 100% on the polymathic benchmark vs 75% for Sonnet/Haiku alone. 63 verifiers, 72 MCP tools, deterministic, reproducible.">
 
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0f0d11">
@@ -153,6 +153,162 @@
       border: 1px solid var(--border-hi);
     }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── POLYMATHIC HERO ─────────────────────────── */
+    .poly-hero {
+      max-width: 760px; margin: 24px auto 0;
+      text-align: left;
+    }
+    .poly-input-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 16px 18px 12px;
+      transition: border-color 0.15s, box-shadow 0.2s;
+    }
+    .poly-input-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,124,0.08);
+    }
+    .poly-input-wrap textarea {
+      background: transparent; color: var(--text);
+      width: 100%; min-height: 84px; max-height: 240px;
+      font-family: inherit; font-size: 15px; line-height: 1.55;
+      border: none; outline: none; resize: vertical;
+    }
+    .poly-input-wrap textarea::placeholder { color: var(--muted-2); }
+    .poly-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      gap: 12px; flex-wrap: wrap;
+    }
+    .poly-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted);
+    }
+    .poly-hint b { color: var(--pass); font-weight: 600; }
+    .poly-examples {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 12px;
+      justify-content: flex-start;
+    }
+    .poly-examples-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+      margin-right: 4px; align-self: center;
+    }
+    .poly-ex {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 12px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .poly-ex:hover { border-color: var(--accent); color: var(--accent); background: var(--surface-2); }
+    .poly-ex .ex-tag {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1px;
+    }
+
+    /* ── POLY RESULT (compact hero version) ─────── */
+    .poly-result {
+      margin-top: 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      display: none;
+      text-align: left;
+    }
+    .poly-result.show { display: block; }
+    .poly-result.computing { color: var(--muted); font-style: italic; }
+    .poly-composite-row {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .poly-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 4px;
+      white-space: nowrap;
+    }
+    .poly-badge.CONCORDANT   { background: rgba(111,196,124,0.14); color: var(--pass); }
+    .poly-badge.DISCORDANT   { background: rgba(201,108,108,0.14); color: var(--fail); }
+    .poly-badge.MIXED,
+    .poly-badge.QUARANTINE   { background: rgba(196,160,48,0.14); color: var(--hold); }
+    .poly-badge.OUT_OF_SCOPE,
+    .poly-badge.ERROR        { background: rgba(110,104,120,0.14); color: var(--muted); }
+    .poly-stat {
+      font-size: 13px; color: var(--text-dim);
+    }
+    .poly-stat b { color: var(--text); font-weight: 600; }
+    .poly-elapsed {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; color: var(--muted);
+    }
+    .poly-axis-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      align-items: baseline;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .poly-axis-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .poly-axis-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      background: rgba(201,168,124,0.08);
+      color: var(--accent);
+      border: 1px solid rgba(201,168,124,0.22);
+      padding: 2px 8px; border-radius: 12px;
+      letter-spacing: 0.04em;
+    }
+    .poly-domain-grid {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .poly-dom {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      padding: 3px 9px; border-radius: 12px;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+    }
+    .poly-dom.CONFIRMED { background: rgba(111,196,124,0.10); color: var(--pass); border-color: rgba(111,196,124,0.25); }
+    .poly-dom.MISMATCH  { background: rgba(201,108,108,0.10); color: var(--fail); border-color: rgba(201,108,108,0.25); }
+    .poly-dom.NOT_APPLICABLE,
+    .poly-dom.ERROR     { background: var(--surface); color: var(--muted); }
+    .poly-result-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
+      font-size: 12px;
+    }
+    .poly-result-foot a {
+      color: var(--accent); font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; letter-spacing: 0.04em;
+    }
+    .poly-result-foot a:hover { color: var(--accent-hi); }
+    .poly-empty-hint {
+      color: var(--muted); font-size: 12px;
+    }
 
     /* ── LIVE STATS ──────────────────────────────── */
     .stats-band {
@@ -501,12 +657,42 @@
 
 <!-- ── HERO ───────────────────────────────────────── -->
 <header class="hero">
-  <p class="hero-eyebrow">Deterministic verification · Rom. 1:20</p>
-  <h1 class="hero-headline">The verifier <em>between</em> your AI and irreversible action.</h1>
-  <p class="hero-sub">Type a claim, an equation, or a verse. The engine classifies it, runs the deterministic verifier, and returns the trail. Same engine over MCP for any AI agent — Claude Desktop, Cursor, custom — at <code style="color:var(--accent);font-size:14px">narrowhighway.com/mcp/</code>.</p>
-  <div class="hero-ctas">
-    <a class="btn btn-primary" href="#try">Try it now ↓</a>
-    <a class="btn btn-secondary" href="/connect.html">Connect your agent →</a>
+  <p class="hero-eyebrow">Cross-domain verification · Rom. 1:20</p>
+  <h1 class="hero-headline">Describe what you're considering. The engine checks <em>every</em> domain at once.</h1>
+  <p class="hero-sub">Drop a multi-domain situation — biology + labor + law, chemistry + medicine + nutrition, anything. Every applicable verifier fires in parallel. The composite verdict is what an LLM alone cannot give you. <strong style="color:var(--pass)">100%</strong> on the polymathic benchmark vs <strong style="color:var(--hold)">75%</strong> for Claude Sonnet/Haiku alone.</p>
+
+  <div class="poly-hero">
+    <div class="poly-input-wrap">
+      <textarea id="polyInput" rows="3" autofocus
+        placeholder="Describe a situation that spans multiple domains. The hive will dispatch every applicable verifier and return a composite verdict in seconds."></textarea>
+      <div class="poly-foot">
+        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~3–6s · 100% engine vs 75% LLM-alone</span>
+        <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
+      </div>
+    </div>
+
+    <div class="poly-examples" id="polyExamples">
+      <span class="poly-examples-label">Try one:</span>
+      <button class="poly-ex" data-claim="I've been working 55 hours a week for the past 8 months as a 1099 contractor doing construction framing. My employer classifies me as exempt from overtime. I'm also experiencing repetitive strain injuries in my wrists and lower back. I need to understand my rights and whether the classification is lawful.">
+        <span class="ex-tag">labor + medicine + law</span>
+        Misclassified contractor, overtime, occupational injury
+      </button>
+      <button class="poly-ex" data-claim="We're breeding a drought-resistant corn variety. The parent lines are homozygous dominant (TT) and homozygous recessive (tt) for a drought-tolerance gene. We want to understand the F2 phenotype ratios, the soil nitrogen requirements for the growing season, and whether a 400mm annual rainfall regime is sufficient for germination.">
+        <span class="ex-tag">genetics + soil + hydrology</span>
+        Drought-resistant corn cross, soil and rainfall
+      </button>
+      <button class="poly-ex" data-claim="A community organization wants to govern its shared treasury. The voting rule under consideration is a simple majority (51%). The treasury holds 12 ETH. They propose distributing 40% to active contributors this quarter. Evaluate the governance structure, the distribution math, and whether the cryptographic wallet controls are sound.">
+        <span class="ex-tag">governance + finance + crypto</span>
+        DAO treasury vote and wallet controls
+      </button>
+    </div>
+
+    <div class="poly-result" id="polyResult"></div>
+
+    <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <a class="btn btn-secondary" href="#proof" style="padding:9px 16px;font-size:12.5px">See the benchmark ↓</a>
+      <a class="btn btn-secondary" href="/connect.html" style="padding:9px 16px;font-size:12.5px">Connect your agent →</a>
+    </div>
   </div>
 </header>
 
@@ -537,8 +723,8 @@
 <!-- ── DEMO ────────────────────────────────────────── -->
 <section id="try">
   <div class="container">
-    <h2>Try it.</h2>
-    <p class="lead">Click any verifier below — each one runs the actual engine against a real claim and returns CONFIRMED with the trail it computed. ~300ms each. No LLM in the loop. Pure deterministic verification.</p>
+    <h2>Or — instant single-verifier proof.</h2>
+    <p class="lead">The polymathic hero above dispatches the whole hive. Below, click any individual verifier — each one runs the actual engine against a real claim and returns CONFIRMED with the trail. ~300ms each. No LLM in the loop. Pure deterministic.</p>
 
     <div class="demo-wrap">
 
@@ -584,7 +770,7 @@
 </section>
 
 <!-- ── PROOF ──────────────────────────────────────── -->
-<section style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+<section id="proof" style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
   <div class="container">
     <h2>Proof — 171 of 171.</h2>
     <p class="lead">Same model, same prompts. Without tools the model gets 152/171. With concordance verifiers it gets 171/171.</p>
@@ -789,6 +975,131 @@
       const harvested = (loc?.harvests_total || 0) + (sci?.harvests_total || 0);
       document.getElementById('statSwarmDetail').textContent = harvested + ' harvests this run';
     } catch (_) {}
+  }
+
+  /* ───────── POLYMATHIC HERO — describe a situation ───────── */
+  const polyInput   = document.getElementById('polyInput');
+  const polyRunBtn  = document.getElementById('polyRunBtn');
+  const polyResult  = document.getElementById('polyResult');
+  const polyExBlock = document.getElementById('polyExamples');
+
+  if (polyInput) {
+    polyInput.addEventListener('input', () => {
+      polyRunBtn.disabled = polyInput.value.trim().length < 8;
+    });
+    polyInput.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!polyRunBtn.disabled) runPoly();
+      }
+    });
+    polyRunBtn.addEventListener('click', runPoly);
+    document.querySelectorAll('.poly-ex').forEach(btn => {
+      btn.addEventListener('click', () => {
+        polyInput.value = btn.dataset.claim;
+        polyInput.dispatchEvent(new Event('input'));
+        runPoly();
+      });
+    });
+  }
+
+  async function runPoly() {
+    const situation = polyInput.value.trim();
+    if (situation.length < 8) return;
+
+    polyResult.classList.add('show', 'computing');
+    polyResult.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><span class="poly-badge OUT_OF_SCOPE">computing</span><span style="color:var(--muted);font-size:13px">identifying domains…</span></div>`;
+    polyRunBtn.disabled = true;
+    polyInput.disabled = true;
+
+    setTimeout(() => {
+      const stillComputing = polyResult.classList.contains('computing');
+      if (stillComputing) {
+        polyResult.querySelector('span:last-child').textContent = 'dispatching workers in parallel…';
+      }
+    }, 1600);
+
+    try {
+      const t0 = performance.now();
+      const res = await fetch(API + '/polymathic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ situation, max_domains: 10 }),
+      });
+      const elapsed = Math.round(performance.now() - t0);
+
+      if (res.status === 429) {
+        renderPolyError('rate limited — /polymathic capped per IP. Try again in a minute.');
+        return;
+      }
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        renderPolyError(errBody.detail || `engine returned ${res.status}`);
+        return;
+      }
+      const data = await res.json();
+      try { sessionStorage.setItem('poly_handoff', situation); } catch (_) {}
+      renderPoly(data, elapsed, situation);
+      refreshStats();
+    } catch (err) {
+      renderPolyError(err.message || 'network error');
+    } finally {
+      polyRunBtn.disabled = false;
+      polyInput.disabled = false;
+    }
+  }
+
+  function renderPolyError(msg) {
+    polyResult.classList.remove('computing');
+    polyResult.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><span class="poly-badge ERROR">error</span><span style="color:var(--text-dim);font-size:13px">${escapeHtml(msg)}</span></div>`;
+  }
+
+  function renderPoly(d, elapsedMs, situation) {
+    polyResult.classList.remove('computing');
+    const composite = d.composite_verdict || 'UNKNOWN';
+    const domains   = d.domain_results    || [];
+    const overlaps  = d.axis_overlaps     || [];
+    const hash      = d.content_hash      || d.permanent_ref || '';
+    const confirmed = domains.filter(r => r.verdict === 'CONFIRMED').length;
+    const mismatch  = domains.filter(r => r.verdict === 'MISMATCH').length;
+    const total     = domains.length;
+
+    let html = '';
+
+    // Composite verdict line
+    html += `<div class="poly-composite-row">
+      <span class="poly-badge ${escapeHtml(composite)}">${escapeHtml(composite.replace('_', ' '))}</span>
+      <span class="poly-stat"><b>${confirmed}</b> of <b>${total}</b> domains confirmed${mismatch ? ` · <span style="color:var(--fail)">${mismatch} mismatch</span>` : ''}</span>
+      <span class="poly-elapsed">${elapsedMs}ms</span>
+    </div>`;
+
+    // Axis overlaps (top 3 only on hero)
+    if (overlaps.length) {
+      const top = overlaps.slice(0, 3);
+      html += `<div class="poly-axis-row">
+        <span class="poly-axis-label">Shared axes</span>
+        ${top.map(o => `<span class="poly-axis-chip">${escapeHtml(o.dimension)} · ${(o.domains || []).length}</span>`).join('')}
+        ${overlaps.length > 3 ? `<span style="color:var(--muted);font-size:11px">+${overlaps.length - 3} more</span>` : ''}
+      </div>`;
+    }
+
+    // Domain rollup
+    if (domains.length) {
+      html += `<div class="poly-axis-row" style="margin-bottom:0">
+        <span class="poly-axis-label">Domains fired</span>
+      </div>
+      <div class="poly-domain-grid">
+        ${domains.map(dr => `<span class="poly-dom ${escapeHtml(dr.verdict)}">${escapeHtml(dr.domain)} · ${escapeHtml(dr.verdict.replace('_', ' '))}</span>`).join('')}
+      </div>`;
+    }
+
+    // Footer with link to full breakdown
+    html += `<div class="poly-result-foot">
+      <span class="poly-empty-hint">${hash ? `hash <code style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(hash.slice(0,10))}…${escapeHtml(hash.slice(-4))}</code>` : 'no hash returned'}</span>
+      <a href="/poly.html">Full breakdown · axis overlaps · seal as precedent →</a>
+    </div>`;
+
+    polyResult.innerHTML = html;
   }
 
   /* ───────── DEMO — chip-driven /verify ───────── */

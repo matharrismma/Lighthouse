@@ -578,7 +578,13 @@
 </div>
 
 <script>
-  const API = 'https://lighthouse-production-3f9a.up.railway.app';
+  // Same-origin on production (narrowhighway.com tunnels /polymathic to the engine).
+  // Local dev: hit FastAPI directly. Railway fallback if explicitly hosted there.
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000'
+    : (location.hostname.endsWith('railway.app')
+        ? 'https://lighthouse-production-3f9a.up.railway.app'
+        : '');
 
   const inputEl  = document.getElementById('input');
   const runBtn   = document.getElementById('runBtn');
@@ -607,6 +613,20 @@
       run();
     });
   });
+
+  // Handoff from homepage: if a situation was queued in sessionStorage,
+  // pre-fill it and auto-run so the user lands on the full breakdown.
+  (function consumeHandoff() {
+    try {
+      const handoff = sessionStorage.getItem('poly_handoff');
+      if (handoff && handoff.length > 8) {
+        sessionStorage.removeItem('poly_handoff');
+        inputEl.value = handoff;
+        inputEl.dispatchEvent(new Event('input'));
+        run();
+      }
+    } catch (_) {}
+  })();
 
   function run() {
     const situation = inputEl.value.trim();
