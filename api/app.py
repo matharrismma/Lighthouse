@@ -506,92 +506,94 @@ def root():
     }
 
 
-# /health caches the heavy subsystem reads for 8s so the brain UI can
-# poll it every 9s without making the API spend 12-18 seconds per call
-# walking 21k+-entry stores. Each subsystem currently exposes only
-# list_all()/read(), so counting requires a full scan; the proper fix
-# is cheap count() methods on JournalStore/KeepingLog/QuarantineStore.
-# Until then this cache makes /health snappy without lying — TTL 8s.
-_health_cache: Dict[str, Any] = {"ts": 0.0, "body": None}
-_HEALTH_CACHE_TTL = 8.0
+# ─────────────────────────────────────────────────────────────────────
+# /health — rebuilt
+#
+# The previous implementation did the slow work (walking 21k-entry
+# JournalStore + KeepingLog) in the request path on every cache miss.
+# A cold cache hit took 12-18s, regularly tripping client timeouts.
+#
+# New design: a background thread refreshes a counter snapshot every
+# 30 seconds. /health serves the snapshot in O(1). Stale-by-design.
+#
+# Three endpoints:
+#   GET /health        — same shape as before, served from snapshot
+#   GET /health/lite   — pure liveness, no module dict, sub-ms
+#   POST /health/refresh — force one refresh (admin tool)
+# ─────────────────────────────────────────────────────────────────────
+
+_HEALTH_REFRESH_PERIOD_S = 30
+_health_snapshot: Dict[str, Any] = {
+    "started_at": None,
+    "last_refreshed": None,           # epoch of most recent successful refresh
+    "last_refresh_duration_s": None,
+    "refresh_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "engine_available": _ENGINE_AVAILABLE,
+    "ledger_entries": 0,
+    # Per-module sub-snapshots — populated by the worker, never by request handlers.
+    "journal":       {"reachable": False, "warming": True},
+    "keeping":       {"reachable": False, "warming": True},
+    "quarantine":    {"reachable": False, "warming": True},
+    "verifiers":     {"reachable": False, "warming": True},
+    "offline_queue": {"reachable": False, "warming": True},
+    "trust_index":   {"reachable": False, "warming": True},
+}
 
 
-@app.get("/health")
-def health(refresh: bool = Query(False, description="Bypass the 8s cache and recompute")):
-    """Comprehensive liveness check.
-
-    Reports engine availability, audit chain reachability, journal
-    store reachability, keeping log reachability, and verifier-layer
-    importability. Each subsystem reports independently so a single
-    degraded module doesn't make the whole API look down.
-
-    Cached for 8s. Pass ?refresh=true to force a recompute (slow —
-    walks 20k+-entry stores).
-    """
+def _health_refresh_once() -> None:
+    """One full module sweep. Slow (10-20s for 21k journal). Called
+    by the background thread, NEVER by request handlers."""
     import time as _time
-    _now = _time.time()
+    started = _time.time()
+    new_snapshot: Dict[str, Any] = {}
 
-    if (not refresh
-            and _health_cache["body"] is not None
-            and (_now - _health_cache["ts"]) < _HEALTH_CACHE_TTL):
-        cached = dict(_health_cache["body"])
-        cached["timestamp"] = int(_now)
-        cached["cached"] = True
-        cached["cache_age_s"] = round(_now - _health_cache["ts"], 2)
-        return cached
-
-    ledger = get_ledger()
-    recent = ledger.recent(n=1)
-    out: Dict[str, Any] = {
-        "status": "ok",
-        "engine_available": _ENGINE_AVAILABLE,
-        "ledger_entries": recent[0].get("seq") if recent else 0,
-        "timestamp": int(time.time()),
-        "modules": {},
-    }
+    # Audit chain
+    try:
+        ledger = get_ledger()
+        recent = ledger.recent(n=1)
+        new_snapshot["ledger_entries"] = recent[0].get("seq") if recent else 0
+    except Exception as exc:
+        new_snapshot["ledger_entries"] = 0
+        _health_snapshot["last_error"] = f"ledger: {str(exc)[:160]}"
 
     if _ENGINE_AVAILABLE:
-        # Each subsystem is checked independently. Failures are reported,
-        # not raised — health endpoint must always respond.
         try:
             from concordance_engine.journal import JournalStore
             store = JournalStore()
             entries = store.list_all()
-            out["modules"]["journal"] = {
+            new_snapshot["journal"] = {
                 "reachable": True,
                 "total_entries": len(entries),
-                "shelf_count": sum(1 for e in entries if "shelf" in e.user_tags),
+                "shelf_count": sum(1 for e in entries if "shelf" in (e.user_tags or [])),
             }
-        except Exception as e:
-            out["modules"]["journal"] = {"reachable": False, "error": str(e)}
+        except Exception as exc:
+            new_snapshot["journal"] = {"reachable": False, "error": str(exc)[:160]}
 
         try:
             from concordance_engine.keeping import KeepingLog
             log = KeepingLog()
             observations = log.read()
-            out["modules"]["keeping"] = {
+            new_snapshot["keeping"] = {
                 "reachable": True,
                 "total_observations": len(observations),
                 "practices_observed": len({o.practice for o in observations}),
             }
-        except Exception as e:
-            out["modules"]["keeping"] = {"reachable": False, "error": str(e)}
+        except Exception as exc:
+            new_snapshot["keeping"] = {"reachable": False, "error": str(exc)[:160]}
 
         try:
             from concordance_engine.quarantine import QuarantineStore
             qstore = QuarantineStore()
-            packets = qstore.list_all()
-            out["modules"]["quarantine"] = {
+            new_snapshot["quarantine"] = {
                 "reachable": True,
-                "total_packets": len(packets),
+                "total_packets": len(qstore.list_all()),
             }
-        except Exception as e:
-            out["modules"]["quarantine"] = {"reachable": False, "error": str(e)}
+        except Exception as exc:
+            new_snapshot["quarantine"] = {"reachable": False, "error": str(exc)[:160]}
 
         try:
-            from concordance_engine import verifiers as _v
-            # Import a handful of canonical verifier modules to confirm
-            # the verifier layer is intact.
             _domains = ["chemistry", "mathematics", "physics", "scripture", "phase"]
             lit = []
             for d in _domains:
@@ -600,47 +602,138 @@ def health(refresh: bool = Query(False, description="Bypass the 8s cache and rec
                     lit.append(d)
                 except Exception:
                     pass
-            out["modules"]["verifiers"] = {
+            new_snapshot["verifiers"] = {
                 "reachable": True,
                 "lit_count": len(lit),
                 "lit": lit,
             }
-        except Exception as e:
-            out["modules"]["verifiers"] = {"reachable": False, "error": str(e)}
+        except Exception as exc:
+            new_snapshot["verifiers"] = {"reachable": False, "error": str(exc)[:160]}
 
-    # Offline queue health
     try:
         q = _queue_stats()
-        pending_count = q.get("pending", 0)
-        out["modules"]["offline_queue"] = {
+        pending = q.get("pending", 0)
+        oq = {
             "reachable": True,
-            "pending": pending_count,
+            "pending": pending,
             "failed": q.get("failed", 0),
             "completed": q.get("completed", 0),
         }
-        if pending_count > 500:
-            out["modules"]["offline_queue"]["warning"] = "high queue depth"
-    except Exception as e:
-        out["modules"]["offline_queue"] = {"reachable": False, "error": str(e)}
+        if pending > 500:
+            oq["warning"] = "high queue depth"
+        new_snapshot["offline_queue"] = oq
+    except Exception as exc:
+        new_snapshot["offline_queue"] = {"reachable": False, "error": str(exc)[:160]}
 
-    # Trust index health
     try:
         from api.trust_index import trust_stats
-        out["modules"]["trust_index"] = {"reachable": True, **trust_stats()}
-    except Exception as e:
-        out["modules"]["trust_index"] = {"reachable": False, "error": str(e)}
+        new_snapshot["trust_index"] = {"reachable": True, **trust_stats()}
+    except Exception as exc:
+        new_snapshot["trust_index"] = {"reachable": False, "error": str(exc)[:160]}
 
-    # Overall status downgrade if any module is unreachable.
-    if any(
-        isinstance(m, dict) and not m.get("reachable", True)
-        for m in out["modules"].values()
+    # Atomic-ish swap of the published snapshot
+    for k, v in new_snapshot.items():
+        _health_snapshot[k] = v
+    _health_snapshot["last_refreshed"] = _time.time()
+    _health_snapshot["last_refresh_duration_s"] = round(_time.time() - started, 2)
+    _health_snapshot["refresh_count"] += 1
+
+
+def _health_refresh_worker() -> None:
+    """Background loop. Refreshes the snapshot every 30s. Errors
+    don't crash the loop — they bump error_count and continue."""
+    import time as _time
+    if _health_snapshot["started_at"] is None:
+        _health_snapshot["started_at"] = _time.time()
+    # Tiny startup delay so first refresh runs after the rest of the
+    # app has finished importing, not in parallel with it.
+    _time.sleep(2)
+    while True:
+        try:
+            _health_refresh_once()
+        except Exception as exc:
+            _health_snapshot["error_count"] += 1
+            _health_snapshot["last_error"] = str(exc)[:200]
+            _log.warning(f"health refresh error: {exc}")
+        _time.sleep(_HEALTH_REFRESH_PERIOD_S)
+
+
+@app.get("/health/lite")
+def health_lite():
+    """Pure liveness. Sub-ms. Use this for Cloudflare/uptime probes.
+
+    No module dict, no store walks, no possibility of timeout.
+    Says 'process responding, here is the version, here is the
+    snapshot age.' That's all."""
+    import time as _time
+    last = _health_snapshot.get("last_refreshed")
+    return {
+        "status": "ok",
+        "engine_available": _ENGINE_AVAILABLE,
+        "timestamp": int(_time.time()),
+        "snapshot_age_s": round(_time.time() - last, 1) if last else None,
+        "snapshot_warming": last is None,
+    }
+
+
+@app.get("/health")
+def health():
+    """Engine snapshot — module reachability + counters.
+
+    Served from a background-refreshed snapshot (period: 30s). The
+    request path is sub-millisecond — no store walks, no I/O.
+    'snapshot_age_s' tells you how stale the data is. Right after a
+    bounce, modules show 'warming: true' until the first refresh
+    completes (~20s).
+
+    Backward-compatible shape with the previous /health for the
+    brain UI and existing consumers.
+    """
+    import time as _time
+    now = _time.time()
+    last = _health_snapshot.get("last_refreshed")
+
+    modules = {
+        "journal":       _health_snapshot.get("journal", {}),
+        "keeping":       _health_snapshot.get("keeping", {}),
+        "quarantine":    _health_snapshot.get("quarantine", {}),
+        "verifiers":     _health_snapshot.get("verifiers", {}),
+        "offline_queue": _health_snapshot.get("offline_queue", {}),
+        "trust_index":   _health_snapshot.get("trust_index", {}),
+    }
+
+    out: Dict[str, Any] = {
+        "status": "ok" if last else "warming",
+        "engine_available": _health_snapshot.get("engine_available", False),
+        "ledger_entries": _health_snapshot.get("ledger_entries", 0),
+        "timestamp": int(now),
+        "modules": modules,
+        "snapshot_age_s": round(now - last, 1) if last else None,
+        "snapshot_period_s": _HEALTH_REFRESH_PERIOD_S,
+        "snapshot_refresh_count": _health_snapshot.get("refresh_count", 0),
+    }
+
+    # Mark degraded only after we've had at least one successful refresh
+    if last and any(
+        isinstance(m, dict) and not m.get("reachable", True) and not m.get("warming")
+        for m in modules.values()
     ):
         out["status"] = "degraded"
 
-    # Cache for next 8s so the brain UI's 9s poll stays fast.
-    _health_cache["body"] = out
-    _health_cache["ts"] = _now
     return out
+
+
+@app.post("/health/refresh", tags=["agents"])
+def health_refresh_now():
+    """Force one snapshot refresh now. Useful after a known-state change
+    (e.g. a bulk ingest just finished) when you want fresh counters
+    before the next scheduled tick.
+
+    Synchronous — blocks for the duration of the refresh (10-20s on
+    a populated journal). Returns the freshly-computed snapshot.
+    """
+    _health_refresh_once()
+    return health()
 
 
 @app.get("/identity")
@@ -6440,6 +6533,15 @@ def grid_connections_stream():
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
 
+
+# Wire the /health snapshot refresher. 30s ticks. /health serves from
+# this snapshot and never walks stores in the request path.
+_health_refresh_thread = _threading.Thread(
+    target=_health_refresh_worker,
+    name="health-refresh",
+    daemon=True,
+)
+_health_refresh_thread.start()
 
 # Wire the background connector into the startup lifecycle.
 # It fires once on the first scan, then every 60 seconds.
