@@ -5077,12 +5077,14 @@ _janitor_stats: Dict[str, Any] = {
     "last_error": None,
     "entries_reviewed": 0,
     "entries_with_findings": 0,
-    "by_category": {},     # finding tag → count
+    "by_category": {},      # finding tag → count
     "by_trust_tier": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0},
-    "by_domain": {},       # domain → count
+    "by_domain": {},        # domain → total count
+    "by_domain_tiers": {},  # domain → {"1": n, ..., "5": n}  (for Trainer)
     "last_finding": None,
-    "batch_size": 200,
+    "batch_size": 500,
     "tick_period_seconds": 90,
+    "fastscan_period_seconds": 8,   # tight loop while warming the histogram
 }
 
 
@@ -5163,12 +5165,13 @@ def _janitor_tick() -> None:
         _janitor_stats["last_error"] = f"journal: {exc}"
         return
 
-    # First substantive tick: full read so the historical vault gets
-    # scored. Subsequent ticks: small bounded read for fresh arrivals.
+    # During full scan: read entire vault, process a bounded batch of
+    # new entries, repeat. Mark full_scan_complete only when a tick
+    # processes fewer than batch_max new entries (i.e. nothing left
+    # we haven't seen). Steady state: small bounded read for arrivals.
     if not _janitor_state["full_scan_complete"]:
         try:
             entries = store.list_all(limit=50000)
-            _janitor_state["full_scan_complete"] = True
         except Exception as exc:
             _janitor_stats["last_error"] = f"full-scan: {exc}"
             return
@@ -5195,9 +5198,12 @@ def _janitor_tick() -> None:
             _janitor_stats["by_trust_tier"].get(tier_key, 0) + 1
         )
 
-        # Domain counter
+        # Domain counter (total + per-tier — the per-tier map is what
+        # Trainer reads to decide where to auto-dispatch couriers)
         dom = result.get("domain") or "unknown"
         _janitor_stats["by_domain"][dom] = _janitor_stats["by_domain"].get(dom, 0) + 1
+        dt = _janitor_stats["by_domain_tiers"].setdefault(dom, {})
+        dt[tier_key] = dt.get(tier_key, 0) + 1
 
         # Findings
         if result.get("findings"):
@@ -5221,11 +5227,16 @@ def _janitor_tick() -> None:
         if processed >= batch_max:
             break
 
+    # Mark full-scan complete only when we drain a full read without
+    # filling the batch (= nothing new in the vault history left).
+    if not _janitor_state["full_scan_complete"] and processed < batch_max:
+        _janitor_state["full_scan_complete"] = True
     _janitor_state["first_tick_done"] = True
 
 
 def _janitor_worker() -> None:
-    """Background loop. 90s ticks. Quiet, methodical."""
+    """Background loop. Tight 8s ticks during full-vault scan to warm
+    the per-domain histogram quickly; 90s ticks once steady-state."""
     import time as _time
     if _janitor_stats["started_at"] is None:
         _janitor_stats["started_at"] = _time.time()
@@ -5239,7 +5250,11 @@ def _janitor_worker() -> None:
             _janitor_stats["last_error"] = str(exc)[:200]
             _log.warning(f"janitor error: {exc}")
         _janitor_stats["last_tick_at"] = _time.time()
-        _time.sleep(_janitor_stats["tick_period_seconds"])
+        # Fast cadence while still scanning history; gentle once done.
+        if _janitor_state.get("full_scan_complete"):
+            _time.sleep(_janitor_stats["tick_period_seconds"])
+        else:
+            _time.sleep(_janitor_stats["fastscan_period_seconds"])
 
 
 # Trainer hummingbird state — meta-agent that watches the swarm and
@@ -5252,7 +5267,13 @@ _trainer_state: Dict[str, Any] = {
     "tick_count": 0,
     "error_count": 0,
     "last_error": None,
+    "auto_dispatched": {},      # domain → last_dispatch_epoch (cooldown)
+    "auto_dispatch_total": 0,   # cumulative auto-dispatch count
 }
+_TRAINER_AUTO_LLM_THRESHOLD = 0.70    # >70% Tier 5 share → action
+_TRAINER_AUTO_MIN_SAMPLE = 10         # need ≥10 entries scored for the domain
+_TRAINER_AUTO_COOLDOWN_S = 6 * 3600   # 6h between auto-dispatches per domain
+_TRAINER_AUTO_PER_TICK_CAP = 5        # max auto-dispatches per Trainer tick
 _TRAINER_TTL_SECONDS = 600       # 10 min between recomputes
 _SWARM_CONFIG_PATH = (
     Path(__file__).parent.parent / "data" / "swarm_config.json"
@@ -5651,6 +5672,69 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
     else:
         verdict = "healthy"
 
+    # Read Janitor's per-domain trust mix to find LLM-saturated domains
+    # — these are the ones where the courier should fly first.
+    janitor_tiers = _janitor_stats.get("by_domain_tiers") or {}
+    high_llm: List[Dict[str, Any]] = []
+    for dom, tier_map in janitor_tiers.items():
+        if dom not in _ALL_DOMAINS:
+            continue
+        total = sum((tier_map or {}).values())
+        if total < _TRAINER_AUTO_MIN_SAMPLE:
+            continue
+        tier5 = tier_map.get("5", 0)
+        share = tier5 / total if total else 0
+        if share >= _TRAINER_AUTO_LLM_THRESHOLD:
+            high_llm.append({
+                "domain": dom,
+                "total_seen": total,
+                "llm_count": tier5,
+                "llm_share": round(share, 3),
+            })
+    high_llm.sort(key=lambda r: -r["llm_share"])
+
+    # Auto-dispatch couriers — closes the diagnostic loop. Each domain
+    # gets at most one auto-dispatch per cooldown window. Courier
+    # tasks queue at high priority so they jump human dispatches.
+    auto_dispatched_this_tick: List[Dict[str, Any]] = []
+    for d in high_llm:
+        if len(auto_dispatched_this_tick) >= _TRAINER_AUTO_PER_TICK_CAP:
+            break
+        dom = d["domain"]
+        last = _trainer_state["auto_dispatched"].get(dom, 0)
+        if (now - last) < _TRAINER_AUTO_COOLDOWN_S:
+            continue
+        try:
+            import uuid as _uuid
+            task = {
+                "task_id": "trainer_" + _uuid.uuid4().hex[:8],
+                "domain": dom,
+                "query": _LOC_DOMAIN_TO_QUERY.get(dom, dom.replace("_", " ")),
+                "source": "loc",
+                "priority": 5,   # higher than human dispatches (default 0)
+                "requested_by": "trainer:auto",
+                "notes": (
+                    f"trust mix {int(d['llm_share']*100)}% LLM "
+                    f"(tier 5: {d['llm_count']}/{d['total_seen']})"
+                ),
+                "queued_at": now,
+            }
+            with _dispatch_lock:
+                # priority=5 inserts at front of queue
+                _dispatch_queue.appendleft(task)
+                _dispatch_stats["tasks_queued_total"] += 1
+            _trainer_state["auto_dispatched"][dom] = now
+            _trainer_state["auto_dispatch_total"] += 1
+            auto_dispatched_this_tick.append({
+                "domain": dom,
+                "ts": now,
+                "task_id": task["task_id"],
+                "llm_share": d["llm_share"],
+                "total_seen": d["total_seen"],
+            })
+        except Exception as exc:
+            _log.warning(f"trainer auto-dispatch failed for {dom}: {exc}")
+
     analysis = {
         "computed_at": now,
         "ttl_seconds": _TRAINER_TTL_SECONDS,
@@ -5663,6 +5747,12 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
         "domains_well_fed_count": len(well_fed),
         "starving_detail": starving[:20],
         "overfed_detail": overfed,
+        # Diagnostic loop signal — what Janitor flagged + what we did
+        "high_llm_domains": high_llm[:15],
+        "auto_dispatched_this_tick": auto_dispatched_this_tick,
+        "auto_dispatched_total": _trainer_state["auto_dispatch_total"],
+        "auto_dispatch_threshold": _TRAINER_AUTO_LLM_THRESHOLD,
+        "auto_dispatch_cooldown_seconds": _TRAINER_AUTO_COOLDOWN_S,
         "connector": {
             "status": "alive" if connector_alive else "stale",
             "pairs_fired_total": _connector_stats.get("pairs_fired_total", 0),
@@ -5673,6 +5763,8 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
             "searcher_priorities": [r["domain"] for r in starving[:10]],
             # Janitor should look at over-served domains for dedup opportunities
             "janitor_priorities": [r["domain"] for r in overfed],
+            # Couriers should harvest replacements for these LLM-saturated domains
+            "courier_priorities": [r["domain"] for r in high_llm[:10]],
         },
     }
 

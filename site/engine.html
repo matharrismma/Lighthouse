@@ -1633,11 +1633,14 @@
         `;
       }
     } catch (_) {}
-    // Trainer's starving-domain list
+    // Trainer's starving-domain list + auto-dispatch state (closed loop)
     try {
       const t = await fetchJSON('/swarm/trainer');
       const a = t.analysis || {};
       const starving = a.domains_starving || [];
+      const highLlm = a.high_llm_domains || [];
+      const autoTotal = a.auto_dispatched_total || 0;
+      const autoTick = (a.auto_dispatched_this_tick || []).length;
       const wrap = document.getElementById('swarmTrainer');
       if (a.swarm_health) {
         wrap.style.display = '';
@@ -1646,16 +1649,37 @@
           'thirsty': 'var(--fail)', 'idle': 'var(--muted)',
           'degraded': 'var(--fail)',
         }[a.swarm_health] || 'var(--text-dim)';
+
+        // Closed-loop indicator: Trainer → Tasked Searcher
+        const loopIndicator = autoTotal > 0
+          ? `<div style="margin-top:8px;padding:6px 8px;background:rgba(212,168,114,0.08);border:1px solid rgba(212,168,114,0.25);border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.04em">
+              <span style="color:var(--accent)">↻ closed loop</span>
+              · auto-dispatched <b style="color:var(--accent)">${autoTotal}</b>
+              ${autoTick > 0 ? ` <span style="color:var(--pass)">(+${autoTick} this tick)</span>` : ''}
+             </div>`
+          : '';
+
+        // High-LLM domains (Janitor-driven)
+        const llmList = highLlm.slice(0, 5).map(d =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;padding:2px 0">
+            <span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace">${d.domain.replace(/_/g,' ')}</span>
+            <span style="color:var(--fail);font-family:'JetBrains Mono',monospace;font-size:9.5px">${Math.round(d.llm_share*100)}% LLM (${d.total_seen})</span>
+          </div>`
+        ).join('');
+
         const top = starving.slice(0, 6).map(d =>
           `<span style="color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:9px;font-size:9.5px;display:inline-block;margin:1px 2px 1px 0">${d.replace(/_/g,' ')}</span>`
         ).join('');
         const more = starving.length > 6 ? `<span style="color:var(--muted);font-size:9.5px;margin-left:4px">+${starving.length - 6} more</span>` : '';
+
         document.getElementById('swarmTrainerText').innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
             <span style="color:var(--muted);font-size:10px">verdict</span>
             <b style="color:${verdictColor};font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em">${a.swarm_health}</b>
           </div>
+          ${highLlm.length > 0 ? `<small style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase">flagged for replacement</small><div style="margin-top:4px;margin-bottom:6px">${llmList}</div>` : ''}
           ${starving.length > 0 ? `<small style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase">starving — searcher priorities</small><div style="margin-top:4px">${top}${more}</div>` : ''}
+          ${loopIndicator}
         `;
       }
     } catch (_) {}
