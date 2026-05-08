@@ -6603,22 +6603,33 @@ _janitor_thread.start()
 # stdio remains the local transport for `concordance-mcp` CLI users.
 try:
     from concordance_engine.mcp_server.server import mcp as _mcp_server
-    # FastMCP defaults its internal paths to /mcp and /sse. When we
-    # mount the sub-app at external prefix /mcp the full URL becomes
-    # /mcp/mcp (and /mcp/sse/sse) — ugly and surprising. Set the
-    # sub-app's internal route to "/" so the external URL is clean:
-    #   /mcp        — streamable HTTP entrypoint
-    #   /mcp/sse    — SSE entrypoint
-    #   /mcp/sse/messages/  — SSE message back-channel (left at default)
+    # Normalize internal route paths so external URLs are clean.
+    # FastMCP defaults: streamable_http_path=/mcp, sse_path=/sse.
+    # Mounted at external /mcp this would produce /mcp/mcp etc. Setting
+    # the sub-app routes to "/" makes them resolve at the mount root.
     _mcp_server.settings.streamable_http_path = "/"
     _mcp_server.settings.sse_path = "/"
     _sse = _mcp_server.sse_app()
     _http = _mcp_server.streamable_http_app()
     app.mount("/mcp/sse", _sse, name="mcp_sse")
     app.mount("/mcp", _http, name="mcp_http")
+
+    # CRITICAL: FastMCP's StreamableHTTPSessionManager needs an async
+    # task group to handle requests. Sub-app lifespans aren't run by
+    # the parent's lifecycle automatically, so we wire it explicitly.
+    # Without this, every POST /mcp raises:
+    #   RuntimeError: Task group is not initialized. Make sure to use run().
+    from contextlib import asynccontextmanager as _amctx
+    @_amctx
+    async def _mcp_combined_lifespan(_app):
+        async with _mcp_server.session_manager.run():
+            yield
+    app.router.lifespan_context = _mcp_combined_lifespan
+
     print("[MCP] mounted /mcp and /mcp/sse — FastMCP transports active", flush=True)
+    print("[MCP] session manager wired into FastAPI lifespan", flush=True)
     _log.info("MCP HTTP/SSE transports mounted at /mcp and /mcp/sse "
-              "(internal paths normalized to '/')")
+              "(internal paths '/'; session manager active)")
 except Exception as _mcp_mount_err:
     # Don't take down the API if MCP mount fails — surface the error
     # via three channels (print + _log + getLogger) so we definitely
