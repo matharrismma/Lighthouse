@@ -5655,6 +5655,180 @@ def _grid_connector_scan():
         _connector_stats["active_domains"] = len(active)
 
 
+# ─────────────────────────────────────────────────────────────────────
+# SYNTHESIST hummingbird — multi-domain co-occurrence patterns.
+# The Connector finds 2-domain edges; the Synthesist finds 3+ domain
+# clusters — the cross-domain shapes that polymathic queries traverse.
+# Each pattern records the axis intersection across the cluster so
+# polymathic precedent lookups stay warm even before any record is
+# formally sealed.
+# ─────────────────────────────────────────────────────────────────────
+
+_SYNTHESIS_PATTERNS_FILE = (
+    Path(__file__).parent.parent / "data" / "synthesis_patterns.jsonl"
+)
+_SYNTHESIS_PATTERNS_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+_synthesist_lock = _threading.Lock()
+_synthesist_seen_ids: set = set()                       # journal entries scanned
+_synthesist_seen_signatures: set = set()                # tuple(domains_sorted) already logged
+
+_synthesist_stats: Dict[str, Any] = {
+    "name": "synthesist",
+    "species": "Synthesist",
+    "role": "discover 3+ domain clusters that share a scaffold axis (polymathic patterns)",
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "patterns_total": 0,           # cumulative unique patterns logged
+    "deepest_pattern": None,       # {signature, domain_count, axis_count, shared_axes}
+    "last_pattern": None,          # last one logged (for /swarm panel)
+    "entries_scanned": 0,
+    "tick_period_seconds": 90,
+}
+
+
+def _synthesist_worker():
+    """Background keeper — finds 3+ domain co-occurrence patterns.
+
+    Every 90 seconds:
+    1. Walks recent journal entries the Synthesist has not yet inspected
+    2. For each entry, extracts the set of grid-known domain tags
+    3. If 3+ distinct domains co-occur AND they share at least one axis,
+       records the pattern (deduped by signature)
+
+    The output feeds the polymathic precedent lookup so future poly runs
+    land on a structural overlay even when no formal PolymathicRecord
+    has been sealed for that exact shape yet.
+    """
+    import time as _time
+
+    if _synthesist_stats["started_at"] is None:
+        _synthesist_stats["started_at"] = _time.time()
+    while True:
+        try:
+            _synthesist_scan()
+            _synthesist_stats["tick_count"] += 1
+        except Exception as exc:
+            _log.warning(f"synthesist error: {exc}")
+            _synthesist_stats["error_count"] += 1
+            _synthesist_stats["last_error"] = str(exc)[:200]
+        _synthesist_stats["last_tick_at"] = _time.time()
+        _time.sleep(_synthesist_stats["tick_period_seconds"])
+
+
+def _synthesist_scan():
+    """One scan pass. Looks for journal entries with 3+ grid-known domain tags."""
+    import time as _time
+    try:
+        from concordance_engine import journal as _journal
+        from concordance_engine.synthesist import (
+            discover_pattern,
+            extract_domains_from_tags,
+            signature_key,
+        )
+    except ImportError:
+        return
+
+    with _synthesist_lock:
+        try:
+            store = _journal.JournalStore()
+            entries = store.list_all(limit=500)
+        except Exception:
+            return
+
+        new_entries = [e for e in entries if e.id not in _synthesist_seen_ids]
+
+        deepest = _synthesist_stats.get("deepest_pattern")
+
+        for entry in new_entries:
+            _synthesist_seen_ids.add(entry.id)
+            _synthesist_stats["entries_scanned"] += 1
+            tags = list(getattr(entry, "user_tags", None) or [])
+            domains = extract_domains_from_tags(tags)
+            sig = signature_key(domains)
+            if not sig or len(sig) < 3:
+                continue
+            if sig in _synthesist_seen_signatures:
+                continue
+            pattern = discover_pattern(domains)
+            if not pattern:
+                continue
+
+            event = {
+                "ts": _time.time(),
+                "signature": pattern["signature"],
+                "domain_count": pattern["domain_count"],
+                "shared_axes": pattern["shared_axes"],
+                "axis_count": pattern["axis_count"],
+                "first_seen_entry_id": entry.id,
+            }
+            try:
+                with open(_SYNTHESIS_PATTERNS_FILE, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(event) + "\n")
+            except OSError:
+                continue
+
+            _synthesist_seen_signatures.add(sig)
+            _synthesist_stats["patterns_total"] += 1
+            _synthesist_stats["last_pattern"] = event
+
+            # Track deepest pattern (most domains × most shared axes)
+            depth = pattern["domain_count"] * max(1, pattern["axis_count"])
+            prior_depth = (
+                deepest["domain_count"] * max(1, deepest["axis_count"])
+                if deepest else 0
+            )
+            if depth > prior_depth:
+                deepest = {
+                    "signature": pattern["signature"],
+                    "domain_count": pattern["domain_count"],
+                    "axis_count": pattern["axis_count"],
+                    "shared_axes": pattern["shared_axes"],
+                }
+                _synthesist_stats["deepest_pattern"] = deepest
+
+            _log.info(
+                f"synthesis pattern: {'+'.join(pattern['signature'])}  "
+                f"axes={pattern['shared_axes']}"
+            )
+
+
+@app.get("/swarm/synthesist", tags=["agents"])
+def swarm_synthesist(
+    limit: int = Query(50, ge=1, le=500),
+):
+    """Synthesist hummingbird: multi-domain pattern stats + recent log.
+
+    Returns the running stats plus the most recent N pattern events
+    discovered. Patterns are 3+ domain clusters that share at least one
+    scaffold axis — the structural seed of a polymathic query.
+    """
+    events: List[Dict] = []
+    if _SYNTHESIS_PATTERNS_FILE.exists():
+        try:
+            for line in _SYNTHESIS_PATTERNS_FILE.read_text(
+                "utf-8", errors="replace"
+            ).splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    events.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        except OSError:
+            pass
+    events.sort(key=lambda e: e.get("ts", 0), reverse=True)
+    return {
+        "stats": _synthesist_stats,
+        "patterns": events[:limit],
+        "patterns_on_disk": len(events),
+    }
+
+
 @app.get("/grid/scaffold", tags=["agents"])
 def grid_scaffold():
     """Full domain→dimension mapping for the 7-axis scaffold.
@@ -6496,6 +6670,22 @@ def swarm_index():
                 "full_scan_complete": _janitor_state.get("full_scan_complete", False),
                 "last_tick_at": _janitor_stats.get("last_tick_at"),
             },
+            {
+                "name": "synthesist",
+                "species": "Synthesist",
+                "role": "discover 3+ domain clusters that share a scaffold axis",
+                "status": (
+                    "alive" if (
+                        _synthesist_stats.get("last_tick_at")
+                        and (now - _synthesist_stats["last_tick_at"]) < 240
+                    ) else ("warming" if _synthesist_stats.get("started_at") else "cold")
+                ),
+                "stats_endpoint": "/swarm/synthesist",
+                "patterns_total": _synthesist_stats.get("patterns_total", 0),
+                "deepest_pattern": _synthesist_stats.get("deepest_pattern"),
+                "entries_scanned": _synthesist_stats.get("entries_scanned", 0),
+                "last_tick_at": _synthesist_stats.get("last_tick_at"),
+            },
         ],
         "now": now,
     }
@@ -6595,6 +6785,18 @@ _janitor_thread = _threading.Thread(
     daemon=True,
 )
 _janitor_thread.start()
+
+# Wire the Synthesist (polymathic-pattern keeper). 90s ticks. Walks the
+# journal looking for 3+ domain co-occurrences that share a scaffold
+# axis — the structural seed of a polymathic query. Patterns logged to
+# data/synthesis_patterns.jsonl and exposed via /swarm/synthesist so
+# polymathic precedent lookups stay warm.
+_synthesist_thread = _threading.Thread(
+    target=_synthesist_worker,
+    name="synthesist",
+    daemon=True,
+)
+_synthesist_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------

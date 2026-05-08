@@ -28,6 +28,7 @@ from __future__ import annotations
 import inspect
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..grid import UMBRELLAS, AXIS_DIMENSIONS
@@ -192,25 +193,38 @@ def classify_claims(
     claims: List[str],
     model: str,
     api_key: Optional[str] = None,
+    max_parallel: int = 5,
 ) -> List[Dict[str, Any]]:
     """Step 2 of the two-stage pipeline: atomic claims → domain specs.
 
     Classifies each atomic claim independently — one oracle call per
     claim. More accurate than combined classification because the oracle
     focuses on one claim at a time with no cross-claim interference.
+
+    Calls run in parallel via a small thread pool. Total wall-time drops
+    from sum(call_latency) to ~max(call_latency) — a 3-claim situation
+    that would have taken ~12s sequentially returns in ~3-4s.
+    Result order matches input claim order.
     """
     key = api_key or os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
+    if not key or not claims:
         return []
-    results: List[Dict[str, Any]] = []
-    for claim in claims:
+
+    def _one(claim: str) -> Optional[Dict[str, Any]]:
         parsed = _oracle_call(_CLASSIFY_SYSTEM, claim, model, key, max_tokens=256)
         if parsed and isinstance(parsed, dict) and "domain" in parsed:
             d = parsed.get("domain", "")
             spec = parsed.get("spec") or {}
             if d and d in _ALL_DOMAINS:
-                results.append({"domain": d, "spec": spec, "_source_claim": claim})
-    return results
+                return {"domain": d, "spec": spec, "_source_claim": claim}
+        return None
+
+    workers = max(1, min(max_parallel, len(claims)))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        # executor.map preserves input order, which downstream code relies on
+        # (orphans = claims not in the classified set, by claim text)
+        outputs = list(pool.map(_one, claims))
+    return [r for r in outputs if r is not None]
 
 
 def _poly_oracle_combined(

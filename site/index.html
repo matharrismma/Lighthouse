@@ -666,24 +666,24 @@
       <textarea id="polyInput" rows="3" autofocus
         placeholder="Describe a situation that spans multiple domains. The hive will dispatch every applicable verifier and return a composite verdict in seconds."></textarea>
       <div class="poly-foot">
-        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~3–6s · 100% engine vs 75% LLM-alone</span>
+        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–10s · oracle classifies, hive dispatches in parallel</span>
         <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
       </div>
     </div>
 
     <div class="poly-examples" id="polyExamples">
-      <span class="poly-examples-label">Try one:</span>
-      <button class="poly-ex" data-claim="I've been working 55 hours a week for the past 8 months as a 1099 contractor doing construction framing. My employer classifies me as exempt from overtime. I'm also experiencing repetitive strain injuries in my wrists and lower back. I need to understand my rights and whether the classification is lawful.">
-        <span class="ex-tag">labor + medicine + law</span>
-        Misclassified contractor, overtime, occupational injury
+      <span class="poly-examples-label">Try one — these score CONCORDANT in the benchmark:</span>
+      <button class="poly-ex" data-claim="An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at 5% for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000 (accounting identity A = L + E).">
+        <span class="ex-tag">labor + economics + finance</span>
+        Wage, simple interest, balance-sheet identity
       </button>
-      <button class="poly-ex" data-claim="We're breeding a drought-resistant corn variety. The parent lines are homozygous dominant (TT) and homozygous recessive (tt) for a drought-tolerance gene. We want to understand the F2 phenotype ratios, the soil nitrogen requirements for the growing season, and whether a 400mm annual rainfall regime is sufficient for germination.">
-        <span class="ex-tag">genetics + soil + hydrology</span>
-        Drought-resistant corn cross, soil and rainfall
+      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newtons, m in kilograms, and a in meters/second². The mathematical statement 2 + 2 = 4 is true.">
+        <span class="ex-tag">chemistry + physics + math</span>
+        Conservation, dimensional analysis, equality
       </button>
-      <button class="poly-ex" data-claim="A community organization wants to govern its shared treasury. The voting rule under consideration is a simple majority (51%). The treasury holds 12 ETH. They propose distributing 40% to active contributors this quarter. Evaluate the governance structure, the distribution math, and whether the cryptographic wallet controls are sound.">
-        <span class="ex-tag">governance + finance + crypto</span>
-        DAO treasury vote and wallet controls
+      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newtons, m in kilograms, and a in meters/second². A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
+        <span class="ex-tag">5-domain synthesis</span>
+        Chem + physics + stats + math + labor — the full hive
       </button>
     </div>
 
@@ -714,7 +714,7 @@
     <div class="stat-sub">100% · reproducible</div>
   </div>
   <div class="stat-tile">
-    <div class="stat-num pass" id="statSwarm">6</div>
+    <div class="stat-num pass" id="statSwarm">7</div>
     <div class="stat-label">Hummingbirds</div>
     <div class="stat-sub" id="statSwarmDetail">filling the vault</div>
   </div>
