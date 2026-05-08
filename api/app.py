@@ -4441,6 +4441,23 @@ _connector_fired_pairs: set = set()                  # frozenset({da, db}) pairs
 _connector_seen_ids: set = set()                     # journal entry IDs already scanned
 _connector_lock = _threading.Lock()
 
+# Trainer hummingbird state — meta-agent that watches the swarm and
+# optimizes resources/tasks. On-demand compute with 10-minute cache;
+# when cache rebuilds, writes data/swarm_config.json as the canonical
+# coordination file for future Searchers and Janitors to read.
+_trainer_state: Dict[str, Any] = {
+    "computed_at": None,        # epoch of last analysis
+    "analysis": None,           # cached analysis payload
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+}
+_TRAINER_TTL_SECONDS = 600       # 10 min between recomputes
+_SWARM_CONFIG_PATH = (
+    Path(__file__).parent.parent / "data" / "swarm_config.json"
+)
+
+
 # Connector hummingbird stats — read by /swarm/connector and the brain UI.
 # This is the first formalized hummingbird species: small, narrow job
 # (find cross-domain connections), low power, low data, runs forever.
@@ -4739,14 +4756,235 @@ def swarm_connector():
     return stats
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Trainer hummingbird — second species, meta-agent
+#
+# Watches the swarm and the journal. Computes which domains are
+# starving (no recent packet), which are well-fed, and writes a
+# coordination config that future Searchers and Janitors will read
+# to decide what to harvest or clean.
+#
+# Lazy: no background thread. /swarm/trainer triggers recompute when
+# the cache is stale (>10 min). Cheap: walks at most 500 journal
+# entries, counts by domain. Tiny.
+# ─────────────────────────────────────────────────────────────────────
+
+# Canonical 63 domains the engine knows about. Trainer compares against
+# this to find which are unfed.
+_ALL_DOMAINS = [
+    "acoustics","agriculture","architecture","astronomy","biology","calendar_time",
+    "chemistry","combinatorics","computer_science","construction","cryptography",
+    "cybersecurity","document_validation","ecology","economics","electrical","energy",
+    "exercise_science","finance","formal_logic","genetics","geography","geology",
+    "geometry","governance_decision_packet","history_chronology","hydrology",
+    "information_theory","labor","law","linguistics","manufacturing","materials_science",
+    "mathematics","medicine","meteorology","music_theory","networking","nuclear_physics",
+    "number_theory","nutrition","oceanography","operations_research","optics","phase",
+    "philosophy","photography","physics","physics_conservation","physics_dimensional",
+    "quantum_computing","real_estate","rhetoric","scripture_anchors","soil_science",
+    "sports_analytics","statistics","statistics_confidence_interval",
+    "statistics_multiple_comparisons","statistics_pvalue","theology_doctrine",
+    "thermodynamics","witness",
+]
+
+
+def _trainer_compute_analysis() -> Dict[str, Any]:
+    """One Trainer tick. Walks journal, computes per-domain freshness,
+    decides starving/well-fed, writes swarm_config.json.
+
+    Returns the analysis payload. Side effect: writes the config file
+    to disk so other (future) agents can read it without going through
+    the API.
+    """
+    import time as _time
+    now = _time.time()
+
+    # Per-domain last-seen + count
+    domain_counts: Dict[str, int] = {d: 0 for d in _ALL_DOMAINS}
+    domain_last_seen: Dict[str, float] = {}
+
+    try:
+        from concordance_engine.journal import JournalStore
+        store = JournalStore()
+        entries = store.list_all(limit=500)
+    except Exception as exc:
+        entries = []
+        _log.warning(f"trainer journal scan failed: {exc}")
+
+    for entry in entries:
+        # Detect domain from tags or metadata
+        tags = getattr(entry, "user_tags", None) or []
+        domain = next((t for t in tags if t in domain_counts), None)
+        if not domain:
+            meta = getattr(entry, "metadata", None) or {}
+            if isinstance(meta, dict):
+                domain = meta.get("domain")
+                if domain not in domain_counts:
+                    domain = None
+        if not domain:
+            continue
+        domain_counts[domain] += 1
+        ts = getattr(entry, "created_epoch", None) or getattr(entry, "ts", None)
+        if isinstance(ts, (int, float)):
+            prev = domain_last_seen.get(domain, 0)
+            if ts > prev:
+                domain_last_seen[domain] = ts
+
+    # Starvation thresholds
+    STARVE_HOURS = 24.0      # no entry in 24h = starving
+    OVERFED_PCT = 0.10       # domain with >10% of all observed entries = over-served
+    HOURS = 3600.0
+    starving = []
+    well_fed = []
+    overfed = []
+    total_observed = sum(domain_counts.values())
+    for d in _ALL_DOMAINS:
+        last = domain_last_seen.get(d)
+        count = domain_counts[d]
+        if last is None or (now - last) > STARVE_HOURS * HOURS:
+            starving.append({"domain": d, "count": count, "last_seen": last})
+        elif total_observed > 0 and count / total_observed > OVERFED_PCT:
+            overfed.append({"domain": d, "count": count, "share": round(count/total_observed, 3)})
+        else:
+            well_fed.append({"domain": d, "count": count})
+
+    # Sort starving by count ASC, last_seen ASC (oldest, then never-fed)
+    starving.sort(key=lambda r: (r["count"], r["last_seen"] or 0))
+
+    # Connector health snapshot
+    connector_alive = bool(
+        _connector_stats.get("last_tick_at")
+        and (now - _connector_stats["last_tick_at"]) < 180
+    )
+
+    # Swarm-health verdict
+    if not entries:
+        verdict = "idle"
+    elif len(starving) > 30:
+        verdict = "thirsty"      # most domains have no recent harvest
+    elif not connector_alive:
+        verdict = "degraded"     # connector stopped
+    elif len(starving) > 15:
+        verdict = "uneven"
+    else:
+        verdict = "healthy"
+
+    analysis = {
+        "computed_at": now,
+        "ttl_seconds": _TRAINER_TTL_SECONDS,
+        "next_refresh_at": now + _TRAINER_TTL_SECONDS,
+        "swarm_health": verdict,
+        "journal_scan_size": len(entries),
+        "total_classified": total_observed,
+        "domains_starving": [r["domain"] for r in starving[:20]],
+        "domains_overfed":  [r["domain"] for r in overfed],
+        "domains_well_fed_count": len(well_fed),
+        "starving_detail": starving[:20],
+        "overfed_detail": overfed,
+        "connector": {
+            "status": "alive" if connector_alive else "stale",
+            "pairs_fired_total": _connector_stats.get("pairs_fired_total", 0),
+            "last_tick_at": _connector_stats.get("last_tick_at"),
+        },
+        "recommendations": {
+            # Future Searchers should target these domains first
+            "searcher_priorities": [r["domain"] for r in starving[:10]],
+            # Janitor should look at over-served domains for dedup opportunities
+            "janitor_priorities": [r["domain"] for r in overfed],
+        },
+    }
+
+    # Write coordination file. Future agents read this directly.
+    try:
+        _SWARM_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(_SWARM_CONFIG_PATH, "w", encoding="utf-8") as fh:
+            json.dump(analysis, fh, indent=2)
+    except Exception as exc:
+        _log.warning(f"trainer config write failed: {exc}")
+
+    return analysis
+
+
+@app.get("/swarm/trainer", tags=["agents"])
+def swarm_trainer(refresh: bool = Query(False, description="Force recompute now")):
+    """Live stats for the Trainer hummingbird.
+
+    The Trainer watches the swarm and the journal every 10 minutes.
+    It identifies which of the 63 domains are starving (no recent
+    packets) and which are well-fed, then writes data/swarm_config.json
+    so future Searchers know what to harvest first.
+
+    Lazy: this endpoint computes on demand if the cache is stale.
+    Pass ?refresh=true to force a recompute (modest cost — walks
+    the journal up to 500 entries).
+
+    The brain UI reads this to render Trainer's signature; future
+    Searcher and Janitor hummingbirds read /swarm/trainer/config to
+    decide their work.
+    """
+    import time as _time
+    now = _time.time()
+
+    needs_refresh = (
+        refresh
+        or _trainer_state["analysis"] is None
+        or (_trainer_state["computed_at"]
+            and now - _trainer_state["computed_at"] > _TRAINER_TTL_SECONDS)
+    )
+
+    if needs_refresh:
+        try:
+            _trainer_state["analysis"] = _trainer_compute_analysis()
+            _trainer_state["computed_at"] = now
+            _trainer_state["tick_count"] += 1
+        except Exception as exc:
+            _trainer_state["error_count"] += 1
+            _trainer_state["last_error"] = str(exc)[:200]
+
+    out = {
+        "name": "trainer",
+        "species": "Trainer",
+        "role": "watch drop counts, retarget Searchers toward starving domains",
+        "tick_count": _trainer_state["tick_count"],
+        "error_count": _trainer_state["error_count"],
+        "last_error": _trainer_state["last_error"],
+        "computed_at": _trainer_state["computed_at"],
+        "now": now,
+        "analysis": _trainer_state["analysis"] or {},
+        "config_path": str(_SWARM_CONFIG_PATH),
+    }
+    if _trainer_state["computed_at"]:
+        out["seconds_since_compute"] = round(now - _trainer_state["computed_at"], 1)
+    return out
+
+
+@app.get("/swarm/trainer/config", tags=["agents"])
+def swarm_trainer_config():
+    """Just the swarm coordination config — what other agents read.
+
+    Returns the analysis payload directly (no Trainer metadata).
+    Future Searchers call this to learn which domains to prioritize;
+    Janitors call this to learn which to dedup. Equivalent to reading
+    the on-disk data/swarm_config.json file directly.
+    """
+    import time as _time
+    now = _time.time()
+    if (_trainer_state["analysis"] is None
+            or (_trainer_state["computed_at"]
+                and now - _trainer_state["computed_at"] > _TRAINER_TTL_SECONDS)):
+        _trainer_state["analysis"] = _trainer_compute_analysis()
+        _trainer_state["computed_at"] = now
+        _trainer_state["tick_count"] += 1
+    return _trainer_state["analysis"] or {}
+
+
 @app.get("/swarm", tags=["agents"])
 def swarm_index():
     """Roster of all hummingbird agents — current and planned.
 
-    Returns each species's status. Currently only Connector is alive;
-    Janitor, Searcher, and Trainer are sketched but not yet running.
-    The brain UI uses this to render swarm panels; the Trainer reads
-    it to know what's available to coordinate.
+    Returns each species's status. The brain UI uses this to render
+    swarm panels; the Trainer reads it to know what's available to
+    coordinate.
     """
     import time as _time
     now = _time.time()
@@ -4754,6 +4992,15 @@ def swarm_index():
         _connector_stats.get("last_tick_at")
         and (now - _connector_stats["last_tick_at"]) < 180
     )
+    trainer_fresh = bool(
+        _trainer_state["computed_at"]
+        and (now - _trainer_state["computed_at"]) < _TRAINER_TTL_SECONDS * 1.5
+    )
+    trainer_health = (
+        (_trainer_state["analysis"] or {}).get("swarm_health", "—")
+        if _trainer_state["analysis"] else "—"
+    )
+
     return {
         "swarm": [
             {
@@ -4766,6 +5013,19 @@ def swarm_index():
                 "last_tick_at": _connector_stats.get("last_tick_at"),
             },
             {
+                "name": "trainer",
+                "species": "Trainer",
+                "role": "watch drop counts, retarget Searchers toward starving domains",
+                "status": "alive" if trainer_fresh else (
+                    "cold" if _trainer_state["analysis"] is None else "stale"
+                ),
+                "stats_endpoint": "/swarm/trainer",
+                "config_endpoint": "/swarm/trainer/config",
+                "swarm_health": trainer_health,
+                "tick_count": _trainer_state["tick_count"],
+                "computed_at": _trainer_state["computed_at"],
+            },
+            {
                 "name": "janitor",
                 "species": "Janitor",
                 "role": "dedup by content hash, flag malformed, archive stale low-yield",
@@ -4776,13 +5036,6 @@ def swarm_index():
                 "name": "searcher",
                 "species": "Searcher",
                 "role": "harvest one public-domain source and POST /capture",
-                "status": "planned",
-                "stats_endpoint": None,
-            },
-            {
-                "name": "trainer",
-                "species": "Trainer",
-                "role": "watch drop counts, retarget Searchers toward starving domains",
                 "status": "planned",
                 "stats_endpoint": None,
             },

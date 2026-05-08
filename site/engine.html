@@ -686,6 +686,10 @@
       <small>Connector — last find</small>
       <span id="swarmLastPairText">—</span>
     </div>
+    <div class="swarm-pair" id="swarmTrainer" style="display:none;">
+      <small>Trainer — assessment</small>
+      <span id="swarmTrainerText">—</span>
+    </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
       Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
     </p>
@@ -1347,6 +1351,24 @@
   /* ═══════════════════════════════════════════════════
      SWARM PANEL — read /swarm and render roster
   ═══════════════════════════════════════════════════ */
+  function metaForSpecies(sp) {
+    if (sp.name === 'connector' && sp.status === 'alive') {
+      return `<span class="swarm-meta">pairs <b>${sp.pairs_fired_total ?? 0}</b></span>`;
+    }
+    if (sp.name === 'trainer' && (sp.status === 'alive' || sp.status === 'cold')) {
+      const verdictColor = {
+        'healthy': 'var(--pass)',
+        'uneven':  'var(--hold)',
+        'thirsty': 'var(--fail)',
+        'idle':    'var(--muted)',
+        'degraded':'var(--fail)',
+      }[sp.swarm_health] || 'var(--text-dim)';
+      const v = sp.swarm_health || '—';
+      return `<span class="swarm-meta">verdict <b style="color:${verdictColor}">${v}</b></span>`;
+    }
+    return `<span class="swarm-meta">${sp.status}</span>`;
+  }
+
   async function refreshSwarm() {
     try {
       const data = await fetchJSON('/swarm');
@@ -1355,15 +1377,12 @@
       for (const sp of (data.swarm || [])) {
         const row = document.createElement('div');
         row.className = 'swarm-row';
-        const meta = sp.status === 'alive'
-          ? `<span class="swarm-meta">pairs <b>${sp.pairs_fired_total ?? 0}</b></span>`
-          : `<span class="swarm-meta">${sp.status}</span>`;
         row.innerHTML = `
           <span class="swarm-name">
             <span class="swarm-status ${sp.status}"></span>
             ${escapeHtml(sp.species || sp.name)}
           </span>
-          ${meta}
+          ${metaForSpecies(sp)}
         `;
         list.appendChild(row);
       }
@@ -1383,6 +1402,32 @@
           <span style="color:var(--accent)">${last.domain_b.replace(/_/g,' ')}</span>
           <div style="margin-top:4px;font-size:10px">${colored}</div>
           <div style="margin-top:3px;color:var(--muted);font-size:9.5px">${relTime(last.ts)} ago</div>
+        `;
+      }
+    } catch (_) {}
+    // Trainer's starving-domain list
+    try {
+      const t = await fetchJSON('/swarm/trainer');
+      const a = t.analysis || {};
+      const starving = a.domains_starving || [];
+      const wrap = document.getElementById('swarmTrainer');
+      if (a.swarm_health) {
+        wrap.style.display = '';
+        const verdictColor = {
+          'healthy': 'var(--pass)', 'uneven': 'var(--hold)',
+          'thirsty': 'var(--fail)', 'idle': 'var(--muted)',
+          'degraded': 'var(--fail)',
+        }[a.swarm_health] || 'var(--text-dim)';
+        const top = starving.slice(0, 6).map(d =>
+          `<span style="color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:9px;font-size:9.5px;display:inline-block;margin:1px 2px 1px 0">${d.replace(/_/g,' ')}</span>`
+        ).join('');
+        const more = starving.length > 6 ? `<span style="color:var(--muted);font-size:9.5px;margin-left:4px">+${starving.length - 6} more</span>` : '';
+        document.getElementById('swarmTrainerText').innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="color:var(--muted);font-size:10px">verdict</span>
+            <b style="color:${verdictColor};font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em">${a.swarm_health}</b>
+          </div>
+          ${starving.length > 0 ? `<small style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase">starving — searcher priorities</small><div style="margin-top:4px">${top}${more}</div>` : ''}
         `;
       }
     } catch (_) {}
