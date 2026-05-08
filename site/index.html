@@ -378,18 +378,22 @@
       grid-template-columns: 1fr;
       gap: 10px;
     }
-    @media (min-width: 720px) {
-      .gates-row { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (min-width: 540px) {
+      .gates-row { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    }
+    @media (min-width: 980px) {
+      .gates-row { grid-template-columns: repeat(5, 1fr); gap: 10px; }
     }
     .gate-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-left-width: 3px;
       border-radius: var(--r);
-      padding: 18px 18px 20px;
+      padding: 16px 16px 18px;
     }
     .gate-card.red    { border-left-color: var(--fail); }
     .gate-card.floor  { border-left-color: var(--hold); }
+    .gate-card.way    { border-left-color: var(--accent); }
     .gate-card.bro    { border-left-color: var(--pass); }
     .gate-card.god    { border-left-color: #7fa8c0; }
     .gate-num {
@@ -397,10 +401,18 @@
       font-size: 10px; letter-spacing: 0.16em;
       font-weight: 600; text-transform: uppercase;
       color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .gate-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.1em;
+      color: var(--muted); text-transform: uppercase;
       margin-bottom: 6px;
     }
-    .gate-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.005em; }
-    .gate-card p { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; }
+    .gate-kind.hard { color: var(--fail); }
+    .gate-kind.soft { color: var(--hold); }
+    .gate-card h4 { font-size: 14.5px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.005em; }
+    .gate-card p { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
 
     /* ── IDENTITY ──────────────────────────── */
     .identity-card {
@@ -628,34 +640,48 @@
   </div>
 </section>
 
-<!-- ── GATES (compact) ───────────────────────────── -->
+<!-- ── GATES ─────────────────────────────────────── -->
 <section>
   <div class="container">
-    <h2>Four gates. Fixed order. First failure halts.</h2>
-    <p class="lead">Every packet — claim, equation, decision, verse — flows through the same path. The engine never self-confirms.</p>
+    <h2>Four gates. One way. Halt on first failure.</h2>
+    <p class="lead">Every packet — claim, equation, decision, verse — flows through the same path. <strong>Hard</strong> gates REJECT; <strong>soft</strong> gates QUARANTINE (not bad, not yet ready). The engine never self-confirms. Per the Biblical Alignment Protocol: authority, floor, way, witness + waiting.</p>
 
     <div class="gates-row">
       <div class="gate-card red">
         <div class="gate-num">01 · Red</div>
-        <h4>Coercion check</h4>
-        <p>Rejects unilateral authority, rights violations, hard computational failures.</p>
+        <div class="gate-kind hard">Hard · REJECT</div>
+        <h4>Authority check</h4>
+        <p>Forbidden categories. Attestation that load-bearing constraints hold, AND verification that the artifact actually computes correctly. Coercion, rights violations, schema or verifier failures stop here.</p>
       </div>
       <div class="gate-card floor">
         <div class="gate-num">02 · Floor</div>
-        <h4>Structural floor</h4>
-        <p>Required fields per domain, internal consistency, scripture-anchor coverage.</p>
+        <div class="gate-kind hard">Hard · REJECT</div>
+        <h4>Floor (Law) check</h4>
+        <p>Structural rules. Required fields present, witnesses named, fiduciary basis declared, units stated. Affirmation floor — does it violate the moral floor?</p>
+      </div>
+      <div class="gate-card way">
+        <div class="gate-num">03 · Way</div>
+        <div class="gate-kind hard">Hard · REJECT</div>
+        <h4>Path without coercion</h4>
+        <p>Among lawful options, the path increases obedience, humility, and fruit — without coercion. Scans the declared way_path for coercion keywords. Non-governance packets pass through.</p>
       </div>
       <div class="gate-card bro">
-        <div class="gate-num">03 · Brothers</div>
-        <h4>Witness threshold</h4>
-        <p>Quarantines if witnesses are insufficient. Two or three establish a matter (Deut 19:15).</p>
+        <div class="gate-num">04 · Brothers</div>
+        <div class="gate-kind soft">Soft · QUARANTINE</div>
+        <h4>Plural witness</h4>
+        <p>Witness count meets the threshold the operator set. Default zero (disabled). Boards configure to require N affirming witnesses. Two or three establish a matter (Deut 19:15).</p>
       </div>
       <div class="gate-card god">
-        <div class="gate-num">04 · God</div>
-        <h4>Permanent record</h4>
-        <p>Seals into the append-only audit chain. Full reasoning trail captured.</p>
+        <div class="gate-num">05 · God</div>
+        <div class="gate-kind soft">Soft · QUARANTINE</div>
+        <h4>Wait window</h4>
+        <p>Elapsed wait window enforces timing discipline. Adapter scope: 1 hour. Mesh: 24 hours. Canon: 7 days. The wait removes urgency and self-sourcing — buys time for a critical objection to surface. <em>The wait is the point.</em></p>
       </div>
     </div>
+
+    <p style="margin-top:18px; font-size:13px; color:var(--muted); text-align:center; font-family:'JetBrains Mono',monospace; letter-spacing:0.04em">
+      RED → FLOOR → WAY → BROTHERS → GOD · halt at first failure · no consensus override
+    </p>
   </div>
 </section>
 

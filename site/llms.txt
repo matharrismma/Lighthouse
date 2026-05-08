@@ -53,10 +53,10 @@ Do not call it for routine information retrieval, conversation, or reversible su
 
 Gates run at the boundary — when writing to the permanent record or passing between parties. They do not apply to internal operations: verification, path classification, journal writes, and read-only retrieval all run without gate overhead.
 
-- **RED (Coercion Scan)**: Detects unilateral authority, rights violations, coercive framing. Fails fast — if this gate rejects, nothing proceeds.
-- **FLOOR (Structural Check)**: Verifies the packet meets minimum completeness standards. At least one rationale, one scope, one witness, no missing required fields.
-- **BROTHERS (Witness Check)**: Applies at the record boundary (`POST /seal`, `POST /confess`) and between parties (federation). Confirms the required number of independent witnesses and minimum elapsed review time have been met. Does not apply to operations that stay inside a single operator's sandbox.
-- **GOD (Record)**: If all prior gates clear, records the decision permanently in the append-only ledger. The record cannot be altered.
+- **RED (Authority — hard, REJECT)**: Forbidden categories. Attestation that load-bearing constraints hold, AND verification that the artifact actually computes correctly. Coercion, rights violations, schema or verifier failures stop here. Fails fast — if RED rejects, nothing proceeds.
+- **FLOOR (Law — hard, REJECT)**: Structural rules. Required fields present, witnesses named, fiduciary basis declared, units stated. The affirmation floor.
+- **BROTHERS (Plural Witness — soft, QUARANTINE)**: Witness count meets the threshold the operator set. Default zero (disabled). Boards configure to require N affirming witnesses. "Two or three establish a matter" (Deut 19:15).
+- **GOD (Wait Window — soft, QUARANTINE)**: Elapsed wait window enforces timing discipline. Adapter scope: 1 hour. Mesh: 24 hours. Canon: 7 days. The wait removes urgency and self-sourcing — it buys time for a critical objection to surface. The wait is the point. Do not mutate the packet hash to dodge the wait.
 
 ## Computational verifiers
 
