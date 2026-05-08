@@ -3499,7 +3499,7 @@ def _call_oracle(text: str, model: str) -> Optional[Dict[str, Any]]:
 
 
 @app.post("/agent", include_in_schema=True)
-def agent_endpoint(req: AgentRequest):
+def agent_endpoint(request: Request, req: AgentRequest):
     """Natural language → domain classification → spec extraction → verifier.
 
     Runs the rule-based dispatcher first (offline-capable, zero cost).
@@ -3510,7 +3510,10 @@ def agent_endpoint(req: AgentRequest):
     This is the 'new substrate' endpoint: the caller speaks plain language;
     the engine speaks verified math. No probabilistic answer is returned —
     only the deterministic verifier result.
+
+    Rate-limited per-IP at 12/min — oracle misses use the paid API.
     """
+    _rate_check(request, "agent")
     text = (req.text or "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="text is required")
@@ -5450,6 +5453,7 @@ _RATE_LIMITS: Dict[str, tuple] = {
     "dispatch":  (30, 30.0 / 60),     # 30/min  → 0.5/sec sustained
     "speak":     (20, 20.0 / 60),     # 20/min  → ElevenLabs costs $$
     "polymathic": (12, 12.0 / 60),    # 12/min — heavy synthesis path
+    "agent":     (12, 12.0 / 60),     # 12/min — uses paid oracle on miss
 }
 
 

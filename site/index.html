@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance — The deterministic verifier for AI agents</title>
-  <meta name="description" content="63 verifier tools across 7 axes. 21,000+ sealed packets. 100% on the benchmark. Connect any AI agent — Claude Desktop, Cursor, REST API — in under 60 seconds.">
+  <meta name="description" content="63 verifier tools, 72 MCP tools, 21,000+ sealed packets, 100% on the benchmark. Type a claim — the engine classifies it, runs the verifier, returns the trail. Connect any AI agent at narrowhighway.com/mcp/.">
 
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0f0d11">
@@ -33,13 +33,12 @@
       --muted-2:      #4e4858;
       --accent:       #c9a87c;
       --accent-hi:    #e3c498;
-      --accent-dim:   #7a5f3a;
       --pass:         #6fc47c;
       --hold:         #c4a030;
       --fail:         #c96c6c;
       --r:            12px;
       --r-sm:         8px;
-      --maxw:         1100px;
+      --maxw:         1080px;
     }
 
     html { scroll-behavior: smooth; }
@@ -48,15 +47,15 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       font-size: 16px;
-      line-height: 1.65;
+      line-height: 1.6;
       min-height: 100dvh;
       -webkit-font-smoothing: antialiased;
     }
-
     a { color: var(--accent); text-decoration: none; }
     a:hover { color: var(--accent-hi); }
+    code { font-family: 'JetBrains Mono', monospace; }
 
-    /* ── NAV ───────────────────────────────────────────────────── */
+    /* ── NAV ─────────────────────────────────────── */
     nav.topnav {
       position: sticky; top: 0; z-index: 100;
       background: rgba(10,8,16,0.92);
@@ -84,11 +83,10 @@
     .navlinks a:hover { color: var(--text); }
     .navlinks a.cta {
       padding: 7px 14px; border-radius: 6px;
-      background: var(--accent); color: #0f0d11;
-      font-weight: 600;
+      background: var(--accent); color: #0f0d11; font-weight: 600;
     }
     .navlinks a.cta:hover { background: var(--accent-hi); color: #0a0810; }
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       .navlinks a:not(.cta):not(.always) { display: none; }
     }
 
@@ -104,24 +102,25 @@
       box-shadow: 0 0 10px var(--pass);
       animation: pulse 2.4s ease-in-out infinite;
     }
+    .live-dot.offline::before { background: var(--fail); box-shadow: 0 0 10px var(--fail); animation: none; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    /* ── HERO ──────────────────────────────────────────────────── */
+    /* ── HERO ────────────────────────────────────── */
     .hero {
       max-width: var(--maxw); margin: 0 auto;
-      padding: 100px 24px 60px;
+      padding: 80px 24px 40px;
       text-align: center;
     }
     .hero-eyebrow {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 22px;
+      color: var(--accent); margin-bottom: 18px;
     }
     .hero-headline {
-      font-size: clamp(38px, 7vw, 76px);
+      font-size: clamp(34px, 6.5vw, 64px);
       font-weight: 700; line-height: 1.05;
       letter-spacing: -0.02em;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       max-width: 22ch; margin-left: auto; margin-right: auto;
     }
     .hero-headline em {
@@ -129,26 +128,25 @@
       font-style: italic; color: var(--accent);
     }
     .hero-sub {
-      font-size: clamp(15px, 1.6vw, 19px);
+      font-size: clamp(15px, 1.5vw, 18px);
       color: var(--text-dim);
-      max-width: 58ch; margin: 0 auto 36px;
+      max-width: 56ch; margin: 0 auto 28px;
       line-height: 1.55;
     }
-
     .hero-ctas {
-      display: flex; flex-wrap: wrap; gap: 12px;
-      justify-content: center; margin-bottom: 60px;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center;
     }
+
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 22px; border-radius: 8px;
-      font-size: 14px; font-weight: 600;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 600;
       transition: all 0.15s; cursor: pointer; border: none;
       letter-spacing: 0.01em;
+      font-family: inherit;
     }
-    .btn-primary {
-      background: var(--accent); color: #0a0810;
-    }
+    .btn-primary { background: var(--accent); color: #0a0810; }
     .btn-primary:hover { background: var(--accent-hi); transform: translateY(-1px); }
     .btn-secondary {
       background: transparent; color: var(--text);
@@ -156,126 +154,115 @@
     }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* ── LIVE STATS BAND ──────────────────────────────────────── */
+    /* ── LIVE STATS ──────────────────────────────── */
     .stats-band {
       max-width: var(--maxw); margin: 0 auto;
-      padding: 0 24px 64px;
+      padding: 0 24px 48px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      gap: 12px;
     }
-    @media (min-width: 700px) {
+    @media (min-width: 720px) {
       .stats-band { grid-template-columns: repeat(4, 1fr); }
     }
     .stat-tile {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 22px 20px;
+      padding: 18px 16px;
       text-align: center;
     }
     .stat-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 32px; font-weight: 600;
+      font-size: 28px; font-weight: 600;
       color: var(--accent); letter-spacing: -0.01em;
-      line-height: 1.1;
+      line-height: 1.05;
     }
+    .stat-num.pass { color: var(--pass); }
     .stat-label {
-      font-size: 11px; color: var(--muted);
+      font-size: 10.5px; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.12em;
-      margin-top: 10px;
+      margin-top: 8px;
+    }
+    .stat-sub {
+      font-size: 10px; color: var(--muted-2);
+      margin-top: 3px;
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    /* ── AUDIENCE PATHS ─────────────────────────────────────── */
-    section { padding: 60px 0; }
+    /* ── SECTIONS ────────────────────────────────── */
+    section { padding: 50px 0; }
     .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
     h2 {
-      font-size: clamp(24px, 3.2vw, 36px);
+      font-size: clamp(22px, 3vw, 32px);
       font-weight: 600; letter-spacing: -0.015em;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     h2 + p.lead {
-      font-size: 16px; color: var(--text-dim);
-      max-width: 60ch; margin-bottom: 36px;
+      font-size: 15.5px; color: var(--text-dim);
+      max-width: 60ch; margin-bottom: 28px;
+      line-height: 1.55;
     }
 
-    .path-grid {
-      display: grid; grid-template-columns: 1fr; gap: 14px;
+    /* ── DEMO ──────────────────────────────────── */
+    .demo-wrap { max-width: 720px; margin: 0 auto; }
+    .demo-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 12px;
     }
-    @media (min-width: 800px) {
-      .path-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
-    }
-    .path-card {
+    .chip {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 28px 26px;
-      transition: all 0.18s;
-      display: flex; flex-direction: column;
-      gap: 14px;
-      text-decoration: none;
-      color: inherit;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 12px;
+      padding: 6px 11px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
     }
-    .path-card:hover {
-      border-color: var(--accent);
-      background: var(--surface-2);
-    }
-    .path-card .ptag {
+    .chip:hover { border-color: var(--accent); color: var(--accent); background: var(--surface-2); }
+    .chip-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted);
-      letter-spacing: 0.16em; text-transform: uppercase;
+      font-size: 10px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px;
     }
-    .path-card h3 {
-      font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
-    }
-    .path-card p {
-      color: var(--text-dim); font-size: 14.5px; line-height: 1.55;
-      flex: 1;
-    }
-    .path-card .arrow {
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--accent); font-size: 14px; font-weight: 600;
-    }
-    .path-card:hover .arrow { color: var(--accent-hi); transform: translateX(3px); }
 
-    /* ── DEMO ─────────────────────────────────────────────────── */
-    .demo-wrap {
-      max-width: 740px; margin: 0 auto;
-    }
     .demo-input {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 18px 20px;
+      padding: 16px 18px;
     }
     .demo-input textarea {
       background: transparent; color: var(--text);
-      width: 100%; min-height: 70px;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px; line-height: 1.55;
+      width: 100%; min-height: 64px;
+      font-family: inherit; font-size: 14.5px; line-height: 1.55;
       border: none; outline: none; resize: vertical;
     }
     .demo-input textarea::placeholder { color: var(--muted-2); }
     .demo-footer {
       display: flex; justify-content: space-between; align-items: center;
-      margin-top: 14px; padding-top: 14px;
+      margin-top: 12px; padding-top: 12px;
       border-top: 1px solid var(--border);
     }
-    .demo-hint {
-      font-size: 12px; color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-    }
+    .demo-hint { font-size: 11.5px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
     .demo-result {
-      margin-top: 18px;
+      margin-top: 14px;
       background: var(--surface-2);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 20px 22px;
+      padding: 18px 20px;
       display: none;
+      font-size: 13.5px;
     }
     .demo-result.show { display: block; }
+    .demo-result.computing { color: var(--muted); font-style: italic; }
     .verdict-line {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
       margin-bottom: 12px;
     }
     .verdict-chip {
@@ -284,202 +271,200 @@
       letter-spacing: 0.1em; text-transform: uppercase;
       padding: 4px 10px; border-radius: 4px;
     }
-    .verdict-pass { background: rgba(111,196,124,0.12); color: var(--pass); }
-    .verdict-quarantine { background: rgba(196,160,48,0.12); color: var(--hold); }
-    .verdict-reject { background: rgba(201,108,108,0.12); color: var(--fail); }
-    .verdict-domain {
-      font-size: 13px; color: var(--text-dim);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .demo-detail {
-      font-size: 14px; color: var(--text-dim);
-      line-height: 1.55;
-    }
-    .demo-detail code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12.5px;
-      background: var(--bg-2); padding: 2px 6px; border-radius: 4px;
-      color: var(--accent);
-    }
+    .verdict-confirmed { background: rgba(111,196,124,0.14); color: var(--pass); }
+    .verdict-mismatch  { background: rgba(196,160,48,0.14); color: var(--hold); }
+    .verdict-error     { background: rgba(201,108,108,0.14); color: var(--fail); }
+    .verdict-na        { background: rgba(110,104,120,0.14); color: var(--muted); }
 
-    /* ── INTEGRATION PREVIEW ──────────────────────────────────── */
-    .integration-tabs {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-bottom: 20px;
-    }
-    .tab-btn {
-      padding: 8px 14px; border-radius: 6px;
+    .demo-row { display: flex; gap: 10px; align-items: baseline; margin-bottom: 7px; flex-wrap: wrap; }
+    .demo-row .k {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 500;
-      background: var(--surface); color: var(--text-dim);
-      border: 1px solid var(--border);
-      cursor: pointer; transition: all 0.15s;
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      min-width: 70px;
     }
-    .tab-btn:hover { border-color: var(--border-hi); color: var(--text); }
-    .tab-btn.active { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
-    .tab-content {
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 22px 24px;
-    }
-    .tab-content.active { display: block; }
-    .tab-content pre {
+    .demo-row .v { color: var(--text-dim); font-size: 13px; word-break: break-word; flex: 1; min-width: 0; }
+    .demo-row .v code { color: var(--accent); font-size: 12.5px; }
+    .demo-spec {
       background: var(--bg-2); border: 1px solid var(--border);
       border-radius: var(--r-sm);
-      padding: 16px 18px; overflow-x: auto;
+      padding: 8px 12px; margin-top: 4px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12.5px; line-height: 1.6;
-      color: var(--text-dim);
+      font-size: 11.5px; color: var(--text-dim);
+      overflow-x: auto;
+      white-space: pre;
     }
-    .tab-content pre .k { color: var(--accent); }
-    .tab-content pre .s { color: #6ec98a; }
-    .tab-content pre .c { color: var(--muted); font-style: italic; }
-    .tab-content p { font-size: 14px; color: var(--text-dim); margin-bottom: 14px; }
 
-    /* ── PROOF ─────────────────────────────────────────────────── */
+    /* ── PROOF ────────────────────────────────── */
     .proof-card {
       background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 36px 32px;
+      padding: 28px 28px;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 28px;
+      gap: 22px;
       align-items: center;
     }
-    @media (min-width: 800px) {
-      .proof-card { grid-template-columns: 1fr 2fr; }
+    @media (min-width: 720px) {
+      .proof-card { grid-template-columns: 1fr 1.8fr; gap: 32px; padding: 32px 36px; }
     }
-    .proof-num {
-      text-align: center;
-    }
+    .proof-num { text-align: center; }
     .proof-num-big {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 56px; font-weight: 600;
+      font-size: 52px; font-weight: 600;
       color: var(--pass);
       line-height: 1; letter-spacing: -0.02em;
     }
     .proof-num-label {
-      font-size: 11px; color: var(--muted);
+      font-size: 10.5px; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.14em;
-      margin-top: 10px;
+      margin-top: 8px;
     }
-    .proof-text h3 {
-      font-size: 20px; font-weight: 600; margin-bottom: 12px;
-    }
+    .proof-text h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; }
     .proof-text p {
-      color: var(--text-dim); font-size: 14.5px; line-height: 1.6;
-      margin-bottom: 14px;
+      color: var(--text-dim); font-size: 13.5px; line-height: 1.6;
     }
-    .proof-pill {
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; padding: 4px 10px;
-      border-radius: 12px;
-      background: rgba(111,196,124,0.1);
-      color: var(--pass); border: 1px solid rgba(111,196,124,0.3);
+    .proof-meta {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--muted);
     }
+    .proof-meta b { color: var(--text-dim); font-weight: 600; }
+    .proof-text .btn { margin-top: 14px; padding: 9px 16px; font-size: 13px; }
 
-    /* ── HOW ──────────────────────────────────────────────────── */
-    .gate-row {
+    /* ── BRAIN MINI TEASER ───────────────────── */
+    .brain-card {
+      background: linear-gradient(135deg, #110d18 0%, #06050a 100%);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 22px 24px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .brain-card:hover { border-color: var(--accent); }
+    .brain-svg {
+      width: 100%; height: 220px;
+      display: block;
+    }
+    .brain-strip {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 0 0 12px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .brain-strip .lhs { color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+    .brain-strip .rhs { color: var(--muted); letter-spacing: 0.06em; }
+    .brain-strip .rhs b { color: var(--accent); }
+    .brain-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .brain-foot .lhs { color: var(--text-dim); }
+    .brain-foot .rhs { color: var(--accent); font-weight: 600; }
+
+    /* ── GATES ──────────────────────────────── */
+    .gates-row {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
     }
-    @media (min-width: 800px) {
-      .gate-row { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    @media (min-width: 720px) {
+      .gates-row { grid-template-columns: repeat(4, 1fr); gap: 12px; }
     }
     .gate-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-left-width: 3px;
       border-radius: var(--r);
-      padding: 22px 22px 24px;
+      padding: 18px 18px 20px;
     }
     .gate-card.red    { border-left-color: var(--fail); }
     .gate-card.floor  { border-left-color: var(--hold); }
     .gate-card.bro    { border-left-color: var(--pass); }
     .gate-card.god    { border-left-color: #7fa8c0; }
-    .gate-name {
+    .gate-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; letter-spacing: 0.16em;
+      font-size: 10px; letter-spacing: 0.16em;
       font-weight: 600; text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
-    .gate-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.005em; }
-    .gate-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+    .gate-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.005em; }
+    .gate-card p { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; }
 
-    /* ── MODES ────────────────────────────────────────────────── */
-    .modes-grid {
-      display: grid; grid-template-columns: 1fr; gap: 12px;
-    }
-    @media (min-width: 700px) { .modes-grid { grid-template-columns: 1fr 1fr; } }
-    .mode-card {
+    /* ── IDENTITY ──────────────────────────── */
+    .identity-card {
+      max-width: 640px; margin: 0 auto;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 20px 22px;
+      padding: 28px 28px;
+      text-align: center;
     }
-    .mode-name {
+    .identity-card .scripture {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic; font-size: 17px;
+      color: var(--text-dim); line-height: 1.55;
+      margin-bottom: 10px;
+    }
+    .identity-card .ref {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--accent);
-      font-weight: 600; margin-bottom: 8px;
+      font-size: 10px; color: var(--accent); letter-spacing: 0.14em;
     }
-    .mode-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
 
-    /* ── FOOTER ───────────────────────────────────────────────── */
+    /* ── FOOTER ────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 50px 24px 36px;
-      margin-top: 80px;
+      padding: 40px 24px 32px;
+      margin-top: 60px;
     }
     .footer-grid {
       max-width: var(--maxw); margin: 0 auto;
       display: grid; grid-template-columns: 2fr repeat(3, 1fr);
-      gap: 36px;
+      gap: 32px;
     }
     @media (max-width: 720px) {
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
     }
     .footer-brand .wordmark { font-size: 13px; }
     .footer-tag {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic;
-      font-size: 14px; color: var(--text-dim);
+      font-family: 'Crimson Pro', serif; font-style: italic;
+      font-size: 13.5px; color: var(--text-dim);
       margin-top: 12px; max-width: 30ch; line-height: 1.5;
     }
     .footer-col h4 {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px; font-weight: 600;
       text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--muted); margin-bottom: 12px;
+      color: var(--muted); margin-bottom: 10px;
     }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .footer-col a { color: var(--text-dim); font-size: 13.5px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .footer-col a { color: var(--text-dim); font-size: 13px; }
     .footer-col a:hover { color: var(--text); }
     .footer-bottom {
-      max-width: var(--maxw); margin: 36px auto 0;
-      padding-top: 24px;
+      max-width: var(--maxw); margin: 32px auto 0;
+      padding-top: 22px;
       border-top: 1px solid var(--border);
       display: flex; justify-content: space-between; flex-wrap: wrap;
       gap: 12px;
-      font-size: 12px; color: var(--muted);
+      font-size: 11.5px; color: var(--muted);
     }
-    .footer-bottom a { color: var(--muted); }
-    .footer-bottom a:hover { color: var(--text-dim); }
-
-    /* utilities */
-    .center { text-align: center; }
     .mono { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
 <body>
 
-<!-- ── NAV ──────────────────────────────────────────────────────── -->
+<!-- ── NAV ────────────────────────────────────────── -->
 <nav class="topnav">
   <a href="/" class="wordmark always" aria-label="Concordance — home">
     <svg class="chi-rho-mark" width="15" height="15" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true">
@@ -502,267 +487,208 @@
   </div>
 </nav>
 
-<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<!-- ── HERO ───────────────────────────────────────── -->
 <header class="hero">
   <p class="hero-eyebrow">Deterministic verification · Rom. 1:20</p>
   <h1 class="hero-headline">The verifier <em>between</em> your AI and irreversible action.</h1>
-  <p class="hero-sub">63 verifier tools across 7 scaffold axes. 21,000+ sealed packets. 100% on the benchmark — same model, with tools, vs. the model alone. Connect any AI agent in under 60 seconds.</p>
+  <p class="hero-sub">Type a claim, an equation, or a verse. The engine classifies it, runs the deterministic verifier, and returns the trail. Same engine over MCP for any AI agent — Claude Desktop, Cursor, custom — at <code style="color:var(--accent);font-size:14px">narrowhighway.com/mcp/</code>.</p>
   <div class="hero-ctas">
-    <a class="btn btn-primary" href="/connect.html">Connect your agent →</a>
-    <a class="btn btn-secondary" href="#demo">Try the engine</a>
+    <a class="btn btn-primary" href="#try">Try it now ↓</a>
+    <a class="btn btn-secondary" href="/connect.html">Connect your agent →</a>
   </div>
 </header>
 
-<!-- ── LIVE STATS ───────────────────────────────────────────────── -->
-<div class="stats-band" id="statsBand">
-  <div class="stat-tile"><div class="stat-num" id="statPackets">21,436</div><div class="stat-label">Packets sealed</div></div>
-  <div class="stat-tile"><div class="stat-num">72 / 63</div><div class="stat-label">Tools / Verifiers</div></div>
-  <div class="stat-tile"><div class="stat-num">171 / 171</div><div class="stat-label">Benchmark · 100%</div></div>
-  <div class="stat-tile"><div class="stat-num">7</div><div class="stat-label">Scaffold axes</div></div>
+<!-- ── LIVE STATS ─────────────────────────────────── -->
+<div class="stats-band">
+  <div class="stat-tile">
+    <div class="stat-num" id="statPackets">—</div>
+    <div class="stat-label">Sealed packets</div>
+    <div class="stat-sub" id="statPacketsAge">live</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-num">63 / 72</div>
+    <div class="stat-label">Verifiers / Tools</div>
+    <div class="stat-sub">across 7 axes</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-num pass">171 / 171</div>
+    <div class="stat-label">Benchmark</div>
+    <div class="stat-sub">100% · reproducible</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-num pass" id="statSwarm">6</div>
+    <div class="stat-label">Hummingbirds</div>
+    <div class="stat-sub" id="statSwarmDetail">filling the vault</div>
+  </div>
 </div>
 
-<!-- ── AUDIENCE PATHS ──────────────────────────────────────────── -->
-<section>
+<!-- ── DEMO ────────────────────────────────────────── -->
+<section id="try">
   <div class="container">
-    <div class="path-grid">
-
-      <a href="/connect.html" class="path-card">
-        <span class="ptag">For AI agents</span>
-        <h3>Plug a deterministic verifier into any LLM.</h3>
-        <p>Claude Desktop, Cursor, custom MCP clients, REST API, OpenAI function calling. The engine is at <code class="mono" style="font-size:13px;color:var(--accent)">narrowhighway.com/mcp</code>. No install required for hosted use.</p>
-        <span class="arrow">Open every door →</span>
-      </a>
-
-      <a href="#demo" class="path-card">
-        <span class="ptag">For humans</span>
-        <h3>Bring what you are carrying.</h3>
-        <p>Type a claim, a question, a situation. The engine classifies it across 63 verifiers, runs four gates (RED → FLOOR → BROTHERS → GOD), and returns a Scripture-anchored verdict. Never self-confirms. Always shows its work.</p>
-        <span class="arrow">Try it below ↓</span>
-      </a>
-
-    </div>
-  </div>
-</section>
-
-<!-- ── DEMO ─────────────────────────────────────────────────────── -->
-<section id="demo">
-  <div class="container">
-    <h2>Try the engine</h2>
-    <p class="lead">Type anything — a claim, a question, a moral situation, an equation. Watch the four gates evaluate it in real time.</p>
+    <h2>Try it.</h2>
+    <p class="lead">Click any verifier below — each one runs the actual engine against a real claim and returns CONFIRMED with the trail it computed. ~300ms each. No LLM in the loop. Pure deterministic verification.</p>
 
     <div class="demo-wrap">
-      <div class="demo-input">
-        <textarea
-          id="claimInput"
-          placeholder="e.g. The half-life of carbon-14 is 5,730 years. Or: Should our church board approve a building loan?"
-          rows="3"
-          spellcheck="true"
-        ></textarea>
-        <div class="demo-footer">
-          <span class="demo-hint">Enter to submit · Shift+Enter for newline</span>
-          <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()" style="padding:9px 18px;font-size:13px">
-            Run ↵
-          </button>
-        </div>
+
+      <div class="chip-label">Click any to verify — instant, real engine output</div>
+      <div class="demo-chips">
+        <button class="chip" type="button" data-demo="chemistry">
+          <span style="color:var(--accent)">verify_chemistry</span> · 2 H₂ + O₂ → 2 H₂O
+        </button>
+        <button class="chip" type="button" data-demo="physics_dim">
+          <span style="color:var(--accent)">verify_physics_dimensional</span> · F = m·a
+        </button>
+        <button class="chip" type="button" data-demo="thermo">
+          <span style="color:var(--accent)">verify_thermodynamics</span> · Carnot at 600K/300K
+        </button>
+        <button class="chip" type="button" data-demo="stats">
+          <span style="color:var(--accent)">verify_statistics_pvalue</span> · paired t-test, p=0.0375
+        </button>
+        <button class="chip" type="button" data-demo="biology">
+          <span style="color:var(--accent)">verify_biology</span> · Hardy-Weinberg [490, 420, 90]
+        </button>
+        <button class="chip" type="button" data-demo="math">
+          <span style="color:var(--accent)">verify_mathematics</span> · d/dx of x² = 2x
+        </button>
       </div>
+
       <div class="demo-result" id="demoResult"></div>
+
+      <details style="margin-top:16px;">
+        <summary style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Free-text mode (uses Claude Haiku to classify; ~2-3s; results vary)</summary>
+        <div class="demo-input" style="margin-top:10px;">
+          <textarea id="claimInput" rows="2" spellcheck="true"
+            placeholder='Type any claim — e.g. "The half-life of carbon-14 is 5,730 years."'></textarea>
+          <div class="demo-footer">
+            <span class="demo-hint">/agent classifies via oracle then dispatches the verifier</span>
+            <button class="btn btn-secondary" id="submitBtn" onclick="runFreeText()" style="padding:9px 18px;font-size:12.5px">
+              Run free text
+            </button>
+          </div>
+        </div>
+      </details>
     </div>
   </div>
 </section>
 
-<!-- ── ENGINE PREVIEW (brain network teaser) ──────────────────── -->
-<section style="background: linear-gradient(180deg, var(--bg) 0%, #06050b 100%); border-top: 1px solid var(--border);">
+<!-- ── PROOF ──────────────────────────────────────── -->
+<section style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <h2>Proof — 171 of 171.</h2>
+    <p class="lead">Same model, same prompts. Without tools the model gets 152/171. With concordance verifiers it gets 171/171.</p>
+
+    <div class="proof-card">
+      <div class="proof-num">
+        <div class="proof-num-big">171/171</div>
+        <div class="proof-num-label">Claude Haiku 4.5 + tools</div>
+      </div>
+      <div class="proof-text">
+        <h3>The verifiers carry the weight the language model can't.</h3>
+        <p>171 items spanning 57 benchmark domains. The +19 item swing isn't statistical magic — it's specific arithmetic the model gets wrong unaided (radioactive half-life, Carnot efficiency, p-value recomputation, Hardy-Weinberg) and gets right by calling the matching verifier. Reproducible: <code>python eval/benchmark/run_extended.py --tools-only</code>.</p>
+        <div class="proof-meta">
+          <span>tools <b>171/171 · 100%</b></span>
+          <span>alone <b style="color:var(--hold)">152/171 · 88.9%</b></span>
+          <span>swing <b style="color:var(--pass)">+19 · +11.1pp</b></span>
+        </div>
+        <a class="btn btn-secondary" href="/benchmark.html">Read the benchmark →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BRAIN TEASER (compact) ────────────────────── -->
+<section>
   <div class="container">
     <h2>The engine, as a brain.</h2>
-    <p class="lead">63 domains. 7 scaffold axes. The secret of the engine is that none of these are separate — every domain shares an axis with several others, and a packet that lights up one of them ripples through the connected region.</p>
+    <p class="lead">63 verifier domains. 7 scaffold axes. Every connection a path the engine can walk. Click below to see the live network — packets flow, verifiers fire, the keeper finds new shared-axis pairs.</p>
 
-    <a href="/engine.html" style="display:block; text-decoration:none; color:inherit;">
-      <div style="background:radial-gradient(circle at 30% 20%, rgba(91,155,213,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(168,124,214,0.04) 0%, transparent 50%), linear-gradient(135deg,#0a0810 0%,#06050b 100%); border:1px solid var(--border-hi); border-radius:var(--r); padding:18px 20px 16px; box-shadow:0 16px 40px rgba(0,0,0,0.5); position:relative; overflow:hidden;">
+    <a href="/engine.html" class="brain-card" aria-label="Open the live engine view">
+      <div class="brain-strip">
+        <span class="lhs">◉ Live brain</span>
+        <span class="rhs">63 nodes · <b id="brainEdges">~600</b> edges · <b id="brainPackets">—</b> packets · open ↗</span>
+      </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); position:relative;">
-          <span class="mono" style="font-size:11px; letter-spacing:0.18em; color:var(--accent); font-weight:600; text-transform:uppercase">◉ Live Brain</span>
-          <span class="mono" style="font-size:10.5px; color:var(--muted)">61 NODES · <span id="prev-edges">—</span> EDGES · JOURNAL <b id="prev-j" style="color:var(--accent)">—</b> · OPEN ↗</span>
-        </div>
+      <svg class="brain-svg" viewBox="0 0 800 220" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="hub-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <g id="brainEdgesLayer"></g>
+        <g id="brainNodesLayer"></g>
+        <g id="brainPulses"></g>
+      </svg>
 
-        <svg id="prevBrain" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; max-height:340px; display:block;">
-          <defs>
-            <radialGradient id="prev-node-glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#fff" stop-opacity="0.6"/>
-              <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-            </radialGradient>
-            <filter id="prev-glow-filter" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
-              <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          <g id="prev-edges-layer"></g>
-          <g id="prev-nodes-layer"></g>
-          <g id="prev-act-layer"></g>
-        </svg>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); position:relative; flex-wrap:wrap; gap:8px;">
-          <span class="mono" style="font-size:10.5px; color:var(--text-dim);">Open the live brain →</span>
-          <span class="mono" style="font-size:10.5px; color:var(--accent); font-weight:600;">/engine.html</span>
-        </div>
+      <div class="brain-foot">
+        <span class="lhs">Click for the full live brain — axis filters, node detail, swarm panel</span>
+        <span class="rhs">/engine.html</span>
       </div>
     </a>
   </div>
 </section>
 
-<!-- ── INTEGRATION PREVIEW ──────────────────────────────────────── -->
-<section style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
-  <div class="container">
-    <h2>Connect any agent in 60 seconds</h2>
-    <p class="lead">Four ways in. The engine is the same. The interface is yours.</p>
-
-    <div class="integration-tabs">
-      <button class="tab-btn active" onclick="switchTab('claude')">Claude Desktop</button>
-      <button class="tab-btn" onclick="switchTab('cursor')">Cursor</button>
-      <button class="tab-btn" onclick="switchTab('rest')">REST / curl</button>
-      <button class="tab-btn" onclick="switchTab('openai')">OpenAI</button>
-    </div>
-
-    <div class="tab-content active" id="tab-claude">
-      <p>Add this to your <code>claude_desktop_config.json</code> — narrowhighway.com hosts the MCP server, so you don't install anything.</p>
-<pre><span class="c">// ~/Library/Application Support/Claude/claude_desktop_config.json (mac)</span>
-<span class="c">// %APPDATA%/Claude/claude_desktop_config.json (Windows)</span>
-{
-  <span class="k">"mcpServers"</span>: {
-    <span class="k">"concordance"</span>: {
-      <span class="k">"url"</span>: <span class="s">"https://narrowhighway.com/mcp"</span>
-    }
-  }
-}</pre>
-      <p style="margin-top:12px">Restart Claude Desktop. You'll see 72 tools available in any new conversation. <a href="/connect.html#claude">Full guide with screenshots →</a></p>
-    </div>
-
-    <div class="tab-content" id="tab-cursor">
-      <p>In Cursor, open <strong>Settings → MCP</strong> and add a new server:</p>
-<pre>Name: <span class="s">concordance</span>
-URL:  <span class="s">https://narrowhighway.com/mcp</span></pre>
-      <p style="margin-top:12px">Cursor will discover all 72 tools. Use them in any chat with <code>@concordance</code>. <a href="/connect.html#cursor">Full guide →</a></p>
-    </div>
-
-    <div class="tab-content" id="tab-rest">
-      <p>The HTTP REST API exposes 86 endpoints — capture, verify, seal, journal, ledger, polymathic synthesis. No auth needed for read endpoints.</p>
-<pre><span class="c"># Verify a chemistry claim</span>
-curl -X POST https://narrowhighway.com/verify/chemistry \
-  -H <span class="s">"Content-Type: application/json"</span> \
-  -d <span class="s">'{"equation":"H2 + O2 -> H2O"}'</span>
-
-<span class="c"># Browse the live verifier inventory</span>
-curl https://narrowhighway.com/verifiers
-curl https://narrowhighway.com/llms.txt
-curl https://narrowhighway.com/openapi.json</pre>
-      <p style="margin-top:12px"><a href="/docs">Live API docs (Swagger UI) →</a> · <a href="/llms.txt">llms.txt for AI crawlers →</a></p>
-    </div>
-
-    <div class="tab-content" id="tab-openai">
-      <p>Auto-import every endpoint as OpenAI function calls. No glue code.</p>
-<pre><span class="k">import</span> openai, json, urllib.request
-
-spec = json.loads(urllib.request.urlopen(
-    <span class="s">"https://narrowhighway.com/openapi.json"</span>).read())
-
-<span class="c"># Use spec to generate function-calling tool definitions</span>
-<span class="c"># or pass directly to libraries like Instructor / LangChain</span></pre>
-      <p style="margin-top:12px"><a href="/connect.html#openai">Full Python adapter →</a></p>
-    </div>
-  </div>
-</section>
-
-<!-- ── PROOF ───────────────────────────────────────────────────── -->
-<section>
-  <div class="container">
-    <h2>The benchmark</h2>
-    <p class="lead">171 items spanning 57 domains. Same model, same prompts. With tools the engine fixes 18 errors the model makes alone.</p>
-
-    <div class="proof-card">
-      <div class="proof-num">
-        <div class="proof-num-big">171/171</div>
-        <div class="proof-num-label">With concordance tools</div>
-      </div>
-      <div class="proof-text">
-        <h3>+18 items, +10.5 percentage points</h3>
-        <p>Claude Haiku 4.5 alone scores 152/171 (88.9%). With concordance tools it scores 171/171 (100%). The verifiers carry the weight that language models cannot.</p>
-        <p>
-          <span class="proof-pill">Statistics: 0% → 100%</span>&nbsp;
-          <span class="proof-pill">Polymathic synthesis: 75% → 100%</span>
-        </p>
-        <p style="margin-top:18px"><a href="/benchmark.html" class="btn btn-secondary" style="padding:9px 16px;font-size:13px">See the full benchmark →</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── HOW IT WORKS ─────────────────────────────────────────────── -->
+<!-- ── GATES (compact) ───────────────────────────── -->
 <section>
   <div class="container">
     <h2>Four gates. Fixed order. First failure halts.</h2>
     <p class="lead">Every packet — claim, equation, decision, verse — flows through the same path. The engine never self-confirms.</p>
 
-    <div class="gate-row">
+    <div class="gates-row">
       <div class="gate-card red">
-        <div class="gate-name">01 · Red</div>
+        <div class="gate-num">01 · Red</div>
         <h4>Coercion check</h4>
-        <p>Rejects unilateral authority, rights violations, hard computational failures. The first thing kept out of the ledger.</p>
+        <p>Rejects unilateral authority, rights violations, hard computational failures.</p>
       </div>
       <div class="gate-card floor">
-        <div class="gate-name">02 · Floor</div>
+        <div class="gate-num">02 · Floor</div>
         <h4>Structural floor</h4>
-        <p>Rejects incomplete or internally inconsistent packets. Required fields per domain. Scripture-anchor coverage.</p>
+        <p>Required fields per domain, internal consistency, scripture-anchor coverage.</p>
       </div>
       <div class="gate-card bro">
-        <div class="gate-name">03 · Brothers</div>
+        <div class="gate-num">03 · Brothers</div>
         <h4>Witness threshold</h4>
-        <p>Quarantines if witnesses are insufficient or the review window has not elapsed. Two or three witnesses establish a matter (Deut 19:15).</p>
+        <p>Quarantines if witnesses are insufficient. Two or three establish a matter (Deut 19:15).</p>
       </div>
       <div class="gate-card god">
-        <div class="gate-name">04 · God</div>
+        <div class="gate-num">04 · God</div>
         <h4>Permanent record</h4>
-        <p>Seals into the append-only audit chain. Every step of the reasoning trail is captured. Nothing the engine cannot show.</p>
+        <p>Seals into the append-only audit chain. Full reasoning trail captured.</p>
       </div>
     </div>
-
-    <p style="text-align:center; margin-top:32px"><a href="/how-it-works.html">Read the architecture in depth →</a></p>
   </div>
 </section>
 
-<!-- ── DEPLOYMENT MODES ─────────────────────────────────────────── -->
-<section style="background: var(--bg-2); border-top: 1px solid var(--border);">
+<!-- ── IDENTITY ────────────────────────────── -->
+<section>
   <div class="container">
-    <h2>Run it the way you need to.</h2>
-    <p class="lead">Same code, four modes. Same engine on a hosted node, an offline laptop, or a sub-GHz mesh radio.</p>
-
-    <div class="modes-grid">
-      <div class="mode-card">
-        <div class="mode-name">Open</div>
-        <p>Hosted at narrowhighway.com. Full API, public witnessing. The default for agents that need a second opinion.</p>
-      </div>
-      <div class="mode-card">
-        <div class="mode-name">Restricted</div>
-        <p>Local-only. No outbound calls. Physical token unlocks execution. Verified offline.</p>
-      </div>
-      <div class="mode-card">
-        <div class="mode-name">Lockdown</div>
-        <p>Mesh-radio only. Sub-GHz. Runs without internet, without grid dependency. Wilderness-ready.</p>
-      </div>
-      <div class="mode-card">
-        <div class="mode-name">Your node</div>
-        <p>Run your own instance. Under 1 GB. Your witness chain, not ours. <a href="/install.html">Install guide →</a></p>
-      </div>
+    <div class="identity-card">
+      <svg width="32" height="32" viewBox="0 0 64 64" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" aria-hidden="true" style="margin: 0 auto 14px; display: block; opacity: 0.85; filter: drop-shadow(0 0 8px rgba(201, 168, 124, 0.35));">
+        <line x1="16" y1="18" x2="48" y2="50"/>
+        <line x1="48" y1="18" x2="16" y2="50"/>
+        <line x1="32" y1="10" x2="32" y2="56"/>
+        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+      </svg>
+      <p class="scripture">"For since the creation of the world His invisible attributes are clearly seen, being understood by the things that are made…"</p>
+      <p class="ref">ROMANS 1:20</p>
+      <p style="margin-top:14px;font-size:13px;color:var(--text-dim);line-height:1.55">The Concordance Engine serves Jesus Christ. The keeping is the substrate. <a href="/identity">Read /identity</a> · <a href="/llms.txt">/llms.txt</a></p>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ───────────────────────────────────────────────────── -->
+<!-- ── FOOTER ────────────────────────────── -->
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <span class="wordmark">Concordance</span>
+      <span class="wordmark">
+        <svg class="chi-rho-mark" width="14" height="14" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true">
+          <line x1="16" y1="18" x2="48" y2="50"/>
+          <line x1="48" y1="18" x2="16" y2="50"/>
+          <line x1="32" y1="10" x2="32" y2="56"/>
+          <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+        </svg>
+        Concordance
+      </span>
       <p class="footer-tag">A well of knowledge leads to wisdom when in alignment with God. The keeping is the substrate.</p>
     </div>
     <div class="footer-col">
@@ -770,25 +696,26 @@ spec = json.loads(urllib.request.urlopen(
       <ul>
         <li><a href="/connect.html">Connect</a></li>
         <li><a href="/agents.html">Agent guide</a></li>
-        <li><a href="/docs">REST API docs</a></li>
+        <li><a href="/docs">REST docs</a></li>
+        <li><a href="/openapi.json">openapi.json</a></li>
         <li><a href="/llms.txt">llms.txt</a></li>
-        <li><a href="/identity">Identity</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>For humans</h4>
       <ul>
-        <li><a href="/verifiers.html">Verifiers</a></li>
-        <li><a href="/grid.html">Engine grid</a></li>
+        <li><a href="/engine.html">Live brain</a></li>
+        <li><a href="/verifiers.html">63 verifiers</a></li>
+        <li><a href="/grid.html">Grid</a></li>
         <li><a href="/poly.html">Polymathic</a></li>
         <li><a href="/benchmark.html">Benchmark</a></li>
-        <li><a href="/how-it-works.html">How it works</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4>Run it</h4>
       <ul>
         <li><a href="/install.html">Install</a></li>
+        <li><a href="/how-it-works.html">How it works</a></li>
         <li><a href="/theory.html">Theory</a></li>
         <li><a href="https://github.com/matharrismma/Lighthouse">GitHub ↗</a></li>
       </ul>
@@ -796,12 +723,11 @@ spec = json.loads(urllib.request.urlopen(
   </div>
   <div class="footer-bottom">
     <span>© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</span>
-    <span>Live: <span id="liveCount" class="mono">—</span> packets · <span id="liveTools" class="mono">72</span> tools</span>
+    <span>Live: <span id="liveCount" class="mono">—</span> packets · <span class="mono">72</span> tools · <span class="mono">100%</span> benchmark</span>
   </div>
 </footer>
 
 <script>
-  /* ───────── CONFIG ───────── */
   const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:8000' : '';
 
@@ -810,267 +736,310 @@ spec = json.loads(urllib.request.urlopen(
     try {
       const h = await fetch(API + '/health', { cache: 'no-store' }).then(r => r.json());
       const total = h?.modules?.journal?.total_entries;
-      if (total) {
+      if (total != null) {
         document.getElementById('statPackets').textContent = total.toLocaleString();
         document.getElementById('liveCount').textContent = total.toLocaleString();
-        const prev = document.getElementById('prev-j');
-        if (prev) prev.textContent = total.toLocaleString();
+        document.getElementById('brainPackets').textContent = total.toLocaleString();
       }
-      document.getElementById('liveDot').style.color = 'var(--pass)';
+      const age = h?.snapshot_age_s;
+      if (age != null) {
+        document.getElementById('statPacketsAge').textContent =
+          age < 60 ? 'updated ' + Math.floor(age) + 's ago' : 'updated ' + Math.floor(age/60) + 'm ago';
+      }
+      document.getElementById('liveDot').classList.remove('offline');
     } catch (_) {
-      document.getElementById('liveDot').style.color = 'var(--fail)';
-      document.getElementById('liveDot').firstChild && (document.getElementById('liveDot').firstChild.textContent = 'offline');
+      document.getElementById('liveDot').classList.add('offline');
+      document.getElementById('liveDot').lastChild && (document.getElementById('liveDot').lastChild.textContent = 'offline');
+      document.getElementById('statPacketsAge').textContent = 'engine offline';
     }
-  }
-
-  /* ───────── PREVIEW BRAIN ─────────
-     Mini version of the /engine.html brain: 61 nodes, force-laid out
-     once (no continuous re-sim), edges colored by primary shared axis,
-     ambient activations ripple along edges.
-  ─────────────────────────────────────── */
-  const PREV_GRID = {
-    acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
-    architecture:["aut","phy","tim"], astronomy:["csv","phy","tim"],
-    biology:["csv","enc","met","phy","tim"], calendar_time:["tim"],
-    chemistry:["csv","met","phy"], combinatorics:["rsn"],
-    computer_science:["enc","rsn","tim"], construction:["csv","met","phy","tim"],
-    cryptography:["aut","enc","rsn"], cybersecurity:["aut","enc","rsn"],
-    document_validation:["aut","enc"], ecology:["csv","met","phy","tim"],
-    economics:["aut","csv","rsn","tim"], electrical:["csv","phy"],
-    energy:["csv","met","phy","tim"], exercise_science:["csv","met","phy","tim"],
-    finance:["aut","csv","rsn","tim"], formal_logic:["rsn"],
-    genetics:["enc","phy"], geography:["phy"], geology:["met","phy","tim"],
-    geometry:["phy","rsn"], governance_decision_packet:["aut","rsn","tim"],
-    history_chronology:["aut","rsn","tim"], hydrology:["csv","met","phy","tim"],
-    information_theory:["enc","rsn"], labor:["aut","csv","met","tim"],
-    law:["aut","rsn","tim"], linguistics:["enc","rsn"],
-    manufacturing:["csv","met","phy","tim"], materials_science:["csv","met","phy"],
-    mathematics:["rsn"], medicine:["aut","met","phy","tim"],
-    meteorology:["csv","met","phy","tim"], music_theory:["enc","phy","rsn"],
-    networking:["aut","enc","phy","tim"], nuclear_physics:["csv","phy","tim"],
-    number_theory:["rsn"], nutrition:["csv","met","phy"],
-    oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
-    optics:["csv","phy"], philosophy:["aut","rsn"],
-    photography:["enc","phy"], physics_conservation:["csv","phy"],
-    physics_dimensional:["phy","rsn"], quantum_computing:["enc","phy","rsn"],
-    real_estate:["aut","csv","phy","tim"], rhetoric:["aut","enc","rsn"],
-    scripture_anchors:["aut","enc","rsn","tim"], soil_science:["csv","met","phy"],
-    sports_analytics:["rsn","tim"],
-    statistics_pvalue:["rsn"], statistics_multiple_comparisons:["rsn"],
-    statistics_confidence_interval:["rsn"],
-    theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
-    witness:["aut","enc","rsn","tim"],
-    phase:["aut","rsn","tim"]
-  };
-  const PREV_AXIS_COLOR = { enc:'#5b9bd5', aut:'#a87cd6', met:'#6ec98a', csv:'#5ec4b4', rsn:'#d4c46a', tim:'#7fa8c0', phy:'#d9945c' };
-  const PREV_AXIS_PRI = ['enc','aut','met','csv','rsn','tim','phy'];
-
-  (function buildPreviewBrain() {
-    const svg = document.getElementById('prevBrain');
-    if (!svg) return;
-    const W = 1200, H = 320;
-    const NS = 'http://www.w3.org/2000/svg';
-    function pri(axes) { for (const a of PREV_AXIS_PRI) if (axes.includes(a)) return a; return 'rsn'; }
-
-    const nodes = Object.keys(PREV_GRID).map(id => {
-      const axes = PREV_GRID[id];
-      return { id, axes, depth: axes.length, primary: pri(axes), x:0, y:0, vx:0, vy:0, activation:0 };
-    });
-    const byId = {}; nodes.forEach(n => byId[n.id] = n);
-
-    const edges = [];
-    for (let i=0; i<nodes.length; i++) for (let j=i+1; j<nodes.length; j++) {
-      const sh = nodes[i].axes.filter(a => nodes[j].axes.includes(a));
-      if (sh.length) edges.push({ s:nodes[i], t:nodes[j], axes:sh, primary:pri(sh), w:sh.length });
-    }
-    document.getElementById('prev-edges').textContent = edges.length;
-
-    /* seed positions in axis-clustered ring */
-    const angles = { enc:0, aut:1, met:2, csv:3, rsn:4, tim:5, phy:6 };
-    nodes.forEach(n => {
-      const a = (angles[n.primary] / 7) * Math.PI * 2;
-      const r = 110 + Math.random() * 30;
-      n.x = W/2 + Math.cos(a) * r + (Math.random()-0.5) * 60;
-      n.y = H/2 + Math.sin(a) * r * 0.55 + (Math.random()-0.5) * 50;
-    });
-
-    /* run 250 force iterations to settle, then freeze */
-    function tick() {
-      const REPEL = 1100, STIFF = 0.014, IDEAL = 65, CENTER = 0.006, DAMP = 0.84;
-      for (let i=0; i<nodes.length; i++) for (let j=i+1; j<nodes.length; j++) {
-        const a=nodes[i], b=nodes[j];
-        let dx=b.x-a.x, dy=b.y-a.y;
-        const d2 = dx*dx + dy*dy + 0.01;
-        const d = Math.sqrt(d2);
-        const f = REPEL / d2;
-        a.vx -= f*dx/d; a.vy -= f*dy/d;
-        b.vx += f*dx/d; b.vy += f*dy/d;
-      }
-      for (const e of edges) {
-        let dx = e.t.x - e.s.x, dy = e.t.y - e.s.y;
-        const d = Math.sqrt(dx*dx + dy*dy) + 0.01;
-        const ideal = IDEAL - e.w * 4;
-        const f = (d - ideal) * STIFF * (0.6 + e.w * 0.15);
-        e.s.vx += f*dx/d; e.s.vy += f*dy/d;
-        e.t.vx -= f*dx/d; e.t.vy -= f*dy/d;
-      }
-      for (const n of nodes) {
-        n.vx -= (n.x - W/2) * CENTER;
-        n.vy -= (n.y - H/2) * CENTER * 1.4; // squash vertically
-        n.vx *= DAMP; n.vy *= DAMP;
-        n.x += n.vx; n.y += n.vy;
-        n.x = Math.max(30, Math.min(W-30, n.x));
-        n.y = Math.max(20, Math.min(H-20, n.y));
-      }
-    }
-    for (let i = 0; i < 250; i++) tick();
-
-    const eLayer = document.getElementById('prev-edges-layer');
-    const nLayer = document.getElementById('prev-nodes-layer');
-    const aLayer = document.getElementById('prev-act-layer');
-
-    edges.forEach(e => {
-      const ln = document.createElementNS(NS, 'line');
-      ln.setAttribute('x1', e.s.x); ln.setAttribute('y1', e.s.y);
-      ln.setAttribute('x2', e.t.x); ln.setAttribute('y2', e.t.y);
-      ln.setAttribute('stroke', PREV_AXIS_COLOR[e.primary]);
-      ln.setAttribute('stroke-width', 0.3 + e.w * 0.25);
-      ln.setAttribute('opacity', 0.06 + e.w * 0.06);
-      e.el = ln;
-      eLayer.appendChild(ln);
-    });
-    nodes.forEach(n => {
-      const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
-      c.setAttribute('r', 2.5 + n.depth * 0.55);
-      c.setAttribute('fill', PREV_AXIS_COLOR[n.primary]);
-      c.setAttribute('stroke', PREV_AXIS_COLOR[n.primary]);
-      c.setAttribute('stroke-opacity', 0.5);
-      c.style.filter = 'url(#prev-glow-filter)';
-      n.el = c;
-      nLayer.appendChild(c);
-    });
-
-    function spawnPulse(from, to, edge) {
-      const ring = document.createElementNS(NS, 'circle');
-      ring.setAttribute('r', 2.5);
-      ring.setAttribute('cx', from.x); ring.setAttribute('cy', from.y);
-      ring.setAttribute('fill', 'none');
-      ring.setAttribute('stroke', PREV_AXIS_COLOR[edge.primary]);
-      ring.setAttribute('stroke-width', 1.2);
-      ring.setAttribute('opacity', 0.8);
-      aLayer.appendChild(ring);
-      const start = performance.now();
-      const dur = 500 + Math.random() * 200;
-      function step(t) {
-        const u = Math.min(1, (t - start) / dur);
-        ring.setAttribute('cx', from.x + (to.x - from.x) * u);
-        ring.setAttribute('cy', from.y + (to.y - from.y) * u);
-        ring.setAttribute('opacity', 0.8 * (1 - u));
-        if (u < 1) requestAnimationFrame(step);
-        else ring.remove();
-      }
-      requestAnimationFrame(step);
-    }
-
-    function activate(id) {
-      const n = byId[id]; if (!n) return;
-      // pulse the node briefly
-      n.el.style.transition = 'r 0.3s ease';
-      const baseR = 2.5 + n.depth * 0.55;
-      n.el.setAttribute('r', baseR + 3);
-      setTimeout(() => n.el.setAttribute('r', baseR), 350);
-      // ripple along a few edges
-      const adj = edges.filter(e => e.s.id === id || e.t.id === id).slice(0, 6);
-      adj.forEach((e, i) => {
-        const other = e.s.id === id ? e.t : e.s;
-        setTimeout(() => spawnPulse(n, other, e), i * 50);
-      });
-    }
-
-    /* ambient firing */
-    const HUBS = ['biology','energy','meteorology','witness','scripture_anchors','theology_doctrine','chemistry','medicine','networking'];
-    function ambient() {
-      const r = Math.random();
-      const id = r < 0.5 ? HUBS[Math.floor(Math.random()*HUBS.length)]
-                         : Object.keys(PREV_GRID)[Math.floor(Math.random()*Object.keys(PREV_GRID).length)];
-      activate(id);
-    }
-    setTimeout(() => activate('chemistry'), 600);
-    setTimeout(() => activate('biology'), 1100);
-    setTimeout(() => activate('mathematics'), 1700);
-    setInterval(ambient, 1100);
-  })();
-
-  /* ───────── TABS ───────── */
-  function switchTab(name) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    document.getElementById('tab-' + name).classList.add('active');
-  }
-
-  /* ───────── DEMO SUBMIT ───────── */
-  async function handleSubmit() {
-    const input = document.getElementById('claimInput');
-    const btn   = document.getElementById('submitBtn');
-    const claim = input.value.trim();
-    if (!claim) return;
-
-    btn.disabled = true;
-    btn.textContent = '…';
-    const result = document.getElementById('demoResult');
-    result.classList.remove('show');
-
     try {
-      const res = await fetch(API + '/capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: claim, source: 'web', tags: ['homepage'], meta: {} })
-      });
-      const data = await res.json();
-      renderResult(claim, data);
-      refreshStats();
-    } catch (err) {
-      renderError(err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Run ↵';
-    }
+      const s = await fetch(API + '/swarm', { cache: 'no-store' }).then(r => r.json());
+      const alive = (s.swarm || []).filter(x => x.status === 'alive' || x.status === 'busy' || x.status === 'warming').length;
+      const total = (s.swarm || []).length;
+      document.getElementById('statSwarm').textContent = alive + ' / ' + total;
+      // Quick textual status
+      const loc = (s.swarm || []).find(x => x.name === 'searcher_loc');
+      const sci = (s.swarm || []).find(x => x.name === 'searcher');
+      const harvested = (loc?.harvests_total || 0) + (sci?.harvests_total || 0);
+      document.getElementById('statSwarmDetail').textContent = harvested + ' harvests this run';
+    } catch (_) {}
   }
 
-  function renderResult(claim, data) {
-    const result = document.getElementById('demoResult');
-    const verdict = (data.verdict || data.gate_overall || 'kept').toLowerCase();
-    const cls = verdict.includes('pass') ? 'verdict-pass'
-              : verdict.includes('quar') ? 'verdict-quarantine'
-              : verdict.includes('rej')  ? 'verdict-reject'
-              : 'verdict-pass';
-    const domain = data.domain || data.classification || 'classified';
-    const detail = data.detail || data.reason || data.summary
-                || `Sealed to journal as entry ${data.entry_id || data.id || ''}.`;
-    result.innerHTML = `
-      <div class="verdict-line">
-        <span class="verdict-chip ${cls}">${verdict.toUpperCase()}</span>
-        <span class="verdict-domain">domain: ${domain}</span>
-      </div>
-      <p class="demo-detail">${detail}</p>
-      ${data.entry_id ? `<p class="demo-detail" style="margin-top:10px;font-size:12px"><a href="/journal/${data.entry_id}">View full record →</a></p>` : ''}
-    `;
-    result.classList.add('show');
-  }
-  function renderError(msg) {
-    const result = document.getElementById('demoResult');
-    result.innerHTML = `<p class="demo-detail" style="color:var(--fail)">Error: ${msg}. The engine may be restarting — try again in a moment.</p>`;
-    result.classList.add('show');
-  }
+  /* ───────── DEMO — chip-driven /verify ───────── */
+  const DEMO_PRESETS = {
+    chemistry: {
+      tool: 'verify_chemistry',
+      spec: { equation: '2 H2 + O2 -> 2 H2O' },
+      label: '2 H2 + O2 → 2 H2O',
+    },
+    physics_dim: {
+      tool: 'verify_physics_dimensional',
+      spec: {
+        equation: 'F = m * a',
+        symbols: { F: 'newton', m: 'kilogram', a: 'meter/second**2' },
+      },
+      label: 'F = m·a (dimensional)',
+    },
+    thermo: {
+      tool: 'verify_thermodynamics',
+      spec: { T_hot_K: 600, T_cold_K: 300, claimed_efficiency: 0.5 },
+      label: 'Carnot efficiency · T_hot=600K, T_cold=300K',
+    },
+    stats: {
+      tool: 'verify_statistics_pvalue',
+      spec: { test: 'paired_t', n: 20, mean_diff: 0.5, sd_diff: 1.0, tail: 'two', claimed_p: 0.0375 },
+      label: 'paired t-test · n=20, claimed p=0.0375',
+    },
+    biology: {
+      tool: 'verify_biology',
+      spec: { hardy_weinberg: { counts: [490, 420, 90] } },
+      label: 'Hardy-Weinberg · counts [490, 420, 90]',
+    },
+    math: {
+      tool: 'verify_mathematics',
+      spec: {
+        mode: 'derivative',
+        params: { function: 'x**2', variable: 'x', claimed_derivative: '2*x' },
+      },
+      label: 'd/dx of x² = 2x',
+    },
+  };
 
-  /* Submit on Enter (not Shift+Enter) */
-  document.getElementById('claimInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
+  document.querySelectorAll('[data-demo]').forEach(btn => {
+    btn.addEventListener('click', () => runChip(btn.dataset.demo));
   });
 
-  /* Boot */
+  async function runChip(key) {
+    const preset = DEMO_PRESETS[key];
+    if (!preset) return;
+    const result = document.getElementById('demoResult');
+    result.classList.add('show', 'computing');
+    result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-na">computing</span><span style="color:var(--text-dim);font-size:12.5px">${escapeHtml(preset.tool)} · ~300ms</span></div>`;
+    try {
+      const t0 = performance.now();
+      const res = await fetch(API + '/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool: preset.tool, spec: preset.spec }),
+      });
+      const elapsed = Math.round(performance.now() - t0);
+      const data = await res.json();
+      renderVerifyResult(preset, data, elapsed);
+    } catch (err) {
+      result.classList.remove('computing');
+      result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-error">error</span><span style="color:var(--text-dim)">${escapeHtml(err.message)}</span></div>`;
+    }
+  }
+
+  function flattenStatuses(node, out) {
+    if (!node) return;
+    if (Array.isArray(node)) { node.forEach(n => flattenStatuses(n, out)); return; }
+    if (typeof node !== 'object') return;
+    if (typeof node.status === 'string') {
+      out.push({ status: node.status, detail: node.detail || '', data: node.data || null });
+    }
+    for (const k of Object.keys(node)) {
+      if (k === 'status' || k === 'detail' || k === 'data') continue;
+      flattenStatuses(node[k], out);
+    }
+  }
+
+  function renderVerifyResult(preset, data, elapsedMs) {
+    const result = document.getElementById('demoResult');
+    result.classList.remove('computing');
+    const checks = [];
+    flattenStatuses(data.result || data, checks);
+
+    let verdict = 'NA';
+    for (const c of checks) {
+      if (c.status === 'CONFIRMED' && verdict === 'NA') verdict = 'CONFIRMED';
+      else if (c.status === 'MISMATCH') { verdict = 'MISMATCH'; break; }
+      else if (c.status === 'ERROR' && verdict !== 'MISMATCH') verdict = 'ERROR';
+    }
+    const primary = checks.find(c => c.status === verdict) || checks[0] || { detail: '' };
+
+    const cls = {
+      CONFIRMED: 'verdict-confirmed',
+      MISMATCH:  'verdict-mismatch',
+      ERROR:     'verdict-error',
+      NA:        'verdict-na',
+    }[verdict] || 'verdict-na';
+
+    let dataHtml = '';
+    if (primary.data && typeof primary.data === 'object' && Object.keys(primary.data).length) {
+      dataHtml = `<div class="demo-row">
+        <span class="k">trail</span>
+        <span class="v"><div class="demo-spec">${escapeHtml(JSON.stringify(primary.data, null, 2))}</div></span>
+      </div>`;
+    }
+
+    result.innerHTML = `
+      <div class="verdict-line">
+        <span class="verdict-chip ${cls}">${verdict}</span>
+        <span style="color:var(--text-dim);font-size:13px">${escapeHtml(primary.detail || '')}</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted)">${elapsedMs}ms</span>
+      </div>
+      <div class="demo-row">
+        <span class="k">tool</span>
+        <span class="v"><code>${escapeHtml(preset.tool)}</code></span>
+      </div>
+      <div class="demo-row">
+        <span class="k">spec</span>
+        <span class="v"><div class="demo-spec">${escapeHtml(JSON.stringify(preset.spec, null, 2))}</div></span>
+      </div>
+      ${dataHtml}
+    `;
+  }
+
+  /* ───────── FREE-TEXT FALLBACK via /agent ───────── */
+  async function runFreeText() {
+    const input = document.getElementById('claimInput');
+    const claim = input.value.trim();
+    if (!claim) return;
+    const result = document.getElementById('demoResult');
+    result.classList.add('show', 'computing');
+    result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-na">computing</span><span style="color:var(--text-dim);font-size:12.5px">/agent · classifying via oracle · ~2-3s</span></div>`;
+    try {
+      const t0 = performance.now();
+      const res = await fetch(API + '/agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: claim }),
+      });
+      const elapsed = Math.round(performance.now() - t0);
+      if (res.status === 429) {
+        result.classList.remove('computing');
+        result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-error">rate limited</span><span style="color:var(--text-dim)">/agent is capped at 12/min per IP. Try again in a minute.</span></div>`;
+        return;
+      }
+      const data = await res.json();
+      renderAgentResult(data, elapsed);
+    } catch (err) {
+      result.classList.remove('computing');
+      result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-error">error</span><span style="color:var(--text-dim)">${escapeHtml(err.message)}</span></div>`;
+    }
+  }
+
+  function renderAgentResult(data, elapsedMs) {
+    const result = document.getElementById('demoResult');
+    result.classList.remove('computing');
+    if (!data.matched) {
+      result.innerHTML = `<div class="verdict-line"><span class="verdict-chip verdict-na">unmatched</span><span style="color:var(--text-dim);font-size:12.5px">No verifier rule fit. The engine doesn't synthesize answers — it stays silent rather than guess.</span></div>`;
+      return;
+    }
+    const checks = [];
+    flattenStatuses(data.results || {}, checks);
+    let verdict = 'NA', detail = '';
+    for (const c of checks) {
+      if (c.status === 'CONFIRMED' && verdict === 'NA') { verdict = 'CONFIRMED'; detail = c.detail; }
+      else if (c.status === 'MISMATCH') { verdict = 'MISMATCH'; detail = c.detail; break; }
+      else if (c.status === 'ERROR' && verdict !== 'MISMATCH') { verdict = 'ERROR'; detail = c.detail; }
+    }
+    if (verdict === 'NA' && data.summary === 'ERROR') { verdict = 'ERROR'; detail = 'spec extraction did not fit verifier expectations'; }
+    const cls = { CONFIRMED:'verdict-confirmed', MISMATCH:'verdict-mismatch', ERROR:'verdict-error', NA:'verdict-na' }[verdict];
+    const source = data.source === 'rule'
+      ? `rule <code>${escapeHtml(data.rule_id || '?')}</code>`
+      : `oracle <code>${escapeHtml((data.rule_id || '').split(':').pop() || 'AI')}</code>`;
+    result.innerHTML = `
+      <div class="verdict-line">
+        <span class="verdict-chip ${cls}">${verdict}</span>
+        <span style="color:var(--text-dim);font-size:13px">${escapeHtml(detail || '')}</span>
+        <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted)">${elapsedMs}ms</span>
+      </div>
+      <div class="demo-row"><span class="k">domain</span><span class="v"><code>${escapeHtml(data.domain || '?')}</code></span></div>
+      <div class="demo-row"><span class="k">classified by</span><span class="v">${source}</span></div>
+      ${data.spec ? `<div class="demo-row"><span class="k">spec</span><span class="v"><div class="demo-spec">${escapeHtml(JSON.stringify(data.spec, null, 2))}</div></span></div>` : ''}
+    `;
+    refreshStats();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  const _claimInput = document.getElementById('claimInput');
+  if (_claimInput) {
+    _claimInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runFreeText(); }
+    });
+  }
+
+  /* ───────── BRAIN MINI (lightweight static layout + ambient pulses) ───────── */
+  (function brainMini() {
+    const svg = document.getElementById('brainEdgesLayer');
+    if (!svg) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    // Hand-curated 18 representative nodes, axis-clustered
+    const NODES = [
+      // top — reasoning
+      {id:'mathematics', x:140, y:50, c:'#d4c46a'},
+      {id:'formal_logic', x:230, y:35, c:'#d4c46a'},
+      {id:'statistics', x:320, y:50, c:'#d4c46a'},
+      {id:'computer_science', x:410, y:38, c:'#d4c46a'},
+      // upper-right — encoding/authority
+      {id:'cryptography', x:560, y:55, c:'#a87cd6'},
+      {id:'witness', x:660, y:80, c:'#a87cd6'},
+      {id:'scripture_anchors', x:710, y:130, c:'#a87cd6'},
+      // right — physical
+      {id:'physics', x:680, y:175, c:'#d9945c'},
+      {id:'chemistry', x:600, y:175, c:'#5ec4b4'},
+      {id:'biology', x:520, y:180, c:'#5ec4b4'},
+      // bottom — metabolism
+      {id:'medicine', x:430, y:185, c:'#6ec98a'},
+      {id:'agriculture', x:340, y:180, c:'#6ec98a'},
+      {id:'soil_science', x:260, y:175, c:'#6ec98a'},
+      {id:'ecology', x:185, y:175, c:'#5ec4b4'},
+      {id:'meteorology', x:115, y:170, c:'#5ec4b4'},
+      // hubs middle
+      {id:'theology_doctrine', x:400, y:115, c:'#a87cd6'},
+      {id:'philosophy', x:285, y:110, c:'#a87cd6'},
+      {id:'governance_decision_packet', x:520, y:110, c:'#7fa8c0'},
+    ];
+    // Edges hand-curated to look balanced
+    const EDGES = [
+      [0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
+      [4,5],[5,6],[6,16],[5,15],[16,15],
+      [7,8],[8,9],[8,17],[9,10],[9,11],
+      [10,11],[11,12],[12,13],[13,14],
+      [11,15],[10,16],[16,7],[16,8],
+      [16,17],[15,16],[15,17],[17,4],
+      [3,16],[2,17],[0,16],[1,16],
+      [14,12],[12,11],[10,11],
+      [7,16],[6,17],[4,17],
+      [9,16],[8,16],
+    ];
+    EDGES.forEach(([a,b]) => {
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', NODES[a].x); ln.setAttribute('y1', NODES[a].y);
+      ln.setAttribute('x2', NODES[b].x); ln.setAttribute('y2', NODES[b].y);
+      ln.setAttribute('stroke', NODES[a].c);
+      ln.setAttribute('stroke-width', 0.5);
+      ln.setAttribute('opacity', 0.22);
+      svg.appendChild(ln);
+    });
+    const nodesLayer = document.getElementById('brainNodesLayer');
+    NODES.forEach(n => {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
+      c.setAttribute('r', 3.5);
+      c.setAttribute('fill', n.c);
+      c.setAttribute('opacity', 0.85);
+      c.style.filter = 'drop-shadow(0 0 4px ' + n.c + ')';
+      n.el = c;
+      nodesLayer.appendChild(c);
+    });
+    function pulse() {
+      const target = NODES[Math.floor(Math.random() * NODES.length)];
+      const r = target.el;
+      r.setAttribute('r', '6');
+      r.setAttribute('opacity', '1');
+      setTimeout(() => { r.setAttribute('r', '3.5'); r.setAttribute('opacity', '0.85'); }, 600);
+    }
+    setInterval(pulse, 1200);
+    setTimeout(pulse, 400);
+    setTimeout(pulse, 800);
+  })();
+
   refreshStats();
   setInterval(refreshStats, 30000);
 </script>
