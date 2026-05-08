@@ -5019,6 +5019,229 @@ def _dispatch_worker() -> None:
         _time.sleep(_dispatch_stats["tick_period_seconds"])
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Janitor hummingbird — fourth species, the steward
+#
+# Walks the journal and scores every packet on TWO axes:
+#   1. Completeness — is text present? tags present? size sane?
+#   2. Appropriateness — does it carry a recognized domain? does its
+#      provenance match a known trust tier?
+#
+# Janitor never deletes. The vault is append-only; the Janitor's job
+# is to illuminate. Findings flow to /swarm/janitor and become input
+# for the Trainer (which can then dispatch courier searches to
+# replace low-trust entries with proper LoC/scripture harvests).
+#
+# Trust tiers (informal):
+#   1 — locked translation (WEB Bible scripture_anchors)
+#   2 — institutional authority (Library of Congress)
+#   3 — other curated harvest (future Searchers)
+#   4 — organic submission (human or agent capture)
+#   5 — LLM-synthesized (the old seed_generator output) ← flagged
+# ─────────────────────────────────────────────────────────────────────
+
+# Canonical 63 domains the engine knows about. Shared by Janitor
+# (used to detect UNRECOGNIZED_DOMAIN) and Trainer (used to find
+# which are starving). Defined once here so the load order works.
+_ALL_DOMAINS = [
+    "acoustics","agriculture","architecture","astronomy","biology","calendar_time",
+    "chemistry","combinatorics","computer_science","construction","cryptography",
+    "cybersecurity","document_validation","ecology","economics","electrical","energy",
+    "exercise_science","finance","formal_logic","genetics","geography","geology",
+    "geometry","governance_decision_packet","history_chronology","hydrology",
+    "information_theory","labor","law","linguistics","manufacturing","materials_science",
+    "mathematics","medicine","meteorology","music_theory","networking","nuclear_physics",
+    "number_theory","nutrition","oceanography","operations_research","optics","phase",
+    "philosophy","photography","physics","physics_conservation","physics_dimensional",
+    "quantum_computing","real_estate","rhetoric","scripture_anchors","soil_science",
+    "sports_analytics","statistics","statistics_confidence_interval",
+    "statistics_multiple_comparisons","statistics_pvalue","theology_doctrine",
+    "thermodynamics","witness",
+]
+_JANITOR_DOMAINS = set(_ALL_DOMAINS)
+
+_janitor_seen: set = set()                                 # entry IDs already scored
+_janitor_findings: "_collections.deque" = _collections.deque(maxlen=200)
+_janitor_state: Dict[str, Any] = {
+    "full_scan_complete": False,
+    "first_tick_done": False,
+}
+_janitor_stats: Dict[str, Any] = {
+    "name": "janitor",
+    "species": "Janitor",
+    "role": "verify packet completeness and appropriateness",
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "entries_reviewed": 0,
+    "entries_with_findings": 0,
+    "by_category": {},     # finding tag → count
+    "by_trust_tier": {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0},
+    "by_domain": {},       # domain → count
+    "last_finding": None,
+    "batch_size": 200,
+    "tick_period_seconds": 90,
+}
+
+
+def _janitor_classify(entry) -> Dict[str, Any]:
+    """Score one entry. Returns {entry_id, domain, trust_tier,
+    findings, text_length, ok}.  Findings are short ALL_CAPS tags."""
+    text_raw = getattr(entry, "text", "") or ""
+    text = text_raw.strip()
+    tags_set = set(getattr(entry, "user_tags", None) or [])
+    metadata = getattr(entry, "metadata", None) or {}
+    if not isinstance(metadata, dict):
+        metadata = {}
+    source_field = str(metadata.get("source", "") or "").lower()
+
+    findings: List[str] = []
+
+    # Completeness
+    if not text:
+        findings.append("MISSING_TEXT")
+    else:
+        if len(text) < 12:
+            findings.append("TOO_SHORT")
+        elif len(text) > 8000:
+            findings.append("TOO_LONG")
+    if not tags_set and not metadata:
+        findings.append("NO_PROVENANCE")
+
+    # Appropriateness — domain detection
+    domain_match = tags_set & _JANITOR_DOMAINS
+    if domain_match:
+        domain = sorted(domain_match)[0]   # deterministic pick
+    else:
+        cand = metadata.get("domain")
+        domain = cand if cand in _JANITOR_DOMAINS else None
+    if not domain:
+        findings.append("UNRECOGNIZED_DOMAIN")
+
+    # Trust tier — inspect provenance markers
+    is_web_bible = "web_bible" in tags_set
+    is_loc = "library_of_congress" in tags_set or "loc" in tags_set
+    is_searcher_curated = "searcher" in tags_set and "harvest" in tags_set
+    is_seed = (
+        "seed" in tags_set
+        or "generated" in tags_set
+        or source_field.startswith("seed_generator")
+    )
+
+    if is_web_bible:
+        trust_tier = 1
+    elif is_loc:
+        trust_tier = 2
+    elif is_searcher_curated:
+        trust_tier = 3
+    elif is_seed:
+        trust_tier = 5
+        findings.append("LLM_SYNTHESIZED")
+    else:
+        trust_tier = 4
+
+    return {
+        "entry_id": getattr(entry, "id", None),
+        "domain": domain or "unknown",
+        "trust_tier": trust_tier,
+        "findings": findings,
+        "text_length": len(text),
+        "ok": not findings,
+    }
+
+
+def _janitor_tick() -> None:
+    """One scoring pass. First-pass reads the full journal; steady-state
+    reads only the most recent batch and skips already-scored IDs."""
+    import time as _time
+    try:
+        from concordance_engine.journal import JournalStore
+        store = JournalStore()
+    except Exception as exc:
+        _janitor_stats["last_error"] = f"journal: {exc}"
+        return
+
+    # First substantive tick: full read so the historical vault gets
+    # scored. Subsequent ticks: small bounded read for fresh arrivals.
+    if not _janitor_state["full_scan_complete"]:
+        try:
+            entries = store.list_all(limit=50000)
+            _janitor_state["full_scan_complete"] = True
+        except Exception as exc:
+            _janitor_stats["last_error"] = f"full-scan: {exc}"
+            return
+    else:
+        try:
+            entries = store.list_all(limit=200)
+        except Exception as exc:
+            _janitor_stats["last_error"] = f"poll: {exc}"
+            return
+
+    processed = 0
+    batch_max = _janitor_stats["batch_size"]
+    for entry in entries:
+        eid = getattr(entry, "id", None)
+        if eid is None or eid in _janitor_seen:
+            continue
+        result = _janitor_classify(entry)
+        _janitor_seen.add(eid)
+        _janitor_stats["entries_reviewed"] += 1
+
+        # Tier counter
+        tier_key = str(result.get("trust_tier", 4))
+        _janitor_stats["by_trust_tier"][tier_key] = (
+            _janitor_stats["by_trust_tier"].get(tier_key, 0) + 1
+        )
+
+        # Domain counter
+        dom = result.get("domain") or "unknown"
+        _janitor_stats["by_domain"][dom] = _janitor_stats["by_domain"].get(dom, 0) + 1
+
+        # Findings
+        if result.get("findings"):
+            _janitor_stats["entries_with_findings"] += 1
+            for f in result["findings"]:
+                _janitor_stats["by_category"][f] = (
+                    _janitor_stats["by_category"].get(f, 0) + 1
+                )
+            finding_record = {
+                "entry_id": eid,
+                "domain": dom,
+                "trust_tier": result["trust_tier"],
+                "findings": result["findings"][:4],
+                "text_length": result.get("text_length", 0),
+                "ts": _time.time(),
+            }
+            _janitor_findings.appendleft(finding_record)
+            _janitor_stats["last_finding"] = finding_record
+
+        processed += 1
+        if processed >= batch_max:
+            break
+
+    _janitor_state["first_tick_done"] = True
+
+
+def _janitor_worker() -> None:
+    """Background loop. 90s ticks. Quiet, methodical."""
+    import time as _time
+    if _janitor_stats["started_at"] is None:
+        _janitor_stats["started_at"] = _time.time()
+    _time.sleep(35)  # startup grace; let other workers settle first
+    while True:
+        try:
+            _janitor_tick()
+            _janitor_stats["tick_count"] += 1
+        except Exception as exc:
+            _janitor_stats["error_count"] += 1
+            _janitor_stats["last_error"] = str(exc)[:200]
+            _log.warning(f"janitor error: {exc}")
+        _janitor_stats["last_tick_at"] = _time.time()
+        _time.sleep(_janitor_stats["tick_period_seconds"])
+
+
 # Trainer hummingbird state — meta-agent that watches the swarm and
 # optimizes resources/tasks. On-demand compute with 10-minute cache;
 # when cache rebuilds, writes data/swarm_config.json as the canonical
@@ -5347,25 +5570,6 @@ def swarm_connector():
 # entries, counts by domain. Tiny.
 # ─────────────────────────────────────────────────────────────────────
 
-# Canonical 63 domains the engine knows about. Trainer compares against
-# this to find which are unfed.
-_ALL_DOMAINS = [
-    "acoustics","agriculture","architecture","astronomy","biology","calendar_time",
-    "chemistry","combinatorics","computer_science","construction","cryptography",
-    "cybersecurity","document_validation","ecology","economics","electrical","energy",
-    "exercise_science","finance","formal_logic","genetics","geography","geology",
-    "geometry","governance_decision_packet","history_chronology","hydrology",
-    "information_theory","labor","law","linguistics","manufacturing","materials_science",
-    "mathematics","medicine","meteorology","music_theory","networking","nuclear_physics",
-    "number_theory","nutrition","oceanography","operations_research","optics","phase",
-    "philosophy","photography","physics","physics_conservation","physics_dimensional",
-    "quantum_computing","real_estate","rhetoric","scripture_anchors","soil_science",
-    "sports_analytics","statistics","statistics_confidence_interval",
-    "statistics_multiple_comparisons","statistics_pvalue","theology_doctrine",
-    "thermodynamics","witness",
-]
-
-
 def _trainer_compute_analysis() -> Dict[str, Any]:
     """One Trainer tick. Walks journal, computes per-domain freshness,
     decides starving/well-fed, writes swarm_config.json.
@@ -5616,6 +5820,68 @@ def swarm_searcher_loc():
     return out
 
 
+@app.get("/swarm/janitor", tags=["agents"])
+def swarm_janitor():
+    """Live stats for the Janitor hummingbird.
+
+    Janitor walks the journal scoring every packet on completeness
+    (text present, length sane, has tags) and appropriateness
+    (recognized domain, source attribution valid, identifiable trust
+    tier). Findings flow here for Trainer to consume — Janitor never
+    deletes anything; the vault is append-only.
+
+    Returns aggregate stats by trust tier and finding category, the
+    most recent finding, and the running review counter.
+    """
+    import time as _time
+    now = _time.time()
+    out = dict(_janitor_stats)
+    # Sort by_category and by_domain for stable rendering
+    out["by_category"] = dict(sorted(
+        _janitor_stats["by_category"].items(),
+        key=lambda kv: -kv[1],
+    ))
+    out["by_domain_top"] = dict(sorted(
+        _janitor_stats["by_domain"].items(),
+        key=lambda kv: -kv[1],
+    )[:15])
+    out["full_scan_complete"] = _janitor_state.get("full_scan_complete", False)
+    out["seen_count"] = len(_janitor_seen)
+    out["now"] = now
+    if out["last_tick_at"]:
+        out["seconds_since_tick"] = round(now - out["last_tick_at"], 1)
+    if out["started_at"]:
+        out["uptime_seconds"] = round(now - out["started_at"], 1)
+    return out
+
+
+@app.get("/swarm/janitor/findings", tags=["agents"])
+def swarm_janitor_findings(
+    category: Optional[str] = Query(None, description="Filter to one finding tag (e.g. LLM_SYNTHESIZED)"),
+    domain: Optional[str] = Query(None, description="Filter to one domain"),
+    tier: Optional[int] = Query(None, ge=1, le=5),
+    limit: int = Query(50, ge=1, le=200),
+):
+    """Recent Janitor findings, optionally filtered.
+
+    Useful for: pulling the LLM_SYNTHESIZED list to dispatch
+    replacement courier searches; auditing UNRECOGNIZED_DOMAIN
+    entries for tagging fixes; spot-checking malformed packets.
+    """
+    out = []
+    for f in list(_janitor_findings):
+        if category and category not in f.get("findings", []):
+            continue
+        if domain and f.get("domain") != domain:
+            continue
+        if tier is not None and f.get("trust_tier") != tier:
+            continue
+        out.append(f)
+        if len(out) >= limit:
+            break
+    return {"count": len(out), "findings": out}
+
+
 @app.get("/swarm/searcher", tags=["agents"])
 def swarm_searcher():
     """Live stats for the Searcher hummingbird.
@@ -5824,6 +6090,22 @@ def swarm_index():
             {
                 "name": "janitor",
                 "species": "Janitor",
+                "role": "verify packet completeness and appropriateness",
+                "status": (
+                    "alive" if (
+                        _janitor_stats.get("last_tick_at")
+                        and (now - _janitor_stats["last_tick_at"]) < 240
+                    ) else ("warming" if _janitor_stats.get("started_at") else "cold")
+                ),
+                "stats_endpoint": "/swarm/janitor",
+                "entries_reviewed": _janitor_stats.get("entries_reviewed", 0),
+                "entries_with_findings": _janitor_stats.get("entries_with_findings", 0),
+                "full_scan_complete": _janitor_state.get("full_scan_complete", False),
+                "last_tick_at": _janitor_stats.get("last_tick_at"),
+            },
+            {
+                "name": "janitor",
+                "species": "Janitor",
                 "role": "dedup by content hash, flag malformed, archive stale low-yield",
                 "status": "planned",
                 "stats_endpoint": None,
@@ -5908,6 +6190,16 @@ _dispatch_thread = _threading.Thread(
     daemon=True,
 )
 _dispatch_thread.start()
+
+# Wire the Janitor (steward). 90s ticks. First tick walks the full
+# vault to score historical entries; subsequent ticks just catch
+# new arrivals. Quiet, methodical, never deletes.
+_janitor_thread = _threading.Thread(
+    target=_janitor_worker,
+    name="janitor",
+    daemon=True,
+)
+_janitor_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------

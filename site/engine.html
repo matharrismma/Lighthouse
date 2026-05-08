@@ -710,6 +710,10 @@
       <small>Searcher · Tasked — courier</small>
       <span id="swarmDispatchText">—</span>
     </div>
+    <div class="swarm-pair" id="swarmJanitor" style="display:none;">
+      <small>Janitor — vault audit</small>
+      <span id="swarmJanitorText">—</span>
+    </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
       Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
     </p>
@@ -1460,6 +1464,11 @@
         && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
       return `<span class="swarm-meta">harvested <b>${sp.harvests_total ?? 0}</b></span>`;
     }
+    if (sp.name === 'janitor' && (sp.status === 'alive' || sp.status === 'warming')) {
+      const r = sp.entries_reviewed ?? 0;
+      const f = sp.entries_with_findings ?? 0;
+      return `<span class="swarm-meta">reviewed <b>${r.toLocaleString()}</b> · flagged <b style="color:${f > r * 0.3 ? 'var(--fail)' : 'var(--hold)'}">${f.toLocaleString()}</b></span>`;
+    }
     if (sp.name === 'searcher_dispatch') {
       const q = sp.queue_depth ?? 0;
       const c = sp.tasks_completed ?? 0;
@@ -1581,6 +1590,46 @@
           <div style="color:var(--text-dim);font-size:11px;line-height:1.4">${escapeHtml(last.title || '')}${last.date?` <span style="color:var(--muted)">(${escapeHtml(last.date)})</span>`:''}</div>
           ${subjects ? `<div style="margin-top:5px">${subjects}</div>` : ''}
           <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">harvested ${s.harvests_total||0} · session-uniq ${s.harvested_count_session||0}</div>
+        `;
+      }
+    } catch (_) {}
+    // Janitor — trust-tier breakdown + top findings
+    try {
+      const j = await fetchJSON('/swarm/janitor');
+      if (j && (j.entries_reviewed || 0) > 0) {
+        const wrap = document.getElementById('swarmJanitor');
+        wrap.style.display = '';
+        const tiers = j.by_trust_tier || {};
+        const labels = {
+          '1': 'locked', '2': 'LoC', '3': 'curated', '4': 'organic', '5': 'LLM-synth'
+        };
+        const tierColors = {
+          '1': 'var(--pass)', '2': '#5b9bd5', '3': '#5ec4b4',
+          '4': 'var(--text-dim)', '5': 'var(--fail)',
+        };
+        const total = ['1','2','3','4','5'].reduce((s, k) => s + (tiers[k] || 0), 0) || 1;
+        const tierBars = ['1','2','3','4','5'].map(k => {
+          const v = tiers[k] || 0;
+          const pct = (v / total * 100).toFixed(1);
+          if (v === 0) return '';
+          return `<div style="display:flex;align-items:center;gap:6px;font-size:9.5px;font-family:'JetBrains Mono',monospace;margin-bottom:2px">
+            <span style="color:var(--muted);width:54px">T${k} ${labels[k]}</span>
+            <span style="flex:1;height:5px;background:var(--bg-2);border-radius:2px;overflow:hidden;position:relative;">
+              <span style="position:absolute;inset:0;width:${pct}%;background:${tierColors[k]};opacity:0.7"></span>
+            </span>
+            <span style="color:${tierColors[k]};width:48px;text-align:right">${v.toLocaleString()}</span>
+          </div>`;
+        }).join('');
+        const cats = Object.entries(j.by_category || {}).slice(0, 3);
+        const findingsLine = cats.length
+          ? `<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">findings: ${cats.map(([c, n]) => `<span style="color:var(--text-dim)">${c.toLowerCase().replace(/_/g,' ')}</span>&nbsp;<b style="color:var(--fail)">${n.toLocaleString()}</b>`).join(' · ')}</div>`
+          : '';
+        document.getElementById('swarmJanitorText').innerHTML = `
+          <div style="margin-bottom:6px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">
+            reviewed <b style="color:var(--text-dim)">${(j.entries_reviewed||0).toLocaleString()}</b> · ${j.full_scan_complete ? '<span style="color:var(--pass)">scan complete</span>' : 'scanning…'}
+          </div>
+          ${tierBars}
+          ${findingsLine}
         `;
       }
     } catch (_) {}
