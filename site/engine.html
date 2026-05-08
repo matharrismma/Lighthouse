@@ -690,6 +690,10 @@
       <small>Trainer — assessment</small>
       <span id="swarmTrainerText">—</span>
     </div>
+    <div class="swarm-pair" id="swarmSearcher" style="display:none;">
+      <small>Searcher — last harvest</small>
+      <span id="swarmSearcherText">—</span>
+    </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
       Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
     </p>
@@ -1223,9 +1227,12 @@
         const text = (e.title || e.text || e.summary || '').slice(0, 80);
         const ts = e.created_epoch || e.ts || e.timestamp;
         const id = e.entry_id || e.id || (dom + ':' + ts);
+        const tags = e.tags || [];
+        const isHarvest = tags.includes('harvest') || tags.includes('searcher')
+          || tags.includes('seed') || tags.includes('generated');
 
         const row = document.createElement('div');
-        row.className = 'act-row';
+        row.className = 'act-row' + (isHarvest ? ' harvest' : '');
         row.innerHTML = `
           <span class="dom">${dom}</span>
           <span class="text">${escapeHtml(text)}</span>
@@ -1233,11 +1240,16 @@
         `;
         list.appendChild(row);
 
-        // fire activation for newly-seen entries
+        // fire activation for newly-seen entries — harvests fly in,
+        // organic submissions just pulse the node
         if (id && !seenIds.has(id) && fired < 6) {
           seenIds.add(id);
           if (NODE_BY_ID[dom]) {
-            setTimeout(() => activateNode(dom, 1.0), fired * 180);
+            if (isHarvest) {
+              setTimeout(() => spawnHummingbird(dom), fired * 240);
+            } else {
+              setTimeout(() => activateNode(dom, 1.0), fired * 180);
+            }
             fired++;
           }
         }
@@ -1270,6 +1282,68 @@
     if (d < 3600)  return Math.floor(d/60) + 'm';
     if (d < 86400) return Math.floor(d/3600) + 'h';
     return Math.floor(d/86400) + 'd';
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SEARCHER HUMMINGBIRD — visual signature
+     A small gold particle flies in from outside the
+     viewport on a curved path, wing-flutters, lands on
+     the target domain node, triggers activation, fades.
+  ═══════════════════════════════════════════════════ */
+  function spawnHummingbird(targetId) {
+    const t = NODE_BY_ID[targetId];
+    if (!t) return;
+
+    const stage = svg.getBoundingClientRect();
+    const W2 = parseFloat(svg.getAttribute('viewBox').split(' ')[2]);
+    const H2 = parseFloat(svg.getAttribute('viewBox').split(' ')[3]);
+
+    // Pick an entry from a random side, then a curved path to target
+    const side = Math.floor(Math.random() * 4);
+    const start = (
+      side === 0 ? { x: -40, y: t.y + (Math.random()-0.5)*200 } :
+      side === 1 ? { x: W2 + 40, y: t.y + (Math.random()-0.5)*200 } :
+      side === 2 ? { x: t.x + (Math.random()-0.5)*200, y: -40 } :
+                   { x: t.x + (Math.random()-0.5)*200, y: H2 + 40 }
+    );
+
+    // Quadratic bezier control point — curved like a hummingbird approach
+    const ctrl = {
+      x: (start.x + t.x)/2 + (Math.random()-0.5) * 140,
+      y: (start.y + t.y)/2 + (Math.random()-0.5) * 140,
+    };
+
+    const bird = document.createElementNS(SVG_NS, 'circle');
+    bird.setAttribute('class', 'hummingbird');
+    bird.setAttribute('cx', start.x);
+    bird.setAttribute('cy', start.y);
+    bird.setAttribute('r', 3);
+    bird.setAttribute('fill', '#d4a872');
+    activationLayer.appendChild(bird);
+
+    const t0 = performance.now();
+    const dur = 1200 + Math.random() * 400;
+    function step(now) {
+      const u = Math.min(1, (now - t0) / dur);
+      const ux = 1 - u;
+      // quadratic bezier point
+      const x = ux*ux*start.x + 2*ux*u*ctrl.x + u*u*t.x;
+      const y = ux*ux*start.y + 2*ux*u*ctrl.y + u*u*t.y;
+      bird.setAttribute('cx', x);
+      bird.setAttribute('cy', y);
+      // wing flutter — small radius oscillation
+      bird.setAttribute('r', (2.5 + Math.sin(now * 0.05) * 0.7).toFixed(2));
+      if (u < 1) {
+        requestAnimationFrame(step);
+      } else {
+        // Drop the harvest — full activation + ripple
+        activateNode(targetId, 1.0);
+        bird.style.transition = 'opacity 280ms';
+        bird.style.opacity = '0';
+        setTimeout(() => bird.remove(), 320);
+      }
+    }
+    requestAnimationFrame(step);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -1366,6 +1440,9 @@
       const v = sp.swarm_health || '—';
       return `<span class="swarm-meta">verdict <b style="color:${verdictColor}">${v}</b></span>`;
     }
+    if (sp.name === 'searcher' && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
+      return `<span class="swarm-meta">harvested <b>${sp.harvests_total ?? 0}</b></span>`;
+    }
     return `<span class="swarm-meta">${sp.status}</span>`;
   }
 
@@ -1402,6 +1479,24 @@
           <span style="color:var(--accent)">${last.domain_b.replace(/_/g,' ')}</span>
           <div style="margin-top:4px;font-size:10px">${colored}</div>
           <div style="margin-top:3px;color:var(--muted);font-size:9.5px">${relTime(last.ts)} ago</div>
+        `;
+      }
+    } catch (_) {}
+    // Searcher last harvest detail
+    try {
+      const s = await fetchJSON('/swarm/searcher');
+      const last = s.last_harvest;
+      if (last && last.ref) {
+        const wrap = document.getElementById('swarmSearcher');
+        wrap.style.display = '';
+        const text = (last.text_preview || '').replace(/[<>]/g, '');
+        document.getElementById('swarmSearcherText').innerHTML = `
+          <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">
+            <span style="color:var(--accent)">${escapeHtml(last.ref)}</span>
+            <span style="color:var(--muted);font-size:9.5px">${last.ts ? relTime(last.ts) : ''} ago</span>
+          </div>
+          <div style="color:var(--text-dim);font-size:11px;font-style:italic;font-family:'Crimson Pro',serif;line-height:1.45">"${escapeHtml(text)}${(text.length>=80?'…':'')}"</div>
+          <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">cycle ${s.cycles_completed||0} · cursor ${s.cursor||0}/${s.anchor_list_size||50}</div>
         `;
       }
     } catch (_) {}

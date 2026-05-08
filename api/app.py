@@ -4441,6 +4441,162 @@ _connector_fired_pairs: set = set()                  # frozenset({da, db}) pairs
 _connector_seen_ids: set = set()                     # journal entry IDs already scanned
 _connector_lock = _threading.Lock()
 
+# Searcher hummingbird state — third species, harvester.
+# Walks a curated list of canonical scripture anchors (theologically
+# central refs spanning creation, christology, gospel, wisdom, witness,
+# eschatology). Each tick: resolve one ref via the local WEB Bible
+# module, post the verse text to /capture as a real harvested packet.
+# Local-only — no external HTTP, no LLM. Genuinely public domain.
+#
+# After completing one full cycle of the anchor list, sleeps 6 hours
+# then cycles again. The list is small (~50 entries) so a full pass
+# takes ~75 min; aggregate harvest rate is gentle, on purpose.
+_SCRIPTURE_ANCHOR_REFS: List[str] = [
+    # Creation / cosmology — Romans 1:20 territory
+    "Genesis 1:1", "Genesis 1:27", "Genesis 2:7", "Psalm 19:1", "Psalm 8:3",
+    "Psalm 139:14", "Romans 1:20", "Colossians 1:16", "Hebrews 11:3",
+    "John 1:1", "John 1:3", "Acts 17:28",
+    # Christology
+    "John 3:16", "John 14:6", "Philippians 2:6", "Philippians 2:9",
+    "Colossians 2:9", "Hebrews 1:3", "Matthew 16:16", "John 10:30",
+    "Revelation 22:13",
+    # Gospel core (1 Cor 15:3-4 anchored)
+    "1 Corinthians 15:3", "1 Corinthians 15:4", "Ephesians 2:8",
+    "Ephesians 2:9", "Romans 3:23", "Romans 5:8", "Romans 6:23",
+    "Romans 10:9", "Romans 10:10",
+    # Wisdom + decision-making (the engine's epistemic frame)
+    "Proverbs 1:7", "Proverbs 3:5", "Proverbs 3:6", "Proverbs 9:10",
+    "Proverbs 24:27", "James 1:5", "James 1:17",
+    "Ecclesiastes 3:1", "Philippians 4:6", "Philippians 4:7",
+    # Witness / truth
+    "Deuteronomy 19:15", "Matthew 18:16", "John 8:32", "John 14:17",
+    "John 16:13", "1 Timothy 3:1",
+    # Posture / identity
+    "Matthew 5:3", "Matthew 5:8", "Matthew 5:14", "Matthew 6:33",
+    "Matthew 10:16", "1 Peter 3:15", "Romans 12:2",
+    # Eschatology / completion
+    "Revelation 21:1", "Revelation 21:4", "1 Thessalonians 4:16",
+]
+
+_searcher_state: Dict[str, Any] = {
+    "cursor": 0,                  # index into _SCRIPTURE_ANCHOR_REFS
+    "cycles_completed": 0,        # full passes through the anchor list
+    "in_rest": False,             # sleeping between cycles
+    "rest_until": 0.0,
+}
+_searcher_stats: Dict[str, Any] = {
+    "name": "searcher",
+    "species": "Searcher",
+    "role": "harvest one canonical anchor per tick (WEB Bible)",
+    "current_source": "WEB Bible · curated anchors",
+    "anchor_list_size": len(_SCRIPTURE_ANCHOR_REFS),
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "harvests_total": 0,
+    "duplicates_skipped": 0,
+    "last_harvest": None,
+    "tick_period_seconds": 90,
+    "rest_period_seconds": 6 * 3600,
+}
+
+
+def _searcher_tick() -> None:
+    """One harvest. Resolves the next anchor and posts to journal."""
+    import time as _time
+    state = _searcher_state
+
+    # Honor rest period between cycles
+    if state["in_rest"]:
+        if _time.time() < state["rest_until"]:
+            return
+        state["in_rest"] = False
+        state["cursor"] = 0
+
+    refs = _SCRIPTURE_ANCHOR_REFS
+    if not refs:
+        return
+
+    idx = state["cursor"]
+    ref = refs[idx]
+
+    # Resolve via the engine's existing scripture module — local WEB
+    try:
+        from concordance_engine.verifiers import scripture as _scripture
+        result = _scripture.resolve_ref(ref)
+    except Exception as exc:
+        _searcher_stats["last_error"] = f"resolve {ref}: {exc}"
+        _advance_searcher_cursor()
+        return
+
+    if result.get("status") != "ok":
+        _searcher_stats["last_error"] = f"{ref} → {result.get('detail','no text')}"
+        _advance_searcher_cursor()
+        return
+
+    web_text = (result.get("web_text") or "").strip()
+    if not web_text:
+        _advance_searcher_cursor()
+        return
+
+    text = f"{ref} (WEB) — {web_text}"
+    tags = ["scripture_anchors", "harvest", "web_bible", "searcher"]
+
+    try:
+        from concordance_engine import journal as _journal
+        _journal.capture(text, tags=tags, look_up_precedent=False)
+        _searcher_stats["harvests_total"] += 1
+        _searcher_stats["last_harvest"] = {
+            "ts": _time.time(),
+            "ref": ref,
+            "domain": "scripture_anchors",
+            "text_preview": web_text[:90],
+        }
+    except ValueError as exc:
+        if "duplicate" in str(exc).lower():
+            _searcher_stats["duplicates_skipped"] += 1
+        else:
+            _searcher_stats["last_error"] = str(exc)[:200]
+            _searcher_stats["error_count"] += 1
+    except Exception as exc:
+        _searcher_stats["last_error"] = str(exc)[:200]
+        _searcher_stats["error_count"] += 1
+
+    _advance_searcher_cursor()
+
+
+def _advance_searcher_cursor() -> None:
+    """Step to next ref. At list end, log a completed cycle and rest."""
+    import time as _time
+    state = _searcher_state
+    state["cursor"] += 1
+    if state["cursor"] >= len(_SCRIPTURE_ANCHOR_REFS):
+        state["cycles_completed"] += 1
+        state["in_rest"] = True
+        state["rest_until"] = _time.time() + _searcher_stats["rest_period_seconds"]
+
+
+def _searcher_worker() -> None:
+    """Background loop. Slow on purpose."""
+    import time as _time
+    if _searcher_stats["started_at"] is None:
+        _searcher_stats["started_at"] = _time.time()
+    # Brief startup delay so the journal store finishes initializing
+    _time.sleep(20)
+    while True:
+        try:
+            _searcher_tick()
+            _searcher_stats["tick_count"] += 1
+        except Exception as exc:
+            _searcher_stats["error_count"] += 1
+            _searcher_stats["last_error"] = str(exc)[:200]
+            _log.warning(f"searcher error: {exc}")
+        _searcher_stats["last_tick_at"] = _time.time()
+        _time.sleep(_searcher_stats["tick_period_seconds"])
+
+
 # Trainer hummingbird state — meta-agent that watches the swarm and
 # optimizes resources/tasks. On-demand compute with 10-minute cache;
 # when cache rebuilds, writes data/swarm_config.json as the canonical
@@ -4905,6 +5061,39 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
     return analysis
 
 
+@app.get("/swarm/searcher", tags=["agents"])
+def swarm_searcher():
+    """Live stats for the Searcher hummingbird.
+
+    The Searcher walks a curated list of canonical scripture anchors,
+    resolving each via the local WEB Bible module and posting it to
+    the journal as a real harvested packet. One verse per ~90s tick.
+    Genuinely public domain. No external HTTP, no LLM, no synthesis.
+
+    After completing one full pass through the anchor list, sleeps 6
+    hours then cycles again. The rate is deliberately gentle.
+
+    Returns identity, tick stats, last harvest, current cursor
+    position in the anchor list, and rest state.
+    """
+    import time as _time
+    now = _time.time()
+    out = dict(_searcher_stats)
+    out["now"] = now
+    out["cursor"] = _searcher_state["cursor"]
+    out["cycles_completed"] = _searcher_state["cycles_completed"]
+    out["in_rest"] = _searcher_state["in_rest"]
+    if _searcher_state["in_rest"]:
+        out["rest_seconds_remaining"] = max(
+            0, round(_searcher_state["rest_until"] - now)
+        )
+    if out["last_tick_at"]:
+        out["seconds_since_tick"] = round(now - out["last_tick_at"], 1)
+    if out["started_at"]:
+        out["uptime_seconds"] = round(now - out["started_at"], 1)
+    return out
+
+
 @app.get("/swarm/trainer", tags=["agents"])
 def swarm_trainer(refresh: bool = Query(False, description="Force recompute now")):
     """Live stats for the Trainer hummingbird.
@@ -5026,16 +5215,28 @@ def swarm_index():
                 "computed_at": _trainer_state["computed_at"],
             },
             {
+                "name": "searcher",
+                "species": "Searcher",
+                "role": "harvest one canonical anchor per tick (WEB Bible)",
+                "status": (
+                    "alive" if (
+                        _searcher_stats.get("last_tick_at")
+                        and (now - _searcher_stats["last_tick_at"]) < 240
+                    )
+                    else ("resting" if _searcher_state["in_rest"] else (
+                        "warming" if _searcher_stats.get("started_at") else "cold"
+                    ))
+                ),
+                "stats_endpoint": "/swarm/searcher",
+                "harvests_total": _searcher_stats.get("harvests_total", 0),
+                "cycles_completed": _searcher_state["cycles_completed"],
+                "current_source": _searcher_stats.get("current_source"),
+                "last_tick_at": _searcher_stats.get("last_tick_at"),
+            },
+            {
                 "name": "janitor",
                 "species": "Janitor",
                 "role": "dedup by content hash, flag malformed, archive stale low-yield",
-                "status": "planned",
-                "stats_endpoint": None,
-            },
-            {
-                "name": "searcher",
-                "species": "Searcher",
-                "role": "harvest one public-domain source and POST /capture",
                 "status": "planned",
                 "stats_endpoint": None,
             },
@@ -5090,6 +5291,16 @@ _connector_thread = _threading.Thread(
     daemon=True,
 )
 _connector_thread.start()
+
+# Wire the Searcher hummingbird (Searcher #1: scripture anchors).
+# Slow on purpose — 90s per harvest, full anchor cycle ~75 min,
+# then sleeps 6 hours before cycling again. Gentle, patient.
+_searcher_thread = _threading.Thread(
+    target=_searcher_worker,
+    name="searcher-scripture",
+    daemon=True,
+)
+_searcher_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------
