@@ -132,17 +132,20 @@ DOMAIN_HINTS = {
 }
 
 
+_active_state_file: Path = STATE_FILE
+
+
 def load_state() -> dict:
-    if STATE_FILE.exists():
+    if _active_state_file.exists():
         try:
-            return json.loads(STATE_FILE.read_text("utf-8"))
+            return json.loads(_active_state_file.read_text("utf-8"))
         except Exception:
             pass
     return {}
 
 
 def save_state(state: dict):
-    STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    _active_state_file.write_text(json.dumps(state, indent=2), encoding="utf-8")
 
 
 def fingerprint(text: str) -> str:
@@ -274,25 +277,36 @@ def run_domain(domain: str, count: int, delay: float, batch: int,
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--domain", help="Single domain to seed")
-    ap.add_argument("--all", action="store_true", help="Seed all 60 domains")
+    ap.add_argument("--domains", help="Comma-separated list of domains to seed")
+    ap.add_argument("--all", action="store_true", help="Seed all domains")
     ap.add_argument("--count", type=int, default=100, help="Seeds per domain (default 100)")
     ap.add_argument("--delay", type=float, default=0.3, help="Delay between posts (default 0.3)")
     ap.add_argument("--batch", type=int, default=20, help="Generation batch size (default 20)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--reset", action="store_true", help="Clear state and start fresh")
     ap.add_argument("--url", help="Override API URL")
+    ap.add_argument("--state-file", help="Path to state JSON (default: seed_gen_state.json)")
     args = ap.parse_args()
 
-    global API_BASE
+    global API_BASE, _active_state_file
     if args.url:
         API_BASE = args.url
+    if args.state_file:
+        _active_state_file = Path(args.state_file)
 
     if not ANTHROPIC_KEY and not args.dry_run:
         sys.exit("Set ANTHROPIC_API_KEY environment variable")
 
     state = {} if args.reset else load_state()
 
-    domains = ALL_DOMAINS if args.all else ([args.domain] if args.domain else [])
+    if args.all:
+        domains = ALL_DOMAINS
+    elif args.domains:
+        domains = [d.strip() for d in args.domains.split(",") if d.strip()]
+    elif args.domain:
+        domains = [args.domain]
+    else:
+        domains = []
     if not domains:
         ap.print_help(); sys.exit(1)
 

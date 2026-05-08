@@ -69,8 +69,19 @@ def _parse_reply(reply: str, answer_kind: str) -> Any:
             return "no"
         return reply.split()[0].strip(".,!?;:") if reply else ""
     if answer_kind == "numeric":
-        # Allow leading-decimal numbers like .300; use LAST match so "I = V/R = 5/10 = 0.5"
-        # returns 0.5 rather than 5.
+        # Prefer the **bolded** number — models bold their final answer when
+        # also showing intermediate constants (e.g. "**10.92 atm** (P_atm =
+        # 101325 Pa)"). Without this we'd grab 101325 from the explanation.
+        bold_segs = re.findall(r"\*\*([^*]+)\*\*", reply)
+        for seg in bold_segs:
+            bold_nums = re.findall(r"-?\d*\.?\d+(?:[eE][+-]?\d+)?", seg)
+            if bold_nums:
+                try:
+                    return float(bold_nums[0])
+                except ValueError:
+                    pass
+        # Fallback: allow leading-decimal numbers like .300; use LAST match so
+        # "I = V/R = 5/10 = 0.5" returns 0.5 rather than 5.
         nums = re.findall(r"-?\d*\.?\d+(?:[eE][+-]?\d+)?", reply)
         if nums:
             try:

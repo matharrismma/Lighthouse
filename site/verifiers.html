@@ -4,9 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Verifiers · Concordance Engine</title>
-  <meta name="description" content="The complete verifier toolbox: chemistry, physics, mathematics, statistics, computer science, biology, governance.">
+  <meta name="description" content="The complete verifier toolbox — 63 deterministic verifiers across seven scaffold axes. Every tool returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── REFERENCE GRID — compact 2-col card list ────────── */
+    .ref-group {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent);
+      margin: 28px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ref-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 720px) {
+      .ref-grid { grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+    }
+    .ref-tool {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 12px;
+    }
+    .ref-head {
+      display: flex; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .ref-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .ref-axes {
+      display: flex; gap: 3px; flex-wrap: wrap;
+      margin-left: auto;
+    }
+    .ref-axes .axis-pill {
+      font-size: 9.5px; padding: 1px 7px; line-height: 1.5;
+    }
+    .ref-desc {
+      font-size: 12.5px; color: var(--muted);
+      line-height: 1.55; margin: 0;
+    }
+    .ref-tool.umbrella { border-left: 3px solid var(--accent); }
+    .ref-tool.cross    { border-left: 3px solid #7fa8c0; }
+  </style>
 </head>
 <body>
 
@@ -15,13 +65,13 @@
     <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
     <nav class="topnav">
       <a href="/how-it-works.html">How it works</a>
-      <a href="/verifiers.html">Verifiers</a>
+      <a href="/verifiers.html" class="active">Verifiers</a>
       <a href="/agents.html">Agents</a>
       <a href="/try.html">Verify</a>
       <a href="/grid.html">Grid</a>
       <a href="/poly.html">Polymathic</a>
-      <a href="/install.html">Install</a>
       <a href="/benchmark.html">Benchmark</a>
+      <a href="/install.html">Install</a>
       <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
     </nav>
   </div>
@@ -30,8 +80,8 @@
 <div class="page-header">
   <div class="container">
     <div class="eyebrow">Reference</div>
-    <h1>Verifiers</h1>
-    <p>63 domain verifiers across seven scaffold axes. Every tool returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE — never raises, never self-confirms.</p>
+    <h1>63 Verifiers</h1>
+    <p>Every tool returns CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE — never raises, never self-confirms. Grouped below into eight domain families across seven scaffold axes.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
       <span class="axis-pill axis-enc">Encoding</span>
       <span class="axis-pill axis-aut">Authority</span>
@@ -43,6 +93,438 @@
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     COMPLETE REFERENCE — all 63 verifiers
+═══════════════════════════════════════════════════ -->
+<section id="reference">
+  <div class="container">
+    <h2>Complete reference</h2>
+    <p style="color: var(--muted); max-width: 56ch;">63 verify_* tools — 60 single-domain + 2 umbrella dispatchers + 1 cross-cutting phase classifier. Same shape every time: pass a spec, get back a verdict with derivation. Detailed code examples for the seven most-cited verifiers follow below.</p>
+
+    <h3 class="ref-group">Physical sciences — 10</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_chemistry</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Parses formulas with nested groups (<code>Cu(OH)2</code>) and charges (<code>Fe^2+</code>); verifies stated coefficients balance atoms and charge, or solves for the smallest balancing set.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_physics_dimensional</span>
+          <div class="ref-axes"><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Substitutes unit expressions for symbols; reduces both sides of an equation to base SI units (kg, m, s, A, K, mol, cd) and compares dimensional signatures.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_physics_conservation</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Before/after balance arithmetic with named-law profiles for energy, momentum, charge, and mass-energy equivalence.</p>
+      </div>
+      <div class="ref-tool umbrella">
+        <div class="ref-head"><span class="ref-name">verify_physics</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc"><strong>Umbrella</strong>. Dispatches to <code>dimensional</code> or <code>conservation</code> based on which spec key is present. Use when an answer needs both forms of physical sanity.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_thermodynamics</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">First/second-law relations, entropy, enthalpy, Gibbs free energy, Carnot efficiency bound, cycle work computations.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_nuclear_physics</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Half-life and decay constants, activity (Bq/Ci), mass defect, Q-values, binding energy per nucleon.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_optics</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Snell's law, thin-lens and mirror equations, magnification, prism dispersion, fiber numerical aperture.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_acoustics</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Sound speed in media, decibel arithmetic, wave equations, room modes, Doppler shift.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_electrical</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Ohm's law, AC impedance, RC/RL/RLC time constants, power factor, three-phase relations.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_energy</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Conversion factors, efficiency bounds, capacity factor, LCOE arithmetic, storage round-trip.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Life sciences — 6</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_biology</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Hardy-Weinberg consistency, primer Tm/GC, dose-response monotonicity, replicate adequacy via power calculation, Mendelian chi-squared.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_genetics</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Mendelian ratios, linkage maps, transcription/translation, mutation classification, pedigree consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_nutrition</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Macronutrient kcal arithmetic, RDA bounds, BMR/TDEE estimators, glycemic load consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_exercise_science</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">VO2 max from running speed, EPOC estimates, training-stress score, %1RM, HR zone targeting.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_medicine</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Drug dosing (mg/kg, BSA), GFR (Cockcroft-Gault, MDRD), ABG interpretation, MAP, anion gap.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_ecology</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Lotka-Volterra population dynamics, Shannon/Simpson diversity, trophic transfer efficiency, carrying capacity.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Earth & space — 6</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_geology</span>
+          <div class="ref-axes"><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Radiometric dating, isostatic depth, stratigraphic ordering, mineral hardness comparisons.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_geography</span>
+          <div class="ref-axes"><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Great-circle distance/bearing, map-projection sanity, polygon area from coordinates, UTC offsets.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_hydrology</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Manning's open-channel flow, flood frequency (Gumbel / Log-Pearson III), runoff coefficients, Darcy's law.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_meteorology</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Dry/moist adiabatic lapse, dew point, wind chill, density altitude, CAPE consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_astronomy</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Kepler orbits, distance ladder, magnitude conversions, parallax, redshift→velocity, transit timing.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_oceanography</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Tide harmonics, salinity-temperature density, sound speed, hydrostatic pressure at depth.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Mathematical — 12</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_mathematics</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Sympy across nine modes: equality, derivative, integral, limit, solve, matrix, inequality, series, ODE.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_statistics_pvalue</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Recompute p from raw inputs across twelve test types — z, t (one/two/paired), chi², F, Fisher exact, Mann-Whitney, Wilcoxon, regression coefficient.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_statistics_multiple_comparisons</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Bonferroni, Holm, Benjamini-Hochberg FDR; family-wise error verdicts on a vector of raw p-values.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_statistics_confidence_interval</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Normal, t, and bootstrap CI bound recomputation; coverage and width sanity.</p>
+      </div>
+      <div class="ref-tool umbrella">
+        <div class="ref-head"><span class="ref-name">verify_statistics</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc"><strong>Umbrella</strong>. Dispatches to <code>pvalue</code>, <code>multiple_comparisons</code>, or <code>confidence_interval</code> based on spec keys.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_formal_logic</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Propositional and predicate validity via truth-table or Sympy SAT; modus ponens / tollens chain checks.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_number_theory</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">GCD/LCM, primality, modular inverse, Diophantine arithmetic, Euler totient, factor trees.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_combinatorics</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Permutations, combinations, Stirling, Catalan, partitions, derangements.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_geometry</span>
+          <div class="ref-axes"><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Euclidean lengths/angles/areas/volumes, vector and matrix transforms, coordinate-geometry sanity.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_information_theory</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Shannon entropy, mutual information, channel capacity, prefix-code Kraft inequality.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_operations_research</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">LP/IP feasibility, queueing M/M/c, optimization gradient checks, game-theory equilibria.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_quantum_computing</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Qubit-state arithmetic, gate matrix products, entanglement detection, Grover/Shor step counts.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Engineering & technology — 8</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_computer_science</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Static termination scan, functional correctness in restricted namespace, complexity by log-log slope, run-twice determinism.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_networking</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">TCP throughput (BDP), DNS hierarchy, TLS handshake order, routing convergence, IP subnet math.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_cryptography</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Hash output lengths, RSA/ECC key sizes, AES key/block bounds, modular arithmetic for primitives.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_cybersecurity</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">OWASP Top-10 categorization, CVSS scoring, common-control coverage, incident-response phase ordering.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_manufacturing</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">GD&amp;T tolerance stack-up, control-chart limits, lean takt time, MTBF/MTTR composition.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_materials_science</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Crystal-structure density, phase-diagram ordering, mechanical-property regimes, fatigue S-N curves.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_construction</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Beam deflection bounds, code minimums (IBC/IRC), foundation bearing capacity, project critical path.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_architecture</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Egress capacity, occupancy-load math, daylight factor, plenum and clear-height regulatory minimums.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Social & professional — 8</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_economics</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Supply/demand equilibrium, elasticity, GDP-component identity, Phillips/Okun relations.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_finance</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Time value of money, DCF, bond pricing, IRR/NPV, Sharpe ratio, options put-call parity.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_labor</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Wage/hour FLSA arithmetic, productivity ratios, unemployment relations, union-density sanity.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_real_estate</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Cap-rate / NOI / ROI, DSCR, LTV, IRR for waterfall, gross rent multiplier consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_law</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Contract-element completeness, statutory citation sanity, deadline counting, jurisdictional ordering.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_governance_decision_packet</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Structural completeness of decision packets across business / household / education / church / governance profiles.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_agriculture</span>
+          <div class="ref-axes"><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Crop water use, yield-density curves, fertilizer NPK arithmetic, irrigation efficiency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_soil_science</span>
+          <div class="ref-axes"><span class="axis-pill axis-csv">csv</span><span class="axis-pill axis-met">met</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">USDA texture-class triangle, CEC arithmetic, pH-buffer relations, horizon ordering.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Humanities & reasoning — 8</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_linguistics</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">IPA validity, syllable structure, morpheme decomposition, language-family branch ordering.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_music_theory</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-phy">phy</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Interval / chord / scale construction, Roman-numeral analysis, voice-leading rule checks.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_photography</span>
+          <div class="ref-axes"><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-phy">phy</span></div>
+        </div>
+        <p class="ref-desc">Exposure-triangle (EV) reciprocity, sensor crop math, depth-of-field, color-temperature consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_rhetoric</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Aristotelian appeal coverage (ethos / pathos / logos), fallacy classification, argument-structure validity.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_philosophy</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-rsn">rsn</span></div>
+        </div>
+        <p class="ref-desc">Syllogism validity, deontic and modal frame consistency, classical-tradition citation ordering.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_history_chronology</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Date arithmetic across calendar systems, anachronism detection, sequence ordering.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_sports_analytics</span>
+          <div class="ref-axes"><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Win-probability arithmetic, Pythagorean expectation, rate-stat denominators, expected value.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_calendar_time</span>
+          <div class="ref-axes"><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">UTC ↔ local conversion, ISO 8601 strictness, leap-year rules, Julian ↔ Gregorian.</p>
+      </div>
+    </div>
+
+    <h3 class="ref-group">Foundation &amp; validation — 5</h3>
+    <div class="ref-grid">
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_theology_doctrine</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Creedal continuity, doctrinal-position ordering, scripture-anchor consistency.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_witness</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Eyewitness corroboration counts, attestation chain, two-or-three-witness threshold (Deut 19:15).</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_document_validation</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span></div>
+        </div>
+        <p class="ref-desc">Provenance signatures, notarization, chain-of-custody hash linkage, attestation count.</p>
+      </div>
+      <div class="ref-tool">
+        <div class="ref-head"><span class="ref-name">verify_scripture_anchors</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-enc">enc</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc">Validates Bible references parse, exist, and resolve to canonical book/chapter/verse via the local concordance.</p>
+      </div>
+      <div class="ref-tool cross">
+        <div class="ref-head"><span class="ref-name">verify_phase</span>
+          <div class="ref-axes"><span class="axis-pill axis-aut">aut</span><span class="axis-pill axis-rsn">rsn</span><span class="axis-pill axis-tim">tim</span></div>
+        </div>
+        <p class="ref-desc"><strong>Cross-cutting</strong>. Classifies any packet by declared <code>phase</code> as <em>setup / positioning / conversion</em> per Prov 24:27 ("Prepare your work outside; get everything ready for yourself in the field, and after that build your house").</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     FEATURED DEEP DIVES — code examples for the seven
+     most-cited verifiers
+═══════════════════════════════════════════════════ -->
+
+<section>
+  <div class="container" style="padding-top: 12px;">
+    <h2>Featured deep dives</h2>
+    <p style="color: var(--muted); max-width: 56ch;">Seven verifiers with full input/output examples. The other 56 follow the same shape — pass a spec, receive a verdict.</p>
+  </div>
+</section>
 
 <section id="chemistry">
   <div class="container">
@@ -74,7 +556,10 @@ verify_physics_conservation(
   after ={"KE": 8.0, "PE":  7.0},
   law="energy")
 → {"status": "CONFIRMED",
-   "detail": "energy conserved: total 15.0 → 15.0 (rel 0.00e+00)"}</code></pre>
+   "detail": "energy conserved: total 15.0 → 15.0 (rel 0.00e+00)"}
+
+verify_physics({"dimensional": {...}, "conservation": {...}})
+→ {"dimensional": {...}, "conservation": {...}}    # umbrella runs both</code></pre>
   </div>
 </section>
 
@@ -104,8 +589,8 @@ verify_mathematics("series",
 <section id="statistics">
   <div class="container">
     <h2>Statistics</h2>
-    <p>Recompute p-values from raw inputs across twelve test types. Multiple-comparisons correction. Confidence-interval bound recomputation.</p>
-    <table class="tools">
+    <p>Recompute p-values from raw inputs across twelve test types. Multiple-comparisons correction. Confidence-interval bound recomputation. Use the <code>verify_statistics</code> umbrella to dispatch automatically.</p>
+    <table class="bm-table">
       <thead><tr><th>Test</th><th>Inputs</th></tr></thead>
       <tbody>
         <tr><td>two_sample_t</td><td>n1, n2, mean1, mean2, sd1, sd2</td></tr>
@@ -128,7 +613,10 @@ verify_mathematics("series",
   "tail": "two", "claimed_p": 0.0375
 })
 → {"status": "CONFIRMED",
-   "detail": "claimed p=0.0375, recomputed p=0.0375 (diff 4e-05)"}</code></pre>
+   "detail": "claimed p=0.0375, recomputed p=0.0375 (diff 4e-05)"}
+
+verify_statistics({"pvalue": {...}, "multiple_comparisons": {...}})
+→ {"pvalue": {...}, "multiple_comparisons": {...}}     # umbrella</code></pre>
   </div>
 </section>
 
@@ -169,7 +657,7 @@ verify_biology(
   <div class="container">
     <h2>Governance</h2>
     <p>Structural completeness of decision packets: title, scope, red_items, floor_items, way_path, execution_steps, witnesses. Per-domain profiles add domain-specific required fields.</p>
-    <table class="tools">
+    <table class="bm-table">
       <thead><tr><th>Domain</th><th>Required (in addition to base)</th><th>Recommended</th></tr></thead>
       <tbody>
         <tr><td>governance</td><td>—</td><td>scripture_anchor</td></tr>
@@ -187,13 +675,14 @@ verify_biology(
     <h2>Attestation tools</h2>
     <p>Sometimes you want only the structural check, not the full pipeline.</p>
 <pre><code>attest_red(packet)    # RED gate only — domain validator output
-attest_floor(packet)  # FLOOR gate only</code></pre>
+attest_floor(packet)  # FLOOR gate only — Scripture-anchor coverage</code></pre>
   </div>
 </section>
 
 <section>
   <div class="container">
     <a class="btn btn-primary" href="/install.html">Install →</a>
+    <a class="btn btn-secondary" href="/try.html" style="margin-left: 0.5rem;">Try it live</a>
     <a class="btn btn-secondary" href="https://github.com/matharrismma/Lighthouse" style="margin-left: 0.5rem;">View source</a>
   </div>
 </section>

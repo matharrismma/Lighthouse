@@ -67,3 +67,24 @@ lw/09_evaluation/run.log
 lw/journal/
 lw/keeping/
 lw/quarantine/
+
+# Local seed-runner working files — log output, fingerprint state.
+# The state files are operator-local (each machine has different
+# fingerprints); the logs are pure transcripts. None belong in the repo.
+scripts/seed/seed_*.log
+scripts/seed/seed_*.log.err
+scripts/seed/seed_gen_run.log
+scripts/seed/seed_err.log
+scripts/seed/seed_run*.log
+scripts/seed/seed_w*_run.log
+scripts/seed/seed_w*_err.log
+scripts/seed/seed_state_w*.json
+scripts/seed/seed_gen_state.json
+
+# Local CAS object store + case store DB — operator-local runtime artifacts
+case_store.db
+data/cas/
+data/grid_connections.jsonl
+
+# Local handoff doc — embeds session-specific notes
+HANDOFF_OPUS.md
