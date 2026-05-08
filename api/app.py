@@ -30,7 +30,7 @@ _log = logging.getLogger("concordance.app")
 # Bounded pool for peer broadcast — prevents unbounded thread creation.
 _BROADCAST_POOL = ThreadPoolExecutor(max_workers=10, thread_name_prefix="peer-broadcast")
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -700,14 +700,17 @@ class SpeakRequest(BaseModel):
 
 
 @app.post("/speak", include_in_schema=True)
-def speak(req: SpeakRequest):
+def speak(request: Request, req: SpeakRequest):
     """Proxy ElevenLabs streaming TTS. Returns audio/mpeg.
 
     Caller text in, voice out. No transcription, no logging of audio.
     The text is not retained; only the audio stream is returned. Use
     a short prefix of `req.text` (≤80 chars) for any error messages
     so we never echo the full prompt back into logs.
+
+    Rate-limited per-IP at 20/min — ElevenLabs is paid-per-character.
     """
+    _rate_check(request, "speak")
     api_key = os.environ.get("ELEVENLABS_API_KEY")
     voice_id = req.voice_id or os.environ.get("ELEVENLABS_VOICE_ID")
     if not api_key or not voice_id:
@@ -2129,7 +2132,7 @@ class CaptureRequest(BaseModel):
 
 
 @app.post("/capture", include_in_schema=True)
-def capture(req: CaptureRequest):
+def capture(request: Request, req: CaptureRequest):
     """Unified capture funnel. Accepts text from any source; records
     the source as a tag; forwards to the journal capture mechanism.
 
@@ -2139,7 +2142,10 @@ def capture(req: CaptureRequest):
     posture: trusting source claims would be naive; refusing to
     record them would erase useful provenance. We record what was
     claimed, run the gates on the content.
+
+    Rate-limited per-IP at 60/min sustained.
     """
+    _rate_check(request, "capture")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
             status_code=503,
@@ -3526,7 +3532,7 @@ class PolymathicRequest(BaseModel):
 
 
 @app.post("/polymathic", include_in_schema=True)
-def polymathic_endpoint(req: PolymathicRequest):
+def polymathic_endpoint(request: Request, req: PolymathicRequest):
     """Natural language situation → all applicable domains fired in parallel.
 
     Path C: the Hive. Individual domain verifiers are workers; this
@@ -3541,6 +3547,7 @@ def polymathic_endpoint(req: PolymathicRequest):
       OUT_OF_SCOPE  — no domain matched
       ERROR         — system failure
     """
+    _rate_check(request, "polymathic")
     situation = (req.situation or "").strip()
     if not situation:
         raise HTTPException(status_code=400, detail="situation is required")
@@ -5270,6 +5277,138 @@ _trainer_state: Dict[str, Any] = {
     "auto_dispatched": {},      # domain → last_dispatch_epoch (cooldown)
     "auto_dispatch_total": 0,   # cumulative auto-dispatch count
 }
+
+# Trainer cooldown persistence — survives server restart so a domain
+# auto-dispatched at 14:00 doesn't get re-dispatched at 14:30 just
+# because the server bounced. In-memory dict mirrored to JSON.
+_TRAINER_PERSIST_PATH = (
+    Path(__file__).parent.parent / "data" / "swarm_trainer_state.json"
+)
+
+
+def _trainer_load_persisted_state() -> None:
+    """Read on-disk cooldown state (if any) into _trainer_state. Called
+    once at module import so the running process picks up cooldowns
+    from a previous instance."""
+    try:
+        if _TRAINER_PERSIST_PATH.exists():
+            data = json.loads(_TRAINER_PERSIST_PATH.read_text(encoding="utf-8"))
+            ad = data.get("auto_dispatched") or {}
+            if isinstance(ad, dict):
+                _trainer_state["auto_dispatched"] = {
+                    k: float(v) for k, v in ad.items()
+                    if isinstance(v, (int, float))
+                }
+            _trainer_state["auto_dispatch_total"] = int(
+                data.get("auto_dispatch_total", 0)
+            )
+    except Exception as exc:
+        _log.warning(f"trainer state load failed: {exc}")
+
+
+def _trainer_save_persisted_state() -> None:
+    """Write current cooldown state. Called after each compute that
+    auto-dispatches anything new. Atomic via tmp + rename."""
+    try:
+        _TRAINER_PERSIST_PATH.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "saved_at": int(_time.time()) if "_time" in dir() else None,
+            "auto_dispatched": _trainer_state.get("auto_dispatched", {}),
+            "auto_dispatch_total": _trainer_state.get("auto_dispatch_total", 0),
+        }
+        tmp = _TRAINER_PERSIST_PATH.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(_TRAINER_PERSIST_PATH)
+    except Exception as exc:
+        _log.warning(f"trainer state save failed: {exc}")
+
+
+# Load any prior cooldown state immediately so the very first tick
+# after restart honors yesterday's dispatches.
+_trainer_load_persisted_state()
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Rate limiting — per-IP token bucket
+#
+# Light-touch protection against floods on write endpoints. Buckets
+# refill at a configurable rate; if a request finds the bucket empty
+# the endpoint returns HTTP 429 (Too Many Requests).
+#
+# Read endpoints (/health, /swarm/*, /journal/recent, etc.) are
+# intentionally unlimited — they're cheap, polled by the brain UI,
+# and any flood there hurts only the requester.
+# ─────────────────────────────────────────────────────────────────────
+
+_rate_buckets: Dict[str, Dict[str, Any]] = {}
+_rate_lock = _threading.Lock()
+
+# Per-endpoint config — (capacity, refill_rate_per_second)
+_RATE_LIMITS: Dict[str, tuple] = {
+    "capture":   (60, 60.0 / 60),     # 60/min  → 1/sec sustained
+    "dispatch":  (30, 30.0 / 60),     # 30/min  → 0.5/sec sustained
+    "speak":     (20, 20.0 / 60),     # 20/min  → ElevenLabs costs $$
+    "polymathic": (12, 12.0 / 60),    # 12/min — heavy synthesis path
+}
+
+
+def _client_ip(request: "Request") -> str:
+    """Best-effort client IP. Honors Cloudflare's CF-Connecting-IP
+    when present (we sit behind cloudflared) and falls back to the
+    direct peer otherwise."""
+    cf = request.headers.get("cf-connecting-ip") or request.headers.get("x-forwarded-for")
+    if cf:
+        return cf.split(",")[0].strip()
+    client = getattr(request, "client", None)
+    return client.host if client and client.host else "unknown"
+
+
+def _rate_check(request: "Request", bucket_key: str) -> None:
+    """Token-bucket gate. Raises HTTPException(429) when limit exceeded.
+    bucket_key picks the rate from _RATE_LIMITS (or default 60/min)."""
+    import time as _time
+    now = _time.time()
+    capacity, refill_per_s = _RATE_LIMITS.get(bucket_key, (60, 1.0))
+    ip = _client_ip(request)
+    key = f"{bucket_key}:{ip}"
+    with _rate_lock:
+        b = _rate_buckets.get(key)
+        if b is None:
+            b = {"tokens": float(capacity), "last": now}
+            _rate_buckets[key] = b
+        # Refill since last request
+        elapsed = max(0.0, now - b["last"])
+        b["tokens"] = min(float(capacity), b["tokens"] + elapsed * refill_per_s)
+        b["last"] = now
+        if b["tokens"] < 1.0:
+            retry_after = max(1, int((1.0 - b["tokens"]) / refill_per_s) + 1)
+            raise HTTPException(
+                status_code=429,
+                detail=(
+                    f"rate limit exceeded for '{bucket_key}' from {ip} "
+                    f"(retry after ~{retry_after}s)"
+                ),
+                headers={"Retry-After": str(retry_after)},
+            )
+        b["tokens"] -= 1.0
+
+
+# Periodic GC of stale rate buckets so memory doesn't grow unbounded.
+def _rate_gc_worker() -> None:
+    import time as _time
+    while True:
+        _time.sleep(600)
+        cutoff = _time.time() - 1800   # drop buckets idle 30 min
+        with _rate_lock:
+            stale = [k for k, b in _rate_buckets.items() if b["last"] < cutoff]
+            for k in stale:
+                _rate_buckets.pop(k, None)
+
+
+_rate_gc_thread = _threading.Thread(
+    target=_rate_gc_worker, name="rate-gc", daemon=True,
+)
+_rate_gc_thread.start()
 _TRAINER_AUTO_LLM_THRESHOLD = 0.70    # >70% Tier 5 share → action
 _TRAINER_AUTO_MIN_SAMPLE = 10         # need ≥10 entries scored for the domain
 _TRAINER_AUTO_COOLDOWN_S = 6 * 3600   # 6h between auto-dispatches per domain
@@ -5725,6 +5864,7 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
                 _dispatch_stats["tasks_queued_total"] += 1
             _trainer_state["auto_dispatched"][dom] = now
             _trainer_state["auto_dispatch_total"] += 1
+            _trainer_save_persisted_state()  # survive a bounce
             auto_dispatched_this_tick.append({
                 "domain": dom,
                 "ts": now,
@@ -5790,7 +5930,7 @@ class DispatchRequest(BaseModel):
 
 
 @app.post("/swarm/searcher/dispatch", tags=["agents"])
-def swarm_searcher_dispatch(req: DispatchRequest):
+def swarm_searcher_dispatch(request: Request, req: DispatchRequest):
     """Send the tasked Searcher (#3) to a specific target.
 
     The first two Searchers run autonomously. This one is dormant
@@ -5815,6 +5955,7 @@ def swarm_searcher_dispatch(req: DispatchRequest):
 
     Returns: task_id, queue_position, queued_at.
     """
+    _rate_check(request, "dispatch")
     import time as _time, uuid as _uuid
     domain = req.domain.strip()
     if not domain:
@@ -5945,6 +6086,61 @@ def swarm_janitor():
     if out["started_at"]:
         out["uptime_seconds"] = round(now - out["started_at"], 1)
     return out
+
+
+@app.get("/swarm/janitor/archive", tags=["agents"])
+def swarm_janitor_archive():
+    """Vault archive eligibility view.
+
+    Computes which domains have Tier-5 (LLM-synthesized) entries that
+    are now eligible for archival because the same domain also has
+    Tier 1 (locked) or Tier 2 (LoC) entries — i.e., authoritative
+    replacements have been harvested. The vault stays append-only;
+    this view exposes what *could* be moved to cold storage if/when
+    the actual archive layer is built.
+
+    Returns per-domain counts and a roll-up. Read-only.
+    """
+    eligible: List[Dict[str, Any]] = []
+    total_t5_eligible = 0
+    total_t5_protected = 0
+    for dom, tiers in (_janitor_stats.get("by_domain_tiers") or {}).items():
+        if dom == "unknown":
+            continue
+        t1 = tiers.get("1", 0)
+        t2 = tiers.get("2", 0)
+        t3 = tiers.get("3", 0)
+        t4 = tiers.get("4", 0)
+        t5 = tiers.get("5", 0)
+        replacement = t1 + t2 + t3
+        if t5 == 0:
+            continue
+        if replacement > 0:
+            total_t5_eligible += t5
+            eligible.append({
+                "domain": dom,
+                "t5_eligible": t5,
+                "replacement_count": replacement,
+                "tier_breakdown": {"1": t1, "2": t2, "3": t3, "4": t4, "5": t5},
+                "replacement_share": round(replacement / (t5 + replacement), 3),
+            })
+        else:
+            total_t5_protected += t5
+
+    eligible.sort(key=lambda r: -r["t5_eligible"])
+
+    return {
+        "policy": (
+            "An entry becomes archive-eligible when its domain has at "
+            "least one Tier 1/2/3 (authoritative or curated) replacement. "
+            "Tier 5 entries in domains with NO replacement remain "
+            "protected — they're the only record of that domain's content."
+        ),
+        "domains_with_archive_eligible": len(eligible),
+        "total_t5_eligible_for_archive": total_t5_eligible,
+        "total_t5_protected_no_replacement": total_t5_protected,
+        "domains": eligible[:50],
+    }
 
 
 @app.get("/swarm/janitor/findings", tags=["agents"])

@@ -265,7 +265,11 @@ SYSTEM = (
 )
 
 
-def make_alone(client, model: str, max_tokens: int = 128):
+def make_alone(client, model: str, max_tokens: int = 512):
+    # Was 128 — too tight for items that need step-by-step calculation
+    # before producing a yes/no (e.g. MET-002 wind chill). 512 is still
+    # well under the default for a single-turn classification but gives
+    # the model room to think out loud and finish the answer.
     def fn(prompt: str) -> str:
         resp = client.messages.create(
             model=model, max_tokens=max_tokens, system=SYSTEM,
