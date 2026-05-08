@@ -6603,15 +6603,28 @@ _janitor_thread.start()
 # stdio remains the local transport for `concordance-mcp` CLI users.
 try:
     from concordance_engine.mcp_server.server import mcp as _mcp_server
-    app.mount("/mcp/sse", _mcp_server.sse_app(), name="mcp_sse")
-    app.mount("/mcp", _mcp_server.streamable_http_app(), name="mcp_http")
+    _sse = _mcp_server.sse_app()
+    _http = _mcp_server.streamable_http_app()
+    app.mount("/mcp/sse", _sse, name="mcp_sse")
+    app.mount("/mcp", _http, name="mcp_http")
+    # Also print to stdout so this lands in server.log even if the
+    # logger config doesn't wire 'concordance.api' through.
+    print("[MCP] mounted /mcp and /mcp/sse — FastMCP transports active", flush=True)
+    _log.info("MCP HTTP/SSE transports mounted at /mcp and /mcp/sse")
 except Exception as _mcp_mount_err:
-    # Don't take down the API if MCP mount fails — log and continue.
-    # The REST surface, /docs, and /llms.txt all still serve agents.
-    import logging as _logging
-    _logging.getLogger("concordance.api").warning(
-        "MCP HTTP mount skipped: %s", _mcp_mount_err
-    )
+    # Don't take down the API if MCP mount fails — surface the error
+    # via three channels (print + _log + getLogger) so we definitely
+    # see it in server.log regardless of logger config.
+    import traceback as _traceback
+    _err_text = f"{type(_mcp_mount_err).__name__}: {_mcp_mount_err}"
+    _tb = _traceback.format_exc()
+    print(f"[MCP] mount FAILED — {_err_text}", flush=True)
+    print(_tb, flush=True)
+    try:
+        _log.error(f"MCP HTTP mount failed: {_err_text}")
+        _log.error(_tb)
+    except Exception:
+        pass
 
 
 # -- Static site (must be last — catches all unmatched paths) ------------
