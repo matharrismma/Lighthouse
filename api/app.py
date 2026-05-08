@@ -4828,6 +4828,197 @@ def _loc_searcher_worker() -> None:
         _time.sleep(_loc_stats["tick_period_seconds"])
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Searcher #3 — Tasked Dispatcher (the courier)
+#
+# Searcher #1 walks a curated list. Searcher #2 picks from Trainer's
+# starvation list. #3 does NEITHER autonomously — it sleeps until a
+# task is dispatched. When something specific needs harvesting (a
+# verifier mismatch wants fresh refs; Trainer flags a critical gap;
+# a human researcher asks for "Aristotle on rhetoric") the requester
+# POSTs to /swarm/searcher/dispatch and the courier flies that one.
+#
+# In-memory queue. 15s tick — responsive without polling hard.
+# Persists nothing across restarts; this is a working memory, not
+# a record. The journal is the record.
+# ─────────────────────────────────────────────────────────────────────
+
+import collections as _collections
+_dispatch_queue: "_collections.deque" = _collections.deque()
+_dispatch_history: "_collections.deque" = _collections.deque(maxlen=50)
+_dispatch_lock = _threading.Lock()
+
+_dispatch_stats: Dict[str, Any] = {
+    "name": "searcher_dispatch",
+    "species": "Searcher · Tasked",
+    "role": "harvest one specific target on demand (idle by default)",
+    "current_source": "any (loc | scripture)",
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "tasks_completed": 0,
+    "tasks_failed": 0,
+    "tasks_queued_total": 0,
+    "tasks_duplicate": 0,
+    "tasks_empty": 0,
+    "current_task": None,
+    "idle_ticks": 0,
+    "last_error": None,
+    "tick_period_seconds": 15,
+}
+
+
+def _execute_dispatch(task: Dict[str, Any]) -> Dict[str, Any]:
+    """Run one dispatched task. Returns {status, detail, harvest?}.
+    Reuses LoC fetch / packet shape so dispatched harvests sit
+    alongside autonomous LoC harvests in the journal."""
+    import time as _time
+    domain = (task.get("domain") or "").strip()
+    if not domain:
+        return {"status": "error", "detail": "task has no domain"}
+    src = (task.get("source") or "loc").lower()
+    query = (task.get("query") or "").strip() or _LOC_DOMAIN_TO_QUERY.get(
+        domain, domain.replace("_", " ")
+    )
+
+    if src != "loc":
+        return {"status": "error",
+                "detail": f"source '{src}' not yet supported (use 'loc')"}
+
+    # Fetch from LoC
+    try:
+        data = _loc_fetch_results(query)
+    except Exception as exc:
+        return {"status": "error", "detail": f"fetch: {str(exc)[:160]}"}
+
+    results = data.get("results") or []
+    if not results:
+        return {"status": "empty",
+                "detail": f"no items for '{query}' (target={domain})"}
+
+    chosen = None
+    for item in results:
+        item_id = item.get("id") or item.get("url") or ""
+        if item_id and item_id not in _loc_state["harvested_loc_ids"]:
+            chosen = (item, item_id)
+            break
+    if chosen is None:
+        return {"status": "duplicate",
+                "detail": "all top results already harvested this session"}
+
+    item, item_id = chosen
+    _loc_state["harvested_loc_ids"].add(item_id)
+
+    # Build packet (same shape as autonomous LoC searcher)
+    title = (item.get("title") or "").strip() or "(untitled)"
+    date = (item.get("date") or "").strip()
+    description = item.get("description") or ""
+    if isinstance(description, list):
+        description = description[0] if description else ""
+    description = str(description).strip()
+    subjects_raw = item.get("subject") or []
+    if isinstance(subjects_raw, str):
+        subjects_raw = [subjects_raw]
+    subjects = [str(s).strip() for s in subjects_raw if s][:6]
+    contributors_raw = item.get("contributor") or []
+    if isinstance(contributors_raw, str):
+        contributors_raw = [contributors_raw]
+    contributors = [str(c).strip() for c in contributors_raw if c][:3]
+
+    parts: List[str] = []
+    head = f"LoC: {title}"
+    if date:
+        head += f" ({date})"
+    parts.append(head)
+    if contributors:
+        parts.append(f"By: {'; '.join(contributors)}")
+    if description:
+        parts.append(description[:280])
+    if subjects:
+        parts.append(f"Subjects: {' · '.join(subjects)}")
+    parts.append(f"Source: {item_id}")
+    parts.append("Rights: No known restrictions on publication.")
+    requested_by = task.get("requested_by")
+    if requested_by:
+        parts.append(f"Dispatched by: {requested_by}")
+    text = "\n".join(parts)
+
+    try:
+        from concordance_engine import journal as _journal
+        _journal.capture(
+            text,
+            tags=[domain, "harvest", "library_of_congress", "loc",
+                  "searcher", "dispatched"],
+            look_up_precedent=False,
+        )
+        return {
+            "status": "ok",
+            "harvest": {
+                "ts": _time.time(),
+                "domain": domain,
+                "query": query,
+                "title": title[:120],
+                "date": date,
+                "subjects": subjects,
+                "loc_id": item_id,
+                "requested_by": requested_by,
+                "task_id": task.get("task_id"),
+            },
+        }
+    except ValueError as exc:
+        if "duplicate" in str(exc).lower():
+            return {"status": "duplicate", "detail": str(exc)[:160]}
+        return {"status": "error", "detail": str(exc)[:200]}
+    except Exception as exc:
+        return {"status": "error", "detail": str(exc)[:200]}
+
+
+def _dispatch_worker() -> None:
+    """Background loop. Drains queue when there's work, sleeps quietly
+    when there isn't. 15s ticks — responsive without polling hard."""
+    import time as _time
+    if _dispatch_stats["started_at"] is None:
+        _dispatch_stats["started_at"] = _time.time()
+    _time.sleep(25)  # startup grace
+    while True:
+        task = None
+        try:
+            with _dispatch_lock:
+                if _dispatch_queue:
+                    task = _dispatch_queue.popleft()
+                    _dispatch_stats["current_task"] = {
+                        "task_id": task.get("task_id"),
+                        "domain": task.get("domain"),
+                        "source": task.get("source"),
+                    }
+            if task is not None:
+                result = _execute_dispatch(task)
+                _dispatch_history.appendleft({
+                    "task": task,
+                    "result": result,
+                    "completed_at": _time.time(),
+                })
+                status = result.get("status")
+                if status == "ok":
+                    _dispatch_stats["tasks_completed"] += 1
+                elif status == "duplicate":
+                    _dispatch_stats["tasks_duplicate"] += 1
+                elif status == "empty":
+                    _dispatch_stats["tasks_empty"] += 1
+                else:
+                    _dispatch_stats["tasks_failed"] += 1
+                    _dispatch_stats["last_error"] = result.get("detail", "")
+                _dispatch_stats["current_task"] = None
+            else:
+                _dispatch_stats["idle_ticks"] += 1
+            _dispatch_stats["tick_count"] += 1
+        except Exception as exc:
+            _dispatch_stats["last_error"] = str(exc)[:200]
+            _dispatch_stats["current_task"] = None
+        _dispatch_stats["last_tick_at"] = _time.time()
+        _time.sleep(_dispatch_stats["tick_period_seconds"])
+
+
 # Trainer hummingbird state — meta-agent that watches the swarm and
 # optimizes resources/tasks. On-demand compute with 10-minute cache;
 # when cache rebuilds, writes data/swarm_config.json as the canonical
@@ -5292,6 +5483,112 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
     return analysis
 
 
+class DispatchRequest(BaseModel):
+    """Body for POST /swarm/searcher/dispatch."""
+    domain: str
+    query: Optional[str] = None
+    source: str = "loc"
+    priority: int = 0
+    requested_by: Optional[str] = None
+    notes: Optional[str] = None
+
+
+@app.post("/swarm/searcher/dispatch", tags=["agents"])
+def swarm_searcher_dispatch(req: DispatchRequest):
+    """Send the tasked Searcher (#3) to a specific target.
+
+    The first two Searchers run autonomously. This one is dormant
+    until something dispatches it. Use when:
+      - a verifier mismatch needs fresh primary references,
+      - Trainer detects a critical-starvation domain that needs
+        prompt attention beyond the autonomous schedule,
+      - an agent or human researcher asks for a specific harvest.
+
+    Tasks queue in memory and drain at 15-second ticks (one task
+    per tick). Each completion logs to /swarm/searcher/dispatch
+    history; the harvest itself lands in the journal tagged with
+    'dispatched' so it's distinguishable from autonomous catches.
+
+    Body:
+      domain        — engine domain to tag the harvest with (required)
+      query         — optional override of the LoC search term
+      source        — "loc" (default; only source supported today)
+      priority      — higher numbers run sooner within the queue
+      requested_by  — string identifying who asked (logged with harvest)
+      notes         — free-form, surfaced in /dispatch GET history
+
+    Returns: task_id, queue_position, queued_at.
+    """
+    import time as _time, uuid as _uuid
+    domain = req.domain.strip()
+    if not domain:
+        raise HTTPException(status_code=400, detail="domain is required")
+    src = (req.source or "loc").lower()
+    if src != "loc":
+        raise HTTPException(
+            status_code=400,
+            detail=f"source '{src}' not supported (use 'loc')",
+        )
+
+    task_id = "task_" + _uuid.uuid4().hex[:8]
+    task = {
+        "task_id": task_id,
+        "domain": domain,
+        "query": req.query,
+        "source": src,
+        "priority": int(req.priority or 0),
+        "requested_by": req.requested_by,
+        "notes": req.notes,
+        "queued_at": _time.time(),
+    }
+    with _dispatch_lock:
+        # Insert by priority (higher first) — simple O(n) for small queues.
+        inserted = False
+        for i, existing in enumerate(_dispatch_queue):
+            if task["priority"] > existing.get("priority", 0):
+                _dispatch_queue.insert(i, task)
+                inserted = True
+                break
+        if not inserted:
+            _dispatch_queue.append(task)
+        _dispatch_stats["tasks_queued_total"] += 1
+        position = list(_dispatch_queue).index(task) + 1
+
+    return {
+        "task_id": task_id,
+        "queued_at": task["queued_at"],
+        "queue_position": position,
+        "queue_depth": len(_dispatch_queue),
+    }
+
+
+@app.get("/swarm/searcher/dispatch", tags=["agents"])
+def swarm_searcher_dispatch_status():
+    """Live state of the tasked Searcher: queue, recent history, stats.
+
+    Useful for: watching what's being asked of the swarm, debugging
+    a stuck task, or auditing who's been asking for what.
+    """
+    import time as _time
+    now = _time.time()
+    with _dispatch_lock:
+        queue_snapshot = list(_dispatch_queue)
+        history_snapshot = list(_dispatch_history)
+
+    out = {
+        "stats": dict(_dispatch_stats),
+        "queue_depth": len(queue_snapshot),
+        "queue": queue_snapshot[:20],
+        "recent": history_snapshot[:20],
+        "now": now,
+    }
+    if _dispatch_stats["last_tick_at"]:
+        out["seconds_since_tick"] = round(now - _dispatch_stats["last_tick_at"], 1)
+    if _dispatch_stats["started_at"]:
+        out["uptime_seconds"] = round(now - _dispatch_stats["started_at"], 1)
+    return out
+
+
 @app.get("/swarm/searcher/loc", tags=["agents"])
 def swarm_searcher_loc():
     """Live stats for the Library of Congress harvester (Searcher #2).
@@ -5508,6 +5805,23 @@ def swarm_index():
                 "last_tick_at": _loc_stats.get("last_tick_at"),
             },
             {
+                "name": "searcher_dispatch",
+                "species": "Searcher · Tasked",
+                "role": "dormant by default; flies on dispatch",
+                "status": (
+                    "busy" if _dispatch_stats.get("current_task") else
+                    "alive" if (
+                        _dispatch_stats.get("last_tick_at")
+                        and (now - _dispatch_stats["last_tick_at"]) < 60
+                    ) else ("warming" if _dispatch_stats.get("started_at") else "cold")
+                ),
+                "stats_endpoint": "/swarm/searcher/dispatch",
+                "queue_depth": len(_dispatch_queue),
+                "tasks_completed": _dispatch_stats.get("tasks_completed", 0),
+                "tasks_failed": _dispatch_stats.get("tasks_failed", 0),
+                "last_tick_at": _dispatch_stats.get("last_tick_at"),
+            },
+            {
                 "name": "janitor",
                 "species": "Janitor",
                 "role": "dedup by content hash, flag malformed, archive stale low-yield",
@@ -5585,6 +5899,15 @@ _loc_searcher_thread = _threading.Thread(
     daemon=True,
 )
 _loc_searcher_thread.start()
+
+# Wire the Tasked Dispatcher (Searcher #3: courier). Dormant until
+# something POSTs to /swarm/searcher/dispatch. 15s drain ticks.
+_dispatch_thread = _threading.Thread(
+    target=_dispatch_worker,
+    name="searcher-dispatch",
+    daemon=True,
+)
+_dispatch_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------

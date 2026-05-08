@@ -414,7 +414,15 @@
       box-shadow: 0 0 8px var(--pass);
       animation: pulse 1.8s ease-in-out infinite;
     }
+    .swarm-status.busy {
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 1s ease-in-out infinite;
+    }
     .swarm-status.stale { background: var(--hold); }
+    .swarm-status.cold { background: var(--muted-2); }
+    .swarm-status.warming { background: var(--hold); animation: pulse 2.4s ease-in-out infinite; }
+    .swarm-status.resting { background: var(--tim); }
     .swarm-status.planned { background: var(--muted-2); }
     .swarm-meta {
       color: var(--muted);
@@ -697,6 +705,10 @@
     <div class="swarm-pair" id="swarmSearcherLoc" style="display:none;">
       <small>Searcher · LoC — last harvest</small>
       <span id="swarmSearcherLocText">—</span>
+    </div>
+    <div class="swarm-pair" id="swarmDispatch" style="display:none;">
+      <small>Searcher · Tasked — courier</small>
+      <span id="swarmDispatchText">—</span>
     </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
       Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
@@ -1448,6 +1460,18 @@
         && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
       return `<span class="swarm-meta">harvested <b>${sp.harvests_total ?? 0}</b></span>`;
     }
+    if (sp.name === 'searcher_dispatch') {
+      const q = sp.queue_depth ?? 0;
+      const c = sp.tasks_completed ?? 0;
+      if (sp.status === 'busy') {
+        return `<span class="swarm-meta" style="color:var(--accent)">in flight · queue <b>${q}</b></span>`;
+      }
+      if (sp.status === 'alive' || sp.status === 'warming') {
+        return q > 0
+          ? `<span class="swarm-meta">queue <b>${q}</b> · done <b>${c}</b></span>`
+          : `<span class="swarm-meta">idle · done <b>${c}</b></span>`;
+      }
+    }
     return `<span class="swarm-meta">${sp.status}</span>`;
   }
 
@@ -1502,6 +1526,40 @@
           </div>
           <div style="color:var(--text-dim);font-size:11px;font-style:italic;font-family:'Crimson Pro',serif;line-height:1.45">"${escapeHtml(text)}${(text.length>=80?'…':'')}"</div>
           <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">cycle ${s.cycles_completed||0} · cursor ${s.cursor||0}/${s.anchor_list_size||50}</div>
+        `;
+      }
+    } catch (_) {}
+    // Searcher · Tasked (dispatcher) detail
+    try {
+      const d = await fetchJSON('/swarm/searcher/dispatch');
+      const stats = d.stats || {};
+      const recent = (d.recent || []).filter(r => r.result && r.result.status === 'ok').slice(0, 3);
+      // Show panel if there's any history OR an active queue/in-flight
+      if (stats.tasks_queued_total > 0 || (d.queue_depth || 0) > 0 || stats.current_task) {
+        const wrap = document.getElementById('swarmDispatch');
+        wrap.style.display = '';
+        let recentRows = '';
+        if (recent.length) {
+          recentRows = recent.map(r => {
+            const h = r.result.harvest || {};
+            const t = r.task || {};
+            return `<div style="padding:4px 0;border-top:1px solid var(--border);font-size:10.5px">
+              <div><span style="color:var(--accent)">${escapeHtml(h.domain || t.domain || '?').replace(/_/g,' ')}</span> <span style="color:var(--muted);font-size:9.5px">← ${escapeHtml(t.requested_by || 'unknown')}</span></div>
+              <div style="color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(h.title || '?')}</div>
+            </div>`;
+          }).join('');
+        }
+        const inflight = stats.current_task
+          ? `<div style="color:var(--accent);font-size:11px;margin-bottom:6px"><b>↗ in flight:</b> ${escapeHtml(stats.current_task.domain || '?').replace(/_/g,' ')}</div>`
+          : '';
+        document.getElementById('swarmDispatchText').innerHTML = `
+          ${inflight}
+          <div style="display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin-bottom:4px">
+            <span>queue <b style="color:${(d.queue_depth>0)?'var(--accent)':'var(--text-dim)'}">${d.queue_depth || 0}</b></span>
+            <span>done <b style="color:var(--text-dim)">${stats.tasks_completed || 0}</b></span>
+            ${stats.tasks_failed ? `<span>fail <b style="color:var(--fail)">${stats.tasks_failed}</b></span>` : ''}
+          </div>
+          ${recentRows}
         `;
       }
     } catch (_) {}
