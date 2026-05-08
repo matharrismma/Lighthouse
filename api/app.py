@@ -6603,14 +6603,22 @@ _janitor_thread.start()
 # stdio remains the local transport for `concordance-mcp` CLI users.
 try:
     from concordance_engine.mcp_server.server import mcp as _mcp_server
+    # FastMCP defaults its internal paths to /mcp and /sse. When we
+    # mount the sub-app at external prefix /mcp the full URL becomes
+    # /mcp/mcp (and /mcp/sse/sse) — ugly and surprising. Set the
+    # sub-app's internal route to "/" so the external URL is clean:
+    #   /mcp        — streamable HTTP entrypoint
+    #   /mcp/sse    — SSE entrypoint
+    #   /mcp/sse/messages/  — SSE message back-channel (left at default)
+    _mcp_server.settings.streamable_http_path = "/"
+    _mcp_server.settings.sse_path = "/"
     _sse = _mcp_server.sse_app()
     _http = _mcp_server.streamable_http_app()
     app.mount("/mcp/sse", _sse, name="mcp_sse")
     app.mount("/mcp", _http, name="mcp_http")
-    # Also print to stdout so this lands in server.log even if the
-    # logger config doesn't wire 'concordance.api' through.
     print("[MCP] mounted /mcp and /mcp/sse — FastMCP transports active", flush=True)
-    _log.info("MCP HTTP/SSE transports mounted at /mcp and /mcp/sse")
+    _log.info("MCP HTTP/SSE transports mounted at /mcp and /mcp/sse "
+              "(internal paths normalized to '/')")
 except Exception as _mcp_mount_err:
     # Don't take down the API if MCP mount fails — surface the error
     # via three channels (print + _log + getLogger) so we definitely
