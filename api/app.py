@@ -6609,6 +6609,26 @@ try:
     # the sub-app routes to "/" makes them resolve at the mount root.
     _mcp_server.settings.streamable_http_path = "/"
     _mcp_server.settings.sse_path = "/"
+    # Allow remote MCP clients to connect through Cloudflare.
+    # FastMCP defaults to localhost-only DNS rebinding protection.
+    # We're public, so expand the host/origin allowlist to include
+    # the production domain. Keep localhost in there for direct
+    # /docs and dev-test access.
+    _mcp_server.settings.transport_security.allowed_hosts = [
+        "narrowhighway.com",
+        "narrowhighway.com:*",
+        "*.narrowhighway.com",
+        "127.0.0.1:*",
+        "localhost:*",
+        "[::1]:*",
+    ]
+    _mcp_server.settings.transport_security.allowed_origins = [
+        "https://narrowhighway.com",
+        "https://*.narrowhighway.com",
+        "http://127.0.0.1:*",
+        "http://localhost:*",
+        "http://[::1]:*",
+    ]
     _sse = _mcp_server.sse_app()
     _http = _mcp_server.streamable_http_app()
     app.mount("/mcp/sse", _sse, name="mcp_sse")
