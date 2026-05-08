@@ -691,8 +691,12 @@
       <span id="swarmTrainerText">—</span>
     </div>
     <div class="swarm-pair" id="swarmSearcher" style="display:none;">
-      <small>Searcher — last harvest</small>
+      <small>Searcher · Scripture — last harvest</small>
       <span id="swarmSearcherText">—</span>
+    </div>
+    <div class="swarm-pair" id="swarmSearcherLoc" style="display:none;">
+      <small>Searcher · LoC — last harvest</small>
+      <span id="swarmSearcherLocText">—</span>
     </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
       Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
@@ -1440,7 +1444,8 @@
       const v = sp.swarm_health || '—';
       return `<span class="swarm-meta">verdict <b style="color:${verdictColor}">${v}</b></span>`;
     }
-    if (sp.name === 'searcher' && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
+    if ((sp.name === 'searcher' || sp.name === 'searcher_loc')
+        && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
       return `<span class="swarm-meta">harvested <b>${sp.harvests_total ?? 0}</b></span>`;
     }
     return `<span class="swarm-meta">${sp.status}</span>`;
@@ -1482,7 +1487,7 @@
         `;
       }
     } catch (_) {}
-    // Searcher last harvest detail
+    // Searcher · Scripture last harvest detail
     try {
       const s = await fetchJSON('/swarm/searcher');
       const last = s.last_harvest;
@@ -1497,6 +1502,27 @@
           </div>
           <div style="color:var(--text-dim);font-size:11px;font-style:italic;font-family:'Crimson Pro',serif;line-height:1.45">"${escapeHtml(text)}${(text.length>=80?'…':'')}"</div>
           <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">cycle ${s.cycles_completed||0} · cursor ${s.cursor||0}/${s.anchor_list_size||50}</div>
+        `;
+      }
+    } catch (_) {}
+    // Searcher · LoC last harvest detail
+    try {
+      const s = await fetchJSON('/swarm/searcher/loc');
+      const last = s.last_harvest;
+      if (last && last.title) {
+        const wrap = document.getElementById('swarmSearcherLoc');
+        wrap.style.display = '';
+        const subjects = (last.subjects || []).slice(0, 3).map(sub =>
+          `<span style="color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:9px;font-size:9.5px;display:inline-block;margin:1px 2px 1px 0">${escapeHtml(sub)}</span>`
+        ).join('');
+        document.getElementById('swarmSearcherLocText').innerHTML = `
+          <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">
+            <span style="color:var(--accent);font-size:10.5px">${escapeHtml(last.domain || '?').replace(/_/g,' ')}</span>
+            <span style="color:var(--muted);font-size:9.5px">${last.ts ? relTime(last.ts) : ''} ago</span>
+          </div>
+          <div style="color:var(--text-dim);font-size:11px;line-height:1.4">${escapeHtml(last.title || '')}${last.date?` <span style="color:var(--muted)">(${escapeHtml(last.date)})</span>`:''}</div>
+          ${subjects ? `<div style="margin-top:5px">${subjects}</div>` : ''}
+          <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">harvested ${s.harvests_total||0} · session-uniq ${s.harvested_count_session||0}</div>
         `;
       }
     } catch (_) {}

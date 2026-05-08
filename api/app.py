@@ -4597,6 +4597,237 @@ def _searcher_worker() -> None:
         _time.sleep(_searcher_stats["tick_period_seconds"])
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Searcher #2 — Library of Congress harvester
+#
+# LoC is the authoritative bibliographic source — controlled vocabulary,
+# MARC records, rights-tagged provenance, public-domain by curation.
+# We don't trust Wikipedia (mutable, crowdsourced); we go to the
+# source-of-record. Catalog metadata only — title, date, author,
+# subjects, rights, LCCN — every harvest carries verifiable provenance.
+#
+# Reads Trainer's recommendations to target starving domains first.
+# 5-minute ticks (12 req/hour, well under LoC's rate limits).
+# ─────────────────────────────────────────────────────────────────────
+
+_LOC_DOMAIN_TO_QUERY: Dict[str, str] = {
+    # Most domains take their underscore-stripped name as the LoC query.
+    # Overrides here are for cases where the LoC subject heading differs
+    # meaningfully from the engine's domain identifier.
+    "scripture_anchors": "biblical theology",
+    "theology_doctrine": "Christian theology doctrine",
+    "governance_decision_packet": "governance decision-making",
+    "physics_conservation": "physics conservation laws",
+    "physics_dimensional": "dimensional analysis",
+    "statistics_pvalue": "statistical hypothesis testing",
+    "statistics_multiple_comparisons": "multiple comparisons procedure",
+    "statistics_confidence_interval": "confidence intervals statistics",
+    "history_chronology": "historical chronology",
+    "calendar_time": "calendar time measurement",
+    "formal_logic": "formal logic",
+    "exercise_science": "exercise physiology",
+    "music_theory": "music theory",
+    "sports_analytics": "sports statistics",
+    "document_validation": "document authentication",
+    "computer_science": "computer science",
+    "operations_research": "operations research",
+    "information_theory": "information theory",
+    "quantum_computing": "quantum computing",
+    "nuclear_physics": "nuclear physics",
+    "materials_science": "materials science",
+    "number_theory": "number theory",
+    "soil_science": "soil science",
+    "real_estate": "real property",
+    "labor": "labor economics",
+}
+
+_LOC_SEARCH_BASE = "https://www.loc.gov/search/"
+_LOC_USER_AGENT = (
+    "Concordance-Engine-Searcher/1.0 "
+    "(+https://narrowhighway.com; harvest of public-domain catalog records)"
+)
+
+_loc_state: Dict[str, Any] = {
+    "harvested_loc_ids": set(),  # avoid duplicates within a session
+    "last_target_domain": None,
+    "last_query": None,
+    "last_url": None,
+}
+_loc_stats: Dict[str, Any] = {
+    "name": "searcher_loc",
+    "species": "Searcher · LoC",
+    "role": "harvest one public-domain LoC catalog record per tick",
+    "current_source": "Library of Congress catalog (loc.gov/search)",
+    "rights_filter": "no_known_restrictions",
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "harvests_total": 0,
+    "duplicates_skipped": 0,
+    "empty_result_count": 0,
+    "last_harvest": None,
+    "tick_period_seconds": 300,   # 5 min — polite to LoC
+}
+
+
+def _loc_pick_target_domain() -> str:
+    """Read Trainer's swarm config (in-memory if cached) and pick the
+    most starving domain. Falls back to a default rotation if Trainer
+    has no analysis yet."""
+    analysis = (_trainer_state or {}).get("analysis") or {}
+    priorities = (
+        analysis.get("recommendations", {}).get("searcher_priorities", [])
+        or analysis.get("domains_starving", [])
+    )
+    if priorities:
+        # Skip scripture_anchors here — Searcher #1 owns that domain.
+        for d in priorities:
+            if d != "scripture_anchors":
+                return d
+    # Fallback: rotate through a curated set of domains LoC has rich
+    # holdings on, so we don't sit dead before Trainer first runs.
+    fallbacks = [
+        "philosophy", "history_chronology", "rhetoric", "music_theory",
+        "geography", "astronomy", "biology", "law", "agriculture",
+    ]
+    cursor = (_loc_stats.get("tick_count") or 0) % len(fallbacks)
+    return fallbacks[cursor]
+
+
+def _loc_fetch_results(query: str) -> Dict[str, Any]:
+    """One LoC catalog search. Returns parsed JSON or raises."""
+    import urllib.request, urllib.parse
+    params = urllib.parse.urlencode({
+        "q": query,
+        "fo": "json",
+        "c": 15,
+        "fa": "rights:no_known_restrictions",
+    })
+    url = f"{_LOC_SEARCH_BASE}?{params}"
+    _loc_state["last_url"] = url
+    req = urllib.request.Request(url, headers={"User-Agent": _LOC_USER_AGENT})
+    with urllib.request.urlopen(req, timeout=12) as resp:
+        return json.loads(resp.read().decode("utf-8", errors="replace"))
+
+
+def _loc_searcher_tick() -> None:
+    """One LoC harvest. Reads Trainer for target, fetches a public-domain
+    catalog record, posts the metadata to the journal."""
+    import time as _time
+
+    target = _loc_pick_target_domain()
+    _loc_state["last_target_domain"] = target
+    query = _LOC_DOMAIN_TO_QUERY.get(target, target.replace("_", " "))
+    _loc_state["last_query"] = query
+
+    try:
+        data = _loc_fetch_results(query)
+    except Exception as exc:
+        _loc_stats["error_count"] += 1
+        _loc_stats["last_error"] = f"fetch: {str(exc)[:160]}"
+        return
+
+    results = data.get("results") or []
+    if not results:
+        _loc_stats["empty_result_count"] += 1
+        _loc_stats["last_error"] = f"no items for '{query}' (target={target})"
+        return
+
+    # Find the first item we haven't seen this session
+    chosen = None
+    for item in results:
+        item_id = item.get("id") or item.get("url") or ""
+        if item_id and item_id not in _loc_state["harvested_loc_ids"]:
+            chosen = (item, item_id)
+            break
+    if chosen is None:
+        _loc_stats["duplicates_skipped"] += 1
+        return
+
+    item, item_id = chosen
+    _loc_state["harvested_loc_ids"].add(item_id)
+
+    # Build a clean human-readable packet from LoC metadata
+    title = (item.get("title") or "").strip() or "(untitled)"
+    date = (item.get("date") or "").strip()
+    description = item.get("description") or ""
+    if isinstance(description, list):
+        description = description[0] if description else ""
+    description = str(description).strip()
+    subjects_raw = item.get("subject") or []
+    if isinstance(subjects_raw, str):
+        subjects_raw = [subjects_raw]
+    subjects = [str(s).strip() for s in subjects_raw if s][:6]
+    contributors_raw = item.get("contributor") or []
+    if isinstance(contributors_raw, str):
+        contributors_raw = [contributors_raw]
+    contributors = [str(c).strip() for c in contributors_raw if c][:3]
+
+    parts: List[str] = []
+    head = f"LoC: {title}"
+    if date:
+        head += f" ({date})"
+    parts.append(head)
+    if contributors:
+        parts.append(f"By: {'; '.join(contributors)}")
+    if description:
+        parts.append(description[:280])
+    if subjects:
+        parts.append(f"Subjects: {' · '.join(subjects)}")
+    parts.append(f"Source: {item_id}")
+    parts.append("Rights: No known restrictions on publication.")
+    text = "\n".join(parts)
+
+    # Post through the same /capture door
+    try:
+        from concordance_engine import journal as _journal
+        _journal.capture(
+            text,
+            tags=[target, "harvest", "library_of_congress", "loc", "searcher"],
+            look_up_precedent=False,
+        )
+        _loc_stats["harvests_total"] += 1
+        _loc_stats["last_harvest"] = {
+            "ts": _time.time(),
+            "domain": target,
+            "query": query,
+            "title": title[:120],
+            "date": date,
+            "subjects": subjects,
+            "loc_id": item_id,
+        }
+    except ValueError as exc:
+        if "duplicate" in str(exc).lower():
+            _loc_stats["duplicates_skipped"] += 1
+        else:
+            _loc_stats["error_count"] += 1
+            _loc_stats["last_error"] = str(exc)[:200]
+    except Exception as exc:
+        _loc_stats["error_count"] += 1
+        _loc_stats["last_error"] = str(exc)[:200]
+
+
+def _loc_searcher_worker() -> None:
+    """Background loop. 5-min ticks. Polite to LoC."""
+    import time as _time
+    if _loc_stats["started_at"] is None:
+        _loc_stats["started_at"] = _time.time()
+    # Long startup grace so journal + Trainer get going first
+    _time.sleep(45)
+    while True:
+        try:
+            _loc_searcher_tick()
+            _loc_stats["tick_count"] += 1
+        except Exception as exc:
+            _loc_stats["error_count"] += 1
+            _loc_stats["last_error"] = str(exc)[:200]
+            _log.warning(f"loc searcher error: {exc}")
+        _loc_stats["last_tick_at"] = _time.time()
+        _time.sleep(_loc_stats["tick_period_seconds"])
+
+
 # Trainer hummingbird state — meta-agent that watches the swarm and
 # optimizes resources/tasks. On-demand compute with 10-minute cache;
 # when cache rebuilds, writes data/swarm_config.json as the canonical
@@ -5061,6 +5292,33 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
     return analysis
 
 
+@app.get("/swarm/searcher/loc", tags=["agents"])
+def swarm_searcher_loc():
+    """Live stats for the Library of Congress harvester (Searcher #2).
+
+    Reads Trainer's recommendations to target the most starving
+    domain, queries LoC's catalog filtered to public-domain rights,
+    and posts one new bibliographic record per tick (5 min).
+
+    Each harvest carries authoritative provenance: title, date,
+    contributors, controlled-vocabulary subjects, LCCN/URL, and
+    rights status — the antidote to crowdsourced encyclopedias.
+    """
+    import time as _time
+    now = _time.time()
+    out = dict(_loc_stats)
+    # Hide the in-memory dedup set from JSON output
+    out["harvested_count_session"] = len(_loc_state["harvested_loc_ids"])
+    out["last_target_domain"] = _loc_state["last_target_domain"]
+    out["last_query"] = _loc_state["last_query"]
+    out["now"] = now
+    if out["last_tick_at"]:
+        out["seconds_since_tick"] = round(now - out["last_tick_at"], 1)
+    if out["started_at"]:
+        out["uptime_seconds"] = round(now - out["started_at"], 1)
+    return out
+
+
 @app.get("/swarm/searcher", tags=["agents"])
 def swarm_searcher():
     """Live stats for the Searcher hummingbird.
@@ -5216,7 +5474,7 @@ def swarm_index():
             },
             {
                 "name": "searcher",
-                "species": "Searcher",
+                "species": "Searcher · Scripture",
                 "role": "harvest one canonical anchor per tick (WEB Bible)",
                 "status": (
                     "alive" if (
@@ -5232,6 +5490,22 @@ def swarm_index():
                 "cycles_completed": _searcher_state["cycles_completed"],
                 "current_source": _searcher_stats.get("current_source"),
                 "last_tick_at": _searcher_stats.get("last_tick_at"),
+            },
+            {
+                "name": "searcher_loc",
+                "species": "Searcher · LoC",
+                "role": "harvest one Library of Congress catalog record per tick",
+                "status": (
+                    "alive" if (
+                        _loc_stats.get("last_tick_at")
+                        and (now - _loc_stats["last_tick_at"]) < 600
+                    )
+                    else ("warming" if _loc_stats.get("started_at") else "cold")
+                ),
+                "stats_endpoint": "/swarm/searcher/loc",
+                "harvests_total": _loc_stats.get("harvests_total", 0),
+                "current_source": _loc_stats.get("current_source"),
+                "last_tick_at": _loc_stats.get("last_tick_at"),
             },
             {
                 "name": "janitor",
@@ -5301,6 +5575,16 @@ _searcher_thread = _threading.Thread(
     daemon=True,
 )
 _searcher_thread.start()
+
+# Wire the LoC harvester (Searcher #2: Library of Congress catalog).
+# 5-min ticks, polite to LoC, public-domain rights filter only.
+# Targets the most starving domain per Trainer's recommendations.
+_loc_searcher_thread = _threading.Thread(
+    target=_loc_searcher_worker,
+    name="searcher-loc",
+    daemon=True,
+)
+_loc_searcher_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------
