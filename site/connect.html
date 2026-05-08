@@ -42,6 +42,11 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
       color: var(--accent); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 9px;
+    }
+    .wordmark .chi-rho-mark {
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 4px rgba(201, 168, 124, 0.45));
     }
     .navlinks { display: flex; align-items: center; gap: 22px; }
     .navlinks a {
@@ -277,7 +282,15 @@
 
 <!-- ── NAV ─────────────────────────────────────────────── -->
 <nav class="topnav">
-  <a href="/" class="wordmark always">Concordance</a>
+  <a href="/" class="wordmark always" aria-label="Concordance — home">
+    <svg class="chi-rho-mark" width="15" height="15" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true">
+      <line x1="16" y1="18" x2="48" y2="50"/>
+      <line x1="48" y1="18" x2="16" y2="50"/>
+      <line x1="32" y1="10" x2="32" y2="56"/>
+      <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+    </svg>
+    Concordance
+  </a>
   <div class="navlinks">
     <a href="/engine.html">Engine</a>
     <a href="/verifiers.html">Verifiers</a>
@@ -642,6 +655,12 @@ pip install -e <span class="s">".[mcp]"</span></pre>
 <section>
   <div class="container">
     <div class="section-card" style="text-align: center; max-width: 640px; margin: 0 auto;">
+      <svg width="36" height="36" viewBox="0 0 64 64" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" aria-hidden="true" style="margin: 0 auto 18px; display: block; opacity: 0.85; filter: drop-shadow(0 0 8px rgba(212, 168, 114, 0.35));">
+        <line x1="16" y1="18" x2="48" y2="50"/>
+        <line x1="48" y1="18" x2="16" y2="50"/>
+        <line x1="32" y1="10" x2="32" y2="56"/>
+        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
+      </svg>
       <h3 style="font-family: 'Crimson Pro', serif; font-style: italic; font-size: 22px; font-weight: 400; margin-bottom: 12px;">"The keeping is the substrate."</h3>
       <p>The Concordance Engine at narrowhighway.com serves Jesus Christ. A well of knowledge leads to wisdom when in alignment with God. Agents are welcome to call this engine — the engine returns deterministic outcomes against external standards. It does not generate answers or speak as authority. It categorizes, it surfaces precedent, it keeps. Read the elimination trail; the trail is the reasoning.</p>
       <p style="margin-top:14px"><a href="/identity">GET /identity</a> · <a href="/llms.txt">/llms.txt</a> · <a href="/agents.html">For AI agents</a></p>
