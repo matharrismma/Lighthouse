@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect any AI agent · Concordance</title>
+  <meta name="description" content="Plug a deterministic verifier into Claude Desktop, Cursor, ChatGPT, or any custom agent. Five paths in. Copy-paste configs. Live test.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11;
+      --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd;
+      --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498;
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --maxw: 1100px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.65;
+      min-height: 100dvh; -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hi); }
+
+    /* ── NAV (matches index.html) ── */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,8,16,0.92);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+    }
+    .navlinks { display: flex; align-items: center; gap: 22px; }
+    .navlinks a {
+      color: var(--text-dim); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .navlinks a:hover { color: var(--text); }
+    .navlinks a.active { color: var(--accent); }
+    .navlinks a.cta {
+      padding: 7px 14px; border-radius: 6px;
+      background: var(--accent); color: #0f0d11; font-weight: 600;
+    }
+    .navlinks a.cta:hover { background: var(--accent-hi); }
+    @media (max-width: 700px) {
+      .navlinks a:not(.cta):not(.always) { display: none; }
+    }
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .live-dot::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--pass); box-shadow: 0 0 10px var(--pass);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── HEADER ── */
+    .page-header {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 70px 24px 30px;
+    }
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(34px, 5.5vw, 58px);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.02em; margin-bottom: 18px;
+      max-width: 22ch;
+    }
+    .lead {
+      font-size: clamp(15px, 1.5vw, 18px);
+      color: var(--text-dim); max-width: 60ch;
+      line-height: 1.55;
+    }
+
+    /* ── ENDPOINT CARD ── */
+    .endpoint-band {
+      max-width: var(--maxw); margin: 30px auto 0;
+      padding: 0 24px;
+    }
+    .endpoint {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 24px;
+    }
+    @media (min-width: 800px) {
+      .endpoint { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .endpoint-row { display: flex; flex-direction: column; gap: 6px; }
+    .endpoint-label {
+      font-size: 10.5px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.15em;
+      font-weight: 600;
+    }
+    .endpoint-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--accent);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .copy-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 4px;
+      padding: 2px 8px; font-size: 10px; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--border-hi); }
+    .copy-btn.copied { color: var(--pass); border-color: var(--pass); }
+
+    /* ── SECTIONS ── */
+    section { padding: 50px 0; }
+    .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    h2 {
+      font-size: clamp(22px, 2.6vw, 32px);
+      font-weight: 600; letter-spacing: -0.01em;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .num-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 600;
+      color: var(--accent);
+      width: 36px; height: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    h2 + p.sub { color: var(--text-dim); font-size: 14.5px; max-width: 60ch; margin-bottom: 22px; margin-left: 50px; }
+
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 28px 24px;
+    }
+    .section-card h3 {
+      font-size: 16px; font-weight: 600; margin-bottom: 10px;
+      letter-spacing: -0.005em;
+    }
+    .section-card p { font-size: 14px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.6; }
+    .section-card ol, .section-card ul {
+      font-size: 14px; color: var(--text-dim); padding-left: 22px; margin-bottom: 14px;
+    }
+    .section-card ol li, .section-card ul li { margin-bottom: 6px; line-height: 1.55; }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 16px 18px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px; line-height: 1.65;
+      color: var(--text-dim);
+      position: relative;
+    }
+    pre .k { color: var(--accent); }
+    pre .s { color: #6ec98a; }
+    pre .c { color: var(--muted); font-style: italic; }
+    pre .n { color: #c9a87c; }
+    pre .var { color: #d4c46a; }
+    pre code { font-family: inherit; color: inherit; background: transparent; padding: 0; }
+    .pre-wrap { position: relative; margin-bottom: 14px; }
+    .pre-copy {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); padding: 3px 9px; border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      cursor: pointer; letter-spacing: 0.05em;
+    }
+    .pre-copy:hover { color: var(--text); }
+    .pre-copy.copied { color: var(--pass); border-color: var(--pass); }
+
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: var(--bg-2); padding: 2px 6px; border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* ── LIVE TEST ── */
+    .test-row {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-top: 10px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 7px;
+      font-size: 13px; font-weight: 600;
+      transition: all 0.15s; cursor: pointer; border: none;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary { background: var(--accent); color: #0a0810; }
+    .btn-primary:hover { background: var(--accent-hi); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-hi);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .test-out {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 14px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--pass);
+      margin-top: 12px; display: none; max-height: 220px;
+      overflow-y: auto; white-space: pre-wrap; line-height: 1.55;
+    }
+    .test-out.show { display: block; }
+    .test-out.fail { color: var(--fail); }
+
+    /* ── PILLS ── */
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 3px 9px; border-radius: 12px;
+      background: var(--surface-2); color: var(--text-dim);
+      border: 1px solid var(--border);
+      letter-spacing: 0.06em;
+    }
+    .pill.ok { color: var(--pass); border-color: rgba(111,196,124,0.3); background: rgba(111,196,124,0.08); }
+    .pill.warn { color: var(--hold); border-color: rgba(196,160,48,0.3); background: rgba(196,160,48,0.08); }
+
+    /* ── DOORS QUICK NAV ── */
+    .door-nav {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 0 24px 0;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .door-nav a {
+      padding: 8px 14px; border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.06em;
+      background: var(--surface);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .door-nav a:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      margin-top: 80px;
+      text-align: center;
+      font-size: 12.5px; color: var(--muted);
+    }
+    footer a { color: var(--text-dim); margin: 0 10px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────── -->
+<nav class="topnav">
+  <a href="/" class="wordmark always">Concordance</a>
+  <div class="navlinks">
+    <a href="/verifiers.html">Verifiers</a>
+    <a href="/grid.html">Grid</a>
+    <a href="/poly.html">Polymathic</a>
+    <a href="/benchmark.html">Benchmark</a>
+    <a href="/agents.html">Agents</a>
+    <span class="live-dot always" id="liveDot">live</span>
+    <a href="/connect.html" class="cta active always">Connect</a>
+  </div>
+</nav>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="page-header">
+  <p class="eyebrow">Integration hub</p>
+  <h1>Connect any AI agent.</h1>
+  <p class="lead">Five doors in. The engine is the same — 72 tools, 63 verifiers, 21,000+ sealed packets, four gates. Pick the integration that fits your stack and copy the config. Live tests on every section.</p>
+</header>
+
+<div class="endpoint-band">
+  <div class="endpoint">
+    <div class="endpoint-row">
+      <span class="endpoint-label">MCP (HTTP)</span>
+      <span class="endpoint-url">
+        <code>https://narrowhighway.com/mcp</code>
+        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp">copy</button>
+      </span>
+    </div>
+    <div class="endpoint-row">
+      <span class="endpoint-label">MCP (SSE)</span>
+      <span class="endpoint-url">
+        <code>https://narrowhighway.com/mcp/sse</code>
+        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp/sse">copy</button>
+      </span>
+    </div>
+    <div class="endpoint-row">
+      <span class="endpoint-label">REST · OpenAPI</span>
+      <span class="endpoint-url">
+        <code>https://narrowhighway.com/openapi.json</code>
+        <button class="copy-btn" data-copy="https://narrowhighway.com/openapi.json">copy</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ── DOOR QUICK NAV ──────────────────────────────────── -->
+<div class="door-nav" style="padding-top: 24px;">
+  <a href="#claude">Claude Desktop</a>
+  <a href="#cursor">Cursor</a>
+  <a href="#chatgpt">ChatGPT / OpenAI</a>
+  <a href="#rest">REST / curl</a>
+  <a href="#python">Python SDK</a>
+  <a href="#local">Local install (stdio)</a>
+</div>
+
+<!-- ── 1. CLAUDE DESKTOP ───────────────────────────────── -->
+<section id="claude">
+  <div class="container">
+    <h2><span class="num-badge">1</span>Claude Desktop</h2>
+    <p class="sub">The fastest path. Hosted MCP — no install. Add three lines to your config and 72 tools light up in any new conversation.</p>
+
+    <div class="section-card">
+      <h3>Step 1 · Open the config file</h3>
+      <ul>
+        <li><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+        <li><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+      </ul>
+      <p style="margin-top:8px">If the file doesn't exist, create it. If it has other servers, just add <code>concordance</code> alongside them.</p>
+
+      <h3 style="margin-top:22px">Step 2 · Paste this</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"concordance"</span>: {
+      <span class="k">"url"</span>: <span class="s">"https://narrowhighway.com/mcp"</span>
+    }
+  }
+}</pre>
+      </div>
+
+      <h3 style="margin-top:22px">Step 3 · Restart Claude Desktop</h3>
+      <p>Open a new conversation. Look for the tool icon in the input box — you should see 72 tools available. Try: <em>"Use concordance to verify that 2 H2 + O2 → 2 H2O is balanced."</em></p>
+
+      <div class="pill-row">
+        <span class="pill ok">No install</span>
+        <span class="pill ok">No auth needed</span>
+        <span class="pill ok">All 72 tools</span>
+      </div>
+
+      <div class="test-row">
+        <button class="btn btn-secondary" onclick="testEndpoint('/mcp', 'mcp-test')">Test MCP HTTP endpoint</button>
+        <a class="btn btn-secondary" href="https://docs.anthropic.com/claude/docs/mcp" target="_blank">Anthropic MCP docs ↗</a>
+      </div>
+      <div class="test-out" id="mcp-test"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 2. CURSOR ───────────────────────────────────────── -->
+<section id="cursor">
+  <div class="container">
+    <h2><span class="num-badge">2</span>Cursor IDE</h2>
+    <p class="sub">Cursor's Settings → MCP panel takes a URL directly. Tools become available with <code>@concordance</code> in any chat.</p>
+
+    <div class="section-card">
+      <h3>Step 1 · Open MCP settings</h3>
+      <p>In Cursor: <code>Cmd/Ctrl + Shift + P</code> → "Open MCP Settings", or Settings → Features → MCP.</p>
+
+      <h3>Step 2 · Add the server</h3>
+<pre>Name: <span class="s">concordance</span>
+URL:  <span class="s">https://narrowhighway.com/mcp</span></pre>
+
+      <h3>Step 3 · Use it</h3>
+      <p>In any chat: <code>@concordance verify_chemistry "C3H8 + 5 O2 -> 3 CO2 + 4 H2O"</code></p>
+
+      <div class="pill-row">
+        <span class="pill ok">Same endpoint as Claude Desktop</span>
+        <span class="pill ok">Tab-complete on tool names</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. CHATGPT / OPENAI ────────────────────────────── -->
+<section id="chatgpt">
+  <div class="container">
+    <h2><span class="num-badge">3</span>ChatGPT &amp; OpenAI agents</h2>
+    <p class="sub">Auto-import the OpenAPI spec — every endpoint becomes a function call. Works with Custom GPTs, Assistants API, and any framework that consumes OpenAPI.</p>
+
+    <div class="section-card">
+      <h3>Custom GPT (zero code)</h3>
+      <ol>
+        <li>Open ChatGPT → "Explore GPTs" → "Create"</li>
+        <li>Configure → Actions → "Import from URL"</li>
+        <li>Paste: <code>https://narrowhighway.com/openapi.json</code></li>
+        <li>Authentication: None (read endpoints) — or add an API key for write endpoints</li>
+      </ol>
+      <p>The Custom GPT now has every Concordance endpoint as a tool — verify, capture, seal, polymathic synthesis, journal queries.</p>
+
+      <h3 style="margin-top:18px">OpenAI Assistants API (Python)</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre><span class="k">import</span> openai, json, urllib.request
+
+<span class="c"># Pull the OpenAPI spec — 86 endpoints, all 72 MCP tools mirrored</span>
+spec = json.loads(urllib.request.urlopen(
+    <span class="s">"https://narrowhighway.com/openapi.json"</span>).read())
+
+client = openai.OpenAI()
+assistant = client.beta.assistants.create(
+    name=<span class="s">"Concordance-backed agent"</span>,
+    instructions=<span class="s">"Verify any irreversible computation against the Concordance engine before answering."</span>,
+    model=<span class="s">"gpt-4o"</span>,
+    tools=[{<span class="s">"type"</span>: <span class="s">"function"</span>, <span class="s">"function"</span>: f}
+            <span class="k">for</span> f <span class="k">in</span> openapi_to_tools(spec)],
+)</pre>
+      </div>
+      <p>Helper <code>openapi_to_tools</code> in the <a href="https://github.com/matharrismma/Lighthouse/tree/main/examples">examples directory</a>.</p>
+
+      <div class="test-row">
+        <button class="btn btn-secondary" onclick="testEndpoint('/openapi.json', 'openapi-test')">Fetch OpenAPI spec</button>
+        <a class="btn btn-secondary" href="/docs" target="_blank">Live API docs (Swagger) ↗</a>
+      </div>
+      <div class="test-out" id="openapi-test"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. REST / curl ─────────────────────────────────── -->
+<section id="rest">
+  <div class="container">
+    <h2><span class="num-badge">4</span>REST / curl</h2>
+    <p class="sub">86 HTTP endpoints. Read endpoints (verifier inventory, grid, journal, health) need no auth. Write endpoints (capture, seal, ledger writes) accept an optional API key for attribution.</p>
+
+    <div class="section-card">
+      <h3>Verify a chemistry claim</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre><span class="c"># POST /verify/{domain} — all 63 verifiers reachable</span>
+curl -X POST https://narrowhighway.com/verify/chemistry \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"equation": "H2 + O2 -> H2O"}'</span></pre>
+      </div>
+
+      <h3>Recompute a p-value from raw inputs</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>curl -X POST https://narrowhighway.com/verify/statistics_pvalue \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "test": "paired_t",
+    "n": 20,
+    "mean_diff": 0.5,
+    "sd_diff": 1.0,
+    "tail": "two",
+    "claimed_p": 0.0375
+  }'</span></pre>
+      </div>
+
+      <h3>Polymathic synthesis (cross-domain)</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>curl -X POST https://narrowhighway.com/polymathic \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"text": "Our church is approving a $2M building loan at 7% over 30 years..."}'</span></pre>
+      </div>
+
+      <h3>Read endpoints (no auth)</h3>
+<pre>curl https://narrowhighway.com/health        <span class="c"># status + module counts</span>
+curl https://narrowhighway.com/identity      <span class="c"># engine identity statement</span>
+curl https://narrowhighway.com/llms.txt      <span class="c"># tool inventory for AI crawlers</span>
+curl https://narrowhighway.com/verifiers     <span class="c"># list all 63 verifiers</span>
+curl https://narrowhighway.com/journal/recent
+curl https://narrowhighway.com/grid/scaffold <span class="c"># axis assignments per domain</span>
+curl https://narrowhighway.com/audit-chain   <span class="c"># sealed packets, newest first</span></pre>
+
+      <div class="test-row">
+        <button class="btn btn-secondary" onclick="testEndpoint('/health', 'rest-test')">Test /health</button>
+        <button class="btn btn-secondary" onclick="testEndpoint('/identity', 'rest-test')">Test /identity</button>
+        <a class="btn btn-secondary" href="/docs" target="_blank">Open Swagger UI ↗</a>
+        <a class="btn btn-secondary" href="/redoc" target="_blank">Open ReDoc ↗</a>
+      </div>
+      <div class="test-out" id="rest-test"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 5. PYTHON ──────────────────────────────────────── -->
+<section id="python">
+  <div class="container">
+    <h2><span class="num-badge">5</span>Python SDK</h2>
+    <p class="sub">For agents you're writing yourself. Three lines to a working verifier.</p>
+
+    <div class="section-card">
+      <h3>Direct REST (no dependency)</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre><span class="k">import</span> requests
+
+r = requests.post(
+    <span class="s">"https://narrowhighway.com/verify/chemistry"</span>,
+    json={<span class="s">"equation"</span>: <span class="s">"H2 + O2 -> H2O"</span>},
+)
+print(r.json())
+<span class="c"># {"checks":[{"status":"MISMATCH","detail":"balances as: 2 H2 + O2 -> 2 H2O", ...}]}</span></pre>
+      </div>
+
+      <h3>MCP client (for full tool access)</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre><span class="k">from</span> mcp.client.streamable_http <span class="k">import</span> streamablehttp_client
+<span class="k">from</span> mcp <span class="k">import</span> ClientSession
+
+<span class="k">async with</span> streamablehttp_client(<span class="s">"https://narrowhighway.com/mcp"</span>) <span class="k">as</span> (r, w, _):
+    <span class="k">async with</span> ClientSession(r, w) <span class="k">as</span> s:
+        <span class="k">await</span> s.initialize()
+        tools = (<span class="k">await</span> s.list_tools()).tools
+        result = <span class="k">await</span> s.call_tool(<span class="s">"verify_chemistry"</span>,
+                                      {<span class="s">"equation"</span>: <span class="s">"H2 + O2 -> H2O"</span>})
+        print(result)</pre>
+      </div>
+
+      <h3>LangChain</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre><span class="k">from</span> langchain_mcp_adapters.client <span class="k">import</span> MultiServerMCPClient
+<span class="k">from</span> langgraph.prebuilt <span class="k">import</span> create_react_agent
+
+mcp = MultiServerMCPClient({
+    <span class="s">"concordance"</span>: {<span class="s">"transport"</span>: <span class="s">"streamable_http"</span>,
+                     <span class="s">"url"</span>: <span class="s">"https://narrowhighway.com/mcp"</span>}
+})
+agent = create_react_agent(<span class="s">"openai:gpt-4o"</span>, <span class="k">await</span> mcp.get_tools())</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 6. LOCAL STDIO ─────────────────────────────────── -->
+<section id="local">
+  <div class="container">
+    <h2><span class="num-badge">6</span>Local install (stdio)</h2>
+    <p class="sub">For air-gapped, offline, or sovereignty-first deployments. The same engine runs on your machine — under 1 GB, no outbound calls. Use the four-mode deployment plan.</p>
+
+    <div class="section-card">
+      <h3>Install</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>git clone https://github.com/matharrismma/Lighthouse
+<span class="k">cd</span> Lighthouse
+pip install -e <span class="s">".[mcp]"</span></pre>
+      </div>
+
+      <h3>Configure Claude Desktop for the local stdio server</h3>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"concordance"</span>: {
+      <span class="k">"command"</span>: <span class="s">"concordance-mcp"</span>
+    }
+  }
+}</pre>
+      </div>
+
+      <p>Or the dev-tree version (no install):</p>
+      <div class="pre-wrap">
+        <button class="pre-copy" data-copy-pre>copy</button>
+<pre>{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"concordance"</span>: {
+      <span class="k">"command"</span>: <span class="s">"python"</span>,
+      <span class="k">"args"</span>: [<span class="s">"-m"</span>, <span class="s">"concordance_engine.mcp_server"</span>],
+      <span class="k">"env"</span>: {<span class="s">"PYTHONPATH"</span>: <span class="s">"/path/to/Lighthouse/src"</span>}
+    }
+  }
+}</pre>
+      </div>
+
+      <div class="pill-row">
+        <span class="pill ok">Air-gapped capable</span>
+        <span class="pill ok">No outbound calls</span>
+        <span class="pill ok">Restricted &amp; Lockdown modes</span>
+      </div>
+
+      <p style="margin-top:14px"><a href="/install.html" class="btn btn-secondary" style="font-size:13px;padding:9px 16px">Full install guide →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT YOU GET ────────────────────────────────────── -->
+<section style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <h2 style="margin-bottom: 22px"><span class="num-badge">∞</span>What every agent gets</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:14px;" id="ttg">
+      <style>@media (min-width:800px){#ttg{grid-template-columns:1fr 1fr 1fr;}}</style>
+
+      <div class="section-card">
+        <h3 style="color:var(--accent)">63 verifier tools</h3>
+        <p>Chemistry, physics, mathematics, statistics (12 tests), CS termination, biology, governance, and 50+ more — each returning CONFIRMED, MISMATCH, ERROR, or NOT_APPLICABLE. Never raises. Never self-confirms.</p>
+        <a href="/verifiers.html" style="font-size:13px">Full reference →</a>
+      </div>
+
+      <div class="section-card">
+        <h3 style="color:var(--accent)">9 pipeline tools</h3>
+        <p><code>validate_packet</code>, <code>seal_packet</code>, <code>walkthrough_packet</code>, <code>attest_red</code>, <code>attest_floor</code>, <code>resolve_scripture_ref</code>, <code>word_study</code>, <code>triangulate_claim</code>, <code>get_example_packet</code>.</p>
+        <a href="/agents.html" style="font-size:13px">Agent guide →</a>
+      </div>
+
+      <div class="section-card">
+        <h3 style="color:var(--accent)">Live data surface</h3>
+        <p>21,000+ sealed packets in the journal. Append-only audit chain with SHA-256 chain integrity. Per-domain trust index. Grid scaffold across 7 axes.</p>
+        <a href="/grid.html" style="font-size:13px">See the grid →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── IDENTITY NOTE ──────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-card" style="text-align: center; max-width: 640px; margin: 0 auto;">
+      <h3 style="font-family: 'Crimson Pro', serif; font-style: italic; font-size: 22px; font-weight: 400; margin-bottom: 12px;">"The keeping is the substrate."</h3>
+      <p>The Concordance Engine at narrowhighway.com serves Jesus Christ. A well of knowledge leads to wisdom when in alignment with God. Agents are welcome to call this engine — the engine returns deterministic outcomes against external standards. It does not generate answers or speak as authority. It categorizes, it surfaces precedent, it keeps. Read the elimination trail; the trail is the reasoning.</p>
+      <p style="margin-top:14px"><a href="/identity">GET /identity</a> · <a href="/llms.txt">/llms.txt</a> · <a href="/agents.html">For AI agents</a></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="/">Home</a> · <a href="/verifiers.html">Verifiers</a> · <a href="/grid.html">Grid</a> · <a href="/benchmark.html">Benchmark</a> · <a href="/install.html">Install</a> · <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+  <p style="margin-top:14px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted)">© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</p>
+</footer>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+
+  /* ── COPY BUTTONS ── */
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        btn.classList.add('copied');
+        const orig = btn.textContent;
+        btn.textContent = '✓ copied';
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+      } catch (_) {}
+    });
+  });
+  document.querySelectorAll('[data-copy-pre]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pre = btn.parentElement.querySelector('pre');
+      if (!pre) return;
+      try {
+        await navigator.clipboard.writeText(pre.textContent);
+        btn.classList.add('copied');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+      } catch (_) {}
+    });
+  });
+
+  /* ── LIVE TESTS ── */
+  async function testEndpoint(path, outId) {
+    const out = document.getElementById(outId);
+    out.classList.remove('show', 'fail');
+    out.textContent = '⏳ ' + (API + path) + '…';
+    out.classList.add('show');
+    try {
+      const r = await fetch(API + path, { cache: 'no-store' });
+      const txt = await r.text();
+      let pretty = txt;
+      try { pretty = JSON.stringify(JSON.parse(txt), null, 2); } catch (_) {}
+      // Truncate big responses
+      if (pretty.length > 1800) pretty = pretty.slice(0, 1800) + '\n... [truncated, see /docs]';
+      out.textContent = `${r.status} ${r.statusText}\n${pretty}`;
+      out.classList.toggle('fail', !r.ok);
+    } catch (err) {
+      out.classList.add('fail');
+      out.textContent = '✕ ' + err.message;
+    }
+  }
+
+  /* ── LIVE DOT ── */
+  fetch(API + '/health', { cache: 'no-store' })
+    .then(r => r.ok ? 'live' : 'offline')
+    .catch(() => 'offline')
+    .then(state => {
+      const d = document.getElementById('liveDot');
+      if (state === 'offline') {
+        d.style.color = 'var(--fail)';
+        d.style.setProperty('--pass', 'var(--fail)');
+        d.firstChild && (d.lastChild.textContent = ' offline');
+      }
+    });
+</script>
+
+</body>
+</html>

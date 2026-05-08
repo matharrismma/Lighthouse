@@ -25,7 +25,8 @@
       <a href="/poly.html">Polymathic</a>
       <a href="/benchmark.html">Benchmark</a>
       <a href="/install.html">Install</a>
-      <a class="cta" href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+      <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+      <a class="cta" href="/connect.html">Connect →</a>
     </nav>
   </div>
 </header>
@@ -88,32 +89,49 @@
 <section>
   <div class="container">
     <h2>Quick integration</h2>
+    <p>Five doors in. <a href="/connect.html">/connect</a> has the full step-by-step with copy-paste configs and live test buttons. The summary:</p>
 
-    <h3>MCP — recommended for models with tool use</h3>
-    <p>Install once. The tools appear in your tool list.</p>
-<pre><code>pip install concordance-engine</code></pre>
-
-    <p>Then add to your MCP client config:</p>
+    <h3>1 · MCP over HTTP — hosted, no install</h3>
+    <p>The fastest path. <code>https://narrowhighway.com/mcp</code> is a remote MCP endpoint that any MCP-compliant client (Claude Desktop, Cursor, custom) can connect to without installing anything.</p>
 <pre><code>{
+  "mcpServers": {
+    "concordance": { "url": "https://narrowhighway.com/mcp" }
+  }
+}</code></pre>
+    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 72 tools (63 verifiers + 9 pipeline) become available immediately.</p>
+
+    <h3>2 · MCP over stdio — for offline / air-gapped use</h3>
+    <p>Install once, run locally. No outbound calls.</p>
+<pre><code>pip install concordance-engine
+# then in your MCP client config:
+{
   "mcpServers": {
     "concordance": { "command": "concordance-mcp" }
   }
 }</code></pre>
-
     <p>Claude Code: <code>claude mcp add concordance -- concordance-mcp</code></p>
-    <p>MCP tools exposed: <code>validate_packet_tool</code>, <code>verify_chemistry</code>, <code>verify_physics</code>, <code>verify_mathematics</code>, <code>verify_statistics</code>, <code>verify_cs</code>, <code>verify_biology</code>, <code>verify_governance</code>, <code>verify_energy</code>, <code>suggest_fix</code>.</p>
 
-    <h3>REST — any language, no install</h3>
-    <p>Base URL: <code>https://narrowhighway.com</code> · No API key required for public endpoints.</p>
-<pre><code># Classify and trace a path
-curl -s -X POST https://narrowhighway.com/path \
+    <h3>3 · REST — any language, no install</h3>
+    <p>Base URL: <code>https://narrowhighway.com</code> · No API key required for read endpoints. 86 routes total (every MCP tool plus journal, ledger, audit-chain, grid, polymathic).</p>
+<pre><code># Verify a chemistry claim
+curl -X POST https://narrowhighway.com/verify/chemistry \
   -H "Content-Type: application/json" \
-  -d '{"text": "I feel called to plant a church but I do not know when the right time is."}'</code></pre>
+  -d '{"equation": "H2 + O2 -> H2O"}'
 
-<pre><code># Rehearse a packet (no ledger write)
-curl -s -X POST https://narrowhighway.com/reflect \
+# Classify and trace a path
+curl -X POST https://narrowhighway.com/path \
   -H "Content-Type: application/json" \
-  -d '{"packet": {"domain": "governance", "scope": "adapter", ...}}'</code></pre>
+  -d '{"text": "I feel called to plant a church but I do not know when."}'
+
+# Rehearse a packet (no ledger write)
+curl -X POST https://narrowhighway.com/reflect \
+  -H "Content-Type: application/json" \
+  -d '{"packet": {"domain": "governance", "scope": "adapter"}}'</code></pre>
+
+    <h3>4 · OpenAPI — auto-import for OpenAI / LangChain / Custom GPTs</h3>
+    <p>The full spec is at <a href="/openapi.json"><code>/openapi.json</code></a>. Custom GPTs accept it directly via "Actions → Import from URL." Live Swagger UI: <a href="/docs">/docs</a>. ReDoc: <a href="/redoc">/redoc</a>.</p>
+
+    <p style="margin-top: 1.5rem;"><a href="/connect.html" class="btn btn-primary">Full integration guide →</a></p>
   </div>
 </section>
 

@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Concordance — Wisdom Engine</title>
-  <meta name="description" content="Bring what you are carrying. The engine classifies it, verifies it, and returns a Scripture-anchored path — 63 verifiers, seven scaffold axes.">
+  <title>Concordance — The deterministic verifier for AI agents</title>
+  <meta name="description" content="63 verifier tools across 7 axes. 21,000+ sealed packets. 99.4% on the benchmark. Connect any AI agent — Claude Desktop, Cursor, REST API — in under 60 seconds.">
+
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0f0d11">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -12,32 +13,36 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Concordance">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
   <style>
-    /* ── RESET + TOKENS ─────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0f0d11;
-      --surface:     #171419;
-      --surface-2:   #1e1b22;
-      --border:      #2a2630;
-      --text:        #ede7db;
-      --muted:       #6e6878;
-      --muted-2:     #4e4858;
-      --accent:      #c9a87c;
-      --accent-dim:  #7a5f3a;
-      --pass:        #6fc47c;
-      --fail:        #c96c6c;
-      --hold:        #c4a030;
-      --r: 12px;
-      --r-sm: 7px;
+      --bg:           #0a0810;
+      --bg-2:         #0f0d11;
+      --surface:      #161320;
+      --surface-2:    #1d1828;
+      --border:       #29232f;
+      --border-hi:    #3a3142;
+      --text:         #ede7db;
+      --text-dim:     #b3aabd;
+      --muted:        #6e6878;
+      --muted-2:      #4e4858;
+      --accent:       #c9a87c;
+      --accent-hi:    #e3c498;
+      --accent-dim:   #7a5f3a;
+      --pass:         #6fc47c;
+      --hold:         #c4a030;
+      --fail:         #c96c6c;
+      --r:            12px;
+      --r-sm:         8px;
+      --maxw:         1100px;
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -49,1218 +54,789 @@
     }
 
     a { color: var(--accent); text-decoration: none; }
-    a:hover { opacity: 0.75; }
+    a:hover { color: var(--accent-hi); }
 
-    /* ── NAV ────────────────────────────────────────────────────── */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(15,13,17,0.92);
+    /* ── NAV ───────────────────────────────────────────────────── */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,8,16,0.92);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
     }
-
     .wordmark {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--accent);
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+    }
+    .navlinks { display: flex; align-items: center; gap: 22px; }
+    .navlinks a {
+      color: var(--text-dim); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .navlinks a:hover { color: var(--text); }
+    .navlinks a.cta {
+      padding: 7px 14px; border-radius: 6px;
+      background: var(--accent); color: #0f0d11;
+      font-weight: 600;
+    }
+    .navlinks a.cta:hover { background: var(--accent-hi); color: #0a0810; }
+    @media (max-width: 700px) {
+      .navlinks a:not(.cta):not(.always) { display: none; }
     }
 
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .status-dot {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-
-    .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--pass);
-      box-shadow: 0 0 7px var(--pass);
-      animation: pulse 2.5s infinite ease-in-out;
-    }
-    .dot.offline { background: var(--fail); box-shadow: 0 0 7px var(--fail); animation: none; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50%       { opacity: 1; }
-    }
-
-    .btn-ghost {
-      font-size: 12px;
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 6px;
       font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 5px 12px;
-      background: none;
-      cursor: pointer;
-      transition: color .15s, border-color .15s;
+      font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
-    .btn-ghost:hover { color: var(--text); border-color: var(--accent-dim); }
+    .live-dot::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--pass);
+      box-shadow: 0 0 10px var(--pass);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    /* ── HERO ───────────────────────────────────────────────────── */
+    /* ── HERO ──────────────────────────────────────────────────── */
     .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 100px 24px 60px;
       text-align: center;
-      padding: 64px 24px 48px;
-      max-width: 680px;
-      margin: 0 auto;
     }
-
     .hero-eyebrow {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 22px;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 22px;
     }
-
     .hero-headline {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: clamp(34px, 7vw, 58px);
-      font-weight: 400;
-      line-height: 1.15;
-      color: var(--text);
-      margin-bottom: 16px;
-      letter-spacing: -0.01em;
+      font-size: clamp(38px, 7vw, 76px);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+      max-width: 22ch; margin-left: auto; margin-right: auto;
     }
-
+    .hero-headline em {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic; color: var(--accent);
+    }
     .hero-sub {
-      font-size: 15px;
-      color: var(--muted);
-      max-width: 420px;
-      line-height: 1.7;
-      margin-bottom: 40px;
-    }
-
-    /* ── INPUT BLOCK ────────────────────────────────────────────── */
-    .input-block {
-      width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    .input-wrap {
-      position: relative;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      overflow: hidden;
-      transition: border-color .2s;
-    }
-    .input-wrap:focus-within { border-color: var(--accent-dim); }
-
-    #claimInput {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
-      padding: 16px 16px 12px;
-      resize: none;
-      min-height: 80px;
-    }
-    #claimInput::placeholder { color: var(--muted-2); }
-
-    .input-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      border-top: 1px solid var(--border);
-    }
-
-    .input-hint {
-      font-size: 11px;
-      color: var(--muted-2);
-    }
-
-    .btn-submit {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      background: var(--accent);
-      color: #0f0d11;
-      border: none;
-      border-radius: var(--r-sm);
-      padding: 8px 18px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: opacity .15s, transform .1s;
-    }
-    .btn-submit:hover  { opacity: 0.88; }
-    .btn-submit:active { transform: scale(0.97); }
-    .btn-submit:disabled { opacity: 0.4; cursor: default; transform: none; }
-
-    /* ── GATES PATH ─────────────────────────────────────────────── */
-    .gates {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      max-width: 560px;
-      margin: 40px auto 0;
-      padding: 0 24px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .gates::-webkit-scrollbar { display: none; }
-
-    .gate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      min-width: 72px;
-      opacity: 0.35;
-      transition: opacity .3s;
-    }
-    .gate.active  { opacity: 1; }
-    .gate.passed  { opacity: 0.85; }
-
-    .gate-icon {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      transition: border-color .3s, background .3s;
-    }
-    .gate.active  .gate-icon { border-color: var(--accent); background: var(--surface-2); }
-    .gate.passed  .gate-icon { border-color: var(--pass); background: rgba(111,196,124,0.08); }
-    .gate.failed  .gate-icon { border-color: var(--fail); background: rgba(201,108,108,0.08); opacity: 1; }
-    .gate.failed { opacity: 1; }
-
-    .gate-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .gate.active .gate-label { color: var(--accent); }
-
-    .gate-arrow {
-      width: 28px;
-      height: 1px;
-      background: var(--border);
-      flex-shrink: 0;
-      margin-bottom: 18px;
-    }
-
-    /* ── RESULT PANEL ───────────────────────────────────────────── */
-    #resultPanel {
-      display: none;
-      max-width: 600px;
-      margin: 32px auto 0;
-      padding: 0 24px;
-    }
-    #resultPanel.visible { display: block; }
-
-    .result-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      overflow: hidden;
-    }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .verdict-chip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid;
-    }
-    .verdict-chip.pass       { color: var(--pass);  border-color: rgba(111,196,124,.35); background: rgba(111,196,124,.08); }
-    .verdict-chip.quarantine { color: var(--hold);  border-color: rgba(196,160,48,.35);  background: rgba(196,160,48,.08); }
-    .verdict-chip.reject     { color: var(--fail);  border-color: rgba(201,108,108,.35); background: rgba(201,108,108,.08); }
-    .verdict-chip.pending    { color: var(--muted); border-color: var(--border);          background: transparent; }
-
-    .domain-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .result-body {
-      padding: 18px 18px 6px;
-    }
-
-    .result-section {
-      margin-bottom: 16px;
-    }
-    .result-section-label {
-      font-size: 10px;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .result-section-body {
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    .scripture-quote {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 17px;
-      color: var(--accent);
+      font-size: clamp(15px, 1.6vw, 19px);
+      color: var(--text-dim);
+      max-width: 58ch; margin: 0 auto 36px;
       line-height: 1.55;
-      border-left: 2px solid var(--accent-dim);
-      padding-left: 14px;
-    }
-    .scripture-ref {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--muted);
-      margin-top: 5px;
-      padding-left: 16px;
     }
 
-    .result-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 18px;
-      border-top: 1px solid var(--border);
-      flex-wrap: wrap;
+    .hero-ctas {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center; margin-bottom: 60px;
     }
-    .meta-item {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 22px; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      transition: all 0.15s; cursor: pointer; border: none;
+      letter-spacing: 0.01em;
     }
+    .btn-primary {
+      background: var(--accent); color: #0a0810;
+    }
+    .btn-primary:hover { background: var(--accent-hi); transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-hi);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
-    /* loading spinner */
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
+    /* ── LIVE STATS BAND ──────────────────────────────────────── */
+    .stats-band {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 0 24px 64px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── DIVIDER ────────────────────────────────────────────────── */
-    .section-divider {
-      max-width: 600px;
-      margin: 56px auto 0;
-      padding: 0 24px;
-      border-top: 1px solid var(--border);
+    @media (min-width: 700px) {
+      .stats-band { grid-template-columns: repeat(4, 1fr); }
     }
-
-    /* ── RECENT FEED ────────────────────────────────────────────── */
-    .recent-section {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 32px 24px 0;
-    }
-
-    .section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    #recentFeed {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .feed-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 13px 0;
-      border-bottom: 1px solid var(--border);
-      cursor: default;
-    }
-    .feed-item:last-child { border-bottom: none; }
-
-    .feed-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      margin-top: 6px;
-      flex-shrink: 0;
-    }
-    .feed-dot.pass       { background: var(--pass); }
-    .feed-dot.quarantine { background: var(--hold); }
-    .feed-dot.reject     { background: var(--fail); }
-
-    .feed-text {
-      flex: 1;
-      min-width: 0;
-    }
-    .feed-claim {
-      font-size: 13px;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 3px;
-    }
-    .feed-meta {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--muted);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .feed-empty {
-      font-size: 13px;
-      color: var(--muted);
-      padding: 24px 0;
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 20px;
       text-align: center;
     }
-
-    /* ── HOW IT WORKS ───────────────────────────────────────────── */
-    .how-section {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 48px 24px 0;
-    }
-
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .step {
-      display: flex;
-      gap: 18px;
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .step:last-child { border-bottom: none; }
-
-    .step-num {
+    .stat-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--accent-dim);
-      min-width: 22px;
-      padding-top: 2px;
+      font-size: 32px; font-weight: 600;
+      color: var(--accent); letter-spacing: -0.01em;
+      line-height: 1.1;
     }
-    .step-content {}
-    .step-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 5px;
-    }
-    .step-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.65;
+    .stat-label {
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-top: 10px;
     }
 
-    /* ── ARCHITECTURE CALLOUT ───────────────────────────────────── */
-    .arch-section {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 48px 24px 0;
-    }
-
-    .arch-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 22px 22px;
-    }
-    .arch-card-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
+    /* ── AUDIENCE PATHS ─────────────────────────────────────── */
+    section { padding: 60px 0; }
+    .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    h2 {
+      font-size: clamp(24px, 3.2vw, 36px);
+      font-weight: 600; letter-spacing: -0.015em;
       margin-bottom: 14px;
     }
-
-    .arch-modes {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .arch-mode {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-    .arch-mode-name {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      min-width: 80px;
-      padding-top: 1px;
-    }
-    .arch-mode-desc {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.6;
+    h2 + p.lead {
+      font-size: 16px; color: var(--text-dim);
+      max-width: 60ch; margin-bottom: 36px;
     }
 
-    /* ── FOOTER ─────────────────────────────────────────────────── */
-    footer {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 48px 24px 56px;
+    .path-grid {
+      display: grid; grid-template-columns: 1fr; gap: 14px;
     }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-bottom: 36px;
+    @media (min-width: 800px) {
+      .path-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
     }
-    @media (min-width: 480px) {
-      .footer-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    .footer-col-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted-2);
-      margin-bottom: 12px;
-    }
-
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .footer-links a {
-      font-size: 13px;
-      color: var(--muted);
-      transition: color .15s;
-    }
-    .footer-links a:hover { color: var(--text); }
-
-    .footer-bottom {
-      border-top: 1px solid var(--border);
-      padding-top: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .footer-copy {
-      font-size: 11px;
-      color: var(--muted-2);
-    }
-    .footer-stat {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted-2);
-    }
-
-    /* ── INSTALL BANNER ─────────────────────────────────────────── */
-    #installBanner {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      max-width: 340px;
-      width: calc(100% - 40px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-      z-index: 200;
-    }
-    #installBanner.hidden { display: none !important; }
-    .install-text { font-size: 13px; color: var(--text); flex: 1; }
-    .install-text span { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
-    .btn-install {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      background: var(--accent);
-      color: #0f0d11;
-      border: none;
-      border-radius: var(--r-sm);
-      padding: 7px 14px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 500;
-    }
-    .btn-dismiss {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 18px;
-      cursor: pointer;
-      padding: 0 2px;
-      line-height: 1;
-    }
-
-    /* ── OFFLINE TOAST ──────────────────────────────────────────── */
-    #offlineToast {
-      display: none;
-      position: fixed;
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface-2);
-      border: 1px solid var(--fail);
-      border-radius: var(--r-sm);
-      padding: 8px 16px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--fail);
-      z-index: 300;
-      white-space: nowrap;
-    }
-    #offlineToast.visible { display: block; }
-
-    /* ── JOURNAL COUNT ──────────────────────────────────────────── */
-    #journalCount { font-variant-numeric: tabular-nums; }
-
-    /* ── NAV LINKS ──────────────────────────────────────────────── */
-    .nav-links {
-      display: flex;
-      gap: 2px;
-    }
-    .nav-link {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      padding: 4px 9px;
-      border-radius: var(--r-sm);
-      transition: color .15s, background .15s;
-    }
-    .nav-link:hover { color: var(--text); background: var(--surface); opacity: 1; }
-
-    /* ── EXPLORE TOOLS ───────────────────────────────────────────── */
-    .tools-section {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 40px 24px 0;
-    }
-
-    .tools-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .tool-card {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 18px;
+    .path-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
+      padding: 28px 26px;
+      transition: all 0.18s;
+      display: flex; flex-direction: column;
+      gap: 14px;
       text-decoration: none;
-      color: var(--text);
-      transition: border-color .2s, background .2s;
+      color: inherit;
     }
-    .tool-card:hover { border-color: var(--accent-dim); background: var(--surface-2); opacity: 1; }
-
-    .tool-icon {
-      font-size: 18px;
-      width: 32px;
-      text-align: center;
-      flex-shrink: 0;
+    .path-card:hover {
+      border-color: var(--accent);
+      background: var(--surface-2);
+    }
+    .path-card .ptag {
       font-family: 'JetBrains Mono', monospace;
-      color: var(--accent-dim);
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.16em; text-transform: uppercase;
     }
+    .path-card h3 {
+      font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .path-card p {
+      color: var(--text-dim); font-size: 14.5px; line-height: 1.55;
+      flex: 1;
+    }
+    .path-card .arrow {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent); font-size: 14px; font-weight: 600;
+    }
+    .path-card:hover .arrow { color: var(--accent-hi); transform: translateX(3px); }
 
-    .tool-content { flex: 1; min-width: 0; }
-    .tool-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 3px;
+    /* ── DEMO ─────────────────────────────────────────────────── */
+    .demo-wrap {
+      max-width: 740px; margin: 0 auto;
     }
-    .tool-desc {
-      font-size: 12px;
-      color: var(--muted);
+    .demo-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+    }
+    .demo-input textarea {
+      background: transparent; color: var(--text);
+      width: 100%; min-height: 70px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; line-height: 1.55;
+      border: none; outline: none; resize: vertical;
+    }
+    .demo-input textarea::placeholder { color: var(--muted-2); }
+    .demo-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .demo-hint {
+      font-size: 12px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .demo-result {
+      margin-top: 18px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 22px;
+      display: none;
+    }
+    .demo-result.show { display: block; }
+    .verdict-line {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .verdict-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px;
+    }
+    .verdict-pass { background: rgba(111,196,124,0.12); color: var(--pass); }
+    .verdict-quarantine { background: rgba(196,160,48,0.12); color: var(--hold); }
+    .verdict-reject { background: rgba(201,108,108,0.12); color: var(--fail); }
+    .verdict-domain {
+      font-size: 13px; color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .demo-detail {
+      font-size: 14px; color: var(--text-dim);
       line-height: 1.55;
     }
-
-    .tool-arrow {
-      font-size: 16px;
-      color: var(--muted-2);
-      flex-shrink: 0;
-      transition: color .2s, transform .2s;
+    .demo-detail code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: var(--bg-2); padding: 2px 6px; border-radius: 4px;
+      color: var(--accent);
     }
-    .tool-card:hover .tool-arrow { color: var(--accent); transform: translateX(3px); }
 
-    /* ── RESPONSIVE DESKTOP ─────────────────────────────────────── */
-    @media (min-width: 768px) {
-      .hero { padding: 80px 24px 56px; }
-      .hero-headline { font-size: 58px; }
-      .tools-grid { flex-direction: row; gap: 10px; }
-      .tool-card { flex-direction: column; align-items: flex-start; gap: 10px; flex: 1; }
-      .tool-arrow { align-self: flex-end; }
+    /* ── INTEGRATION PREVIEW ──────────────────────────────────── */
+    .integration-tabs {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 20px;
     }
+    .tab-btn {
+      padding: 8px 14px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 500;
+      background: var(--surface); color: var(--text-dim);
+      border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tab-btn:hover { border-color: var(--border-hi); color: var(--text); }
+    .tab-btn.active { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+    .tab-content {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 24px;
+    }
+    .tab-content.active { display: block; }
+    .tab-content pre {
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 16px 18px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px; line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .tab-content pre .k { color: var(--accent); }
+    .tab-content pre .s { color: #6ec98a; }
+    .tab-content pre .c { color: var(--muted); font-style: italic; }
+    .tab-content p { font-size: 14px; color: var(--text-dim); margin-bottom: 14px; }
+
+    /* ── PROOF ─────────────────────────────────────────────────── */
+    .proof-card {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 36px 32px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: center;
+    }
+    @media (min-width: 800px) {
+      .proof-card { grid-template-columns: 1fr 2fr; }
+    }
+    .proof-num {
+      text-align: center;
+    }
+    .proof-num-big {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 56px; font-weight: 600;
+      color: var(--pass);
+      line-height: 1; letter-spacing: -0.02em;
+    }
+    .proof-num-label {
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.14em;
+      margin-top: 10px;
+    }
+    .proof-text h3 {
+      font-size: 20px; font-weight: 600; margin-bottom: 12px;
+    }
+    .proof-text p {
+      color: var(--text-dim); font-size: 14.5px; line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .proof-pill {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(111,196,124,0.1);
+      color: var(--pass); border: 1px solid rgba(111,196,124,0.3);
+    }
+
+    /* ── HOW ──────────────────────────────────────────────────── */
+    .gate-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 800px) {
+      .gate-row { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    }
+    .gate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: var(--r);
+      padding: 22px 22px 24px;
+    }
+    .gate-card.red    { border-left-color: var(--fail); }
+    .gate-card.floor  { border-left-color: var(--hold); }
+    .gate-card.bro    { border-left-color: var(--pass); }
+    .gate-card.god    { border-left-color: #7fa8c0; }
+    .gate-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.16em;
+      font-weight: 600; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .gate-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.005em; }
+    .gate-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+    /* ── MODES ────────────────────────────────────────────────── */
+    .modes-grid {
+      display: grid; grid-template-columns: 1fr; gap: 12px;
+    }
+    @media (min-width: 700px) { .modes-grid { grid-template-columns: 1fr 1fr; } }
+    .mode-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 22px;
+    }
+    .mode-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent);
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .mode-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.55; }
+
+    /* ── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 50px 24px 36px;
+      margin-top: 80px;
+    }
+    .footer-grid {
+      max-width: var(--maxw); margin: 0 auto;
+      display: grid; grid-template-columns: 2fr repeat(3, 1fr);
+      gap: 36px;
+    }
+    @media (max-width: 720px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
+    .footer-brand .wordmark { font-size: 13px; }
+    .footer-tag {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 14px; color: var(--text-dim);
+      margin-top: 12px; max-width: 30ch; line-height: 1.5;
+    }
+    .footer-col h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col a { color: var(--text-dim); font-size: 13.5px; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      max-width: var(--maxw); margin: 36px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px; color: var(--muted);
+    }
+    .footer-bottom a { color: var(--muted); }
+    .footer-bottom a:hover { color: var(--text-dim); }
+
+    /* utilities */
+    .center { text-align: center; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
 <body>
 
-  <!-- ── NAV ──────────────────────────────────────────────────────── -->
-  <nav>
-    <span class="wordmark">Concordance</span>
-    <div class="nav-right">
-      <div class="nav-links">
-        <a href="/grid.html" class="nav-link">Grid</a>
-        <a href="/poly.html" class="nav-link">Poly</a>
-        <a href="/try.html" class="nav-link">Try</a>
-      </div>
-      <div class="status-dot">
-        <div class="dot" id="statusDot"></div>
-        <span id="statusText">live</span>
-      </div>
-      <button class="btn-ghost" id="navInstall" style="display:none" onclick="triggerInstall()">Install</button>
-    </div>
-  </nav>
-
-  <!-- ── OFFLINE TOAST ─────────────────────────────────────────────── -->
-  <div id="offlineToast">● engine offline — results from cache</div>
-
-  <!-- ── HERO ──────────────────────────────────────────────────────── -->
-  <div class="hero">
-    <p class="hero-eyebrow">63 Verifiers · 7 Axes · Rom. 1:20</p>
-    <h1 class="hero-headline">What are you<br>carrying?</h1>
-    <p class="hero-sub">The structure of creation is already decided. The engine maps it — 63 verifiers, seven scaffold axes — so the step from knowledge to wisdom is small.</p>
+<!-- ── NAV ──────────────────────────────────────────────────────── -->
+<nav class="topnav">
+  <a href="/" class="wordmark always">Concordance</a>
+  <div class="navlinks">
+    <a href="/verifiers.html">Verifiers</a>
+    <a href="/grid.html">Grid</a>
+    <a href="/poly.html">Polymathic</a>
+    <a href="/benchmark.html">Benchmark</a>
+    <a href="/agents.html">Agents</a>
+    <span class="live-dot always" id="liveDot">live</span>
+    <a href="/connect.html" class="cta always">Connect →</a>
   </div>
+</nav>
 
-  <!-- ── INPUT ─────────────────────────────────────────────────────── -->
-  <div class="input-block">
-    <div class="input-wrap">
-      <textarea
-        id="claimInput"
-        placeholder="Describe what you are carrying…"
-        rows="3"
-        spellcheck="true"
-      ></textarea>
-      <div class="input-footer">
-        <span class="input-hint">Enter to submit · Shift+Enter for new line</span>
-        <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">
-          <span>Run</span>
-          <span>↵</span>
-        </button>
-      </div>
-    </div>
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<header class="hero">
+  <p class="hero-eyebrow">Deterministic verification · Rom. 1:20</p>
+  <h1 class="hero-headline">The verifier <em>between</em> your AI and irreversible action.</h1>
+  <p class="hero-sub">63 verifier tools across 7 scaffold axes. 21,000+ sealed packets. 99.4% on the benchmark — same model, with tools, vs. the model alone. Connect any AI agent in under 60 seconds.</p>
+  <div class="hero-ctas">
+    <a class="btn btn-primary" href="/connect.html">Connect your agent →</a>
+    <a class="btn btn-secondary" href="#demo">Try the engine</a>
   </div>
+</header>
 
-  <!-- ── GATE PATH ──────────────────────────────────────────────────── -->
-  <div class="gates" id="gateBar">
-    <div class="gate" id="gate-red">
-      <div class="gate-icon">🔴</div>
-      <div class="gate-label">Red</div>
-    </div>
-    <div class="gate-arrow"></div>
-    <div class="gate" id="gate-floor">
-      <div class="gate-icon">⚖️</div>
-      <div class="gate-label">Floor</div>
-    </div>
-    <div class="gate-arrow"></div>
-    <div class="gate" id="gate-brothers">
-      <div class="gate-icon">🤝</div>
-      <div class="gate-label">Brothers</div>
-    </div>
-    <div class="gate-arrow"></div>
-    <div class="gate" id="gate-god">
-      <div class="gate-icon">✝</div>
-      <div class="gate-label">God</div>
-    </div>
-  </div>
+<!-- ── LIVE STATS ───────────────────────────────────────────────── -->
+<div class="stats-band" id="statsBand">
+  <div class="stat-tile"><div class="stat-num" id="statPackets">21,436</div><div class="stat-label">Packets sealed</div></div>
+  <div class="stat-tile"><div class="stat-num">72 / 63</div><div class="stat-label">Tools / Verifiers</div></div>
+  <div class="stat-tile"><div class="stat-num">170 / 171</div><div class="stat-label">Benchmark · 99.4%</div></div>
+  <div class="stat-tile"><div class="stat-num">7</div><div class="stat-label">Scaffold axes</div></div>
+</div>
 
-  <!-- ── RESULT ─────────────────────────────────────────────────────── -->
-  <div id="resultPanel">
-    <div class="result-card" id="resultCard">
-      <!-- populated by JS -->
-    </div>
-  </div>
+<!-- ── AUDIENCE PATHS ──────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="path-grid">
 
-  <!-- ── DIVIDER ────────────────────────────────────────────────────── -->
-  <div class="section-divider" style="margin-top:56px"></div>
-
-  <!-- ── RECENT FEED ────────────────────────────────────────────────── -->
-  <div class="recent-section">
-    <p class="section-label">Recent verdicts</p>
-    <div id="recentFeed">
-      <p class="feed-empty">Loading…</p>
-    </div>
-  </div>
-
-  <!-- ── EXPLORE TOOLS ────────────────────────────────────────────── -->
-  <div class="tools-section">
-    <p class="section-label">Explore the engine</p>
-    <div class="tools-grid">
-      <a href="/grid.html" class="tool-card">
-        <div class="tool-icon">⬡</div>
-        <div class="tool-content">
-          <div class="tool-name">Engine Grid</div>
-          <div class="tool-desc">63 verifiers, 7 axes. The structural map — force-directed in 3D. Every node connected.</div>
-        </div>
-        <div class="tool-arrow">→</div>
+      <a href="/connect.html" class="path-card">
+        <span class="ptag">For AI agents</span>
+        <h3>Plug a deterministic verifier into any LLM.</h3>
+        <p>Claude Desktop, Cursor, custom MCP clients, REST API, OpenAI function calling. The engine is at <code class="mono" style="font-size:13px;color:var(--accent)">narrowhighway.com/mcp</code>. No install required for hosted use.</p>
+        <span class="arrow">Open every door →</span>
       </a>
-      <a href="/poly.html" class="tool-card">
-        <div class="tool-icon">◈</div>
-        <div class="tool-content">
-          <div class="tool-name">Polymathic</div>
-          <div class="tool-desc">Cross-domain synthesis. Run a claim across all 63 verifiers simultaneously. Engine 100% vs LLM-alone 88%.</div>
-        </div>
-        <div class="tool-arrow">→</div>
+
+      <a href="#demo" class="path-card">
+        <span class="ptag">For humans</span>
+        <h3>Bring what you are carrying.</h3>
+        <p>Type a claim, a question, a situation. The engine classifies it across 63 verifiers, runs four gates (RED → FLOOR → BROTHERS → GOD), and returns a Scripture-anchored verdict. Never self-confirms. Always shows its work.</p>
+        <span class="arrow">Try it below ↓</span>
       </a>
-      <a href="/benchmark.html" class="tool-card">
-        <div class="tool-icon">▦</div>
-        <div class="tool-content">
-          <div class="tool-name">Benchmark</div>
-          <div class="tool-desc">171/171 on 57 domains. Reproducible. The verifiers carry the weight language models cannot. +20 items fixed by tools vs alone.</div>
-        </div>
-        <div class="tool-arrow">→</div>
-      </a>
+
     </div>
   </div>
+</section>
 
-  <!-- ── HOW IT WORKS ───────────────────────────────────────────────── -->
-  <div class="how-section">
-    <p class="section-label" style="margin-bottom:20px">How it works</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-content">
-          <div class="step-title">Bring what you are carrying</div>
-          <div class="step-desc">Type a claim, a question, a situation, or a verse. The engine does not tell you what to bring.</div>
+<!-- ── DEMO ─────────────────────────────────────────────────────── -->
+<section id="demo">
+  <div class="container">
+    <h2>Try the engine</h2>
+    <p class="lead">Type anything — a claim, a question, a moral situation, an equation. Watch the four gates evaluate it in real time.</p>
+
+    <div class="demo-wrap">
+      <div class="demo-input">
+        <textarea
+          id="claimInput"
+          placeholder="e.g. The half-life of carbon-14 is 5,730 years. Or: Should our church board approve a building loan?"
+          rows="3"
+          spellcheck="true"
+        ></textarea>
+        <div class="demo-footer">
+          <span class="demo-hint">Enter to submit · Shift+Enter for newline</span>
+          <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()" style="padding:9px 18px;font-size:13px">
+            Run ↵
+          </button>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-content">
-          <div class="step-title">The engine classifies and verifies</div>
-          <div class="step-desc">Across 63 verifiers, seven scaffold axes — theology, law, medicine, labor, physics, mathematics, language. Each with its own verifier. No guessing. No general AI.</div>
-        </div>
+      <div class="demo-result" id="demoResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTEGRATION PREVIEW ──────────────────────────────────────── -->
+<section style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <h2>Connect any agent in 60 seconds</h2>
+    <p class="lead">Four ways in. The engine is the same. The interface is yours.</p>
+
+    <div class="integration-tabs">
+      <button class="tab-btn active" onclick="switchTab('claude')">Claude Desktop</button>
+      <button class="tab-btn" onclick="switchTab('cursor')">Cursor</button>
+      <button class="tab-btn" onclick="switchTab('rest')">REST / curl</button>
+      <button class="tab-btn" onclick="switchTab('openai')">OpenAI</button>
+    </div>
+
+    <div class="tab-content active" id="tab-claude">
+      <p>Add this to your <code>claude_desktop_config.json</code> — narrowhighway.com hosts the MCP server, so you don't install anything.</p>
+<pre><span class="c">// ~/Library/Application Support/Claude/claude_desktop_config.json (mac)</span>
+<span class="c">// %APPDATA%/Claude/claude_desktop_config.json (Windows)</span>
+{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"concordance"</span>: {
+      <span class="k">"url"</span>: <span class="s">"https://narrowhighway.com/mcp"</span>
+    }
+  }
+}</pre>
+      <p style="margin-top:12px">Restart Claude Desktop. You'll see 72 tools available in any new conversation. <a href="/connect.html#claude">Full guide with screenshots →</a></p>
+    </div>
+
+    <div class="tab-content" id="tab-cursor">
+      <p>In Cursor, open <strong>Settings → MCP</strong> and add a new server:</p>
+<pre>Name: <span class="s">concordance</span>
+URL:  <span class="s">https://narrowhighway.com/mcp</span></pre>
+      <p style="margin-top:12px">Cursor will discover all 72 tools. Use them in any chat with <code>@concordance</code>. <a href="/connect.html#cursor">Full guide →</a></p>
+    </div>
+
+    <div class="tab-content" id="tab-rest">
+      <p>The HTTP REST API exposes 86 endpoints — capture, verify, seal, journal, ledger, polymathic synthesis. No auth needed for read endpoints.</p>
+<pre><span class="c"># Verify a chemistry claim</span>
+curl -X POST https://narrowhighway.com/verify/chemistry \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"equation":"H2 + O2 -> H2O"}'</span>
+
+<span class="c"># Browse the live verifier inventory</span>
+curl https://narrowhighway.com/verifiers
+curl https://narrowhighway.com/llms.txt
+curl https://narrowhighway.com/openapi.json</pre>
+      <p style="margin-top:12px"><a href="/docs">Live API docs (Swagger UI) →</a> · <a href="/llms.txt">llms.txt for AI crawlers →</a></p>
+    </div>
+
+    <div class="tab-content" id="tab-openai">
+      <p>Auto-import every endpoint as OpenAI function calls. No glue code.</p>
+<pre><span class="k">import</span> openai, json, urllib.request
+
+spec = json.loads(urllib.request.urlopen(
+    <span class="s">"https://narrowhighway.com/openapi.json"</span>).read())
+
+<span class="c"># Use spec to generate function-calling tool definitions</span>
+<span class="c"># or pass directly to libraries like Instructor / LangChain</span></pre>
+      <p style="margin-top:12px"><a href="/connect.html#openai">Full Python adapter →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROOF ───────────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>The benchmark</h2>
+    <p class="lead">171 items spanning 57 domains. Same model, same prompts. With tools the engine fixes 18 errors the model makes alone.</p>
+
+    <div class="proof-card">
+      <div class="proof-num">
+        <div class="proof-num-big">170/171</div>
+        <div class="proof-num-label">With concordance tools</div>
       </div>
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-content">
-          <div class="step-title">Four gates, one path</div>
-          <div class="step-desc">RED → FLOOR → BROTHERS → GOD. Every verdict passes or stops at a gate. The record is permanent. Scripture anchors every path.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">04</div>
-        <div class="step-content">
-          <div class="step-title">Runs anywhere, needs nothing</div>
-          <div class="step-desc">Install as an app. Run offline. Point any AI tool at it as an MCP server. The engine belongs to whoever holds it.</div>
-        </div>
+      <div class="proof-text">
+        <h3>+18 items, +10.5 percentage points</h3>
+        <p>Claude Haiku 4.5 alone scores 152/171 (88.9%). With concordance tools it scores 170/171 (99.4%). The single residual miss is a token-truncation in the model's reply, not a verifier failure. The verifiers carry the weight that language models cannot.</p>
+        <p>
+          <span class="proof-pill">Statistics: 0% → 100%</span>&nbsp;
+          <span class="proof-pill">Polymathic synthesis: 75% → 100%</span>
+        </p>
+        <p style="margin-top:18px"><a href="/benchmark.html" class="btn btn-secondary" style="padding:9px 16px;font-size:13px">See the full benchmark →</a></p>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ── ARCHITECTURE ───────────────────────────────────────────────── -->
-  <div class="arch-section">
-    <div class="arch-card">
-      <p class="arch-card-title">Operating modes</p>
-      <div class="arch-modes">
-        <div class="arch-mode">
-          <span class="arch-mode-name">Open</span>
-          <span class="arch-mode-desc">Full API, public witnessing, Arweave permanent record.</span>
-        </div>
-        <div class="arch-mode">
-          <span class="arch-mode-name">Restricted</span>
-          <span class="arch-mode-desc">Local-only. No outbound calls. Physical token unlocks execution. Verified offline.</span>
-        </div>
-        <div class="arch-mode">
-          <span class="arch-mode-name">Lockdown</span>
-          <span class="arch-mode-desc">Mesh-radio only. Sub-GHz. Runs without internet, without power grid dependency.</span>
-        </div>
-        <div class="arch-mode">
-          <span class="arch-mode-name">Your node</span>
-          <span class="arch-mode-desc">Run your own instance. &lt;1 GB. Point any AI at it. Your witness chain, not ours.</span>
-        </div>
+<!-- ── HOW IT WORKS ─────────────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Four gates. Fixed order. First failure halts.</h2>
+    <p class="lead">Every packet — claim, equation, decision, verse — flows through the same path. The engine never self-confirms.</p>
+
+    <div class="gate-row">
+      <div class="gate-card red">
+        <div class="gate-name">01 · Red</div>
+        <h4>Coercion check</h4>
+        <p>Rejects unilateral authority, rights violations, hard computational failures. The first thing kept out of the ledger.</p>
+      </div>
+      <div class="gate-card floor">
+        <div class="gate-name">02 · Floor</div>
+        <h4>Structural floor</h4>
+        <p>Rejects incomplete or internally inconsistent packets. Required fields per domain. Scripture-anchor coverage.</p>
+      </div>
+      <div class="gate-card bro">
+        <div class="gate-name">03 · Brothers</div>
+        <h4>Witness threshold</h4>
+        <p>Quarantines if witnesses are insufficient or the review window has not elapsed. Two or three witnesses establish a matter (Deut 19:15).</p>
+      </div>
+      <div class="gate-card god">
+        <div class="gate-name">04 · God</div>
+        <h4>Permanent record</h4>
+        <p>Seals into the append-only audit chain. Every step of the reasoning trail is captured. Nothing the engine cannot show.</p>
+      </div>
+    </div>
+
+    <p style="text-align:center; margin-top:32px"><a href="/how-it-works.html">Read the architecture in depth →</a></p>
+  </div>
+</section>
+
+<!-- ── DEPLOYMENT MODES ─────────────────────────────────────────── -->
+<section style="background: var(--bg-2); border-top: 1px solid var(--border);">
+  <div class="container">
+    <h2>Run it the way you need to.</h2>
+    <p class="lead">Same code, four modes. Same engine on a hosted node, an offline laptop, or a sub-GHz mesh radio.</p>
+
+    <div class="modes-grid">
+      <div class="mode-card">
+        <div class="mode-name">Open</div>
+        <p>Hosted at narrowhighway.com. Full API, public witnessing. The default for agents that need a second opinion.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">Restricted</div>
+        <p>Local-only. No outbound calls. Physical token unlocks execution. Verified offline.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">Lockdown</div>
+        <p>Mesh-radio only. Sub-GHz. Runs without internet, without grid dependency. Wilderness-ready.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-name">Your node</div>
+        <p>Run your own instance. Under 1 GB. Your witness chain, not ours. <a href="/install.html">Install guide →</a></p>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ── FOOTER ─────────────────────────────────────────────────────── -->
-  <footer>
-    <div class="footer-grid">
-      <div>
-        <p class="footer-col-label">Engine</p>
-        <div class="footer-links">
-          <a href="/grid.html">Grid</a>
-          <a href="/poly.html">Polymathic</a>
-          <a href="/benchmark.html">Benchmark</a>
-          <a href="/verifiers.html">Verifiers</a>
-          <a href="/agents.html">Agents</a>
-          <a href="/how-it-works.html">Internals</a>
-        </div>
-      </div>
-      <div>
-        <p class="footer-col-label">Run it</p>
-        <div class="footer-links">
-          <a href="/install.html">Install guide</a>
-          <a href="/offline.html">Offline setup</a>
-          <a href="/setup.html">Self-host</a>
-          <a href="https://github.com/matharrismma/Lighthouse" target="_blank">GitHub ↗</a>
-        </div>
-      </div>
-      <div>
-        <p class="footer-col-label">More</p>
-        <div class="footer-links">
-          <a href="/theory.html">Theory</a>
-          <a href="/reach.html">Reach</a>
-          <a href="/try.html">Try the API</a>
-          <a href="/share.html">Share a verdict</a>
-        </div>
-      </div>
+<!-- ── FOOTER ───────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="wordmark">Concordance</span>
+      <p class="footer-tag">A well of knowledge leads to wisdom when in alignment with God. The keeping is the substrate.</p>
     </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">Concordance — wisdom engine. Public domain intent.</span>
-      <span class="footer-stat">Journal: <span id="journalCount">—</span> entries</span>
+    <div class="footer-col">
+      <h4>For agents</h4>
+      <ul>
+        <li><a href="/connect.html">Connect</a></li>
+        <li><a href="/agents.html">Agent guide</a></li>
+        <li><a href="/docs">REST API docs</a></li>
+        <li><a href="/llms.txt">llms.txt</a></li>
+        <li><a href="/identity">Identity</a></li>
+      </ul>
     </div>
-  </footer>
-
-  <!-- ── INSTALL BANNER ────────────────────────────────────────────── -->
-  <div id="installBanner" class="hidden">
-    <div class="install-text">
-      Add to home screen
-      <span>Works offline after install</span>
+    <div class="footer-col">
+      <h4>For humans</h4>
+      <ul>
+        <li><a href="/verifiers.html">Verifiers</a></li>
+        <li><a href="/grid.html">Engine grid</a></li>
+        <li><a href="/poly.html">Polymathic</a></li>
+        <li><a href="/benchmark.html">Benchmark</a></li>
+        <li><a href="/how-it-works.html">How it works</a></li>
+      </ul>
     </div>
-    <button class="btn-install" onclick="triggerInstall()">Install</button>
-    <button class="btn-dismiss" onclick="dismissInstall()">×</button>
+    <div class="footer-col">
+      <h4>Run it</h4>
+      <ul>
+        <li><a href="/install.html">Install</a></li>
+        <li><a href="/theory.html">Theory</a></li>
+        <li><a href="https://github.com/matharrismma/Lighthouse">GitHub ↗</a></li>
+      </ul>
+    </div>
   </div>
+  <div class="footer-bottom">
+    <span>© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</span>
+    <span>Live: <span id="liveCount" class="mono">—</span> packets · <span id="liveTools" class="mono">72</span> tools</span>
+  </div>
+</footer>
 
+<script>
+  /* ───────── CONFIG ───────── */
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
 
-  <script>
-    /* ── CONFIG ──────────────────────────────────────────────────── */
-    const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-      ? 'http://localhost:8000'
-      : '';   // same-origin when deployed
+  /* ───────── LIVE STATS ───────── */
+  async function refreshStats() {
+    try {
+      const h = await fetch(API + '/health', { cache: 'no-store' }).then(r => r.json());
+      const total = h?.modules?.journal?.total_entries;
+      if (total) {
+        document.getElementById('statPackets').textContent = total.toLocaleString();
+        document.getElementById('liveCount').textContent = total.toLocaleString();
+      }
+      document.getElementById('liveDot').style.color = 'var(--pass)';
+    } catch (_) {
+      document.getElementById('liveDot').style.color = 'var(--fail)';
+      document.getElementById('liveDot').firstChild && (document.getElementById('liveDot').firstChild.textContent = 'offline');
+    }
+  }
 
-    /* ── GATE STATE ──────────────────────────────────────────────── */
-    const GATES = ['red', 'floor', 'brothers', 'god'];
+  /* ───────── TABS ───────── */
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
 
-    function resetGates() {
-      GATES.forEach(g => {
-        const el = document.getElementById('gate-' + g);
-        el.className = 'gate';
-        el.querySelector('.gate-icon').textContent = gateIcon(g);
+  /* ───────── DEMO SUBMIT ───────── */
+  async function handleSubmit() {
+    const input = document.getElementById('claimInput');
+    const btn   = document.getElementById('submitBtn');
+    const claim = input.value.trim();
+    if (!claim) return;
+
+    btn.disabled = true;
+    btn.textContent = '…';
+    const result = document.getElementById('demoResult');
+    result.classList.remove('show');
+
+    try {
+      const res = await fetch(API + '/capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: claim, source: 'web', tags: ['homepage'], meta: {} })
       });
+      const data = await res.json();
+      renderResult(claim, data);
+      refreshStats();
+    } catch (err) {
+      renderError(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Run ↵';
     }
+  }
 
-    function gateIcon(g) {
-      return { red: '🔴', floor: '⚖️', brothers: '🤝', god: '✝' }[g];
-    }
+  function renderResult(claim, data) {
+    const result = document.getElementById('demoResult');
+    const verdict = (data.verdict || data.gate_overall || 'kept').toLowerCase();
+    const cls = verdict.includes('pass') ? 'verdict-pass'
+              : verdict.includes('quar') ? 'verdict-quarantine'
+              : verdict.includes('rej')  ? 'verdict-reject'
+              : 'verdict-pass';
+    const domain = data.domain || data.classification || 'classified';
+    const detail = data.detail || data.reason || data.summary
+                || `Sealed to journal as entry ${data.entry_id || data.id || ''}.`;
+    result.innerHTML = `
+      <div class="verdict-line">
+        <span class="verdict-chip ${cls}">${verdict.toUpperCase()}</span>
+        <span class="verdict-domain">domain: ${domain}</span>
+      </div>
+      <p class="demo-detail">${detail}</p>
+      ${data.entry_id ? `<p class="demo-detail" style="margin-top:10px;font-size:12px"><a href="/journal/${data.entry_id}">View full record →</a></p>` : ''}
+    `;
+    result.classList.add('show');
+  }
+  function renderError(msg) {
+    const result = document.getElementById('demoResult');
+    result.innerHTML = `<p class="demo-detail" style="color:var(--fail)">Error: ${msg}. The engine may be restarting — try again in a moment.</p>`;
+    result.classList.add('show');
+  }
 
-    function activateGate(name) {
-      GATES.forEach((g, i) => {
-        const el = document.getElementById('gate-' + g);
-        if (g === name) el.classList.add('active');
-        else if (GATES.indexOf(name) > i) el.classList.add('passed');
-      });
-    }
+  /* Submit on Enter (not Shift+Enter) */
+  document.getElementById('claimInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
+  });
 
-    function failGate(name) {
-      const el = document.getElementById('gate-' + name);
-      el.className = 'gate failed';
-      el.querySelector('.gate-icon').textContent = '✕';
-    }
+  /* Boot */
+  refreshStats();
+  setInterval(refreshStats, 30000);
+</script>
 
-    function setGatesFromVerdict(verdict) {
-      resetGates();
-      const v = (verdict || '').toLowerCase();
-      if (v === 'pass') {
-        GATES.forEach(g => document.getElementById('gate-' + g).classList.add('passed'));
-      } else if (v === 'quarantine') {
-        activateGate('brothers');
-        failGate('brothers');
-      } else if (v === 'reject') {
-        activateGate('red');
-        failGate('red');
-      } else {
-        activateGate('red'); // default: at first gate
-      }
-    }
-
-    /* ── SUBMIT ──────────────────────────────────────────────────── */
-    async function handleSubmit() {
-      const input  = document.getElementById('claimInput');
-      const btn    = document.getElementById('submitBtn');
-      const claim  = input.value.trim();
-      if (!claim) return;
-
-      btn.disabled = true;
-      btn.innerHTML = '<div class="spinner"></div>';
-      resetGates();
-      activateGate('red');
-
-      try {
-        /* Capture + dispatch */
-        const res = await fetch(API + '/capture', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: claim,
-            source: 'web',
-            tags: ['web-input'],
-            meta: {}
-          })
-        });
-
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        showResult(claim, data);
-        loadRecent();
-      } catch (err) {
-        showError(err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>Run</span><span>↵</span>';
-      }
-    }
-
-    /* ── RESULT RENDER ───────────────────────────────────────────── */
-    function showResult(claim, data) {
-      const panel  = document.getElementById('resultPanel');
-      const card   = document.getElementById('resultCard');
-      const verdict = data.verdict || data.status || 'captured';
-      const domain  = data.domain  || data.source || 'general';
-      const anchor  = data.scripture_anchor || data.anchor || '';
-      const ref     = data.scripture_ref    || '';
-      const summary = data.summary || data.path || data.message || '';
-      const gate    = data.gate   || (verdict === 'pass' ? 'god' : verdict === 'quarantine' ? 'brothers' : 'red');
-      const hash    = data.packet_hash || data.hash || '';
-
-      setGatesFromVerdict(verdict);
-
-      const chipClass = { pass: 'pass', quarantine: 'quarantine', reject: 'reject' }[verdict] || 'pending';
-      const chipLabel = verdict.toUpperCase();
-
-      card.innerHTML = `
-        <div class="result-header">
-          <span class="domain-tag">${escHtml(domain)}</span>
-          <span class="verdict-chip ${chipClass}">${chipLabel}</span>
-        </div>
-        <div class="result-body">
-          ${summary ? `
-          <div class="result-section">
-            <div class="result-section-label">Path</div>
-            <div class="result-section-body">${escHtml(summary)}</div>
-          </div>` : ''}
-
-          ${anchor ? `
-          <div class="result-section">
-            <div class="result-section-label">Scripture anchor</div>
-            <div class="scripture-quote">${escHtml(anchor)}</div>
-            ${ref ? `<div class="scripture-ref">${escHtml(ref)}</div>` : ''}
-          </div>` : ''}
-
-          ${!summary && !anchor ? `
-          <div class="result-section">
-            <div class="result-section-label">Received</div>
-            <div class="result-section-body">Claim captured and entered into the journal. Domain: <b>${escHtml(domain)}</b>.</div>
-          </div>` : ''}
-        </div>
-        <div class="result-meta">
-          ${hash ? `<span class="meta-item">📄 ${escHtml(hash.slice(0,12))}…</span>` : ''}
-          <span class="meta-item">⏱ ${new Date().toLocaleTimeString()}</span>
-          ${gate ? `<span class="meta-item">gate: ${escHtml(gate)}</span>` : ''}
-        </div>
-      `;
-
-      panel.classList.add('visible');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function showError(msg) {
-      const panel = document.getElementById('resultPanel');
-      const card  = document.getElementById('resultCard');
-      card.innerHTML = `
-        <div class="result-header">
-          <span class="domain-tag">error</span>
-          <span class="verdict-chip reject">ERROR</span>
-        </div>
-        <div class="result-body">
-          <div class="result-section">
-            <div class="result-section-body" style="color:var(--fail)">${escHtml(msg)}</div>
-          </div>
-        </div>
-      `;
-      panel.classList.add('visible');
-    }
-
-    /* ── RECENT FEED ─────────────────────────────────────────────── */
-    async function loadRecent() {
-      try {
-        const res  = await fetch(API + '/journal?limit=8');
-        if (!res.ok) return;
-        const data = await res.json();
-        const entries = data.entries || data.items || [];
-        renderFeed(entries);
-
-        const count = data.total || entries.length;
-        const el = document.getElementById('journalCount');
-        if (el && count) el.textContent = count.toLocaleString();
-      } catch {}
-    }
-
-    function renderFeed(entries) {
-      const feed = document.getElementById('recentFeed');
-      if (!entries.length) {
-        feed.innerHTML = '<p class="feed-empty">No verdicts yet. Be the first.</p>';
-        return;
-      }
-      feed.innerHTML = entries.map(e => {
-        const v = (e.verdict || e.status || '').toLowerCase();
-        const dotClass = v === 'pass' ? 'pass' : v === 'reject' ? 'reject' : 'quarantine';
-        const claim = e.text || e.claim || e.content || '—';
-        const domain = e.domain || e.source || '';
-        const ts = e.timestamp ? new Date(e.timestamp * 1000).toLocaleDateString() : '';
-        return `
-          <div class="feed-item">
-            <div class="feed-dot ${dotClass}"></div>
-            <div class="feed-text">
-              <div class="feed-claim">${escHtml(clip(claim, 72))}</div>
-              <div class="feed-meta">
-                ${domain ? `<span>${escHtml(domain)}</span>` : ''}
-                ${ts ? `<span>${escHtml(ts)}</span>` : ''}
-                ${v ? `<span>${escHtml(v)}</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    /* ── STATUS ──────────────────────────────────────────────────── */
-    async function checkStatus() {
-      const dot  = document.getElementById('statusDot');
-      const text = document.getElementById('statusText');
-      try {
-        const res  = await fetch(API + '/health', { signal: AbortSignal.timeout(4000) });
-        const data = await res.json();
-        dot.classList.remove('offline');
-        const j = data?.modules?.journal?.total_entries;
-        if (j) {
-          const el = document.getElementById('journalCount');
-          if (el) el.textContent = parseInt(j).toLocaleString();
-        }
-        text.textContent = 'live';
-        document.getElementById('offlineToast').classList.remove('visible');
-      } catch {
-        dot.classList.add('offline');
-        text.textContent = 'offline';
-        document.getElementById('offlineToast').classList.add('visible');
-      }
-    }
-
-    /* ── KEYBOARD ────────────────────────────────────────────────── */
-    document.getElementById('claimInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSubmit();
-      }
-    });
-
-    /* ── INSTALL PWA ─────────────────────────────────────────────── */
-    let _deferredPrompt = null;
-
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      _deferredPrompt = e;
-      document.getElementById('installBanner').classList.remove('hidden');
-      document.getElementById('navInstall').style.display = '';
-    });
-
-    function triggerInstall() {
-      if (!_deferredPrompt) return;
-      _deferredPrompt.prompt();
-      _deferredPrompt.userChoice.finally(() => {
-        _deferredPrompt = null;
-        dismissInstall();
-      });
-    }
-    function dismissInstall() {
-      document.getElementById('installBanner').classList.add('hidden');
-    }
-
-    /* ── UTIL ────────────────────────────────────────────────────── */
-    function escHtml(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function clip(s, n) {
-      return s.length > n ? s.slice(0, n) + '…' : s;
-    }
-
-    /* ── INIT ────────────────────────────────────────────────────── */
-    checkStatus();
-    loadRecent();
-    setInterval(checkStatus, 30_000);
-    setInterval(loadRecent,  60_000);
-  </script>
 </body>
 </html>

@@ -4680,6 +4680,27 @@ _connector_thread = _threading.Thread(
 _connector_thread.start()
 
 
+# -- MCP over HTTP/SSE — remote agent door ------------------------------
+# Mount the FastMCP server at /mcp so any MCP-compliant agent (Claude
+# Desktop with remote MCP, Cursor, custom clients) can connect to
+# https://narrowhighway.com/mcp without installing anything locally.
+# Two transports exposed:
+#   /mcp       — streamable HTTP (newer, recommended)
+#   /mcp/sse   — SSE (older, broader client compatibility)
+# stdio remains the local transport for `concordance-mcp` CLI users.
+try:
+    from concordance_engine.mcp_server.server import mcp as _mcp_server
+    app.mount("/mcp/sse", _mcp_server.sse_app(), name="mcp_sse")
+    app.mount("/mcp", _mcp_server.streamable_http_app(), name="mcp_http")
+except Exception as _mcp_mount_err:
+    # Don't take down the API if MCP mount fails — log and continue.
+    # The REST surface, /docs, and /llms.txt all still serve agents.
+    import logging as _logging
+    _logging.getLogger("concordance.api").warning(
+        "MCP HTTP mount skipped: %s", _mcp_mount_err
+    )
+
+
 # -- Static site (must be last — catches all unmatched paths) ------------
 # Serves site/ for all HTML pages, CSS, JS, icons, manifests, etc.
 # API routes registered above take priority; this handles everything else.
