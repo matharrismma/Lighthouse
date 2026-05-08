@@ -4412,6 +4412,24 @@ _connector_fired_pairs: set = set()                  # frozenset({da, db}) pairs
 _connector_seen_ids: set = set()                     # journal entry IDs already scanned
 _connector_lock = _threading.Lock()
 
+# Connector hummingbird stats — read by /swarm/connector and the brain UI.
+# This is the first formalized hummingbird species: small, narrow job
+# (find cross-domain connections), low power, low data, runs forever.
+_connector_stats: Dict[str, Any] = {
+    "name": "connector",
+    "species": "Connector",
+    "role": "find cross-domain edges along shared scaffold axes",
+    "started_at": None,        # set on first tick
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "pairs_fired_total": 0,    # cumulative across run
+    "last_pair_fired": None,   # {ts, domain_a, domain_b, axis_count, shared_axes}
+    "active_domains": 0,       # domains with >= 2 seeds
+    "tick_period_seconds": 60,
+}
+
 
 def _grid_connector_worker():
     """Background keeper — connects the dots as the journal grows.
@@ -4429,11 +4447,17 @@ def _grid_connector_worker():
     """
     import time as _time
 
+    if _connector_stats["started_at"] is None:
+        _connector_stats["started_at"] = _time.time()
     while True:
         try:
             _grid_connector_scan()
+            _connector_stats["tick_count"] += 1
         except Exception as exc:
             _log.warning(f"grid connector error: {exc}")
+            _connector_stats["error_count"] += 1
+            _connector_stats["last_error"] = str(exc)[:200]
+        _connector_stats["last_tick_at"] = _time.time()
         _time.sleep(60)
 
 
@@ -4502,10 +4526,21 @@ def _grid_connector_scan():
                 with open(_GRID_CONNECTIONS_FILE, "a", encoding="utf-8") as fh:
                     fh.write(json.dumps(event) + "\n")
                 _connector_fired_pairs.add(pair)
+                _connector_stats["pairs_fired_total"] += 1
+                _connector_stats["last_pair_fired"] = {
+                    "ts": event["ts"],
+                    "domain_a": da,
+                    "domain_b": db,
+                    "axis_count": event["axis_count"],
+                    "shared_axes": event["shared_axes"],
+                }
                 _log.info(
                     f"grid connection: {da} ↔ {db}  "
                     f"axes={sorted(shared)}"
                 )
+
+        # Update active-domains gauge after the scan
+        _connector_stats["active_domains"] = len(active)
 
 
 @app.get("/grid/scaffold", tags=["agents"])
@@ -4629,6 +4664,101 @@ def grid_connections(
             "fired_pairs": len(_connector_fired_pairs),
             "seen_entries": len(_connector_seen_ids),
         },
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Swarm — hummingbird agent status
+#
+# Each hummingbird is a small autonomous worker with a narrow job. They
+# write through the same /capture (etc.) doors as anyone else; nothing
+# privileged. Stats are read-only for observers (the brain UI, the
+# Trainer, agents auditing the keeping).
+#
+# First species: Connector — finds cross-domain edges along shared
+# scaffold axes. Already running as a background thread; this endpoint
+# just exposes its stats.
+# ─────────────────────────────────────────────────────────────────────
+
+@app.get("/swarm/connector", tags=["agents"])
+def swarm_connector():
+    """Live stats for the Connector hummingbird.
+
+    The Connector watches new journal entries every 60s and fires a
+    cross-domain connection event whenever two domains accumulate seeds
+    AND share at least one scaffold axis. Each pair fires exactly once.
+
+    Returns:
+      name, species, role         — identity
+      started_at, last_tick_at    — uptime markers
+      tick_count, error_count     — health
+      pairs_fired_total           — cumulative connections discovered
+      last_pair_fired             — most recent pair (ts, domains, axes)
+      active_domains              — how many domains have seeds in scope
+      tick_period_seconds         — how often it runs
+
+    The Trainer hummingbird (when it exists) reads this to retarget the
+    swarm. The brain UI reads this to render the Connector's signature.
+    """
+    import time as _time
+    stats = dict(_connector_stats)  # shallow copy
+    stats["now"] = _time.time()
+    if stats["last_tick_at"]:
+        stats["seconds_since_tick"] = round(stats["now"] - stats["last_tick_at"], 1)
+    if stats["started_at"]:
+        stats["uptime_seconds"] = round(stats["now"] - stats["started_at"], 1)
+    return stats
+
+
+@app.get("/swarm", tags=["agents"])
+def swarm_index():
+    """Roster of all hummingbird agents — current and planned.
+
+    Returns each species's status. Currently only Connector is alive;
+    Janitor, Searcher, and Trainer are sketched but not yet running.
+    The brain UI uses this to render swarm panels; the Trainer reads
+    it to know what's available to coordinate.
+    """
+    import time as _time
+    now = _time.time()
+    connector_alive = bool(
+        _connector_stats.get("last_tick_at")
+        and (now - _connector_stats["last_tick_at"]) < 180
+    )
+    return {
+        "swarm": [
+            {
+                "name": "connector",
+                "species": "Connector",
+                "role": "find cross-domain edges along shared scaffold axes",
+                "status": "alive" if connector_alive else "stale",
+                "stats_endpoint": "/swarm/connector",
+                "pairs_fired_total": _connector_stats.get("pairs_fired_total", 0),
+                "last_tick_at": _connector_stats.get("last_tick_at"),
+            },
+            {
+                "name": "janitor",
+                "species": "Janitor",
+                "role": "dedup by content hash, flag malformed, archive stale low-yield",
+                "status": "planned",
+                "stats_endpoint": None,
+            },
+            {
+                "name": "searcher",
+                "species": "Searcher",
+                "role": "harvest one public-domain source and POST /capture",
+                "status": "planned",
+                "stats_endpoint": None,
+            },
+            {
+                "name": "trainer",
+                "species": "Trainer",
+                "role": "watch drop counts, retarget Searchers toward starving domains",
+                "status": "planned",
+                "stats_endpoint": None,
+            },
+        ],
+        "now": now,
     }
 
 

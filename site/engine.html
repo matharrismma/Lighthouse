@@ -360,6 +360,82 @@
       pointer-events: none;
     }
 
+    /* Hummingbird (harvest drop) — small gold particle that flies in */
+    .hummingbird {
+      pointer-events: none;
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+
+    /* Connector thread — temporary glowing line between two domains
+       drawn when the Connector hummingbird discovers a new shared-axis
+       pair. Different from the persistent edge underneath: this one
+       lights up briefly to announce the discovery. */
+    .connector-thread {
+      pointer-events: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+    }
+
+    /* Activity-list row variant: harvest drop */
+    .act-row.harvest {
+      background: linear-gradient(90deg, rgba(212,168,114,0.06) 0%, transparent 100%);
+      border-left: 2px solid var(--accent);
+      padding-left: 6px;
+    }
+    .act-row.harvest .dom::before {
+      content: '↶ ';
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+
+    /* ── SWARM PANEL — hummingbird roster + live stats ─── */
+    .swarm-panel { /* uses .panel base */ }
+    .swarm-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .swarm-row:first-of-type { border-top: none; }
+    .swarm-name {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .swarm-status {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--muted-2);
+      flex-shrink: 0;
+    }
+    .swarm-status.alive {
+      background: var(--pass);
+      box-shadow: 0 0 8px var(--pass);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    .swarm-status.stale { background: var(--hold); }
+    .swarm-status.planned { background: var(--muted-2); }
+    .swarm-meta {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+    .swarm-meta b { color: var(--accent); font-weight: 600; }
+    .swarm-pair {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 6px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+    }
+    .swarm-pair small {
+      display: block; color: var(--muted);
+      font-size: 9.5px; letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 3px;
+    }
+
     /* ── INSTRUMENTS BELOW STAGE ──────────────── */
     .below {
       max-width: 1280px; margin: 18px auto 0;
@@ -369,7 +445,10 @@
       gap: 14px;
     }
     @media (min-width: 800px) {
-      .below { grid-template-columns: 2fr 1fr 1fr; }
+      .below { grid-template-columns: 2fr 1fr 1fr 1.1fr; }
+    }
+    @media (min-width: 800px) and (max-width: 1100px) {
+      .below { grid-template-columns: 1fr 1fr; }
     }
     .panel {
       background: var(--surface);
@@ -597,6 +676,20 @@
     <div id="topHubs" style="display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px"></div>
     <p style="margin-top:10px; font-size:11.5px; color:var(--muted)">Multi-axis domains sit at the cortex. They share structure with the most other domains, so a packet in any of them activates the most paths.</p>
   </div>
+
+  <div class="panel swarm-panel">
+    <div class="panel-label">Swarm — hummingbirds</div>
+    <div id="swarmList">
+      <div class="swarm-row"><span class="swarm-name"><span class="swarm-status planned"></span>loading…</span></div>
+    </div>
+    <div class="swarm-pair" id="swarmLastPair" style="display:none;">
+      <small>Connector — last find</small>
+      <span id="swarmLastPairText">—</span>
+    </div>
+    <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
+      Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
+    </p>
+  </div>
 </div>
 
 <!-- ── SECRET COPY ────────────────────────────────── -->
@@ -629,6 +722,12 @@
   const AXIS_NAME = {
     enc: 'encoding', aut: 'authority', met: 'metabolism', csv: 'conservation',
     rsn: 'reasoning', tim: 'time', phy: 'physical'
+  };
+  // Backend uses full axis names ("metabolism", "physical_substance"); UI uses short codes.
+  const AXIS_CODE_FROM_FULL = {
+    encoding: 'enc', metabolism: 'met', reasoning: 'rsn',
+    physical_substance: 'phy', authority_trust: 'aut',
+    time_sequence: 'tim', conservation_balance: 'csv'
   };
   const AXIS_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
 
@@ -1169,9 +1268,131 @@
     return Math.floor(d/86400) + 'd';
   }
 
+  /* ═══════════════════════════════════════════════════
+     CONNECTOR HUMMINGBIRD — visual signature
+     A new shared-axis pair fires a glowing thread between
+     the two domain nodes, colored by the primary shared
+     axis. Thread fades over ~2.5s.
+  ═══════════════════════════════════════════════════ */
+  let lastConnectionTs = 0;
+  let connectorBootstrapped = false;
+
+  function drawConnectorThread(domA, domB, sharedAxesFull) {
+    const a = NODE_BY_ID[domA];
+    const b = NODE_BY_ID[domB];
+    if (!a || !b) return;
+    // Pick primary shared axis (use AXIS_PRIORITY)
+    const codes = (sharedAxesFull || []).map(x => AXIS_CODE_FROM_FULL[x] || x).filter(Boolean);
+    let primary = 'rsn';
+    for (const p of AXIS_PRIORITY) {
+      if (codes.includes(p)) { primary = p; break; }
+    }
+    const color = AXIS_COLOR[primary];
+
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('class', 'connector-thread');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('stroke', color);
+    line.setAttribute('opacity', 0);
+    line.style.filter = `drop-shadow(0 0 8px ${color})`;
+    activationLayer.appendChild(line);
+
+    // Endpoint dots
+    [a, b].forEach(n => activateNode(n.id, 0.85));
+
+    const start = performance.now();
+    const dur = 2500;
+    function step(t) {
+      const u = (t - start) / dur;
+      if (u >= 1) { line.remove(); return; }
+      // Update endpoints in case nodes moved during fade
+      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+      // Quick rise to peak at u=0.2, then long fade
+      const peak = u < 0.2 ? u / 0.2 : 1 - (u - 0.2) / 0.8;
+      line.setAttribute('opacity', Math.max(0, peak * 0.85).toFixed(3));
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  async function refreshConnections() {
+    try {
+      const url = lastConnectionTs > 0
+        ? `/grid/connections?since=${lastConnectionTs}&limit=30`
+        : `/grid/connections?limit=8`;
+      const data = await fetchJSON(url);
+      const events = data.events || [];
+
+      if (!connectorBootstrapped && events.length > 0) {
+        // First load: don't blast all events at once; just set the cursor
+        lastConnectionTs = Math.max(...events.map(e => e.ts || 0));
+        connectorBootstrapped = true;
+        return;
+      }
+
+      // Sort by ts ascending so threads fire in chronological order
+      events.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      events.forEach((ev, i) => {
+        if (!ev.ts || ev.ts <= lastConnectionTs) return;
+        setTimeout(() => drawConnectorThread(ev.domain_a, ev.domain_b, ev.shared_axes), i * 250);
+        lastConnectionTs = Math.max(lastConnectionTs, ev.ts);
+      });
+    } catch (_) { /* offline ok */ }
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SWARM PANEL — read /swarm and render roster
+  ═══════════════════════════════════════════════════ */
+  async function refreshSwarm() {
+    try {
+      const data = await fetchJSON('/swarm');
+      const list = document.getElementById('swarmList');
+      list.innerHTML = '';
+      for (const sp of (data.swarm || [])) {
+        const row = document.createElement('div');
+        row.className = 'swarm-row';
+        const meta = sp.status === 'alive'
+          ? `<span class="swarm-meta">pairs <b>${sp.pairs_fired_total ?? 0}</b></span>`
+          : `<span class="swarm-meta">${sp.status}</span>`;
+        row.innerHTML = `
+          <span class="swarm-name">
+            <span class="swarm-status ${sp.status}"></span>
+            ${escapeHtml(sp.species || sp.name)}
+          </span>
+          ${meta}
+        `;
+        list.appendChild(row);
+      }
+    } catch (_) {}
+    // Connector last-find detail
+    try {
+      const c = await fetchJSON('/swarm/connector');
+      const last = c.last_pair_fired;
+      const wrap = document.getElementById('swarmLastPair');
+      if (last && last.domain_a && last.domain_b) {
+        wrap.style.display = '';
+        const ax = (last.shared_axes || []).map(a => AXIS_CODE_FROM_FULL[a] || a);
+        const colored = ax.map(c => `<span style="color:${AXIS_COLOR[c]||'var(--text-dim)'}">${AXIS_NAME[c]||c}</span>`).join(' · ');
+        document.getElementById('swarmLastPairText').innerHTML = `
+          <span style="color:var(--accent)">${last.domain_a.replace(/_/g,' ')}</span>
+          <span style="color:var(--muted);margin:0 5px">↔</span>
+          <span style="color:var(--accent)">${last.domain_b.replace(/_/g,' ')}</span>
+          <div style="margin-top:4px;font-size:10px">${colored}</div>
+          <div style="margin-top:3px;color:var(--muted);font-size:9.5px">${relTime(last.ts)} ago</div>
+        `;
+      }
+    } catch (_) {}
+  }
+
   /* boot */
   refreshHealth();
   refreshRecent();
+  refreshConnections();
+  refreshSwarm();
   // initial activations so the brain is alive on load
   setTimeout(() => activateNode('chemistry', 1.0), 800);
   setTimeout(() => activateNode('mathematics', 1.0), 1400);
@@ -1180,6 +1401,8 @@
 
   setInterval(refreshHealth, 9000);
   setInterval(refreshRecent, 13000);
+  setInterval(refreshConnections, 11000);
+  setInterval(refreshSwarm, 15000);
   setInterval(ambientActivate, 2400);
 </script>
 
