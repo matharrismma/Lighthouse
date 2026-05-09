@@ -154,6 +154,184 @@
     }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
+    /* ── ALMANAC HERO ─────────────────────────────── */
+    .almanac-hero {
+      max-width: 880px;
+      margin: 24px auto 0;
+      text-align: left;
+    }
+    .almanac-hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-left-width: 4px;
+      border-radius: var(--r);
+      padding: 32px 36px 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .almanac-hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,124,0.35), transparent);
+    }
+    .almanac-hero-card.verdict-CONFIRMED   { border-left-color: var(--pass); }
+    .almanac-hero-card.verdict-CONCORDANT  { border-left-color: var(--pass); }
+    .almanac-hero-card.verdict-MISMATCH    { border-left-color: var(--fail); }
+    .almanac-hero-card.verdict-MIXED       { border-left-color: var(--hold); }
+    .almanac-hero-card.verdict-OBSOLETE    { border-left-color: var(--muted-2); }
+
+    .almanac-hero-meta {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+    .almanac-hero-kind {
+      text-transform: uppercase; font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.18em;
+    }
+    .almanac-hero-verdict {
+      padding: 2px 10px; border-radius: 3px;
+      letter-spacing: 0.12em; font-weight: 600;
+      text-transform: uppercase; font-size: 10px;
+    }
+    .almanac-hero-verdict.CONFIRMED   { background: rgba(111, 196, 124, 0.14); color: var(--pass); }
+    .almanac-hero-verdict.CONCORDANT  { background: rgba(111, 196, 124, 0.14); color: var(--pass); }
+    .almanac-hero-verdict.MISMATCH    { background: rgba(201, 108, 108, 0.14); color: var(--fail); }
+    .almanac-hero-verdict.MIXED       { background: rgba(196, 160, 48, 0.14); color: var(--hold); }
+    .almanac-hero-verdict.OBSOLETE    { background: rgba(110, 104, 120, 0.14); color: var(--muted); }
+    .almanac-hero-cat {
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.12em; font-size: 10px;
+    }
+    .almanac-hero-title {
+      font-size: clamp(24px, 3.6vw, 38px);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin: 0 0 18px 0;
+    }
+    .almanac-hero-card[data-kind="saying"] .almanac-hero-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(28px, 4.2vw, 44px);
+      line-height: 1.18;
+      color: var(--accent);
+    }
+    .almanac-hero-explanation {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0 0 18px 0;
+    }
+    .almanac-hero-wisdom {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: clamp(15px, 1.6vw, 18px);
+      line-height: 1.65;
+      color: var(--text);
+      margin: 0 0 22px 0;
+      padding: 16px 20px;
+      background: rgba(201, 168, 124, 0.05);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    }
+    .almanac-hero-wisdom-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 7px;
+      font-style: normal;
+    }
+    .almanac-hero-actions {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: center;
+    }
+    .almanac-hero-actions .listen-btn {
+      font-size: 12px;
+      padding: 8px 16px;
+      letter-spacing: 0.12em;
+    }
+    .almanac-hero-actions a {
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+      transition: color 0.15s;
+    }
+    .almanac-hero-actions a:hover { color: var(--accent); }
+
+    /* Strip of more entries underneath the featured card */
+    .almanac-hero-strip {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    @media (min-width: 720px) {
+      .almanac-hero-strip { grid-template-columns: 1fr 1fr; }
+    }
+    .almanac-hero-mini {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: var(--r-sm);
+      padding: 14px 18px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, transform 0.15s;
+      display: block;
+    }
+    .almanac-hero-mini:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .almanac-hero-mini.verdict-CONFIRMED, .almanac-hero-mini.verdict-CONCORDANT { border-left-color: var(--pass); }
+    .almanac-hero-mini.verdict-MISMATCH  { border-left-color: var(--fail); }
+    .almanac-hero-mini.verdict-MIXED     { border-left-color: var(--hold); }
+    .almanac-hero-mini.verdict-OBSOLETE  { border-left-color: var(--muted-2); }
+    .almanac-hero-mini-meta {
+      display: flex; gap: 8px; align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .almanac-hero-mini-title {
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text);
+      margin: 0;
+    }
+    .almanac-hero-mini[data-kind="saying"] .almanac-hero-mini-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 15.5px;
+      color: var(--text-dim);
+    }
+    .almanac-hero-readall {
+      text-align: center;
+      margin-top: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+    .almanac-hero-readall a {
+      color: var(--accent);
+      transition: opacity 0.15s;
+    }
+    .almanac-hero-readall a:hover { opacity: 0.78; }
+
     /* ── POLYMATHIC HERO ─────────────────────────── */
     .poly-hero {
       max-width: 760px; margin: 24px auto 0;
@@ -656,51 +834,73 @@
   </div>
 </nav>
 
-<!-- ── HERO ───────────────────────────────────────── -->
-<header class="hero">
-  <p class="hero-eyebrow">Cross-domain verification · Rom. 1:20</p>
-  <h1 class="hero-headline">Describe what you're considering. The engine checks <em>every</em> domain at once.</h1>
-  <p class="hero-sub" id="heroSubText">Drop a multi-domain situation — biology + labor + law, chemistry + medicine + nutrition, anything. Every applicable verifier fires in parallel. The composite verdict is what an LLM alone cannot give you. <strong style="color:var(--pass)">100%</strong> on the polymathic benchmark vs <strong style="color:var(--hold)">75%</strong> for Claude Sonnet/Haiku alone.</p>
-  <div style="text-align:center;margin-top:-12px;margin-bottom:16px">
-    <button class="listen-btn" data-narrate-target="#heroSubText" title="Read aloud in M.R. Harris">
-      <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
-    </button>
-  </div>
+<!-- ── HERO — THE ALMANAC ───────────────────────────── -->
+<header class="hero" style="text-align:center;padding-bottom:20px">
+  <p class="hero-eyebrow" id="almanacHeroEyebrow">The Almanac · 21 entries · in your voice</p>
+  <h1 class="hero-headline" id="almanacHeroHeadline">What the engine has <em>worked through</em>.</h1>
+  <p class="hero-sub" id="almanacHeroSub">A curated book — pre-run polymathic protocols and folk wisdom verified by computation. Each entry has the math behind it and a short note on what the math actually shows. <strong>The Almanac does not panic.</strong></p>
 
-  <div class="poly-hero">
-    <div class="poly-input-wrap">
-      <textarea id="polyInput" rows="3" autofocus
-        placeholder="Describe a situation that spans multiple domains. Every applicable verifier will fire in parallel and return a composite verdict in seconds."></textarea>
-      <div class="poly-foot">
-        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–15s · oracle classifies, verifiers dispatch in parallel</span>
-        <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
+  <div class="almanac-hero">
+    <!-- Featured entry, populated by JS at load (random pick from a curated featured list) -->
+    <article class="almanac-hero-card" id="almanacHeroFeatured">
+      <div class="almanac-hero-meta">
+        <span class="almanac-hero-kind">loading…</span>
       </div>
-    </div>
+      <h2 class="almanac-hero-title">Loading the Almanac…</h2>
+    </article>
 
-    <div class="poly-examples" id="polyExamples">
-      <span class="poly-examples-label">Try one — these score CONCORDANT live:</span>
-      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
-        <span class="ex-tag">5-domain synthesis · all verifiers fire</span>
-        Chem + physics + stats + math + labor (6/6 confirmed)
-      </button>
-      <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. The mathematical statement 2 + 2 = 4 is true.">
-        <span class="ex-tag">chemistry + physics + math</span>
-        Conservation, dimensional analysis, equality (3/3)
-      </button>
-      <button class="poly-ex" data-claim="An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at a 0.05 annual rate for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000 (accounting identity A = L + E).">
-        <span class="ex-tag">labor + economics + finance</span>
-        Wage, simple interest, balance-sheet identity
-      </button>
-    </div>
+    <!-- Two more from the curated set -->
+    <div class="almanac-hero-strip" id="almanacHeroStrip"></div>
 
-    <div class="poly-result" id="polyResult"></div>
-
-    <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-      <a class="btn btn-secondary" href="#proof" style="padding:9px 16px;font-size:12.5px">See the benchmark ↓</a>
-      <a class="btn btn-secondary" href="/connect.html" style="padding:9px 16px;font-size:12.5px">Connect your agent →</a>
-    </div>
+    <p class="almanac-hero-readall">
+      <a href="/almanac.html">Read the full almanac →</a>
+    </p>
   </div>
 </header>
+
+<!-- ── OR RUN YOUR OWN ─────────────────────────────── -->
+<section style="padding-top:30px">
+  <div class="container">
+    <h2 style="text-align:center;font-size:clamp(20px,2.4vw,28px);font-weight:600;letter-spacing:-0.01em;margin-bottom:8px">Or run your own.</h2>
+    <p class="lead" style="text-align:center;max-width:60ch;margin:0 auto 22px;color:var(--muted)">
+      Drop a multi-domain situation — biology + labor + law, chemistry + medicine + nutrition, anything. Every applicable verifier fires in parallel. <strong style="color:var(--pass)">100%</strong> on the polymathic benchmark vs <strong style="color:var(--hold)">75%</strong> for Claude Sonnet / Haiku alone.
+    </p>
+
+    <div class="poly-hero">
+      <div class="poly-input-wrap">
+        <textarea id="polyInput" rows="3"
+          placeholder="Describe a situation that spans multiple domains. Every applicable verifier will fire in parallel and return a composite verdict in seconds."></textarea>
+        <div class="poly-foot">
+          <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–15s · oracle classifies, verifiers dispatch in parallel</span>
+          <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
+        </div>
+      </div>
+
+      <div class="poly-examples" id="polyExamples">
+        <span class="poly-examples-label">Try one — these score CONCORDANT live:</span>
+        <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
+          <span class="ex-tag">5-domain synthesis · all verifiers fire</span>
+          Chem + physics + stats + math + labor (6/6 confirmed)
+        </button>
+        <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. The mathematical statement 2 + 2 = 4 is true.">
+          <span class="ex-tag">chemistry + physics + math</span>
+          Conservation, dimensional analysis, equality (3/3)
+        </button>
+        <button class="poly-ex" data-claim="An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at a 0.05 annual rate for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000 (accounting identity A = L + E).">
+          <span class="ex-tag">labor + economics + finance</span>
+          Wage, simple interest, balance-sheet identity
+        </button>
+      </div>
+
+      <div class="poly-result" id="polyResult"></div>
+
+      <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+        <a class="btn btn-secondary" href="#proof" style="padding:9px 16px;font-size:12.5px">See the benchmark ↓</a>
+        <a class="btn btn-secondary" href="/connect.html" style="padding:9px 16px;font-size:12.5px">Connect your agent →</a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ── LIVE STATS ─────────────────────────────────── -->
 <div class="stats-band">
@@ -1599,6 +1799,135 @@
 
   refreshStats();
   setInterval(refreshStats, 30000);
+
+  /* ───────── ALMANAC HERO — featured entry rotation ───────── */
+  // A curated subset of entries that work well as a first impression.
+  // Each load picks one as the featured (large) card and two for the
+  // strip. Rotation is random so repeat visitors see different entries.
+  const FEATURED_IDS = [
+    'lightning_strikes_twice',     // MISMATCH — instantly familiar + surprising
+    'oak_leaves_squirrel_ear',     // CONFIRMED — surprisingly accurate
+    'thousand_bees_pound_honey',   // CONFIRMED — beautiful wisdom
+    'red_sky_morning',             // CONFIRMED — weather lore + Rayleigh
+    'two_or_three_witnesses',      // CONFIRMED — doctrinal weight
+    'measure_twice',               // CONFIRMED — craft + statistics
+    'hoofbeats_horses',            // CONFIRMED — Bayesian aphorism
+    'polymathic_5_domain',         // CONCORDANT — the moat protocol
+    'apple_a_day',                 // MIXED — honest about partial truth
+    'knee_high_fourth_july',       // OBSOLETE — the engine retiring a saying
+  ];
+
+  function _almVerdictRead(v) {
+    return ({
+      CONFIRMED:'Confirmed.', CONCORDANT:'Concordant.',
+      MISMATCH:'Mismatch.',  MIXED:'Mixed.',
+      OBSOLETE:'Obsolete.',
+    })[v] || (v + '.');
+  }
+
+  function _almNarration(e) {
+    const verdictRead = _almVerdictRead(e.verdict);
+    const wisdom = (e.wisdom || '').trim();
+    if (e.kind === 'saying') {
+      return `${(e.title || '').replace(/[“”]/g, '"').trim()} ${verdictRead} ${wisdom}`.trim();
+    }
+    const summary = ((e.pre_run && e.pre_run.summary) || '').trim();
+    return [`${e.title || ''}.`, verdictRead, summary, wisdom].filter(Boolean).join(' ').trim();
+  }
+
+  function _renderFeatured(e) {
+    const card = document.getElementById('almanacHeroFeatured');
+    if (!card || !e) return;
+    card.dataset.kind = e.kind || 'protocol';
+    card.classList.remove('verdict-CONFIRMED','verdict-CONCORDANT','verdict-MISMATCH','verdict-MIXED','verdict-OBSOLETE');
+    if (e.verdict) card.classList.add('verdict-' + e.verdict);
+    card.id = 'almanacHeroFeatured';
+
+    const titleHtml = e.kind === 'saying'
+      ? '“' + escapeHtml(e.title || '') + '”'
+      : escapeHtml(e.title || '');
+    const explanation = e.kind === 'saying'
+      ? (e.verification || '')
+      : ((e.pre_run && e.pre_run.summary) || '');
+
+    card.innerHTML = `
+      <div class="almanac-hero-meta">
+        <span class="almanac-hero-kind">${escapeHtml(e.kind || 'entry')}</span>
+        <span class="almanac-hero-verdict ${escapeHtml(e.verdict || '')}">${escapeHtml(e.verdict || '')}</span>
+        <span class="almanac-hero-cat">${escapeHtml(e.category || '')}</span>
+      </div>
+      <h2 class="almanac-hero-title">${titleHtml}</h2>
+      ${explanation ? `<p class="almanac-hero-explanation">${escapeHtml(explanation)}</p>` : ''}
+      ${e.wisdom ? `
+        <div class="almanac-hero-wisdom">
+          <span class="almanac-hero-wisdom-label">Wisdom</span>
+          ${escapeHtml(e.wisdom)}
+        </div>` : ''}
+      <div class="almanac-hero-actions">
+        <button class="listen-btn" id="featuredListenBtn" title="Read aloud in M.R. Harris">
+          <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
+        </button>
+        <a href="/almanac.html#${escapeHtml(e.id)}">Open in the Almanac → /almanac.html#${escapeHtml(e.id)}</a>
+      </div>
+    `;
+    const btn = document.getElementById('featuredListenBtn');
+    if (btn && window.Narrator) window.Narrator.attach(btn, () => _almNarration(e));
+  }
+
+  function _renderStrip(entries) {
+    const strip = document.getElementById('almanacHeroStrip');
+    if (!strip) return;
+    strip.innerHTML = entries.map(e => `
+      <a class="almanac-hero-mini verdict-${escapeHtml(e.verdict || '')}"
+         data-kind="${escapeHtml(e.kind || 'protocol')}"
+         href="/almanac.html#${escapeHtml(e.id)}">
+        <div class="almanac-hero-mini-meta">
+          <span style="color:var(--accent)">${escapeHtml(e.kind || '')}</span>
+          <span>${escapeHtml(e.verdict || '')}</span>
+          <span>${escapeHtml(e.category || '')}</span>
+        </div>
+        <p class="almanac-hero-mini-title">${e.kind === 'saying' ? '“' + escapeHtml(e.title || '') + '”' : escapeHtml(e.title || '')}</p>
+      </a>
+    `).join('');
+  }
+
+  async function loadAlmanacHero() {
+    try {
+      const r = await fetch(API + '/almanac', { cache: 'no-store' });
+      if (!r.ok) throw new Error('almanac fetch ' + r.status);
+      const data = await r.json();
+      const all = data.entries || [];
+      // Update eyebrow with real count
+      const eyebrow = document.getElementById('almanacHeroEyebrow');
+      if (eyebrow) eyebrow.textContent = `The Almanac · ${all.length} entries · in your voice`;
+
+      // Filter the curated featured pool to entries that actually exist
+      const featured = FEATURED_IDS
+        .map(id => all.find(e => e.id === id))
+        .filter(Boolean);
+      if (!featured.length) return;
+
+      // Shuffle (Fisher-Yates) so each load is fresh
+      for (let i = featured.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [featured[i], featured[j]] = [featured[j], featured[i]];
+      }
+      _renderFeatured(featured[0]);
+      _renderStrip(featured.slice(1, 3));
+    } catch (err) {
+      const card = document.getElementById('almanacHeroFeatured');
+      if (card) {
+        card.innerHTML = `
+          <div class="almanac-hero-meta"><span class="almanac-hero-kind">offline</span></div>
+          <h2 class="almanac-hero-title">The Almanac is reachable, but the engine paused.</h2>
+          <p class="almanac-hero-explanation">${escapeHtml(err.message || 'unknown')}</p>
+          <div class="almanac-hero-actions">
+            <a href="/almanac.html">Open the book → /almanac.html</a>
+          </div>`;
+      }
+    }
+  }
+  loadAlmanacHero();
 </script>
 <script src="/narrator.js"></script>
 
