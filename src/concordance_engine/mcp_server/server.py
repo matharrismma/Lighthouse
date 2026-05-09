@@ -1185,17 +1185,32 @@ def atlas(
 
 
 # ──────────────────────────────────────────────────────────────────────
-# Almanac protocol book — load once at module import. Each entry is a
-# pre-run polymathic situation with extracted wisdom. The book is
-# canonical and curated; updates happen by editing the JSONL file and
-# bouncing the engine. No oracle calls, no live API — like a book.
+# The Almanac — a curated book with two kinds of entries:
+#
+#   protocol — a canonical multi-domain situation, pre-run through the
+#              engine. Includes a structured `pre_run` with composite
+#              verdict, per-domain results, and axis overlaps. The
+#              textbook part of the book.
+#
+#   saying   — an old proverb, rule of thumb, or farmer's-almanac line
+#              run through the engine's verifiers and annotated with
+#              the result. Includes a `verification` paragraph (the
+#              math) and a wry `wisdom` line. The field-handbook part.
+#
+# Both kinds share: id, title, category, domains, axes, verdict,
+# wisdom, triggers. Difference is structural: protocols carry a
+# pre_run object, sayings carry a verification text. The almanac
+# tool serves both from one file: data/almanac/entries.jsonl
+#
+# Curated, not generated. Updated by editing the file and bouncing
+# the engine. No oracle calls, no live API roundtrips — like a book.
 # ──────────────────────────────────────────────────────────────────────
-def _load_almanac_protocols():
+def _load_almanac_entries():
     from pathlib import Path as _P
     out = []
     candidates = [
-        _P("data") / "almanac" / "protocols.jsonl",
-        _P(__file__).resolve().parents[3] / "data" / "almanac" / "protocols.jsonl",
+        _P("data") / "almanac" / "entries.jsonl",
+        _P(__file__).resolve().parents[3] / "data" / "almanac" / "entries.jsonl",
     ]
     for path in candidates:
         if not path.exists():
@@ -1215,153 +1230,219 @@ def _load_almanac_protocols():
     return out
 
 
-_ALMANAC_PROTOCOLS = _load_almanac_protocols()
+_ALMANAC_ENTRIES = _load_almanac_entries()
 
 
 @mcp.tool()
 def almanac(
     query: Optional[str] = None,
-    protocol_id: Optional[str] = None,
-    family: Optional[str] = None,
-    limit: int = 3,
+    entry_id: Optional[str] = None,
+    category: Optional[str] = None,
+    kind: Optional[str] = None,
+    verdict: Optional[str] = None,
+    limit: int = 5,
 ) -> Dict[str, Any]:
-    """The almanac — a curated book of pre-run polymathic protocols
-    with extracted wisdom.
+    """The Almanac — a curated book the engine has worked through.
 
-    Each entry is a canonical multi-domain situation already worked
-    through the engine: composite verdict, per-domain results, axis
-    overlaps — and a short prose extract of the wisdom the run
-    teaches. Use this BEFORE calling run_polymathic; if your situation
-    matches a protocol, the answer and the structural lesson are
-    already there. Pure read, no oracle calls, no API round-trips.
+    Two kinds of entries, one book:
+
+      protocol — canonical multi-domain situations, pre-run through
+                 the engine. Composite verdict + per-domain results +
+                 axis overlaps + the wisdom the run teaches.
+
+      saying   — proverbs, rules of thumb, and old farmer's-almanac
+                 lines, each one verified by computation and annotated
+                 with a wry note about what the math actually shows.
+                 Folk wisdom that's been confirmed (or, in some cases,
+                 quietly retired) by the verifiers.
+
+    Each entry is curated. The book is updated by editing
+    data/almanac/entries.jsonl. No oracle calls, no roundtrips.
 
     Modes:
-      no args             → list every protocol in the book
-                            (id, title, family, domains, axes,
-                             one-line summary).
-      query="..."         → return up to `limit` protocols ranked by
-                            keyword + axis match against the query.
-      protocol_id="X"     → return one protocol's full record (situation,
-                            pre_run, wisdom).
-      family="economic"   → list all protocols in that family
-                            (physical_sciences, life_sciences,
-                             economic, theology, governance, reasoning,
-                             polymathic).
+      no args              → table of contents (id, title, kind,
+                              category, verdict)
+      query="..."          → up to `limit` entries ranked by keyword +
+                              axis match against the query
+      entry_id="X"         → one entry's full record
+      category="weather"   → list every entry in a category
+      kind="saying"        → list everything of one kind
+      verdict="MISMATCH"   → entries whose verdicts came out a certain
+                              way (handy for finding sayings the math
+                              has quietly retired)
 
-    Returns:
-      {view, matches: [...], total_in_book: N}
-    where each match has: id, title, family, domains, axes, situation,
-    pre_run {composite_verdict, summary, domain_results[], axis_overlaps[]},
-    wisdom (prose).
+    Each match returns: id, title, kind, category, domains, axes,
+    verdict, wisdom — plus pre_run (for protocols) or verification
+    (for sayings). The Guide does not panic.
     """
-    book = _ALMANAC_PROTOCOLS
+    book = _ALMANAC_ENTRIES
     if not book:
         return {
             "view": "empty",
-            "detail": "No protocols loaded. Expected data/almanac/protocols.jsonl.",
+            "detail": "No entries loaded. Expected data/almanac/entries.jsonl.",
             "matches": [],
             "total_in_book": 0,
         }
 
-    # ── single-protocol lookup
-    if protocol_id:
-        match = next((p for p in book if p.get("id") == protocol_id), None)
+    def _shape(e: Dict[str, Any], full: bool = False) -> Dict[str, Any]:
+        """Render an entry for the response. Both kinds share most
+        fields; protocols include pre_run, sayings include verification."""
+        base = {
+            "id": e.get("id"),
+            "title": e.get("title"),
+            "kind": e.get("kind", "protocol"),
+            "category": e.get("category"),
+            "domains": e.get("domains", []),
+            "axes": e.get("axes", []),
+            "verdict": e.get("verdict"),
+            "wisdom": e.get("wisdom"),
+        }
+        if full:
+            if e.get("kind") == "saying":
+                base["verification"] = e.get("verification")
+            else:
+                base["situation"] = e.get("situation")
+                base["pre_run"] = e.get("pre_run")
+        return base
+
+    # ── single entry by id
+    if entry_id:
+        match = next((e for e in book if e.get("id") == entry_id), None)
         if not match:
             return {
-                "view": "protocol",
-                "protocol_id": protocol_id,
+                "view": "entry",
+                "entry_id": entry_id,
                 "found": False,
-                "available_ids": [p.get("id") for p in book],
+                "available_ids": [e.get("id") for e in book],
                 "matches": [],
                 "total_in_book": len(book),
             }
         return {
-            "view": "protocol",
-            "protocol_id": protocol_id,
+            "view": "entry",
+            "entry_id": entry_id,
             "found": True,
-            "matches": [match],
+            "matches": [_shape(match, full=True)],
             "total_in_book": len(book),
         }
 
-    # ── family filter
-    if family:
-        matched = [p for p in book if p.get("family") == family]
+    # ── filter by kind
+    if kind and not (query or category or verdict):
+        matched = [e for e in book if e.get("kind") == kind]
         return {
-            "view": "family",
-            "family": family,
-            "matches": [
-                {
-                    "id": p.get("id"),
-                    "title": p.get("title"),
-                    "family": p.get("family"),
-                    "domains": p.get("domains", []),
-                    "axes": p.get("axes", []),
-                    "summary": (p.get("pre_run", {}) or {}).get("summary", ""),
-                    "wisdom": p.get("wisdom", ""),
-                }
-                for p in matched[:limit] if matched
-            ] if matched else [],
-            "total_in_family": len(matched),
+            "view": "kind",
+            "kind": kind,
+            "matches": [_shape(e) for e in matched[:limit]],
+            "total_with_kind": len(matched),
             "total_in_book": len(book),
         }
 
-    # ── query: rank by keyword + axis match
+    # ── filter by category
+    if category and not (query or verdict):
+        matched = [e for e in book if e.get("category") == category]
+        if kind:
+            matched = [e for e in matched if e.get("kind") == kind]
+        return {
+            "view": "category",
+            "category": category,
+            "kind_filter": kind,
+            "matches": [_shape(e, full=True) for e in matched[:limit]],
+            "total_in_category": len(matched),
+            "total_in_book": len(book),
+        }
+
+    # ── filter by verdict
+    if verdict and not query:
+        v = verdict.upper()
+        matched = [e for e in book if (e.get("verdict") or "").upper() == v]
+        if kind:
+            matched = [e for e in matched if e.get("kind") == kind]
+        if category:
+            matched = [e for e in matched if e.get("category") == category]
+        return {
+            "view": "verdict",
+            "verdict": v,
+            "matches": [_shape(e, full=True) for e in matched[:limit]],
+            "total_with_verdict": len(matched),
+            "total_in_book": len(book),
+        }
+
+    # ── query: rank entries by trigger-keyword + saying/title match + axis overlap
     if query:
         qlower = query.lower()
+        predicted = _predict_axes_from_query(qlower)
         scored = []
-        for p in book:
-            triggers = p.get("triggers") or {}
+        for e in book:
+            if kind and e.get("kind") != kind: continue
+            if category and e.get("category") != category: continue
+            if verdict and (e.get("verdict") or "").upper() != verdict.upper(): continue
+
+            score = 0
+            triggers = e.get("triggers") or {}
             keywords = [k.lower() for k in (triggers.get("keywords") or [])]
-            kw_hits = sum(1 for k in keywords if k in qlower)
+            score += sum(2 for k in keywords if k in qlower)
+
+            # Title / saying match
+            title_l = (e.get("title") or "").lower()
+            if qlower in title_l: score += 4
+            for w in qlower.split():
+                if len(w) < 3: continue
+                if w in title_l: score += 2
+                if w in (e.get("category") or "").lower(): score += 1
+                # For sayings, search the verification + wisdom prose
+                if e.get("kind") == "saying":
+                    if w in (e.get("verification") or "").lower(): score += 1
+                    if w in (e.get("wisdom") or "").lower(): score += 1
+                # For protocols, search the situation
+                else:
+                    if w in (e.get("situation") or "").lower(): score += 1
+                for d in e.get("domains", []):
+                    if w in d.lower(): score += 1
+
+            # Axis overlap
             trigger_axes = set(triggers.get("axes") or [])
-            protocol_axes = set(p.get("axes") or [])
-            # Predict query's axes via the same stems used elsewhere
-            predicted = _predict_axes_from_query(qlower)
-            axis_overlap = len(predicted & (trigger_axes | protocol_axes))
-            # Combined score: keyword density + axis overlap
-            score = kw_hits * 2 + axis_overlap
+            entry_axes = set(e.get("axes") or [])
+            score += len(predicted & (trigger_axes | entry_axes))
+
             if score > 0:
-                scored.append((score, p))
-        scored.sort(key=lambda sp: -sp[0])
+                scored.append((score, e))
+        scored.sort(key=lambda se: -se[0])
         return {
             "view": "query",
             "query": query,
-            "predicted_axes": sorted(_predict_axes_from_query(query.lower())),
+            "predicted_axes": sorted(predicted),
+            "filters": {"kind": kind, "category": category, "verdict": verdict},
             "matches": [
-                {
-                    "score": s,
-                    "id": p.get("id"),
-                    "title": p.get("title"),
-                    "family": p.get("family"),
-                    "domains": p.get("domains", []),
-                    "axes": p.get("axes", []),
-                    "situation": p.get("situation"),
-                    "pre_run": p.get("pre_run"),
-                    "wisdom": p.get("wisdom"),
-                }
-                for s, p in scored[:limit]
+                {**_shape(e, full=True), "score": s}
+                for s, e in scored[:limit]
             ],
             "total_matched": len(scored),
             "total_in_book": len(book),
         }
 
-    # ── default: index of the entire book
+    # ── default: full table of contents
     return {
         "view": "index",
         "matches": [
             {
-                "id": p.get("id"),
-                "title": p.get("title"),
-                "family": p.get("family"),
-                "domains": p.get("domains", []),
-                "axes": p.get("axes", []),
-                "summary": (p.get("pre_run", {}) or {}).get("summary", ""),
+                "id": e.get("id"),
+                "title": e.get("title"),
+                "kind": e.get("kind", "protocol"),
+                "category": e.get("category"),
+                "verdict": e.get("verdict"),
             }
-            for p in book
+            for e in book
         ],
         "total_in_book": len(book),
-        "families": sorted({p.get("family") for p in book if p.get("family")}),
-        "note": "Pass query=..., protocol_id=..., or family=... to drill in.",
+        "kinds": sorted({e.get("kind", "protocol") for e in book}),
+        "categories": sorted({e.get("category") for e in book if e.get("category")}),
+        "verdicts": sorted({e.get("verdict") for e in book if e.get("verdict")}),
+        "preface": (
+            "The Almanac is what the engine has worked through. Two kinds of "
+            "entry: protocols (canonical pre-run polymathic situations) and "
+            "sayings (folk wisdom verified by computation). Pass query=, "
+            "entry_id=, category=, kind=, or verdict= to drill in. The Almanac "
+            "does not panic."
+        ),
     }
 
 
