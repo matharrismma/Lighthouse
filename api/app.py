@@ -175,6 +175,206 @@ from api.deployment_mode import mode_gate_middleware
 app.middleware("http")(mode_gate_middleware)
 
 
+# -- Visit log -----------------------------------------------------------
+# Lightweight, privacy-respecting access log so we can answer the simple
+# question "is anyone out there?" without standing up a full analytics
+# stack. Stores per-request metadata in append-only JSONL, one file per
+# UTC day. We deliberately log only the IP *prefix* (first octet for IPv4,
+# first two hex groups for IPv6) so the file is not a PII trove.
+import threading as _visit_threading  # idempotent if already imported below
+
+_VISITS_DIR = Path(__file__).parent.parent / "data" / "visits"
+_VISITS_DIR.mkdir(parents=True, exist_ok=True)
+_VISITS_LOCK = _visit_threading.Lock()
+
+# Paths we skip to keep the log signal-rich. Health pings from the worker
+# loop and the static asset firehose would otherwise drown out real visits.
+_VISITS_SKIP_EXACT = {
+    "/health", "/health/lite", "/health/refresh",
+    "/favicon.ico", "/robots.txt",
+}
+_VISITS_SKIP_PREFIXES = (
+    "/static/", "/assets/", "/_next/",
+)
+
+
+def _ip_prefix(ip: str) -> str:
+    """Return only the network-prefix portion of an IP. /8 for v4, /32 for v6."""
+    if not ip:
+        return ""
+    if ":" in ip:  # IPv6
+        parts = ip.split(":")
+        keep = [p for p in parts[:2] if p]
+        return ":".join(keep) + "::/32" if keep else "::/32"
+    parts = ip.split(".")
+    if len(parts) == 4:
+        return f"{parts[0]}.0.0.0/8"
+    return ip
+
+
+def _classify_ua(ua: str, path: str = "") -> str:
+    """Bucket UA strings into coarse classes for stats. Path is a
+    secondary signal — fake-mozilla scanners that hit known-vulnerability
+    paths (wp-*, xmlrpc.php, .env, .git) get classified as scanner regardless
+    of the UA they advertise."""
+    low = (ua or "").lower()
+    bot_markers = (
+        "bot", "crawler", "spider", "curl/", "wget/", "python-requests",
+        "httpx", "aiohttp", "go-http-client", "node-fetch", "axios",
+        "claude", "anthropic", "openai", "gpt", "chatgpt", "perplexity",
+        "googleother", "bingbot", "duckduckbot", "slackbot", "twitterbot",
+        "facebookexternalhit", "discordbot", "linkedinbot", "telegrambot",
+    )
+    scanner_path_markers = (
+        "wp-includes", "wp-admin", "wp-content", "wp-login",
+        "xmlrpc.php", "/.env", "/.git/", "/.aws/", "/phpmyadmin",
+        "/admin.php", "/setup.php", "/shell.php", "/eval(",
+    )
+    p_low = (path or "").lower()
+    if any(m in p_low for m in scanner_path_markers):
+        return "scanner"
+    if not ua:
+        return "unknown"
+    if any(m in low for m in bot_markers):
+        return "agent"
+    if any(b in low for b in ("mozilla", "safari", "chrome", "firefox", "edge", "opera")):
+        return "human"
+    return "other"
+
+
+def _record_visit(record: dict) -> None:
+    """Append one visit record to today's JSONL file."""
+    try:
+        day = time.strftime("%Y%m%d", time.gmtime(record.get("ts", time.time())))
+        path = _VISITS_DIR / f"access-{day}.jsonl"
+        with _VISITS_LOCK:
+            with open(path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception:
+        pass  # never let logging break a real request
+
+
+@app.middleware("http")
+async def _access_log_middleware(request: Request, call_next):
+    started = time.time()
+    path = request.url.path
+    skip = path in _VISITS_SKIP_EXACT or any(path.startswith(p) for p in _VISITS_SKIP_PREFIXES)
+
+    response = await call_next(request)
+
+    if skip:
+        return response
+    try:
+        # Honour Cloudflare / proxy headers when present, fall back to socket peer.
+        client_ip = (
+            request.headers.get("cf-connecting-ip")
+            or (request.headers.get("x-forwarded-for", "").split(",")[0].strip())
+            or (request.client.host if request.client else "")
+        )
+        ua = request.headers.get("user-agent", "")[:240]
+        ref = request.headers.get("referer", "")[:240]
+        country = request.headers.get("cf-ipcountry", "")[:8]
+        record = {
+            "ts": int(started),
+            "ts_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
+            "method": request.method,
+            "path": path[:240],
+            "status": int(getattr(response, "status_code", 0) or 0),
+            "ms": int((time.time() - started) * 1000),
+            "ip_prefix": _ip_prefix(client_ip),
+            "ua": ua,
+            "ua_class": _classify_ua(ua, path),
+            "referer": ref,
+            "country": country,
+        }
+        _record_visit(record)
+    except Exception:
+        pass
+    return response
+
+
+def _read_visits_for_days(days: int = 7, limit: int | None = None) -> list[dict]:
+    """Read up to `days` worth of visit files, newest first."""
+    out: list[dict] = []
+    now = time.time()
+    for d in range(days):
+        day = time.strftime("%Y%m%d", time.gmtime(now - d * 86400))
+        path = _VISITS_DIR / f"access-{day}.jsonl"
+        if not path.exists():
+            continue
+        try:
+            for line in path.read_text("utf-8", errors="replace").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    out.append(json.loads(line))
+                except Exception:
+                    continue
+        except Exception:
+            continue
+    out.sort(key=lambda r: r.get("ts", 0), reverse=True)
+    if limit is not None:
+        out = out[:limit]
+    return out
+
+
+@app.get("/visits/recent", tags=["visits"])
+def visits_recent(limit: int = 50, days: int = 7):
+    """Return the most recent visit records (privacy-scrubbed)."""
+    limit = max(1, min(500, int(limit)))
+    days = max(1, min(60, int(days)))
+    rows = _read_visits_for_days(days=days, limit=limit)
+    return {"count": len(rows), "days": days, "limit": limit, "entries": rows}
+
+
+@app.get("/visits/stats", tags=["visits"])
+def visits_stats(days: int = 7):
+    """Aggregate counts by ua_class, country, path, and status."""
+    days = max(1, min(60, int(days)))
+    rows = _read_visits_for_days(days=days)
+    by_class: dict[str, int] = {}
+    by_country: dict[str, int] = {}
+    by_path: dict[str, int] = {}
+    by_status: dict[str, int] = {}
+    by_day: dict[str, int] = {}
+    unique_prefixes: set[str] = set()
+    unique_external_prefixes: set[str] = set()
+    for r in rows:
+        cls = r.get("ua_class", "unknown")
+        by_class[cls] = by_class.get(cls, 0) + 1
+        ctry = r.get("country") or "—"
+        by_country[ctry] = by_country.get(ctry, 0) + 1
+        p = r.get("path", "")
+        by_path[p] = by_path.get(p, 0) + 1
+        st = str(r.get("status", 0))
+        by_status[st] = by_status.get(st, 0) + 1
+        day = (r.get("ts_iso") or "")[:10]
+        if day:
+            by_day[day] = by_day.get(day, 0) + 1
+        ipx = r.get("ip_prefix") or ""
+        if ipx:
+            unique_prefixes.add(ipx)
+            if not ipx.startswith("127.") and not ipx.startswith("0.0.0.0") and ipx not in ("::/32",):
+                unique_external_prefixes.add(ipx)
+
+    def _top(d: dict, n: int = 15) -> list:
+        return sorted(d.items(), key=lambda kv: kv[1], reverse=True)[:n]
+
+    return {
+        "days": days,
+        "total_requests": len(rows),
+        "unique_ip_prefixes": len(unique_prefixes),
+        "external_ip_prefixes": len(unique_external_prefixes),
+        "by_ua_class": by_class,
+        "by_country": dict(_top(by_country, 25)),
+        "by_path_top": dict(_top(by_path, 25)),
+        "by_status": by_status,
+        "by_day": dict(sorted(by_day.items())),
+        "skipped_paths_note": "health pings + static assets are not logged",
+    }
+
+
 @app.on_event("startup")
 def _startup():
     _start_retry(interval_seconds=30)
