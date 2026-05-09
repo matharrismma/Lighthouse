@@ -999,6 +999,74 @@ def verify_phase(spec: Dict[str, Any]) -> Dict[str, Any]:
     return tools.verify_phase(spec)
 
 
+# ---------------------------------------------------------------------------
+# Polymathic — cross-domain coordinator (Path C)
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def run_polymathic(
+    situation: str,
+    max_domains: int = 10,
+    split_threshold: int = 5,
+    stop_on_discordant: bool = False,
+    decompose: bool = True,
+    oracle_model: str = "claude-haiku-4-5-20251001",
+) -> Dict[str, Any]:
+    """Cross-domain synthesis: fire every applicable verifier against one
+    natural-language situation and return a composite verdict.
+
+    Where the verify_* tools each cover ONE domain, this coordinates ALL
+    of them. Decompose the situation into atomic claims, classify each
+    to its domain verifier, run them in parallel, then synthesize the
+    composite verdict using axis-weighted scoring across the scaffold.
+
+    Composite verdicts:
+      CONCORDANT   — all fired domains confirmed
+      DISCORDANT   — at least one core-axis mismatch
+      MIXED        — peripheral mismatch, structural pieces still hold
+      QUARANTINE   — confirmed pieces but unresolved claims remain
+      OUT_OF_SCOPE — no domain matched
+      ERROR        — system failure
+
+    The 25-pp gap on the polymathic benchmark (engine 100% vs
+    Sonnet/Haiku alone 75%) lives here: the synthesis requires
+    calibrated numerical verification AND axis-weighted mismatch
+    fraction across N domains, neither of which an LLM can reliably
+    do unaided. ~5–15s typical.
+
+    situation:           Natural-language description spanning multiple domains.
+    max_domains:         Hard cap on total domains processed (default 10).
+    split_threshold:     When domain count exceeds this, the coordinator
+                         delegates to umbrella sub-coordinators for
+                         bounded compute (default 5).
+    stop_on_discordant:  Early-exit when a cluster confirms DISCORDANT.
+    decompose:           Two-stage pipeline (decompose -> classify ->
+                         verify). When False, uses a single combined
+                         oracle call for speed at the cost of accuracy.
+    oracle_model:        Anthropic model used for decompose/classify.
+
+    Returns a PolymathicRecord dict: situation, atomic_claims,
+    quarantined_claims, keeper_manifest, closest_precedent,
+    domain_results, axis_overlaps, composite_verdict, content_hash.
+    """
+    try:
+        from ..agent.poly_agent import run_polymathic as _run_poly
+    except ImportError as exc:
+        return {
+            "composite_verdict": "ERROR",
+            "detail": f"polymathic agent unavailable: {exc}",
+        }
+    rec = _run_poly(
+        situation=situation,
+        model=oracle_model,
+        max_domains=max_domains,
+        split_threshold=split_threshold,
+        stop_on_discordant=stop_on_discordant,
+        decompose=decompose,
+    )
+    return rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()
