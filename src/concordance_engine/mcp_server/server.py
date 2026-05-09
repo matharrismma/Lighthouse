@@ -1067,6 +1067,299 @@ def run_polymathic(
     return rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
 
 
+# ---------------------------------------------------------------------------
+# Atlas + Almanac — read-from-the-well surfaces
+# ---------------------------------------------------------------------------
+# Atlas walks the structural map (grid: domains, axes, adjacency).
+# Almanac walks the record (sealed precedent, observed patterns,
+# quarantine, what the workers have discovered).
+# Together they give an agent the full READ surface of the engine —
+# the complement to verify_*/run_polymathic which write new claims.
+
+@mcp.tool()
+def atlas(
+    domain: Optional[str] = None,
+    axis: Optional[str] = None,
+    limit: int = 20,
+) -> Dict[str, Any]:
+    """Walk the structural map of the engine — the grid.
+
+    The atlas describes WHERE things sit. Every domain has a position
+    on the 7-axis scaffold (encoding, metabolism, reasoning,
+    physical_substance, authority_trust, time_sequence,
+    conservation_balance). Domains that share an axis are
+    structurally adjacent. Domains on 3+ axes are structurally deep.
+
+    Use the atlas before calling a verifier when you don't know which
+    domain applies, or to find which other domains are adjacent to a
+    domain you already know.
+
+    Modes (call with at most one of these):
+      no args         → return the full scaffold (all 7 axes + their
+                        member counts, total domains, umbrella groupings).
+      domain="X"      → return X's axis position, depth, neighbors
+                        ranked by shared-axis count, umbrella, children.
+      axis="reasoning" → list every domain on that axis, ranked by depth.
+
+    limit caps the adjacency / member list (default 20).
+    """
+    from .. import grid as _grid
+
+    if domain and axis:
+        return {"view": "error", "detail": "pass at most one of domain or axis"}
+
+    if domain:
+        if domain not in _grid.AXIS_DIMENSIONS:
+            return {
+                "view": "domain",
+                "subject": domain,
+                "found": False,
+                "detail": f"{domain!r} is not in the scaffold",
+            }
+        dims = sorted(_grid.axis_dimensions(domain))
+        adj = _grid.adjacent(domain)
+        umbrella = next(
+            (parent for parent, kids in _grid.UMBRELLAS.items() if domain in kids),
+            None,
+        )
+        kids = list(_grid.umbrella_children(domain))
+        return {
+            "view": "domain",
+            "subject": domain,
+            "found": True,
+            "axes": dims,
+            "depth": len(dims),
+            "umbrella": umbrella,
+            "umbrella_children": kids,
+            "adjacent": [
+                {
+                    "domain": other,
+                    "shared_axes": sorted(shared),
+                    "shared_count": len(shared),
+                }
+                for other, shared in adj[:limit]
+            ],
+            "adjacent_total": len(adj),
+        }
+
+    if axis:
+        if axis not in _grid.DIMENSIONS:
+            return {
+                "view": "axis",
+                "subject": axis,
+                "found": False,
+                "valid_axes": list(_grid.DIMENSIONS),
+            }
+        members = [
+            (d, sorted(_grid.AXIS_DIMENSIONS[d]))
+            for d in _grid.AXIS_DIMENSIONS
+            if axis in _grid.AXIS_DIMENSIONS[d]
+        ]
+        # rank by depth (more axes = more structurally deep)
+        members.sort(key=lambda dx: (-len(dx[1]), dx[0]))
+        return {
+            "view": "axis",
+            "subject": axis,
+            "found": True,
+            "members": [
+                {"domain": d, "axes": ax, "depth": len(ax)}
+                for d, ax in members[:limit]
+            ],
+            "members_total": len(members),
+        }
+
+    # No args → scaffold overview
+    by_axis: Dict[str, int] = {a: 0 for a in _grid.DIMENSIONS}
+    for d, axes in _grid.AXIS_DIMENSIONS.items():
+        for a in axes:
+            if a in by_axis:
+                by_axis[a] += 1
+    return {
+        "view": "scaffold",
+        "axes": list(_grid.DIMENSIONS),
+        "axis_counts": by_axis,
+        "domains_total": len(_grid.AXIS_DIMENSIONS),
+        "umbrellas": {p: list(c) for p, c in _grid.UMBRELLAS.items()},
+        "note": "Call with domain= or axis= to drill in.",
+    }
+
+
+@mcp.tool()
+def almanac(
+    query: Optional[str] = None,
+    domain: Optional[str] = None,
+    axis: Optional[str] = None,
+    since_epoch: Optional[float] = None,
+    limit: int = 20,
+) -> Dict[str, Any]:
+    """Read the record of what the engine has observed and kept.
+
+    The almanac describes WHEN and WHAT — sealed precedent, recent
+    journal entries, cross-domain pairs the connector has discovered,
+    multi-domain patterns the synthesist has logged, and quarantine.
+
+    Use the almanac before deciding to verify from scratch — there
+    may already be a sealed precedent that resolves your situation.
+
+    Modes (combine optionally; the most specific wins):
+      no args         → recent activity across the well
+                        (last seals, last connections, last patterns).
+      query="..."     → closest sealed precedent for the natural-language
+                        situation, ranked by axis-Jaccard similarity.
+      domain="X"      → recent journal entries tagged with domain X.
+      axis="X"        → cross-domain connections sharing axis X.
+      since_epoch=T   → only include events after Unix epoch T.
+
+    Returns at most `limit` items per section.
+    """
+    from .. import grid as _grid
+
+    out: Dict[str, Any] = {}
+
+    # 1. Closest precedent (axis-index lookup)
+    if query:
+        try:
+            from ..axis_index import find_closest as _find_closest
+            predicted: set = set()
+            qlower = query.lower()
+            # Word stems → axis. Catches "balance/balanced/balancing",
+            # "reason/reasoning", "chemical→chemistry", etc., without
+            # needing an oracle call.
+            AXIS_STEMS = {
+                "encoding":             ["encod", "encrypt", "decod", "symbol", "cipher"],
+                "metabolism":           ["metabol", "growth", "decay", "nutri", "energ"],
+                "reasoning":             ["reason", "logic", "proof", "compute", "calculat", "infer"],
+                "physical_substance":    ["physic", "matter", "substanc", "spatial", "geometr"],
+                "authority_trust":       ["author", "trust", "consent", "consensus", "legitim", "sign"],
+                "time_sequence":         ["time", "sequenc", "order", "before", "after", "deadline", "period"],
+                "conservation_balance":  ["balanc", "conserv", "equilibri", "invariant", "preserv"],
+            }
+            for ax, stems in AXIS_STEMS.items():
+                if any(s in qlower for s in stems):
+                    predicted.add(ax)
+            # Also raw axis names in the query
+            for ax in _grid.DIMENSIONS:
+                if ax.replace('_', ' ') in qlower or ax in qlower:
+                    predicted.add(ax)
+            # Any domain or its stem in the query contributes its axes
+            for dom in _grid.AXIS_DIMENSIONS:
+                stem = dom[:6] if len(dom) >= 6 else dom
+                if dom in qlower or (len(stem) >= 5 and stem in qlower):
+                    predicted.update(_grid.AXIS_DIMENSIONS[dom])
+            if predicted:
+                match = _find_closest(list(predicted))
+                out["closest_precedent"] = match
+                out["predicted_axes"] = sorted(predicted)
+            else:
+                out["closest_precedent"] = None
+                out["predicted_axes"] = []
+        except Exception as exc:
+            out["closest_precedent_error"] = str(exc)[:200]
+
+    # 2. Domain-specific recent journal entries
+    if domain:
+        try:
+            from .. import journal as _journal
+            store = _journal.JournalStore()
+            entries = store.list_all(limit=200, tag=domain)
+            if since_epoch:
+                entries = [e for e in entries if (e.written_at or 0) >= since_epoch]
+            out["recent_for_domain"] = [
+                {
+                    "id": e.id,
+                    "text": (e.text or "")[:240],
+                    "tags": list(e.user_tags or []),
+                    "written_at": e.written_at,
+                }
+                for e in entries[:limit]
+            ]
+            out["recent_for_domain_total"] = len(entries)
+        except Exception as exc:
+            out["recent_for_domain_error"] = str(exc)[:200]
+
+    # 3. Connector discoveries on a particular axis
+    if axis:
+        try:
+            from pathlib import Path as _P
+            cf = _P("data") / "grid_connections.jsonl"
+            if cf.exists():
+                events = []
+                for line in cf.read_text("utf-8", errors="replace").splitlines():
+                    line = line.strip()
+                    if not line: continue
+                    try:
+                        e = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if axis in (e.get("shared_axes") or []):
+                        if since_epoch and e.get("ts", 0) < since_epoch:
+                            continue
+                        events.append(e)
+                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
+                out["connections_on_axis"] = events[:limit]
+                out["connections_on_axis_total"] = len(events)
+        except Exception as exc:
+            out["connections_error"] = str(exc)[:200]
+
+    # 4. Default: recent activity across all surfaces
+    if not (query or domain or axis):
+        # Recent seals
+        try:
+            from .. import journal as _journal
+            store = _journal.JournalStore()
+            recent = store.list_all(limit=limit)
+            if since_epoch:
+                recent = [e for e in recent if (e.written_at or 0) >= since_epoch]
+            out["recent_seals"] = [
+                {
+                    "id": e.id,
+                    "text": (e.text or "")[:200],
+                    "tags": list(e.user_tags or []),
+                    "written_at": e.written_at,
+                }
+                for e in recent[:limit]
+            ]
+        except Exception as exc:
+            out["recent_seals_error"] = str(exc)[:200]
+
+        # Recent connections + patterns from worker logs
+        try:
+            from pathlib import Path as _P
+            cf = _P("data") / "grid_connections.jsonl"
+            if cf.exists():
+                events = []
+                for line in cf.read_text("utf-8", errors="replace").splitlines():
+                    line = line.strip()
+                    if not line: continue
+                    try:
+                        e = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    events.append(e)
+                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
+                out["recent_connections"] = events[:5]
+            sf = _P("data") / "synthesis_patterns.jsonl"
+            if sf.exists():
+                events = []
+                for line in sf.read_text("utf-8", errors="replace").splitlines():
+                    line = line.strip()
+                    if not line: continue
+                    try:
+                        e = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    events.append(e)
+                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
+                out["recent_patterns"] = events[:5]
+        except Exception:
+            pass
+
+    out.setdefault("query", query)
+    out.setdefault("domain", domain)
+    out.setdefault("axis", axis)
+    return out
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()
