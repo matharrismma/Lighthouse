@@ -798,15 +798,15 @@
 <section>
   <div class="container">
     <h2>The engine, as a brain.</h2>
-    <p class="lead">63 verifier domains. 7 scaffold axes. Every connection a path the engine can walk. Click below to see the live network — packets flow, verifiers fire, the keeper finds new shared-axis pairs.</p>
+    <p class="lead"><b id="brainNodeCount">63</b> verifier domains. 7 scaffold axes. 5 gates. <b id="brainWorkerCount">7</b> workers sparking the connections. Every line below is a real shared axis between two verifiers — pulled from <code style="font-size:13px">/grid/scaffold</code>.</p>
 
     <a href="/engine.html" class="brain-card" aria-label="Open the live engine view">
       <div class="brain-strip">
         <span class="lhs">◉ Live brain</span>
-        <span class="rhs">63 nodes · <b id="brainEdges">~600</b> edges · <b id="brainPackets">—</b> packets · open ↗</span>
+        <span class="rhs"><b id="brainNodeCount2">63</b> domains · <b id="brainEdges">—</b> shared-axis edges · <b id="brainPackets">—</b> packets · open ↗</span>
       </div>
 
-      <svg class="brain-svg" viewBox="0 0 800 220" preserveAspectRatio="xMidYMid meet">
+      <svg class="brain-svg" viewBox="0 0 800 240" preserveAspectRatio="xMidYMid meet">
         <defs>
           <radialGradient id="hub-glow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
@@ -814,12 +814,14 @@
           </radialGradient>
         </defs>
         <g id="brainEdgesLayer"></g>
+        <g id="brainAxisLabels"></g>
         <g id="brainNodesLayer"></g>
+        <g id="brainGates"></g>
         <g id="brainPulses"></g>
       </svg>
 
       <div class="brain-foot">
-        <span class="lhs">Click for the full live engine map — axis filters, node detail, worker panel</span>
+        <span class="lhs">Real grid · click for filters, node detail, worker panel</span>
         <span class="rhs">/engine.html</span>
       </div>
     </a>
@@ -1301,80 +1303,254 @@
     });
   }
 
-  /* ───────── BRAIN MINI (lightweight static layout + ambient pulses) ───────── */
-  (function brainMini() {
-    const svg = document.getElementById('brainEdgesLayer');
-    if (!svg) return;
+  /* ───────── BRAIN MINI — accurate to the engine ───────── */
+  /* Pulls the actual scaffold from /grid/scaffold so node count, axis
+     assignments, and edges are never stale. Domains are placed in
+     axis-anchored clusters; edges are real shared-axis pairs; the
+     5-gate column on the right is the actual flow the engine runs. */
+  (async function brainMini() {
+    const edgeLayer  = document.getElementById('brainEdgesLayer');
+    const nodeLayer  = document.getElementById('brainNodesLayer');
+    const axisLayer  = document.getElementById('brainAxisLabels');
+    const gateLayer  = document.getElementById('brainGates');
+    const pulseLayer = document.getElementById('brainPulses');
+    if (!edgeLayer || !nodeLayer) return;
     const NS = 'http://www.w3.org/2000/svg';
-    // Hand-curated 18 representative nodes, axis-clustered
-    const NODES = [
-      // top — reasoning
-      {id:'mathematics', x:140, y:50, c:'#d4c46a'},
-      {id:'formal_logic', x:230, y:35, c:'#d4c46a'},
-      {id:'statistics', x:320, y:50, c:'#d4c46a'},
-      {id:'computer_science', x:410, y:38, c:'#d4c46a'},
-      // upper-right — encoding/authority
-      {id:'cryptography', x:560, y:55, c:'#a87cd6'},
-      {id:'witness', x:660, y:80, c:'#a87cd6'},
-      {id:'scripture_anchors', x:710, y:130, c:'#a87cd6'},
-      // right — physical
-      {id:'physics', x:680, y:175, c:'#d9945c'},
-      {id:'chemistry', x:600, y:175, c:'#5ec4b4'},
-      {id:'biology', x:520, y:180, c:'#5ec4b4'},
-      // bottom — metabolism
-      {id:'medicine', x:430, y:185, c:'#6ec98a'},
-      {id:'agriculture', x:340, y:180, c:'#6ec98a'},
-      {id:'soil_science', x:260, y:175, c:'#6ec98a'},
-      {id:'ecology', x:185, y:175, c:'#5ec4b4'},
-      {id:'meteorology', x:115, y:170, c:'#5ec4b4'},
-      // hubs middle
-      {id:'theology_doctrine', x:400, y:115, c:'#a87cd6'},
-      {id:'philosophy', x:285, y:110, c:'#a87cd6'},
-      {id:'governance_decision_packet', x:520, y:110, c:'#7fa8c0'},
-    ];
-    // Edges hand-curated to look balanced
-    const EDGES = [
-      [0,1],[0,2],[0,3],[1,2],[1,3],[2,3],
-      [4,5],[5,6],[6,16],[5,15],[16,15],
-      [7,8],[8,9],[8,17],[9,10],[9,11],
-      [10,11],[11,12],[12,13],[13,14],
-      [11,15],[10,16],[16,7],[16,8],
-      [16,17],[15,16],[15,17],[17,4],
-      [3,16],[2,17],[0,16],[1,16],
-      [14,12],[12,11],[10,11],
-      [7,16],[6,17],[4,17],
-      [9,16],[8,16],
-    ];
-    EDGES.forEach(([a,b]) => {
-      const ln = document.createElementNS(NS, 'line');
-      ln.setAttribute('x1', NODES[a].x); ln.setAttribute('y1', NODES[a].y);
-      ln.setAttribute('x2', NODES[b].x); ln.setAttribute('y2', NODES[b].y);
-      ln.setAttribute('stroke', NODES[a].c);
-      ln.setAttribute('stroke-width', 0.5);
-      ln.setAttribute('opacity', 0.22);
-      svg.appendChild(ln);
+
+    let scaffold = null;
+    try {
+      scaffold = await fetch(API + '/grid/scaffold', { cache: 'no-store' }).then(r => r.ok ? r.json() : null);
+    } catch (_) { scaffold = null; }
+    if (!scaffold || !scaffold.axes) return;
+
+    // Authoritative grid: domain → list-of-axes
+    const GRID = scaffold.axes;
+    const ALL_AXES = scaffold.dimensions; // 7 names in scaffold-defined order
+
+    // Engine-internal verifier list (canonical 63). Aliases like
+    // 'wages' → 'labor' are excluded so the visualization shows the
+    // verifier-backed brain, not its synonym layer.
+    const CANON = new Set([
+      'acoustics','agriculture','architecture','astronomy','biology','calendar_time',
+      'chemistry','combinatorics','computer_science','construction','cryptography',
+      'cybersecurity','document_validation','ecology','economics','electrical','energy',
+      'exercise_science','finance','formal_logic','genetics','geography','geology',
+      'geometry','governance_decision_packet','history_chronology','hydrology',
+      'information_theory','labor','law','linguistics','manufacturing','materials_science',
+      'mathematics','medicine','meteorology','music_theory','networking','nuclear_physics',
+      'number_theory','nutrition','oceanography','operations_research','optics','phase',
+      'philosophy','photography','physics','physics_conservation','physics_dimensional',
+      'quantum_computing','real_estate','rhetoric','scripture_anchors','soil_science',
+      'sports_analytics','statistics','statistics_confidence_interval',
+      'statistics_multiple_comparisons','statistics_pvalue','theology_doctrine',
+      'thermodynamics','witness',
+    ]);
+    const domains = Object.keys(GRID).filter(d => CANON.has(d)).sort();
+
+    // Color per axis — readable on dark background, axis-coherent
+    const AXIS_COLOR = {
+      reasoning:           '#d4c46a',
+      encoding:            '#a87cd6',
+      authority_trust:     '#7fa8c0',
+      physical_substance:  '#d9945c',
+      metabolism:          '#6ec98a',
+      conservation_balance:'#5ec4b4',
+      time_sequence:       '#cf8aa8',
+    };
+    // Priority for "primary axis" coloring (deepest signal first)
+    const AXIS_PRIORITY = ['encoding','authority_trust','metabolism',
+                           'conservation_balance','reasoning','time_sequence',
+                           'physical_substance'];
+    const primaryAxis = (axes) => AXIS_PRIORITY.find(a => axes.includes(a)) || axes[0];
+
+    // ── Layout: 7 axis anchors arranged on the left two-thirds.
+    //    Each domain is placed at the centroid of its axis-anchors plus
+    //    deterministic jitter so multi-axis nodes don't all pile up.
+    const W = 800, H = 240;
+    const GATE_COL_X = 720;          // right column reserved for gates
+    const CX = 340, CY = H/2;
+    const RING_R_X = 240, RING_R_Y = 92;
+    const AXIS_ANCHORS = {};
+    ALL_AXES.forEach((axis, i) => {
+      const angle = (i / ALL_AXES.length) * 2 * Math.PI - Math.PI / 2;
+      AXIS_ANCHORS[axis] = {
+        x: CX + Math.cos(angle) * RING_R_X,
+        y: CY + Math.sin(angle) * RING_R_Y,
+        axis,
+      };
     });
-    const nodesLayer = document.getElementById('brainNodesLayer');
+
+    // Axis labels around the ring
+    ALL_AXES.forEach((axis) => {
+      const a = AXIS_ANCHORS[axis];
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', a.x);
+      t.setAttribute('y', a.y);
+      t.setAttribute('fill', AXIS_COLOR[axis]);
+      t.setAttribute('opacity', '0.55');
+      t.setAttribute('font-size', '8.5');
+      t.setAttribute('font-family', "'JetBrains Mono', monospace");
+      t.setAttribute('letter-spacing', '0.08em');
+      t.setAttribute('text-anchor', a.x < CX ? 'end' : 'start');
+      t.setAttribute('dominant-baseline', a.y < CY ? 'auto' : 'hanging');
+      const dx = a.x < CX ? -8 : 8;
+      const dy = a.y < CY ? -6 : 6;
+      t.setAttribute('transform', `translate(${dx},${dy})`);
+      t.textContent = axis.toUpperCase().replace('_', ' ');
+      axisLayer.appendChild(t);
+    });
+
+    // Place each domain
+    const NODES = domains.map((id, idx) => {
+      const axes = GRID[id] || [];
+      const valid = axes.filter(a => AXIS_ANCHORS[a]);
+      const cx = valid.length ? valid.reduce((s, a) => s + AXIS_ANCHORS[a].x, 0) / valid.length : CX;
+      const cy = valid.length ? valid.reduce((s, a) => s + AXIS_ANCHORS[a].y, 0) / valid.length : CY;
+      // Deterministic jitter from id hash (so layout is stable across reloads)
+      let h = 0;
+      for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) | 0;
+      const jx = ((h & 0xffff) / 0xffff - 0.5) * 36;
+      const jy = (((h >> 16) & 0xffff) / 0xffff - 0.5) * 22;
+      const primary = primaryAxis(valid.length ? valid : axes);
+      return {
+        id, x: cx + jx, y: cy + jy,
+        axes: valid, depth: valid.length,
+        color: AXIS_COLOR[primary] || '#888',
+      };
+    });
+    const NODE_BY_ID = {};
+    NODES.forEach(n => NODE_BY_ID[n.id] = n);
+
+    // Real edges: domain pairs sharing ≥1 axis
+    let edgeCount = 0;
+    for (let i = 0; i < NODES.length; i++) {
+      for (let j = i + 1; j < NODES.length; j++) {
+        const a = NODES[i], b = NODES[j];
+        const shared = a.axes.filter(x => b.axes.includes(x)).length;
+        if (!shared) continue;
+        edgeCount++;
+        const ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+        ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+        ln.setAttribute('stroke', a.color);
+        ln.setAttribute('stroke-width', shared >= 2 ? 0.55 : 0.32);
+        ln.setAttribute('opacity', shared >= 3 ? 0.18 : (shared === 2 ? 0.10 : 0.05));
+        edgeLayer.appendChild(ln);
+      }
+    }
+
+    // Nodes
     NODES.forEach(n => {
       const c = document.createElementNS(NS, 'circle');
       c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
-      c.setAttribute('r', 3.5);
-      c.setAttribute('fill', n.c);
-      c.setAttribute('opacity', 0.85);
-      c.style.filter = 'drop-shadow(0 0 4px ' + n.c + ')';
+      // Bigger dots for deeper nodes (more axes)
+      c.setAttribute('r', 2.4 + n.depth * 0.55);
+      c.setAttribute('fill', n.color);
+      c.setAttribute('opacity', '0.85');
+      c.style.filter = `drop-shadow(0 0 4px ${n.color})`;
       n.el = c;
-      nodesLayer.appendChild(c);
+      nodeLayer.appendChild(c);
     });
-    function pulse() {
+
+    // ── Gate column on the right: RED → FLOOR → WAY → BROTHERS → GOD
+    const GATES = [
+      { name: 'RED',      color: '#c96c6c', kind: 'hard' },
+      { name: 'FLOOR',    color: '#c4a030', kind: 'hard' },
+      { name: 'WAY',      color: '#c9a87c', kind: 'hard' },
+      { name: 'BROTHERS', color: '#6fc47c', kind: 'soft' },
+      { name: 'GOD',      color: '#7fa8c0', kind: 'soft' },
+    ];
+    const GATE_TOP = 30, GATE_GAP = (H - 60) / (GATES.length - 1);
+    GATES.forEach((g, i) => {
+      const gy = GATE_TOP + i * GATE_GAP;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', GATE_COL_X - 26); r.setAttribute('y', gy - 8);
+      r.setAttribute('width', 52); r.setAttribute('height', 16);
+      r.setAttribute('rx', 3);
+      r.setAttribute('fill', 'rgba(0,0,0,0.3)');
+      r.setAttribute('stroke', g.color);
+      r.setAttribute('stroke-width', g.kind === 'hard' ? 1 : 0.6);
+      r.setAttribute('stroke-dasharray', g.kind === 'soft' ? '2 2' : 'none');
+      gateLayer.appendChild(r);
+      const t = document.createElementNS(NS, 'text');
+      t.setAttribute('x', GATE_COL_X); t.setAttribute('y', gy);
+      t.setAttribute('fill', g.color);
+      t.setAttribute('font-size', '8.5');
+      t.setAttribute('font-family', "'JetBrains Mono', monospace");
+      t.setAttribute('letter-spacing', '0.1em');
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('dominant-baseline', 'central');
+      t.textContent = g.name;
+      gateLayer.appendChild(t);
+      // arrow to next
+      if (i < GATES.length - 1) {
+        const a = document.createElementNS(NS, 'line');
+        a.setAttribute('x1', GATE_COL_X); a.setAttribute('y1', gy + 9);
+        a.setAttribute('x2', GATE_COL_X); a.setAttribute('y2', gy + GATE_GAP - 9);
+        a.setAttribute('stroke', '#3a3239');
+        a.setAttribute('stroke-width', 0.6);
+        gateLayer.appendChild(a);
+      }
+    });
+    // Header label for the gate column
+    const ghdr = document.createElementNS(NS, 'text');
+    ghdr.setAttribute('x', GATE_COL_X); ghdr.setAttribute('y', 12);
+    ghdr.setAttribute('fill', '#8a8593');
+    ghdr.setAttribute('font-size', '7.5');
+    ghdr.setAttribute('font-family', "'JetBrains Mono', monospace");
+    ghdr.setAttribute('letter-spacing', '0.18em');
+    ghdr.setAttribute('text-anchor', 'middle');
+    ghdr.textContent = 'GATES';
+    gateLayer.appendChild(ghdr);
+
+    // ── Update count strip with REAL numbers
+    const setCount = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(val);
+    };
+    setCount('brainNodeCount', NODES.length);
+    setCount('brainNodeCount2', NODES.length);
+    setCount('brainEdges', edgeCount.toLocaleString());
+
+    // ── Worker sparks: pulse a node every ~900ms, occasionally fire a
+    //    "connection" arc between two random shared-axis neighbours so
+    //    the brain visibly comes alive — workers connecting domains.
+    function sparkNode() {
       const target = NODES[Math.floor(Math.random() * NODES.length)];
       const r = target.el;
-      r.setAttribute('r', '6');
+      const baseR = parseFloat(r.getAttribute('r'));
+      r.setAttribute('r', baseR + 3.5);
       r.setAttribute('opacity', '1');
-      setTimeout(() => { r.setAttribute('r', '3.5'); r.setAttribute('opacity', '0.85'); }, 600);
+      setTimeout(() => { r.setAttribute('r', baseR); r.setAttribute('opacity', '0.85'); }, 550);
     }
-    setInterval(pulse, 1200);
-    setTimeout(pulse, 400);
-    setTimeout(pulse, 800);
+    function sparkConnection() {
+      const a = NODES[Math.floor(Math.random() * NODES.length)];
+      const candidates = NODES.filter(n => n !== a && n.axes.some(x => a.axes.includes(x)));
+      if (!candidates.length) return;
+      const b = candidates[Math.floor(Math.random() * candidates.length)];
+      const ln = document.createElementNS(NS, 'line');
+      ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+      ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+      ln.setAttribute('stroke', '#c9a87c');
+      ln.setAttribute('stroke-width', 1.4);
+      ln.setAttribute('opacity', '0.85');
+      ln.style.filter = 'drop-shadow(0 0 4px #c9a87c)';
+      pulseLayer.appendChild(ln);
+      let alpha = 0.85;
+      const fade = setInterval(() => {
+        alpha -= 0.12;
+        if (alpha <= 0) {
+          clearInterval(fade);
+          pulseLayer.removeChild(ln);
+        } else {
+          ln.setAttribute('opacity', alpha);
+        }
+      }, 90);
+    }
+    setInterval(sparkNode, 900);
+    setInterval(sparkConnection, 2200);
+    setTimeout(sparkNode, 300);
+    setTimeout(sparkConnection, 1100);
   })();
 
   refreshStats();

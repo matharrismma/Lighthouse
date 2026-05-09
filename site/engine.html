@@ -586,7 +586,7 @@
     <p class="lead">63 domains. 7 scaffold axes. Every connection is a path the engine can walk — chemistry to thermodynamics along conservation, witness to scripture along authority, biology to genetics along encoding. The secret of the engine is that none of these are separate. Click an axis to isolate the network it forms.</p>
   </div>
   <div class="meta">
-    <span>NODES <b>61</b></span>
+    <span>NODES <b id="nodeCount">63</b></span>
     <span>EDGES <b id="edgeCount">—</b></span>
     <span>JOURNAL <b id="m-journal">—</b></span>
     <span>BENCH <b style="color:var(--pass)">171/171</b></span>
@@ -760,8 +760,9 @@
   const AXIS_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
 
   /* ═══════════════════════════════════════════════════
-     SCAFFOLD — 61 domain nodes + their axis assignments
-     (matches grid.html GRID_INLINE — single source of truth)
+     SCAFFOLD — 63 verifier-backed domain nodes + axis assignments
+     (matches grid.html GRID_INLINE; sourced from concordance_engine.grid
+     AXIS_DIMENSIONS via the ALL_TOOLS verify_* registry)
   ═══════════════════════════════════════════════════ */
   const GRID = {
     acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
@@ -786,13 +787,13 @@
     number_theory:["rsn"], nutrition:["csv","met","phy"],
     oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
     optics:["csv","phy"], philosophy:["aut","rsn"],
-    photography:["enc","phy"], physics_conservation:["csv","phy"],
-    physics_dimensional:["phy","rsn"], quantum_computing:["enc","phy","rsn"],
-    real_estate:["aut","csv","phy","tim"], rhetoric:["aut","enc","rsn"],
-    scripture_anchors:["aut","enc","rsn","tim"], soil_science:["csv","met","phy"],
-    sports_analytics:["rsn","tim"],
-    statistics_pvalue:["rsn"], statistics_multiple_comparisons:["rsn"],
-    statistics_confidence_interval:["rsn"],
+    photography:["enc","phy"], physics:["csv","phy","rsn"],
+    physics_conservation:["csv","phy"], physics_dimensional:["phy","rsn"],
+    quantum_computing:["enc","phy","rsn"], real_estate:["aut","csv","phy","tim"],
+    rhetoric:["aut","enc","rsn"], scripture_anchors:["aut","enc","rsn","tim"],
+    soil_science:["csv","met","phy"], sports_analytics:["rsn","tim"],
+    statistics:["rsn"], statistics_pvalue:["rsn"],
+    statistics_multiple_comparisons:["rsn"], statistics_confidence_interval:["rsn"],
     theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
     witness:["aut","enc","rsn","tim"],
     phase:["aut","rsn","tim"]

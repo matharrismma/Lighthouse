@@ -256,7 +256,7 @@ POST /speak             — proxy ElevenLabs TTS; returns audio/mpeg (requires E
 GET  /voices            — list available ElevenLabs voices + models for this instance
 ```
 
-### Domain verifier layer (48 domains)
+### Domain verifier layer (63 verifiers across 7 axes)
 ```
 GET  /verifiers                          — list all registered domain verifiers + aliases
 POST /verify/{domain}                    — run a domain verifier and store the result
