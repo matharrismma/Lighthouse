@@ -5892,6 +5892,132 @@ def almanac_entry(entry_id: str):
     raise HTTPException(status_code=404, detail=f"no almanac entry with id {entry_id!r}")
 
 
+class AlmanacProposeRequest(BaseModel):
+    """Body for `POST /almanac/propose` — public draft-entry surface.
+
+    Mirrors the MCP `propose_almanac_entry` tool over plain HTTP so
+    /almanac.html (and any human with curl) can submit a candidate
+    saying or situation for engine pre-run + curation.
+    """
+    candidate: str
+    kind: str = "auto"           # "auto" | "saying" | "protocol"
+    title: Optional[str] = None
+    category: Optional[str] = None
+
+
+@app.post("/almanac/propose", tags=["humans"])
+def almanac_propose(request: Request, req: AlmanacProposeRequest):
+    """Propose a draft almanac entry. Engine does the math.
+
+    The draft NEVER auto-commits — it goes back to the caller for
+    curation. Matt-as-curator (or any reader) decides whether the
+    wisdom and verdict belong in the book; if yes, the entry is
+    appended to data/almanac/entries.jsonl manually.
+
+    Rate-limited per-IP at 6/min — polymathic + oracle is paid work.
+    """
+    _rate_check(request, "almanac_propose")
+
+    candidate = (req.candidate or "").strip()
+    if not candidate:
+        raise HTTPException(status_code=400, detail="candidate is required")
+    if len(candidate) > 4000:
+        raise HTTPException(status_code=400, detail="candidate too long (max 4000 chars)")
+
+    # Decide kind
+    chosen_kind = req.kind
+    if chosen_kind == "auto":
+        is_short = len(candidate) <= 120
+        has_numbers = any(ch.isdigit() for ch in candidate)
+        chosen_kind = "saying" if (is_short and not has_numbers) else "protocol"
+
+    # Slug
+    import re as _re
+    seed = (req.title or candidate).lower()
+    slug = _re.sub(r"[^a-z0-9]+", "_", seed).strip("_")[:48] or "draft_entry"
+
+    # Suggested keyword triggers
+    keywords = [
+        w for w in _re.findall(r"[a-zA-Z]{4,}", candidate.lower())
+        if w not in {"that","this","with","from","into","when","than",
+                      "what","were","they","then","have","been","does"}
+    ][:10]
+
+    draft: Dict[str, Any] = {
+        "id": slug,
+        "kind": chosen_kind,
+        "title": req.title or candidate,
+        "category": req.category or "uncategorized",
+        "domains": [],
+        "axes": [],
+        "verdict": "DRAFT",
+        "wisdom": "(curator: write the dry note here — what does the math actually show?)",
+        "triggers": {"keywords": keywords, "axes": []},
+    }
+
+    # Run polymathic locally — same code path as run_polymathic agent + tool
+    try:
+        from concordance_engine.agent.poly_agent import run_polymathic as _run_poly
+        rec = _run_poly(situation=candidate, max_domains=8, decompose=True)
+        rec_d = rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+
+        if chosen_kind == "saying":
+            draft["verification"] = (
+                "(curator: replace this with a one-paragraph explanation "
+                "of why the math gives the verdict it does. The polymathic "
+                "run below is the engine's first pass — distill it.)"
+            )
+        else:
+            draft["situation"] = candidate
+            draft["pre_run"] = {
+                "summary": "(curator: write a one-sentence summary)",
+                "domain_results": rec_d.get("domain_results", []),
+                "axis_overlaps": rec_d.get("axis_overlaps", []),
+            }
+
+        draft["verdict"] = rec_d.get("composite_verdict", "DRAFT")
+        draft["domains"] = sorted({
+            r.get("domain") for r in (rec_d.get("domain_results") or [])
+            if r.get("domain")
+        })
+
+        # Collect axes from the fired domains
+        fired_axes: set = set()
+        for r in (rec_d.get("domain_results") or []):
+            for a in (r.get("axis_dims") or []):
+                fired_axes.add(a)
+        draft["axes"] = sorted(fired_axes)
+        draft["triggers"]["axes"] = sorted(fired_axes)
+
+        draft["_engine_trail"] = {
+            "atomic_claims": rec_d.get("atomic_claims", []),
+            "quarantined_claims": rec_d.get("quarantined_claims", []),
+            "axis_overlaps": rec_d.get("axis_overlaps", []),
+            "content_hash": rec_d.get("content_hash"),
+        }
+    except Exception as exc:
+        draft["_engine_error"] = str(exc)[:240]
+        draft["_engine_note"] = (
+            "Polymathic run failed for this candidate. Draft returned "
+            "without computed verdict."
+        )
+
+    return {
+        "draft": draft,
+        "instructions_for_curator": (
+            "1. Review the draft. Check that the verdict the engine produced "
+            "matches your intent.\n"
+            "2. Replace the placeholder wisdom prose with a short dry note in "
+            "the Almanac's voice — what does the math actually show?\n"
+            "3. For sayings: write the verification paragraph. For protocols: "
+            "write the pre_run.summary one-liner.\n"
+            "4. Adjust category, triggers, and id slug as needed.\n"
+            "5. When ready, append the cleaned-up entry as one JSON line to "
+            "data/almanac/entries.jsonl, and bounce the engine to load."
+        ),
+    }
+
+
 @app.get("/grid/scaffold", tags=["agents"])
 def grid_scaffold():
     """Full domain→dimension mapping for the 7-axis scaffold.

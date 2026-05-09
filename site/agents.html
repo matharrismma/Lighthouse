@@ -60,12 +60,22 @@
 </section>
 
 
-<!-- ── FOUR SURFACES ──────────────────────────────────────────── -->
+<!-- ── SURFACES FOR AGENTS ────────────────────────────────────── -->
 <section>
   <div class="container">
-    <h2>Four surfaces for agents</h2>
-    <p>Each surface answers a different kind of question.</p>
+    <h2>Surfaces for agents</h2>
+    <p>Each surface answers a different kind of question. Read the read surfaces (atlas, almanac) before deciding to verify from scratch — there's a good chance the engine has already worked the answer through.</p>
     <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      <div class="card">
+        <h3>Atlas <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— the map</span></h3>
+        <p>Where does this sit on the 7-axis scaffold? Which domains are structurally adjacent? Pure read; no oracle calls. Use before verification when you don't yet know which domain applies.</p>
+        <a href="#mcp-tools"><code>atlas</code> (MCP) · GET /grid/scaffold</a>
+      </div>
+      <div class="card">
+        <h3>Almanac <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— the book</span></h3>
+        <p>Has this been worked through before? A curated book of pre-run polymathic protocols and folk-wisdom sayings verified by computation, with the dry note attached. Use before run_polymathic.</p>
+        <a href="/almanac.html"><code>almanac</code> (MCP) · GET /almanac · /almanac.html</a>
+      </div>
       <div class="card">
         <h3>Path <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— new in v1.3</span></h3>
         <p>Something is being carried — a question, a decision, a tension. Classify what it is, find the load-bearing Scripture, return a structured path. Not an answer. A direction.</p>
@@ -83,10 +93,38 @@
       </div>
       <div class="card">
         <h3>Polymathic <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— Path C</span></h3>
-        <p>A situation spans many domains simultaneously. The orchestrator fires all applicable verifiers at once — decompose the situation into atomic claims, classify each to its domain verifier, verify in parallel. Concordant, Discordant, Mixed, or Quarantine.</p>
-        <a href="#polymathic">POST /polymathic →</a>
+        <p>A situation spans many domains simultaneously. The orchestrator fires every applicable verifier at once — decompose the situation into atomic claims, classify each to its domain verifier, verify in parallel. Concordant, Discordant, Mixed, or Quarantine.</p>
+        <a href="#polymathic"><code>run_polymathic</code> (MCP) · POST /polymathic</a>
+      </div>
+      <div class="card">
+        <h3>Curation <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— grow the book</span></h3>
+        <p>Hand the engine a folk saying or a multi-domain situation; it runs polymathic and packages the result into a draft almanac entry ready for human review. The engine does the math; the human does the wisdom.</p>
+        <a href="#mcp-tools"><code>propose_almanac_entry</code> (MCP)</a>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ── MCP TOOL INVENTORY ─────────────────────────────────────── -->
+<section id="mcp-tools">
+  <div class="container">
+    <h2>MCP tool inventory</h2>
+    <p>76 MCP tools total: <strong>63 verifiers</strong> (one per deterministic domain check), <strong>9 pipeline tools</strong> (validate / seal / attest / walk through), and <strong>4 read &amp; synthesize surfaces</strong> (atlas, almanac, run_polymathic, propose_almanac_entry). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
+    <table>
+      <thead>
+        <tr><th style="width:34%">Tool</th><th>What it does</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>atlas</code></td><td>Walk the structural map. Where a domain sits on the 7-axis scaffold, what's adjacent, what's in its umbrella. Three modes: full scaffold, domain detail, axis membership.</td></tr>
+        <tr><td><code>almanac</code></td><td>Read the curated book. 21 entries — protocols (canonical pre-run polymathic situations) and sayings (folk wisdom verified by computation). Filter by query, kind, category, or verdict; or fetch a single entry by id.</td></tr>
+        <tr><td><code>run_polymathic</code></td><td>Cross-domain coordinator. Hand it a multi-domain situation; it decomposes, classifies, verifies in parallel, and returns a composite verdict — CONCORDANT / DISCORDANT / MIXED / QUARANTINE / OUT_OF_SCOPE — with axis overlaps and the per-domain trail.</td></tr>
+        <tr><td><code>propose_almanac_entry</code></td><td>The curation loop. Hand it a saying or situation; it runs the engine, packages a draft entry with verdict + verification + suggested triggers, and returns it for human review. The draft never auto-commits — a curator appends to data/almanac/entries.jsonl.</td></tr>
+        <tr><td><code>validate_packet</code> / <code>seal_packet</code> / <code>walkthrough_packet</code> / <code>attest_red</code> / <code>attest_floor</code></td><td>Gate pipeline. Run a packet through RED → FLOOR → WAY → BROTHERS → GOD; record the trail; seal into the audit chain when it passes.</td></tr>
+        <tr><td><code>resolve_scripture_ref</code> / <code>word_study</code> / <code>verify_scripture_anchors</code></td><td>Scripture layer — WEB Bible, Strong's numbers, citation anchoring. Catches fabricated references.</td></tr>
+        <tr><td><code>triangulate_claim</code> / <code>get_example_packet</code></td><td>Multi-source corroboration helper and an example-packet fetcher for new integrations.</td></tr>
+        <tr><td><code>verify_*</code> (63 tools)</td><td>One per domain — chemistry, physics_dimensional, statistics_pvalue, mathematics, biology, etc. All deterministic. See the full <a href="/verifiers.html">verifier list</a>.</td></tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
@@ -104,7 +142,7 @@
     "concordance": { "url": "https://narrowhighway.com/mcp" }
   }
 }</code></pre>
-    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 72 tools (63 verifiers + 9 pipeline) become available immediately.</p>
+    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 76 tools (63 verifiers + 9 pipeline + 4 read/synthesize/curate) become available immediately.</p>
 
     <h3>2 · MCP over stdio — for offline / air-gapped use</h3>
     <p>Install once, run locally. No outbound calls.</p>

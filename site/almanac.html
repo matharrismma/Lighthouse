@@ -286,7 +286,7 @@
   <div class="container">
     <div class="eyebrow">The book</div>
     <h1>The Almanac</h1>
-    <p class="almanac-preface">
+    <p class="almanac-preface" id="almanacPreface">
       A curated record of what the engine has worked through. Two kinds of entry —
       <strong>protocols</strong>, canonical multi-domain situations pre-run through the
       verifiers, and <strong>sayings</strong>, old proverbs and rules of thumb confirmed
@@ -294,8 +294,35 @@
       behind it and a short note on what the math actually shows. The Almanac does
       not panic.
     </p>
+    <p style="margin-top:14px">
+      <button class="listen-btn" data-narrate-target="#almanacPreface" title="Read aloud">
+        <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the preface</span>
+      </button>
+      <button class="listen-btn" id="proposeBtn" style="margin-left:8px" title="Suggest a saying for the book">
+        <span class="listen-glyph">+</span> <span class="listen-label">Suggest an entry</span>
+      </button>
+    </p>
   </div>
 </div>
+
+<!-- ── PROPOSE ENTRY MODAL (hidden by default) ─────────────────── -->
+<section id="proposeSection" style="display:none">
+  <div class="container">
+    <div style="max-width:680px;margin:0 auto;background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--r);padding:26px 28px">
+      <h2 style="margin:0 0 8px 0;font-size:20px">Suggest an entry</h2>
+      <p style="margin:0 0 18px 0;font-size:14px;color:var(--muted);line-height:1.55">
+        Hand the engine an old saying or a multi-domain situation. It runs polymathic and returns a draft entry — verdict + verification + suggested triggers — for the curator to review. Drafts are not auto-published; the curator (Matt) decides what earns a place in the book.
+      </p>
+      <textarea id="proposeText" rows="4" placeholder='Examples: "Don\'t cry over spilled milk." OR "A hectare of corn at 200 bushels per acre with 25% moisture content yields..."' style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;font-family:inherit;font-size:14.5px;line-height:1.55;resize:vertical;outline:none;transition:border-color 0.15s"></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px">
+        <button id="proposeSubmit" class="almanac-chip active" style="cursor:pointer">Submit to the engine</button>
+        <button id="proposeCancel" class="almanac-chip" style="cursor:pointer">Cancel</button>
+        <span id="proposeStatus" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted)"></span>
+      </div>
+      <pre id="proposeDraft" style="display:none;margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;color:var(--text);max-height:480px;overflow:auto;white-space:pre-wrap;word-break:break-word"></pre>
+    </div>
+  </div>
+</section>
 
 <section>
   <div class="container">
@@ -581,6 +608,65 @@
   }
 
   loadBook();
+
+  /* ───────── Suggest-an-entry modal ───────── */
+  const _proposeBtn    = document.getElementById('proposeBtn');
+  const _proposeSection= document.getElementById('proposeSection');
+  const _proposeText   = document.getElementById('proposeText');
+  const _proposeSubmit = document.getElementById('proposeSubmit');
+  const _proposeCancel = document.getElementById('proposeCancel');
+  const _proposeStatus = document.getElementById('proposeStatus');
+  const _proposeDraft  = document.getElementById('proposeDraft');
+
+  if (_proposeBtn) {
+    _proposeBtn.addEventListener('click', () => {
+      _proposeSection.style.display = 'block';
+      _proposeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      requestAnimationFrame(() => _proposeText.focus());
+    });
+  }
+  if (_proposeCancel) {
+    _proposeCancel.addEventListener('click', () => {
+      _proposeSection.style.display = 'none';
+      _proposeText.value = '';
+      _proposeStatus.textContent = '';
+      _proposeDraft.style.display = 'none';
+      _proposeDraft.textContent = '';
+    });
+  }
+  if (_proposeSubmit) {
+    _proposeSubmit.addEventListener('click', async () => {
+      const candidate = _proposeText.value.trim();
+      if (!candidate) {
+        _proposeStatus.textContent = 'paste a saying or situation first';
+        return;
+      }
+      _proposeSubmit.disabled = true;
+      _proposeStatus.textContent = 'engine working — running polymathic…';
+      _proposeDraft.style.display = 'none';
+      try {
+        const r = await fetch(API + '/almanac/propose', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidate, kind: 'auto' }),
+        });
+        if (!r.ok) {
+          let detail = 'engine returned ' + r.status;
+          try { const e = await r.json(); detail = e.detail || detail; } catch (_) {}
+          throw new Error(detail);
+        }
+        const data = await r.json();
+        _proposeDraft.textContent = JSON.stringify(data, null, 2);
+        _proposeDraft.style.display = 'block';
+        const v = (data.draft && data.draft.verdict) || 'DRAFT';
+        _proposeStatus.textContent = 'draft ready — verdict ' + v + '. The engine did the math; the curator does the wisdom.';
+      } catch (err) {
+        _proposeStatus.textContent = 'engine error: ' + (err.message || String(err)).slice(0, 200);
+      } finally {
+        _proposeSubmit.disabled = false;
+      }
+    });
+  }
 </script>
 
 </body>

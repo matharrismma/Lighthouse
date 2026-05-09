@@ -307,7 +307,7 @@
 <header class="page-header">
   <p class="eyebrow">Integration hub</p>
   <h1>Connect any AI agent.</h1>
-  <p class="lead">Five doors in. The engine is the same — 72 tools, 63 verifiers, 21,000+ sealed packets, four gates. Pick the integration that fits your stack and copy the config. Live tests on every section.</p>
+  <p class="lead">Five doors in. The engine is the same — 76 tools, 63 verifiers, 21,000+ sealed packets, four gates. Pick the integration that fits your stack and copy the config. Live tests on every section.</p>
 </header>
 
 <div class="endpoint-band">
@@ -350,7 +350,7 @@
 <section id="claude">
   <div class="container">
     <h2><span class="num-badge">1</span>Claude Desktop</h2>
-    <p class="sub">The fastest path. Hosted MCP — no install. Add three lines to your config and 72 tools light up in any new conversation.</p>
+    <p class="sub">The fastest path. Hosted MCP — no install. Add three lines to your config and 76 tools light up in any new conversation.</p>
 
     <div class="section-card">
       <h3>Step 1 · Open the config file</h3>
@@ -374,12 +374,12 @@
       </div>
 
       <h3 style="margin-top:22px">Step 3 · Restart Claude Desktop</h3>
-      <p>Open a new conversation. Look for the tool icon in the input box — you should see 72 tools available. Try: <em>"Use concordance to verify that 2 H2 + O2 → 2 H2O is balanced."</em></p>
+      <p>Open a new conversation. Look for the tool icon in the input box — you should see 76 tools available. Try: <em>"Use concordance to verify that 2 H2 + O2 → 2 H2O is balanced."</em></p>
 
       <div class="pill-row">
         <span class="pill ok">No install</span>
         <span class="pill ok">No auth needed</span>
-        <span class="pill ok">All 72 tools</span>
+        <span class="pill ok">All 76 tools</span>
       </div>
 
       <div class="test-row">
@@ -437,7 +437,7 @@ URL:  <span class="s">https://narrowhighway.com/mcp/</span></pre>
         <button class="pre-copy" data-copy-pre>copy</button>
 <pre><span class="k">import</span> openai, json, urllib.request
 
-<span class="c"># Pull the OpenAPI spec — 86 endpoints, all 72 MCP tools mirrored</span>
+<span class="c"># Pull the OpenAPI spec — 90+ endpoints, all 76 MCP tools mirrored</span>
 spec = json.loads(urllib.request.urlopen(
     <span class="s">"https://narrowhighway.com/openapi.json"</span>).read())
 
@@ -628,7 +628,7 @@ pip install -e <span class="s">".[mcp]"</span></pre>
   <div class="container">
     <h2 style="margin-bottom: 22px"><span class="num-badge">∞</span>What every agent gets</h2>
     <div style="display:grid;grid-template-columns:1fr;gap:14px;" id="ttg">
-      <style>@media (min-width:800px){#ttg{grid-template-columns:1fr 1fr 1fr;}}</style>
+      <style>@media (min-width:800px){#ttg{grid-template-columns:1fr 1fr;}}</style>
 
       <div class="section-card">
         <h3 style="color:var(--accent)">63 verifier tools</h3>
@@ -639,12 +639,18 @@ pip install -e <span class="s">".[mcp]"</span></pre>
       <div class="section-card">
         <h3 style="color:var(--accent)">9 pipeline tools</h3>
         <p><code>validate_packet</code>, <code>seal_packet</code>, <code>walkthrough_packet</code>, <code>attest_red</code>, <code>attest_floor</code>, <code>resolve_scripture_ref</code>, <code>word_study</code>, <code>triangulate_claim</code>, <code>get_example_packet</code>.</p>
-        <a href="/agents.html" style="font-size:13px">Agent guide →</a>
+        <a href="/agents.html#mcp-tools" style="font-size:13px">Agent guide →</a>
+      </div>
+
+      <div class="section-card">
+        <h3 style="color:var(--accent)">4 read &amp; synthesize surfaces</h3>
+        <p><code>atlas</code> walks the structural map. <code>almanac</code> reads the curated book of pre-run polymathic protocols and verified folk wisdom. <code>run_polymathic</code> coordinates every applicable verifier in parallel for cross-domain situations. <code>propose_almanac_entry</code> closes the curation loop.</p>
+        <a href="/almanac.html" style="font-size:13px">Read the almanac →</a>
       </div>
 
       <div class="section-card">
         <h3 style="color:var(--accent)">Live data surface</h3>
-        <p>21,000+ sealed packets in the journal. Append-only audit chain with SHA-256 chain integrity. Per-domain trust index. Grid scaffold across 7 axes.</p>
+        <p>22,000+ sealed packets in the journal. Append-only audit chain with SHA-256 chain integrity. Per-domain trust index. Grid scaffold across 7 axes. Voice synthesis on every narrative page (M.R. Harris).</p>
         <a href="/grid.html" style="font-size:13px">See the grid →</a>
       </div>
 
