@@ -3847,6 +3847,17 @@ def seal_polymathic(req: SealPolymathicRequest):
     except Exception:
         pass  # broadcast failure is non-fatal
 
+    # ── Pipeline A2: auto-promote CONCORDANT seals to Almanac ────────
+    # Every sealed CONCORDANT polymathic record is, by construction, a
+    # multi-domain situation the engine has run and confirmed. Promote
+    # novel domain signatures to the Almanac as kind:"protocol" entries.
+    # The Almanac grows from real engine work without curator push.
+    try:
+        if verdict == "CONCORDANT":
+            _promote_polymathic_seal_to_almanac(record_dict, req.content_hash, entry.seq)
+    except Exception as exc:
+        _log.warning(f"polymathic-seal promote-to-almanac failed: {exc}")
+
     return {
         "overall":          overall,
         "gates":            gates,
@@ -5768,6 +5779,128 @@ def _pattern_to_almanac_entry(pattern: Dict[str, Any]) -> Dict[str, Any]:
             "axes": axes,
         },
     }
+
+
+def _polymathic_seal_to_almanac_entry(
+    record: Dict[str, Any],
+    content_hash: str,
+    ledger_seq: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    """Shape a sealed CONCORDANT PolymathicRecord into an Almanac
+    protocol entry. Returns None if the record can't be shaped cleanly."""
+    import time as _time
+    verdict = record.get("composite_verdict", "")
+    if verdict != "CONCORDANT":
+        return None
+
+    dr_list = record.get("domain_results", []) or []
+    confirmed = sorted({
+        r.get("domain")
+        for r in dr_list
+        if r.get("verdict") == "CONFIRMED" and r.get("domain")
+    })
+    if len(confirmed) < 2:
+        # Need at least 2 confirmed domains for cross-domain meaning
+        return None
+
+    overlaps = record.get("axis_overlaps", []) or []
+    axes_set: set = set()
+    for ao in overlaps:
+        if ao.get("dimension"):
+            axes_set.add(ao["dimension"])
+    # Fall back to per-domain axis_dims if axis_overlaps is empty
+    if not axes_set:
+        for r in dr_list:
+            for d in (r.get("axis_dims") or []):
+                axes_set.add(d)
+    axes = sorted(axes_set)
+
+    eid = "polymathic-" + "_".join(confirmed)
+    domains_phrase = " + ".join(confirmed)
+    situation = record.get("situation", "") or ""
+
+    summary = (
+        f"Polymathic seal · {len(confirmed)} of {len(dr_list)} domains confirmed"
+        + (f". Shared axes: {', '.join(axes)}." if axes else ".")
+    )
+
+    return {
+        "id": eid,
+        "kind": "protocol",
+        "title": f"Cross-domain seal · {domains_phrase}",
+        "category": "polymathic",
+        "domains": confirmed,
+        "axes": axes,
+        "verdict": "CONCORDANT",
+        "situation": situation,
+        "pre_run": {
+            "summary": summary,
+            "domain_results": [
+                {
+                    "domain": r.get("domain"),
+                    "verdict": r.get("verdict"),
+                    "detail": r.get("detail", ""),
+                }
+                for r in dr_list
+            ],
+            "axis_overlaps": overlaps,
+        },
+        "wisdom": (
+            "(awaiting the dry note — the engine sealed this cross-domain "
+            "situation. The math holds. The wisdom is the curator's to write.)"
+        ),
+        "discovered_at": _time.time(),
+        "content_hash": content_hash,
+        "ledger_seq": ledger_seq,
+        "triggers": {
+            "keywords": list(confirmed) + list(axes) + ["polymathic", "seal", "cross-domain"],
+            "axes": axes,
+        },
+    }
+
+
+def _promote_polymathic_seal_to_almanac(
+    record: Dict[str, Any],
+    content_hash: str,
+    ledger_seq: Optional[int] = None,
+) -> bool:
+    """Promote a sealed CONCORDANT polymathic record to an Almanac entry.
+
+    Dedup by domain signature: if `polymathic-{sorted_domains}` is
+    already in the book, skip. Multiple seals with the same domain
+    combination still live in the ledger; only the first becomes a
+    canonical Almanac entry.
+
+    Returns True if a new entry was appended; False on dedup, non-
+    CONCORDANT verdict, insufficient confirmed domains, or write error.
+    """
+    entry = _polymathic_seal_to_almanac_entry(record, content_hash, ledger_seq)
+    if entry is None:
+        return False
+
+    eid = entry["id"]
+    with _promote_lock:
+        if _almanac_known_ids is None:
+            _refresh_almanac_known_ids()
+        if eid in _almanac_known_ids:
+            return False
+        _refresh_almanac_known_ids()
+        if eid in _almanac_known_ids:
+            return False
+
+        try:
+            line = json.dumps(entry, ensure_ascii=False) + "\n"
+            with open(_ALMANAC_ENTRIES_FILE, "a", encoding="utf-8") as fh:
+                fh.write(line)
+            _almanac_known_ids.add(eid)
+            _log.info(
+                f"polymathic-seal → almanac: promoted {eid} "
+                f"({len(entry['domains'])} domains, {len(entry['axes'])} shared axes)"
+            )
+            return True
+        except OSError as exc:
+            _log.warning(f"polymathic-seal → almanac append failed: {exc}")
+            return False
 
 
 def _promote_pattern_to_almanac(pattern: Dict[str, Any]) -> bool:
