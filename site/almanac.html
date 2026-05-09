@@ -124,13 +124,44 @@
       font-size: 10px;
     }
     .alm-permalink {
-      margin-left: auto;
       color: var(--muted-2);
       font-size: 12px;
       text-decoration: none;
       transition: color 0.15s;
     }
     .alm-permalink:hover { color: var(--accent); opacity: 1; }
+
+    .alm-listen {
+      margin-left: auto;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .alm-listen:hover { border-color: var(--accent); color: var(--accent); }
+    .alm-listen.loading { color: var(--accent); border-color: var(--accent-dim); cursor: wait; }
+    .alm-listen.playing { color: var(--accent); border-color: var(--accent); background: rgba(201,168,124,0.06); }
+    .alm-listen.error   { color: var(--fail); border-color: rgba(201,108,108,0.4); }
+    .alm-listen .lst-glyph {
+      font-size: 9px; line-height: 1;
+      opacity: 0.85;
+    }
+    /* Subtle in-page audio bar appears under the entry when playing */
+    .alm-audio-bar {
+      display: none;
+      margin-top: 12px;
+      width: 100%;
+      height: 36px;
+    }
+    .alm-audio-bar.visible { display: block; }
 
     .alm-title {
       margin: 0 0 14px 0;
@@ -422,11 +453,113 @@
           <span class="alm-verdict ${escapeHtml(verdict)}">${escapeHtml(verdict)}</span>
           <span class="alm-cat">${escapeHtml(category)}</span>
           <a class="alm-permalink" href="#${id}" title="permalink">#</a>
+          <button class="alm-listen" data-listen="${id}" title="Read aloud">
+            <span class="lst-glyph">▶</span> Listen
+          </button>
         </div>
         <h2 class="alm-title">${titleHtml}</h2>
         <div class="alm-domains"><b>${escapeHtml(domains)}</b>${axes ? `   ·   axes: ${escapeHtml(axes)}` : ''}</div>
         <div class="alm-body">${body}${wisdom}</div>
+        <audio class="alm-audio-bar" data-audio="${id}" controls preload="none"></audio>
       </article>`;
+  }
+
+  // Build the narration script for an entry. Reads naturally — no
+  // bracketed metadata, no field labels. The Almanac, in voice.
+  function narrationFor(e) {
+    const verdict = e.verdict || 'unknown';
+    const verdictRead = (
+      verdict === 'CONFIRMED'  ? 'Confirmed.' :
+      verdict === 'CONCORDANT' ? 'Concordant.' :
+      verdict === 'MISMATCH'   ? 'Mismatch.' :
+      verdict === 'MIXED'      ? 'Mixed.' :
+      verdict === 'OBSOLETE'   ? 'Obsolete.' :
+      verdict + '.'
+    );
+    const wisdom = (e.wisdom || '').trim();
+
+    if (e.kind === 'saying') {
+      // Saying: open with the proverb as a quote, deliver verdict, then the dry note.
+      const saying = (e.title || '').replace(/[""]/g, '"').trim();
+      return `${saying} ${verdictRead} ${wisdom}`.trim();
+    }
+    // Protocol: title, summary, wisdom.
+    const title = (e.title || '').trim();
+    const summary = ((e.pre_run && e.pre_run.summary) || '').trim();
+    const intro = `${title}. ${verdictRead}`;
+    return [intro, summary, wisdom].filter(Boolean).join(' ').trim();
+  }
+
+  // Cached blob URLs per entry — so re-clicks don't re-pay TTS cost.
+  const _audioCache = new Map();
+
+  async function playEntry(entryId) {
+    const entry = state.entries.find(e => e.id === entryId);
+    if (!entry) return;
+    const btn = document.querySelector(`.alm-listen[data-listen="${entryId}"]`);
+    const audio = document.querySelector(`audio[data-audio="${entryId}"]`);
+    if (!btn || !audio) return;
+
+    // Stop any other entry that's playing
+    document.querySelectorAll('audio.alm-audio-bar').forEach(a => {
+      if (a !== audio && !a.paused) { a.pause(); a.currentTime = 0; }
+    });
+    document.querySelectorAll('.alm-listen.playing').forEach(b => {
+      if (b !== btn) b.classList.remove('playing');
+    });
+
+    // If we already have audio for this entry, just play it.
+    if (_audioCache.has(entryId)) {
+      audio.src = _audioCache.get(entryId);
+      audio.classList.add('visible');
+      btn.classList.add('playing');
+      try { await audio.play(); } catch (_) {}
+      return;
+    }
+
+    btn.classList.remove('error');
+    btn.classList.add('loading');
+    btn.querySelector('.lst-glyph').textContent = '…';
+
+    try {
+      const text = narrationFor(entry);
+      const r = await fetch(API + '/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (!r.ok) {
+        let msg = 'speak unavailable';
+        try { const e = await r.json(); msg = e.detail || msg; } catch (_) {}
+        throw new Error(msg);
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      _audioCache.set(entryId, url);
+      audio.src = url;
+      audio.classList.add('visible');
+      btn.classList.remove('loading');
+      btn.classList.add('playing');
+      btn.querySelector('.lst-glyph').textContent = '◼';
+      btn.querySelector('.lst-glyph').nextSibling.textContent = ' Playing';
+      audio.onended = () => {
+        btn.classList.remove('playing');
+        btn.querySelector('.lst-glyph').textContent = '▶';
+        btn.lastChild && (btn.lastChild.textContent = ' Listen');
+      };
+      try { await audio.play(); } catch (_) {}
+    } catch (err) {
+      btn.classList.remove('loading');
+      btn.classList.add('error');
+      btn.querySelector('.lst-glyph').textContent = '!';
+      btn.title = String(err.message || err).slice(0, 200);
+      console.error('listen error', err);
+      setTimeout(() => {
+        btn.classList.remove('error');
+        btn.querySelector('.lst-glyph').textContent = '▶';
+        btn.title = 'Read aloud';
+      }, 4000);
+    }
   }
 
   function applyFilters() {
@@ -482,9 +615,25 @@
 
   document.addEventListener('click', (e) => {
     const chip = e.target.closest('.almanac-chip');
-    if (!chip) return;
-    setActiveChip(chip.dataset.filter, chip.dataset.value);
-    applyFilters();
+    if (chip) {
+      setActiveChip(chip.dataset.filter, chip.dataset.value);
+      applyFilters();
+      return;
+    }
+    const listen = e.target.closest('.alm-listen');
+    if (listen) {
+      // If currently playing this entry, pause.
+      const id = listen.dataset.listen;
+      const audio = document.querySelector(`audio[data-audio="${id}"]`);
+      if (audio && !audio.paused) {
+        audio.pause();
+        listen.classList.remove('playing');
+        listen.querySelector('.lst-glyph').textContent = '▶';
+        listen.lastChild && (listen.lastChild.textContent = ' Listen');
+        return;
+      }
+      playEntry(id);
+    }
   });
 
   document.getElementById('almSearch').addEventListener('input', (e) => {
