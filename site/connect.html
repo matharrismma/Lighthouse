@@ -315,15 +315,15 @@
     <div class="endpoint-row">
       <span class="endpoint-label">MCP (HTTP)</span>
       <span class="endpoint-url">
-        <code>https://narrowhighway.com/mcp</code>
-        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp">copy</button>
+        <code>https://narrowhighway.com/mcp/</code>
+        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp/">copy</button>
       </span>
     </div>
     <div class="endpoint-row">
       <span class="endpoint-label">MCP (SSE)</span>
       <span class="endpoint-url">
-        <code>https://narrowhighway.com/mcp/sse</code>
-        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp/sse">copy</button>
+        <code>https://narrowhighway.com/mcp/sse/</code>
+        <button class="copy-btn" data-copy="https://narrowhighway.com/mcp/sse/">copy</button>
       </span>
     </div>
     <div class="endpoint-row">
@@ -366,7 +366,8 @@
 <pre>{
   <span class="k">"mcpServers"</span>: {
     <span class="k">"concordance"</span>: {
-      <span class="k">"url"</span>: <span class="s">"https://narrowhighway.com/mcp"</span>
+      <span class="k">"type"</span>: <span class="s">"http"</span>,
+      <span class="k">"url"</span>: <span class="s">"https://narrowhighway.com/mcp/"</span>
     }
   }
 }</pre>
@@ -402,7 +403,7 @@
 
       <h3>Step 2 · Add the server</h3>
 <pre>Name: <span class="s">concordance</span>
-URL:  <span class="s">https://narrowhighway.com/mcp</span></pre>
+URL:  <span class="s">https://narrowhighway.com/mcp/</span></pre>
 
       <h3>Step 3 · Use it</h3>
       <p>In any chat: <code>@concordance verify_chemistry "C3H8 + 5 O2 -> 3 CO2 + 4 H2O"</code></p>

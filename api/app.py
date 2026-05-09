@@ -6807,6 +6807,30 @@ _synthesist_thread.start()
 #   /mcp       — streamable HTTP (newer, recommended)
 #   /mcp/sse   — SSE (older, broader client compatibility)
 # stdio remains the local transport for `concordance-mcp` CLI users.
+#
+# ── Trailing-slash redirects ──
+# Starlette mounts match only /mcp/<path>, so a request to bare /mcp
+# (no slash) hits no route and returns 405. Many MCP clients normalise
+# URLs by stripping trailing slashes, so we add explicit 308 redirects
+# from /mcp → /mcp/ and /mcp/sse → /mcp/sse/. 308 preserves the request
+# method and body, which is required because real MCP traffic is POST.
+# Registered before the mounts so they take precedence.
+from fastapi.responses import RedirectResponse as _MCPRedirect
+
+@app.api_route("/mcp", methods=["GET", "POST", "OPTIONS"], include_in_schema=False)
+async def _mcp_no_slash_redirect(request: Request):
+    target = "/mcp/"
+    if request.url.query:
+        target = f"{target}?{request.url.query}"
+    return _MCPRedirect(target, status_code=308)
+
+@app.api_route("/mcp/sse", methods=["GET", "POST", "OPTIONS"], include_in_schema=False)
+async def _mcp_sse_no_slash_redirect(request: Request):
+    target = "/mcp/sse/"
+    if request.url.query:
+        target = f"{target}?{request.url.query}"
+    return _MCPRedirect(target, status_code=308)
+
 try:
     from concordance_engine.mcp_server.server import mcp as _mcp_server
     # Normalize internal route paths so external URLs are clean.
