@@ -1049,12 +1049,50 @@ def run_polymathic(
     quarantined_claims, keeper_manifest, closest_precedent,
     domain_results, axis_overlaps, composite_verdict, content_hash.
     """
+    # Prefer the hosted engine when configured — that process already has
+    # ANTHROPIC_API_KEY in its env (loaded from .env at startup) and the
+    # parallelized classifier wired in. The thin stdio MCP client should
+    # not need its own oracle credentials.
+    if CONCORDANCE_API_URL:
+        try:
+            payload = json.dumps({
+                "situation": situation,
+                "max_domains": max_domains,
+                "split_threshold": split_threshold,
+                "stop_on_discordant": stop_on_discordant,
+                "oracle_model": oracle_model,
+                "store": True,
+            }).encode()
+            headers = {"Content-Type": "application/json"}
+            if CONCORDANCE_API_KEY:
+                headers["x-api-key"] = CONCORDANCE_API_KEY
+            req = urllib.request.Request(
+                f"{CONCORDANCE_API_URL.rstrip('/')}/polymathic",
+                data=payload,
+                headers=headers,
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                api_result = json.loads(resp.read().decode())
+            api_result["_source"] = "api"
+            return api_result
+        except (urllib.error.URLError, OSError, json.JSONDecodeError) as exc:
+            # Fall through to local; capture so the trail isn't silent
+            _last_err = f"hosted poly call failed: {type(exc).__name__}: {exc}"
+        except Exception as exc:
+            _last_err = f"hosted poly call error: {type(exc).__name__}: {exc}"
+    else:
+        _last_err = None
+
+    # Local path — needs ANTHROPIC_API_KEY in this process's env to call
+    # the oracle for decompose/classify.
     try:
         from ..agent.poly_agent import run_polymathic as _run_poly
     except ImportError as exc:
         return {
             "composite_verdict": "ERROR",
             "detail": f"polymathic agent unavailable: {exc}",
+            "_source": "local",
         }
     rec = _run_poly(
         situation=situation,
@@ -1064,7 +1102,11 @@ def run_polymathic(
         stop_on_discordant=stop_on_discordant,
         decompose=decompose,
     )
-    return rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+    out = rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+    out["_source"] = "local"
+    if _last_err:
+        out["_hosted_fallback_reason"] = _last_err
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -1522,11 +1564,41 @@ def propose_almanac_entry(
         },
     }
 
-    # Run the engine on the candidate so the curator gets the math
+    # Run the engine on the candidate so the curator gets the math.
+    # Prefer the hosted engine when configured (it has ANTHROPIC_API_KEY
+    # already loaded); fall back to local in-process execution if the
+    # hosted call fails or no URL is set.
+    rec_d: Dict[str, Any] = {}
+    used_source = "local"
     try:
-        from ..agent.poly_agent import run_polymathic as _run_poly
-        rec = _run_poly(situation=candidate, max_domains=8, decompose=True)
-        rec_d = rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+        if CONCORDANCE_API_URL:
+            try:
+                payload = json.dumps({
+                    "situation": candidate,
+                    "max_domains": 8,
+                    "split_threshold": 5,
+                    "store": True,
+                }).encode()
+                headers = {"Content-Type": "application/json"}
+                if CONCORDANCE_API_KEY:
+                    headers["x-api-key"] = CONCORDANCE_API_KEY
+                req = urllib.request.Request(
+                    f"{CONCORDANCE_API_URL.rstrip('/')}/polymathic",
+                    data=payload,
+                    headers=headers,
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    rec_d = json.loads(resp.read().decode())
+                used_source = "api"
+            except Exception:
+                rec_d = {}
+
+        if not rec_d:
+            from ..agent.poly_agent import run_polymathic as _run_poly
+            rec = _run_poly(situation=candidate, max_domains=8, decompose=True)
+            rec_d = rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+            used_source = "local"
 
         if chosen_kind == "saying":
             draft["verification"] = (
@@ -1547,6 +1619,7 @@ def propose_almanac_entry(
             if r.get("domain")
         })
         draft["_engine_trail"] = {
+            "source": used_source,
             "atomic_claims": rec_d.get("atomic_claims", []),
             "quarantined_claims": rec_d.get("quarantined_claims", []),
             "axis_overlaps": rec_d.get("axis_overlaps", []),
