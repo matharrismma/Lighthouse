@@ -5796,6 +5796,128 @@ def _synthesist_scan():
             )
 
 
+# ─────────────────────────────────────────────────────────────────────
+# MINER worker — corpus → almanac-candidate hummingbird.
+# Walks a configured EPUB corpus, extracts passage-shaped text,
+# scores each against the engine's axes + concepts, and persists
+# strong candidates to data/miner/candidates.jsonl for curator
+# review. Never auto-publishes to the Almanac. The engine does the
+# math; the human does the wisdom.
+# ─────────────────────────────────────────────────────────────────────
+
+_miner_lock = _threading.Lock()
+_miner_book_cursor = 0  # rotates through corpus books
+
+_miner_stats: Dict[str, Any] = {
+    "name": "miner",
+    "species": "Miner",
+    "role": "extract candidate Almanac entries from a corpus of EPUBs",
+    "started_at": None,
+    "last_tick_at": None,
+    "tick_count": 0,
+    "error_count": 0,
+    "last_error": None,
+    "candidates_total": 0,
+    "passages_seen_total": 0,
+    "books_in_corpus": 0,
+    "last_book": None,
+    "last_summary": None,
+    "tick_period_seconds": 180,
+}
+
+
+def _miner_worker():
+    """Background loop. One book per tick; rotate through the corpus.
+
+    Slow on purpose — 180s ticks (3 min). The point is patience: walk
+    the books, find candidates, write them down. A single-book pass
+    takes a fraction of a second; the rest is rest.
+    """
+    import time as _time
+    if _miner_stats["started_at"] is None:
+        _miner_stats["started_at"] = _time.time()
+    # Generous startup grace — let the rest of the app settle first.
+    _time.sleep(45)
+    while True:
+        try:
+            _miner_tick()
+            _miner_stats["tick_count"] += 1
+        except Exception as exc:
+            _log.warning(f"miner error: {exc}")
+            _miner_stats["error_count"] += 1
+            _miner_stats["last_error"] = str(exc)[:200]
+        _miner_stats["last_tick_at"] = _time.time()
+        _time.sleep(_miner_stats["tick_period_seconds"])
+
+
+def _miner_tick():
+    """One pass over one book in the corpus."""
+    global _miner_book_cursor
+    try:
+        from concordance_engine import miner as _miner
+    except ImportError:
+        return
+
+    with _miner_lock:
+        books = _miner.list_corpus_books()
+        _miner_stats["books_in_corpus"] = len(books)
+        if not books:
+            return
+        # Rotate
+        epub_path = books[_miner_book_cursor % len(books)]
+        _miner_book_cursor += 1
+        summary = _miner.mine_one_book(epub_path)
+        _miner_stats["candidates_total"] += int(summary.get("candidates_proposed", 0))
+        _miner_stats["passages_seen_total"] += int(summary.get("passages_seen", 0))
+        _miner_stats["last_book"] = epub_path.name
+        _miner_stats["last_summary"] = summary
+        if int(summary.get("candidates_proposed", 0)) > 0:
+            _log.info(
+                f"miner: {summary['candidates_proposed']} candidates from {epub_path.name} "
+                f"({summary['passages_seen']} passages scanned, top score "
+                f"{summary['top_score_in_book']})"
+            )
+
+
+@app.get("/swarm/miner", tags=["agents"])
+def swarm_miner(limit: int = Query(20, ge=1, le=200)):
+    """Miner stats + recent candidates.
+
+    The Miner walks an EPUB corpus and proposes draft Almanac entries.
+    Candidates persist to data/miner/candidates.jsonl. The curator
+    (Matt) reviews, picks, edits the wisdom note, and appends to
+    data/almanac/entries.jsonl manually. The engine never auto-publishes.
+
+    Returns:
+      stats              — miner state (tick count, candidates total,
+                            last book, last tick summary)
+      candidates         — list of recent draft candidates ranked by
+                            score (descending)
+      candidates_on_disk — total in the candidates file
+      corpus_dir         — where the miner is reading from
+    """
+    try:
+        from concordance_engine import miner as _miner
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    cands = _miner.list_candidates(limit=limit)
+    # The full file might be larger than `limit`; report the count
+    full_path = _miner.candidates_path()
+    on_disk = 0
+    if full_path.exists():
+        try:
+            on_disk = sum(1 for _ in full_path.read_text("utf-8", errors="replace").splitlines() if _.strip())
+        except OSError:
+            on_disk = len(cands)
+    return {
+        "stats": _miner_stats,
+        "candidates": cands,
+        "candidates_on_disk": on_disk,
+        "corpus_dir": str(_miner.corpus_dir()),
+        "candidates_file": str(full_path),
+    }
+
+
 @app.get("/swarm/synthesist", tags=["agents"])
 def swarm_synthesist(
     limit: int = Query(50, ge=1, le=500),
@@ -6875,6 +6997,23 @@ def swarm_index():
                 "entries_scanned": _synthesist_stats.get("entries_scanned", 0),
                 "last_tick_at": _synthesist_stats.get("last_tick_at"),
             },
+            {
+                "name": "miner",
+                "species": "Miner",
+                "role": "extract candidate Almanac entries from a corpus of EPUBs",
+                "status": (
+                    "alive" if (
+                        _miner_stats.get("last_tick_at")
+                        and (now - _miner_stats["last_tick_at"]) < 360
+                    ) else ("warming" if _miner_stats.get("started_at") else "cold")
+                ),
+                "stats_endpoint": "/swarm/miner",
+                "candidates_total": _miner_stats.get("candidates_total", 0),
+                "passages_seen_total": _miner_stats.get("passages_seen_total", 0),
+                "books_in_corpus": _miner_stats.get("books_in_corpus", 0),
+                "last_book": _miner_stats.get("last_book"),
+                "last_tick_at": _miner_stats.get("last_tick_at"),
+            },
         ],
         "now": now,
     }
@@ -6986,6 +7125,19 @@ _synthesist_thread = _threading.Thread(
     daemon=True,
 )
 _synthesist_thread.start()
+
+# Wire the Miner (corpus → almanac-candidate keeper). 180s ticks.
+# Walks an EPUB corpus (default: ~/OneDrive/Desktop, override via
+# CONCORDANCE_MINER_CORPUS) one book per tick, scoring passages
+# against axis stems + engine concepts. Strong candidates land in
+# data/miner/candidates.jsonl for curator review. Append-only;
+# never auto-publishes to the Almanac.
+_miner_thread = _threading.Thread(
+    target=_miner_worker,
+    name="miner",
+    daemon=True,
+)
+_miner_thread.start()
 
 
 # -- MCP over HTTP/SSE — remote agent door ------------------------------
