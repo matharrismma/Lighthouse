@@ -686,7 +686,7 @@
   </div>
 
   <div class="panel swarm-panel">
-    <div class="panel-label">Swarm — hummingbirds</div>
+    <div class="panel-label">Background workers</div>
     <div id="swarmList">
       <div class="swarm-row"><span class="swarm-name"><span class="swarm-status planned"></span>loading…</span></div>
     </div>
@@ -707,15 +707,15 @@
       <span id="swarmSearcherLocText">—</span>
     </div>
     <div class="swarm-pair" id="swarmDispatch" style="display:none;">
-      <small>Searcher · Tasked — courier</small>
+      <small>Searcher · Tasked — on-demand dispatcher</small>
       <span id="swarmDispatchText">—</span>
     </div>
     <div class="swarm-pair" id="swarmJanitor" style="display:none;">
-      <small>Janitor — vault audit</small>
+      <small>Janitor — journal audit</small>
       <span id="swarmJanitorText">—</span>
     </div>
     <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
-      Small specialists. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor / Searcher / Trainer planned. Each one writes through the same doors as anyone else.
+      Small specialists, each on its own tick loop. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor audits, Searchers harvest, Trainer rebalances. Each one writes through the same doors as anyone else.
     </p>
   </div>
 </div>

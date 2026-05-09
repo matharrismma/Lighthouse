@@ -78,7 +78,7 @@
       </div>
       <div class="card">
         <h3>Polymathic <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— Path C</span></h3>
-        <p>A situation spans many domains simultaneously. The hive fires all applicable verifiers at once — strip the situation into atomic claims, send each to the right worker, wrap the collective result. Concordant, Discordant, Mixed, or Quarantine.</p>
+        <p>A situation spans many domains simultaneously. The orchestrator fires all applicable verifiers at once — decompose the situation into atomic claims, classify each to its domain verifier, verify in parallel. Concordant, Discordant, Mixed, or Quarantine.</p>
         <a href="#polymathic">POST /polymathic →</a>
       </div>
     </div>
@@ -405,33 +405,33 @@ curl -X POST https://narrowhighway.com/reflect \
 <section id="polymathic">
   <div class="container">
     <h2>Polymathic surface — Path C</h2>
-    <p>A single situation can span chemistry, labor law, construction, finance, and governance simultaneously. The polymathic agent (the hive queen) fires all applicable verifiers at once and synthesizes a composite verdict.</p>
+    <p>A single situation can span chemistry, labor law, construction, finance, and governance simultaneously. The polymathic agent — the orchestrator — fires all applicable verifiers at once and synthesizes a composite verdict.</p>
 
-    <h3>Architecture: workers, drones, queens</h3>
+    <h3>Architecture: verifiers, dispatchers, coordinator</h3>
     <ul style="max-width:52rem;color:var(--muted);padding-left:1.5rem;margin-bottom:1.5rem;">
-      <li><strong>Workers</strong> — the 48 <code>verify_*</code> functions. One domain, deterministic, offline.</li>
-      <li><strong>Drones</strong> — dispatch rules. Carry natural-language claims to the right worker.</li>
-      <li><strong>Queen</strong> — the polymathic agent. Coordinates all workers, synthesizes the collective result.</li>
+      <li><strong>Verifiers</strong> — the 48 <code>verify_*</code> functions. One domain, deterministic, offline.</li>
+      <li><strong>Dispatchers</strong> — rule-based + oracle-based classifiers that route a natural-language claim to the right verifier.</li>
+      <li><strong>Coordinator</strong> — the polymathic agent. Runs all verifiers and synthesizes the collective result.</li>
     </ul>
 
     <h3>Three-phase pipeline</h3>
     <div class="cards" style="grid-template-columns: repeat(3,1fr);margin-bottom:1.5rem;">
       <div class="card">
-        <h3>1 · Strip</h3>
-        <p>The situation is decomposed into atomic, self-contained verifiable claims. Each claim stands alone and maps to a single domain. Unclassifiable claims go to the airlock (quarantine).</p>
+        <h3>1 · Decompose</h3>
+        <p>The situation is broken into atomic, self-contained verifiable claims. Each claim stands alone and maps to a single domain. Unclassifiable claims go to quarantine.</p>
       </div>
       <div class="card">
-        <h3>2 · Send</h3>
-        <p>Each atomic claim is classified to a domain and dispatched to the matching worker. When domain count exceeds the split threshold, umbrella sub-queens handle bounded clusters (biology → genetics/agriculture/nutrition).</p>
+        <h3>2 · Classify</h3>
+        <p>Each atomic claim is classified to a domain and dispatched to the matching verifier. When domain count exceeds the split threshold, the coordinator delegates to umbrella sub-coordinators that handle bounded clusters (biology → genetics/agriculture/nutrition).</p>
       </div>
       <div class="card">
-        <h3>3 · Wrap</h3>
-        <p>All worker results are collected into a <code>PolymathicRecord</code> with full provenance: original situation, stripped claims, keeper triage, domain results, shared axis overlaps, and a SHA-256 content hash.</p>
+        <h3>3 · Verify &amp; collect</h3>
+        <p>All verifier results are collected into a <code>PolymathicRecord</code> with full provenance: original situation, atomic claims, Keeper triage, domain results, shared axis overlaps, and a SHA-256 content hash.</p>
       </div>
     </div>
 
-    <h3>Quarantine — the airlock</h3>
-    <p>Claims that were stripped but could not be classified to any domain are airlocked: not wrong, not confirmed, just unverifiable with the information at hand. A quarantine keeper tends the airlock without any oracle calls — pure rule-based recovery and keyword proximity scoring, suitable for offline / LoRa deployment. The composite verdict is <code>QUARANTINE</code> when unresolved claims remain alongside confirmed domains.</p>
+    <h3>Quarantine</h3>
+    <p>Claims that decompose cleanly but cannot be classified to any domain are quarantined: not wrong, not confirmed, just unverifiable with the information at hand. The Keeper component triages quarantine without any oracle calls — pure rule-based recovery and keyword proximity scoring, suitable for offline / LoRa deployment. The composite verdict is <code>QUARANTINE</code> when unresolved claims remain alongside confirmed domains.</p>
 
     <h3>POST /polymathic</h3>
     <p>Request body:</p>

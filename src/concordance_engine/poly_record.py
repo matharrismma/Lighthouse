@@ -1,11 +1,11 @@
-"""PolymathicRecord — the hive's collective output.
+"""PolymathicRecord — the polymathic coordinator's collective output.
 
 A single WitnessRecord seals one domain claim. A PolymathicRecord is
-what the hive returns: all applicable domains fired simultaneously,
-their results collected, the axis overlaps surfaced.
+what the polymathic coordinator returns: all applicable domains fired
+simultaneously, their results collected, the axis overlaps surfaced.
 
-The intelligence emerges from the connections between workers, not
-from any single worker. Domains that share a dimensional axis are
+The intelligence emerges from the connections between verifiers, not
+from any single verifier. Domains that share a dimensional axis are
 structurally linked — the overlap IS the signal.
 
 Schema version tracked separately from WitnessRecord (1.x) so
@@ -25,7 +25,7 @@ POLYMATHIC_SCHEMA_VERSION = "1.0"
 CONCORDANT    = "CONCORDANT"     # all fired domains confirmed
 DISCORDANT    = "DISCORDANT"     # at least one mismatch
 MIXED         = "MIXED"          # some confirmed, some not-applicable
-QUARANTINE    = "QUARANTINE"     # airlocked — claims stripped but unverifiable
+QUARANTINE    = "QUARANTINE"     # claims decomposed cleanly but unverifiable
 OUT_OF_SCOPE  = "OUT_OF_SCOPE"   # no domain matched
 ERROR         = "ERROR"          # system failure
 
@@ -34,7 +34,7 @@ ERROR         = "ERROR"          # system failure
 class DomainResult:
     """One worker's report.
 
-    `source_claim` is the atomic claim (from the strip phase) that
+    `source_claim` is the atomic claim (from the decompose phase) that
     spawned this domain dispatch — the provenance link in the
     strip → send → wrap chain.
     """
@@ -93,27 +93,26 @@ class AxisOverlap:
 
 @dataclass(frozen=True)
 class PolymathicRecord:
-    """The hive's collective output.
+    """The polymathic coordinator's collective output.
 
-    `situation`      — the original natural-language input
-    `atomic_claims`       — stripped intermediate (decompose/strip phase)
-    `quarantined_claims`  — claims that were stripped but couldn't be
-                            classified to any domain. Airlocked: not
-                            dispatched, not discarded. Held pending more
-                            information or manual triage.
-    `domain_results`      — every worker's report (send phase)
+    `situation`           — the original natural-language input
+    `atomic_claims`       — claims after the decompose phase
+    `quarantined_claims`  — claims that decomposed cleanly but couldn't be
+                            classified to any domain. Held pending more
+                            information or manual triage; not discarded.
+    `domain_results`      — every verifier's report (verify phase)
     `axis_overlaps`       — dimensions shared by ≥2 domains
     `composite_verdict`   — CONCORDANT | DISCORDANT | MIXED |
                             QUARANTINE | OUT_OF_SCOPE | ERROR
     `subject_pubkey`      — soulbound (set at seal time)
-    `permanent_ref`       — CAS content hash (wrap phase complete)
+    `permanent_ref`       — CAS content hash (collect phase complete)
     """
     situation: str
     domain_results: Tuple[DomainResult, ...]
     axis_overlaps: Tuple[AxisOverlap, ...]
     composite_verdict: str
     atomic_claims: Tuple[str, ...] = ()
-    quarantined_claims: Tuple[str, ...] = ()   # airlocked
+    quarantined_claims: Tuple[str, ...] = ()   # quarantined
     keeper_manifest: Optional[Dict[str, Any]] = None   # keeper's triage output
     closest_precedent: Optional[Dict[str, Any]] = None  # axis-index match
     axis_weights: Optional[Dict[str, float]] = None     # per-domain structural weight
@@ -208,7 +207,7 @@ def compute_composite_verdict(
     if not meaningful:
         return OUT_OF_SCOPE
     if meaningful == {"CONFIRMED"} and has_quarantined:
-        return QUARANTINE          # confirmed domains + airlocked claims → QUARANTINE
+        return QUARANTINE          # confirmed domains + quarantined claims → QUARANTINE
     if meaningful == {"CONFIRMED"}:
         return CONCORDANT
     if has_quarantined:

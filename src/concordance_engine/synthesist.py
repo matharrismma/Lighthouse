@@ -1,4 +1,4 @@
-"""Synthesist hummingbird — discovers multi-domain co-occurrence patterns.
+"""Synthesist worker — discovers multi-domain co-occurrence patterns.
 
 Where the Connector finds 2-domain edges (pairs that share an axis), the
 Synthesist finds 3+ domain clusters — the cross-domain shapes that

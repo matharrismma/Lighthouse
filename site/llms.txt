@@ -289,7 +289,7 @@ GET  /agent/training/proposals  — extract regex rule candidates from oracle tr
                                   returns proposals for manual promotion to dispatch.py
 ```
 
-### Polymathic agent layer (Path C — the Hive)
+### Polymathic agent layer (Path C — the orchestrator)
 ```
 POST /polymathic        — fire all applicable domain verifiers against a natural-language situation
                           body: {
@@ -309,19 +309,20 @@ POST /polymathic        — fire all applicable domain verifiers against a natur
                                              QUARANTINE | OUT_OF_SCOPE | ERROR
 ```
 
-**Pipeline:** strip (decompose situation → atomic claims) → send (classify each claim →
-dispatch to worker) → wrap (collect into PolymathicRecord with SHA-256 content hash).
+**Pipeline:** decompose (situation → atomic claims) → classify (each claim → dispatched to a
+domain verifier) → verify (collect into PolymathicRecord with SHA-256 content hash).
 
-**Quarantine / airlock:** claims stripped but unclassifiable are held in `quarantined_claims`.
-A keeper tends the airlock offline — rule-based recovery + keyword proximity scoring, no oracle.
-`composite_verdict` is QUARANTINE when unresolved claims exist alongside confirmed domains.
+**Quarantine:** claims that decompose cleanly but don't classify into any domain are held
+in `quarantined_claims`. The Keeper component triages them offline — rule-based recovery
+plus keyword proximity scoring, no oracle. `composite_verdict` is QUARANTINE when
+unresolved claims exist alongside confirmed domains.
 
 **Axis overlaps:** when two or more domains share a scaffold dimension (authority_trust,
 time_sequence, conservation_balance, information_encoding, metabolism, physical_substance,
 or reasoning), the overlap appears in `axis_overlaps`. This shared axis is the structural signal.
 
-**Split mechanic:** when domain count exceeds `split_threshold`, the queen delegates to umbrella
-sub-queens (biology cluster → genetics/agriculture/nutrition workers). Bounded compute regardless
+**Split mechanic:** when domain count exceeds `split_threshold`, the coordinator delegates to umbrella
+sub-coordinators (biology cluster → genetics/agriculture/nutrition verifiers). Bounded compute regardless
 of situation breadth. `stop_on_discordant` enables early exit once DISCORDANT is confirmed.
 ```
 

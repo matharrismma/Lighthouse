@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concordance — Polymathic</title>
-  <meta name="description" content="Describe a situation. The hive fires all applicable domain verifiers simultaneously and returns a composite verdict.">
+  <meta name="description" content="Describe a situation. Every applicable domain verifier fires simultaneously and returns a composite verdict.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -545,7 +545,7 @@
   <div class="input-section">
     <div class="input-label">
       <strong>Polymathic scan.</strong> Describe a situation — not just a single claim.
-      The hive fires all applicable domain verifiers simultaneously.
+      Every applicable domain verifier fires simultaneously.
     </div>
     <div class="input-wrap">
       <textarea
@@ -712,12 +712,12 @@
       </div>`;
     resultsEl.appendChild(compEl);
 
-    // ── Quarantine airlock + keeper manifest + Socratic questions ──
+    // ── Quarantine + keeper manifest + Socratic questions ──
     const quarantined = d.quarantined_claims || [];
     const keeper      = d.keeper_manifest    || null;
     if (quarantined.length || (keeper && keeper.recovery_count > 0)) {
       const qSec = document.createElement('div');
-      let qHTML = `<div class="section-title">Quarantine airlock</div>`;
+      let qHTML = `<div class="section-title">Quarantine</div>`;
 
       if (keeper && keeper.recovery_count > 0) {
         qHTML += `<div style="font-size:12px;color:var(--pass);margin-bottom:8px">Keeper recovered ${keeper.recovery_count} claim${keeper.recovery_count > 1 ? 's' : ''} via dispatch rules</div>`;
@@ -744,7 +744,7 @@
       if (questions.length) {
         const socSec = document.createElement('div');
         socSec.className = 'socratic-section';
-        let socHTML = `<div class="socratic-label">Resolve the airlock</div>`;
+        let socHTML = `<div class="socratic-label">Resolve quarantine</div>`;
         questions.forEach((q, i) => {
           socHTML += `
             <div class="socratic-q">

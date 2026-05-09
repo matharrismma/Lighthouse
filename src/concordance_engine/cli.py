@@ -1055,7 +1055,7 @@ def main() -> None:
     # ── quarantine subcommand ──────────────────────────────────────
     qn = sub.add_parser(
         "quarantine",
-        help="Quarantine Airlock — capture, decontaminate, admit ideas.",
+        help="Quarantine — capture, decontaminate, admit ideas.",
         description=(
             "Per canonical 03_ARCH/QUARANTINE_AIRLOCK.md: ideas are "
             "quarantined by default. Three zones (Holding / "

@@ -1,13 +1,13 @@
-"""Polymathic Agent — Path C. The Hive.
+"""Polymathic Agent — Path C. The cross-domain coordinator.
 
-Architecture: workers, drones, queens.
-  * verify_* functions   = workers  (one domain, deterministic)
-  * dispatch rules       = drones   (carry NL to the right worker)
-  * poly_agent           = queen    (coordinates all workers, synthesizes)
+Architecture: verifiers, dispatchers, coordinator.
+  * verify_* functions   = verifiers   (one domain, deterministic)
+  * dispatch rules       = dispatchers (route NL to the right verifier)
+  * poly_agent           = coordinator (runs all verifiers, synthesizes)
 
-The queen receives a situation, identifies all applicable workers via
-the oracle, and fires them. She can split the work into umbrella
-clusters — sub-queens for related domain groups — so compute stays
+The coordinator receives a situation, identifies all applicable verifiers
+via the oracle, and runs them. It can split the work into umbrella
+clusters — sub-coordinators for related domain groups — so compute stays
 bounded without losing coverage.
 
 Split rule: when identified domains > split_threshold, process domains
@@ -203,9 +203,9 @@ def decompose_situation(
     """Step 1 of the two-stage pipeline: situation → atomic claims.
 
     Breaks a complex multi-domain situation into discrete self-contained
-    claims, each verifiable by a single domain worker. The decomposition
-    is stored separately so the queen can inspect the breakdown before
-    dispatching workers.
+    claims, each verifiable by a single domain verifier. The decomposition
+    is stored separately so the coordinator can inspect the breakdown
+    before dispatching verifiers.
     """
     key = api_key or os.environ.get("ANTHROPIC_API_KEY")
     if not key:
@@ -283,9 +283,9 @@ def _cluster_domains(
     """Group domain specs into umbrella clusters.
 
     Domains belonging to the same umbrella are processed together as a
-    cluster (sub-queen). Orphan domains that don't belong to any umbrella
-    form their own single-item clusters. Clusters are returned largest-first
-    so the highest-signal group runs first.
+    cluster (sub-coordinator). Orphan domains that don't belong to any
+    umbrella form their own single-item clusters. Clusters are returned
+    largest-first so the highest-signal group runs first.
     """
     umbrella_buckets: Dict[str, List[Dict[str, Any]]] = {}
     orphans: List[Dict[str, Any]] = []
@@ -444,7 +444,7 @@ def run_polymathic(
     model               Oracle model for extraction.
     max_domains         Hard cap on total domains processed.
     split_threshold     When domain count exceeds this, split into umbrella
-                        clusters (sub-queens). Each cluster is bounded;
+                        clusters (sub-coordinators). Each cluster is bounded;
                         compute stays predictable regardless of situation size.
     stop_on_discordant  Stop processing remaining clusters once DISCORDANT
                         is confirmed — no need to keep verifying.
@@ -461,12 +461,12 @@ def run_polymathic(
     quarantined_claims: List[str] = []
 
     if decompose and key:
-        # Strip phase: situation → atomic claims
+        # Decompose phase: situation → atomic claims
         atomic_claims = decompose_situation(situation, model, key)
         if atomic_claims:
-            # Send phase: classify each stripped claim
+            # Classify phase: classify each atomic claim
             domain_specs = classify_claims(atomic_claims, model, key)
-            # Any claim that didn't map to a domain → quarantine (airlock)
+            # Any claim that didn't map to a domain → quarantine
             classified_claims = {ds.get("_source_claim") for ds in domain_specs if ds.get("_source_claim")}
             quarantined_claims = [c for c in atomic_claims if c not in classified_claims]
         else:
@@ -477,10 +477,10 @@ def run_polymathic(
     domain_specs = domain_specs[:max_domains]
 
     # ── Step 2.5: axis-precedent lookup ──────────────────────────────────
-    # Before firing workers, predict the scaffold dimensions from the
+    # Before firing verifiers, predict the scaffold dimensions from the
     # classified domains and query the sealed-record index. If a prior
     # PolymathicRecord shares significant axis overlap we surface it as a
-    # structural overlay — the queen walks the well before dispatching.
+    # structural overlay — the coordinator walks the well before dispatching.
     closest_precedent = None
     try:
         from ..axis_index import find_closest as _find_closest
@@ -497,7 +497,7 @@ def run_polymathic(
     all_results: List[DomainResult] = []
 
     if len(domain_specs) > split_threshold:
-        # Queen delegates to umbrella sub-queens (bounded compute)
+        # Coordinator delegates to umbrella sub-coordinators (bounded compute)
         clusters = _cluster_domains(domain_specs)
         for cluster in clusters:
             cluster_results = _run_cluster(cluster, ALL_TOOLS)
@@ -509,7 +509,7 @@ def run_polymathic(
     else:
         all_results = _run_cluster(domain_specs, ALL_TOOLS)
 
-    # Keeper pass — ultra-low-power triage of the airlock
+    # Keeper pass — ultra-low-power triage of the quarantine queue.
     # Recovers any quarantined claims that now match a dispatch rule,
     # and organizes orphans by proximity. No oracle calls.
     keeper_manifest = None
@@ -518,7 +518,7 @@ def run_polymathic(
 
     if quarantined_claims:
         keeper_manifest = tend_quarantine(quarantined_claims)
-        # Run recovered claims as workers and add to results
+        # Run recovered claims through the verifiers and add to results
         if keeper_manifest.recovered:
             recovered_specs = [
                 {"domain": r.domain, "spec": r.spec, "_source_claim": r.claim}
@@ -540,7 +540,7 @@ def run_polymathic(
         quarantined_claims=final_quarantined or None,
     )
 
-    # Wrap phase: full provenance — situation, strips, keeper triage, results
+    # Collect phase: full provenance — situation, atomic claims, keeper triage, verifier results
     return PolymathicRecord(
         situation=situation,
         atomic_claims=tuple(atomic_claims),

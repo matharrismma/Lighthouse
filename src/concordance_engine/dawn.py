@@ -231,7 +231,7 @@ def render_dawn(surface: DawnSurface) -> str:
         f"audit chain"
     )
     lines.append(
-        f"- **{surface.quarantine_total}** packets in the quarantine airlock"
+        f"- **{surface.quarantine_total}** packets in quarantine"
     )
     practices_observed = surface.keeping_summary.get("practices_observed", 0)
     total_observations = surface.keeping_summary.get("total_observations", 0)
@@ -297,7 +297,7 @@ def render_dawn(surface: DawnSurface) -> str:
 
     # ── Held packets
     if surface.held_packets:
-        lines.append("## Packets in the airlock")
+        lines.append("## Packets in quarantine")
         lines.append("")
         by_zone: Dict[str, List[Dict[str, Any]]] = {}
         for pkt in surface.held_packets:
@@ -328,7 +328,7 @@ def render_dawn(surface: DawnSurface) -> str:
         )
     elif surface.held_packets:
         lines.append(
-            "There are packets in the airlock waiting on you — for "
+            "There are packets in quarantine waiting on you — for "
             "decontamination, for a Guide decision, or for further work. "
             "The next move is yours."
         )

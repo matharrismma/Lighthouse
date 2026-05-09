@@ -3639,10 +3639,10 @@ class PolymathicRequest(BaseModel):
 def polymathic_endpoint(request: Request, req: PolymathicRequest):
     """Natural language situation → all applicable domains fired in parallel.
 
-    Path C: the Hive. Individual domain verifiers are workers; this
-    endpoint is the hive coordinator. Returns a PolymathicRecord with
-    every worker's result, axis overlaps (shared scaffold dimensions),
-    and a composite verdict.
+    Path C: the cross-domain coordinator. Individual domain verifiers
+    fire in parallel; this endpoint coordinates them. Returns a
+    PolymathicRecord with every verifier's result, axis overlaps
+    (shared scaffold dimensions), and a composite verdict.
 
     Composite verdicts:
       CONCORDANT    — all fired domains confirmed
@@ -4552,7 +4552,7 @@ _connector_fired_pairs: set = set()                  # frozenset({da, db}) pairs
 _connector_seen_ids: set = set()                     # journal entry IDs already scanned
 _connector_lock = _threading.Lock()
 
-# Searcher hummingbird state — third species, harvester.
+# Searcher worker state — third species, harvester.
 # Walks a curated list of canonical scripture anchors (theologically
 # central refs spanning creation, christology, gospel, wisdom, witness,
 # eschatology). Each tick: resolve one ref via the local WEB Bible
@@ -4940,14 +4940,14 @@ def _loc_searcher_worker() -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────
-# Searcher #3 — Tasked Dispatcher (the courier)
+# Searcher #3 — Tasked Dispatcher
 #
 # Searcher #1 walks a curated list. Searcher #2 picks from Trainer's
 # starvation list. #3 does NEITHER autonomously — it sleeps until a
 # task is dispatched. When something specific needs harvesting (a
 # verifier mismatch wants fresh refs; Trainer flags a critical gap;
 # a human researcher asks for "Aristotle on rhetoric") the requester
-# POSTs to /swarm/searcher/dispatch and the courier flies that one.
+# POSTs to /swarm/searcher/dispatch and the tasked dispatcher handles it.
 #
 # In-memory queue. 15s tick — responsive without polling hard.
 # Persists nothing across restarts; this is a working memory, not
@@ -5131,16 +5131,16 @@ def _dispatch_worker() -> None:
 
 
 # ─────────────────────────────────────────────────────────────────────
-# Janitor hummingbird — fourth species, the steward
+# Janitor worker — fourth species, the steward
 #
 # Walks the journal and scores every packet on TWO axes:
 #   1. Completeness — is text present? tags present? size sane?
 #   2. Appropriateness — does it carry a recognized domain? does its
 #      provenance match a known trust tier?
 #
-# Janitor never deletes. The vault is append-only; the Janitor's job
+# Janitor never deletes. The journal is append-only; the Janitor's job
 # is to illuminate. Findings flow to /swarm/janitor and become input
-# for the Trainer (which can then dispatch courier searches to
+# for the Trainer (which can then dispatch tasked jobs to
 # replace low-trust entries with proper LoC/scripture harvests).
 #
 # Trust tiers (informal):
@@ -5276,7 +5276,7 @@ def _janitor_tick() -> None:
         _janitor_stats["last_error"] = f"journal: {exc}"
         return
 
-    # During full scan: read entire vault, process a bounded batch of
+    # During full scan: read entire journal, process a bounded batch of
     # new entries, repeat. Mark full_scan_complete only when a tick
     # processes fewer than batch_max new entries (i.e. nothing left
     # we haven't seen). Steady state: small bounded read for arrivals.
@@ -5310,7 +5310,7 @@ def _janitor_tick() -> None:
         )
 
         # Domain counter (total + per-tier — the per-tier map is what
-        # Trainer reads to decide where to auto-dispatch couriers)
+        # Trainer reads to decide where to auto-dispatch tasked workers)
         dom = result.get("domain") or "unknown"
         _janitor_stats["by_domain"][dom] = _janitor_stats["by_domain"].get(dom, 0) + 1
         dt = _janitor_stats["by_domain_tiers"].setdefault(dom, {})
@@ -5339,14 +5339,14 @@ def _janitor_tick() -> None:
             break
 
     # Mark full-scan complete only when we drain a full read without
-    # filling the batch (= nothing new in the vault history left).
+    # filling the batch (= nothing new in the journal history left).
     if not _janitor_state["full_scan_complete"] and processed < batch_max:
         _janitor_state["full_scan_complete"] = True
     _janitor_state["first_tick_done"] = True
 
 
 def _janitor_worker() -> None:
-    """Background loop. Tight 8s ticks during full-vault scan to warm
+    """Background loop. Tight 8s ticks during full-journal scan to warm
     the per-domain histogram quickly; 90s ticks once steady-state."""
     import time as _time
     if _janitor_stats["started_at"] is None:
@@ -5368,7 +5368,7 @@ def _janitor_worker() -> None:
             _time.sleep(_janitor_stats["fastscan_period_seconds"])
 
 
-# Trainer hummingbird state — meta-agent that watches the swarm and
+# Trainer worker state — meta-agent that watches the swarm and
 # optimizes resources/tasks. On-demand compute with 10-minute cache;
 # when cache rebuilds, writes data/swarm_config.json as the canonical
 # coordination file for future Searchers and Janitors to read.
@@ -5524,8 +5524,8 @@ _SWARM_CONFIG_PATH = (
 )
 
 
-# Connector hummingbird stats — read by /swarm/connector and the brain UI.
-# This is the first formalized hummingbird species: small, narrow job
+# Connector worker stats — read by /swarm/connector and the brain UI.
+# This is the first formalized worker species: small, narrow job
 # (find cross-domain connections), low power, low data, runs forever.
 _connector_stats: Dict[str, Any] = {
     "name": "connector",
@@ -5656,7 +5656,7 @@ def _grid_connector_scan():
 
 
 # ─────────────────────────────────────────────────────────────────────
-# SYNTHESIST hummingbird — multi-domain co-occurrence patterns.
+# SYNTHESIST worker — multi-domain co-occurrence patterns.
 # The Connector finds 2-domain edges; the Synthesist finds 3+ domain
 # clusters — the cross-domain shapes that polymathic queries traverse.
 # Each pattern records the axis intersection across the cluster so
@@ -5800,7 +5800,7 @@ def _synthesist_scan():
 def swarm_synthesist(
     limit: int = Query(50, ge=1, le=500),
 ):
-    """Synthesist hummingbird: multi-domain pattern stats + recent log.
+    """Synthesist worker: multi-domain pattern stats + recent log.
 
     Returns the running stats plus the most recent N pattern events
     discovered. Patterns are 3+ domain clusters that share at least one
@@ -5954,9 +5954,9 @@ def grid_connections(
 
 
 # ─────────────────────────────────────────────────────────────────────
-# Swarm — hummingbird agent status
+# Swarm — worker agent status
 #
-# Each hummingbird is a small autonomous worker with a narrow job. They
+# Each worker is a small autonomous worker with a narrow job. They
 # write through the same /capture (etc.) doors as anyone else; nothing
 # privileged. Stats are read-only for observers (the brain UI, the
 # Trainer, agents auditing the keeping).
@@ -5968,7 +5968,7 @@ def grid_connections(
 
 @app.get("/swarm/connector", tags=["agents"])
 def swarm_connector():
-    """Live stats for the Connector hummingbird.
+    """Live stats for the Connector worker.
 
     The Connector watches new journal entries every 60s and fires a
     cross-domain connection event whenever two domains accumulate seeds
@@ -5983,7 +5983,7 @@ def swarm_connector():
       active_domains              — how many domains have seeds in scope
       tick_period_seconds         — how often it runs
 
-    The Trainer hummingbird (when it exists) reads this to retarget the
+    The Trainer worker (when it exists) reads this to retarget the
     swarm. The brain UI reads this to render the Connector's signature.
     """
     import time as _time
@@ -5997,7 +5997,7 @@ def swarm_connector():
 
 
 # ─────────────────────────────────────────────────────────────────────
-# Trainer hummingbird — second species, meta-agent
+# Trainer worker — second species, meta-agent
 #
 # Watches the swarm and the journal. Computes which domains are
 # starving (no recent packet), which are well-fed, and writes a
@@ -6091,7 +6091,7 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
         verdict = "healthy"
 
     # Read Janitor's per-domain trust mix to find LLM-saturated domains
-    # — these are the ones where the courier should fly first.
+    # — these are the ones where the tasked dispatcher should fly first.
     janitor_tiers = _janitor_stats.get("by_domain_tiers") or {}
     high_llm: List[Dict[str, Any]] = []
     for dom, tier_map in janitor_tiers.items():
@@ -6111,8 +6111,8 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
             })
     high_llm.sort(key=lambda r: -r["llm_share"])
 
-    # Auto-dispatch couriers — closes the diagnostic loop. Each domain
-    # gets at most one auto-dispatch per cooldown window. Courier
+    # Auto-dispatch tasked dispatchers — closes the diagnostic loop. Each domain
+    # gets at most one auto-dispatch per cooldown window. Tasked dispatcher
     # tasks queue at high priority so they jump human dispatches.
     auto_dispatched_this_tick: List[Dict[str, Any]] = []
     for d in high_llm:
@@ -6182,7 +6182,7 @@ def _trainer_compute_analysis() -> Dict[str, Any]:
             "searcher_priorities": [r["domain"] for r in starving[:10]],
             # Janitor should look at over-served domains for dedup opportunities
             "janitor_priorities": [r["domain"] for r in overfed],
-            # Couriers should harvest replacements for these LLM-saturated domains
+            # Tasked dispatchers should harvest replacements for these LLM-saturated domains
             "courier_priorities": [r["domain"] for r in high_llm[:10]],
         },
     }
@@ -6334,13 +6334,13 @@ def swarm_searcher_loc():
 
 @app.get("/swarm/janitor", tags=["agents"])
 def swarm_janitor():
-    """Live stats for the Janitor hummingbird.
+    """Live stats for the Janitor worker.
 
     Janitor walks the journal scoring every packet on completeness
     (text present, length sane, has tags) and appropriateness
     (recognized domain, source attribution valid, identifiable trust
     tier). Findings flow here for Trainer to consume — Janitor never
-    deletes anything; the vault is append-only.
+    deletes anything; the journal is append-only.
 
     Returns aggregate stats by trust tier and finding category, the
     most recent finding, and the running review counter.
@@ -6369,12 +6369,12 @@ def swarm_janitor():
 
 @app.get("/swarm/janitor/archive", tags=["agents"])
 def swarm_janitor_archive():
-    """Vault archive eligibility view.
+    """Journal archive eligibility view.
 
     Computes which domains have Tier-5 (LLM-synthesized) entries that
     are now eligible for archival because the same domain also has
     Tier 1 (locked) or Tier 2 (LoC) entries — i.e., authoritative
-    replacements have been harvested. The vault stays append-only;
+    replacements have been harvested. The journal stays append-only;
     this view exposes what *could* be moved to cold storage if/when
     the actual archive layer is built.
 
@@ -6432,7 +6432,7 @@ def swarm_janitor_findings(
     """Recent Janitor findings, optionally filtered.
 
     Useful for: pulling the LLM_SYNTHESIZED list to dispatch
-    replacement courier searches; auditing UNRECOGNIZED_DOMAIN
+    replacement dispatch jobs; auditing UNRECOGNIZED_DOMAIN
     entries for tagging fixes; spot-checking malformed packets.
     """
     out = []
@@ -6451,7 +6451,7 @@ def swarm_janitor_findings(
 
 @app.get("/swarm/searcher", tags=["agents"])
 def swarm_searcher():
-    """Live stats for the Searcher hummingbird.
+    """Live stats for the Searcher worker.
 
     The Searcher walks a curated list of canonical scripture anchors,
     resolving each via the local WEB Bible module and posting it to
@@ -6484,7 +6484,7 @@ def swarm_searcher():
 
 @app.get("/swarm/trainer", tags=["agents"])
 def swarm_trainer(refresh: bool = Query(False, description="Force recompute now")):
-    """Live stats for the Trainer hummingbird.
+    """Live stats for the Trainer worker.
 
     The Trainer watches the swarm and the journal every 10 minutes.
     It identifies which of the 63 domains are starving (no recent
@@ -6496,7 +6496,7 @@ def swarm_trainer(refresh: bool = Query(False, description="Force recompute now"
     the journal up to 500 entries).
 
     The brain UI reads this to render Trainer's signature; future
-    Searcher and Janitor hummingbirds read /swarm/trainer/config to
+    Searcher and Janitor workers read /swarm/trainer/config to
     decide their work.
     """
     import time as _time
@@ -6557,7 +6557,7 @@ def swarm_trainer_config():
 
 @app.get("/swarm", tags=["agents"])
 def swarm_index():
-    """Roster of all hummingbird agents — current and planned.
+    """Roster of all worker agents — current and planned.
 
     Returns each species's status. The brain UI uses this to render
     swarm panels; the Trainer reads it to know what's available to
@@ -6747,7 +6747,7 @@ _connector_thread = _threading.Thread(
 )
 _connector_thread.start()
 
-# Wire the Searcher hummingbird (Searcher #1: scripture anchors).
+# Wire the Searcher worker (Searcher #1: scripture anchors).
 # Slow on purpose — 90s per harvest, full anchor cycle ~75 min,
 # then sleeps 6 hours before cycling again. Gentle, patient.
 _searcher_thread = _threading.Thread(
@@ -6767,7 +6767,7 @@ _loc_searcher_thread = _threading.Thread(
 )
 _loc_searcher_thread.start()
 
-# Wire the Tasked Dispatcher (Searcher #3: courier). Dormant until
+# Wire the Tasked Dispatcher (Searcher #3). Dormant until
 # something POSTs to /swarm/searcher/dispatch. 15s drain ticks.
 _dispatch_thread = _threading.Thread(
     target=_dispatch_worker,
@@ -6777,7 +6777,7 @@ _dispatch_thread = _threading.Thread(
 _dispatch_thread.start()
 
 # Wire the Janitor (steward). 90s ticks. First tick walks the full
-# vault to score historical entries; subsequent ticks just catch
+# journal to score historical entries; subsequent ticks just catch
 # new arrivals. Quiet, methodical, never deletes.
 _janitor_thread = _threading.Thread(
     target=_janitor_worker,
