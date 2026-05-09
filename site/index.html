@@ -666,7 +666,7 @@
       <textarea id="polyInput" rows="3" autofocus
         placeholder="Describe a situation that spans multiple domains. Every applicable verifier will fire in parallel and return a composite verdict in seconds."></textarea>
       <div class="poly-foot">
-        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–15s · oracle classifies, hive dispatches in parallel</span>
+        <span class="poly-hint"><b>Ctrl+Enter</b> to run · ~5–15s · oracle classifies, verifiers dispatch in parallel</span>
         <button class="btn btn-primary" id="polyRunBtn" disabled style="padding:9px 18px;font-size:13px">Run polymathic →</button>
       </div>
     </div>
@@ -674,7 +674,7 @@
     <div class="poly-examples" id="polyExamples">
       <span class="poly-examples-label">Try one — these score CONCORDANT live:</span>
       <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An employee earning $18.50/hour who works 40 hours has gross pay of $740.00.">
-        <span class="ex-tag">5-domain synthesis · the full hive</span>
+        <span class="ex-tag">5-domain synthesis · all verifiers fire</span>
         Chem + physics + stats + math + labor (6/6 confirmed)
       </button>
       <button class="poly-ex" data-claim="The chemical equation 2 H2 + O2 -> 2 H2O is balanced. The equation F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. The mathematical statement 2 + 2 = 4 is true.">
@@ -724,7 +724,7 @@
 <section id="try">
   <div class="container">
     <h2>Or — instant single-verifier proof.</h2>
-    <p class="lead">The polymathic hero above dispatches the whole hive. Below, click any individual verifier — each one runs the actual engine against a real claim and returns CONFIRMED with the trail. ~300ms each. No LLM in the loop. Pure deterministic.</p>
+    <p class="lead">The polymathic hero above dispatches every applicable verifier in parallel. Below, click any individual verifier — each one runs the actual engine against a real claim and returns CONFIRMED with the trail. ~300ms each. No LLM in the loop. Pure deterministic.</p>
 
     <div class="demo-wrap">
 
