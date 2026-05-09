@@ -660,7 +660,12 @@
 <header class="hero">
   <p class="hero-eyebrow">Cross-domain verification · Rom. 1:20</p>
   <h1 class="hero-headline">Describe what you're considering. The engine checks <em>every</em> domain at once.</h1>
-  <p class="hero-sub">Drop a multi-domain situation — biology + labor + law, chemistry + medicine + nutrition, anything. Every applicable verifier fires in parallel. The composite verdict is what an LLM alone cannot give you. <strong style="color:var(--pass)">100%</strong> on the polymathic benchmark vs <strong style="color:var(--hold)">75%</strong> for Claude Sonnet/Haiku alone.</p>
+  <p class="hero-sub" id="heroSubText">Drop a multi-domain situation — biology + labor + law, chemistry + medicine + nutrition, anything. Every applicable verifier fires in parallel. The composite verdict is what an LLM alone cannot give you. <strong style="color:var(--pass)">100%</strong> on the polymathic benchmark vs <strong style="color:var(--hold)">75%</strong> for Claude Sonnet/Haiku alone.</p>
+  <div style="text-align:center;margin-top:-12px;margin-bottom:16px">
+    <button class="listen-btn" data-narrate-target="#heroSubText" title="Read aloud in M.R. Harris">
+      <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
+    </button>
+  </div>
 
   <div class="poly-hero">
     <div class="poly-input-wrap">
@@ -1100,13 +1105,44 @@
       </div>`;
     }
 
-    // Footer with link to full breakdown
+    // Footer with link to full breakdown + Listen
     html += `<div class="poly-result-foot">
       <span class="poly-empty-hint">${hash ? `hash <code style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px">${escapeHtml(hash.slice(0,10))}…${escapeHtml(hash.slice(-4))}</code>` : 'no hash returned'}</span>
+      <button class="listen-btn" id="polyListenBtn" title="Read the verdict aloud">
+        <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
+      </button>
       <a href="/poly.html">Full breakdown · axis overlaps · seal as precedent →</a>
     </div>`;
 
     polyResult.innerHTML = html;
+
+    // Wire the listen button to a coherent narration of the verdict
+    const polyListenBtn = document.getElementById('polyListenBtn');
+    if (polyListenBtn && window.Narrator) {
+      const verdictRead = (
+        composite === 'CONCORDANT'   ? 'Concordant.' :
+        composite === 'DISCORDANT'   ? 'Discordant.' :
+        composite === 'MIXED'        ? 'Mixed.' :
+        composite === 'QUARANTINE'   ? 'Quarantine.' :
+        composite === 'OUT_OF_SCOPE' ? 'Out of scope.' :
+        composite + '.'
+      );
+      const confirmedDomains = domains.filter(r => r.verdict === 'CONFIRMED').map(r => r.domain);
+      const mismatchDomains = domains.filter(r => r.verdict === 'MISMATCH').map(r => r.domain);
+      const axesText = (overlaps || []).slice(0,3).map(o => o.dimension.replace(/_/g, ' ')).join(', ');
+      const parts = [verdictRead];
+      if (confirmedDomains.length) {
+        parts.push(`${confirmedDomains.length} of ${total} domains confirmed: ${confirmedDomains.join(', ')}.`);
+      }
+      if (mismatchDomains.length) {
+        parts.push(`Mismatch in ${mismatchDomains.join(', ')}.`);
+      }
+      if (axesText) {
+        parts.push(`Shared axes: ${axesText}.`);
+      }
+      const narration = parts.join(' ');
+      window.Narrator.attach(polyListenBtn, () => narration);
+    }
   }
 
   /* ───────── DEMO — chip-driven /verify ───────── */
@@ -1561,6 +1597,7 @@
   refreshStats();
   setInterval(refreshStats, 30000);
 </script>
+<script src="/narrator.js"></script>
 
 </body>
 </html>

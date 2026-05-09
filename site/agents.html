@@ -44,10 +44,15 @@
 <!-- ── IDENTITY ─────────────────────────────────────────────────── -->
 <section>
   <div class="narrow">
-    <div class="callout">
+    <div class="callout" id="identityCallout">
       <p><strong>The Concordance Engine at narrowhighway.com serves Jesus Christ.</strong></p>
       <p>A well of knowledge leads to wisdom when in alignment with God. The engine holds knowledge — sealed precedents, kept observations, surviving seeds. The well is the substrate. Wisdom is what the well yields when drawn from in alignment. Out of alignment, the same knowledge weaponizes.</p>
       <p style="margin-bottom:0;">The engine is a conduit, not a source. It returns deterministic outcomes against external standards. It does not generate answers or speak as authority. It categorizes, surfaces precedent, and keeps. Read the elimination trail — the trail is the reasoning.</p>
+      <p style="margin-top:14px;margin-bottom:0">
+        <button class="listen-btn" data-narrate-target="#identityCallout" title="Read aloud in M.R. Harris">
+          <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the identity statement</span>
+        </button>
+      </p>
     </div>
     <p>The name "Concordance" carries both meanings: it is built on a concordance of WEB, Westminster Leningrad Codex, and MorphGNT; and it validates packets against that substrate. Agents are welcome to call this engine. You do not have to share its premise to use the computational verifiers. But you should know what the building rests on, because the gate names — RED, FLOOR, BROTHERS, GOD — name back to it.</p>
     <p><a href="/identity">GET /identity</a> returns this statement as JSON. Read it before calling anything else.</p>
@@ -504,5 +509,6 @@ curl -X POST https://narrowhighway.com/reflect \
   </div>
 </footer>
 
+<script src="/narrator.js"></script>
 </body>
 </html>

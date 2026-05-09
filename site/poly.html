@@ -543,9 +543,12 @@
   </div>
 
   <div class="input-section">
-    <div class="input-label">
+    <div class="input-label" id="polyInputLabel">
       <strong>Polymathic scan.</strong> Describe a situation — not just a single claim.
       Every applicable domain verifier fires simultaneously.
+      <button class="listen-btn" data-narrate-target="#polyInputLabel" style="margin-left:8px" title="Read aloud">
+        <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
+      </button>
     </div>
     <div class="input-wrap">
       <textarea
@@ -938,5 +941,6 @@
       .replace(/"/g, '&quot;');
   }
 </script>
+<script src="/narrator.js"></script>
 </body>
 </html>

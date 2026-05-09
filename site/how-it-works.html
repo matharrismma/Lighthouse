@@ -33,7 +33,12 @@
   <div class="container">
     <div class="eyebrow">Architecture</div>
     <h1>How it works</h1>
-    <p>Four gates, fixed order, halt at the first failure. The engine never self-confirms.</p>
+    <p id="howItWorksLead">Four gates, fixed order, halt at the first failure. The engine never self-confirms.</p>
+    <p>
+      <button class="listen-btn" data-narrate-target="#howItWorksLead" title="Read aloud in M.R. Harris">
+        <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
+      </button>
+    </p>
   </div>
 </div>
 
@@ -155,5 +160,6 @@
   </div>
 </footer>
 
+<script src="/narrator.js"></script>
 </body>
 </html>
