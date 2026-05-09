@@ -17,6 +17,7 @@ import ipaddress
 import json
 import logging
 import os
+import re
 import secrets
 import sys
 import time
@@ -396,6 +397,54 @@ def _check_api_key(x_api_key: str = Header(default="")) -> None:
     if _API_KEY and x_api_key != _API_KEY:
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
+
+# -- Path-component sanitizers ------------------------------------------
+# Every endpoint that takes a URL path parameter and uses it to build a
+# filename, dict key, or JSONL search path runs the value through one of
+# these helpers first. They reject path-traversal sequences (`..`),
+# directory separators (`/`, `\`), null bytes, and any character outside
+# the documented charset for the param. The handler raises 400 on
+# rejection rather than silently failing, so probes show up in logs.
+
+_SAFE_ID_RE = re.compile(r'^[A-Za-z0-9_:.\-]{1,200}$')
+_SAFE_HASH_RE = re.compile(r'^[a-fA-F0-9]{6,128}$')
+_SAFE_DOMAIN_RE = re.compile(r'^[a-z][a-z0-9_]{0,40}$')
+_SAFE_RECIPIENT_RE = re.compile(r'^[A-Za-z0-9_@.\-]{1,120}$')
+
+
+def _safe_id(value: str, name: str = "id") -> str:
+    """Validate an opaque URL id (entry_id, packet_id, bin_id, etc.).
+    Allows letters, digits, underscore, hyphen, colon, and period. No
+    slashes, no dots-only sequences, no nulls."""
+    if not value or ".." in value or value in (".",) or "\x00" in value:
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    if not _SAFE_ID_RE.match(value):
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    return value
+
+
+def _safe_hash(value: str, name: str = "content_hash") -> str:
+    """Validate a hex content hash (6-128 hex chars)."""
+    if not value or not _SAFE_HASH_RE.match(value):
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    return value
+
+
+def _safe_domain(value: str, name: str = "domain") -> str:
+    """Validate a domain name (lowercase letters, digits, underscore)."""
+    if not value or not _SAFE_DOMAIN_RE.match(value):
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    return value
+
+
+def _safe_recipient(value: str, name: str = "recipient") -> str:
+    """Validate a recipient identifier (letters, digits, dot, hyphen, @ )."""
+    if not value or ".." in value or "\x00" in value:
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    if not _SAFE_RECIPIENT_RE.match(value):
+        raise HTTPException(status_code=400, detail=f"invalid {name}")
+    return value
+
 # -- Front-end session auth (passphrase + invite codes) ------------------
 # Scope: governs who sees the dashboard. Does NOT apply to existing
 # API/agent endpoints (/validate, /seal, /path, verifiers, etc.) —
@@ -496,7 +545,9 @@ def _require_session(authorization: str = Header(default="")) -> str:
 
 
 @app.post("/auth/login", tags=["auth"])
-def auth_login(req: LoginRequest):
+def auth_login(request: Request, req: LoginRequest):
+    # Brute-force protection: 5 attempts per minute per IP.
+    _rate_check(request, "login")
     if not _VALID_HASHES:
         return {"token": _make_token("dev"), "expires_in": 86400}
     incoming = hashlib.sha256(_norm_phrase(req.passphrase).encode()).hexdigest()
@@ -1478,7 +1529,7 @@ def confess(req: ConfessRequest):
 # /validate keeps the legacy EngineResult shape for backward compat.
 
 @app.post("/seal")
-def seal(req: SealRequest):
+def seal(request: Request, req: SealRequest):
     """Run a packet through the four gates and return the sealed
     WitnessRecord.
 
@@ -1499,6 +1550,7 @@ def seal(req: SealRequest):
     `answer` / `engine_answer` field, ever. The witness verifier's
     no_fabricated_answer check enforces that against any record sealed.
     """
+    _rate_check(request, "seal")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
             status_code=503,
@@ -1858,8 +1910,7 @@ def witness_attestations(precedent_id: str):
     (bool) and `verify_reason` (str) computed at request time so
     consumers see whether the signature still holds.
     """
-    if not precedent_id:
-        raise HTTPException(status_code=400, detail="precedent_id is required")
+    _safe_id(precedent_id, "precedent_id")
     try:
         from concordance_engine import witness as _witness
     except ImportError as exc:
@@ -1892,6 +1943,7 @@ def ledger_by_id(packet_id: str):
     list is the full audit trail for that id. Empty list if the id
     isn't in the ledger.
     """
+    _safe_id(packet_id, "packet_id")
     ledger = get_ledger()
     entries = ledger.get_by_id(packet_id)
     return {
@@ -1957,6 +2009,7 @@ def cases_hub(domain: str):
     structural centre of the domain's sub-graph and is the starting point
     for graph-walk retrieval and spoke generation.
     """
+    _safe_domain(domain)
     hub = get_case_store().hub_for_domain(domain)
     if hub is None:
         from fastapi import HTTPException
@@ -1975,6 +2028,7 @@ def cases_spokes(hash_: str, depth: int = 1):
     if depth < 1 or depth > 3:
         from fastapi import HTTPException
         raise HTTPException(status_code=400, detail="depth must be 1-3")
+    _safe_hash(hash_, "hash_")
     spokes = get_case_store().spokes_from(hash_, depth=depth)
     return {"origin_hash": hash_, "depth": depth, "spokes": spokes, "count": len(spokes)}
 
@@ -2037,7 +2091,7 @@ class IntakeRequest(BaseModel):
 
 
 @app.post("/intake", include_in_schema=True)
-def intake(req: IntakeRequest):
+def intake(request: Request, req: IntakeRequest):
     """Socratic intake: return 2 targeted questions before the four-gate seal.
 
     Identifies the 2 scaffold axes most critical for verification of this
@@ -2049,6 +2103,7 @@ def intake(req: IntakeRequest):
     are appended to the claim text before posting to /seal, enriching the
     packet for the gate verifiers.
     """
+    _rate_check(request, "intake")
     text   = (req.text or "").strip()
     domain = (req.domain or "").strip()
 
@@ -2618,7 +2673,7 @@ def _chunk_text(text: str, target_words: int) -> list[str]:
 
 
 @app.post("/ingest/drive", include_in_schema=True)
-def ingest_drive(req: DriveIngestRequest):
+def ingest_drive(request: Request, req: DriveIngestRequest):
     """Import documents from a public cloud share link.
 
     Accepts Google Drive folder/file links, Dropbox, or OneDrive public
@@ -2627,6 +2682,7 @@ def ingest_drive(req: DriveIngestRequest):
 
     Returns a summary of what was ingested and any errors.
     """
+    _rate_check(request, "ingest")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503,
                             detail=f"concordance-engine not available: {_ENGINE_ERROR}")
@@ -2722,7 +2778,7 @@ def ingest_drive(req: DriveIngestRequest):
 
 
 @app.post("/journal/write", include_in_schema=True)
-def journal_write(req: WriteRequest):
+def journal_write(request: Request, req: WriteRequest):
     """Capture a stream-of-consciousness seed.
 
     Bare text in. Categorization out. Nothing replaces what was
@@ -2735,6 +2791,7 @@ def journal_write(req: WriteRequest):
         whose scaffold dimensions overlap, the user sees it at the
         moment of writing (assist in wisdom; show engineering)
     """
+    _rate_check(request, "journal")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(
             status_code=503,
@@ -2788,6 +2845,7 @@ def journal_recent(
 @app.get("/journal/{entry_id}", include_in_schema=True)
 def journal_show(entry_id: str):
     """Show a single journal seed in full."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -2801,6 +2859,7 @@ def journal_show(entry_id: str):
 @app.get("/journal/{entry_id}/thread", include_in_schema=True)
 def journal_thread(entry_id: str):
     """Find seeds that share signal with this one (return-thread)."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -2819,6 +2878,7 @@ def journal_thread(entry_id: str):
 @app.post("/journal/{entry_id}/annotate", include_in_schema=True)
 def journal_annotate(entry_id: str, req: AnnotateRequest):
     """Append an annotation. Original text is preserved."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -2836,6 +2896,7 @@ def journal_annotate(entry_id: str, req: AnnotateRequest):
 @app.get("/journal/{entry_id}/calibration", include_in_schema=True)
 def journal_calibration(entry_id: str):
     """Run calibration for an existing entry against current history."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -2871,6 +2932,7 @@ def shelf_list(limit: int = Query(50, ge=1, le=500)):
 @app.post("/shelf/{entry_id}", include_in_schema=True)
 def shelf_publish(entry_id: str):
     """Publish a seed to the shelf (anyone reaching for it can find it)."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -2888,6 +2950,7 @@ def shelf_publish(entry_id: str):
 @app.delete("/shelf/{entry_id}", include_in_schema=True)
 def shelf_unshelf(entry_id: str):
     """Remove a seed from the shelf — keep it in the library only."""
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -3110,6 +3173,7 @@ def journal_share_with(entry_id: str, req: ShareWithRequest):
     `shared_with:<recipient>` tag — only the recipient's community
     feed shows it. Multiple recipients via repeated calls.
     """
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -3125,6 +3189,8 @@ def journal_share_with(entry_id: str, req: ShareWithRequest):
 @app.delete("/journal/{entry_id}/share/{recipient}", include_in_schema=True)
 def journal_unshare_with(entry_id: str, recipient: str):
     """Withdraw a direct share. Seed remains in library; tag removed."""
+    _safe_id(entry_id, "entry_id")
+    _safe_recipient(recipient, "recipient")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -3160,6 +3226,10 @@ def bins_endpoint(min_recurrence: int = Query(3, ge=1, le=20)):
 def bins_review(bin_id: str):
     """Review one bin in full — signature + every entry's text +
     metadata. Bin ids are kind-prefixed (e.g. `anchor:Mt 5:37`)."""
+    # Bin ids may contain spaces and colons (e.g. "anchor:Mt 5:37");
+    # we still reject path-traversal and null bytes explicitly.
+    if not bin_id or ".." in bin_id or "\x00" in bin_id or "/" in bin_id or "\\" in bin_id or len(bin_id) > 200:
+        raise HTTPException(status_code=400, detail="invalid bin_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -3187,6 +3257,7 @@ def journal_promote(entry_id: str, req: PromoteRequest):
     surfaces the gate verdicts + reasons (the elimination trail) and
     leaves the seed unchanged.
     """
+    _safe_id(entry_id, "entry_id")
     if not _ENGINE_AVAILABLE:
         raise HTTPException(status_code=503, detail="engine unavailable")
     from concordance_engine import journal as _journal
@@ -3383,6 +3454,7 @@ def verify_domain(domain: str, req: VerifyRequest):
     Result is written to data/packets/{domain}.jsonl and returned in the
     response alongside the entry_id for later retrieval.
     """
+    _safe_domain(domain)
     try:
         from concordance_engine.mcp_server.tools import ALL_TOOLS
     except ImportError as e:
@@ -3454,6 +3526,7 @@ def packets_list(
     Returns the stored spec + verification results for every packet
     submitted to this domain via POST /verify/{domain}.
     """
+    _safe_domain(domain)
     from api.packet_store import get_packet_store
     entries = get_packet_store().list(domain, limit=limit, offset=offset)
     return {
@@ -3467,6 +3540,8 @@ def packets_list(
 @app.get("/packets/{domain}/{entry_id}", include_in_schema=True)
 def packets_get(domain: str, entry_id: str):
     """Fetch one packet entry by domain and entry_id, including trust metadata."""
+    _safe_domain(domain)
+    _safe_id(entry_id, "entry_id")
     from api.packet_store import get_packet_store
     entry = get_packet_store().get(domain, entry_id)
     if entry is None:
@@ -3499,6 +3574,7 @@ def packets_search(domain: str, req: SearchRequest):
     confirmed_only=true restricts results to CONFIRMED entries — useful
     when looking for verified precedents rather than all attempts.
     """
+    _safe_domain(domain)
     from api.packet_store import get_packet_store
     store = get_packet_store()
     candidates = store.list(domain, limit=500, offset=0)  # read all
@@ -3639,6 +3715,11 @@ def _log_training(domain: str, text: str, spec: Dict[str, Any],
     """Append one training example to data/agent_training/{domain}.jsonl."""
     import uuid as _uuid
     from api.packet_store import _summarize
+    # Defense in depth: refuse domain names that could escape the
+    # training directory. Callers should already have validated, but
+    # this is a low-cost belt-and-suspenders check.
+    if not domain or not _SAFE_DOMAIN_RE.match(domain):
+        return
     path = Path("data/agent_training") / f"{domain}.jsonl"
     path.parent.mkdir(parents=True, exist_ok=True)
     entry = {
@@ -3928,7 +4009,7 @@ class SealPolymathicRequest(BaseModel):
 
 
 @app.post("/seal/polymathic", include_in_schema=True)
-def seal_polymathic(req: SealPolymathicRequest):
+def seal_polymathic(request: Request, req: SealPolymathicRequest):
     """Seal a PolymathicRecord into the permanent audit chain.
 
     Simplified gate chain for polymathic records:
@@ -3943,6 +4024,8 @@ def seal_polymathic(req: SealPolymathicRequest):
     store=true first. QUARANTINE does NOT write to the ledger.
     On REJECT: nothing written.
     """
+    _rate_check(request, "seal")
+    _safe_hash(req.content_hash)
     record_dict = _cas_fetch(req.content_hash)
     if record_dict is None:
         raise HTTPException(status_code=404, detail=f"not found in CAS: {req.content_hash}")
@@ -4204,7 +4287,7 @@ class AgentSpeakRequest(BaseModel):
 
 
 @app.post("/agent/speak", include_in_schema=True)
-def agent_speak(req: AgentSpeakRequest):
+def agent_speak(request: Request, req: AgentSpeakRequest):
     """Natural language → verify → speak the result as audio/mpeg.
 
     Combines POST /agent (NL dispatch + verification) with POST /speak
@@ -4219,6 +4302,8 @@ def agent_speak(req: AgentSpeakRequest):
     Requires both ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID to be set.
     Returns 503 if TTS is unavailable; caller can fall back to GET /agent for JSON.
     """
+    # ElevenLabs costs money per character — share the speak budget.
+    _rate_check(request, "speak")
     # 1. Verify TTS is available before running the verifier
     api_key = _el_api_key()
     voice_id = req.voice_id or _el_voice_id()
@@ -4347,7 +4432,7 @@ class QueueRequest(BaseModel):
 
 
 @app.post("/queue", include_in_schema=True)
-def queue_submit(req: QueueRequest):
+def queue_submit(request: Request, req: QueueRequest):
     """Manually enqueue a verify request for offline/retry processing.
 
     Use this when the caller knows the verifier is temporarily unavailable
@@ -4355,6 +4440,8 @@ def queue_submit(req: QueueRequest):
     thread will process the entry when the verifier becomes available.
     The entry is durable — it survives server restarts.
     """
+    _rate_check(request, "queue")
+    _safe_domain(req.domain)
     queue_id = _queue_enqueue(req.domain, req.spec, reason=req.reason)
     return {
         "queue_id": queue_id,
@@ -4444,6 +4531,8 @@ def packets_export(domain: str, entry_id: str):
     Carry on a USB drive, sync over LoRa, or share peer-to-peer — the
     signature proves provenance regardless of transport.
     """
+    _safe_domain(domain)
+    _safe_id(entry_id, "entry_id")
     from api.packet_store import get_packet_store
     entry = get_packet_store().get(domain, entry_id)
     if entry is None:
@@ -4480,6 +4569,8 @@ def packets_verify_sig(domain: str, entry_id: str):
     was written by this instance. ok=false means the entry was altered
     or the key has changed.
     """
+    _safe_domain(domain)
+    _safe_id(entry_id, "entry_id")
     from api.packet_store import get_packet_store
     store = get_packet_store()
     entry = store.get(domain, entry_id)
@@ -4633,6 +4724,7 @@ def cas_get(content_hash: str):
     Returns the record as JSON, or 404 if not found. The content_hash
     embedded in the response can be recomputed to verify integrity.
     """
+    _safe_hash(content_hash)
     record = _cas_fetch(content_hash)
     if record is None:
         from fastapi import HTTPException
@@ -4660,6 +4752,7 @@ def cas_stats_endpoint():
 @app.get("/cas/{content_hash}/verify", include_in_schema=True)
 def cas_verify_endpoint(content_hash: str):
     """Re-hash the stored record and confirm it matches the requested hash."""
+    _safe_hash(content_hash)
     ok, detail = _cas_verify(content_hash)
     return {"ok": ok, "detail": detail, "content_hash": content_hash}
 
@@ -4697,7 +4790,7 @@ def agent_manifest():
 
 
 @app.post("/verify", tags=["agents"])
-def agent_verify(body: VerifyRequest):
+def agent_verify(request: Request, body: VerifyRequest):
     """Call any Concordance domain verifier by name.
 
     Pass the tool name (e.g. 'verify_physics') and a flat spec dict with the
@@ -4708,6 +4801,12 @@ def agent_verify(body: VerifyRequest):
       {"tool": "verify_physics",
        "spec": {"mass_kg": 2.0, "velocity_ms": 5.0, "claimed_ke_j": 25.0}}
     """
+    _rate_check(request, "verify")
+    # Tool name is dispatched against an allow-list inside _manifest_dispatch,
+    # but we still validate the shape so a probe with `../etc/passwd` is
+    # rejected at the edge with a clear 400 rather than a generic 404.
+    if not body.tool or not re.match(r'^[a-z][a-z0-9_]{0,80}$', body.tool):
+        raise HTTPException(status_code=400, detail="invalid tool name")
     return _manifest_dispatch(body.tool, body.spec)
 
 
@@ -5665,6 +5764,15 @@ _RATE_LIMITS: Dict[str, tuple] = {
     "speak":     (20, 20.0 / 60),     # 20/min  → ElevenLabs costs $$
     "polymathic": (12, 12.0 / 60),    # 12/min — heavy synthesis path
     "agent":     (12, 12.0 / 60),     # 12/min — uses paid oracle on miss
+    # Anonymous write endpoints (Tier 0 hardening)
+    "login":     (5,  5.0 / 60),      # 5/min — passphrase brute-force
+    "journal":   (30, 30.0 / 60),     # 30/min — anonymous journal write
+    "propose":   (10, 10.0 / 60),     # 10/min — almanac proposal spam
+    "seal":      (30, 30.0 / 60),     # 30/min — packet seals
+    "intake":    (30, 30.0 / 60),     # 30/min — intake questions
+    "queue":     (30, 30.0 / 60),     # 30/min — offline queue submits
+    "verify":    (60, 60.0 / 60),     # 60/min — generic verifier dispatch
+    "ingest":    (10, 10.0 / 60),     # 10/min — drive ingest is expensive
 }
 
 
@@ -6480,6 +6588,7 @@ def almanac_index():
 @app.get("/almanac/{entry_id}", tags=["humans"])
 def almanac_entry(entry_id: str):
     """One entry by id — used for permalink rendering and JSON-LD."""
+    _safe_id(entry_id, "entry_id")
     for e in _almanac_entries():
         if e.get("id") == entry_id:
             return e
@@ -6508,9 +6617,9 @@ def almanac_propose(request: Request, req: AlmanacProposeRequest):
     wisdom and verdict belong in the book; if yes, the entry is
     appended to data/almanac/entries.jsonl manually.
 
-    Rate-limited per-IP at 6/min — polymathic + oracle is paid work.
+    Rate-limited per-IP at 10/min — polymathic + oracle is paid work.
     """
-    _rate_check(request, "almanac_propose")
+    _rate_check(request, "propose")
 
     candidate = (req.candidate or "").strip()
     if not candidate:
@@ -6653,6 +6762,7 @@ def grid_domain_position(domain: str):
     This is the data that try.html shows in the STRUCTURAL POSITION
     section after every verification result.
     """
+    _safe_domain(domain)
     try:
         from concordance_engine import grid as _grid
     except ImportError as exc:
