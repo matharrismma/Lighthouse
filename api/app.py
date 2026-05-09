@@ -5685,9 +5685,135 @@ _synthesist_stats: Dict[str, Any] = {
     "patterns_total": 0,           # cumulative unique patterns logged
     "deepest_pattern": None,       # {signature, domain_count, axis_count, shared_axes}
     "last_pattern": None,          # last one logged (for /swarm panel)
+    "promoted_to_almanac_total": 0,# patterns auto-promoted to entries.jsonl
     "entries_scanned": 0,
     "tick_period_seconds": 90,
 }
+
+
+# ── Pipeline A: pattern → Almanac entry auto-promotion ──────────────
+# When the Synthesist discovers a new 3+ domain cluster sharing 2+ axes,
+# promote it as kind:"pattern" entry in data/almanac/entries.jsonl. The
+# discovery itself is the content; wisdom prose is left as a placeholder
+# the curator can fill in later. The Almanac grows on its own from the
+# engine's structural finds.
+
+_ALMANAC_ENTRIES_FILE = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
+_promote_lock = _threading.Lock()
+_almanac_known_ids: Optional[set] = None  # cached after first read
+
+
+def _refresh_almanac_known_ids() -> set:
+    """Read entries.jsonl and cache the set of known entry IDs."""
+    global _almanac_known_ids
+    out: set = set()
+    if not _ALMANAC_ENTRIES_FILE.exists():
+        _almanac_known_ids = out
+        return out
+    try:
+        for line in _ALMANAC_ENTRIES_FILE.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                e = json.loads(line)
+                eid = e.get("id")
+                if eid:
+                    out.add(eid)
+            except json.JSONDecodeError:
+                continue
+    except OSError:
+        pass
+    _almanac_known_ids = out
+    return out
+
+
+def _pattern_to_almanac_entry(pattern: Dict[str, Any]) -> Dict[str, Any]:
+    """Shape a Synthesist pattern event into an Almanac entry."""
+    sig = list(pattern.get("signature", []))
+    axes = list(pattern.get("shared_axes", []))
+    eid = "pattern-" + "_".join(sorted(sig))
+    domains_phrase = " + ".join(sig)
+    if len(axes) == 1:
+        axes_phrase = axes[0].replace("_", " ")
+    elif len(axes) == 2:
+        axes_phrase = " and ".join(a.replace("_", " ") for a in axes)
+    else:
+        axes_phrase = ", ".join(a.replace("_", " ") for a in axes[:-1]) + ", and " + axes[-1].replace("_", " ")
+    return {
+        "id": eid,
+        "kind": "pattern",
+        "title": f"Cross-domain pattern · {domains_phrase} along {axes_phrase}.",
+        "category": "engine_discovery",
+        "domains": sig,
+        "axes": axes,
+        "verdict": "DISCOVERED",
+        "verification": (
+            f"The Synthesist worker found this {len(sig)}-domain cluster sharing "
+            f"{len(axes)} scaffold {'axes' if len(axes) > 1 else 'axis'}: "
+            f"{', '.join(axes)}. The cluster surfaced from the journal's tag "
+            f"co-occurrence — three or more domains tagged on the same packet, "
+            f"and those domains turn out to sit on the same scaffold axis. "
+            f"That overlap is the structural ground beneath the connection; "
+            f"the engine reads it before any human names it."
+        ),
+        "wisdom": (
+            "(awaiting the dry note — the engine found this pattern; the curator "
+            "decides whether the discovery is wisdom or just structure.)"
+        ),
+        "discovered_at": pattern.get("ts"),
+        "first_seen_entry_id": pattern.get("first_seen_entry_id"),
+        "triggers": {
+            "keywords": list(sig) + axes + ["pattern", "cross-domain", "discovered", "synthesist"],
+            "axes": axes,
+        },
+    }
+
+
+def _promote_pattern_to_almanac(pattern: Dict[str, Any]) -> bool:
+    """Promote a synthesist pattern event to an Almanac entry.
+
+    Returns True if a new entry was appended; False if the pattern is
+    already in the book or a write error occurred.
+
+    Quality gate: only promote patterns with axis_count >= 2 (deeper
+    than 2-domain edges; structurally meaningful).
+    """
+    if int(pattern.get("axis_count", 0)) < 2:
+        return False
+    sig = pattern.get("signature") or []
+    if not sig or len(sig) < 3:
+        return False
+
+    entry = _pattern_to_almanac_entry(pattern)
+    eid = entry["id"]
+
+    with _promote_lock:
+        # Lazy-init the known-ID cache on first use
+        if _almanac_known_ids is None:
+            _refresh_almanac_known_ids()
+        # Belt-and-suspenders: refresh against the file in case a curator
+        # appended manually since we last cached.
+        if eid in _almanac_known_ids:
+            return False
+        _refresh_almanac_known_ids()
+        if eid in _almanac_known_ids:
+            return False
+
+        # Append the new entry
+        try:
+            line = json.dumps(entry, ensure_ascii=False) + "\n"
+            with open(_ALMANAC_ENTRIES_FILE, "a", encoding="utf-8") as fh:
+                fh.write(line)
+            _almanac_known_ids.add(eid)
+            _log.info(
+                f"synthesist → almanac: promoted {eid} "
+                f"({len(sig)} domains × {len(entry['axes'])} axes)"
+            )
+            return True
+        except OSError as exc:
+            _log.warning(f"synthesist → almanac append failed: {exc}")
+            return False
 
 
 def _synthesist_worker():
@@ -5774,6 +5900,19 @@ def _synthesist_scan():
             _synthesist_seen_signatures.add(sig)
             _synthesist_stats["patterns_total"] += 1
             _synthesist_stats["last_pattern"] = event
+
+            # Pipeline A — auto-promote each new pattern to an Almanac
+            # entry of kind "pattern". The discovery itself is the
+            # content; wisdom prose stays as a placeholder until a
+            # curator reads it. The book grows on its own from the
+            # engine's structural finds.
+            try:
+                if _promote_pattern_to_almanac(event):
+                    _synthesist_stats["promoted_to_almanac_total"] = (
+                        _synthesist_stats.get("promoted_to_almanac_total", 0) + 1
+                    )
+            except Exception as exc:
+                _log.warning(f"synthesist promote-to-almanac failed: {exc}")
 
             # Track deepest pattern (most domains × most shared axes)
             depth = pattern["domain_count"] * max(1, pattern["axis_count"])
