@@ -1184,180 +1184,211 @@ def atlas(
     }
 
 
+# ──────────────────────────────────────────────────────────────────────
+# Almanac protocol book — load once at module import. Each entry is a
+# pre-run polymathic situation with extracted wisdom. The book is
+# canonical and curated; updates happen by editing the JSONL file and
+# bouncing the engine. No oracle calls, no live API — like a book.
+# ──────────────────────────────────────────────────────────────────────
+def _load_almanac_protocols():
+    from pathlib import Path as _P
+    out = []
+    candidates = [
+        _P("data") / "almanac" / "protocols.jsonl",
+        _P(__file__).resolve().parents[3] / "data" / "almanac" / "protocols.jsonl",
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            for line in path.read_text("utf-8", errors="replace").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    out.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+            return out
+        except OSError:
+            continue
+    return out
+
+
+_ALMANAC_PROTOCOLS = _load_almanac_protocols()
+
+
 @mcp.tool()
 def almanac(
     query: Optional[str] = None,
-    domain: Optional[str] = None,
-    axis: Optional[str] = None,
-    since_epoch: Optional[float] = None,
-    limit: int = 20,
+    protocol_id: Optional[str] = None,
+    family: Optional[str] = None,
+    limit: int = 3,
 ) -> Dict[str, Any]:
-    """Read the record of what the engine has observed and kept.
+    """The almanac — a curated book of pre-run polymathic protocols
+    with extracted wisdom.
 
-    The almanac describes WHEN and WHAT — sealed precedent, recent
-    journal entries, cross-domain pairs the connector has discovered,
-    multi-domain patterns the synthesist has logged, and quarantine.
+    Each entry is a canonical multi-domain situation already worked
+    through the engine: composite verdict, per-domain results, axis
+    overlaps — and a short prose extract of the wisdom the run
+    teaches. Use this BEFORE calling run_polymathic; if your situation
+    matches a protocol, the answer and the structural lesson are
+    already there. Pure read, no oracle calls, no API round-trips.
 
-    Use the almanac before deciding to verify from scratch — there
-    may already be a sealed precedent that resolves your situation.
+    Modes:
+      no args             → list every protocol in the book
+                            (id, title, family, domains, axes,
+                             one-line summary).
+      query="..."         → return up to `limit` protocols ranked by
+                            keyword + axis match against the query.
+      protocol_id="X"     → return one protocol's full record (situation,
+                            pre_run, wisdom).
+      family="economic"   → list all protocols in that family
+                            (physical_sciences, life_sciences,
+                             economic, theology, governance, reasoning,
+                             polymathic).
 
-    Modes (combine optionally; the most specific wins):
-      no args         → recent activity across the well
-                        (last seals, last connections, last patterns).
-      query="..."     → closest sealed precedent for the natural-language
-                        situation, ranked by axis-Jaccard similarity.
-      domain="X"      → recent journal entries tagged with domain X.
-      axis="X"        → cross-domain connections sharing axis X.
-      since_epoch=T   → only include events after Unix epoch T.
-
-    Returns at most `limit` items per section.
+    Returns:
+      {view, matches: [...], total_in_book: N}
+    where each match has: id, title, family, domains, axes, situation,
+    pre_run {composite_verdict, summary, domain_results[], axis_overlaps[]},
+    wisdom (prose).
     """
-    from .. import grid as _grid
+    book = _ALMANAC_PROTOCOLS
+    if not book:
+        return {
+            "view": "empty",
+            "detail": "No protocols loaded. Expected data/almanac/protocols.jsonl.",
+            "matches": [],
+            "total_in_book": 0,
+        }
 
-    out: Dict[str, Any] = {}
-
-    # 1. Closest precedent (axis-index lookup)
-    if query:
-        try:
-            from ..axis_index import find_closest as _find_closest
-            predicted: set = set()
-            qlower = query.lower()
-            # Word stems → axis. Catches "balance/balanced/balancing",
-            # "reason/reasoning", "chemical→chemistry", etc., without
-            # needing an oracle call.
-            AXIS_STEMS = {
-                "encoding":             ["encod", "encrypt", "decod", "symbol", "cipher"],
-                "metabolism":           ["metabol", "growth", "decay", "nutri", "energ"],
-                "reasoning":             ["reason", "logic", "proof", "compute", "calculat", "infer"],
-                "physical_substance":    ["physic", "matter", "substanc", "spatial", "geometr"],
-                "authority_trust":       ["author", "trust", "consent", "consensus", "legitim", "sign"],
-                "time_sequence":         ["time", "sequenc", "order", "before", "after", "deadline", "period"],
-                "conservation_balance":  ["balanc", "conserv", "equilibri", "invariant", "preserv"],
+    # ── single-protocol lookup
+    if protocol_id:
+        match = next((p for p in book if p.get("id") == protocol_id), None)
+        if not match:
+            return {
+                "view": "protocol",
+                "protocol_id": protocol_id,
+                "found": False,
+                "available_ids": [p.get("id") for p in book],
+                "matches": [],
+                "total_in_book": len(book),
             }
-            for ax, stems in AXIS_STEMS.items():
-                if any(s in qlower for s in stems):
-                    predicted.add(ax)
-            # Also raw axis names in the query
-            for ax in _grid.DIMENSIONS:
-                if ax.replace('_', ' ') in qlower or ax in qlower:
-                    predicted.add(ax)
-            # Any domain or its stem in the query contributes its axes
-            for dom in _grid.AXIS_DIMENSIONS:
-                stem = dom[:6] if len(dom) >= 6 else dom
-                if dom in qlower or (len(stem) >= 5 and stem in qlower):
-                    predicted.update(_grid.AXIS_DIMENSIONS[dom])
-            if predicted:
-                match = _find_closest(list(predicted))
-                out["closest_precedent"] = match
-                out["predicted_axes"] = sorted(predicted)
-            else:
-                out["closest_precedent"] = None
-                out["predicted_axes"] = []
-        except Exception as exc:
-            out["closest_precedent_error"] = str(exc)[:200]
+        return {
+            "view": "protocol",
+            "protocol_id": protocol_id,
+            "found": True,
+            "matches": [match],
+            "total_in_book": len(book),
+        }
 
-    # 2. Domain-specific recent journal entries
-    if domain:
-        try:
-            from .. import journal as _journal
-            store = _journal.JournalStore()
-            entries = store.list_all(limit=200, tag=domain)
-            if since_epoch:
-                entries = [e for e in entries if (e.written_at or 0) >= since_epoch]
-            out["recent_for_domain"] = [
+    # ── family filter
+    if family:
+        matched = [p for p in book if p.get("family") == family]
+        return {
+            "view": "family",
+            "family": family,
+            "matches": [
                 {
-                    "id": e.id,
-                    "text": (e.text or "")[:240],
-                    "tags": list(e.user_tags or []),
-                    "written_at": e.written_at,
+                    "id": p.get("id"),
+                    "title": p.get("title"),
+                    "family": p.get("family"),
+                    "domains": p.get("domains", []),
+                    "axes": p.get("axes", []),
+                    "summary": (p.get("pre_run", {}) or {}).get("summary", ""),
+                    "wisdom": p.get("wisdom", ""),
                 }
-                for e in entries[:limit]
-            ]
-            out["recent_for_domain_total"] = len(entries)
-        except Exception as exc:
-            out["recent_for_domain_error"] = str(exc)[:200]
+                for p in matched[:limit] if matched
+            ] if matched else [],
+            "total_in_family": len(matched),
+            "total_in_book": len(book),
+        }
 
-    # 3. Connector discoveries on a particular axis
-    if axis:
-        try:
-            from pathlib import Path as _P
-            cf = _P("data") / "grid_connections.jsonl"
-            if cf.exists():
-                events = []
-                for line in cf.read_text("utf-8", errors="replace").splitlines():
-                    line = line.strip()
-                    if not line: continue
-                    try:
-                        e = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if axis in (e.get("shared_axes") or []):
-                        if since_epoch and e.get("ts", 0) < since_epoch:
-                            continue
-                        events.append(e)
-                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
-                out["connections_on_axis"] = events[:limit]
-                out["connections_on_axis_total"] = len(events)
-        except Exception as exc:
-            out["connections_error"] = str(exc)[:200]
-
-    # 4. Default: recent activity across all surfaces
-    if not (query or domain or axis):
-        # Recent seals
-        try:
-            from .. import journal as _journal
-            store = _journal.JournalStore()
-            recent = store.list_all(limit=limit)
-            if since_epoch:
-                recent = [e for e in recent if (e.written_at or 0) >= since_epoch]
-            out["recent_seals"] = [
+    # ── query: rank by keyword + axis match
+    if query:
+        qlower = query.lower()
+        scored = []
+        for p in book:
+            triggers = p.get("triggers") or {}
+            keywords = [k.lower() for k in (triggers.get("keywords") or [])]
+            kw_hits = sum(1 for k in keywords if k in qlower)
+            trigger_axes = set(triggers.get("axes") or [])
+            protocol_axes = set(p.get("axes") or [])
+            # Predict query's axes via the same stems used elsewhere
+            predicted = _predict_axes_from_query(qlower)
+            axis_overlap = len(predicted & (trigger_axes | protocol_axes))
+            # Combined score: keyword density + axis overlap
+            score = kw_hits * 2 + axis_overlap
+            if score > 0:
+                scored.append((score, p))
+        scored.sort(key=lambda sp: -sp[0])
+        return {
+            "view": "query",
+            "query": query,
+            "predicted_axes": sorted(_predict_axes_from_query(query.lower())),
+            "matches": [
                 {
-                    "id": e.id,
-                    "text": (e.text or "")[:200],
-                    "tags": list(e.user_tags or []),
-                    "written_at": e.written_at,
+                    "score": s,
+                    "id": p.get("id"),
+                    "title": p.get("title"),
+                    "family": p.get("family"),
+                    "domains": p.get("domains", []),
+                    "axes": p.get("axes", []),
+                    "situation": p.get("situation"),
+                    "pre_run": p.get("pre_run"),
+                    "wisdom": p.get("wisdom"),
                 }
-                for e in recent[:limit]
-            ]
-        except Exception as exc:
-            out["recent_seals_error"] = str(exc)[:200]
+                for s, p in scored[:limit]
+            ],
+            "total_matched": len(scored),
+            "total_in_book": len(book),
+        }
 
-        # Recent connections + patterns from worker logs
-        try:
-            from pathlib import Path as _P
-            cf = _P("data") / "grid_connections.jsonl"
-            if cf.exists():
-                events = []
-                for line in cf.read_text("utf-8", errors="replace").splitlines():
-                    line = line.strip()
-                    if not line: continue
-                    try:
-                        e = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    events.append(e)
-                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
-                out["recent_connections"] = events[:5]
-            sf = _P("data") / "synthesis_patterns.jsonl"
-            if sf.exists():
-                events = []
-                for line in sf.read_text("utf-8", errors="replace").splitlines():
-                    line = line.strip()
-                    if not line: continue
-                    try:
-                        e = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    events.append(e)
-                events.sort(key=lambda e: e.get("ts", 0), reverse=True)
-                out["recent_patterns"] = events[:5]
-        except Exception:
-            pass
+    # ── default: index of the entire book
+    return {
+        "view": "index",
+        "matches": [
+            {
+                "id": p.get("id"),
+                "title": p.get("title"),
+                "family": p.get("family"),
+                "domains": p.get("domains", []),
+                "axes": p.get("axes", []),
+                "summary": (p.get("pre_run", {}) or {}).get("summary", ""),
+            }
+            for p in book
+        ],
+        "total_in_book": len(book),
+        "families": sorted({p.get("family") for p in book if p.get("family")}),
+        "note": "Pass query=..., protocol_id=..., or family=... to drill in.",
+    }
 
-    out.setdefault("query", query)
-    out.setdefault("domain", domain)
-    out.setdefault("axis", axis)
-    return out
+
+def _predict_axes_from_query(qlower: str) -> set:
+    """Stem-based axis prediction. Local helper for almanac scoring."""
+    from .. import grid as _grid
+    AXIS_STEMS = {
+        "encoding":              ["encod", "encrypt", "decod", "symbol", "cipher"],
+        "metabolism":            ["metabol", "growth", "decay", "nutri", "energ"],
+        "reasoning":             ["reason", "logic", "proof", "compute", "calculat", "infer"],
+        "physical_substance":    ["physic", "matter", "substanc", "spatial", "geometr"],
+        "authority_trust":       ["author", "trust", "consent", "consensus", "legitim", "sign"],
+        "time_sequence":         ["time", "sequenc", "order", "before", "after", "deadline", "period"],
+        "conservation_balance":  ["balanc", "conserv", "equilibri", "invariant", "preserv"],
+    }
+    predicted: set = set()
+    for ax, stems in AXIS_STEMS.items():
+        if any(s in qlower for s in stems):
+            predicted.add(ax)
+    for ax in _grid.DIMENSIONS:
+        if ax.replace('_', ' ') in qlower or ax in qlower:
+            predicted.add(ax)
+    for dom in _grid.AXIS_DIMENSIONS:
+        stem = dom[:6] if len(dom) >= 6 else dom
+        if dom in qlower or (len(stem) >= 5 and stem in qlower):
+            predicted.update(_grid.AXIS_DIMENSIONS[dom])
+    return predicted
 
 
 def main() -> None:
