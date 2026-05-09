@@ -1446,6 +1446,136 @@ def almanac(
     }
 
 
+@mcp.tool()
+def propose_almanac_entry(
+    candidate: str,
+    kind: str = "auto",
+    title: Optional[str] = None,
+    category: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Propose a draft almanac entry from a saying or situation.
+
+    The growth loop for the Almanac. Hand it a candidate — an old
+    proverb, a rule of thumb, a multi-domain situation — and it
+    runs the engine, packages the result into a draft entry, and
+    returns it ready for human curation. The draft never auto-commits
+    to data/almanac/entries.jsonl; a curator (you) reads it, decides
+    whether the wisdom and the verdict belong in the book, edits the
+    prose, and appends it manually. The engine does the math; the
+    human does the wisdom.
+
+    Use this on the Library of Congress harvest of historical
+    farmer's almanacs, on traditions, on shop talk — anywhere a
+    folk claim sits and someone wants to know if the math agrees.
+
+    Arguments:
+      candidate    A saying, proverb, or natural-language situation.
+                   For sayings, just paste the proverb. For protocols,
+                   describe the situation with concrete numbers.
+      kind         "auto" (default), "saying", or "protocol".
+                   "auto" guesses based on length and structure:
+                   short pithy text → saying; longer concrete
+                   numerical text → protocol.
+      title        Optional override. If omitted, uses the candidate
+                   text (for sayings) or asks for one (for protocols).
+      category     Optional starter category. Curator can change it.
+
+    Returns a draft entry shaped like the file format. Includes
+    suggested triggers (keywords + axes) extracted from the run.
+    """
+    candidate = (candidate or "").strip()
+    if not candidate:
+        return {"error": "candidate is required"}
+
+    chosen_kind = kind
+    if chosen_kind == "auto":
+        # Sayings tend to be short, pithy, and have no numbers.
+        # Protocols tend to be long and contain concrete values.
+        is_short = len(candidate) <= 120
+        has_numbers = any(ch.isdigit() for ch in candidate)
+        chosen_kind = "saying" if (is_short and not has_numbers) else "protocol"
+
+    # Slug-style id from the title or first words of the candidate
+    seed = (title or candidate).lower()
+    import re as _re
+    slug = _re.sub(r"[^a-z0-9]+", "_", seed).strip("_")[:48] or "draft_entry"
+
+    # Predict axes for the candidate
+    predicted_axes = sorted(_predict_axes_from_query(candidate.lower()))
+
+    draft: Dict[str, Any] = {
+        "id": slug,
+        "kind": chosen_kind,
+        "title": title or candidate,
+        "category": category or "uncategorized",
+        "domains": [],
+        "axes": predicted_axes,
+        "verdict": "DRAFT",
+        "wisdom": "(curator: write the dry note here — what does the math actually show?)",
+        "triggers": {
+            "keywords": [
+                w for w in _re.findall(r"[a-zA-Z]{4,}", candidate.lower())
+                if w not in {"that","this","with","from","into","when","than",
+                              "what","were","they","then","have","been","does"}
+            ][:10],
+            "axes": predicted_axes,
+        },
+    }
+
+    # Run the engine on the candidate so the curator gets the math
+    try:
+        from ..agent.poly_agent import run_polymathic as _run_poly
+        rec = _run_poly(situation=candidate, max_domains=8, decompose=True)
+        rec_d = rec.to_dict() if hasattr(rec, "to_dict") else dict(rec.__dict__)
+
+        if chosen_kind == "saying":
+            draft["verification"] = (
+                "(curator: replace this with a one-paragraph explanation "
+                "of why the math gives the verdict it does. The polymathic "
+                "run below is the engine's first pass — distill it.)"
+            )
+        else:
+            draft["situation"] = candidate
+            draft["pre_run"] = {
+                "summary": "(curator: write a one-sentence summary)",
+                "domain_results": rec_d.get("domain_results", []),
+                "axis_overlaps": rec_d.get("axis_overlaps", []),
+            }
+        draft["verdict"] = rec_d.get("composite_verdict", "DRAFT")
+        draft["domains"] = sorted({
+            r.get("domain") for r in (rec_d.get("domain_results") or [])
+            if r.get("domain")
+        })
+        draft["_engine_trail"] = {
+            "atomic_claims": rec_d.get("atomic_claims", []),
+            "quarantined_claims": rec_d.get("quarantined_claims", []),
+            "axis_overlaps": rec_d.get("axis_overlaps", []),
+            "content_hash": rec_d.get("content_hash"),
+        }
+    except Exception as exc:
+        draft["_engine_error"] = str(exc)[:240]
+        draft["_engine_note"] = (
+            "Polymathic run failed for this candidate. Draft returned "
+            "without computed verdict. Curator: run the math manually "
+            "or refine the candidate text."
+        )
+
+    return {
+        "draft": draft,
+        "instructions_for_curator": (
+            "1. Review the draft. Check that the verdict the engine produced "
+            "matches your intent.\n"
+            "2. Replace the placeholder wisdom prose with a short dry note "
+            "in the Almanac's voice — what does the math actually show?\n"
+            "3. For sayings: write the verification paragraph. "
+            "For protocols: write the pre_run.summary one-liner.\n"
+            "4. Adjust category, triggers, and id slug as needed.\n"
+            "5. When ready, append the cleaned-up entry as one JSON line "
+            "to data/almanac/entries.jsonl, and bounce the engine to load."
+        ),
+    }
+
+
 def _predict_axes_from_query(qlower: str) -> set:
     """Stem-based axis prediction. Local helper for almanac scoring."""
     from .. import grid as _grid

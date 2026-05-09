@@ -5829,6 +5829,69 @@ def swarm_synthesist(
     }
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Almanac — the readable book.
+# Mirrors the MCP `almanac` tool over plain HTTP so the website
+# can render it without an MCP client. Same data file
+# (data/almanac/entries.jsonl), same shape.
+# ─────────────────────────────────────────────────────────────────────
+_ALMANAC_FILE = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
+
+
+def _almanac_entries() -> List[Dict[str, Any]]:
+    """Read the almanac entries from disk. Re-reads each call so
+    edits to entries.jsonl appear without a server bounce."""
+    if not _ALMANAC_FILE.exists():
+        return []
+    out: List[Dict[str, Any]] = []
+    try:
+        for line in _ALMANAC_FILE.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    except OSError:
+        pass
+    return out
+
+
+@app.get("/almanac", tags=["humans"])
+def almanac_index():
+    """Return the full almanac for human reading.
+
+    Used by /almanac.html. Returns every entry plus the kinds,
+    categories, and verdicts present in the book so the page can
+    render filter chips without a second roundtrip.
+    """
+    entries = _almanac_entries()
+    return {
+        "entries": entries,
+        "total": len(entries),
+        "kinds":      sorted({e.get("kind", "protocol") for e in entries}),
+        "categories": sorted({e.get("category") for e in entries if e.get("category")}),
+        "verdicts":   sorted({e.get("verdict")  for e in entries if e.get("verdict")}),
+        "preface": (
+            "The Almanac is what the engine has worked through. "
+            "Two kinds of entry: protocols (canonical multi-domain "
+            "situations, pre-run through the engine) and sayings "
+            "(folk wisdom verified by computation, with the dry note). "
+            "The Almanac does not panic."
+        ),
+    }
+
+
+@app.get("/almanac/{entry_id}", tags=["humans"])
+def almanac_entry(entry_id: str):
+    """One entry by id — used for permalink rendering and JSON-LD."""
+    for e in _almanac_entries():
+        if e.get("id") == entry_id:
+            return e
+    raise HTTPException(status_code=404, detail=f"no almanac entry with id {entry_id!r}")
+
+
 @app.get("/grid/scaffold", tags=["agents"])
 def grid_scaffold():
     """Full domain→dimension mapping for the 7-axis scaffold.
