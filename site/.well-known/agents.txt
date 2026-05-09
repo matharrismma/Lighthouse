@@ -1,0 +1,53 @@
+# Concordance — narrowhighway.com
+# Agent-facing service description. Plain text by intention.
+
+Service: Concordance
+Description: Deterministic verification engine. Run a claim through 76
+  domain verifiers across 7 dimensional axes. 4 gates (RED, FLOOR,
+  BROTHERS, GOD) decide whether the verified claim is sealed to a
+  permanent, HMAC-chained ledger.
+License: Apache-2.0
+Source: https://github.com/matharrismma/Lighthouse
+Contact: mailto:mharris.wcs@icloud.com
+
+# Start here
+ServiceManifest: https://narrowhighway.com/llms.txt
+ToolManifest:    https://narrowhighway.com/manifest
+OpenAPI:         https://narrowhighway.com/docs
+Benchmark:       https://narrowhighway.com/benchmark
+Identity:        https://narrowhighway.com/identity
+
+# Live engine
+PolymathicEntrypoint: POST https://narrowhighway.com/polymathic
+SealEntrypoint:       POST https://narrowhighway.com/seal
+VerifyEntrypoint:     POST https://narrowhighway.com/verify
+PacketSchema:         https://narrowhighway.com/llms.txt#packet-schema
+ChainVerify:          GET  https://narrowhighway.com/ledger/verify
+
+# MCP transport (Streamable HTTP + SSE)
+MCPHTTP:  https://narrowhighway.com/mcp/
+MCPSSE:   https://narrowhighway.com/mcp/sse/
+
+# Almanac — community-curated wisdom + engine-discovered patterns
+AlmanacRead:    GET  https://narrowhighway.com/almanac
+AlmanacPropose: POST https://narrowhighway.com/almanac/propose
+
+# Rate limits
+# Anonymous write endpoints are token-bucket limited per IP.
+# /polymathic, /agent, /seal/polymathic — 12/min
+# /seal, /journal/write, /intake, /queue   — 30/min
+# /almanac/propose, /ingest/drive          — 10/min
+# /auth/login                              — 5/min (brute-force gate)
+# Read-only endpoints (/almanac, /ledger, /manifest, /benchmark) are
+# unlimited and cheap.
+
+# Scope keywords
+# "adapter" individual scope — "local" team — "mesh" cross-team —
+# "canon" org-wide — "kernel" core policy. Submit packets with the
+# narrowest scope that fits.
+
+# Posture
+# The engine never returns a "final answer" or "engine answer". It
+# returns the elimination trail — what survived each gate, what was
+# rejected, and why. Closest-precedent overlay shows you the most
+# similar prior case alongside your situation.

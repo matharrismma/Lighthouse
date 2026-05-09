@@ -1,10 +1,29 @@
 # Concordance — narrowhighway.com
-# This site is optimized for AI agents. All crawlers are welcome.
+# A deterministic verification engine. The site is optimized for AI
+# agents — read /llms.txt first, then /manifest for the full tool list.
 
 User-agent: *
 Allow: /
+Disallow: /auth/
+Disallow: /journal/
+Disallow: /shelf/
+Disallow: /confess
+Disallow: /capture
+Disallow: /cas/
+Disallow: /agent/training
+Disallow: /swarm/
+Disallow: /keeping/
+Disallow: /audit-chain/
+Disallow: /chain/
+Disallow: /peers
+Disallow: /queue
+Disallow: /reflect
+Disallow: /seal
+Disallow: /seal/polymathic
+Disallow: /verify/
+Disallow: /visits/
 
-# AI agent crawlers — explicitly welcome
+# AI agent crawlers — explicitly welcome on the public read surfaces
 User-agent: GPTBot
 Allow: /
 
@@ -17,16 +36,35 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
 User-agent: Googlebot
 Allow: /
 
 User-agent: bingbot
 Allow: /
 
-# Agent entry points
-# /llms.txt     — full tool inventory and packet schema (start here)
-# /docs         — OpenAPI schema
-# /ledger       — the permanent verification record
-# /ledger/verify — chain integrity check
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# Public read-only surfaces an agent should know about
+# /llms.txt           — service description (start here)
+# /manifest           — OpenAI-compatible tool list (76 tools)
+# /docs               — OpenAPI schema
+# /benchmark          — accuracy results
+# /almanac            — curated wisdom + engine-discovered patterns
+# /atlas              — verifier × axis grid
+# /ledger             — permanent verification record
+# /ledger/verify      — chain integrity check
+# /identity           — Ed25519 instance public key
+# /.well-known/security.txt
+# /.well-known/agents.txt
 
 Sitemap: https://narrowhighway.com/sitemap.xml

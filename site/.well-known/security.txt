@@ -1,0 +1,27 @@
+# Security policy for narrowhighway.com (Concordance / Lighthouse)
+# Deterministic verification engine. 4-gate audit chain is HMAC-linked
+# and tamper-evident; please coordinate disclosure for any finding that
+# could damage the chain or expose a non-public surface.
+
+Contact: mailto:mharris.wcs@icloud.com
+Expires: 2027-05-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://narrowhighway.com/.well-known/security.txt
+Policy: https://github.com/matharrismma/Lighthouse/blob/main/SECURITY.md
+
+# Scope
+# narrowhighway.com and any subdomain pointing to the Concordance
+# engine. The Cloudflare tunnel terminates TLS; the origin runs
+# behind a residential ISP and is not part of any bug-bounty program.
+#
+# Out of scope
+# - Reports about missing rate limits on read-only endpoints
+#   (those are deliberately open).
+# - Reports that depend on physical access to the operator's machine.
+# - Reports based purely on theoretical concerns about the engine's
+#   doctrinal positions (different category — open an issue instead).
+#
+# In scope
+# - Path traversal, SSRF, RCE, auth bypass, ledger tampering that
+#   passes /ledger/verify, signature forgery on /packets/*/verify-sig,
+#   cost-runup attacks that bypass /visits and rate limits.
