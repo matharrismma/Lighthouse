@@ -445,7 +445,8 @@ function renderActivity(events) {
   el.innerHTML = events.slice(0, 25).map(e => {
     const t = fmtTime(e.ts_iso);
     let body = '';
-    const handle = e.handle ? `<span class="handle">${escapeHtml(e.handle)}</span>` : 'someone';
+    const handleLink = e.handle ? `<a href="/contributor.html?h=${escapeHtml(e.handle)}" class="handle" style="color: var(--accent); text-decoration: none;">${escapeHtml(e.handle)}</a>` : 'someone';
+    const handle = handleLink;
     if (e.kind === 'register') {
       body = `${handle} joined as ${escapeHtml(e.display_name || e.handle)}`;
     } else if (e.kind === 'badge') {
@@ -477,14 +478,14 @@ function renderLeaderboard(rows) {
     const badges = (r.badges||[]).slice(0,4).map(b =>
       `<span class="badge" title="${escapeHtml(b.id)}">${escapeHtml((b.id||'').split(':').pop())}</span>`
     ).join('');
-    return `<div class="leader-row">
+    return `<a href="/contributor.html?h=${escapeHtml(r.handle)}" style="text-decoration:none; color:inherit; display:block;"><div class="leader-row">
       <div class="rank">#${i+1}</div>
       <div class="info">
         <div class="name">${escapeHtml(r.display_name || r.handle)}</div>
         <div class="meta">${escapeHtml(r.tier_label||'')} · ${r.badge_count||0} badges · joined #${r.join_seq||'?'}</div>
       </div>
       <div class="badge-cluster">${badges}</div>
-    </div>`;
+    </div></a>`;
   }).join('');
 }
 

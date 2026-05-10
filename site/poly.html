@@ -654,10 +654,14 @@
       if (lbl) lbl.textContent = 'Running workers…';
     }, 1200);
 
+    // Attribute to the registered contributor handle if they have one.
+    let contributor_handle = '';
+    try { contributor_handle = localStorage.getItem('concordance_handle') || ''; } catch (e) {}
+
     fetch(`${API}/polymathic`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ situation, max_domains: 10 }),
+      body: JSON.stringify({ situation, max_domains: 10, contributor_handle }),
     })
     .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
     .then(data => renderRecord(data))

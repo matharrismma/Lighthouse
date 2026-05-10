@@ -485,6 +485,85 @@ def community_witness_signal(request: Request, req: _WitnessRequest):
     return {"ok": True}
 
 
+class _AcceptRequest(_CommBaseModel):
+    """Curator marks a contributor's proposal as accepted into the canon."""
+    contributor_handle: str
+    proposal_id: str
+    almanac_entry_id: str = ""   # the id under which it landed in the book
+    note: str = ""
+
+
+def _community_require_api_key(request: Request) -> None:
+    """Inline equivalent of _check_api_key — used by community admin
+    endpoints that are defined before _check_api_key in the module.
+    Reads X-API-Key header and compares against the API_KEY env var.
+    If API_KEY is unset, auth is disabled (dev mode)."""
+    expected = os.environ.get("API_KEY", "")
+    if not expected:
+        return
+    got = request.headers.get("x-api-key", "") or request.headers.get("X-API-Key", "")
+    if got != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+
+@app.post("/community/proposals/accept", tags=["community"])
+def community_proposal_accept(
+    request: Request,
+    req: _AcceptRequest,
+):
+    """Curator endpoint — credit a contributor for an accepted proposal.
+
+    Bumps the contributor's `proposals_accepted` stat and re-evaluates
+    badges. Emits a `proposal_accepted` activity event so the dashboard
+    feed surfaces canonical acceptances, not just submissions.
+
+    Requires the X-API-Key header — only the operator (and anyone the
+    operator has shared the key with) can mark canon."""
+    _community_require_api_key(request)
+    handle = (req.contributor_handle or "").strip().lower()
+    if not _community.is_valid_handle(handle):
+        raise HTTPException(status_code=400, detail="contributor_handle invalid")
+    if _community.load_contributor(handle) is None:
+        raise HTTPException(status_code=404, detail=f"no contributor {handle!r}")
+    pid = (req.proposal_id or "").strip()[:120]
+    if not pid:
+        raise HTTPException(status_code=400, detail="proposal_id is required")
+
+    record = _community.bump_stat(handle, "proposals_accepted", 1)
+    _community.log_activity({
+        "kind": "proposal_accepted",
+        "handle": handle,
+        "proposal_id": pid,
+        "almanac_entry_id": (req.almanac_entry_id or "")[:120],
+        "note": (req.note or "")[:200],
+    })
+    return {"ok": True, "contributor": _community.public_profile(record) if record else None}
+
+
+class _CuratorPromoteRequest(_CommBaseModel):
+    """Operator-only endpoint to grant the Curator tier."""
+    handle: str
+
+
+@app.post("/community/curator/grant", tags=["community"])
+def community_grant_curator(
+    request: Request,
+    req: _CuratorPromoteRequest,
+):
+    """Promote a contributor to Curator tier. API-key gated."""
+    _community_require_api_key(request)
+    handle = (req.handle or "").strip().lower()
+    rec = _community.load_contributor(handle)
+    if rec is None:
+        raise HTTPException(status_code=404, detail=f"no contributor {handle!r}")
+    rec["curator"] = True
+    # Persist + refresh badges (this awards curator:appointed)
+    from api.community import _save_contributor as _sc, _refresh_badges as _rb
+    _sc(rec)
+    _rb(rec)
+    return {"ok": True, "contributor": _community.public_profile(_community.load_contributor(handle))}
+
+
 @app.get("/dashboard/stats", tags=["community"])
 def dashboard_stats():
     """Single aggregated stats blob for the activity dashboard. Reads

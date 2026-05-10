@@ -651,10 +651,14 @@
       _proposeStatus.textContent = 'engine working — running polymathic…';
       _proposeDraft.style.display = 'none';
       try {
+        // Attribute to the registered contributor handle if they have one.
+        let contributor_handle = '';
+        try { contributor_handle = localStorage.getItem('concordance_handle') || ''; } catch (e) {}
+
         const r = await fetch(API + '/almanac/propose', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ candidate, kind: 'auto' }),
+          body: JSON.stringify({ candidate, kind: 'auto', contributor_handle }),
         });
         if (!r.ok) {
           let detail = 'engine returned ' + r.status;
@@ -665,7 +669,10 @@
         _proposeDraft.textContent = JSON.stringify(data, null, 2);
         _proposeDraft.style.display = 'block';
         const v = (data.draft && data.draft.verdict) || 'DRAFT';
-        _proposeStatus.textContent = 'draft ready — verdict ' + v + '. The engine did the math; the curator does the wisdom.';
+        const credit = (data.attribution && data.attribution.contributor_handle)
+          ? ` Credited to @${data.attribution.contributor_handle}.`
+          : ' (Tip: register a handle on the Activity dashboard to be credited.)';
+        _proposeStatus.textContent = 'draft ready — verdict ' + v + '. The engine did the math; the curator does the wisdom.' + credit;
       } catch (err) {
         _proposeStatus.textContent = 'engine error: ' + (err.message || String(err)).slice(0, 200);
       } finally {
