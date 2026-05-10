@@ -7307,6 +7307,113 @@ def almanac_propose(request: Request, req: AlmanacProposeRequest):
     }
 
 
+@app.get("/grid/residue", tags=["agents"])
+def grid_residue():
+    """The residue surface — what hasn't been named yet, displayed.
+
+    Per ambiguity cluster, shows the canonical members side-by-side with
+    their verifier docstrings (the actual claims each one checks). The
+    engine doesn't propose discriminating axes — it arranges what's
+    there, so a human can perceive what they vary on (or recognize
+    that they don't, at this resolution).
+
+    Same posture for sparse triples: shows the triple's neighbors so
+    the gap has context. The engine doesn't fill the gap. It exhibits
+    it."""
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+    # Pull docstrings from the actual verifier functions (engine's
+    # source of truth on what each domain checks)
+    try:
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except Exception:
+        ALL_TOOLS = {}
+
+    def _docstring_for(name: str) -> str:
+        fn = ALL_TOOLS.get(f"verify_{name}")
+        if not fn:
+            return ""
+        doc = (fn.__doc__ or "").strip()
+        # First paragraph only — the rest is usually example syntax
+        first = doc.split("\n\n", 1)[0]
+        # Collapse whitespace
+        return " ".join(first.split())[:400]
+
+    aliases_known = getattr(_grid, "ALIASES", {})
+    domains_canonical = {
+        n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()
+        if n not in aliases_known
+    }
+
+    # Build ambiguity clusters (same as /grid/coherence)
+    by_signature: Dict[tuple, List[str]] = {}
+    for n, dims in domains_canonical.items():
+        sig = tuple(sorted(dims))
+        by_signature.setdefault(sig, []).append(n)
+
+    clusters: List[Dict[str, Any]] = []
+    for sig, names in by_signature.items():
+        if len(names) < 2:
+            continue
+        members = []
+        for nm in sorted(names):
+            members.append({
+                "name": nm,
+                "what_it_verifies": _docstring_for(nm) or "(no verifier docstring available)",
+                "is_umbrella": nm in getattr(_grid, "UMBRELLAS", {}),
+            })
+        clusters.append({
+            "signature": list(sig),
+            "count": len(names),
+            "members": members,
+        })
+    clusters.sort(key=lambda c: -c["count"])
+
+    # Sparse cells (empty + size-1 + size-2 triples) with neighbor context
+    from itertools import combinations
+    axes = list(_grid.DIMENSIONS)
+    sparse_cells: List[Dict[str, Any]] = []
+    for combo in combinations(axes, 3):
+        covered = sorted([
+            n for n, dims in domains_canonical.items()
+            if set(combo).issubset(set(dims))
+        ])
+        if len(covered) > 2:
+            continue
+        # Find pair-level neighbors: domains that share ANY 2 of the 3 axes
+        neighbor_set = set()
+        for pair in combinations(combo, 2):
+            pair_set = set(pair)
+            for n, dims in domains_canonical.items():
+                if pair_set.issubset(set(dims)) and n not in covered:
+                    neighbor_set.add(n)
+        sparse_cells.append({
+            "triple": list(combo),
+            "occupants": covered,
+            "occupant_count": len(covered),
+            "neighbors_via_pair": sorted(neighbor_set)[:8],
+            "neighbor_count": len(neighbor_set),
+        })
+    sparse_cells.sort(key=lambda s: (s["occupant_count"], s["triple"]))
+
+    return {
+        "canonical_domain_count": len(domains_canonical),
+        "axis_count": len(axes),
+        "ambiguity_clusters": clusters,
+        "ambiguity_cluster_count": len(clusters),
+        "sparse_cells": sparse_cells,
+        "sparse_cell_count": len(sparse_cells),
+        "notes": {
+            "posture": "The engine shows. Naming belongs to the human looking.",
+            "ambiguity_clusters": "Canonical domains sharing identical axis signatures. Their verifier docstrings are displayed side-by-side; the dimension they vary on may or may not have a name yet.",
+            "sparse_cells": "Axis-triples with 0-2 canonical domains. Their pair-neighbors are shown so the gap has context. A gap may indicate a missing domain, an impossible combination, or a real domain that hasn't been named yet.",
+        },
+    }
+
+
 @app.get("/grid/coherence", tags=["agents"])
 def grid_coherence():
     """Engine self-audit. The scaffold's structural anomalies as data.
