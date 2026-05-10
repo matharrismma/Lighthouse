@@ -234,6 +234,188 @@ UMBRELLAS: Dict[str, Tuple[str, ...]] = {
 }
 
 
+# ── Alias map ──────────────────────────────────────────────────────────
+# Deliberate synonyms so natural-language dispatch ("ocean", "thermo",
+# "weather") routes to canonical verifiers without forcing the caller
+# to know the full name. Each alias points to its canonical.
+#
+# The structural audit (/grid/coherence) uses this map to distinguish
+# *known* aliases (expected redundancy, not a design flaw) from
+# *unknown* signature-collisions (real ambiguity — the 7-axis
+# resolution can't distinguish two genuinely different things).
+ALIASES: Dict[str, str] = {
+    # Direct synonyms (different spelling, same thing)
+    "labour":               "labor",
+    "economy":              "economics",
+    "medical":              "medicine",
+    "legal":                "law",
+    "history":              "history_chronology",
+
+    # Module/discipline name variants
+    "materials":            "materials_science",
+    "soil":                 "soil_science",
+    "thermo":               "thermodynamics",
+    "ocean":                "oceanography",
+    "cyber":                "cybersecurity",
+    "infosec":              "cybersecurity",
+    "qc":                   "quantum_computing",
+    "quantum":              "quantum_computing",
+    "or":                   "operations_research",
+    "optimization":         "operations_research",
+    "nuclear":              "nuclear_physics",
+    "metallurgy":           "materials_science",
+    "marine_science":       "oceanography",
+    "agronomy":             "soil_science",
+
+    # Concept/phenomenon (not a discipline of its own)
+    "heat":                 "thermodynamics",
+    "radioactivity":        "nuclear_physics",
+    "ecosystem":            "ecology",
+    "environmental":        "ecology",
+
+    # Umbrella-bare-names (canonical names exist for sub-verifiers)
+    "theology":             "theology_doctrine",
+    "scripture":            "scripture_anchors",
+    "scripture_doctrine":   "theology_doctrine",
+    "doctrine":             "theology_doctrine",
+    "apologetics":          "theology_doctrine",
+    "eschatology":          "theology_doctrine",
+
+    # Sub-aspects (folded into the canonical discipline)
+    "macro":                "economics",
+    "micro":                "economics",
+    "wages":                "labor",
+    "employment":           "labor",
+    "mortgage":             "real_estate",
+    "property":             "real_estate",
+    "building":             "construction",
+    "building_design":      "architecture",
+    "structural":           "architecture",
+    "clinical":             "medicine",
+    "contract":             "law",
+    "ethics":               "philosophy",
+    "epistemology":         "philosophy",
+    "fallacy":              "rhetoric",
+    "argumentation":        "rhetoric",
+    "chronology":           "history_chronology",
+}
+
+
+# ── Retag v2 ───────────────────────────────────────────────────────────
+# Pulled directly out of the /grid/coherence audit. After looking at the
+# 15 ambiguity clusters where canonical domains shared identical axis
+# signatures, each retag below adds the discriminating dimension that
+# was missing — chemistry actually does reason (formal lawful behavior);
+# manufacturing actually does encode (specs and compliance); statistics_
+# pvalue actually does live in time (alpha is preserved within a window).
+#
+# Applied as an additive overlay on the V1 mapping above. Reversible by
+# setting any entry to an empty set or removing it entirely. Audit
+# re-runs immediately.
+_RETAG_V2: Dict[str, FrozenSet[str]] = {
+    # Cluster: [reasoning] only — 8 domains
+    "combinatorics":                       frozenset({"conservation_balance"}),
+    "statistics":                          frozenset({"conservation_balance"}),
+    "statistics_pvalue":                   frozenset({"conservation_balance", "time_sequence"}),
+    "statistics_multiple_comparisons":     frozenset({"conservation_balance", "authority_trust"}),
+    "statistics_confidence_interval":      frozenset({"conservation_balance", "time_sequence"}),
+
+    # Cluster: [authority_trust + reasoning + time_sequence] — 4 domains
+    "governance_decision_packet":          frozenset({"encoding"}),
+    "history_chronology":                  frozenset({"encoding", "conservation_balance"}),
+    "law":                                 frozenset({"encoding", "conservation_balance"}),
+
+    # Cluster: [authority_trust + encoding + reasoning] — 3 domains
+    "cybersecurity":                       frozenset({"physical_substance", "time_sequence"}),
+    "rhetoric":                            frozenset({"time_sequence"}),
+
+    # Cluster: [conservation + metabolism + physical + time] — 8 domains
+    "construction":                        frozenset({"authority_trust", "reasoning"}),
+    "ecology":                             frozenset({"reasoning"}),
+    "energy":                              frozenset({"authority_trust"}),
+    "exercise_science":                    frozenset({"reasoning"}),
+    "manufacturing":                       frozenset({"authority_trust", "encoding"}),
+    "meteorology":                         frozenset({"reasoning", "encoding"}),
+    "oceanography":                        frozenset({"reasoning", "encoding"}),
+
+    # Cluster: [conservation + metabolism + physical] — 5 domains
+    "chemistry":                           frozenset({"reasoning"}),
+    "materials_science":                   frozenset({"reasoning", "time_sequence"}),
+    "nutrition":                           frozenset({"authority_trust"}),
+    "soil_science":                        frozenset({"time_sequence"}),
+    "thermodynamics":                      frozenset({"reasoning"}),
+
+    # Cluster: [conservation + physical + time] — 3 domains
+    "acoustics":                           frozenset({"reasoning"}),
+    "nuclear_physics":                     frozenset({"metabolism"}),
+
+    # Cluster: [conservation + physical] — 3 domains
+    "electrical":                          frozenset({"reasoning", "time_sequence"}),
+    "optics":                              frozenset({"reasoning", "time_sequence"}),
+
+    # Cluster: [authority + encoding + reasoning + time] — 3 domains
+    "witness":                             frozenset({"physical_substance"}),
+
+    # Cluster: [encoding + reasoning] — 2 domains
+    "information_theory":                  frozenset({"conservation_balance"}),
+
+    # Cluster: [authority + conservation + reasoning + time] — economics/finance
+    "finance":                             frozenset({"encoding"}),
+
+    # Cluster: [encoding + physical] — genetics/photography
+    "genetics":                            frozenset({"metabolism", "conservation_balance"}),
+
+    # Cluster: [metabolism + physical + time] — agriculture/geology
+    "agriculture":                         frozenset({"conservation_balance"}),
+    "geology":                             frozenset({"conservation_balance"}),
+
+    # Cluster: [physical + reasoning] — geometry/physics_dimensional
+    "physics_dimensional":                 frozenset({"conservation_balance"}),
+
+    # Cluster: [encoding + physical + reasoning] — music_theory/quantum_computing
+    "music_theory":                        frozenset({"time_sequence", "authority_trust"}),
+    "quantum_computing":                   frozenset({"time_sequence", "conservation_balance"}),
+
+    # Cluster: [reasoning + time_sequence] — phase/sports_analytics
+    "sports_analytics":                    frozenset({"conservation_balance"}),
+
+    # Umbrella lifts — each umbrella must subsume its children's dimensions.
+    # Audit fired when we retagged children (genetics+conservation,
+    # exercise_science+reasoning, governance_decision_packet+encoding,
+    # statistics_pvalue+time+conservation, etc.) without lifting parents.
+    "biology":                             frozenset({"authority_trust", "reasoning"}),
+    "governance":                          frozenset({"encoding"}),
+    "statistics":                          frozenset({"authority_trust", "time_sequence", "conservation_balance"}),
+}
+
+# Apply the retag additively, in place. AXIS_DIMENSIONS now reflects v2.
+AXIS_DIMENSIONS = {
+    name: frozenset(dims | _RETAG_V2.get(name, frozenset()))
+    for name, dims in AXIS_DIMENSIONS.items()
+}
+
+
+def canonical(name: str) -> str:
+    """Resolve an axis name to its canonical form. Returns the input
+    unchanged if no alias exists."""
+    return ALIASES.get(name, name)
+
+
+def is_alias(name: str) -> bool:
+    """True if `name` is a known alias of another canonical axis."""
+    return name in ALIASES
+
+
+def canonical_axes() -> Dict[str, FrozenSet[str]]:
+    """AXIS_DIMENSIONS with all aliases collapsed to their canonical
+    entries. Useful for structural audits where aliases would create
+    false redundancy clusters."""
+    return {
+        name: dims for name, dims in AXIS_DIMENSIONS.items()
+        if not is_alias(name)
+    }
+
+
 # ── API ────────────────────────────────────────────────────────────────
 
 def axis_dimensions(axis: str) -> FrozenSet[str]:

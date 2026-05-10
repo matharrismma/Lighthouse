@@ -120,9 +120,13 @@ def test_dimension_axes_unknown_raises():
         grid.dimension_axes("not_a_real_dimension")
 
 
-def test_depth_witness_is_four():
-    # Witness sits on encoding, reasoning, authority_trust, time_sequence.
-    assert grid.depth("witness") == 4
+def test_depth_witness_is_five():
+    # Witness sits on encoding, reasoning, authority_trust, time_sequence,
+    # physical_substance. The physical_substance dimension was added in the
+    # 2026-05-10 retag — witnesses are bodily-present observers, which is
+    # what distinguishes them from scripture_anchors and theology_doctrine
+    # (also on enc+rsn+aut+tim but textual / conceptual rather than embodied).
+    assert grid.depth("witness") == 5
 
 
 def test_depth_calendar_time_is_one():

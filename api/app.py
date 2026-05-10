@@ -7335,7 +7335,18 @@ def grid_coherence():
     from itertools import combinations
 
     axes = list(_grid.DIMENSIONS)
-    domains = {n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()}
+    # Canonical-only view: drop aliases so the audit measures actual
+    # structural ambiguity, not the deliberate synonyms in the dispatch
+    # layer. `domains` is the source-of-truth for every check below.
+    aliases_known = getattr(_grid, "ALIASES", {})
+    domains = {
+        n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()
+        if n not in aliases_known
+    }
+    # Also collect the alias-cluster view for the report (separate finding)
+    alias_clusters_known = {}
+    for alias, canon in aliases_known.items():
+        alias_clusters_known.setdefault(canon, []).append(alias)
 
     # ── axis weights ──
     per_axis: Dict[str, List[str]] = {a: [] for a in axes}
@@ -7410,15 +7421,27 @@ def grid_coherence():
     for dims in domains.values():
         depths[len(dims)] = depths.get(len(dims), 0) + 1
 
+    known_alias_count = sum(len(a) for a in alias_clusters_known.values())
+    # Known-alias clusters reformatted for the report
+    known_alias_report = sorted(
+        [
+            {"canonical": canon, "aliases": sorted(aliases), "count": len(aliases)}
+            for canon, aliases in alias_clusters_known.items() if aliases
+        ],
+        key=lambda c: -c["count"],
+    )
+
     return {
         "summary": {
-            "domain_count": len(domains),
+            "canonical_domain_count": len(domains),
+            "known_alias_count": known_alias_count,
+            "total_registry_size": len(domains) + known_alias_count,
             "axis_count": len(axes),
             "average_axis_weight": round(avg_weight, 1),
             "light_axes": [a for a, _ in light],
             "heavy_axes": [a for a, _ in heavy],
-            "alias_cluster_count": len(alias_clusters),
-            "alias_total_redundant": sum(c["count"] - 1 for c in alias_clusters),
+            "ambiguous_signature_clusters": len(alias_clusters),
+            "ambiguous_redundant_count": sum(c["count"] - 1 for c in alias_clusters),
             "umbrella_conflicts": len(umbrella_conflicts),
             "empty_triples": len(empty_triples),
             "sparse_triples": len(sparse_triples),
@@ -7426,10 +7449,17 @@ def grid_coherence():
         },
         "axis_weights": weights,
         "pair_coverage": pair_coverage,
-        "alias_clusters": alias_clusters,
+        "known_aliases": known_alias_report,
+        "ambiguous_signature_clusters": alias_clusters,
         "umbrella_conflicts": umbrella_conflicts,
         "empty_triples": empty_triples,
         "sparse_triples": sparse_triples,
+        "notes": {
+            "known_aliases": "Deliberate synonyms registered in grid.ALIASES. Not structural ambiguity.",
+            "ambiguous_signature_clusters": "Canonical domains sharing identical axis signatures. If the count is > 0, the 7-axis resolution can't distinguish them — either merge, retag, or add an axis.",
+            "umbrella_conflicts": "Sub-domain names (e.g. physics_dimensional) whose prefix is also canonical (physics). Tag the parent as an umbrella to suppress.",
+            "empty_triples": "Three-axis intersections with zero canonical domains. Either a real structural hole or an axis combination that is physically/conceptually impossible.",
+        },
     }
 
 
