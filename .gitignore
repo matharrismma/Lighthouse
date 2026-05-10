@@ -99,3 +99,8 @@ data/visits/
 # are operator-side state, not source. Per-instance.
 data/contributors/
 data/activity/
+
+# Axis extensions — additive layer applied at module load. Operator-
+# named axes land here. Treat as per-instance configuration; commit
+# to a fresh location only when you're ready to canonicalize.
+data/grid/

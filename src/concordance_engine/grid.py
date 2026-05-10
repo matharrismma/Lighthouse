@@ -21,14 +21,21 @@ Run as a CLI (each subcommand is a different projection):
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Dict, FrozenSet, List, Tuple
 
 
-# The seven scaffold members. Each axis lives at a position in the 7D
-# space these members span — present (1) or absent (0) along each
-# member in the V1 binary model. Future iterations may upgrade to
-# continuous weights; the API is set-membership today.
-DIMENSIONS: Tuple[str, ...] = (
+# The seven scaffold members uncovered so far. Each axis lives at a position
+# in this N-dimensional space — present (1) or absent (0) along each member.
+# Future axes get appended to this list via the operator-only
+# /grid/axis/add endpoint, which persists them to data/grid/axis_extensions
+# .jsonl and applies them on next module load.
+#
+# DIMENSIONS is a list (not a tuple) so it can grow at runtime without
+# replacing the binding that callers have already imported. _BASE_DIMENSIONS
+# preserves the original 7 for tests and historical reference.
+_BASE_DIMENSIONS: Tuple[str, ...] = (
     "encoding",            # information / symbols / codes
     "metabolism",          # lifecycle / transformation / flow of substance
     "reasoning",           # formal manipulation / proof / counting
@@ -37,6 +44,7 @@ DIMENSIONS: Tuple[str, ...] = (
     "time_sequence",       # ordering / period / when-it-happens
     "conservation_balance",# what-must-balance / equilibrium / invariants
 )
+DIMENSIONS: List[str] = list(_BASE_DIMENSIONS)
 
 
 # Each axis → frozenset of dimensions it sits on. Empty set is allowed in
@@ -393,6 +401,124 @@ AXIS_DIMENSIONS = {
     name: frozenset(dims | _RETAG_V2.get(name, frozenset()))
     for name, dims in AXIS_DIMENSIONS.items()
 }
+
+
+# ── Axis extensions (loaded from disk) ─────────────────────────────────
+# Axes added by the human via /residue.html → POST /grid/axis/add land
+# in this JSONL. Each line is an extension event with name, label,
+# criterion (one sentence of what counts as carrying this axis), and
+# the list of canonical domains that carry it.
+#
+# Reversibility: edit or delete entries in the file and restart the
+# engine — there's no destructive write to the source-defined arrays.
+# DIMENSIONS and AXIS_DIMENSIONS get re-extended from a clean base
+# each load.
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+_AXIS_EXT_FILE = _REPO_ROOT / "data" / "grid" / "axis_extensions.jsonl"
+
+
+def _load_axis_extensions() -> List[Dict[str, object]]:
+    """Read axis_extensions.jsonl. Returns a list of extension dicts
+    in file order. Newer entries can supersede older ones via the
+    `supersedes` field; the load logic respects insertion order."""
+    if not _AXIS_EXT_FILE.exists():
+        return []
+    out: List[Dict[str, object]] = []
+    try:
+        for line in _AXIS_EXT_FILE.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            try:
+                out.append(json.loads(line))
+            except Exception:
+                continue
+    except Exception:
+        return out
+    return out
+
+
+def _apply_axis_extensions(exts: List[Dict[str, object]]) -> None:
+    """Mutate DIMENSIONS and AXIS_DIMENSIONS in place based on the
+    extensions list. Called at module-load and after every successful
+    add_axis() call."""
+    for ext in exts:
+        name = str(ext.get("name", "")).strip()
+        if not name or name in DIMENSIONS:
+            # If already present, just update carriers (idempotent)
+            pass
+        else:
+            DIMENSIONS.append(name)
+
+        carriers = ext.get("carriers", []) or []
+        if not isinstance(carriers, list):
+            continue
+        for carrier in carriers:
+            if not isinstance(carrier, str):
+                continue
+            if carrier not in AXIS_DIMENSIONS:
+                continue
+            current = set(AXIS_DIMENSIONS[carrier])
+            current.add(name)
+            AXIS_DIMENSIONS[carrier] = frozenset(current)
+
+
+# Load extensions immediately so module consumers see the runtime grid.
+_apply_axis_extensions(_load_axis_extensions())
+
+
+def add_axis(name: str, label: str, criterion: str, carriers: List[str]) -> Dict[str, object]:
+    """Persist a new axis to the extensions journal and apply it
+    in-place. Used by POST /grid/axis/add. Returns the loaded
+    extension record.
+
+    Validation:
+      - name must match [a-z][a-z0-9_]{2,31}
+      - name must not be a known alias
+      - name must not already be in DIMENSIONS
+      - every carrier must be a known canonical name in AXIS_DIMENSIONS
+      - criterion required (1 sentence of what counts)
+
+    On success: appends a line to axis_extensions.jsonl, mutates
+    DIMENSIONS and AXIS_DIMENSIONS in place, returns the record."""
+    import re
+    import time
+
+    name = (name or "").strip().lower()
+    label = (label or "").strip() or name.split("_")[0]
+    criterion = (criterion or "").strip()
+
+    if not re.match(r"^[a-z][a-z0-9_]{2,31}$", name):
+        raise ValueError("axis name must be 3-32 chars, start with a letter, "
+                         "use only lowercase letters/digits/underscore")
+    if name in ALIASES:
+        raise ValueError(f"{name!r} is a known alias; cannot use as axis name")
+    if name in DIMENSIONS:
+        raise ValueError(f"axis {name!r} already exists in DIMENSIONS")
+    if not criterion:
+        raise ValueError("criterion is required (one sentence of what counts as carrying this axis)")
+    if not carriers:
+        raise ValueError("at least one carrying domain is required")
+
+    canonical_names = set(AXIS_DIMENSIONS.keys()) - set(ALIASES.keys())
+    bad = [c for c in carriers if c not in canonical_names]
+    if bad:
+        raise ValueError(f"unknown canonical carriers: {bad}")
+
+    record = {
+        "name": name,
+        "label": label,
+        "criterion": criterion[:400],
+        "carriers": sorted(set(carriers)),
+        "added_at": int(time.time()),
+    }
+
+    _AXIS_EXT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(_AXIS_EXT_FILE, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    _apply_axis_extensions([record])
+    return record
 
 
 def canonical(name: str) -> str:

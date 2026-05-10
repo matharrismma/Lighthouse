@@ -7570,6 +7570,54 @@ def grid_coherence():
     }
 
 
+class _AxisAddRequest(_CommBaseModel):
+    """Body for POST /grid/axis/add — operator-only."""
+    name: str          # canonical name like 'subject_matter'
+    label: str = ""    # short label like 'subject' (defaults to first underscore-separated word)
+    criterion: str     # one sentence: what counts as carrying this axis
+    carriers: List[str]  # canonical domain names that carry this axis
+
+
+@app.post("/grid/axis/add", tags=["agents"])
+def grid_axis_add(request: Request, req: _AxisAddRequest):
+    """Operator-only: name an axis the human has perceived in the residue.
+
+    Persists the new axis to data/grid/axis_extensions.jsonl (append-only),
+    mutates DIMENSIONS and AXIS_DIMENSIONS in place, returns the updated
+    scaffold count. The next /grid/scaffold response includes the new
+    dimension; the 3D engine view picks it up on reload (chassis is
+    N-axis-agnostic).
+
+    Reversibility: edit or remove the line in axis_extensions.jsonl and
+    restart the engine. No destructive change to source-defined arrays.
+
+    Requires X-API-Key."""
+    _community_require_api_key(request)
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    try:
+        record = _grid.add_axis(
+            name=req.name,
+            label=req.label,
+            criterion=req.criterion,
+            carriers=req.carriers,
+        )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    return {
+        "ok": True,
+        "added": record,
+        "dimensions_now": list(_grid.DIMENSIONS),
+        "dimension_count_now": len(_grid.DIMENSIONS),
+        "carriers_updated": [
+            {"name": c, "axes_now": sorted(_grid.AXIS_DIMENSIONS.get(c, []))}
+            for c in record["carriers"]
+        ],
+    }
+
+
 @app.get("/grid/scaffold", tags=["agents"])
 def grid_scaffold():
     """Full domain→dimension mapping for the 7-axis scaffold.
