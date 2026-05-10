@@ -3,1712 +3,912 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Engine · Concordance</title>
-  <meta name="description" content="The secret of the engine: 63 domains connected along seven scaffold axes. A live brain showing how creation's structure ties everything together. Watch packets activate paths in real time.">
+  <title>The Engine, alive · Concordance</title>
+  <meta name="description" content="The engine as a working system: 4 gates, 7 dimensional axes, 8 workers, an HMAC-chained ledger. Every line is live — visits, seals, registrations, witness signals appear as they happen.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #06050b;
-      --bg-2:      #0a0810;
-      --surface:   #110e18;
-      --surface-2: #181323;
-      --border:    #251f31;
-      --border-hi: #382f46;
-      --text:      #e9e3d6;
-      --text-dim:  #aaa3b6;
-      --muted:     #6e6878;
-      --accent:    #d4a872;
-      --accent-hi: #f0c896;
-      --pass:      #6fc47c;
-      --fail:      #e07c7c;
-      --hold:      #e0b138;
+      --enc: #5b9bd5;
+      --met: #6ec98a;
+      --rsn: #d4c46a;
+      --phy: #d9945c;
+      --aut: #a87cd6;
+      --tim: #7fa8c0;
+      --csv: #5ec4b4;
 
-      /* Axis colors */
-      --enc: #5b9bd5;  /* encoding */
-      --aut: #a87cd6;  /* authority */
-      --met: #6ec98a;  /* metabolism */
-      --csv: #5ec4b4;  /* conservation */
-      --rsn: #d4c46a;  /* reasoning */
-      --tim: #7fa8c0;  /* time */
-      --phy: #d9945c;  /* physical */
-
-      --r: 12px;
-      --r-sm: 8px;
+      --pass: #6fc47c;
+      --fail: #e07c7c;
+      --hold: #e0b138;
+      --confess: #c89aff;
     }
 
-    html, body {
-      margin: 0; padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 14px; line-height: 1.5;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { color: var(--accent-hi); }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-
-    /* ── NAV ─────────────────────────────────── */
-    nav.topnav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(6,5,11,0.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 22px; height: 52px;
-    }
-    .wordmark {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--accent); font-weight: 600;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-    .wordmark .chi-rho-mark {
-      flex-shrink: 0;
-      filter: drop-shadow(0 0 4px rgba(212, 168, 114, 0.45));
-    }
-    .panel-title .chi-rho-mark {
-      vertical-align: -2px;
-      margin-right: 4px;
-      filter: drop-shadow(0 0 4px rgba(212, 168, 114, 0.5));
-    }
-    .navlinks { display: flex; align-items: center; gap: 20px; }
-    .navlinks a { color: var(--text-dim); font-size: 12.5px; font-weight: 500; }
-    .navlinks a:hover { color: var(--text); }
-    .navlinks a.active { color: var(--accent); }
-    .navlinks a.cta {
-      padding: 6px 13px; border-radius: 6px;
-      background: var(--accent); color: var(--bg); font-weight: 600;
-    }
-    .navlinks a.cta:hover { background: var(--accent-hi); }
-    @media (max-width: 760px) {
-      .navlinks a:not(.cta):not(.always) { display: none; }
-    }
-    .live-dot {
+    .live-pill {
       display: inline-flex; align-items: center; gap: 6px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
+      font-size: 11px; letter-spacing: 0.08em;
       text-transform: uppercase;
+      color: var(--pass);
+      padding: 3px 9px; border-radius: 3px;
+      background: rgba(111,196,124,0.08);
+      border: 1px solid rgba(111,196,124,0.25);
     }
-    .live-dot::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--pass); box-shadow: 0 0 10px var(--pass);
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-    /* ── HEADER STRIP ─────────────────────────── */
-    .header-strip {
-      max-width: 1280px; margin: 0 auto;
-      padding: 30px 24px 12px;
-      display: flex; flex-wrap: wrap;
-      align-items: flex-end; justify-content: space-between;
-      gap: 16px;
-    }
-    .header-strip h1 {
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 700; letter-spacing: -0.02em;
-      line-height: 1.1;
-    }
-    .header-strip h1 em {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic; color: var(--accent); font-weight: 400;
-    }
-    .header-strip .lead {
-      color: var(--text-dim);
-      font-size: 14px; max-width: 60ch; margin-top: 8px; line-height: 1.55;
-    }
-    .header-strip .meta {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; color: var(--muted);
-      display: flex; gap: 16px; flex-wrap: wrap;
-    }
-    .header-strip .meta b { color: var(--accent); font-weight: 600; }
-
-    /* ── BRAIN STAGE ──────────────────────────── */
-    .stage-wrap {
-      max-width: 1280px; margin: 14px auto 0;
-      padding: 0 16px;
-    }
-    .stage {
-      position: relative;
-      background:
-        radial-gradient(circle at 30% 20%, rgba(91,155,213,0.06) 0%, transparent 50%),
-        radial-gradient(circle at 70% 80%, rgba(168,124,214,0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 30%, rgba(110,201,138,0.04) 0%, transparent 50%),
-        linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
-      border: 1px solid var(--border-hi);
-      border-radius: var(--r);
-      overflow: hidden;
-      height: clamp(520px, 70vh, 760px);
-    }
-
-    /* Subtle scanline / grid overlay */
-    .stage::before {
-      content: ''; position: absolute; inset: 0;
-      background-image:
-        repeating-linear-gradient(0deg, rgba(212,168,114,0.018) 0, rgba(212,168,114,0.018) 1px, transparent 1px, transparent 24px),
-        repeating-linear-gradient(90deg, rgba(212,168,114,0.018) 0, rgba(212,168,114,0.018) 1px, transparent 1px, transparent 24px);
-      pointer-events: none;
-    }
-
-    .stage svg {
-      width: 100%; height: 100%; display: block;
-    }
-
-    /* ── OVERLAY: AXIS FILTERS ────────────────── */
-    .axis-bar {
-      position: absolute; top: 14px; left: 14px;
-      display: flex; flex-direction: column; gap: 6px;
-      z-index: 10;
-    }
-    .axis-row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .axis-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 11px;
-      border-radius: 18px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px; font-weight: 500;
-      letter-spacing: 0.06em; text-transform: lowercase;
-      cursor: pointer;
-      background: rgba(17,14,24,0.78);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border);
-      transition: all 0.18s;
-      user-select: none;
-    }
-    .axis-pill .swatch {
-      width: 8px; height: 8px; border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .axis-pill[data-axis="enc"] { color: var(--enc); }
-    .axis-pill[data-axis="enc"] .swatch { background: var(--enc); box-shadow: 0 0 8px var(--enc); }
-    .axis-pill[data-axis="aut"] { color: var(--aut); }
-    .axis-pill[data-axis="aut"] .swatch { background: var(--aut); box-shadow: 0 0 8px var(--aut); }
-    .axis-pill[data-axis="met"] { color: var(--met); }
-    .axis-pill[data-axis="met"] .swatch { background: var(--met); box-shadow: 0 0 8px var(--met); }
-    .axis-pill[data-axis="csv"] { color: var(--csv); }
-    .axis-pill[data-axis="csv"] .swatch { background: var(--csv); box-shadow: 0 0 8px var(--csv); }
-    .axis-pill[data-axis="rsn"] { color: var(--rsn); }
-    .axis-pill[data-axis="rsn"] .swatch { background: var(--rsn); box-shadow: 0 0 8px var(--rsn); }
-    .axis-pill[data-axis="tim"] { color: var(--tim); }
-    .axis-pill[data-axis="tim"] .swatch { background: var(--tim); box-shadow: 0 0 8px var(--tim); }
-    .axis-pill[data-axis="phy"] { color: var(--phy); }
-    .axis-pill[data-axis="phy"] .swatch { background: var(--phy); box-shadow: 0 0 8px var(--phy); }
-
-    .axis-pill:hover { border-color: var(--border-hi); }
-    .axis-pill.dim { opacity: 0.35; }
-    .axis-pill.solo { border-color: currentColor; box-shadow: 0 0 12px rgba(255,255,255,0.04); }
-
-    .axis-bar-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px; color: var(--muted);
-      letter-spacing: 0.16em; text-transform: uppercase;
-      margin-bottom: 2px;
-      padding-left: 4px;
-    }
-
-    /* ── OVERLAY: SEARCH ──────────────────────── */
-    .search-bar {
-      position: absolute; top: 14px; right: 14px; z-index: 10;
-    }
-    #search {
-      background: rgba(17,14,24,0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      padding: 7px 12px;
-      border-radius: 18px;
-      width: 180px;
-      outline: none;
-      transition: all 0.15s;
-    }
-    #search::placeholder { color: var(--muted); }
-    #search:focus { border-color: var(--accent); width: 220px; }
-
-    /* ── OVERLAY: NODE DETAIL CARD ────────────── */
-    .detail-card {
-      position: absolute; bottom: 14px; left: 14px;
-      width: clamp(220px, 28vw, 320px);
-      background: rgba(17,14,24,0.92);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-hi);
-      border-radius: var(--r);
-      padding: 14px 16px;
-      z-index: 10;
-      display: none;
-    }
-    .detail-card.show { display: block; }
-    .detail-card h3 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; color: var(--accent);
-      letter-spacing: 0.04em; text-transform: lowercase;
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
-    .detail-card .axes-row {
-      display: flex; flex-wrap: wrap; gap: 4px;
-      margin-bottom: 10px;
-    }
-    .detail-card .axes-row span {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px; padding: 2px 7px;
-      border-radius: 10px; letter-spacing: 0.05em;
-    }
-    .detail-card .meta-line {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted);
-      display: flex; justify-content: space-between;
-      letter-spacing: 0.06em;
-    }
-    .detail-card .meta-line b { color: var(--text-dim); font-weight: 500; }
-
-    /* ── OVERLAY: LIVE ACTIVITY ───────────────── */
-    .activity-card {
-      position: absolute; bottom: 14px; right: 14px;
-      width: clamp(220px, 28vw, 320px);
-      background: rgba(17,14,24,0.92);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-hi);
-      border-radius: var(--r);
-      padding: 12px 14px;
-      z-index: 10;
-      max-height: 320px;
-      display: flex; flex-direction: column;
-    }
-    .activity-card .head {
-      display: flex; justify-content: space-between; align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted);
-      letter-spacing: 0.14em; text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .activity-card .head .pulse {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--pass); box-shadow: 0 0 8px var(--pass);
-      animation: pulse 1.8s ease-in-out infinite;
-    }
-    .activity-list {
-      flex: 1;
-      overflow-y: auto;
-      max-height: 260px;
-      padding-right: 4px;
-    }
-    .activity-list::-webkit-scrollbar { width: 3px; }
-    .activity-list::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
-    .act-row {
-      padding: 5px 0;
-      border-top: 1px solid var(--border);
-      display: flex; gap: 8px; align-items: center;
-      font-size: 11px;
-    }
-    .act-row:first-child { border-top: none; }
-    .act-row .dom {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--accent);
-      min-width: 80px;
-      flex-shrink: 0;
-    }
-    .act-row .text {
-      color: var(--text-dim);
-      flex: 1;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .act-row .when {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px; color: var(--muted);
-      flex-shrink: 0;
-    }
-
-    /* ── BRAIN — node + edge styling ─────────── */
-    .edge {
-      transition: opacity 0.4s ease;
-    }
-    .node-circle {
-      cursor: pointer;
-      transition: r 0.18s ease, opacity 0.4s ease;
-    }
-    .node-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      fill: var(--text-dim);
-      pointer-events: none;
-      letter-spacing: 0.02em;
-      transition: opacity 0.4s ease, fill 0.3s ease;
-    }
-    .node-label.dim { opacity: 0.25; }
-    .node-circle.dim { opacity: 0.18; }
-    .edge.dim { opacity: 0.06; }
-
-    .node-circle.selected { stroke: #fff; stroke-width: 1.5; }
-    .node-label.selected { fill: var(--accent); }
-
-    /* Activation pulse rings */
-    .activation-ring {
-      fill: none; stroke-width: 1.5;
-      pointer-events: none;
-    }
-
-    /* Hummingbird (harvest drop) — small gold particle that flies in */
-    .hummingbird {
-      pointer-events: none;
-      filter: drop-shadow(0 0 8px var(--accent));
-    }
-
-    /* Connector thread — temporary glowing line between two domains
-       drawn when the Connector hummingbird discovers a new shared-axis
-       pair. Different from the persistent edge underneath: this one
-       lights up briefly to announce the discovery. */
-    .connector-thread {
-      pointer-events: none;
-      stroke-width: 2.2;
-      stroke-linecap: round;
-    }
-
-    /* Activity-list row variant: harvest drop */
-    .act-row.harvest {
-      background: linear-gradient(90deg, rgba(212,168,114,0.06) 0%, transparent 100%);
-      border-left: 2px solid var(--accent);
-      padding-left: 6px;
-    }
-    .act-row.harvest .dom::before {
-      content: '↶ ';
-      color: var(--accent);
-      letter-spacing: 0;
-    }
-
-    /* ── SWARM PANEL — hummingbird roster + live stats ─── */
-    .swarm-panel { /* uses .panel base */ }
-    .swarm-row {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-top: 1px solid var(--border);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-    }
-    .swarm-row:first-of-type { border-top: none; }
-    .swarm-name {
-      display: flex; align-items: center; gap: 8px;
-      color: var(--text-dim);
-      letter-spacing: 0.06em;
-    }
-    .swarm-status {
+    .live-pill .dot {
       width: 7px; height: 7px; border-radius: 50%;
-      background: var(--muted-2);
-      flex-shrink: 0;
-    }
-    .swarm-status.alive {
       background: var(--pass);
-      box-shadow: 0 0 8px var(--pass);
-      animation: pulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(111,196,124,0.7);
+      animation: livepulse 1.6s ease-in-out infinite;
     }
-    .swarm-status.busy {
-      background: var(--accent);
-      box-shadow: 0 0 10px var(--accent);
-      animation: pulse 1s ease-in-out infinite;
-    }
-    .swarm-status.stale { background: var(--hold); }
-    .swarm-status.cold { background: var(--muted-2); }
-    .swarm-status.warming { background: var(--hold); animation: pulse 2.4s ease-in-out infinite; }
-    .swarm-status.resting { background: var(--tim); }
-    .swarm-status.planned { background: var(--muted-2); }
-    .swarm-meta {
-      color: var(--muted);
-      font-size: 10px;
-      letter-spacing: 0.06em;
-    }
-    .swarm-meta b { color: var(--accent); font-weight: 600; }
-    .swarm-pair {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--text-dim);
-      padding: 6px 0;
-      border-top: 1px solid var(--border);
-      margin-top: 6px;
-    }
-    .swarm-pair small {
-      display: block; color: var(--muted);
-      font-size: 9.5px; letter-spacing: 0.12em;
-      text-transform: uppercase; margin-bottom: 3px;
+    @keyframes livepulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(1.3); }
     }
 
-    /* ── INSTRUMENTS BELOW STAGE ──────────────── */
-    .below {
-      max-width: 1280px; margin: 18px auto 0;
-      padding: 0 24px;
+    /* Engine page wants wider container than the site default */
+    main.container.engine-wide {
+      max-width: 1280px;
+    }
+    .engine-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
+      grid-template-columns: minmax(280px, 1fr) minmax(420px, 1.4fr) minmax(280px, 1fr);
+      gap: 20px;
+      margin-bottom: 22px;
     }
-    @media (min-width: 800px) {
-      .below { grid-template-columns: 2fr 1fr 1fr 1.1fr; }
+    @media (max-width: 1100px) {
+      .engine-grid { grid-template-columns: 1fr; }
     }
-    @media (min-width: 800px) and (max-width: 1100px) {
-      .below { grid-template-columns: 1fr 1fr; }
-    }
+
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 18px 20px;
-    }
-    .panel-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--muted);
-      letter-spacing: 0.14em; text-transform: uppercase;
-      margin-bottom: 10px;
+      padding: 16px 18px;
     }
     .panel h3 {
-      font-size: 16px; font-weight: 600;
-      margin-bottom: 8px; letter-spacing: -0.01em;
+      font-size: 11.5px; font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px 0;
     }
-    .panel p {
-      font-size: 13.5px; color: var(--text-dim);
-      line-height: 1.6;
-    }
-    .panel p + p { margin-top: 8px; }
+    .panel h3 .small { font-size: 10.5px; opacity: 0.75; }
 
-    .gauges {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    /* ── GATES pipeline ────────────────────────────── */
+    .gates-pipeline {
+      display: flex; flex-direction: column; gap: 6px;
+      margin-bottom: 18px;
     }
-    .gauge {
-      background: var(--bg-2); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 12px 12px 10px;
-      text-align: center;
+    .gate {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.4s;
+      position: relative;
     }
-    .gauge-num {
+    .gate.flash {
+      background: rgba(217,168,114,0.16);
+      border-color: var(--accent);
+      box-shadow: 0 0 14px rgba(217,168,114,0.35);
+    }
+    .gate .gate-letter {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 22px; font-weight: 600;
-      color: var(--accent); line-height: 1;
-    }
-    .gauge-num.pass { color: var(--pass); }
-    .gauge-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.12em;
-      margin-top: 6px;
-    }
-
-    /* ── SECRET COPY ──────────────────────────── */
-    .secret {
-      max-width: 920px; margin: 50px auto 30px;
-      padding: 0 24px;
-      text-align: center;
-    }
-    .secret .scripture {
-      font-family: 'Crimson Pro', serif;
-      font-style: italic; font-size: 19px;
-      color: var(--text-dim); line-height: 1.55;
-      margin-bottom: 8px;
-    }
-    .secret .ref {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: var(--accent); letter-spacing: 0.14em;
-    }
-    .cta-row {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      justify-content: center; margin-top: 22px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 20px; border-radius: 7px;
       font-size: 13px; font-weight: 600;
-      transition: all 0.15s; cursor: pointer; border: none;
-    }
-    .btn-primary { background: var(--accent); color: var(--bg); }
-    .btn-primary:hover { background: var(--accent-hi); }
-    .btn-secondary {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border-hi);
-    }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 30px 24px;
+      color: var(--accent);
       text-align: center;
-      font-size: 12px; color: var(--muted);
-      margin-top: 40px;
     }
-    footer a { color: var(--text-dim); margin: 0 8px; }
-    footer a:hover { color: var(--text); }
+    .gate .gate-name {
+      font-weight: 600; font-size: 13.5px;
+      color: var(--text);
+    }
+    .gate .gate-desc {
+      font-size: 11.5px; color: var(--muted-2);
+      margin-top: 1px;
+    }
+    .gate .gate-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px; font-weight: 600;
+      color: var(--text);
+      min-width: 32px; text-align: right;
+    }
+    .gate-arrow {
+      text-align: center; color: var(--muted);
+      font-size: 12px; margin: -4px 0 -4px 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ledger-chain {
+      margin-top: 18px;
+    }
+    .ledger-chain h3 { margin-top: 4px; }
+    .chain-link {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 9px;
+      background: rgba(255,255,255,0.02);
+      border-left: 2px solid var(--border);
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .chain-link.new {
+      border-left-color: var(--pass);
+      background: rgba(111,196,124,0.08);
+      animation: newchain 1.6s ease-out;
+    }
+    @keyframes newchain {
+      0% { background: rgba(111,196,124,0.3); }
+      100% { background: rgba(111,196,124,0.08); }
+    }
+    .chain-link .seq {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted);
+    }
+    .chain-link .domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; color: var(--text);
+      text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+    }
+    .chain-link .verdict {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; padding: 2px 7px; border-radius: 3px;
+      letter-spacing: 0.04em;
+    }
+    .verdict.PASS { color: #1a3320; background: var(--pass); }
+    .verdict.REJECT { color: #421515; background: var(--fail); }
+    .verdict.QUARANTINE { color: #3d2c08; background: var(--hold); }
+    .verdict.CONFESSION { color: #2a163a; background: var(--confess); }
+
+    /* ── SCAFFOLD ───────────────────────────────────── */
+    .scaffold-panel { display: flex; flex-direction: column; }
+    .scaffold-svg-wrap {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 460px;
+      position: relative;
+    }
+    #scaffold {
+      width: 100%; max-width: 560px;
+      height: 100%; min-height: 460px;
+      display: block;
+    }
+    .scaffold-legend {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .scaffold-legend .leg {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--muted);
+    }
+    .scaffold-legend .leg .swatch {
+      width: 9px; height: 9px; border-radius: 2px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 540px) { .scaffold-legend { grid-template-columns: repeat(2, 1fr); } }
+
+    .axis-petal { transition: opacity 0.3s, fill 0.3s; cursor: pointer; }
+    .axis-petal:hover { opacity: 0.6 !important; }
+    .axis-label-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      pointer-events: none;
+      fill: var(--text);
+    }
+    .domain-node {
+      fill: var(--surface-2, #181323);
+      stroke: var(--border);
+      stroke-width: 1;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .domain-node:hover { fill: var(--accent); }
+    .domain-node.pulse {
+      animation: domainpulse 1.4s ease-out;
+    }
+    @keyframes domainpulse {
+      0% { fill: var(--accent); stroke: var(--accent-hi, #f0c896); stroke-width: 3; transform: scale(2); transform-origin: center; }
+      100% { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; transform: scale(1); }
+    }
+    .domain-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      fill: var(--text-dim, #aaa3b6);
+      pointer-events: none;
+    }
+
+    /* ── WORKERS ───────────────────────────────────── */
+    .worker-row {
+      display: grid;
+      grid-template-columns: 12px 1fr auto;
+      gap: 9px;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+    .worker-row:last-child { border-bottom: none; }
+    .worker-row .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted);
+    }
+    .worker-row .status-dot.alive {
+      background: var(--pass);
+      box-shadow: 0 0 5px rgba(111,196,124,0.5);
+    }
+    .worker-row .status-dot.cold { background: var(--muted); opacity: 0.4; }
+    .worker-row .wname {
+      font-weight: 500; color: var(--text);
+    }
+    .worker-row .wrole {
+      font-size: 10.5px; color: var(--muted);
+      margin-top: 1px;
+      max-width: 260px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .worker-row .wcount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      transition: color 0.5s;
+    }
+    .worker-row .wcount.bumped {
+      color: #f0c896;
+      animation: countbump 0.6s ease-out;
+    }
+    @keyframes countbump {
+      0% { transform: scale(1.5); color: #f0c896; }
+      100% { transform: scale(1); color: var(--accent); }
+    }
+
+    /* ── ACTIVITY FEED ─────────────────────────────── */
+    .activity-feed {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .act-row {
+      display: grid;
+      grid-template-columns: 16px 1fr auto;
+      gap: 8px;
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      animation: actfade 0.6s ease-out;
+    }
+    @keyframes actfade {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .act-row .act-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-align: center;
+    }
+    .act-row .act-body {
+      color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .act-row .act-body .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted-2);
+    }
+    .act-row .act-body .pill {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.04em;
+      padding: 1px 5px; border-radius: 2px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      margin-left: 4px;
+    }
+    .act-row .act-body .pill.ok { background: rgba(111,196,124,0.18); color: #b8eccd; }
+    .act-row .act-body .pill.bad { background: rgba(224,124,124,0.16); color: #f7b9b3; }
+    .act-row .act-body .pill.scanner { background: rgba(168,124,214,0.15); color: #d6b9f0; }
+    .act-row .act-body a { color: var(--accent); }
+    .act-row .ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; color: var(--muted);
+    }
+
+    /* ── BOTTOM STATS STRIP ────────────────────────── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 760px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+    }
+    .stat-tile .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat-tile .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px; font-weight: 600;
+      color: var(--text);
+    }
+    .stat-tile .val.bumped { color: var(--accent); }
+
+    .empty { color: var(--muted-2); font-style: italic; padding: 14px 4px; font-size: 12px; }
   </style>
 </head>
 <body>
 
-<!-- ── NAV ──────────────────────────────────────────── -->
-<nav class="topnav">
-  <a href="/" class="wordmark always" aria-label="Concordance — home">
-    <svg class="chi-rho-mark" width="14" height="14" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true">
-      <line x1="16" y1="18" x2="48" y2="50"/>
-      <line x1="48" y1="18" x2="16" y2="50"/>
-      <line x1="32" y1="10" x2="32" y2="56"/>
-      <path d="M 32 10 C 46 10, 46 28, 32 28"/>
-    </svg>
-    Concordance
-  </a>
-  <div class="navlinks">
-    <a href="/engine.html" class="active">Engine</a>
-    <a href="/verifiers.html">Verifiers</a>
-    <a href="/grid.html">Grid</a>
-    <a href="/poly.html">Polymathic</a>
-    <a href="/benchmark.html">Benchmark</a>
-    <a href="/agents.html">Agents</a>
-    <span class="live-dot always" id="liveDot">live</span>
-    <a href="/connect.html" class="cta always">Connect →</a>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/dashboard.html">Activity</a>
+      <a href="/library.html">Library</a>
+      <a href="/poly.html">Polymathic</a>
+      <a href="/engine.html" class="active">Engine</a>
+      <a href="/benchmark.html">Benchmark</a>
+      <a href="/install.html">Install</a>
+      <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
+      <a class="cta" href="/connect.html">Connect →</a>
+    </nav>
   </div>
-</nav>
+</header>
 
-<!-- ── HEADER ───────────────────────────────────────── -->
-<div class="header-strip">
-  <div>
-    <h1>
-      <svg class="chi-rho-mark" width="32" height="32" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true" style="vertical-align: -4px; margin-right: 6px; opacity: 0.9;">
-        <line x1="16" y1="18" x2="48" y2="50"/>
-        <line x1="48" y1="18" x2="16" y2="50"/>
-        <line x1="32" y1="10" x2="32" y2="56"/>
-        <path d="M 32 10 C 46 10, 46 28, 32 28"/>
-      </svg>
-      The engine, <em>as a brain</em>.
-    </h1>
-    <p class="lead" id="engineLead">63 domains. 7 scaffold axes. Every connection is a path the engine can walk — chemistry to thermodynamics along conservation, witness to scripture along authority, biology to genetics along encoding. The secret of the engine is that none of these are separate. Click an axis to isolate the network it forms.</p>
-    <p style="margin-top:8px">
-      <button class="listen-btn" data-narrate-target="#engineLead" title="Read aloud in M.R. Harris">
-        <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
-      </button>
-    </p>
-  </div>
-  <div class="meta">
-    <span>NODES <b id="nodeCount">63</b></span>
-    <span>EDGES <b id="edgeCount">—</b></span>
-    <span>JOURNAL <b id="m-journal">—</b></span>
-    <span>BENCH <b style="color:var(--pass)">171/171</b></span>
-  </div>
-</div>
-
-<!-- ── STAGE ────────────────────────────────────────── -->
-<div class="stage-wrap">
-  <div class="stage">
-
-    <!-- axis filter row (top-left) -->
-    <div class="axis-bar">
-      <div class="axis-bar-label">Axes — click to isolate</div>
-      <div class="axis-row" id="axisBar">
-        <span class="axis-pill" data-axis="enc"><span class="swatch"></span>encoding</span>
-        <span class="axis-pill" data-axis="aut"><span class="swatch"></span>authority</span>
-        <span class="axis-pill" data-axis="met"><span class="swatch"></span>metabolism</span>
-        <span class="axis-pill" data-axis="csv"><span class="swatch"></span>conservation</span>
-      </div>
-      <div class="axis-row">
-        <span class="axis-pill" data-axis="rsn"><span class="swatch"></span>reasoning</span>
-        <span class="axis-pill" data-axis="tim"><span class="swatch"></span>time</span>
-        <span class="axis-pill" data-axis="phy"><span class="swatch"></span>physical</span>
-      </div>
+<div class="page-header">
+  <div class="container engine-wide">
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:8px;">
+      <div class="eyebrow">The mechanics</div>
+      <span class="live-pill"><span class="dot"></span><span id="liveText">live</span></span>
     </div>
-
-    <!-- search (top-right) -->
-    <div class="search-bar">
-      <input id="search" placeholder="Find a domain…" autocomplete="off">
-    </div>
-
-    <!-- the brain itself -->
-    <svg id="brain" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <radialGradient id="node-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fff" stop-opacity="0.7"/>
-          <stop offset="60%" stop-color="#fff" stop-opacity="0.05"/>
-          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-        </radialGradient>
-        <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      <g id="edgeLayer"></g>
-      <g id="nodeLayer"></g>
-      <g id="activationLayer"></g>
-    </svg>
-
-    <!-- selected-node detail card (bottom-left, hidden until select) -->
-    <div class="detail-card" id="detailCard">
-      <h3 id="d-name">—</h3>
-      <div class="axes-row" id="d-axes"></div>
-      <div class="meta-line"><span>connections</span><b id="d-conn">—</b></div>
-      <div class="meta-line"><span>depth</span><b id="d-depth">—</b></div>
-      <div class="meta-line"><span>journal hits</span><b id="d-journal">—</b></div>
-    </div>
-
-    <!-- live activity feed (bottom-right) -->
-    <div class="activity-card">
-      <div class="head"><span>live activity</span><span class="pulse"></span></div>
-      <div class="activity-list" id="actList">
-        <div class="act-row"><span class="text" style="color:var(--muted)">Waiting for activations…</span></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── BELOW ────────────────────────────────────────── -->
-<div class="below">
-  <div class="panel">
-    <div class="panel-label">The secret</div>
-    <h3>The engine is not 63 verifiers. It is one brain.</h3>
-    <p>Each domain is a scaffold position — a place in the structure of created reality. Two domains share an edge whenever they sit on the same axis: chemistry and biology share <span style="color:var(--csv)">conservation</span>, <span style="color:var(--met)">metabolism</span>, and <span style="color:var(--phy)">physical-substance</span>. Witness and scripture share <span style="color:var(--aut)">authority</span>, <span style="color:var(--enc)">encoding</span>, <span style="color:var(--rsn)">reasoning</span>, and <span style="color:var(--tim)">time</span>.</p>
-    <p>When a packet enters the engine, it doesn't get checked by one verifier and stop. It activates a region of the brain. The polymathic synthesis you see at <a href="/poly.html">/poly</a> is exactly this: every relevant domain firing along its axis-shared connections.</p>
-    <p>That's why scoring works the way it does. The engine doesn't just answer — it shows which other parts of the structure light up. <em style="font-family:'Crimson Pro',serif">Rom 1:20: His invisible attributes are clearly seen, being understood by the things that are made.</em></p>
-  </div>
-
-  <div class="panel">
-    <div class="panel-label">Live counters</div>
-    <div class="gauges">
-      <div class="gauge"><div class="gauge-num" id="g-packets">—</div><div class="gauge-label">Packets sealed</div></div>
-      <div class="gauge"><div class="gauge-num" id="g-keep">—</div><div class="gauge-label">Observations</div></div>
-      <div class="gauge"><div class="gauge-num pass">100%</div><div class="gauge-label">Benchmark</div></div>
-      <div class="gauge"><div class="gauge-num" id="g-act">0</div><div class="gauge-label">Activations</div></div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-label">Hub domains — most connected</div>
-    <div id="topHubs" style="display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px"></div>
-    <p style="margin-top:10px; font-size:11.5px; color:var(--muted)">Multi-axis domains sit at the cortex. They share structure with the most other domains, so a packet in any of them activates the most paths.</p>
-  </div>
-
-  <div class="panel swarm-panel">
-    <div class="panel-label">Background workers</div>
-    <div id="swarmList">
-      <div class="swarm-row"><span class="swarm-name"><span class="swarm-status planned"></span>loading…</span></div>
-    </div>
-    <div class="swarm-pair" id="swarmLastPair" style="display:none;">
-      <small>Connector — last find</small>
-      <span id="swarmLastPairText">—</span>
-    </div>
-    <div class="swarm-pair" id="swarmTrainer" style="display:none;">
-      <small>Trainer — assessment</small>
-      <span id="swarmTrainerText">—</span>
-    </div>
-    <div class="swarm-pair" id="swarmSearcher" style="display:none;">
-      <small>Searcher · Scripture — last harvest</small>
-      <span id="swarmSearcherText">—</span>
-    </div>
-    <div class="swarm-pair" id="swarmSearcherLoc" style="display:none;">
-      <small>Searcher · LoC — last harvest</small>
-      <span id="swarmSearcherLocText">—</span>
-    </div>
-    <div class="swarm-pair" id="swarmDispatch" style="display:none;">
-      <small>Searcher · Tasked — on-demand dispatcher</small>
-      <span id="swarmDispatchText">—</span>
-    </div>
-    <div class="swarm-pair" id="swarmJanitor" style="display:none;">
-      <small>Janitor — journal audit</small>
-      <span id="swarmJanitorText">—</span>
-    </div>
-    <p style="margin-top:10px; font-size:11px; color:var(--muted); line-height:1.55;">
-      Small specialists, each on its own tick loop. <b style="color:var(--accent)">Connector</b> walks the journal and lights up new shared-axis pairs. Janitor audits, Searchers harvest, Trainer rebalances. Each one writes through the same doors as anyone else.
+    <h1>The Engine, alive</h1>
+    <p class="almanac-preface">
+      Four gates. Seven dimensional axes. Eight background workers. An HMAC-chained
+      ledger that grows by one block every time a packet survives. Every number on
+      this page is live — what you see is what the substrate is doing right now.
     </p>
   </div>
 </div>
 
-<!-- ── SECRET COPY ────────────────────────────────── -->
-<div class="secret">
-  <p class="scripture">"For since the creation of the world His invisible attributes are clearly seen, being understood by the things that are made."</p>
-  <p class="ref">ROMANS 1:20</p>
-  <div class="cta-row">
-    <a class="btn btn-primary" href="/connect.html">Connect an agent →</a>
-    <a class="btn btn-secondary" href="/poly.html">Run polymathic synthesis →</a>
-    <a class="btn btn-secondary" href="/grid.html">Open the 3D explorer →</a>
-  </div>
-</div>
+<main class="container engine-wide" style="padding-bottom: 80px;">
 
-<footer>
-  <a href="/">Home</a> · <a href="/verifiers.html">Verifiers</a> · <a href="/connect.html">Connect</a> · <a href="/agents.html">Agents</a> · <a href="/benchmark.html">Benchmark</a> · <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
-  <p style="margin-top:14px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted)">© 2026 · Concordance Engine · Apache 2.0 · serves Jesus Christ</p>
-</footer>
+  <!-- ── three-column architectural view ────────────── -->
+  <div class="engine-grid">
+
+    <!-- LEFT — gates pipeline + ledger chain -->
+    <section class="panel">
+      <h3>The four gates <span class="small">packet flow</span></h3>
+      <div class="gates-pipeline">
+        <div class="gate" id="gate-RED">
+          <div class="gate-letter">R</div>
+          <div>
+            <div class="gate-name">RED</div>
+            <div class="gate-desc">rejects coercion, unilateral authority, rights violations</div>
+          </div>
+          <div class="gate-counter" id="gateCount-REJECT">—</div>
+        </div>
+        <div class="gate-arrow">↓</div>
+        <div class="gate" id="gate-FLOOR">
+          <div class="gate-letter">F</div>
+          <div>
+            <div class="gate-name">FLOOR</div>
+            <div class="gate-desc">rejects structurally incomplete packets</div>
+          </div>
+          <div class="gate-counter" id="gateCount-FLOOR">—</div>
+        </div>
+        <div class="gate-arrow">↓</div>
+        <div class="gate" id="gate-BROTHERS">
+          <div class="gate-letter">B</div>
+          <div>
+            <div class="gate-name">BROTHERS</div>
+            <div class="gate-desc">quarantines if &lt; 2 witnesses or window not elapsed</div>
+          </div>
+          <div class="gate-counter" id="gateCount-QUARANTINE">—</div>
+        </div>
+        <div class="gate-arrow">↓</div>
+        <div class="gate" id="gate-GOD">
+          <div class="gate-letter">G</div>
+          <div>
+            <div class="gate-name">GOD</div>
+            <div class="gate-desc">records permanently after the wait window</div>
+          </div>
+          <div class="gate-counter pass" id="gateCount-PASS" style="color: var(--pass);">—</div>
+        </div>
+      </div>
+
+      <div class="ledger-chain">
+        <h3>Ledger chain <span class="small">tamper-evident · HMAC-linked</span></h3>
+        <div id="chainList">
+          <div class="empty">loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER — scaffold radial -->
+    <section class="panel scaffold-panel">
+      <h3>The scaffold <span class="small">7 axes · domains where they intersect</span></h3>
+      <div class="scaffold-svg-wrap">
+        <svg id="scaffold" viewBox="-260 -260 520 520" preserveAspectRatio="xMidYMid meet">
+          <g id="axisLayer"></g>
+          <g id="edgeLayer"></g>
+          <g id="domainLayer"></g>
+          <g id="labelLayer"></g>
+        </svg>
+      </div>
+      <div class="scaffold-legend">
+        <div class="leg"><span class="swatch" style="background: var(--enc)"></span>encoding</div>
+        <div class="leg"><span class="swatch" style="background: var(--met)"></span>metabolism</div>
+        <div class="leg"><span class="swatch" style="background: var(--rsn)"></span>reasoning</div>
+        <div class="leg"><span class="swatch" style="background: var(--phy)"></span>physical</div>
+        <div class="leg"><span class="swatch" style="background: var(--aut)"></span>authority</div>
+        <div class="leg"><span class="swatch" style="background: var(--tim)"></span>time</div>
+        <div class="leg"><span class="swatch" style="background: var(--csv)"></span>conservation</div>
+        <div class="leg" style="color: var(--muted-2);">a domain pulses when its verifier fires</div>
+      </div>
+    </section>
+
+    <!-- RIGHT — workers + activity -->
+    <section class="panel">
+      <h3>Workers <span class="small">8 specialists, each on its own tick</span></h3>
+      <div id="workerList">
+        <div class="empty">loading…</div>
+      </div>
+
+      <h3 style="margin-top: 22px;">Live activity</h3>
+      <div class="activity-feed" id="actFeed">
+        <div class="empty">loading…</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── stats strip ────────────────────────────────── -->
+  <div class="stats-strip">
+    <div class="stat-tile">
+      <div class="lbl">Visits today</div>
+      <div class="val" id="sVisits">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="lbl">Ledger seals</div>
+      <div class="val" id="sLedger">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="lbl">Almanac entries</div>
+      <div class="val" id="sAlmanac">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="lbl">Contributors</div>
+      <div class="val" id="sContrib">—</div>
+    </div>
+    <div class="stat-tile">
+      <div class="lbl">Verifier domains</div>
+      <div class="val" id="sDomains">48</div>
+    </div>
+  </div>
+
+  <p style="margin-top:32px; font-size:12px; color:var(--muted-2); text-align:center;">
+    Every panel polls the same substrate everything else does — append-only logs, no analytics fairy dust.
+    See <a href="/dashboard.html">/dashboard</a> for the contributor view ·
+    <a href="/llms.txt">/llms.txt</a> for the agent inventory ·
+    <a href="/.well-known/agents.txt">/.well-known/agents.txt</a> for the manifest.
+  </p>
+
+</main>
 
 <script>
-  /* ═══════════════════════════════════════════════════
-     CONFIG
-  ═══════════════════════════════════════════════════ */
-  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-    ? 'http://localhost:8000' : '';
+const $ = (id) => document.getElementById(id);
+const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  const AXIS_COLOR = {
-    enc: '#5b9bd5', aut: '#a87cd6', met: '#6ec98a', csv: '#5ec4b4',
-    rsn: '#d4c46a', tim: '#7fa8c0', phy: '#d9945c'
-  };
-  const AXIS_NAME = {
-    enc: 'encoding', aut: 'authority', met: 'metabolism', csv: 'conservation',
-    rsn: 'reasoning', tim: 'time', phy: 'physical'
-  };
-  // Backend uses full axis names ("metabolism", "physical_substance"); UI uses short codes.
-  const AXIS_CODE_FROM_FULL = {
-    encoding: 'enc', metabolism: 'met', reasoning: 'rsn',
-    physical_substance: 'phy', authority_trust: 'aut',
-    time_sequence: 'tim', conservation_balance: 'csv'
-  };
-  const AXIS_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
+const AXIS_COLORS = {
+  encoding: '#5b9bd5',
+  metabolism: '#6ec98a',
+  reasoning: '#d4c46a',
+  physical_substance: '#d9945c',
+  authority_trust: '#a87cd6',
+  time_sequence: '#7fa8c0',
+  conservation_balance: '#5ec4b4',
+};
+const AXIS_ORDER = ['encoding','metabolism','reasoning','physical_substance','authority_trust','time_sequence','conservation_balance'];
+// Short labels for axes
+const AXIS_SHORT = {
+  encoding: 'encoding',
+  metabolism: 'metabolism',
+  reasoning: 'reasoning',
+  physical_substance: 'physical',
+  authority_trust: 'authority',
+  time_sequence: 'time',
+  conservation_balance: 'conservation',
+};
 
-  /* ═══════════════════════════════════════════════════
-     SCAFFOLD — 63 verifier-backed domain nodes + axis assignments
-     (matches grid.html GRID_INLINE; sourced from concordance_engine.grid
-     AXIS_DIMENSIONS via the ALL_TOOLS verify_* registry)
-  ═══════════════════════════════════════════════════ */
-  const GRID = {
-    acoustics:["csv","phy","tim"], agriculture:["met","phy","tim"],
-    architecture:["aut","phy","tim"], astronomy:["csv","phy","tim"],
-    biology:["csv","enc","met","phy","tim"], calendar_time:["tim"],
-    chemistry:["csv","met","phy"], combinatorics:["rsn"],
-    computer_science:["enc","rsn","tim"], construction:["csv","met","phy","tim"],
-    cryptography:["aut","enc","rsn"], cybersecurity:["aut","enc","rsn"],
-    document_validation:["aut","enc"], ecology:["csv","met","phy","tim"],
-    economics:["aut","csv","rsn","tim"], electrical:["csv","phy"],
-    energy:["csv","met","phy","tim"], exercise_science:["csv","met","phy","tim"],
-    finance:["aut","csv","rsn","tim"], formal_logic:["rsn"],
-    genetics:["enc","phy"], geography:["phy"], geology:["met","phy","tim"],
-    geometry:["phy","rsn"], governance_decision_packet:["aut","rsn","tim"],
-    history_chronology:["aut","rsn","tim"], hydrology:["csv","met","phy","tim"],
-    information_theory:["enc","rsn"], labor:["aut","csv","met","tim"],
-    law:["aut","rsn","tim"], linguistics:["enc","rsn"],
-    manufacturing:["csv","met","phy","tim"], materials_science:["csv","met","phy"],
-    mathematics:["rsn"], medicine:["aut","met","phy","tim"],
-    meteorology:["csv","met","phy","tim"], music_theory:["enc","phy","rsn"],
-    networking:["aut","enc","phy","tim"], nuclear_physics:["csv","phy","tim"],
-    number_theory:["rsn"], nutrition:["csv","met","phy"],
-    oceanography:["csv","met","phy","tim"], operations_research:["csv","rsn","tim"],
-    optics:["csv","phy"], philosophy:["aut","rsn"],
-    photography:["enc","phy"], physics:["csv","phy","rsn"],
-    physics_conservation:["csv","phy"], physics_dimensional:["phy","rsn"],
-    quantum_computing:["enc","phy","rsn"], real_estate:["aut","csv","phy","tim"],
-    rhetoric:["aut","enc","rsn"], scripture_anchors:["aut","enc","rsn","tim"],
-    soil_science:["csv","met","phy"], sports_analytics:["rsn","tim"],
-    statistics:["rsn"], statistics_pvalue:["rsn"],
-    statistics_multiple_comparisons:["rsn"], statistics_confidence_interval:["rsn"],
-    theology_doctrine:["aut","enc","rsn","tim"], thermodynamics:["csv","met","phy"],
-    witness:["aut","enc","rsn","tim"],
-    phase:["aut","rsn","tim"]
-  };
+// We'll render only the canonical verifier domains (those starting with stable names).
+// The /grid/scaffold endpoint returns aliases too — we filter to the 35-50 most-connected.
+let SCAFFOLD = null;
+let LAST_VERIFIED_DOMAINS = new Set();
+let LAST_LEDGER_SEQS = new Set();
+let LAST_ACT_KEYS = new Set();
+let LAST_WORKER_TICKS = {};
 
-  /* ═══════════════════════════════════════════════════
-     BUILD nodes + edges
-  ═══════════════════════════════════════════════════ */
-  function primaryAxis(axes) {
-    for (const a of AXIS_PRIORITY) if (axes.includes(a)) return a;
-    return 'rsn';
-  }
+// ────────────────────────────────────────────────────────
+// Scaffold rendering
+// ────────────────────────────────────────────────────────
+function buildScaffold(grid) {
+  const layer = $('axisLayer');
+  const edges = $('edgeLayer');
+  const dlayer = $('domainLayer');
+  const labels = $('labelLayer');
+  layer.innerHTML = ''; edges.innerHTML = ''; dlayer.innerHTML = ''; labels.innerHTML = '';
 
-  const NODES = Object.keys(GRID).map(id => ({
-    id,
-    axes: GRID[id],
-    depth: GRID[id].length,
-    primary: primaryAxis(GRID[id]),
-    label: id.replace(/_/g, ' '),
-    x: 0, y: 0, vx: 0, vy: 0,
-    fx: null, fy: null,
-    activation: 0,
-    journal_hits: 0,
-  }));
-  const NODE_BY_ID = {};
-  NODES.forEach(n => NODE_BY_ID[n.id] = n);
+  // Draw axis "petals" — soft sectors radiating from center
+  const R_INNER = 50;
+  const R_OUTER = 230;
+  const TWO_PI = Math.PI * 2;
+  const N = AXIS_ORDER.length;  // 7
+  const sliceAngle = TWO_PI / N;
+  const half = sliceAngle / 2;
 
-  const EDGES = [];
-  for (let i = 0; i < NODES.length; i++) {
-    for (let j = i + 1; j < NODES.length; j++) {
-      const a = NODES[i], b = NODES[j];
-      const shared = a.axes.filter(x => b.axes.includes(x));
-      if (shared.length >= 1) {
-        EDGES.push({
-          source: a, target: b,
-          axes: shared,
-          primary: primaryAxis(shared),
-          weight: shared.length,
-        });
-      }
-    }
-  }
-  document.getElementById('edgeCount').textContent = EDGES.length;
+  AXIS_ORDER.forEach((axis, i) => {
+    const a0 = i * sliceAngle - Math.PI / 2 - half;  // top-aligned
+    const a1 = a0 + sliceAngle;
+    const x0 = Math.cos(a0) * R_INNER, y0 = Math.sin(a0) * R_INNER;
+    const x1 = Math.cos(a0) * R_OUTER, y1 = Math.sin(a0) * R_OUTER;
+    const x2 = Math.cos(a1) * R_OUTER, y2 = Math.sin(a1) * R_OUTER;
+    const x3 = Math.cos(a1) * R_INNER, y3 = Math.sin(a1) * R_INNER;
+    const path = `M ${x0.toFixed(1)} ${y0.toFixed(1)}
+                  L ${x1.toFixed(1)} ${y1.toFixed(1)}
+                  A ${R_OUTER} ${R_OUTER} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}
+                  L ${x3.toFixed(1)} ${y3.toFixed(1)}
+                  A ${R_INNER} ${R_INNER} 0 0 0 ${x0.toFixed(1)} ${y0.toFixed(1)} Z`;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', path);
+    p.setAttribute('class', 'axis-petal');
+    p.setAttribute('fill', AXIS_COLORS[axis]);
+    p.setAttribute('fill-opacity', '0.08');
+    p.setAttribute('stroke', AXIS_COLORS[axis]);
+    p.setAttribute('stroke-opacity', '0.35');
+    p.setAttribute('stroke-width', '0.7');
+    p.setAttribute('data-axis', axis);
+    layer.appendChild(p);
 
-  /* hub list */
-  const hubs = [...NODES].sort((a,b) => {
-    // count edges incident on each
-    const ca = EDGES.filter(e => e.source.id === a.id || e.target.id === a.id).length;
-    const cb = EDGES.filter(e => e.source.id === b.id || e.target.id === b.id).length;
-    return cb - ca;
-  }).slice(0, 8);
-
-  const hubsEl = document.getElementById('topHubs');
-  hubs.forEach(h => {
-    const conn = EDGES.filter(e => e.source.id === h.id || e.target.id === h.id).length;
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer';
-    row.innerHTML = `
-      <span style="color:${AXIS_COLOR[h.primary]}">${h.label}</span>
-      <span style="color:var(--muted)">${conn}</span>
-    `;
-    row.addEventListener('click', () => selectNode(h.id));
-    hubsEl.appendChild(row);
+    // Axis label at the outer edge midpoint
+    const aMid = a0 + half;
+    const lr = R_OUTER + 22;
+    const lx = Math.cos(aMid) * lr;
+    const ly = Math.sin(aMid) * lr;
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', lx.toFixed(1));
+    t.setAttribute('y', ly.toFixed(1));
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('dominant-baseline', 'middle');
+    t.setAttribute('class', 'axis-label-text');
+    t.setAttribute('fill', AXIS_COLORS[axis]);
+    t.textContent = AXIS_SHORT[axis] || axis;
+    labels.appendChild(t);
   });
 
-  /* ═══════════════════════════════════════════════════
-     LAYOUT — minimal verlet-style force simulation
-  ═══════════════════════════════════════════════════ */
-  const svg = document.getElementById('brain');
-  let W = 1000, H = 600;
-  function resize() {
-    const r = svg.getBoundingClientRect();
-    W = r.width; H = r.height;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  }
-  window.addEventListener('resize', resize);
-  resize();
+  // Filter domains to canonical set (drop aliases like "labour", "economy", "medical")
+  const ALIAS_DROP = new Set(['labour','economy','medical','mortgage']);
+  const allDomains = Object.entries(grid.axes)
+    .filter(([n]) => !ALIAS_DROP.has(n))
+    .map(([name, dims]) => ({ name, dims }));
 
-  /* Initial positions: random spread with slight clustering by primary axis */
-  const AXIS_ANGLE = { enc: 0, aut: 1, met: 2, csv: 3, rsn: 4, tim: 5, phy: 6 };
-  NODES.forEach((n, i) => {
-    const a = (AXIS_ANGLE[n.primary] / 7) * Math.PI * 2;
-    const r = 220 + Math.random() * 80;
-    n.x = W/2 + Math.cos(a) * r + (Math.random() - 0.5) * 80;
-    n.y = H/2 + Math.sin(a) * r + (Math.random() - 0.5) * 80;
-  });
+  // Sort by axis-count desc, take top 40 to keep visual readable
+  allDomains.sort((a, b) => b.dims.length - a.dims.length);
+  const TOP = allDomains.slice(0, 40);
 
-  function tick() {
-    const REPEL = 1800;
-    const STIFF = 0.012;
-    const IDEAL = 95;
-    const CENTER = 0.005;
-    const DAMP = 0.85;
-
-    /* repulsion: O(n^2) */
-    for (let i = 0; i < NODES.length; i++) {
-      for (let j = i + 1; j < NODES.length; j++) {
-        const a = NODES[i], b = NODES[j];
-        let dx = b.x - a.x, dy = b.y - a.y;
-        let d2 = dx*dx + dy*dy + 0.01;
-        let d = Math.sqrt(d2);
-        const f = REPEL / d2;
-        dx /= d; dy /= d;
-        a.vx -= f * dx; a.vy -= f * dy;
-        b.vx += f * dx; b.vy += f * dy;
-      }
-    }
-
-    /* edge attraction — weight scales with shared axes count */
-    for (const e of EDGES) {
-      let dx = e.target.x - e.source.x, dy = e.target.y - e.source.y;
-      const d = Math.sqrt(dx*dx + dy*dy) + 0.01;
-      const ideal = IDEAL - e.weight * 6;
-      const f = (d - ideal) * STIFF * (0.7 + e.weight * 0.15);
-      dx /= d; dy /= d;
-      e.source.vx += f * dx; e.source.vy += f * dy;
-      e.target.vx -= f * dx; e.target.vy -= f * dy;
-    }
-
-    /* center pull */
-    for (const n of NODES) {
-      n.vx -= (n.x - W/2) * CENTER;
-      n.vy -= (n.y - H/2) * CENTER;
-    }
-
-    /* integrate */
-    for (const n of NODES) {
-      if (n.fx != null) { n.x = n.fx; n.y = n.fy; n.vx = 0; n.vy = 0; continue; }
-      n.vx *= DAMP; n.vy *= DAMP;
-      n.x += n.vx; n.y += n.vy;
-      // soft margin
-      n.x = Math.max(40, Math.min(W - 40, n.x));
-      n.y = Math.max(40, Math.min(H - 40, n.y));
-    }
-  }
-
-  /* ═══════════════════════════════════════════════════
-     RENDER — first pass setup, then transform on tick
-  ═══════════════════════════════════════════════════ */
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  const edgeLayer = document.getElementById('edgeLayer');
-  const nodeLayer = document.getElementById('nodeLayer');
-  const activationLayer = document.getElementById('activationLayer');
-
-  /* Edge elements */
-  EDGES.forEach((e, i) => {
-    const line = document.createElementNS(SVG_NS, 'line');
-    line.setAttribute('class', 'edge');
-    line.setAttribute('stroke', AXIS_COLOR[e.primary]);
-    line.setAttribute('stroke-width', 0.4 + e.weight * 0.35);
-    line.setAttribute('opacity', 0.08 + e.weight * 0.07);
-    line.dataset.idx = i;
-    e.el = line;
-    edgeLayer.appendChild(line);
-  });
-
-  /* Node elements */
-  NODES.forEach(n => {
-    const g = document.createElementNS(SVG_NS, 'g');
-    g.setAttribute('class', 'node');
-    g.dataset.id = n.id;
-
-    const halo = document.createElementNS(SVG_NS, 'circle');
-    halo.setAttribute('r', 16 + n.depth * 1.6);
-    halo.setAttribute('fill', 'url(#node-glow)');
-    halo.setAttribute('opacity', 0);
-    halo.classList.add('halo');
-    n.haloEl = halo;
-    g.appendChild(halo);
-
-    const c = document.createElementNS(SVG_NS, 'circle');
-    c.setAttribute('class', 'node-circle');
-    c.setAttribute('r', 4 + n.depth * 0.85);
-    c.setAttribute('fill', AXIS_COLOR[n.primary]);
-    c.setAttribute('stroke', AXIS_COLOR[n.primary]);
-    c.setAttribute('stroke-opacity', 0.6);
-    c.setAttribute('stroke-width', 1);
-    c.style.filter = 'url(#soft-glow)';
-    n.circleEl = c;
-    g.appendChild(c);
-
-    const lbl = document.createElementNS(SVG_NS, 'text');
-    lbl.setAttribute('class', 'node-label');
-    lbl.setAttribute('text-anchor', 'middle');
-    lbl.setAttribute('y', -(7 + n.depth));
-    lbl.textContent = n.label;
-    n.labelEl = lbl;
-    g.appendChild(lbl);
-
-    g.addEventListener('click', () => selectNode(n.id));
-    g.addEventListener('mouseenter', () => g.style.cursor = 'pointer');
-
-    n.el = g;
-    nodeLayer.appendChild(g);
-  });
-
-  /* Apply positions */
-  function paint() {
-    for (const e of EDGES) {
-      e.el.setAttribute('x1', e.source.x);
-      e.el.setAttribute('y1', e.source.y);
-      e.el.setAttribute('x2', e.target.x);
-      e.el.setAttribute('y2', e.target.y);
-    }
-    for (const n of NODES) {
-      n.el.setAttribute('transform', `translate(${n.x},${n.y})`);
-      // halo opacity follows activation
-      n.haloEl.setAttribute('opacity', Math.min(1, n.activation));
-      // node radius bump on activation
-      const baseR = 4 + n.depth * 0.85;
-      n.circleEl.setAttribute('r', baseR + n.activation * 4);
-      // decay
-      n.activation *= 0.94;
-      if (n.activation < 0.01) n.activation = 0;
-    }
-  }
-
-  /* Run simulation */
-  let simIters = 0;
-  function loop() {
-    if (simIters < 350) {
-      // heavier in first phase
-      for (let i = 0; i < 2; i++) tick();
+  // For each domain, position it at the centroid of its axes' angles, distance ~ inverse of dim count
+  TOP.forEach((d, idx) => {
+    const angles = d.dims.map(dim => {
+      const i = AXIS_ORDER.indexOf(dim);
+      if (i < 0) return null;
+      return i * sliceAngle - Math.PI / 2;
+    }).filter(a => a !== null);
+    if (!angles.length) return;
+    // centroid via avg of unit vectors
+    let sx = 0, sy = 0;
+    angles.forEach(a => { sx += Math.cos(a); sy += Math.sin(a); });
+    const len = Math.sqrt(sx*sx + sy*sy);
+    let px, py;
+    if (len < 0.01) {
+      // multi-axis spread — push to mid radius with deterministic angle by name
+      const h = [...d.name].reduce((a,c)=>a+c.charCodeAt(0),0);
+      const a = (h * 0.137) % TWO_PI;
+      px = Math.cos(a) * 110; py = Math.sin(a) * 110;
     } else {
-      // gentle ongoing
-      tick();
-    }
-    paint();
-    simIters++;
-    requestAnimationFrame(loop);
-  }
-  loop();
-
-  /* ═══════════════════════════════════════════════════
-     SELECTION + AXIS FILTERING
-  ═══════════════════════════════════════════════════ */
-  let selectedId = null;
-  let activeAxis = null;
-
-  function selectNode(id) {
-    selectedId = id;
-    activeAxis = null; // selecting clears axis solo
-    document.querySelectorAll('.axis-pill').forEach(p => p.classList.remove('solo','dim'));
-
-    const node = NODE_BY_ID[id];
-    if (!node) return;
-
-    const adj = new Set();
-    for (const e of EDGES) {
-      if (e.source.id === id) adj.add(e.target.id);
-      if (e.target.id === id) adj.add(e.source.id);
+      // distance: more axes = closer to center (the cortex)
+      const dist = Math.max(75, R_OUTER - 25 - d.dims.length * 22);
+      px = (sx / len) * dist;
+      py = (sy / len) * dist;
     }
 
-    NODES.forEach(n => {
-      if (n.id === id) {
-        n.circleEl.classList.add('selected');
-        n.circleEl.classList.remove('dim');
-        n.labelEl.classList.add('selected');
-        n.labelEl.classList.remove('dim');
-      } else if (adj.has(n.id)) {
-        n.circleEl.classList.remove('selected','dim');
-        n.labelEl.classList.remove('selected','dim');
-      } else {
-        n.circleEl.classList.remove('selected');
-        n.circleEl.classList.add('dim');
-        n.labelEl.classList.remove('selected');
-        n.labelEl.classList.add('dim');
-      }
-    });
-    EDGES.forEach(e => {
-      if (e.source.id === id || e.target.id === id) e.el.classList.remove('dim');
-      else e.el.classList.add('dim');
-    });
+    // tiny jitter so overlapping single-axis nodes spread
+    const jitter = (idx * 17) % 11 - 5;
+    px += jitter * 0.6;
+    py += jitter * 0.6;
 
-    // Detail card
-    document.getElementById('d-name').textContent = node.label;
-    const axesEl = document.getElementById('d-axes');
-    axesEl.innerHTML = node.axes.map(a => `<span style="background:${AXIS_COLOR[a]}22;color:${AXIS_COLOR[a]};border:1px solid ${AXIS_COLOR[a]}44">${AXIS_NAME[a]}</span>`).join('');
-    document.getElementById('d-conn').textContent = adj.size;
-    document.getElementById('d-depth').textContent = node.depth;
-    document.getElementById('d-journal').textContent = node.journal_hits || '—';
-    document.getElementById('detailCard').classList.add('show');
+    const radius = 4 + d.dims.length * 1.4;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', px.toFixed(1));
+    c.setAttribute('cy', py.toFixed(1));
+    c.setAttribute('r', radius.toFixed(1));
+    c.setAttribute('class', 'domain-node');
+    c.setAttribute('data-domain', d.name);
+    c.setAttribute('data-x', px.toFixed(1));
+    c.setAttribute('data-y', py.toFixed(1));
+    // tooltip via title
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = d.name + ' — ' + d.dims.join(', ');
+    c.appendChild(title);
+    dlayer.appendChild(c);
 
-    // small activation pulse on the selected node
-    activateNode(id, 1.0);
-  }
-
-  function clearSelection() {
-    selectedId = null;
-    NODES.forEach(n => {
-      n.circleEl.classList.remove('selected','dim');
-      n.labelEl.classList.remove('selected','dim');
-    });
-    EDGES.forEach(e => e.el.classList.remove('dim'));
-    document.getElementById('detailCard').classList.remove('show');
-    applyAxisFilter();
-  }
-
-  /* axis filter */
-  document.querySelectorAll('.axis-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const ax = pill.dataset.axis;
-      if (activeAxis === ax) {
-        activeAxis = null;
-        document.querySelectorAll('.axis-pill').forEach(p => p.classList.remove('solo','dim'));
-      } else {
-        activeAxis = ax;
-        document.querySelectorAll('.axis-pill').forEach(p => {
-          p.classList.toggle('solo', p.dataset.axis === ax);
-          p.classList.toggle('dim',  p.dataset.axis !== ax);
-        });
-      }
-      applyAxisFilter();
-    });
+    // Label only the most-connected domains so we don't crowd
+    if (d.dims.length >= 4) {
+      const lab = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lab.setAttribute('x', (px + radius + 3).toFixed(1));
+      lab.setAttribute('y', (py + 3).toFixed(1));
+      lab.setAttribute('class', 'domain-label');
+      lab.textContent = d.name.replace(/_/g, ' ');
+      labels.appendChild(lab);
+    }
   });
 
-  function applyAxisFilter() {
-    if (!activeAxis) {
-      NODES.forEach(n => { n.circleEl.classList.remove('dim'); n.labelEl.classList.remove('dim'); });
-      EDGES.forEach(e => e.el.classList.remove('dim'));
-      return;
+  SCAFFOLD = grid;
+}
+
+function pulseDomain(name) {
+  const node = document.querySelector(`circle[data-domain="${name}"]`);
+  if (!node) return;
+  node.classList.remove('pulse');
+  // force reflow so animation restarts
+  void node.offsetWidth;
+  node.classList.add('pulse');
+}
+
+// ────────────────────────────────────────────────────────
+// Live polling
+// ────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch('/dashboard/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+
+    // gates
+    const lo = d.ledger?.by_overall || {};
+    bumpVal('gateCount-REJECT', lo.REJECT || 0);
+    bumpVal('gateCount-FLOOR',  Math.max(0, (lo.FLOOR || 0)));  // FLOOR rare; we only count REJECT/QUARANTINE
+    bumpVal('gateCount-QUARANTINE', lo.QUARANTINE || 0);
+    bumpVal('gateCount-PASS', lo.PASS || 0);
+
+    // bottom strip
+    bumpVal('sVisits',  d.visits?.today_total ?? 0);
+    bumpVal('sLedger',  d.ledger?.total_entries ?? 0);
+    bumpVal('sAlmanac', d.almanac?.total_entries ?? 0);
+    bumpVal('sContrib', d.community?.total_contributors ?? 0);
+  } catch (e) { /* swallow */ }
+}
+
+function bumpVal(id, n) {
+  const el = $(id);
+  if (!el) return;
+  const prev = parseInt(el.textContent.replace(/[^\d-]/g, ''), 10);
+  const num = parseInt(n, 10);
+  if (!isNaN(prev) && !isNaN(num) && num > prev) {
+    el.classList.add('bumped');
+    setTimeout(() => el.classList.remove('bumped'), 600);
+  }
+  if (id.startsWith('gate')) {
+    el.textContent = num;
+    if (!isNaN(prev) && num > prev) {
+      const gate = el.closest('.gate');
+      if (gate) {
+        gate.classList.add('flash');
+        setTimeout(() => gate.classList.remove('flash'), 800);
+      }
     }
-    NODES.forEach(n => {
-      const has = n.axes.includes(activeAxis);
-      n.circleEl.classList.toggle('dim', !has);
-      n.labelEl.classList.toggle('dim', !has);
+  } else {
+    el.textContent = num;
+  }
+}
+
+async function loadLedger() {
+  try {
+    const r = await fetch('/ledger?limit=10');
+    if (!r.ok) return;
+    const d = await r.json();
+    const entries = d.entries || [];
+    const list = $('chainList');
+    list.innerHTML = entries.map(e => {
+      const isNew = !LAST_LEDGER_SEQS.has(e.seq) && LAST_LEDGER_SEQS.size > 0;
+      const verdict = e.overall || 'PASS';
+      return `<div class="chain-link ${isNew ? 'new' : ''}">
+        <div class="seq">#${e.seq}</div>
+        <div class="domain">${escapeHtml(e.domain || 'unknown')}</div>
+        <div class="verdict ${verdict}">${verdict}</div>
+      </div>`;
+    }).join('') || '<div class="empty">no seals yet</div>';
+    LAST_LEDGER_SEQS = new Set(entries.map(e => e.seq));
+  } catch (e) {}
+}
+
+async function loadSwarm() {
+  try {
+    const r = await fetch('/swarm');
+    if (!r.ok) return;
+    const d = await r.json();
+    const list = $('workerList');
+    list.innerHTML = (d.swarm || []).map(w => {
+      // pull a meaningful "count" depending on worker type
+      let count = 0, label = '';
+      if (w.pairs_fired_total !== undefined) { count = w.pairs_fired_total; label = 'pairs'; }
+      else if (w.harvests_total !== undefined) { count = w.harvests_total; label = 'harvests'; }
+      else if (w.entries_reviewed !== undefined) { count = w.entries_reviewed; label = 'reviewed'; }
+      else if (w.tasks_completed !== undefined) { count = w.tasks_completed; label = 'tasks'; }
+      else if (w.candidates_total !== undefined) { count = w.candidates_total; label = 'candidates'; }
+      else if (w.patterns_total !== undefined) { count = w.patterns_total; label = 'patterns'; }
+      else if (w.tick_count !== undefined) { count = w.tick_count; label = 'ticks'; }
+
+      const prevCount = LAST_WORKER_TICKS[w.name];
+      const bumped = prevCount !== undefined && count > prevCount;
+      LAST_WORKER_TICKS[w.name] = count;
+
+      return `<div class="worker-row" title="${escapeHtml(w.role||'')}">
+        <span class="status-dot ${w.status === 'alive' ? 'alive' : 'cold'}"></span>
+        <div>
+          <div class="wname">${escapeHtml(w.name)}</div>
+          <div class="wrole">${escapeHtml(w.species || '')}</div>
+        </div>
+        <div class="wcount ${bumped ? 'bumped' : ''}">${count}</div>
+      </div>`;
+    }).join('') || '<div class="empty">no workers reporting</div>';
+  } catch (e) {}
+}
+
+async function loadActivity() {
+  try {
+    const [vRes, cRes] = await Promise.all([
+      fetch('/visits/recent?limit=20&days=1'),
+      fetch('/community/activity?limit=20'),
+    ]);
+    const visits = vRes.ok ? (await vRes.json()).entries || [] : [];
+    const comm   = cRes.ok ? (await cRes.json()).events  || [] : [];
+
+    // Extract verifier hits from visits and pulse the corresponding domain
+    visits.forEach(v => {
+      const m = (v.path||'').match(/^\/verify\/([a-z_]+)/);
+      if (m) {
+        const key = `verify:${m[1]}:${v.ts}`;
+        if (!LAST_ACT_KEYS.has(key)) pulseDomain(m[1]);
+      }
     });
-    EDGES.forEach(e => {
-      e.el.classList.toggle('dim', !e.axes.includes(activeAxis));
+
+    // Also pulse domains from polymathic_run events
+    comm.forEach(e => {
+      if (e.kind === 'polymathic_run' && Array.isArray(e.domains)) {
+        e.domains.forEach(d => pulseDomain(d));
+      }
     });
+
+    // Merge into a single feed, newest first
+    const merged = [];
+    visits.slice(0, 15).forEach(v => merged.push({
+      ts: v.ts,
+      ts_iso: v.ts_iso,
+      kind: 'visit',
+      data: v,
+    }));
+    comm.slice(0, 15).forEach(e => merged.push({
+      ts: e.ts,
+      ts_iso: e.ts_iso,
+      kind: e.kind,
+      data: e,
+    }));
+    merged.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    // Keep activity keys for diffing (per-second timestamp + path/handle is unique enough)
+    LAST_ACT_KEYS = new Set();
+    visits.forEach(v => LAST_ACT_KEYS.add(`verify:${(v.path||'').match(/\/verify\/([a-z_]+)/)?.[1] || ''}:${v.ts}`));
+
+    const feed = $('actFeed');
+    feed.innerHTML = merged.slice(0, 20).map(item => actRow(item)).join('') ||
+                     '<div class="empty">no events yet</div>';
+  } catch (e) {}
+}
+
+function fmtRelTime(ts) {
+  if (!ts) return '—';
+  const diff = Math.floor(Date.now()/1000) - ts;
+  if (diff < 5) return 'now';
+  if (diff < 60) return diff + 's';
+  if (diff < 3600) return Math.floor(diff/60) + 'm';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  return Math.floor(diff/86400) + 'd';
+}
+
+function actRow(item) {
+  const ts = fmtRelTime(item.ts);
+  const d = item.data || {};
+  let icon = '·', body = '';
+
+  if (item.kind === 'visit') {
+    const cls = d.ua_class || 'unknown';
+    const status = d.status || 0;
+    const pillCls = cls === 'scanner' ? 'scanner' : (status >= 400 ? 'bad' : 'ok');
+    icon = cls === 'agent' ? 'A' : cls === 'scanner' ? 'S' : 'H';
+    body = `<span class="mono">${escapeHtml(d.method||'')}</span> ${escapeHtml(d.path||'').slice(0, 50)} <span class="pill ${pillCls}">${cls} ${status}</span>`;
+  } else if (item.kind === 'register') {
+    icon = '+';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a> joined as ${escapeHtml(d.display_name || d.handle)}`;
+  } else if (item.kind === 'badge') {
+    icon = '★';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a> earned <span class="pill ok">${escapeHtml(d.badge_id)}</span>`;
+  } else if (item.kind === 'almanac_propose') {
+    icon = '✎';
+    const v = d.verdict || '?';
+    const cls = (v === 'CONCORDANT' || v === 'CONFIRMED') ? 'ok' : (v === 'DISCORDANT' || v === 'MISMATCH') ? 'bad' : '';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a> proposed <span class="mono">${escapeHtml(d.proposal_id||'?')}</span> <span class="pill ${cls}">${v}</span>`;
+  } else if (item.kind === 'polymathic_run') {
+    icon = 'P';
+    const v = d.verdict || '?';
+    const cls = v === 'CONCORDANT' ? 'ok' : v === 'DISCORDANT' ? 'bad' : '';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a> ran polymathic <span class="pill ${cls}">${v}</span>`;
+  } else if (item.kind === 'witness') {
+    icon = 'W';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a> witnessed <span class="mono">${escapeHtml(d.proposal_id||'?')}</span>`;
+  } else if (item.kind === 'proposal_accepted') {
+    icon = '✓';
+    body = `<a href="/contributor.html?h=${escapeHtml(d.handle)}">@${escapeHtml(d.handle)}</a>'s proposal <span class="pill ok">accepted</span>`;
+  } else {
+    body = `<span class="mono">${escapeHtml(item.kind)}</span>`;
   }
 
-  /* SVG background click clears selection */
-  svg.addEventListener('click', e => {
-    if (e.target === svg) clearSelection();
-  });
+  return `<div class="act-row">
+    <div class="act-icon">${icon}</div>
+    <div class="act-body">${body}</div>
+    <div class="ts">${ts}</div>
+  </div>`;
+}
 
-  /* search */
-  document.getElementById('search').addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase().replace(/\s+/g,'_');
-    if (!q) { clearSelection(); return; }
-    NODES.forEach(n => {
-      const match = n.id.includes(q) || n.label.includes(q);
-      n.circleEl.classList.toggle('dim', !match);
-      n.labelEl.classList.toggle('dim', !match);
-    });
-    EDGES.forEach(e2 => {
-      const sm = e2.source.id.includes(q) || e2.source.label.includes(q);
-      const tm = e2.target.id.includes(q) || e2.target.label.includes(q);
-      e2.el.classList.toggle('dim', !(sm || tm));
-    });
-  });
-
-  /* ═══════════════════════════════════════════════════
-     ACTIVATIONS — packets fire nodes, ripple along edges
-  ═══════════════════════════════════════════════════ */
-  let activationCount = 0;
-  function activateNode(id, intensity = 1.0) {
-    const n = NODE_BY_ID[id];
-    if (!n) return;
-    n.activation = Math.max(n.activation, intensity);
-    n.journal_hits = (n.journal_hits || 0) + 1;
-    activationCount++;
-    document.getElementById('g-act').textContent = activationCount;
-
-    // ripple along edges with delay
-    const adjEdges = EDGES.filter(e => e.source.id === id || e.target.id === id);
-    adjEdges.forEach((e, i) => {
-      const other = e.source.id === id ? e.target : e.source;
-      setTimeout(() => spawnPulse(n, other, e), 80 + i * 30);
-    });
+// ────────────────────────────────────────────────────────
+// Boot
+// ────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const r = await fetch('/grid/scaffold');
+    const grid = await r.json();
+    buildScaffold(grid);
+  } catch (e) {
+    console.error('scaffold load failed:', e);
   }
+  loadStats();
+  loadLedger();
+  loadSwarm();
+  loadActivity();
 
-  function spawnPulse(from, to, edge) {
-    const ring = document.createElementNS(SVG_NS, 'circle');
-    ring.setAttribute('class', 'activation-ring');
-    ring.setAttribute('r', 4);
-    ring.setAttribute('cx', from.x);
-    ring.setAttribute('cy', from.y);
-    ring.setAttribute('stroke', AXIS_COLOR[edge.primary]);
-    ring.setAttribute('opacity', 0.9);
-    activationLayer.appendChild(ring);
+  setInterval(loadStats,    5000);
+  setInterval(loadLedger,   8000);
+  setInterval(loadSwarm,   10000);
+  setInterval(loadActivity, 6000);
+}
 
-    const start = performance.now();
-    const dur = 600 + Math.random() * 200;
-    function step(t) {
-      const u = Math.min(1, (t - start) / dur);
-      const x = from.x + (to.x - from.x) * u;
-      const y = from.y + (to.y - from.y) * u;
-      ring.setAttribute('cx', x);
-      ring.setAttribute('cy', y);
-      ring.setAttribute('opacity', 0.9 * (1 - u));
-      ring.setAttribute('r', 4 + u * 6);
-      if (u < 1) requestAnimationFrame(step);
-      else {
-        ring.remove();
-        // partial activation propagates to neighbor
-        to.activation = Math.max(to.activation, 0.5);
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
-  /* ═══════════════════════════════════════════════════
-     LIVE DATA — pull /journal/recent and /health
-  ═══════════════════════════════════════════════════ */
-  let lastJournal = 0;
-  let seenIds = new Set();
-
-  async function fetchJSON(path) {
-    const r = await fetch(API + path, { cache: 'no-store' });
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
-  }
-
-  async function refreshHealth() {
-    try {
-      const h = await fetchJSON('/health');
-      const j = h?.modules?.journal?.total_entries;
-      const k = h?.modules?.keeping?.total_observations;
-      if (j != null) {
-        document.getElementById('m-journal').textContent = j.toLocaleString();
-        document.getElementById('g-packets').textContent = j.toLocaleString();
-        if (lastJournal && j > lastJournal) {
-          // journal grew — fire ambient activations
-          const burst = Math.min(j - lastJournal, 4);
-          for (let i = 0; i < burst; i++) {
-            setTimeout(ambientActivate, i * 220);
-          }
-        }
-        lastJournal = j;
-      }
-      if (k != null) document.getElementById('g-keep').textContent = k.toLocaleString();
-      document.getElementById('liveDot').style.color = '';
-    } catch (_) {
-      // engine offline — keep ambient activations going so the brain still demos
-      const ld = document.getElementById('liveDot');
-      ld.style.color = 'var(--fail)';
-      ld.lastChild && (ld.lastChild.textContent = ' offline');
-    }
-  }
-
-  async function refreshRecent() {
-    try {
-      const data = await fetchJSON('/journal/recent?limit=12');
-      const entries = data.entries || data.items || data || [];
-      const list = document.getElementById('actList');
-      list.innerHTML = '';
-      let fired = 0;
-      for (const e of entries.slice(0, 12)) {
-        const dom = e.domain || (e.tags && e.tags[0]) || (e.metadata && e.metadata.domain) || 'mixed';
-        const text = (e.title || e.text || e.summary || '').slice(0, 80);
-        const ts = e.created_epoch || e.ts || e.timestamp;
-        const id = e.entry_id || e.id || (dom + ':' + ts);
-        const tags = e.tags || [];
-        const isHarvest = tags.includes('harvest') || tags.includes('searcher')
-          || tags.includes('seed') || tags.includes('generated');
-
-        const row = document.createElement('div');
-        row.className = 'act-row' + (isHarvest ? ' harvest' : '');
-        row.innerHTML = `
-          <span class="dom">${dom}</span>
-          <span class="text">${escapeHtml(text)}</span>
-          <span class="when">${ts ? relTime(ts) : ''}</span>
-        `;
-        list.appendChild(row);
-
-        // fire activation for newly-seen entries — harvests fly in,
-        // organic submissions just pulse the node
-        if (id && !seenIds.has(id) && fired < 6) {
-          seenIds.add(id);
-          if (NODE_BY_ID[dom]) {
-            if (isHarvest) {
-              setTimeout(() => spawnHummingbird(dom), fired * 240);
-            } else {
-              setTimeout(() => activateNode(dom, 1.0), fired * 180);
-            }
-            fired++;
-          }
-        }
-      }
-      if (entries.length === 0) {
-        list.innerHTML = '<div class="act-row"><span class="text" style="color:var(--muted)">No recent journal entries.</span></div>';
-      }
-    } catch (err) {
-      // silently keep ambient brain alive
-    }
-  }
-
-  function ambientActivate() {
-    // pick a random node, weighted slightly toward hubs
-    const r = Math.random();
-    const pick = r < 0.4
-      ? hubs[Math.floor(Math.random() * hubs.length)]
-      : NODES[Math.floor(Math.random() * NODES.length)];
-    activateNode(pick.id, 0.6 + Math.random() * 0.4);
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  }
-  function relTime(ts) {
-    if (typeof ts !== 'number') ts = parseInt(ts, 10);
-    if (!ts || isNaN(ts)) return '';
-    const d = Date.now()/1000 - ts;
-    if (d < 60)    return Math.floor(d) + 's';
-    if (d < 3600)  return Math.floor(d/60) + 'm';
-    if (d < 86400) return Math.floor(d/3600) + 'h';
-    return Math.floor(d/86400) + 'd';
-  }
-
-  /* ═══════════════════════════════════════════════════
-     SEARCHER HUMMINGBIRD — visual signature
-     A small gold particle flies in from outside the
-     viewport on a curved path, wing-flutters, lands on
-     the target domain node, triggers activation, fades.
-  ═══════════════════════════════════════════════════ */
-  function spawnHummingbird(targetId) {
-    const t = NODE_BY_ID[targetId];
-    if (!t) return;
-
-    const stage = svg.getBoundingClientRect();
-    const W2 = parseFloat(svg.getAttribute('viewBox').split(' ')[2]);
-    const H2 = parseFloat(svg.getAttribute('viewBox').split(' ')[3]);
-
-    // Pick an entry from a random side, then a curved path to target
-    const side = Math.floor(Math.random() * 4);
-    const start = (
-      side === 0 ? { x: -40, y: t.y + (Math.random()-0.5)*200 } :
-      side === 1 ? { x: W2 + 40, y: t.y + (Math.random()-0.5)*200 } :
-      side === 2 ? { x: t.x + (Math.random()-0.5)*200, y: -40 } :
-                   { x: t.x + (Math.random()-0.5)*200, y: H2 + 40 }
-    );
-
-    // Quadratic bezier control point — curved like a hummingbird approach
-    const ctrl = {
-      x: (start.x + t.x)/2 + (Math.random()-0.5) * 140,
-      y: (start.y + t.y)/2 + (Math.random()-0.5) * 140,
-    };
-
-    const bird = document.createElementNS(SVG_NS, 'circle');
-    bird.setAttribute('class', 'hummingbird');
-    bird.setAttribute('cx', start.x);
-    bird.setAttribute('cy', start.y);
-    bird.setAttribute('r', 3);
-    bird.setAttribute('fill', '#d4a872');
-    activationLayer.appendChild(bird);
-
-    const t0 = performance.now();
-    const dur = 1200 + Math.random() * 400;
-    function step(now) {
-      const u = Math.min(1, (now - t0) / dur);
-      const ux = 1 - u;
-      // quadratic bezier point
-      const x = ux*ux*start.x + 2*ux*u*ctrl.x + u*u*t.x;
-      const y = ux*ux*start.y + 2*ux*u*ctrl.y + u*u*t.y;
-      bird.setAttribute('cx', x);
-      bird.setAttribute('cy', y);
-      // wing flutter — small radius oscillation
-      bird.setAttribute('r', (2.5 + Math.sin(now * 0.05) * 0.7).toFixed(2));
-      if (u < 1) {
-        requestAnimationFrame(step);
-      } else {
-        // Drop the harvest — full activation + ripple
-        activateNode(targetId, 1.0);
-        bird.style.transition = 'opacity 280ms';
-        bird.style.opacity = '0';
-        setTimeout(() => bird.remove(), 320);
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
-  /* ═══════════════════════════════════════════════════
-     CONNECTOR HUMMINGBIRD — visual signature
-     A new shared-axis pair fires a glowing thread between
-     the two domain nodes, colored by the primary shared
-     axis. Thread fades over ~2.5s.
-  ═══════════════════════════════════════════════════ */
-  let lastConnectionTs = 0;
-  let connectorBootstrapped = false;
-
-  function drawConnectorThread(domA, domB, sharedAxesFull) {
-    const a = NODE_BY_ID[domA];
-    const b = NODE_BY_ID[domB];
-    if (!a || !b) return;
-    // Pick primary shared axis (use AXIS_PRIORITY)
-    const codes = (sharedAxesFull || []).map(x => AXIS_CODE_FROM_FULL[x] || x).filter(Boolean);
-    let primary = 'rsn';
-    for (const p of AXIS_PRIORITY) {
-      if (codes.includes(p)) { primary = p; break; }
-    }
-    const color = AXIS_COLOR[primary];
-
-    const line = document.createElementNS(SVG_NS, 'line');
-    line.setAttribute('class', 'connector-thread');
-    line.setAttribute('x1', a.x);
-    line.setAttribute('y1', a.y);
-    line.setAttribute('x2', b.x);
-    line.setAttribute('y2', b.y);
-    line.setAttribute('stroke', color);
-    line.setAttribute('opacity', 0);
-    line.style.filter = `drop-shadow(0 0 8px ${color})`;
-    activationLayer.appendChild(line);
-
-    // Endpoint dots
-    [a, b].forEach(n => activateNode(n.id, 0.85));
-
-    const start = performance.now();
-    const dur = 2500;
-    function step(t) {
-      const u = (t - start) / dur;
-      if (u >= 1) { line.remove(); return; }
-      // Update endpoints in case nodes moved during fade
-      line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
-      line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
-      // Quick rise to peak at u=0.2, then long fade
-      const peak = u < 0.2 ? u / 0.2 : 1 - (u - 0.2) / 0.8;
-      line.setAttribute('opacity', Math.max(0, peak * 0.85).toFixed(3));
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  async function refreshConnections() {
-    try {
-      const url = lastConnectionTs > 0
-        ? `/grid/connections?since=${lastConnectionTs}&limit=30`
-        : `/grid/connections?limit=8`;
-      const data = await fetchJSON(url);
-      const events = data.events || [];
-
-      if (!connectorBootstrapped && events.length > 0) {
-        // First load: don't blast all events at once; just set the cursor
-        lastConnectionTs = Math.max(...events.map(e => e.ts || 0));
-        connectorBootstrapped = true;
-        return;
-      }
-
-      // Sort by ts ascending so threads fire in chronological order
-      events.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-      events.forEach((ev, i) => {
-        if (!ev.ts || ev.ts <= lastConnectionTs) return;
-        setTimeout(() => drawConnectorThread(ev.domain_a, ev.domain_b, ev.shared_axes), i * 250);
-        lastConnectionTs = Math.max(lastConnectionTs, ev.ts);
-      });
-    } catch (_) { /* offline ok */ }
-  }
-
-  /* ═══════════════════════════════════════════════════
-     SWARM PANEL — read /swarm and render roster
-  ═══════════════════════════════════════════════════ */
-  function metaForSpecies(sp) {
-    if (sp.name === 'connector' && sp.status === 'alive') {
-      return `<span class="swarm-meta">pairs <b>${sp.pairs_fired_total ?? 0}</b></span>`;
-    }
-    if (sp.name === 'trainer' && (sp.status === 'alive' || sp.status === 'cold')) {
-      const verdictColor = {
-        'healthy': 'var(--pass)',
-        'uneven':  'var(--hold)',
-        'thirsty': 'var(--fail)',
-        'idle':    'var(--muted)',
-        'degraded':'var(--fail)',
-      }[sp.swarm_health] || 'var(--text-dim)';
-      const v = sp.swarm_health || '—';
-      return `<span class="swarm-meta">verdict <b style="color:${verdictColor}">${v}</b></span>`;
-    }
-    if ((sp.name === 'searcher' || sp.name === 'searcher_loc')
-        && (sp.status === 'alive' || sp.status === 'warming' || sp.status === 'resting')) {
-      return `<span class="swarm-meta">harvested <b>${sp.harvests_total ?? 0}</b></span>`;
-    }
-    if (sp.name === 'janitor' && (sp.status === 'alive' || sp.status === 'warming')) {
-      const r = sp.entries_reviewed ?? 0;
-      const f = sp.entries_with_findings ?? 0;
-      return `<span class="swarm-meta">reviewed <b>${r.toLocaleString()}</b> · flagged <b style="color:${f > r * 0.3 ? 'var(--fail)' : 'var(--hold)'}">${f.toLocaleString()}</b></span>`;
-    }
-    if (sp.name === 'searcher_dispatch') {
-      const q = sp.queue_depth ?? 0;
-      const c = sp.tasks_completed ?? 0;
-      if (sp.status === 'busy') {
-        return `<span class="swarm-meta" style="color:var(--accent)">in flight · queue <b>${q}</b></span>`;
-      }
-      if (sp.status === 'alive' || sp.status === 'warming') {
-        return q > 0
-          ? `<span class="swarm-meta">queue <b>${q}</b> · done <b>${c}</b></span>`
-          : `<span class="swarm-meta">idle · done <b>${c}</b></span>`;
-      }
-    }
-    return `<span class="swarm-meta">${sp.status}</span>`;
-  }
-
-  async function refreshSwarm() {
-    try {
-      const data = await fetchJSON('/swarm');
-      const list = document.getElementById('swarmList');
-      list.innerHTML = '';
-      for (const sp of (data.swarm || [])) {
-        const row = document.createElement('div');
-        row.className = 'swarm-row';
-        row.innerHTML = `
-          <span class="swarm-name">
-            <span class="swarm-status ${sp.status}"></span>
-            ${escapeHtml(sp.species || sp.name)}
-          </span>
-          ${metaForSpecies(sp)}
-        `;
-        list.appendChild(row);
-      }
-    } catch (_) {}
-    // Connector last-find detail
-    try {
-      const c = await fetchJSON('/swarm/connector');
-      const last = c.last_pair_fired;
-      const wrap = document.getElementById('swarmLastPair');
-      if (last && last.domain_a && last.domain_b) {
-        wrap.style.display = '';
-        const ax = (last.shared_axes || []).map(a => AXIS_CODE_FROM_FULL[a] || a);
-        const colored = ax.map(c => `<span style="color:${AXIS_COLOR[c]||'var(--text-dim)'}">${AXIS_NAME[c]||c}</span>`).join(' · ');
-        document.getElementById('swarmLastPairText').innerHTML = `
-          <span style="color:var(--accent)">${last.domain_a.replace(/_/g,' ')}</span>
-          <span style="color:var(--muted);margin:0 5px">↔</span>
-          <span style="color:var(--accent)">${last.domain_b.replace(/_/g,' ')}</span>
-          <div style="margin-top:4px;font-size:10px">${colored}</div>
-          <div style="margin-top:3px;color:var(--muted);font-size:9.5px">${relTime(last.ts)} ago</div>
-        `;
-      }
-    } catch (_) {}
-    // Searcher · Scripture last harvest detail
-    try {
-      const s = await fetchJSON('/swarm/searcher');
-      const last = s.last_harvest;
-      if (last && last.ref) {
-        const wrap = document.getElementById('swarmSearcher');
-        wrap.style.display = '';
-        const text = (last.text_preview || '').replace(/[<>]/g, '');
-        document.getElementById('swarmSearcherText').innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">
-            <span style="color:var(--accent)">${escapeHtml(last.ref)}</span>
-            <span style="color:var(--muted);font-size:9.5px">${last.ts ? relTime(last.ts) : ''} ago</span>
-          </div>
-          <div style="color:var(--text-dim);font-size:11px;font-style:italic;font-family:'Crimson Pro',serif;line-height:1.45">"${escapeHtml(text)}${(text.length>=80?'…':'')}"</div>
-          <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">cycle ${s.cycles_completed||0} · cursor ${s.cursor||0}/${s.anchor_list_size||50}</div>
-        `;
-      }
-    } catch (_) {}
-    // Searcher · Tasked (dispatcher) detail
-    try {
-      const d = await fetchJSON('/swarm/searcher/dispatch');
-      const stats = d.stats || {};
-      const recent = (d.recent || []).filter(r => r.result && r.result.status === 'ok').slice(0, 3);
-      // Show panel if there's any history OR an active queue/in-flight
-      if (stats.tasks_queued_total > 0 || (d.queue_depth || 0) > 0 || stats.current_task) {
-        const wrap = document.getElementById('swarmDispatch');
-        wrap.style.display = '';
-        let recentRows = '';
-        if (recent.length) {
-          recentRows = recent.map(r => {
-            const h = r.result.harvest || {};
-            const t = r.task || {};
-            return `<div style="padding:4px 0;border-top:1px solid var(--border);font-size:10.5px">
-              <div><span style="color:var(--accent)">${escapeHtml(h.domain || t.domain || '?').replace(/_/g,' ')}</span> <span style="color:var(--muted);font-size:9.5px">← ${escapeHtml(t.requested_by || 'unknown')}</span></div>
-              <div style="color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(h.title || '?')}</div>
-            </div>`;
-          }).join('');
-        }
-        const inflight = stats.current_task
-          ? `<div style="color:var(--accent);font-size:11px;margin-bottom:6px"><b>↗ in flight:</b> ${escapeHtml(stats.current_task.domain || '?').replace(/_/g,' ')}</div>`
-          : '';
-        document.getElementById('swarmDispatchText').innerHTML = `
-          ${inflight}
-          <div style="display:flex;gap:14px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;margin-bottom:4px">
-            <span>queue <b style="color:${(d.queue_depth>0)?'var(--accent)':'var(--text-dim)'}">${d.queue_depth || 0}</b></span>
-            <span>done <b style="color:var(--text-dim)">${stats.tasks_completed || 0}</b></span>
-            ${stats.tasks_failed ? `<span>fail <b style="color:var(--fail)">${stats.tasks_failed}</b></span>` : ''}
-          </div>
-          ${recentRows}
-        `;
-      }
-    } catch (_) {}
-    // Searcher · LoC last harvest detail
-    try {
-      const s = await fetchJSON('/swarm/searcher/loc');
-      const last = s.last_harvest;
-      if (last && last.title) {
-        const wrap = document.getElementById('swarmSearcherLoc');
-        wrap.style.display = '';
-        const subjects = (last.subjects || []).slice(0, 3).map(sub =>
-          `<span style="color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:9px;font-size:9.5px;display:inline-block;margin:1px 2px 1px 0">${escapeHtml(sub)}</span>`
-        ).join('');
-        document.getElementById('swarmSearcherLocText').innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:4px">
-            <span style="color:var(--accent);font-size:10.5px">${escapeHtml(last.domain || '?').replace(/_/g,' ')}</span>
-            <span style="color:var(--muted);font-size:9.5px">${last.ts ? relTime(last.ts) : ''} ago</span>
-          </div>
-          <div style="color:var(--text-dim);font-size:11px;line-height:1.4">${escapeHtml(last.title || '')}${last.date?` <span style="color:var(--muted)">(${escapeHtml(last.date)})</span>`:''}</div>
-          ${subjects ? `<div style="margin-top:5px">${subjects}</div>` : ''}
-          <div style="margin-top:5px;color:var(--muted);font-size:9.5px;font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">harvested ${s.harvests_total||0} · session-uniq ${s.harvested_count_session||0}</div>
-        `;
-      }
-    } catch (_) {}
-    // Janitor — trust-tier breakdown + top findings
-    try {
-      const j = await fetchJSON('/swarm/janitor');
-      if (j && (j.entries_reviewed || 0) > 0) {
-        const wrap = document.getElementById('swarmJanitor');
-        wrap.style.display = '';
-        const tiers = j.by_trust_tier || {};
-        const labels = {
-          '1': 'locked', '2': 'LoC', '3': 'curated', '4': 'organic', '5': 'LLM-synth'
-        };
-        const tierColors = {
-          '1': 'var(--pass)', '2': '#5b9bd5', '3': '#5ec4b4',
-          '4': 'var(--text-dim)', '5': 'var(--fail)',
-        };
-        const total = ['1','2','3','4','5'].reduce((s, k) => s + (tiers[k] || 0), 0) || 1;
-        const tierBars = ['1','2','3','4','5'].map(k => {
-          const v = tiers[k] || 0;
-          const pct = (v / total * 100).toFixed(1);
-          if (v === 0) return '';
-          return `<div style="display:flex;align-items:center;gap:6px;font-size:9.5px;font-family:'JetBrains Mono',monospace;margin-bottom:2px">
-            <span style="color:var(--muted);width:54px">T${k} ${labels[k]}</span>
-            <span style="flex:1;height:5px;background:var(--bg-2);border-radius:2px;overflow:hidden;position:relative;">
-              <span style="position:absolute;inset:0;width:${pct}%;background:${tierColors[k]};opacity:0.7"></span>
-            </span>
-            <span style="color:${tierColors[k]};width:48px;text-align:right">${v.toLocaleString()}</span>
-          </div>`;
-        }).join('');
-        const cats = Object.entries(j.by_category || {}).slice(0, 3);
-        const findingsLine = cats.length
-          ? `<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">findings: ${cats.map(([c, n]) => `<span style="color:var(--text-dim)">${c.toLowerCase().replace(/_/g,' ')}</span>&nbsp;<b style="color:var(--fail)">${n.toLocaleString()}</b>`).join(' · ')}</div>`
-          : '';
-        document.getElementById('swarmJanitorText').innerHTML = `
-          <div style="margin-bottom:6px;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.06em">
-            reviewed <b style="color:var(--text-dim)">${(j.entries_reviewed||0).toLocaleString()}</b> · ${j.full_scan_complete ? '<span style="color:var(--pass)">scan complete</span>' : 'scanning…'}
-          </div>
-          ${tierBars}
-          ${findingsLine}
-        `;
-      }
-    } catch (_) {}
-    // Trainer's starving-domain list + auto-dispatch state (closed loop)
-    try {
-      const t = await fetchJSON('/swarm/trainer');
-      const a = t.analysis || {};
-      const starving = a.domains_starving || [];
-      const highLlm = a.high_llm_domains || [];
-      const autoTotal = a.auto_dispatched_total || 0;
-      const autoTick = (a.auto_dispatched_this_tick || []).length;
-      const wrap = document.getElementById('swarmTrainer');
-      if (a.swarm_health) {
-        wrap.style.display = '';
-        const verdictColor = {
-          'healthy': 'var(--pass)', 'uneven': 'var(--hold)',
-          'thirsty': 'var(--fail)', 'idle': 'var(--muted)',
-          'degraded': 'var(--fail)',
-        }[a.swarm_health] || 'var(--text-dim)';
-
-        // Closed-loop indicator: Trainer → Tasked Searcher
-        const loopIndicator = autoTotal > 0
-          ? `<div style="margin-top:8px;padding:6px 8px;background:rgba(212,168,114,0.08);border:1px solid rgba(212,168,114,0.25);border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.04em">
-              <span style="color:var(--accent)">↻ closed loop</span>
-              · auto-dispatched <b style="color:var(--accent)">${autoTotal}</b>
-              ${autoTick > 0 ? ` <span style="color:var(--pass)">(+${autoTick} this tick)</span>` : ''}
-             </div>`
-          : '';
-
-        // High-LLM domains (Janitor-driven)
-        const llmList = highLlm.slice(0, 5).map(d =>
-          `<div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;padding:2px 0">
-            <span style="color:var(--text-dim);font-family:'JetBrains Mono',monospace">${d.domain.replace(/_/g,' ')}</span>
-            <span style="color:var(--fail);font-family:'JetBrains Mono',monospace;font-size:9.5px">${Math.round(d.llm_share*100)}% LLM (${d.total_seen})</span>
-          </div>`
-        ).join('');
-
-        const top = starving.slice(0, 6).map(d =>
-          `<span style="color:var(--text-dim);background:var(--surface-2);border:1px solid var(--border);padding:1px 6px;border-radius:9px;font-size:9.5px;display:inline-block;margin:1px 2px 1px 0">${d.replace(/_/g,' ')}</span>`
-        ).join('');
-        const more = starving.length > 6 ? `<span style="color:var(--muted);font-size:9.5px;margin-left:4px">+${starving.length - 6} more</span>` : '';
-
-        document.getElementById('swarmTrainerText').innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <span style="color:var(--muted);font-size:10px">verdict</span>
-            <b style="color:${verdictColor};font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em">${a.swarm_health}</b>
-          </div>
-          ${highLlm.length > 0 ? `<small style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase">flagged for replacement</small><div style="margin-top:4px;margin-bottom:6px">${llmList}</div>` : ''}
-          ${starving.length > 0 ? `<small style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase">starving — searcher priorities</small><div style="margin-top:4px">${top}${more}</div>` : ''}
-          ${loopIndicator}
-        `;
-      }
-    } catch (_) {}
-  }
-
-  /* boot */
-  refreshHealth();
-  refreshRecent();
-  refreshConnections();
-  refreshSwarm();
-  // initial activations so the brain is alive on load
-  setTimeout(() => activateNode('chemistry', 1.0), 800);
-  setTimeout(() => activateNode('mathematics', 1.0), 1400);
-  setTimeout(() => activateNode('biology', 1.0), 2000);
-  setTimeout(() => activateNode('scripture_anchors', 1.0), 2600);
-
-  setInterval(refreshHealth, 9000);
-  setInterval(refreshRecent, 13000);
-  setInterval(refreshConnections, 11000);
-  setInterval(refreshSwarm, 15000);
-  setInterval(ambientActivate, 2400);
+init();
 </script>
-
-<script src="/narrator.js"></script>
 </body>
 </html>
