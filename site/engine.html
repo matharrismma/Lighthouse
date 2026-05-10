@@ -609,17 +609,58 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// ── Color & axis config ───────────────────────────────────────────────
-const AXES = [
-  { id: 'encoding',             color: 0x5b9bd5, label: 'encoding' },
-  { id: 'metabolism',           color: 0x6ec98a, label: 'metabolism' },
-  { id: 'reasoning',            color: 0xd4c46a, label: 'reasoning' },
-  { id: 'physical_substance',   color: 0xd9945c, label: 'physical' },
-  { id: 'authority_trust',      color: 0xa87cd6, label: 'authority' },
-  { id: 'time_sequence',        color: 0x7fa8c0, label: 'time' },
-  { id: 'conservation_balance', color: 0x5ec4b4, label: 'conservation' },
-];
-const AXIS_BY_ID = Object.fromEntries(AXES.map(a => [a.id, a]));
+// ── Axis registry — N-axis-agnostic ──────────────────────────────────
+// Whatever shape gets uncovered, the chassis accepts it. AXES is built
+// from /grid/scaffold's dimensions array at boot, not hardcoded. Colors
+// are generated procedurally from an evenly-spaced HSL palette so axis
+// 8, 9, 12, 144 each get a distinct hue without manual assignment.
+//
+// Hand-curated colors are preserved for the original 7 axes (the
+// uncovered-so-far set) because their hues already match the rest of
+// the site styling; new axes get procedural colors that drift around
+// the rest of the wheel.
+const CURATED_COLORS = {
+  encoding:             0x5b9bd5,
+  metabolism:           0x6ec98a,
+  reasoning:            0xd4c46a,
+  physical_substance:   0xd9945c,
+  authority_trust:      0xa87cd6,
+  time_sequence:        0x7fa8c0,
+  conservation_balance: 0x5ec4b4,
+};
+
+function shortLabel(id) {
+  // 'physical_substance' -> 'physical', 'time_sequence' -> 'time'
+  // single-word names pass through unchanged
+  return id.split('_')[0];
+}
+
+function generateAxisColor(id, index, total) {
+  if (CURATED_COLORS[id] !== undefined) return CURATED_COLORS[id];
+  // Procedural HSL — golden-ratio hue spacing so adjacent indices land
+  // far apart on the wheel; soft saturation and mid lightness to match
+  // the curated palette's character.
+  const PHI = 0.6180339887;
+  const hue = ((index * PHI) % 1) * 360;
+  const sat = 0.45;
+  const light = 0.62;
+  return hslToHex(hue, sat, light);
+}
+
+function hslToHex(h, s, l) {
+  h /= 360;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => {
+    const k = (n + h * 12) % 12;
+    const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(c * 255);
+  };
+  return (f(0) << 16) | (f(8) << 8) | f(4);
+}
+
+// Populated from /grid/scaffold before scene build
+let AXES = [];
+let AXIS_BY_ID = {};
 
 // ── Three.js scene setup ──────────────────────────────────────────────
 const sceneEl = $('scene');
@@ -631,7 +672,7 @@ scene.background = null;
 scene.fog = new THREE.FogExp2(0x06050b, 0.0028);
 
 const camera = new THREE.PerspectiveCamera(55, W() / H(), 0.5, 5000);
-camera.position.set(0, 80, 380);
+camera.position.set(0, 100, 480);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(W(), H());
@@ -653,7 +694,7 @@ controls.rotateSpeed = 0.7;
 controls.zoomSpeed = 0.9;
 controls.panSpeed = 0.6;
 controls.minDistance = 90;
-controls.maxDistance = 1000;
+controls.maxDistance = 1400;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.18;
 controls.target.set(0, 0, 0);
@@ -667,50 +708,78 @@ let userInteracted = false;
   }, { once: true })
 );
 
-// ── Place 7 axis poles on a sphere via Fibonacci distribution ────────
-const POLE_R = 180;
+// ── Axis poles on a sphere via Fibonacci distribution ───────────────
+// Built after /grid/scaffold loads so AXES reflects whatever shape
+// the engine currently knows. N=7 today, could be N=anything tomorrow.
+const POLE_R = 240;
 const phi = Math.PI * (3 - Math.sqrt(5));
-AXES.forEach((a, i) => {
-  const yN = 1 - (i / (AXES.length - 1)) * 2;
-  const r = Math.sqrt(1 - yN * yN);
-  const theta = phi * i * 2.7;  // bigger spread
-  a.pos = new THREE.Vector3(
-    Math.cos(theta) * r * POLE_R,
-    yN * POLE_R,
-    Math.sin(theta) * r * POLE_R
-  );
 
-  // Pole sphere — large faint orb
-  const geo = new THREE.SphereGeometry(8, 24, 24);
-  const mat = new THREE.MeshBasicMaterial({
-    color: a.color,
-    transparent: true,
-    opacity: 0.18,
+function buildAxisPoles() {
+  // Adapt pole radius slightly for larger N — gives more room
+  // between adjacent poles as the sphere fills up
+  const n = AXES.length;
+  // Spread factor: more poles need wider spread on the sphere
+  // No change to POLE_R; the Fibonacci distribution handles spread.
+
+  AXES.forEach((a, i) => {
+    const yN = n > 1 ? 1 - (i / (n - 1)) * 2 : 0;
+    const r = Math.sqrt(Math.max(0, 1 - yN * yN));
+    const theta = phi * i * 2.7;
+    a.pos = new THREE.Vector3(
+      Math.cos(theta) * r * POLE_R,
+      yN * POLE_R,
+      Math.sin(theta) * r * POLE_R
+    );
+
+    // Pole sphere — large faint orb
+    const geo = new THREE.SphereGeometry(8, 24, 24);
+    const mat = new THREE.MeshBasicMaterial({
+      color: a.color,
+      transparent: true,
+      opacity: 0.18,
+    });
+    const m = new THREE.Mesh(geo, mat);
+    m.position.copy(a.pos);
+    m.userData = { type: 'axis', id: a.id };
+    scene.add(m);
+
+    // Halo sphere
+    const halo = new THREE.Mesh(
+      new THREE.SphereGeometry(14, 24, 24),
+      new THREE.MeshBasicMaterial({
+        color: a.color, transparent: true, opacity: 0.05,
+        side: THREE.BackSide,
+      })
+    );
+    halo.position.copy(a.pos);
+    scene.add(halo);
+
+    // HTML label that tracks the 3D position
+    const lab = document.createElement('div');
+    lab.className = 'axis-label';
+    lab.style.color = '#' + a.color.toString(16).padStart(6, '0');
+    lab.textContent = a.label;
+    document.body.appendChild(lab);
+    a.labelEl = lab;
   });
-  const m = new THREE.Mesh(geo, mat);
-  m.position.copy(a.pos);
-  m.userData = { type: 'axis', id: a.id };
-  scene.add(m);
+}
 
-  // Halo sphere
-  const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(14, 24, 24),
-    new THREE.MeshBasicMaterial({
-      color: a.color, transparent: true, opacity: 0.05,
-      side: THREE.BackSide,
-    })
-  );
-  halo.position.copy(a.pos);
-  scene.add(halo);
+function buildAxesFromScaffold(scaffold) {
+  // dimensions is an ordered array of axis ids
+  const dims = scaffold.dimensions || [];
+  AXES = dims.map((id, i) => ({
+    id,
+    color: generateAxisColor(id, i, dims.length),
+    label: shortLabel(id),
+  }));
+  AXIS_BY_ID = Object.fromEntries(AXES.map(a => [a.id, a]));
+}
 
-  // HTML label that tracks the 3D position
-  const lab = document.createElement('div');
-  lab.className = 'axis-label';
-  lab.style.color = '#' + a.color.toString(16).padStart(6, '0');
-  lab.textContent = a.label;
-  document.body.appendChild(lab);
-  a.labelEl = lab;
-});
+function renderLegend() {
+  // Today the user-facing axis legend is the 3D labels positioned around
+  // the scene by buildAxisPoles(). This hook is here so a future HTML
+  // legend (sidebar, overlay) can be added without changing init().
+}
 
 // ── Domain placement ──────────────────────────────────────────────────
 const ALIAS_DROP = new Set(['labour', 'economy', 'medical', 'mortgage']);
@@ -1148,7 +1217,14 @@ async function init() {
   try {
     const r = await fetch('/grid/scaffold');
     const grid = await r.json();
+    // 1. Build axes from whatever shape the engine reports (N-axis-agnostic)
+    buildAxesFromScaffold(grid);
+    // 2. Build axis poles + labels in 3D
+    buildAxisPoles();
+    // 3. Place domains relative to those poles
     buildDomains(grid);
+    // 4. Render the legend (HTML) for whatever axes were just built
+    renderLegend();
   } catch (e) {
     console.error('scaffold load failed:', e);
   }
