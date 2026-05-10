@@ -534,3 +534,10 @@ section:last-of-type { border-bottom: none; }
 .listen-btn .listen-label {
   font-weight: 500;
 }
+
+/* Home icon in nav — hover lifts the amber background */
+.nav-home:hover {
+  background: var(--accent) !important;
+  color: #1a1208 !important;
+  border-color: var(--accent) !important;
+}
