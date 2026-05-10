@@ -376,6 +376,207 @@ def visits_stats(days: int = 7):
     }
 
 
+# -- Community participation ----------------------------------------------
+# Contributors, badges, witness signals, activity feed. All read endpoints
+# unlimited; write endpoints rate-limited via the existing token bucket.
+from api import community as _community  # noqa: E402
+
+from pydantic import BaseModel as _CommBaseModel
+
+
+class _RegisterRequest(_CommBaseModel):
+    handle: str
+    display_name: str = ""
+    bio: str = ""
+    user_pubkey: str = ""
+
+
+class _WitnessRequest(_CommBaseModel):
+    witness_handle: str
+    proposal_id: str
+    proposal_author: str = ""
+    note: str = ""
+
+
+@app.post("/community/register", tags=["community"])
+def community_register(request: Request, req: _RegisterRequest):
+    """Register a contributor handle. Handles are public pseudonyms;
+    no password, no email required. The optional user_pubkey ties the
+    handle to an Ed25519 key for later signed contributions."""
+    _rate_check(request, "register")
+    handle = (req.handle or "").strip().lower()
+    ok, msg, record = _community.register_contributor(
+        handle=handle,
+        display_name=req.display_name,
+        bio=req.bio,
+        user_pubkey=req.user_pubkey,
+    )
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"ok": True, "contributor": _community.public_profile(record)}
+
+
+@app.get("/community/contributor/{handle}", tags=["community"])
+def community_contributor_profile(handle: str):
+    _safe_id(handle, "handle")
+    record = _community.load_contributor(handle.lower())
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"no contributor {handle!r}")
+    return _community.public_profile(record)
+
+
+@app.get("/community/contributors", tags=["community"])
+def community_contributors_leaderboard(
+    sort: str = Query("rank", description="rank | recent | witnesses | proposals | polymathic"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+):
+    """Leaderboard. Sorted by tier rank then badge count by default."""
+    if sort not in ("rank", "recent", "witnesses", "proposals", "polymathic"):
+        raise HTTPException(status_code=400, detail=f"unknown sort: {sort!r}")
+    rows = _community.list_contributors(sort=sort, limit=limit, offset=offset)
+    return {
+        "count": len(rows),
+        "total_contributors": _community.total_contributors(),
+        "sort": sort,
+        "contributors": rows,
+    }
+
+
+@app.get("/community/badges", tags=["community"])
+def community_badge_catalog():
+    """All badges and the tiers they unlock."""
+    return {
+        "tiers": _community.TIERS,
+        "badges": _community.BADGES,
+    }
+
+
+@app.get("/community/activity", tags=["community"])
+def community_activity_feed(
+    limit: int = Query(50, ge=1, le=500),
+    days: int = Query(7, ge=1, le=60),
+):
+    """Recent community activity events (newest first)."""
+    events = _community.read_activity(days=days, limit=limit)
+    return {"count": len(events), "days": days, "events": events}
+
+
+@app.post("/community/witness", tags=["community"])
+def community_witness_signal(request: Request, req: _WitnessRequest):
+    """Record a witness signal on a proposal. The witness must be a
+    registered contributor; their handle accumulates `witnesses_given`,
+    and (if the proposal_author is a registered handle) that author
+    accumulates `witnesses_received`."""
+    _rate_check(request, "witness_signal")
+    witness_handle = (req.witness_handle or "").strip().lower()
+    proposal_author = (req.proposal_author or "").strip().lower()
+    proposal_id = (req.proposal_id or "").strip()[:120]
+    if not proposal_id:
+        raise HTTPException(status_code=400, detail="proposal_id is required")
+    ok, msg = _community.record_witness(
+        witness_handle=witness_handle,
+        proposal_id=proposal_id,
+        proposal_author=proposal_author,
+        note=req.note,
+    )
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"ok": True}
+
+
+@app.get("/dashboard/stats", tags=["community"])
+def dashboard_stats():
+    """Single aggregated stats blob for the activity dashboard. Reads
+    visits, ledger summary, almanac entries, swarm status, contributors
+    in one call so the dashboard can render in a single round-trip."""
+    out: Dict[str, Any] = {
+        "now": int(time.time()),
+        "now_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+
+    # Visits (today + 7-day rollup)
+    try:
+        today_rows = _read_visits_for_days(days=1)
+        week_rows = _read_visits_for_days(days=7)
+        ext_today = sum(1 for r in today_rows
+                        if not (r.get("ip_prefix", "") or "").startswith(("127.", "0.0.0")))
+        out["visits"] = {
+            "today_total": len(today_rows),
+            "today_external": ext_today,
+            "week_total": len(week_rows),
+            "by_ua_class_week": _bucket(week_rows, "ua_class"),
+            "by_country_week_top": dict(sorted(
+                _bucket(week_rows, "country").items(),
+                key=lambda kv: kv[1], reverse=True
+            )[:8]),
+        }
+    except Exception as exc:
+        out["visits"] = {"error": str(exc)[:200]}
+
+    # Ledger summary
+    try:
+        led = get_ledger()
+        ent = list(led.iter_filtered(limit=10000))
+        by_overall: Dict[str, int] = {}
+        for e in ent:
+            v = e.get("overall", "?")
+            by_overall[v] = by_overall.get(v, 0) + 1
+        out["ledger"] = {
+            "total_entries": len(ent),
+            "by_overall": by_overall,
+            "latest_iso": ent[0].get("timestamp_iso", "") if ent else "",
+        }
+    except Exception as exc:
+        out["ledger"] = {"error": str(exc)[:200]}
+
+    # Almanac
+    try:
+        entries = _almanac_entries()
+        by_kind: Dict[str, int] = {}
+        by_verdict: Dict[str, int] = {}
+        for e in entries:
+            by_kind[e.get("kind", "?")] = by_kind.get(e.get("kind", "?"), 0) + 1
+            by_verdict[e.get("verdict", "?")] = by_verdict.get(e.get("verdict", "?"), 0) + 1
+        out["almanac"] = {
+            "total_entries": len(entries),
+            "by_kind": by_kind,
+            "by_verdict": by_verdict,
+        }
+    except Exception as exc:
+        out["almanac"] = {"error": str(exc)[:200]}
+
+    # Community
+    try:
+        out["community"] = {
+            "total_contributors": _community.total_contributors(),
+            "leaderboard_top5": _community.list_contributors(sort="rank", limit=5),
+            "recent_activity": _community.read_activity(days=7, limit=20),
+        }
+    except Exception as exc:
+        out["community"] = {"error": str(exc)[:200]}
+
+    # Swarm — small rollup, not the full status (dashboard polls /swarm directly for the rest)
+    try:
+        out["swarm"] = {
+            "synthesist_patterns": int(_synthesist_state.get("patterns_total", 0)) if "_synthesist_state" in globals() else 0,
+            "miner_candidates": int(_miner_stats().get("candidates_total", 0)) if "_miner_stats" in globals() else 0,
+        }
+    except Exception:
+        pass
+
+    return out
+
+
+def _bucket(rows: List[Dict[str, Any]], key: str) -> Dict[str, int]:
+    """Tiny aggregator helper for /dashboard/stats."""
+    out: Dict[str, int] = {}
+    for r in rows:
+        v = r.get(key) or "—"
+        out[v] = out.get(v, 0) + 1
+    return out
+
+
 @app.on_event("startup")
 def _startup():
     _start_retry(interval_seconds=30)
@@ -3914,6 +4115,10 @@ class PolymathicRequest(BaseModel):
     split_threshold: int = 5   # cluster when domain count exceeds this
     stop_on_discordant: bool = False  # early-exit on first DISCORDANT cluster
     store: bool = True
+    # Optional contributor handle. If supplied and the handle is registered,
+    # this run counts toward the contributor's polymathic stats and badges.
+    # Anonymous runs are still permitted; they just don't accumulate.
+    contributor_handle: str = ""
 
 
 @app.post("/polymathic", include_in_schema=True)
@@ -3993,6 +4198,21 @@ def polymathic_endpoint(request: Request, req: PolymathicRequest):
             d = sealed.to_dict()
         except Exception:
             pass  # store failure is non-fatal
+
+    # Community attribution — optional handle. Bumps polymathic_runs and,
+    # when the composite_verdict is CONCORDANT, polymathic_concordant.
+    handle = (req.contributor_handle or "").strip().lower()
+    if handle and _community.is_valid_handle(handle):
+        if _community.load_contributor(handle) is not None:
+            _community.bump_stat(handle, "polymathic_runs", 1)
+            if d.get("composite_verdict") == "CONCORDANT":
+                _community.bump_stat(handle, "polymathic_concordant", 1)
+            _community.log_activity({
+                "kind": "polymathic_run",
+                "handle": handle,
+                "verdict": d.get("composite_verdict", "?"),
+                "domains": [r.get("domain") for r in (d.get("domain_results") or []) if r.get("domain")][:8],
+            })
 
     return d
 
@@ -5773,6 +5993,9 @@ _RATE_LIMITS: Dict[str, tuple] = {
     "queue":     (30, 30.0 / 60),     # 30/min — offline queue submits
     "verify":    (60, 60.0 / 60),     # 60/min — generic verifier dispatch
     "ingest":    (10, 10.0 / 60),     # 10/min — drive ingest is expensive
+    # Community participation
+    "register":  (3,  3.0 / 60),      # 3/min — handle creation is cheap but spammable
+    "witness_signal": (10, 10.0 / 60),# 10/min — witness signal submissions
 }
 
 
@@ -6606,6 +6829,11 @@ class AlmanacProposeRequest(BaseModel):
     kind: str = "auto"           # "auto" | "saying" | "protocol"
     title: Optional[str] = None
     category: Optional[str] = None
+    # Optional contributor handle. If supplied and registered, the
+    # proposal is attributed to that handle and counts toward their
+    # contributor stats / badge progression. Anonymous proposals are
+    # still accepted; they just don't accumulate.
+    contributor_handle: str = ""
 
 
 @app.post("/almanac/propose", tags=["humans"])
@@ -6705,8 +6933,25 @@ def almanac_propose(request: Request, req: AlmanacProposeRequest):
             "without computed verdict."
         )
 
+    # Community attribution
+    handle = (req.contributor_handle or "").strip().lower()
+    attribution: Dict[str, Any] = {}
+    if handle and _community.is_valid_handle(handle):
+        if _community.load_contributor(handle) is not None:
+            _community.bump_stat(handle, "proposals_submitted", 1)
+            _community.log_activity({
+                "kind": "almanac_propose",
+                "handle": handle,
+                "proposal_id": draft["id"],
+                "kind_chosen": chosen_kind,
+                "verdict": draft.get("verdict", "?"),
+            })
+            draft["proposed_by"] = handle
+            attribution = {"contributor_handle": handle}
+
     return {
         "draft": draft,
+        "attribution": attribution,
         "instructions_for_curator": (
             "1. Review the draft. Check that the verdict the engine produced "
             "matches your intent.\n"
