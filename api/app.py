@@ -3990,6 +3990,72 @@ class AgentRequest(BaseModel):
     oracle_model: str = "claude-haiku-4-5-20251001"
 
 
+def _no_match_fallback(text: str, reason: str) -> Dict[str, Any]:
+    """Helpful structured response when /agent can't classify the input.
+
+    Cold LLM clients (ChatGPT Search, Grok, Perplexity) hitting the engine
+    for the first time often don't know what to send. Instead of returning
+    an opaque 'no rule matched', surface the engine's actual menu — which
+    domains exist, what shape /verify expects, and where to read the full
+    manifest. The agent can self-correct on the next request."""
+    try:
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+        verifiers = sorted(
+            t.replace("verify_", "") for t in ALL_TOOLS.keys()
+            if t.startswith("verify_")
+        )
+    except Exception:
+        verifiers = []
+    return {
+        "matched": False,
+        "text": text,
+        "reason": reason,
+        "next_steps": [
+            "Read https://narrowhighway.com/manifest for the full tool catalog "
+            "(76 tools including the verifiers below).",
+            "Read https://narrowhighway.com/llms.txt for end-to-end examples.",
+            "Call POST /verify with {tool: 'verify_<domain>', spec: {...}} "
+            "directly if you know the domain.",
+            "Or POST /polymathic with {situation: '<plain language>'} for "
+            "multi-domain synthesis with axis overlap.",
+        ],
+        "available_verifiers": verifiers,
+        "verifier_count": len(verifiers),
+        "examples": [
+            {
+                "domain": "physics",
+                "spec_shape": {
+                    "conservation": {
+                        "before": {"KE": 0, "PE": 25},
+                        "after": {"KE": 25, "PE": 0},
+                        "law": "energy",
+                    }
+                },
+            },
+            {
+                "domain": "statistics_pvalue",
+                "spec_shape": {
+                    "test": "paired_t",
+                    "n": 20,
+                    "mean_diff": 0.5,
+                    "sd_diff": 1.0,
+                    "tail": "two",
+                    "claimed_p": 0.0375,
+                },
+            },
+            {
+                "domain": "chemistry",
+                "spec_shape": {
+                    "claim": {
+                        "lhs": [["H2", 2], ["O2", 1]],
+                        "rhs": [["H2O", 2]],
+                    }
+                },
+            },
+        ],
+    }
+
+
 def _log_training(domain: str, text: str, spec: Dict[str, Any],
                   result: Any, source: str) -> None:
     """Append one training example to data/agent_training/{domain}.jsonl."""
@@ -4059,6 +4125,33 @@ def _call_oracle(text: str, model: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+@app.get("/agent", include_in_schema=True, tags=["agents"])
+def agent_endpoint_get(
+    request: Request,
+    text: str = Query(..., description="Natural-language situation or claim to verify."),
+    use_oracle: bool = Query(True, description="Fall through to AI extraction on rule miss."),
+    oracle_model: str = Query("claude-haiku-4-5-20251001", description="Oracle model name."),
+):
+    """GET-style natural-language verification dispatch.
+
+    For browse-only LLM clients — ChatGPT Search, Perplexity, Grok's web
+    fetch — that can pull a URL but can't easily POST JSON. Same engine
+    behavior as POST /agent: rule-based classification → optional oracle
+    extraction → deterministic verifier → corpus-first hit if previously
+    confirmed.
+
+    Examples:
+      /agent?text=A+2kg+object+at+5m/s+has+25J+kinetic+energy
+      /agent?text=The+balanced+equation+for+photosynthesis
+      /agent?text=Is+the+claimed+p-value+0.04+correct+for+n=20+t-test+with+mean+0.5+sd+1.0
+
+    Returns the verifier's structured result, or — on no-match — a
+    helpful pointer at /manifest plus a list of recognized domains so
+    the caller knows how to reformulate."""
+    req = AgentRequest(text=text, use_oracle=use_oracle, oracle_model=oracle_model)
+    return agent_endpoint(request, req)
+
+
 @app.post("/agent", include_in_schema=True)
 def agent_endpoint(request: Request, req: AgentRequest):
     """Natural language → domain classification → spec extraction → verifier.
@@ -4102,19 +4195,9 @@ def agent_endpoint(request: Request, req: AgentRequest):
             rule_id = f"oracle:{req.oracle_model}"
             source = "oracle"
         else:
-            return {
-                "matched": False,
-                "text": text,
-                "message": "No rule matched and oracle unavailable or failed.",
-                "hint": "Provide more structured input or configure ANTHROPIC_API_KEY.",
-            }
+            return _no_match_fallback(text, "oracle_unavailable")
     else:
-        return {
-            "matched": False,
-            "text": text,
-            "rule_coverage": "miss",
-            "message": "No rule matched. Set use_oracle=true to fall through to AI extraction.",
-        }
+        return _no_match_fallback(text, "rule_miss_no_oracle")
 
     tool_name = f"verify_{domain}"
     fn = ALL_TOOLS.get(tool_name)
@@ -5086,6 +5169,185 @@ def agent_manifest():
     load this manifest and immediately call the verifiers.
     """
     return _build_manifest()
+
+
+@app.get("/openapi-actions.json", include_in_schema=False)
+def openapi_actions_schema():
+    """Focused OpenAPI 3.1 schema for ChatGPT Custom GPT Actions.
+
+    The full FastAPI-generated /openapi.json has 60+ operations — too
+    many for a Custom GPT Action's 30-operation cap. This endpoint
+    returns a curated subset covering the eight tools an agent
+    operator actually needs: NL dispatch, direct verifier call,
+    polymathic synthesis, scaffold introspection, manifest read,
+    benchmark stats, almanac lookup, and ledger verify.
+
+    Paste the URL https://narrowhighway.com/openapi-actions.json into
+    the Custom GPT editor's Actions section and ChatGPT will load
+    the schema directly."""
+    return {
+        "openapi": "3.1.0",
+        "info": {
+            "title": "Concordance Engine",
+            "version": "1.0.0",
+            "description": (
+                "Deterministic verification engine. Submit natural-language "
+                "claims or structured packets through 48 domain verifiers "
+                "and 4 gates (RED, FLOOR, BROTHERS, GOD). Every result is "
+                "sealed to an HMAC-chained, tamper-evident ledger. The engine "
+                "never returns a final answer — it returns the elimination "
+                "trail and the closest verified precedent."
+            ),
+        },
+        "servers": [{"url": "https://narrowhighway.com"}],
+        "paths": {
+            "/agent": {
+                "get": {
+                    "operationId": "verifyClaimByText",
+                    "summary": "Natural-language verification dispatch.",
+                    "description": (
+                        "Pass any plain-English claim or situation. Engine "
+                        "classifies the domain, extracts the spec, runs the "
+                        "verifier, and returns the result. Use this when you "
+                        "don't know which specific verifier to call."
+                    ),
+                    "parameters": [
+                        {
+                            "name": "text",
+                            "in": "query",
+                            "required": True,
+                            "schema": {"type": "string"},
+                            "description": "The claim or situation in plain English.",
+                        }
+                    ],
+                    "responses": {"200": {"description": "Verifier result or no-match fallback with available verifiers."}},
+                }
+            },
+            "/verify": {
+                "post": {
+                    "operationId": "callVerifier",
+                    "summary": "Call a specific domain verifier directly.",
+                    "description": (
+                        "Use when you know exactly which verifier you want. "
+                        "Read /manifest first for the full tool list and "
+                        "spec shapes."
+                    ),
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["tool", "spec"],
+                                    "properties": {
+                                        "tool": {
+                                            "type": "string",
+                                            "description": "Verifier name like 'verify_physics' or 'verify_statistics_pvalue'.",
+                                        },
+                                        "spec": {
+                                            "type": "object",
+                                            "description": "Domain-specific input. See /manifest for shapes.",
+                                            "additionalProperties": True,
+                                        },
+                                    },
+                                }
+                            }
+                        },
+                    },
+                    "responses": {"200": {"description": "Verifier result."}},
+                }
+            },
+            "/polymathic": {
+                "post": {
+                    "operationId": "runPolymathic",
+                    "summary": "Multi-domain synthesis on one situation.",
+                    "description": (
+                        "Engine fans the situation across every applicable "
+                        "verifier, returns a composite verdict with axis "
+                        "overlaps showing which scaffold dimensions agreed."
+                    ),
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["situation"],
+                                    "properties": {
+                                        "situation": {
+                                            "type": "string",
+                                            "description": "Plain-English description of the situation.",
+                                        },
+                                        "max_domains": {
+                                            "type": "integer",
+                                            "default": 8,
+                                        },
+                                        "store": {
+                                            "type": "boolean",
+                                            "default": False,
+                                            "description": "Save to CAS for later sealing.",
+                                        },
+                                    },
+                                }
+                            }
+                        },
+                    },
+                    "responses": {"200": {"description": "PolymathicRecord with composite_verdict, domain_results, axis_overlaps."}},
+                }
+            },
+            "/manifest": {
+                "get": {
+                    "operationId": "listAllTools",
+                    "summary": "Full tool catalog for the engine.",
+                    "description": "Returns every verifier's name, description, and spec shape in OpenAI function-calling format.",
+                    "responses": {"200": {"description": "Tool list."}},
+                }
+            },
+            "/grid/scaffold": {
+                "get": {
+                    "operationId": "readScaffold",
+                    "summary": "The 7-axis dimensional scaffold.",
+                    "description": "Every domain mapped to which of the 7 scaffold dimensions it sits on. Use to understand structural neighbors of a domain.",
+                    "responses": {"200": {"description": "Scaffold structure."}},
+                }
+            },
+            "/grid/coherence": {
+                "get": {
+                    "operationId": "auditScaffold",
+                    "summary": "Engine self-audit. Structural anomalies as data.",
+                    "description": "Empty triples, alias clusters, umbrella conflicts, axis-weight imbalance. The engine surfacing what it knows about its own gaps.",
+                    "responses": {"200": {"description": "Audit report."}},
+                }
+            },
+            "/almanac": {
+                "get": {
+                    "operationId": "readAlmanac",
+                    "summary": "Curated wisdom + engine-discovered patterns.",
+                    "description": "The book of what the engine has worked through. Sayings, protocols, and patterns with their dry notes.",
+                    "parameters": [
+                        {"name": "kind", "in": "query", "required": False, "schema": {"type": "string"}, "description": "Filter by saying|protocol|pattern."},
+                    ],
+                    "responses": {"200": {"description": "Almanac entries."}},
+                }
+            },
+            "/benchmark": {
+                "get": {
+                    "operationId": "readBenchmark",
+                    "summary": "Latest benchmark results.",
+                    "description": "Per-domain accuracy and average response time across the 171-item benchmark.",
+                    "responses": {"200": {"description": "Benchmark summary."}},
+                }
+            },
+            "/ledger/verify": {
+                "get": {
+                    "operationId": "verifyLedgerChain",
+                    "summary": "HMAC chain integrity check.",
+                    "description": "Recomputes the ledger's HMAC chain from genesis. Returns ok=true if no tampering detected.",
+                    "responses": {"200": {"description": "Chain verification result."}},
+                }
+            },
+        },
+    }
 
 
 @app.post("/verify", tags=["agents"])
@@ -7042,6 +7304,132 @@ def almanac_propose(request: Request, req: AlmanacProposeRequest):
             "5. When ready, append the cleaned-up entry as one JSON line to "
             "data/almanac/entries.jsonl, and bounce the engine to load."
         ),
+    }
+
+
+@app.get("/grid/coherence", tags=["agents"])
+def grid_coherence():
+    """Engine self-audit. The scaffold's structural anomalies as data.
+
+    Computes — purely from the live grid — what the engine itself can
+    see about its own design quality. Output is the same regardless of
+    who's asking; the engine reports what is, not what it thinks.
+
+    Five categories of finding:
+
+    - axis_weights        per-axis domain count + light/heavy outliers
+    - alias_clusters       domains with identical axis sets (likely synonyms)
+    - umbrella_conflicts   sub_domain names whose prefix is also a canonical
+                           name (e.g. physics_dimensional vs physics)
+    - empty_triples        triples of axes with zero domains spanning all three
+    - sparse_triples       triples with exactly one or two domains spanning
+                           all three (single point of failure)
+
+    The engine doesn't decide what to do about any of these. It surfaces
+    them. The keeping is the substrate."""
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+    from itertools import combinations
+
+    axes = list(_grid.DIMENSIONS)
+    domains = {n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()}
+
+    # ── axis weights ──
+    per_axis: Dict[str, List[str]] = {a: [] for a in axes}
+    for n, dims in domains.items():
+        for d in dims:
+            if d in per_axis:
+                per_axis[d].append(n)
+    weights = {a: len(per_axis[a]) for a in axes}
+    avg_weight = sum(weights.values()) / max(1, len(axes))
+    light = sorted(
+        [(a, w) for a, w in weights.items() if w < avg_weight * 0.7],
+        key=lambda kv: kv[1],
+    )
+    heavy = sorted(
+        [(a, w) for a, w in weights.items() if w > avg_weight * 1.3],
+        key=lambda kv: -kv[1],
+    )
+
+    # ── alias clusters: same axis set, different names ──
+    by_signature: Dict[tuple, List[str]] = {}
+    for n, dims in domains.items():
+        sig = tuple(sorted(dims))
+        by_signature.setdefault(sig, []).append(n)
+    alias_clusters = sorted(
+        [
+            {"signature": list(sig), "names": sorted(names), "count": len(names)}
+            for sig, names in by_signature.items()
+            if len(names) > 1
+        ],
+        key=lambda c: -c["count"],
+    )
+
+    # ── umbrella conflicts: sub_domain whose prefix is also canonical ──
+    name_set = set(domains.keys())
+    umbrella_conflicts: List[Dict[str, Any]] = []
+    for n in domains:
+        if "_" in n:
+            prefix = n.split("_")[0]
+            if prefix in name_set and prefix != n:
+                umbrella_conflicts.append({
+                    "sub": n, "umbrella": prefix,
+                    "shared_axes": sorted(set(domains[n]) & set(domains[prefix])),
+                })
+    umbrella_conflicts.sort(key=lambda r: (r["umbrella"], r["sub"]))
+
+    # ── triple coverage ──
+    empty_triples: List[List[str]] = []
+    sparse_triples: List[Dict[str, Any]] = []
+    for combo in combinations(axes, 3):
+        covered = sorted([
+            n for n, dims in domains.items()
+            if set(combo).issubset(set(dims))
+        ])
+        if len(covered) == 0:
+            empty_triples.append(list(combo))
+        elif len(covered) <= 2:
+            sparse_triples.append({"triple": list(combo), "domains": covered})
+    sparse_triples.sort(key=lambda s: (len(s["domains"]), s["triple"]))
+
+    # ── coverage matrix (pair-level) ──
+    pair_coverage: Dict[str, Dict[str, int]] = {a: {} for a in axes}
+    for a in axes:
+        for b in axes:
+            if a == b:
+                pair_coverage[a][b] = weights[a]
+                continue
+            n = sum(1 for dims in domains.values() if a in dims and b in dims)
+            pair_coverage[a][b] = n
+
+    # ── depth distribution ──
+    depths: Dict[int, int] = {}
+    for dims in domains.values():
+        depths[len(dims)] = depths.get(len(dims), 0) + 1
+
+    return {
+        "summary": {
+            "domain_count": len(domains),
+            "axis_count": len(axes),
+            "average_axis_weight": round(avg_weight, 1),
+            "light_axes": [a for a, _ in light],
+            "heavy_axes": [a for a, _ in heavy],
+            "alias_cluster_count": len(alias_clusters),
+            "alias_total_redundant": sum(c["count"] - 1 for c in alias_clusters),
+            "umbrella_conflicts": len(umbrella_conflicts),
+            "empty_triples": len(empty_triples),
+            "sparse_triples": len(sparse_triples),
+            "depth_distribution": depths,
+        },
+        "axis_weights": weights,
+        "pair_coverage": pair_coverage,
+        "alias_clusters": alias_clusters,
+        "umbrella_conflicts": umbrella_conflicts,
+        "empty_triples": empty_triples,
+        "sparse_triples": sparse_triples,
     }
 
 
