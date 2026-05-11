@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact · Concordance Engine</title>
+  <meta name="description" content="Leave a message for the operator. No account needed. No tracking beyond what /visits already records (IP prefix, no full address).">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contact · Concordance Engine">
+  <meta property="og:description" content="Leave the operator a message.">
+  <meta property="og:url" content="https://narrowhighway.com/contact.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <meta property="og:site_name" content="Concordance Engine">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://narrowhighway.com/contact.html">
+
+  <style>
+    main.container.wide { max-width: 640px; }
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 24px;
+      margin: 14px 0 28px;
+    }
+    .field-row { margin-bottom: 14px; }
+    .field-row label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field-row label .opt { color: var(--muted-2); text-transform: lowercase; letter-spacing: 0.05em; font-weight: 400; }
+    input, textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea#message {
+      min-height: 140px;
+      resize: vertical;
+      font-family: 'Inter', sans-serif;
+    }
+    .footer-row {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px;
+      margin-top: 18px;
+    }
+    .footer-row .hint {
+      font-size: 12.5px; color: var(--muted-2);
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+    }
+    button.send-btn {
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 22px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.send-btn:hover:not(:disabled) { background: #f0b952; }
+    button.send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .feedback {
+      margin-top: 14px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .feedback.ok { background: rgba(94, 196, 180, 0.08); border: 1px solid rgba(94, 196, 180, 0.35); color: #b8eccd; }
+    .feedback.err { background: rgba(224, 124, 124, 0.08); border: 1px solid rgba(224, 124, 124, 0.35); color: #f7b9b3; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/run.html">Run</a>
+      <a href="/submit.html">Submit</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/canon.html">Canon</a>
+      <a href="/contact.html" class="active">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Reach out</div>
+    <h1>Leave a message.</h1>
+    <p style="max-width:60ch;font-family:'Crimson Pro',Georgia,serif;font-size:17px;line-height:1.6;color:var(--text);">
+      For questions, reports, corrections, or anything else for the operator.
+      No account needed. Replies come over whatever channel you provide
+      (or none, if you'd rather just leave a note).
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom: 80px;">
+
+  <section class="contact-card">
+    <form id="contactForm">
+
+      <div class="field-row">
+        <label for="name">Name <span class="opt">(optional)</span></label>
+        <input type="text" id="name" maxlength="120" autocomplete="name">
+      </div>
+
+      <div class="field-row">
+        <label for="email">Email <span class="opt">(optional — if you want a reply)</span></label>
+        <input type="email" id="email" maxlength="200" autocomplete="email">
+      </div>
+
+      <div class="field-row">
+        <label for="subject">Subject <span class="opt">(optional)</span></label>
+        <input type="text" id="subject" maxlength="200" placeholder="What this is about" autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <label for="message">Message</label>
+        <textarea id="message" required maxlength="5000" placeholder="Whatever you'd like the operator to know."></textarea>
+      </div>
+
+      <div class="footer-row">
+        <div class="hint">Privacy: we log IP prefix only (e.g. 74.0.0.0/8), never your full address.</div>
+        <button class="send-btn" id="sendBtn" type="submit">Send</button>
+      </div>
+
+      <div id="feedback"></div>
+    </form>
+  </section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+$('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = ($('message').value || '').trim();
+  if (!msg) { $('message').focus(); return; }
+
+  const btn = $('sendBtn');
+  const fb = $('feedback');
+  btn.disabled = true;
+  fb.innerHTML = '<div class="feedback ok">Sending…</div>';
+
+  try {
+    const r = await fetch('/contact', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        name: $('name').value,
+        email: $('email').value,
+        subject: $('subject').value,
+        message: msg,
+      }),
+    });
+    if (!r.ok) {
+      let detail = 'engine returned ' + r.status;
+      try { const d = await r.json(); detail = d.detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
+    const d = await r.json();
+    fb.innerHTML = `<div class="feedback ok">${d.message || 'Sent.'}</div>`;
+    $('message').value = '';
+    $('subject').value = '';
+  } catch (e) {
+    fb.innerHTML = `<div class="feedback err">Could not send: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

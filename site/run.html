@@ -757,12 +757,22 @@ window.copyPermalink = function() {
   });
 };
 
-// Initial: load permalink if ?h= is set
+// Initial: load permalink if ?h= is set, or prefill if requested (from inbox)
 (function init() {
   const params = new URLSearchParams(location.search);
   const h = params.get('h');
   if (h && /^[a-f0-9]{6,128}$/.test(h)) {
     loadFromPermalink(h);
+    return;
+  }
+  if (params.get('prefill') === '1') {
+    try {
+      const t = localStorage.getItem('concordance_prefill_text') || '';
+      if (t) {
+        textarea.value = t;
+        localStorage.removeItem('concordance_prefill_text');
+      }
+    } catch (e) {}
   }
 })();
 </script>

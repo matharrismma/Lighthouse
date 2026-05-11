@@ -29,6 +29,82 @@
     .filter-row {
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
     }
+
+    /* Alphabetical index — paper-almanac feel */
+    .az-index {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin: 18px 0 22px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      position: sticky;
+      top: 8px;
+      z-index: 5;
+      backdrop-filter: blur(8px);
+    }
+    .az-letter {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
+      min-width: 26px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+    .az-letter.has {
+      background: rgba(217, 168, 114, 0.10);
+      color: var(--accent);
+      border: 1px solid rgba(217, 168, 114, 0.25);
+    }
+    .az-letter.has:hover {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+    }
+    .az-letter.empty {
+      color: var(--muted-2);
+      opacity: 0.45;
+      cursor: default;
+      border: 1px solid transparent;
+    }
+    .az-letter .az-count {
+      font-size: 9.5px;
+      opacity: 0.7;
+      font-weight: 400;
+      margin-left: 1px;
+    }
+    .az-section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 32px 0 12px;
+      padding: 0 0 8px 0;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 80px;
+    }
+    .az-section-letter {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .az-section-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .az-section-count::before { content: '· '; }
+    .az-section-count::after { content: ' entries'; }
+
     .filter-row .filter-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10.5px; letter-spacing: 0.12em;
@@ -376,8 +452,11 @@
 
     <div class="almanac-count-line" id="almCountLine">Loading…</div>
 
+    <!-- A-Z index — alphabetical browsing, populated by render() -->
+    <nav class="az-index" id="azIndex" aria-label="Alphabetical index"></nav>
+
     <div class="almanac-list" id="almList">
-      <!-- entries rendered by JS -->
+      <!-- entries rendered by JS, grouped by first letter -->
     </div>
   </div>
 </section>
@@ -545,11 +624,49 @@
     if (!state.filtered.length) {
       list.innerHTML = '<div class="almanac-empty">No entries match. Try a broader search or reset the filters.</div>';
       countEl.textContent = `0 of ${state.entries.length} entries`;
+      const az = document.getElementById('azIndex');
+      if (az) az.innerHTML = '';
       return;
     }
-    list.innerHTML = state.filtered.map(renderEntry).join('');
+    // Group entries by first letter of title (or id if title missing) for
+    // the alphabetical structure. The Almanac becomes browseable A-Z,
+    // exactly like a paper almanac. New entries fall into their letter
+    // automatically; no manual ordering.
+    function firstLetter(e) {
+      const s = ((e.title || e.id || '') + '').trim().toUpperCase();
+      const ch = s.charAt(0);
+      if (ch && /[A-Z]/.test(ch)) return ch;
+      return '#';  // digits, punctuation, non-Latin → '#' bucket
+    }
+    const byLetter = {};
+    for (const e of state.filtered) {
+      const L = firstLetter(e);
+      (byLetter[L] = byLetter[L] || []).push(e);
+    }
+    const letters = Object.keys(byLetter).sort();
+    for (const L of letters) {
+      byLetter[L].sort((a, b) => (a.title || a.id || '').localeCompare(b.title || b.id || ''));
+    }
+    // A-Z index strip rendered above the list
+    const azEl = document.getElementById('azIndex');
+    if (azEl) {
+      const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+      azEl.innerHTML = allLetters.map(L => {
+        const has = byLetter[L];
+        return has
+          ? `<a href="#az-${L}" class="az-letter has">${L}<span class="az-count">${has.length}</span></a>`
+          : `<span class="az-letter empty">${L}</span>`;
+      }).join('') +
+      (byLetter['#'] ? `<a href="#az-num" class="az-letter has">#<span class="az-count">${byLetter['#'].length}</span></a>` : '');
+    }
+    // Render letter-sectioned list
+    list.innerHTML = letters.map(L => {
+      const id = L === '#' ? 'az-num' : 'az-' + L;
+      const heading = `<div class="az-section-header" id="${id}"><span class="az-section-letter">${L}</span><span class="az-section-count">${byLetter[L].length}</span></div>`;
+      return heading + byLetter[L].map(renderEntry).join('');
+    }).join('');
     countEl.textContent = state.filtered.length === state.entries.length
-      ? `${state.entries.length} entries`
+      ? `${state.entries.length} entries across ${letters.length} letters`
       : `${state.filtered.length} of ${state.entries.length} entries`;
   }
 

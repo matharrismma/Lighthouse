@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inbox · Concordance Engine</title>
+  <meta name="description" content="Operator-only mailbox + quarantine queue. Messages and submissions sit here until read or dismissed.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <meta name="robots" content="noindex,nofollow">
+
+  <style>
+    main.container.wide { max-width: 1100px; }
+
+    .key-card {
+      background: var(--surface);
+      border: 1px solid var(--accent-dim);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      margin-bottom: 22px;
+    }
+    .key-card input {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      flex: 1; min-width: 220px;
+    }
+    .key-card input:focus { outline: none; border-color: var(--accent); }
+    .key-card button {
+      background: var(--accent); color: #1a1208;
+      border: none; border-radius: 6px;
+      padding: 9px 16px;
+      font: 600 13px inherit;
+      cursor: pointer;
+    }
+    .key-card .row { display: flex; gap: 10px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .key-card #keyFeedback { margin-top: 8px; font-size: 12.5px; }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 760px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 18px;
+    }
+    .stat-tile .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .stat-tile .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px; font-weight: 600;
+      color: var(--text);
+      margin-top: 6px;
+    }
+    .stat-tile.unread .val { color: var(--accent); }
+
+    .tabs {
+      display: flex; gap: 8px;
+      margin-bottom: 18px;
+    }
+    .tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13.5px;
+      transition: all 0.15s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+    }
+    .tab .count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      margin-left: 6px;
+      opacity: 0.7;
+    }
+
+    .item-list { display: flex; flex-direction: column; gap: 10px; }
+    .item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 20px;
+      transition: opacity 0.2s, border-color 0.15s;
+    }
+    .item.unread { border-left: 3px solid var(--accent); }
+    .item.read    { border-left: 3px solid var(--muted-2); opacity: 0.8; }
+    .item.dismissed { opacity: 0.4; }
+
+    .item .meta {
+      display: flex; align-items: baseline; gap: 14px;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .item .meta .ts { color: var(--text-dim, #aaa3b6); }
+    .item .meta .source {
+      padding: 1px 8px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 3px;
+      color: var(--muted-2);
+      letter-spacing: 0.04em;
+    }
+    .item .from {
+      font-size: 14px; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .item .from .name { font-weight: 600; }
+    .item .from .email {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--accent);
+      margin-left: 8px;
+    }
+    .item .from .handle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--accent);
+    }
+    .item .subject {
+      font-family: 'Crimson Pro', serif;
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-style: italic;
+    }
+    .item .body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.02);
+      border-left: 2px solid var(--border);
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      margin-bottom: 10px;
+    }
+    .item .body.short { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; }
+    .item .url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .item .actions {
+      display: flex; gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .item .actions button {
+      background: transparent;
+      color: var(--muted-2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 12px;
+      font: 500 12px inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .item .actions button:hover { color: var(--text); border-color: var(--accent-dim); }
+    .item .actions button.primary {
+      background: rgba(217, 168, 114, 0.10);
+      color: var(--accent);
+      border-color: var(--accent-dim);
+    }
+
+    .empty-state {
+      padding: 50px 20px;
+      text-align: center;
+      color: var(--muted-2);
+      font-style: italic;
+      font-size: 14.5px;
+      font-family: 'Crimson Pro', serif;
+    }
+
+    .filter-bar {
+      display: flex; gap: 8px; align-items: center;
+      margin-bottom: 12px;
+      font-size: 12.5px;
+      color: var(--muted-2);
+    }
+    .filter-bar select {
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/dashboard.html">Activity</a>
+      <a href="/curate.html">Curate</a>
+      <a href="/inbox.html" class="active">Inbox</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Operator only</div>
+    <h1>Inbox</h1>
+    <p style="max-width:60ch;color:var(--muted-2);font-size:14.5px;line-height:1.55;">
+      Contact messages and quarantine submissions sit here until read or
+      dismissed. Read state persists per-id in <code>data/inbox/state.json</code>.
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom: 80px;">
+
+  <section class="key-card" id="keyCard">
+    <h3 style="margin: 0; font-size: 13px;">Operator key required</h3>
+    <p style="margin: 6px 0 0 0; color: var(--muted-2); font-size: 13px;">
+      Paste the engine API key. Stored in localStorage.
+    </p>
+    <div class="row">
+      <input type="password" id="apiKey" placeholder="X-API-Key" autocomplete="off" spellcheck="false">
+      <button id="saveKey">Unlock</button>
+    </div>
+    <div id="keyFeedback">&nbsp;</div>
+  </section>
+
+  <section id="inboxPanel" style="display:none;">
+
+    <div class="stats-strip">
+      <div class="stat-tile unread"><div class="lbl">Unread messages</div><div class="val" id="sMsgUnread">—</div></div>
+      <div class="stat-tile">       <div class="lbl">Total messages</div> <div class="val" id="sMsgTotal">—</div></div>
+      <div class="stat-tile unread"><div class="lbl">Unread quarantine</div><div class="val" id="sQUnread">—</div></div>
+      <div class="stat-tile">       <div class="lbl">Total quarantine</div> <div class="val" id="sQTotal">—</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="messages">Messages <span class="count" id="tabMsgCount">—</span></button>
+      <button class="tab" data-tab="quarantine">Quarantine <span class="count" id="tabQCount">—</span></button>
+      <button class="tab" data-tab="all">All</button>
+    </div>
+
+    <div class="filter-bar">
+      <label>Show:</label>
+      <select id="filterSel">
+        <option value="all">All</option>
+        <option value="unread" selected>Unread only</option>
+        <option value="read">Read only</option>
+        <option value="dismissed">Dismissed only</option>
+      </select>
+    </div>
+
+    <div class="item-list" id="itemList">
+      <div class="empty-state">Loading…</div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let API_KEY = '';
+let CURRENT_TAB = 'messages';
+let DATA = {messages: [], quarantine: []};
+
+try { API_KEY = localStorage.getItem('concordance_api_key') || ''; } catch (e) {}
+
+if (API_KEY) {
+  $('apiKey').value = API_KEY;
+  verifyAndLoad();
+}
+
+$('saveKey').addEventListener('click', () => {
+  const v = $('apiKey').value.trim();
+  if (!v) return;
+  API_KEY = v;
+  try { localStorage.setItem('concordance_api_key', v); } catch (e) {}
+  verifyAndLoad();
+});
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    CURRENT_TAB = t.dataset.tab;
+    render();
+  });
+});
+$('filterSel').addEventListener('change', render);
+
+async function verifyAndLoad() {
+  try {
+    const r = await fetch('/inbox?limit=200', { headers: {'X-API-Key': API_KEY} });
+    if (r.status === 401) {
+      $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">key rejected (401)</span>';
+      return;
+    }
+    if (!r.ok) {
+      $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">error: ' + r.status + '</span>';
+      return;
+    }
+    const d = await r.json();
+    $('keyFeedback').innerHTML = '<span style="color:#b8eccd">unlocked</span>';
+    $('keyCard').style.opacity = 0.55;
+    $('inboxPanel').style.display = 'block';
+    DATA = d;
+    $('sMsgUnread').textContent = d.unread_messages;
+    $('sMsgTotal').textContent  = d.total_messages;
+    $('sQUnread').textContent   = d.unread_quarantine;
+    $('sQTotal').textContent    = d.total_quarantine;
+    $('tabMsgCount').textContent = `(${d.total_messages})`;
+    $('tabQCount').textContent   = `(${d.total_quarantine})`;
+    render();
+  } catch (e) {
+    $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">network error: ' + e.message + '</span>';
+  }
+}
+
+function fmtTime(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+}
+
+function renderMessage(m) {
+  const stateClass = m.is_dismissed ? 'dismissed' : (m.is_read ? 'read' : 'unread');
+  const fromBits = [];
+  if (m.name) fromBits.push(`<span class="name">${esc(m.name)}</span>`);
+  if (m.email) fromBits.push(`<span class="email">&lt;${esc(m.email)}&gt;</span>`);
+  if (!fromBits.length) fromBits.push('<span class="name" style="color:var(--muted);">anonymous</span>');
+  const fromLine = fromBits.join(' ');
+  return `<div class="item ${stateClass}" id="item-${esc(m.id)}">
+    <div class="meta">
+      <span class="source">message</span>
+      <span class="ts">${esc(fmtTime(m.received_at_iso))}</span>
+      <span>${esc(m.ip_prefix||'')} ${esc(m.country||'')}</span>
+      <span style="font-family:'JetBrains Mono',monospace;">${esc(m.id)}</span>
+    </div>
+    <div class="from">${fromLine}</div>
+    ${m.subject ? `<div class="subject">${esc(m.subject)}</div>` : ''}
+    <div class="body">${esc(m.message)}</div>
+    <div class="actions">
+      ${m.is_read
+        ? `<button onclick="mark('${esc(m.id)}','unread')">Mark unread</button>`
+        : `<button class="primary" onclick="mark('${esc(m.id)}','read')">Mark read</button>`}
+      ${m.is_dismissed
+        ? `<button onclick="mark('${esc(m.id)}','unread')">Restore</button>`
+        : `<button onclick="mark('${esc(m.id)}','dismiss')">Dismiss</button>`}
+      ${m.email ? `<button onclick="replyTo('${esc(m.email)}','${esc(m.subject||'')}')">Reply via mail</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderQuarantine(q) {
+  const stateClass = q.is_dismissed ? 'dismissed' : (q.is_read ? 'read' : 'unread');
+  return `<div class="item ${stateClass}" id="item-${esc(q.id)}">
+    <div class="meta">
+      <span class="source">quarantine</span>
+      <span class="ts">${esc(fmtTime(q.submitted_at_iso))}</span>
+      <span>${esc(q.ip_prefix||'')} ${esc(q.country||'')}</span>
+      <span style="font-family:'JetBrains Mono',monospace;">${esc(q.id)}</span>
+    </div>
+    ${q.contributor_handle
+      ? `<div class="from"><span class="handle">@${esc(q.contributor_handle)}</span></div>`
+      : ''}
+    ${q.title ? `<div class="subject">${esc(q.title)}</div>` : ''}
+    <div class="body short">${esc(q.text)}</div>
+    ${q.url ? `<div class="url">${esc(q.url)}</div>` : ''}
+    <div class="actions">
+      ${q.is_read
+        ? `<button onclick="mark('${esc(q.id)}','unread')">Mark unread</button>`
+        : `<button class="primary" onclick="mark('${esc(q.id)}','read')">Mark read</button>`}
+      ${q.is_dismissed
+        ? `<button onclick="mark('${esc(q.id)}','unread')">Restore</button>`
+        : `<button onclick="mark('${esc(q.id)}','dismiss')">Dismiss</button>`}
+      <button onclick="runInEngine('${esc(q.id)}')">Run through engine →</button>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const list = $('itemList');
+  const filter = $('filterSel').value;
+  let items = [];
+  if (CURRENT_TAB === 'messages' || CURRENT_TAB === 'all') {
+    DATA.messages.forEach(m => items.push({...m, _type: 'message', _ts: m.received_at || 0}));
+  }
+  if (CURRENT_TAB === 'quarantine' || CURRENT_TAB === 'all') {
+    DATA.quarantine.forEach(q => items.push({...q, _type: 'quarantine', _ts: q.submitted_at || 0}));
+  }
+  items = items.filter(i => {
+    if (filter === 'all') return true;
+    if (filter === 'unread') return !i.is_read && !i.is_dismissed;
+    if (filter === 'read') return i.is_read && !i.is_dismissed;
+    if (filter === 'dismissed') return i.is_dismissed;
+    return true;
+  });
+  items.sort((a, b) => (b._ts || 0) - (a._ts || 0));
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state">Nothing here.</div>';
+    return;
+  }
+  list.innerHTML = items.map(i =>
+    i._type === 'message' ? renderMessage(i) : renderQuarantine(i)
+  ).join('');
+}
+
+window.mark = async function(id, action) {
+  try {
+    const r = await fetch('/inbox/mark', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({id, action}),
+    });
+    if (!r.ok) return;
+    // Update local cache and re-render
+    [...DATA.messages, ...DATA.quarantine].forEach(item => {
+      if (item.id !== id) return;
+      if (action === 'read') { item.is_read = true; item.is_dismissed = false; }
+      else if (action === 'dismiss') { item.is_dismissed = true; item.is_read = false; }
+      else if (action === 'unread') { item.is_read = false; item.is_dismissed = false; }
+    });
+    // Recompute unread counts
+    DATA.unread_messages = DATA.messages.filter(m => !m.is_read && !m.is_dismissed).length;
+    DATA.unread_quarantine = DATA.quarantine.filter(q => !q.is_read && !q.is_dismissed).length;
+    $('sMsgUnread').textContent = DATA.unread_messages;
+    $('sQUnread').textContent = DATA.unread_quarantine;
+    render();
+  } catch (e) {}
+};
+
+window.replyTo = function(email, subject) {
+  const subj = subject ? 'Re: ' + subject : 'Re: your message to Concordance';
+  window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subj)}`;
+};
+
+window.runInEngine = function(id) {
+  const q = DATA.quarantine.find(x => x.id === id);
+  if (!q) return;
+  // Push the text into /run.html with text encoded in localStorage
+  try { localStorage.setItem('concordance_prefill_text', q.text); } catch (e) {}
+  window.open('/run.html?prefill=1', '_blank');
+};
+</script>
+</body>
+</html>

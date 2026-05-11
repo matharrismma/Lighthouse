@@ -385,6 +385,227 @@ def visits_stats(days: int = 7):
     }
 
 
+# -- Quarantine intake + operator inbox -----------------------------------
+# Easy ingest surface — anyone can throw text/url/title at the engine; it
+# lands in a quarantine queue that the operator reviews. Same surface
+# accepts contact messages. Operator-only endpoints view the queue and
+# mark items read/dismissed.
+
+_QUARANTINE_DIR = Path(__file__).parent.parent / "data" / "quarantine"
+_INBOX_DIR     = Path(__file__).parent.parent / "data" / "inbox"
+_QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
+_INBOX_DIR.mkdir(parents=True, exist_ok=True)
+
+_QUARANTINE_FILE = _QUARANTINE_DIR / "queue.jsonl"
+_INBOX_FILE      = _INBOX_DIR / "messages.jsonl"
+_INBOX_STATE     = _INBOX_DIR / "state.json"
+
+import hashlib as _hashlib_qi
+
+
+def _short_hash(text: str) -> str:
+    return _hashlib_qi.sha256(text.encode("utf-8")).hexdigest()[:10]
+
+
+def _load_state() -> Dict[str, Any]:
+    try:
+        if _INBOX_STATE.exists():
+            return json.loads(_INBOX_STATE.read_text("utf-8"))
+    except Exception:
+        pass
+    return {"read_ids": [], "dismissed_ids": []}
+
+
+def _save_state(state: Dict[str, Any]) -> None:
+    try:
+        _INBOX_STATE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+class _QuarantineSubmit(BaseModel):
+    """Throw anything at the engine. Title optional; text required.
+    URL optional. Contributor handle optional. No email required."""
+    title: str = ""
+    text: str
+    url: str = ""
+    contributor_handle: str = ""
+
+
+class _ContactSubmit(BaseModel):
+    """Leave Matt a message. Email optional; message required."""
+    name: str = ""
+    email: str = ""
+    subject: str = ""
+    message: str
+
+
+@app.post("/quarantine/submit", tags=["quarantine"])
+def quarantine_submit(request: Request, req: _QuarantineSubmit):
+    """Public ingest. Anyone, no auth. Lands in quarantine for the
+    operator to decompose into provisional packets.
+
+    Per the engine's posture: everything new enters quarantine. The
+    keeping decides what survives."""
+    _rate_check(request, "propose")
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    if len(text) > 10000:
+        raise HTTPException(status_code=400, detail="text too long (max 10000 chars)")
+
+    ip = (request.headers.get("cf-connecting-ip")
+          or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+          or (request.client.host if request.client else ""))
+    now = int(time.time())
+    handle = (req.contributor_handle or "").strip().lower()
+    if handle and not _community.is_valid_handle(handle):
+        handle = ""
+
+    record = {
+        "id": "q-" + _short_hash(text + str(now)),
+        "submitted_at": now,
+        "submitted_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
+        "ip_prefix": _ip_prefix(ip),
+        "country": request.headers.get("cf-ipcountry", "")[:8],
+        "title": (req.title or "").strip()[:200],
+        "text": text,
+        "url": (req.url or "").strip()[:400],
+        "contributor_handle": handle,
+        "status": "new",
+        "polymathic_attempted": False,
+    }
+    try:
+        with open(_QUARANTINE_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"could not persist: {exc}")
+
+    return {
+        "ok": True,
+        "id": record["id"],
+        "message": "Thanks. It's in quarantine. The keeping decides what survives.",
+    }
+
+
+@app.post("/contact", tags=["quarantine"])
+def contact_submit(request: Request, req: _ContactSubmit):
+    """Leave Matt a message. Public, rate-limited."""
+    _rate_check(request, "propose")
+    msg = (req.message or "").strip()
+    if not msg:
+        raise HTTPException(status_code=400, detail="message is required")
+    if len(msg) > 5000:
+        raise HTTPException(status_code=400, detail="message too long (max 5000 chars)")
+
+    ip = (request.headers.get("cf-connecting-ip")
+          or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+          or (request.client.host if request.client else ""))
+    now = int(time.time())
+    record = {
+        "id": "msg-" + _short_hash(msg + str(now)),
+        "received_at": now,
+        "received_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
+        "name": (req.name or "").strip()[:120],
+        "email": (req.email or "").strip()[:200],
+        "subject": (req.subject or "").strip()[:200],
+        "message": msg,
+        "ip_prefix": _ip_prefix(ip),
+        "country": request.headers.get("cf-ipcountry", "")[:8],
+        "ua": request.headers.get("user-agent", "")[:240],
+    }
+    try:
+        with open(_INBOX_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"could not persist: {exc}")
+    return {"ok": True, "id": record["id"], "message": "Received. Thank you."}
+
+
+def _read_jsonl(path: Path, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    if not path.exists():
+        return out
+    try:
+        for line in path.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                out.append(json.loads(line))
+            except Exception:
+                continue
+    except Exception:
+        return out
+    out.sort(key=lambda r: r.get("submitted_at") or r.get("received_at") or 0, reverse=True)
+    if limit:
+        out = out[:limit]
+    return out
+
+
+@app.get("/inbox", tags=["quarantine"])
+def inbox_index(request: Request, limit: int = Query(100, ge=1, le=500)):
+    """Operator-only mailbox + quarantine queue.
+
+    Returns both contact messages and quarantine submissions, newest
+    first. Read/dismissed state is per-id in data/inbox/state.json."""
+    _community_require_api_key(request)
+    state = _load_state()
+    read = set(state.get("read_ids", []))
+    dismissed = set(state.get("dismissed_ids", []))
+    messages = _read_jsonl(_INBOX_FILE, limit=limit)
+    queue = _read_jsonl(_QUARANTINE_FILE, limit=limit)
+    for m in messages:
+        m["is_read"] = m.get("id") in read
+        m["is_dismissed"] = m.get("id") in dismissed
+    for q in queue:
+        q["is_read"] = q.get("id") in read
+        q["is_dismissed"] = q.get("id") in dismissed
+    unread_msgs = sum(1 for m in messages if not m["is_read"] and not m["is_dismissed"])
+    unread_q    = sum(1 for q in queue    if not q["is_read"] and not q["is_dismissed"])
+    return {
+        "unread_messages": unread_msgs,
+        "unread_quarantine": unread_q,
+        "total_messages": len(messages),
+        "total_quarantine": len(queue),
+        "messages": messages,
+        "quarantine": queue,
+    }
+
+
+class _InboxMark(BaseModel):
+    id: str
+    action: str  # "read" | "dismiss" | "unread"
+
+
+@app.post("/inbox/mark", tags=["quarantine"])
+def inbox_mark(request: Request, req: _InboxMark):
+    """Mark an inbox/quarantine item as read, dismissed, or restored to unread."""
+    _community_require_api_key(request)
+    item_id = (req.id or "").strip()
+    action = (req.action or "").strip().lower()
+    if not item_id:
+        raise HTTPException(status_code=400, detail="id required")
+    if action not in ("read", "dismiss", "unread"):
+        raise HTTPException(status_code=400, detail="action must be read|dismiss|unread")
+    state = _load_state()
+    read_ids = set(state.get("read_ids", []))
+    dismissed_ids = set(state.get("dismissed_ids", []))
+    if action == "read":
+        read_ids.add(item_id)
+        dismissed_ids.discard(item_id)
+    elif action == "dismiss":
+        dismissed_ids.add(item_id)
+        read_ids.discard(item_id)
+    elif action == "unread":
+        read_ids.discard(item_id)
+        dismissed_ids.discard(item_id)
+    state["read_ids"] = sorted(read_ids)
+    state["dismissed_ids"] = sorted(dismissed_ids)
+    _save_state(state)
+    return {"ok": True, "id": item_id, "action": action}
+
+
 # -- Community participation ----------------------------------------------
 # Contributors, badges, witness signals, activity feed. All read endpoints
 # unlimited; write endpoints rate-limited via the existing token bucket.
