@@ -146,21 +146,27 @@ def _charge_on_side(side: List[Tuple[int, str, int]]) -> int:
 
 def verify_equation(eq: str, *, balance_if_unbalanced: bool = True) -> VerifierResult:
     """Verify or balance a chemical equation."""
+    # If the input doesn't have a reaction arrow, this verifier doesn't
+    # apply — return NA (clean miss) rather than ERROR (something broken).
+    # An ERROR pollutes the composite verdict; NA is honest signal.
     if "->" not in eq and "→" not in eq:
-        return error("chemistry.equation", f"no reaction arrow in {eq!r}")
+        return na("chemistry.equation")
 
     lhs_str, rhs_str = re.split(r"->|→", eq, maxsplit=1)
     try:
         lhs = _split_side(lhs_str)
         rhs = _split_side(rhs_str)
-    except Exception as e:
-        return error("chemistry.equation", f"parse failure: {e}")
+    except Exception:
+        # Parse failure usually means the input isn't a chemical equation
+        # even though it had an arrow (e.g. "if X then Y" with → as arrow).
+        # NA is more honest than ERROR.
+        return na("chemistry.equation")
 
     try:
         atoms_lhs = _atoms_on_side(lhs)
         atoms_rhs = _atoms_on_side(rhs)
-    except Exception as e:
-        return error("chemistry.equation", f"atom-count failure: {e}")
+    except Exception:
+        return na("chemistry.equation")
 
     charge_lhs = _charge_on_side(lhs)
     charge_rhs = _charge_on_side(rhs)

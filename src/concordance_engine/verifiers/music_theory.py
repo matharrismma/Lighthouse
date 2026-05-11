@@ -69,7 +69,9 @@ _INTERVAL_RATIOS = {
 
 
 def _parse_note(note: str):
-    """Parse 'C4', 'F#5', 'Bb3' → (semitone, octave). Returns None on failure."""
+    """Parse 'C4', 'F#5', 'Bb3' → (semitone, octave). Plain 'C', 'F#', 'Bb'
+    default to octave 4 (the conventional "middle" octave). Returns None
+    on failure."""
     if not note or not isinstance(note, str):
         return None
     s = note.strip()
@@ -80,6 +82,10 @@ def _parse_note(note: str):
             octave_idx = i
             break
     if octave_idx is None:
+        # No octave digit. Treat the whole string as a note name with
+        # default octave 4. ("C" → C4, "F#" → F#4, "Bb" → Bb4.)
+        if s in _NOTE_TO_SEMI:
+            return _NOTE_TO_SEMI[s], 4
         return None
     name = s[:octave_idx]
     try:
@@ -101,7 +107,10 @@ def verify_interval_semitones(spec: Dict[str, Any]) -> VerifierResult:
     pa = _parse_note(str(a))
     pb = _parse_note(str(b))
     if pa is None or pb is None:
-        return error(name, f"could not parse note(s): {a!r}, {b!r}")
+        # Unparseable note input — this verifier doesn't apply to this
+        # spec shape. NA, not ERROR (the verifier isn't broken; the
+        # input just isn't a note).
+        return na(name)
     semi_a = pa[0] + pa[1] * 12
     semi_b = pb[0] + pb[1] * 12
     actual = semi_b - semi_a

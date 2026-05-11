@@ -63,8 +63,11 @@ def _project_path(poly_dict: Dict[str, Any], archetype_rec: Dict[str, Any]) -> D
     domain_results = (poly_dict or {}).get("domain_results") or []
     quarantined = (poly_dict or {}).get("quarantined_claims") or []
 
-    confirmed = [d for d in domain_results if (d or {}).get("verdict") == "CONCORDANT"]
-    mismatched = [d for d in domain_results if (d or {}).get("verdict") == "DISCORDANT"]
+    # Individual verifier results use CONFIRMED/MISMATCH/NOT_APPLICABLE/ERROR.
+    # The COMPOSITE verdict uses CONCORDANT/DISCORDANT/MIXED/OUT_OF_SCOPE/QUARANTINE.
+    # Worker stats below are about individual verifiers.
+    confirmed = [d for d in domain_results if (d or {}).get("verdict") == "CONFIRMED"]
+    mismatched = [d for d in domain_results if (d or {}).get("verdict") == "MISMATCH"]
 
     combo = (archetype_rec or {}).get("combination") or {}
     cands = (archetype_rec or {}).get("candidates") or []
