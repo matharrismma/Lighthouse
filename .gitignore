@@ -115,3 +115,7 @@ data/quarantine/
 # Full TSK corpus fetched by scripts/fetch_tsk.py (~10 MB, ~340K entries).
 # Operator-fetched; the seed at tsk_seed.jsonl is shipped and tracked.
 data/scripture/tsk_full.jsonl
+
+# Full USDA FoodData Central corpus fetched by scripts/fetch_usda.py
+# (~30 MB, ~7,800 foods). The seed at foods_seed.jsonl is shipped.
+data/nutrition/foods_full.jsonl

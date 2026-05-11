@@ -68,6 +68,7 @@ from ..verifiers import physical_constants as _physical_constants
 from ..verifiers import periodic_table as _periodic_table
 from ..verifiers import ephemeris as _ephemeris
 from ..verifiers import cross_references as _cross_references
+from ..verifiers import food_database as _food_database
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -572,6 +573,11 @@ def verify_ephemeris(spec):
 def verify_cross_references(spec):
     """Scripture cross-references from R.A. Torrey's Treasury of Scripture Knowledge (1880, public domain). Verifies typological, prophetic, and parallel-passage links between any two verses. Engine ships a high-weight seed (~190 entries); operator can run scripts/fetch_tsk.py to expand to the full ~340K corpus."""
     return {"checks": [_r(r) for r in _cross_references.run({"CROSSREF_VERIFY": spec or {}})]}
+
+
+def verify_food_database(spec):
+    """Nutritional facts (kcal, protein, carbs, fat, fiber) for common foods from USDA FoodData Central. Engine ships ~80 foods covering fruits/vegetables/grains/proteins/dairy/oils/beverages/sweets; operator can run scripts/fetch_usda.py to expand to the full SR Legacy corpus. Public domain (US gov)."""
+    return {"checks": [_r(r) for r in _food_database.run({"FOOD_VERIFY": spec or {}})]}
 
 
 def verify_quantum_computing(spec):
@@ -1540,6 +1546,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_periodic_table": verify_periodic_table,
     "verify_ephemeris": verify_ephemeris,
     "verify_cross_references": verify_cross_references,
+    "verify_food_database": verify_food_database,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

@@ -130,6 +130,12 @@ _HAND_CURATED: Dict[str, List[str]] = {
         # listing (informational)
         "list_for_ref", "list_limit",
     ],
+    "food_database": [
+        "food", "amount_g",
+        "claimed_kcal", "claimed_protein_g", "claimed_carbs_g",
+        "claimed_fat_g", "claimed_fiber_g",
+        "rel_tol",
+    ],
 }
 
 
