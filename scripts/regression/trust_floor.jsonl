@@ -93,3 +93,26 @@
 {"id":"tf-gap-everest","slice":"gap","domain":"none","claim":"Mount Everest is the tallest mountain on Earth.","expected":"OUT_OF_SCOPE","why":"geographic measurement claim — no math chain"}
 {"id":"tf-gap-mona-lisa","slice":"gap","domain":"none","claim":"The Mona Lisa was painted by Leonardo da Vinci.","expected":"OUT_OF_SCOPE","why":"historical attribution — no math chain"}
 {"id":"tf-gap-oscar","slice":"gap","domain":"none","claim":"Tom Hanks won an Oscar for Best Actor.","expected":"OUT_OF_SCOPE","why":"awards record — no math chain"}
+{"id":"tf-la-dot-truth","slice":"truth","domain":"linear_algebra","claim":"The dot product of vectors [1, 2, 3] and [4, 5, 6] is 32.","expected":"CONCORDANT","why":"1*4 + 2*5 + 3*6 = 4+10+18 = 32"}
+{"id":"tf-la-dot-lie","slice":"lie","domain":"linear_algebra","claim":"The dot product of vectors [1, 2, 3] and [4, 5, 6] is 100.","expected":"DISCORDANT","why":"actual 32"}
+{"id":"tf-la-mag-truth","slice":"truth","domain":"linear_algebra","claim":"The magnitude of the vector [3, 4] is 5.","expected":"CONCORDANT","why":"sqrt(9+16) = 5"}
+{"id":"tf-la-mag-lie","slice":"lie","domain":"linear_algebra","claim":"The magnitude of the vector [3, 4] is 7.","expected":"DISCORDANT","why":"actual 5"}
+{"id":"tf-la-cross-truth","slice":"truth","domain":"linear_algebra","claim":"The cross product of [1, 0, 0] and [0, 1, 0] is [0, 0, 1].","expected":"CONCORDANT","why":"i x j = k"}
+{"id":"tf-la-det-truth","slice":"truth","domain":"linear_algebra","claim":"The determinant of the matrix [[1, 2], [3, 4]] is -2.","expected":"CONCORDANT","why":"1*4 - 2*3 = -2"}
+{"id":"tf-la-det-lie","slice":"lie","domain":"linear_algebra","claim":"The determinant of the matrix [[1, 2], [3, 4]] is 10.","expected":"DISCORDANT","why":"actual -2"}
+{"id":"tf-la-trace-truth","slice":"truth","domain":"linear_algebra","claim":"The trace of the matrix [[1, 2], [3, 4]] is 5.","expected":"CONCORDANT","why":"1 + 4 = 5"}
+{"id":"tf-la-mult-truth","slice":"truth","domain":"linear_algebra","claim":"The product of matrices [[1, 2], [3, 4]] and [[5, 6], [7, 8]] is [[19, 22], [43, 50]].","expected":"CONCORDANT","why":"standard matrix multiplication"}
+{"id":"tf-la-eig-truth","slice":"truth","domain":"linear_algebra","claim":"The eigenvalues of the diagonal matrix [[2, 0], [0, 3]] are 2 and 3.","expected":"CONCORDANT","why":"diagonal entries"}
+{"id":"tf-la-inv-truth","slice":"truth","domain":"linear_algebra","claim":"The inverse of [[1, 2], [3, 4]] is [[-2, 1], [1.5, -0.5]].","expected":"CONCORDANT","why":"A * A^-1 = I"}
+{"id":"tf-pr-die-ev-truth","slice":"truth","domain":"probability","claim":"The expected value of a single roll of a fair six-sided die is 3.5.","expected":"CONCORDANT","why":"(1+2+3+4+5+6)/6 = 3.5"}
+{"id":"tf-pr-die-ev-lie","slice":"lie","domain":"probability","claim":"The expected value of a single roll of a fair six-sided die is 4.5.","expected":"DISCORDANT","why":"actual 3.5"}
+{"id":"tf-pr-die-var-truth","slice":"truth","domain":"probability","claim":"The variance of a single roll of a fair six-sided die is approximately 2.9167.","expected":"CONCORDANT","why":"35/12"}
+{"id":"tf-pr-binom-truth","slice":"truth","domain":"probability","claim":"The probability of getting exactly 5 heads in 10 fair coin flips is approximately 0.2461.","expected":"CONCORDANT","why":"C(10,5)*0.5^10 = 252/1024"}
+{"id":"tf-pr-binom-lie","slice":"lie","domain":"probability","claim":"The probability of getting exactly 5 heads in 10 fair coin flips is 0.5.","expected":"DISCORDANT","why":"actual ~0.2461"}
+{"id":"tf-pr-binom-mean-truth","slice":"truth","domain":"probability","claim":"The mean of a binomial distribution with n=100 and p=0.3 is 30.","expected":"CONCORDANT","why":"n*p"}
+{"id":"tf-pr-68-truth","slice":"truth","domain":"probability","claim":"Approximately 68.27 percent of a normal distribution lies within 1 standard deviation of the mean.","expected":"CONCORDANT","why":"erf(1/sqrt(2))"}
+{"id":"tf-pr-95-truth","slice":"truth","domain":"probability","claim":"Approximately 95.45 percent of a normal distribution lies within 2 standard deviations of the mean.","expected":"CONCORDANT","why":"erf(sqrt(2))"}
+{"id":"tf-pr-95-lie","slice":"lie","domain":"probability","claim":"Approximately 80 percent of a normal distribution lies within 2 standard deviations of the mean.","expected":"DISCORDANT","why":"actual ~95.45"}
+{"id":"tf-pr-poisson-truth","slice":"truth","domain":"probability","claim":"For a Poisson distribution with mean rate lambda=3, the probability of observing exactly k=2 events is approximately 0.224.","expected":"CONCORDANT","why":"e^-3 * 9/2"}
+{"id":"tf-pr-bayes-truth","slice":"truth","domain":"probability","claim":"Given P(A)=0.01, P(B|A)=0.99, and P(B|not A)=0.05, the posterior P(A|B) is approximately 0.1667.","expected":"CONCORDANT","why":"Bayes theorem"}
+{"id":"tf-pr-bayes-lie","slice":"lie","domain":"probability","claim":"Given P(A)=0.01, P(B|A)=0.99, and P(B|not A)=0.05, the posterior P(A|B) is approximately 0.99.","expected":"DISCORDANT","why":"actual ~0.1667 — common base-rate fallacy"}

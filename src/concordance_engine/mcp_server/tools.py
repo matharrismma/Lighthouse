@@ -68,6 +68,8 @@ from ..verifiers import physical_constants as _physical_constants
 from ..verifiers import periodic_table as _periodic_table
 from ..verifiers import ephemeris as _ephemeris
 from ..verifiers import layer_zero_grounding as _layer_zero_grounding
+from ..verifiers import linear_algebra as _linear_algebra
+from ..verifiers import probability as _probability
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -572,6 +574,16 @@ def verify_ephemeris(spec):
 def verify_layer_zero_grounding(spec):
     """Surface the WEB Bible (Layer 0) passages that anchor a Scripture-citing claim. Engine returns the actual text of cited verses; it does NOT interpret. CONFIRMED when one or more cited references resolve to real WEB passages; MISMATCH when any cited reference cannot be resolved (catches fabricated citations like 'Hezekiah 4:21'). Layer 0 is taken on faith; this verifier only surfaces."""
     return {"checks": [_r(r) for r in _layer_zero_grounding.run({"LAYER0_VERIFY": spec or {}})]}
+
+
+def verify_linear_algebra(spec):
+    """Vector and matrix operations computed via NumPy. Verifies claims about dot/cross products, vector magnitude, vector angle, matrix addition, matrix multiplication, determinant, trace, eigenvalues, matrix inverse (A·A⁻¹=I), and linear-system solutions (Ax=b). Pure math, no authority lookups — every CONFIRMED reproduces by hand."""
+    return {"checks": [_r(r) for r in _linear_algebra.run({"LIN_VERIFY": spec or {}})]}
+
+
+def verify_probability(spec):
+    """Probability and distribution claims. Verifies discrete expected value and variance, binomial probability and mean, normal CDF (via erf) and the 68-95-99.7 rule, Poisson probability, Bayes' theorem, conditional probability, and independence checks. All math is stdlib + erf — no authority lookups."""
+    return {"checks": [_r(r) for r in _probability.run({"PROB_VERIFY": spec or {}})]}
 
 
 def verify_quantum_computing(spec):
@@ -1519,6 +1531,8 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_periodic_table": verify_periodic_table,
     "verify_ephemeris": verify_ephemeris,
     "verify_layer_zero_grounding": verify_layer_zero_grounding,
+    "verify_linear_algebra": verify_linear_algebra,
+    "verify_probability": verify_probability,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

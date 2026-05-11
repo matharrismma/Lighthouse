@@ -153,6 +153,36 @@ _HAND_CURATED: Dict[str, List[str]] = {
     "layer_zero_grounding": [
         "claim", "refs",
     ],
+    "linear_algebra": [
+        # vector
+        "vec_a", "vec_b", "vec",
+        "claimed_dot_product", "claimed_cross_product",
+        "claimed_magnitude", "claimed_angle_deg",
+        # matrix
+        "mat_a", "mat_b", "matrix",
+        "claimed_matrix_sum", "claimed_matrix_product",
+        "claimed_determinant", "claimed_trace",
+        "claimed_eigenvalues", "claimed_inverse",
+        # linear system A x = b
+        "claimed_solution",
+    ],
+    "probability": [
+        # discrete
+        "outcomes", "probabilities",
+        "claimed_expected_value", "claimed_variance",
+        # binomial
+        "binomial_n", "binomial_p", "binomial_k",
+        "claimed_binomial_probability", "claimed_binomial_mean",
+        # normal
+        "normal_mu", "normal_sigma", "normal_x", "claimed_normal_cdf",
+        "k_std", "claimed_normal_within_std",
+        # Poisson
+        "poisson_lambda", "poisson_k", "claimed_poisson_probability",
+        # Bayes / conditional / independence
+        "p_a", "p_b", "p_a_and_b",
+        "p_b_given_a", "p_b_given_not_a",
+        "claimed_p_a_given_b", "claimed_independent",
+    ],
 }
 
 

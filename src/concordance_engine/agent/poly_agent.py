@@ -86,6 +86,8 @@ _ALL_DOMAINS = [
     "physical_constants", "periodic_table", "ephemeris",
     # Layer 0 — Scripture grounding (engine surfaces WEB text; does not interpret)
     "layer_zero_grounding",
+    # Deep math: linear algebra (vectors + matrices via NumPy) and probability
+    "linear_algebra", "probability",
 ]
 
 # Deduplicate while preserving order
@@ -305,14 +307,17 @@ def classify_claims(
     if not key or not claims:
         return []
 
-    # Combine the source text + the atomic claim — values present in
-    # either count as grounded. The atomic claim is part of the source
-    # if the decomposer was honest; the situation is part of the source
-    # if the decomposer rewrote the numbers.
+    # Ground ONLY against the original situation, never the atomic claim.
+    # The decomposer can silently rewrite numbers in the atomic claim
+    # (e.g. user says "area 24" but decomposer outputs "area 12" — the
+    # correct value). If we let the atomic claim count as source, the
+    # corrected value matches and the grounding guard never fires.
+    # The original situation is the user's literal text and is the only
+    # trustworthy floor for grounding.
     def _grounding_text(claim: str) -> str:
         if source_text:
-            return source_text + " || " + claim
-        return claim
+            return source_text
+        return claim  # fallback only when run_polymathic didn't thread situation
 
     def _one(claim: str) -> Optional[Dict[str, Any]]:
         parsed = _oracle_call(_CLASSIFY_SYSTEM, claim, model, key, max_tokens=256)
