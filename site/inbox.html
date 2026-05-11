@@ -471,14 +471,56 @@ function renderMessage(m) {
   </div>`;
 }
 
+function projectionHTML(p) {
+  if (!p) return '';
+  const v = p.composite_verdict || '?';
+  const vColor = ({
+    CONCORDANT:    '#b8eccd',
+    DISCORDANT:    '#f7b9b3',
+    MIXED:         '#e6d098',
+    OUT_OF_SCOPE:  'var(--muted-2)',
+    QUARANTINE:    '#f7b9b3',
+    ERROR:         '#f7b9b3',
+  })[v] || 'var(--muted-2)';
+  const overlaps = (p.axis_overlaps || []).join(' · ');
+  const a = p.archetype_combination;
+  const archLine = a && a.summary
+    ? `<div style="margin-top:6px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted-2);font-size:13px;">archetype: ${esc(a.summary)}${a.signature ? ` <span style="color:var(--accent);">— ${esc(a.signature)}</span>` : ''}</div>`
+    : '';
+  const closest = p.closest_precedent
+    ? `<div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">closest precedent: ${esc(p.closest_precedent.precedent_id || p.closest_precedent.id || JSON.stringify(p.closest_precedent).slice(0,80))}</div>`
+    : '';
+  const suggestion = p.suggestion
+    ? `<div style="margin-top:8px;font-family:'Crimson Pro',Georgia,serif;font-size:14px;color:var(--text);line-height:1.5;">${esc(p.suggestion)}</div>`
+    : '';
+  const polyErr = p.polymathic_error
+    ? `<div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#f7b9b3;">polymathic error: ${esc(p.polymathic_error)}</div>`
+    : '';
+  return `<div style="margin-top:10px;padding:12px 14px;background:rgba(217,168,114,0.05);border-left:2px solid var(--accent-dim);border-radius:0 6px 6px 0;">
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;">
+      <span>projection</span>
+      <span style="color:${vColor};letter-spacing:0.06em;">${esc(v)}</span>
+      <span style="text-transform:none;letter-spacing:0;color:var(--muted-2);">${p.domains_confirmed||0}/${p.domains_fired||0} confirmed${p.domains_mismatched ? ` · ${p.domains_mismatched} mismatched` : ''}${p.quarantined_claims ? ` · ${p.quarantined_claims} claim${p.quarantined_claims===1?'':'s'} quarantined` : ''}</span>
+    </div>
+    ${overlaps ? `<div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);">axes: ${esc(overlaps)}</div>` : ''}
+    ${archLine}
+    ${closest}
+    ${suggestion}
+    ${polyErr}
+  </div>`;
+}
+
 function renderIntake(q) {
   const stateClass = q.is_dismissed ? 'dismissed' : (q.is_read ? 'read' : 'unread');
+  const processed = !!q.polymathic_attempted;
+  const projection = projectionHTML(q.projection);
   return `<div class="item ${stateClass}" id="item-${esc(q.id)}">
     <div class="meta">
       <span class="source">intake</span>
       <span class="ts">${esc(fmtTime(q.submitted_at_iso))}</span>
       <span>${esc(q.ip_prefix||'')} ${esc(q.country||'')}</span>
       <span style="font-family:'JetBrains Mono',monospace;">${esc(q.id)}</span>
+      ${processed ? `<span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.12em;">projected</span>` : ''}
     </div>
     ${q.contributor_handle
       ? `<div class="from"><span class="handle">@${esc(q.contributor_handle)}</span></div>`
@@ -486,6 +528,7 @@ function renderIntake(q) {
     ${q.title ? `<div class="subject">${esc(q.title)}</div>` : ''}
     <div class="body short">${esc(q.text)}</div>
     ${q.url ? `<div class="url">${esc(q.url)}</div>` : ''}
+    ${projection}
     <div class="actions">
       ${q.is_read
         ? `<button onclick="mark('${esc(q.id)}','unread')">Mark unread</button>`
@@ -493,15 +536,16 @@ function renderIntake(q) {
       ${q.is_dismissed
         ? `<button onclick="mark('${esc(q.id)}','unread')">Restore</button>`
         : `<button onclick="mark('${esc(q.id)}','dismiss')">Hide</button>`}
-      <button onclick="runInEngine('${esc(q.id)}')">Run through engine →</button>
-      <button onclick="recognizeArchetype('${esc(q.id)}')">Recognize archetype</button>
+      <button onclick="projectOne('${esc(q.id)}')" title="Run polymathic + archetype, attach projected path">${processed ? 'Re-project' : 'Project path'}</button>
+      <button onclick="runInEngine('${esc(q.id)}')">Run in /run</button>
+      <button onclick="recognizeArchetype('${esc(q.id)}')">Archetypes →</button>
       <button onclick="flush('${esc(q.id)}')" title="Move to quarantine (trash)" style="border-color:rgba(224,124,124,0.35);color:#f7b9b3;">Flush →</button>
     </div>
   </div>`;
 }
 
 function renderFlushed(q) {
-  return `<div class="item dismissed" id="item-${esc(q.id)}">
+  return `<div class="item dismissed" id="item-${esc(q.id)}" style="opacity:0.85;">
     <div class="meta">
       <span class="source" style="color:#f7b9b3;">quarantine</span>
       <span class="ts">flushed ${esc(fmtTime(q.flushed_at_iso || q.submitted_at_iso))}</span>
@@ -509,6 +553,12 @@ function renderFlushed(q) {
     </div>
     ${q.title ? `<div class="subject">${esc(q.title)}</div>` : ''}
     <div class="body short">${esc(q.text)}</div>
+    <div class="actions" style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-right:6px;align-self:center;">airlock:</div>
+      <button onclick="airlock('${esc(q.id)}','restore')" title="The flush was wrong — back to intake" style="border-color:rgba(94,196,180,0.4);color:#b8eccd;">Restore →</button>
+      <button onclick="airlock('${esc(q.id)}','preserve')" title="Keep as a learning sample" style="border-color:rgba(217,168,114,0.4);color:var(--accent);">Preserve</button>
+      <button onclick="airlock('${esc(q.id)}','destroy')" title="Actually delete" style="border-color:rgba(224,124,124,0.4);color:#f7b9b3;">Destroy</button>
+    </div>
   </div>`;
 }
 
@@ -520,19 +570,34 @@ function render() {
   if (CURRENT_TAB === 'messages') {
     DATA.messages.forEach(m => items.push({...m, _type: 'message', _ts: m.received_at || 0}));
   } else if (CURRENT_TAB === 'intake') {
+    // Banner: project all pending
+    const pending = DATA.intake.filter(q => !q.polymathic_attempted).length;
+    const banner = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:14px 18px;background:rgba(217,168,114,0.05);border:1px solid rgba(217,168,114,0.25);border-radius:8px;">
+      <div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted-2);font-size:13.5px;">
+        ${pending} item${pending===1?'':'s'} awaiting projection. Worker fans each through polymathic + archetype and attaches the projected path.
+      </div>
+      <button onclick="projectAllPending()" ${pending===0?'disabled':''} style="background:${pending===0?'transparent':'rgba(217,168,114,0.15)'};color:var(--accent);border:1px solid var(--accent-dim);border-radius:6px;padding:6px 14px;font:500 13px inherit;cursor:${pending===0?'not-allowed':'pointer'};opacity:${pending===0?0.45:1};">Project all pending</button>
+    </div>`;
     DATA.intake.forEach(q => items.push({...q, _type: 'intake', _ts: q.submitted_at || 0}));
+    // Banner injected into the rendered HTML below; stash for use
+    list.dataset.banner = banner;
   } else if (CURRENT_TAB === 'quarantine') {
-    // Trash view — list with a Clean button at the top
+    // Trash view — each item gets airlock buttons. No bulk action.
+    // Quarantine is hazmat; nothing leaves except through the airlock.
     const flushed = DATA.quarantine_flushed || [];
     let html = '';
-    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:14px 18px;background:rgba(224,124,124,0.06);border:1px solid rgba(224,124,124,0.25);border-radius:8px;">
-      <div style="font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted-2);font-size:13.5px;">
-        ${flushed.length} item${flushed.length === 1 ? '' : 's'} flushed. Quarantine is the trash — empty it when you're ready.
+    html += `<div style="margin-bottom:12px;padding:14px 18px;background:rgba(224,124,124,0.06);border:1px solid rgba(224,124,124,0.25);border-radius:8px;">
+      <div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted-2);font-size:13.5px;line-height:1.5;">
+        Quarantine is hazmat. Sort inside the can — nothing leaves except
+        through the airlock. Each item gets a deliberate route:
+        <span style="color:#b8eccd;">Restore</span> (the flush was wrong),
+        <span style="color:var(--accent);">Preserve</span> (keep as a
+        learning sample), or <span style="color:#f7b9b3;">Destroy</span>
+        (actually delete).
       </div>
-      <button onclick="cleanQuarantine()" style="background:transparent;color:#f7b9b3;border:1px solid rgba(224,124,124,0.4);border-radius:6px;padding:6px 14px;font:500 13px inherit;cursor:pointer;">Clean quarantine</button>
     </div>`;
     if (!flushed.length) {
-      html += '<div class="empty-state">Trash is empty.</div>';
+      html += '<div class="empty-state">Quarantine is empty.</div>';
     } else {
       html += flushed.sort((a,b) => (b.flushed_at||b.submitted_at||0) - (a.flushed_at||a.submitted_at||0))
         .map(renderFlushed).join('');
@@ -550,11 +615,12 @@ function render() {
     return true;
   });
   items.sort((a, b) => (b._ts || 0) - (a._ts || 0));
+  const banner = CURRENT_TAB === 'intake' ? (list.dataset.banner || '') : '';
   if (!items.length) {
-    list.innerHTML = '<div class="empty-state">Nothing here.</div>';
+    list.innerHTML = banner + '<div class="empty-state">Nothing here.</div>';
     return;
   }
-  list.innerHTML = items.map(i =>
+  list.innerHTML = banner + items.map(i =>
     i._type === 'message' ? renderMessage(i) : renderIntake(i)
   ).join('');
 }
@@ -606,23 +672,94 @@ window.flush = async function(id) {
   } catch (e) {}
 };
 
-window.cleanQuarantine = async function() {
-  const n = DATA.quarantine_flushed.length;
-  if (!n) return;
-  if (!confirm(`Empty the quarantine? This will permanently remove ${n} item${n===1?'':'s'}.`)) return;
+window.airlock = async function(id, route) {
+  const verb = ({restore:'Restore to intake',preserve:'Preserve as sample',destroy:'PERMANENTLY DESTROY'})[route] || route;
+  const ask = route === 'destroy'
+    ? `Destroy item ${id}? This cannot be undone.`
+    : `${verb}: item ${id}?`;
+  if (!confirm(ask)) return;
   try {
-    const r = await fetch('/quarantine/clean', {
+    const r = await fetch('/quarantine/airlock', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
-      body: JSON.stringify({confirm: true}),
+      body: JSON.stringify({id, route}),
     });
-    if (!r.ok) return;
+    if (!r.ok) {
+      let msg = 'airlock failed: ' + r.status;
+      try { const d = await r.json(); msg = d.detail || msg; } catch (_) {}
+      alert(msg);
+      return;
+    }
     const d = await r.json();
-    DATA.quarantine_flushed = [];
-    $('sQTrash').textContent = '0';
-    $('tabQCount').textContent = `(0)`;
+    // Pop the item locally
+    const idx = DATA.quarantine_flushed.findIndex(q => q.id === id);
+    if (idx >= 0) {
+      const [item] = DATA.quarantine_flushed.splice(idx, 1);
+      if (route === 'restore') {
+        // Put it back at the front of intake
+        item.is_read = false;
+        item.is_dismissed = false;
+        item.polymathic_attempted = false;
+        DATA.intake.unshift(item);
+      }
+      // preserve and destroy: just drop it from quarantine view
+    }
+    $('sIUnread').textContent = DATA.intake.filter(q => !q.is_read && !q.is_dismissed).length;
+    $('sQTrash').textContent  = DATA.quarantine_flushed.length;
+    $('tabICount').textContent = `(${DATA.intake.length})`;
+    $('tabQCount').textContent = `(${DATA.quarantine_flushed.length})`;
     render();
   } catch (e) {}
+};
+
+window.projectOne = async function(id) {
+  const btn = event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Projecting…'; }
+  try {
+    const r = await fetch('/intake/process/' + encodeURIComponent(id), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({}),
+    });
+    if (!r.ok) {
+      let msg = 'project failed: ' + r.status;
+      try { const d = await r.json(); msg = d.detail || msg; } catch (_) {}
+      alert(msg);
+      return;
+    }
+    const d = await r.json();
+    const fresh = d.item;
+    if (fresh) {
+      const idx = DATA.intake.findIndex(q => q.id === id);
+      if (idx >= 0) DATA.intake[idx] = {...DATA.intake[idx], ...fresh};
+    }
+    render();
+  } catch (e) {
+    alert('network error: ' + e.message);
+  }
+};
+
+window.projectAllPending = async function() {
+  const pending = DATA.intake.filter(q => !q.polymathic_attempted).length;
+  if (!pending) return;
+  if (!confirm(`Project path for ${pending} pending item${pending===1?'':'s'}? This calls the polymathic agent for each.`)) return;
+  try {
+    const r = await fetch('/intake/process', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({max_items: Math.min(pending, 25), force: false}),
+    });
+    if (!r.ok) {
+      let msg = 'project-all failed: ' + r.status;
+      try { const d = await r.json(); msg = d.detail || msg; } catch (_) {}
+      alert(msg);
+      return;
+    }
+    // Refetch the inbox to get fresh projections
+    await verifyAndLoad();
+  } catch (e) {
+    alert('network error: ' + e.message);
+  }
 };
 
 window.replyTo = function(email, subject) {

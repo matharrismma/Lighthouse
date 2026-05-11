@@ -395,13 +395,16 @@ def visits_stats(days: int = 7):
 
 _INTAKE_DIR    = Path(__file__).parent.parent / "data" / "intake"
 _QUARANTINE_DIR = Path(__file__).parent.parent / "data" / "quarantine"
+_SAMPLES_DIR   = Path(__file__).parent.parent / "data" / "samples"
 _INBOX_DIR     = Path(__file__).parent.parent / "data" / "inbox"
 _INTAKE_DIR.mkdir(parents=True, exist_ok=True)
 _QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
+_SAMPLES_DIR.mkdir(parents=True, exist_ok=True)
 _INBOX_DIR.mkdir(parents=True, exist_ok=True)
 
-_INTAKE_FILE     = _INTAKE_DIR / "queue.jsonl"        # working queue
-_QUARANTINE_FILE = _QUARANTINE_DIR / "flushed.jsonl"  # trash (terminal)
+_INTAKE_FILE     = _INTAKE_DIR / "queue.jsonl"          # working queue
+_QUARANTINE_FILE = _QUARANTINE_DIR / "flushed.jsonl"    # holding hazmat — must be airlocked OUT
+_SAMPLES_FILE    = _SAMPLES_DIR / "preserved.jsonl"     # failures kept for learning
 _INBOX_FILE      = _INBOX_DIR / "messages.jsonl"
 _INBOX_STATE     = _INBOX_DIR / "state.json"
 
@@ -691,28 +694,13 @@ def intake_flush(request: Request, req: _IntakeFlush):
     return {"ok": True, "id": item_id, "action": "flushed"}
 
 
-class _QuarantineClean(BaseModel):
-    confirm: bool = False
-    only_older_than_days: int = 0  # 0 = clean everything
-
-
-@app.post("/quarantine/clean", tags=["intake"])
-def quarantine_clean(request: Request, req: _QuarantineClean):
-    """Empty the quarantine. Operator-only.
-
-    `confirm` must be True or this no-ops. Set `only_older_than_days`
-    to keep recent flushed items for review. Default 0 cleans all.
-    """
-    _community_require_api_key(request)
-    if not req.confirm:
-        raise HTTPException(status_code=400, detail="confirm must be true")
+def _pop_quarantine_item(item_id: str) -> Optional[Dict[str, Any]]:
+    """Remove one item from quarantine/flushed.jsonl and return it.
+    Returns None if not found. The caller decides where it goes next."""
     if not _QUARANTINE_FILE.exists():
-        return {"ok": True, "removed": 0, "remaining": 0}
-    cutoff = 0
-    if req.only_older_than_days and req.only_older_than_days > 0:
-        cutoff = int(time.time()) - (req.only_older_than_days * 86400)
-    removed = 0
-    remaining: List[str] = []
+        return None
+    kept: List[str] = []
+    popped: Optional[Dict[str, Any]] = None
     try:
         with _QUARANTINE_FILE.open("r", encoding="utf-8") as fh:
             for line in fh:
@@ -721,18 +709,180 @@ def quarantine_clean(request: Request, req: _QuarantineClean):
                 try:
                     rec = json.loads(line)
                 except Exception:
+                    kept.append(line.rstrip("\n"))
                     continue
-                ts = rec.get("flushed_at") or rec.get("submitted_at") or 0
-                if cutoff and ts > cutoff:
-                    remaining.append(json.dumps(rec, ensure_ascii=False))
+                if rec.get("id") == item_id and popped is None:
+                    popped = rec
                 else:
-                    removed += 1
-        with _QUARANTINE_FILE.open("w", encoding="utf-8") as fh:
-            for ln in remaining:
+                    kept.append(json.dumps(rec, ensure_ascii=False))
+    except Exception:
+        return None
+    if popped is None:
+        return None
+    try:
+        tmp = _QUARANTINE_FILE.with_suffix(".jsonl.tmp")
+        with tmp.open("w", encoding="utf-8") as fh:
+            for ln in kept:
                 fh.write(ln + "\n")
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"clean failed: {exc}")
-    return {"ok": True, "removed": removed, "remaining": len(remaining)}
+        tmp.replace(_QUARANTINE_FILE)
+    except Exception:
+        return None
+    return popped
+
+
+class _QuarantineAirlock(BaseModel):
+    """The airlock sorts quarantine into one of three outcomes.
+
+    route:
+      - restore  : back to intake (the flush was a mistake)
+      - preserve : to data/samples/preserved.jsonl (failures we want
+                   to learn from; not deleted)
+      - destroy  : actually removed (the real trash)
+    """
+    id: str
+    route: str  # "restore" | "preserve" | "destroy"
+    note: str = ""
+
+
+@app.post("/quarantine/airlock", tags=["intake"])
+def quarantine_airlock(request: Request, req: _QuarantineAirlock):
+    """Sort one quarantine item out through the airlock. Operator-only.
+
+    Quarantine is hazmat. Nothing leaves except through this airlock —
+    no bulk clean, no sweep. Each item gets a deliberate decision:
+    restore, preserve, or destroy.
+    """
+    _community_require_api_key(request)
+    item_id = (req.id or "").strip()
+    route = (req.route or "").strip().lower()
+    if not item_id:
+        raise HTTPException(status_code=400, detail="id required")
+    if route not in ("restore", "preserve", "destroy"):
+        raise HTTPException(status_code=400, detail="route must be restore|preserve|destroy")
+
+    item = _pop_quarantine_item(item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="quarantine item not found")
+
+    now = int(time.time())
+    now_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now))
+    note = (req.note or "").strip()[:500]
+
+    if route == "restore":
+        # Clear the flush metadata, put it back in intake as fresh.
+        item.pop("flushed_at", None)
+        item.pop("flushed_at_iso", None)
+        item["restored_at"] = now
+        item["restored_at_iso"] = now_iso
+        if note:
+            item["restore_note"] = note
+        # Reset processing flag so the worker can re-attempt
+        item["polymathic_attempted"] = False
+        try:
+            with _INTAKE_FILE.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+        except Exception as exc:
+            # On write failure, put it back in quarantine so it's not lost
+            try:
+                with _QUARANTINE_FILE.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
+            raise HTTPException(status_code=500, detail=f"restore failed: {exc}")
+        # Clear the flushed_ids state so the Console doesn't still mark it flushed
+        state = _load_state()
+        flushed_ids = set(state.get("flushed_ids", []))
+        flushed_ids.discard(item_id)
+        state["flushed_ids"] = sorted(flushed_ids)
+        _save_state(state)
+        return {"ok": True, "id": item_id, "route": "restore", "destination": "intake"}
+
+    if route == "preserve":
+        item["preserved_at"] = now
+        item["preserved_at_iso"] = now_iso
+        if note:
+            item["preserve_note"] = note
+        try:
+            with _SAMPLES_FILE.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+        except Exception as exc:
+            try:
+                with _QUARANTINE_FILE.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(item, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
+            raise HTTPException(status_code=500, detail=f"preserve failed: {exc}")
+        return {"ok": True, "id": item_id, "route": "preserve", "destination": "data/samples/preserved.jsonl"}
+
+    # destroy — item is already popped; just don't write it anywhere
+    return {"ok": True, "id": item_id, "route": "destroy", "destination": "deleted"}
+
+
+# -- Intake worker (provisional packet processor) ------------------------
+# Walks data/intake/queue.jsonl, fans each item through polymathic +
+# archetype recognition, attaches a projection (verdict + path) back
+# onto the item. Operator-triggered. Idempotent unless force=true.
+from api import intake_worker as _intake_worker  # noqa: E402
+
+
+class _IntakeProcess(BaseModel):
+    max_items: int = 10
+    force: bool = False
+    model: str = "claude-haiku-4-5-20251001"
+
+
+@app.post("/intake/process", tags=["intake"])
+def intake_process(request: Request, req: _IntakeProcess):
+    """Run the worker over pending intake items. Operator-only.
+
+    Each item gets a projection attached: composite verdict, axis
+    overlaps, closest precedent, archetype combination, suggested
+    path. The worker does not move items between lanes — the operator
+    decides what to do based on what surfaces.
+    """
+    _community_require_api_key(request)
+    max_n = max(1, min(50, int(req.max_items or 10)))
+    result = _intake_worker.process_pending(
+        max_items=max_n,
+        force=bool(req.force),
+        model=(req.model or "claude-haiku-4-5-20251001").strip(),
+    )
+    return {"ok": True, **result}
+
+
+class _IntakeProcessOne(BaseModel):
+    model: str = "claude-haiku-4-5-20251001"
+
+
+@app.post("/intake/process/{item_id}", tags=["intake"])
+def intake_process_one(request: Request, item_id: str, req: _IntakeProcessOne):
+    """Process a single intake item by id (re-runs even if previously
+    processed)."""
+    _community_require_api_key(request)
+    iid = _safe_id(item_id)
+    rec = _intake_worker.get_one(iid)
+    if not rec:
+        raise HTTPException(status_code=404, detail="intake item not found")
+    result = _intake_worker.process_pending(
+        max_items=1,
+        force=True,
+        only_id=iid,
+        model=(req.model or "claude-haiku-4-5-20251001").strip(),
+    )
+    # Return the freshly-projected item
+    fresh = _intake_worker.get_one(iid)
+    return {"ok": True, "id": iid, "result": result, "item": fresh}
+
+
+@app.get("/intake/{item_id}", tags=["intake"])
+def intake_get_one(request: Request, item_id: str):
+    """Operator-only: fetch a single intake item including its projection."""
+    _community_require_api_key(request)
+    iid = _safe_id(item_id)
+    rec = _intake_worker.get_one(iid)
+    if not rec:
+        raise HTTPException(status_code=404, detail="intake item not found")
+    return rec
 
 
 class _InboxMark(BaseModel):
