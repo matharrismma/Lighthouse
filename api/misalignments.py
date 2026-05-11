@@ -123,7 +123,14 @@ def _save_state(state: Dict[str, Any]) -> None:
         pass
 
 
-def _read_log(limit: int = 200) -> List[Dict[str, Any]]:
+def _is_local(rec: Dict[str, Any]) -> bool:
+    """An entry is 'local' when it came from the loopback interface —
+    the operator's own testing, not a real visitor."""
+    ip = (rec.get("ip_prefix") or "")
+    return ip.startswith("127.")
+
+
+def _read_log(limit: int = 200, include_local: bool = False) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     if not _LOG_FILE.exists():
         return out
@@ -133,9 +140,12 @@ def _read_log(limit: int = 200) -> List[Dict[str, Any]]:
             if not line:
                 continue
             try:
-                out.append(json.loads(line))
+                rec = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            if not include_local and _is_local(rec):
+                continue
+            out.append(rec)
     except OSError:
         return out
     out.sort(key=lambda r: r.get("logged_at", 0), reverse=True)
@@ -144,9 +154,12 @@ def _read_log(limit: int = 200) -> List[Dict[str, Any]]:
     return out
 
 
-def list_misalignments(limit: int = 200) -> Dict[str, Any]:
-    """Operator-facing list with merged decision state."""
-    items = _read_log(limit=limit)
+def list_misalignments(limit: int = 200, include_local: bool = False) -> Dict[str, Any]:
+    """Operator-facing list with merged decision state.
+
+    By default, hides entries that came from the loopback interface
+    (operator's own testing). Pass include_local=True to see everything."""
+    items = _read_log(limit=limit, include_local=include_local)
     state = _load_state()
     decisions = state.get("decisions", {}) or {}
     pending = 0

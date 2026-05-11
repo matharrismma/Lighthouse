@@ -574,7 +574,11 @@ def _read_jsonl(path: Path, limit: Optional[int] = None) -> List[Dict[str, Any]]
 
 
 @app.get("/inbox", tags=["intake"])
-def inbox_index(request: Request, limit: int = Query(100, ge=1, le=500)):
+def inbox_index(
+    request: Request,
+    limit: int = Query(100, ge=1, le=500),
+    include_local: bool = Query(False),
+):
     """Operator-only console feed.
 
     Returns three lanes:
@@ -583,6 +587,9 @@ def inbox_index(request: Request, limit: int = Query(100, ge=1, le=500)):
       - quarantine: flushed items (the trash; can be cleaned)
 
     Read/dismissed/flushed state lives per-id in data/inbox/state.json.
+    By default, loopback (127.x) traffic is filtered out so operator
+    testing doesn't pollute the queue. Pass include_local=true to see
+    everything.
     """
     _community_require_api_key(request)
     state = _load_state()
@@ -590,9 +597,14 @@ def inbox_index(request: Request, limit: int = Query(100, ge=1, le=500)):
     dismissed = set(state.get("dismissed_ids", []))
     flushed = set(state.get("flushed_ids", []))
 
-    messages = _read_jsonl(_INBOX_FILE, limit=limit)
-    intake = _read_jsonl(_INTAKE_FILE, limit=limit)
-    quarantine = _read_jsonl(_QUARANTINE_FILE, limit=limit)
+    def _drop_local(rows):
+        if include_local:
+            return rows
+        return [r for r in rows if not (r.get("ip_prefix") or "").startswith("127.")]
+
+    messages = _drop_local(_read_jsonl(_INBOX_FILE, limit=limit))
+    intake = _drop_local(_read_jsonl(_INTAKE_FILE, limit=limit))
+    quarantine = _drop_local(_read_jsonl(_QUARANTINE_FILE, limit=limit))
 
     for m in messages:
         m["is_read"] = m.get("id") in read
@@ -938,14 +950,20 @@ from api import misalignments as _misalignments_mod  # noqa: E402
 
 
 @app.get("/misalignments", tags=["intake"])
-def misalignments_list(request: Request, limit: int = Query(200, ge=1, le=1000)):
+def misalignments_list(
+    request: Request,
+    limit: int = Query(200, ge=1, le=1000),
+    include_local: bool = Query(False),
+):
     """Operator-only: list logged misalignments with their review state.
 
     Returns counts (pending / archived / promoted / bugs) plus the items
-    themselves, newest first.
+    themselves, newest first. By default, loopback (127.x) traffic is
+    filtered out so operator testing doesn't pollute the queue. Pass
+    include_local=true to see everything.
     """
     _community_require_api_key(request)
-    return _misalignments_mod.list_misalignments(limit=limit)
+    return _misalignments_mod.list_misalignments(limit=limit, include_local=include_local)
 
 
 class _MisalignmentReview(BaseModel):
