@@ -267,6 +267,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="messages">Messages <span class="count" id="tabMsgCount">—</span></button>
       <button class="tab" data-tab="intake">Intake <span class="count" id="tabICount">—</span></button>
+      <button class="tab" data-tab="misalignments">Misalignments <span class="count" id="tabMisCount">—</span></button>
       <button class="tab" data-tab="quarantine">Quarantine <span class="count" id="tabQCount">—</span></button>
       <button class="tab" data-tab="activity">Activity</button>
     </div>
@@ -355,6 +356,11 @@ document.querySelectorAll('.tab').forEach(t => {
       $('filterBar').style.display = 'none';
       $('activityPanel').style.display = 'block';
       loadActivity();
+    } else if (CURRENT_TAB === 'misalignments') {
+      $('itemList').style.display = 'flex';
+      $('filterBar').style.display = 'none';
+      $('activityPanel').style.display = 'none';
+      loadMisalignments();
     } else {
       $('itemList').style.display = 'flex';
       $('filterBar').style.display = 'flex';
@@ -364,6 +370,119 @@ document.querySelectorAll('.tab').forEach(t => {
   });
 });
 $('filterSel').addEventListener('change', render);
+
+let MIS_DATA = {items: [], pending: 0, archived: 0, promoted: 0, bugs: 0, total: 0};
+async function loadMisalignments() {
+  $('itemList').innerHTML = '<div class="empty-state">Loading misalignments…</div>';
+  try {
+    const r = await fetch('/misalignments?limit=200', { headers: {'X-API-Key': API_KEY} });
+    if (!r.ok) {
+      $('itemList').innerHTML = `<div class="empty-state">Failed (${r.status}).</div>`;
+      return;
+    }
+    MIS_DATA = await r.json();
+    $('tabMisCount').textContent = `(${MIS_DATA.pending})`;
+    renderMisalignments();
+  } catch (e) {
+    $('itemList').innerHTML = `<div class="empty-state">Network error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderMisalignmentItem(m) {
+  const verdictColor = ({
+    DISCORDANT: '#f7b9b3', MIXED: '#e6d098', OUT_OF_SCOPE: 'var(--muted-2)',
+    QUARANTINE: '#f7b9b3', ERROR: '#f7b9b3',
+  })[m.composite_verdict] || 'var(--muted-2)';
+  const statusBadge = ({
+    pending:  '<span style="color:var(--accent);">pending review</span>',
+    archived: '<span style="color:#b8eccd;">archived — user wrong</span>',
+    promoted: '<span style="color:var(--accent);">promoted to build queue</span>',
+    bug:      '<span style="color:#f7b9b3;">bug — verifier failed</span>',
+  })[m.review_status] || m.review_status;
+  const drList = (m.domain_results || []).slice(0, 4).map(dr =>
+    `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);margin-left:8px;">
+      ${esc(dr.domain || '?')} — <span style="color:var(--muted);">${esc(dr.verdict || '?')}</span>: ${esc((dr.detail || '').slice(0,80))}
+    </div>`).join('');
+  const isPending = m.review_status === 'pending';
+  const actions = isPending
+    ? `<div class="actions" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-right:6px;align-self:center;">review:</div>
+        <button onclick="reviewMis('${esc(m.id)}','archive')" title="User's claim was actually wrong — engine correctly didn't confirm" style="border-color:rgba(94,196,180,0.4);color:#b8eccd;">Archive (user wrong)</button>
+        <button onclick="reviewMis('${esc(m.id)}','promote')" title="Engine has a coverage gap — promote to build queue" style="border-color:rgba(217,168,114,0.4);color:var(--accent);">Promote → Build queue</button>
+        <button onclick="reviewMis('${esc(m.id)}','bug')" title="Verifier misbehaved — flag for fix" style="border-color:rgba(224,124,124,0.4);color:#f7b9b3;">Flag bug</button>
+      </div>`
+    : `<div class="actions" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);">
+        <button onclick="reviewMis('${esc(m.id)}','pending')" style="border-color:rgba(217,168,114,0.3);">Undo review</button>
+        ${m.review_note ? `<div style="margin-left:8px;font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted-2);font-size:13px;align-self:center;">"${esc(m.review_note)}"</div>` : ''}
+      </div>`;
+  return `<div class="item ${isPending ? 'unread' : 'read'}" id="item-${esc(m.id)}">
+    <div class="meta">
+      <span class="source" style="color:${verdictColor};">${esc(m.composite_verdict)}</span>
+      <span class="ts">${esc(fmtTime(m.logged_at_iso))}</span>
+      <span>${esc(m.ip_prefix||'')}</span>
+      <span style="font-family:'JetBrains Mono',monospace;">${esc(m.id)}</span>
+      <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.12em;">${statusBadge}</span>
+    </div>
+    <div class="body" style="font-family:'Crimson Pro',Georgia,serif;font-size:15px;">${esc(m.claim)}</div>
+    ${drList ? `<div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;">verifiers fired</div>${drList}` : ''}
+    ${actions}
+  </div>`;
+}
+
+function renderMisalignments() {
+  const list = $('itemList');
+  const items = MIS_DATA.items || [];
+  const banner = `<div style="margin-bottom:12px;padding:14px 18px;background:rgba(217,168,114,0.05);border:1px solid rgba(217,168,114,0.25);border-radius:8px;">
+    <div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted-2);font-size:13.5px;line-height:1.55;">
+      Every non-CONCORDANT verdict the engine returns lands here. Review each:
+      <span style="color:#b8eccd;">archive</span> if the user's claim was wrong,
+      <span style="color:var(--accent);">promote</span> if the engine has a coverage gap
+      (appends to the build queue with the math chain you supply),
+      <span style="color:#f7b9b3;">flag bug</span> if a verifier misbehaved.
+    </div>
+    <div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">
+      ${MIS_DATA.pending} pending · ${MIS_DATA.archived} archived · ${MIS_DATA.promoted} promoted · ${MIS_DATA.bugs} bugs · ${MIS_DATA.total} total
+    </div>
+  </div>`;
+  if (!items.length) {
+    list.innerHTML = banner + '<div class="empty-state">No misalignments logged yet.</div>';
+    return;
+  }
+  list.innerHTML = banner + items.map(renderMisalignmentItem).join('');
+}
+
+window.reviewMis = async function(id, status) {
+  let note = '', claim_pattern = '', needed_math = '', needed_substrate = '';
+  if (status === 'promote') {
+    claim_pattern = prompt('What kind of claim does this represent? (claim_pattern, e.g. "X reached the Moon")');
+    if (!claim_pattern) return;
+    needed_math = prompt('What math chain would close this gap? (needed_math, e.g. "Tsiolkovsky Δv + ephemeris + lunar laser timing")');
+    if (!needed_math) return;
+    needed_substrate = prompt('Any substrate needed? (optional)') || '';
+    note = prompt('Operator note (optional)') || '';
+  } else if (status === 'archive') {
+    note = prompt('Reason for archive (optional, e.g. "User said sun rises in the west — wrong")') || '';
+  } else if (status === 'bug') {
+    note = prompt('Which verifier failed? Brief description.') || '';
+    if (!note) return;
+  }
+  try {
+    const r = await fetch('/misalignments/review', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({id, status, note, claim_pattern, needed_math, needed_substrate}),
+    });
+    if (!r.ok) {
+      let msg = 'failed: ' + r.status;
+      try { const d = await r.json(); msg = d.detail || msg; } catch (_) {}
+      alert(msg);
+      return;
+    }
+    await loadMisalignments();
+  } catch (e) {
+    alert('network error: ' + e.message);
+  }
+};
 
 let ACTIVITY_LOADED = false;
 async function loadActivity() {
@@ -432,6 +551,15 @@ async function verifyAndLoad() {
     $('tabICount').textContent   = `(${(d.total_intake != null ? d.total_intake : (d.quarantine || []).length)})`;
     $('tabQCount').textContent   = `(${d.total_quarantine || 0})`;
     render();
+    // Fetch misalignment count separately so its tab badge is accurate
+    // on first unlock without forcing the operator to click the tab.
+    try {
+      const mr = await fetch('/misalignments?limit=1', { headers: {'X-API-Key': API_KEY} });
+      if (mr.ok) {
+        const md = await mr.json();
+        $('tabMisCount').textContent = `(${md.pending || 0})`;
+      }
+    } catch (_) {}
   } catch (e) {
     $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">network error: ' + e.message + '</span>';
   }

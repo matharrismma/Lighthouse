@@ -885,6 +885,61 @@ def intake_get_one(request: Request, item_id: str):
     return rec
 
 
+# -- Misalignment review -------------------------------------------------
+# Every non-CONCORDANT verdict from /polymathic is auto-logged. The
+# operator reviews each one and routes it: archive (user wrong), promote
+# (engine gap → build queue), bug (verifier misbehaved).
+from api import misalignments as _misalignments_mod  # noqa: E402
+
+
+@app.get("/misalignments", tags=["intake"])
+def misalignments_list(request: Request, limit: int = Query(200, ge=1, le=1000)):
+    """Operator-only: list logged misalignments with their review state.
+
+    Returns counts (pending / archived / promoted / bugs) plus the items
+    themselves, newest first.
+    """
+    _community_require_api_key(request)
+    return _misalignments_mod.list_misalignments(limit=limit)
+
+
+class _MisalignmentReview(BaseModel):
+    id: str
+    status: str   # "archive" | "promote" | "bug" | "pending"
+    note: str = ""
+    # Required when status == "promote":
+    claim_pattern: str = ""
+    needed_math: str = ""
+    needed_substrate: str = ""
+
+
+@app.post("/misalignments/review", tags=["intake"])
+def misalignments_review(request: Request, req: _MisalignmentReview):
+    """Operator decision on one misalignment.
+
+    archive  — user claim was wrong; engine correctly didn't confirm
+    promote  — engine has a coverage gap; append to build queue
+               (claim_pattern + needed_math are required)
+    bug      — verifier misbehaved; flag for fix
+    pending  — undo a prior decision
+    """
+    _community_require_api_key(request)
+    try:
+        result = _misalignments_mod.review(
+            item_id=req.id,
+            status=req.status,
+            note=req.note,
+            claim_pattern=req.claim_pattern,
+            needed_math=req.needed_math,
+            needed_substrate=req.needed_substrate,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return {"ok": True, **result}
+
+
 class _InboxMark(BaseModel):
     id: str
     action: str  # "read" | "dismiss" | "unread" | "flush"
@@ -5076,6 +5131,27 @@ def polymathic_endpoint(request: Request, req: PolymathicRequest):
                 "verdict": d.get("composite_verdict", "?"),
                 "domains": [r.get("domain") for r in (d.get("domain_results") or []) if r.get("domain")][:8],
             })
+
+    # Misalignment auto-log: every non-CONCORDANT verdict is captured for
+    # operator review. Closes the loop: the operator decides whether the
+    # engine correctly didn't confirm (user-error → archive) or whether
+    # the engine has a coverage gap (→ promote to build queue).
+    try:
+        from api import misalignments as _misalignments
+        ip = (request.headers.get("cf-connecting-ip")
+              or request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+              or (request.client.host if request.client else ""))
+        _misalignments.log_misalignment(
+            claim=situation,
+            composite_verdict=d.get("composite_verdict", ""),
+            domain_results=d.get("domain_results", []),
+            atomic_claims=d.get("atomic_claims", []),
+            quarantined_claims=d.get("quarantined_claims", []),
+            source="polymathic",
+            ip_prefix=_ip_prefix(ip),
+        )
+    except Exception:
+        pass  # logging failure must not affect the engine's response
 
     return d
 
