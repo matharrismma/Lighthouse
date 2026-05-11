@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canon · Concordance Engine</title>
+  <meta name="description" content="The Lighthouse Canon — the Bible-derived specification underneath the Concordance engine. Authority stack, four gates with their Scripture refs, witness protocol, wait windows, three ledgers, the one-line canon.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <!-- og-card injected -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Canon · Concordance Engine">
+  <meta property="og:description" content="The Bible-derived specification underneath the engine. Four gates with Scripture refs, witness protocol, wait windows, three ledgers.">
+  <meta property="og:url" content="https://narrowhighway.com/canon.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <meta property="og:site_name" content="Concordance Engine">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Canon · Concordance Engine">
+  <meta name="twitter:description" content="The Bible-derived specification underneath the engine.">
+  <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/canon.html">
+
+  <style>
+    main.container.wide { max-width: 880px; }
+    .canon-preface {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      font-style: italic;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 8px 0 36px;
+    }
+    .canon-preface em { color: var(--accent); }
+
+    .one-line {
+      max-width: 70ch;
+      margin: 24px 0 48px;
+      padding: 26px 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 var(--r) var(--r) 0;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 21px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .one-line .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .stack {
+      display: flex; flex-direction: column;
+      gap: 4px;
+      margin: 10px 0 28px;
+    }
+    .stack-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 18px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      align-items: center;
+    }
+    .stack-row .step {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; font-size: 13px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .stack-row .desc {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .stack-arrow {
+      text-align: center;
+      color: var(--muted);
+      margin: -2px 0 -2px 60px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    h2.section {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 44px 0 12px;
+      letter-spacing: -0.005em;
+    }
+    h2.section .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 14px;
+      letter-spacing: 0.1em;
+    }
+
+    .gates {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .gate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 18px 22px;
+    }
+    .gate-card .gate-h {
+      display: flex; align-items: baseline; gap: 14px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .gate-card .gate-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px; font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+    }
+    .gate-card .gate-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 1px 8px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 3px;
+    }
+    .gate-card .gate-action {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 2px 9px; border-radius: 3px;
+    }
+    .gate-card .gate-action.REJ { background: #e07c7c; color: #421515; }
+    .gate-card .gate-action.Q   { background: #e0b138; color: #3d2c08; }
+    .gate-card .gate-desc {
+      font-size: 14.5px; line-height: 1.6; color: var(--text);
+      margin: 6px 0 10px;
+    }
+    .gate-card .gate-refs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted-2);
+    }
+    .gate-card .gate-refs .ref {
+      display: inline-block;
+      padding: 2px 9px;
+      margin-right: 6px;
+      background: rgba(94, 196, 180, 0.07);
+      color: #5ec4b4;
+      border-radius: 3px;
+      border: 1px solid rgba(94,196,180,0.25);
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 760px) { .three-col { grid-template-columns: 1fr; } }
+    .three-col .scope {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+    }
+    .three-col .scope .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .three-col .scope .name {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .three-col .scope .nums {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+    }
+    .three-col .scope .nums .k {
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .ledger-row, .role-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+      padding: 10px 16px;
+      border-bottom: 1px dashed var(--border);
+      font-size: 14px;
+    }
+    .ledger-row:last-child, .role-row:last-child { border-bottom: none; }
+    .ledger-row .name, .role-row .name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .ledger-row .desc, .role-row .desc {
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .nouns {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 8px;
+    }
+    .nouns .noun {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      padding: 3px 10px;
+      background: rgba(217, 168, 114, 0.10);
+      color: var(--accent);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .confession-block {
+      background: rgba(94, 196, 180, 0.06);
+      border-left: 3px solid #5ec4b4;
+      border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      padding: 14px 18px;
+      margin-top: 8px;
+    }
+    .confession-block .line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 3px 0;
+      color: var(--text);
+    }
+    .confession-block .line .k { color: #5ec4b4; margin-right: 10px; }
+
+    .footnote {
+      margin-top: 56px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--muted-2);
+      max-width: 64ch;
+    }
+    .footnote a { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/run.html">Run</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/canon.html" class="active">Canon</a>
+      <a href="/engine.html">Engine</a>
+      <a href="/dashboard.html">Activity</a>
+      <a href="/install.html">Install</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Lighthouse Canon</div>
+    <h1>The spec underneath the engine.</h1>
+    <p class="canon-preface">
+      Concordance is the implementation of a specification. That specification
+      reads the Bible as the README file for reality — the engine's posture,
+      its gates, its wait windows, its witness rule are all anchored to
+      Scripture refs that fence each piece. <em>The engine is what falls out
+      when those refs are honored as load-bearing.</em>
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom: 80px;">
+
+  <div class="one-line">
+    <span class="label">The canon in one line</span>
+    "We keep the Word close, protect the floor, listen to brothers, and wait on God before we act."
+  </div>
+
+  <h2 class="section"><span class="num">§0</span>Authority stack</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    Five layers, each more specific than the last. Refs: Jn 1:1, Rev 1:8, Mt 22:37-40.
+  </p>
+  <div class="stack">
+    <div class="stack-row">
+      <div class="step">GOD</div>
+      <div class="desc">Authority only. Never a persona. The source.</div>
+    </div>
+    <div class="stack-arrow">↓</div>
+    <div class="stack-row">
+      <div class="step">WORD</div>
+      <div class="desc">The full Bible text (WEB or KJV). Layer 0 of the engine.</div>
+    </div>
+    <div class="stack-arrow">↓</div>
+    <div class="stack-row">
+      <div class="step">RED</div>
+      <div class="desc">Christ's red-letter words. The most-direct alignment check.</div>
+    </div>
+    <div class="stack-arrow">↓</div>
+    <div class="stack-row">
+      <div class="step">LAW</div>
+      <div class="desc">The Decalogue and the floor of what cannot be violated.</div>
+    </div>
+    <div class="stack-arrow">↓</div>
+    <div class="stack-row">
+      <div class="step">WAY</div>
+      <div class="desc">The optimal path. Discernment of how to walk.</div>
+    </div>
+  </div>
+
+  <h2 class="section"><span class="num">§1</span>The four gates</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    Every packet flows through these gates in order. RED and FLOOR are hard
+    gates — failure rejects (REJ). BROTHERS and GOD are soft gates — failure
+    quarantines (Q). All four pass → CONF (confirmed; sealed).
+  </p>
+  <div class="gates">
+    <div class="gate-card">
+      <div class="gate-h">
+        <span class="gate-name">RED</span>
+        <span class="gate-type">Gate 1 · hard</span>
+        <span class="gate-action REJ">fail = REJ</span>
+      </div>
+      <div class="gate-desc">Aligns with Jesus. The packet's intent and shape must accord with His direct words.</div>
+      <div class="gate-refs">
+        <span class="ref">Jn 14:6</span>
+        <span class="ref">Mt 5-7</span>
+      </div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-h">
+        <span class="gate-name">FLOOR</span>
+        <span class="gate-type">Gate 2 · hard</span>
+        <span class="gate-action REJ">fail = REJ</span>
+      </div>
+      <div class="gate-desc">Does not violate Law or stability. The Decalogue is the floor; structural soundness is the floor under it.</div>
+      <div class="gate-refs">
+        <span class="ref">Ex 20</span>
+        <span class="ref">Ps 75:3</span>
+      </div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-h">
+        <span class="gate-name">BROTHERS</span>
+        <span class="gate-type">Gate 3 · soft</span>
+        <span class="gate-action Q">fail = Q</span>
+      </div>
+      <div class="gate-desc">Witnesses meet the threshold. <em>A brother is one who has entered wisdom into the engine; a brother can serve as a witness.</em> Visitors-with-handles do not witness — they must testify first.</div>
+      <div class="gate-refs">
+        <span class="ref">Dt 19:15</span>
+        <span class="ref">Mt 18:16</span>
+      </div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-h">
+        <span class="gate-name">GOD</span>
+        <span class="gate-type">Gate 4 · soft</span>
+        <span class="gate-action Q">fail = Q</span>
+      </div>
+      <div class="gate-desc">The wait window required by scope has elapsed. Wait is mandatory — "wait on the LORD" rendered as code.</div>
+      <div class="gate-refs">
+        <span class="ref">Ps 27:14</span>
+        <span class="ref">Is 40:31</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section"><span class="num">§2</span>The confession protocol</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    Every submission carries an explicit "I may be wrong." The protocol is required, not optional.
+    Refs: Jas 5:16, Pr 11:2.
+  </p>
+  <div class="confession-block">
+    <div class="line"><span class="k">CONF:</span>I may be wrong.</div>
+    <div class="line"><span class="k">ALIGN:</span>[RED ref]</div>
+    <div class="line"><span class="k">RISK:</span>[FLOOR check]</div>
+  </div>
+
+  <h2 class="section"><span class="num">§3</span>Witness rule</h2>
+  <p style="font-size:14.5px;line-height:1.65;color:var(--text);max-width:64ch;">
+    <strong>Witness is attestation, not voting.</strong> A witness affirms two
+    things: that the submission aligns with RED, and that it does not break
+    FLOOR. Two witnesses do not make a thing true; they testify that what's
+    claimed has cleared the alignment check. The threshold is at least two.
+    Refs: Pr 27:17 ("iron sharpens iron"), Acts 15:28 (the Jerusalem Council).
+  </p>
+
+  <h2 class="section"><span class="num">§4</span>Wait windows</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    By scope. Wait is non-negotiable: changes that affect more people must wait longer. Refs: Ecc 3:1, Hab 2:3.
+  </p>
+  <div class="three-col">
+    <div class="scope">
+      <div class="lbl">Scope A</div>
+      <div class="name">Adapter / workflow</div>
+      <div class="nums"><span class="k">wmin=</span>2 · <span class="k">wait=</span>1h</div>
+    </div>
+    <div class="scope">
+      <div class="lbl">Scope M</div>
+      <div class="name">Mesh / propagation</div>
+      <div class="nums"><span class="k">wmin=</span>3 · <span class="k">wait=</span>24h</div>
+    </div>
+    <div class="scope">
+      <div class="lbl">Scope C</div>
+      <div class="name">Canon / constitution</div>
+      <div class="nums"><span class="k">wmin=</span>7 · <span class="k">wait=</span>7d</div>
+    </div>
+  </div>
+
+  <h2 class="section"><span class="num">§5</span>Three ledgers</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    Refs: Hab 2:2 ("Write the vision, and make it plain"), Dt 6:6-9 ("These words shall be in thine heart").
+  </p>
+  <div>
+    <div class="ledger-row">
+      <div class="name">Vessel ledger</div>
+      <div class="desc">Local actions and constraints. The node's record of what it did under what restrictions.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="name">Journal ledger</div>
+      <div class="desc">Immutable record, Steward-committed. The keeping.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="name">Lighthouse ledger</div>
+      <div class="desc">Distributed consensus across vessels: SUB (submission) / WIT (witness) / DEC (decision).</div>
+    </div>
+  </div>
+
+  <h2 class="section"><span class="num">§6</span>The 6:1 rule</h2>
+  <p style="font-size:14.5px;line-height:1.65;color:var(--text);max-width:64ch;">
+    For every six expressions of strength, one expression of weakness — to
+    train the weakness without losing the strength. Repeat until strength
+    approaches 90% of potential, then rotate. Refs: Mt 25:21 (the parable
+    of talents), Jn 15:2 (pruning bears more fruit), Heb 12:11 (chastening
+    yields fruit).
+  </p>
+
+  <h2 class="section"><span class="num">§7</span>Roles</h2>
+  <div>
+    <div class="role-row">
+      <div class="name">KEEPER</div>
+      <div class="desc">OS persona. Proximity + guarding. Never God; never makes new doctrine.</div>
+    </div>
+    <div class="role-row">
+      <div class="name">STEWARD</div>
+      <div class="desc">Execution + commit + resources. Applies actions inside floors.</div>
+    </div>
+    <div class="role-row">
+      <div class="name">SHEPHERD</div>
+      <div class="desc">Human formation and care.</div>
+    </div>
+    <div class="role-row">
+      <div class="name">VESSEL</div>
+      <div class="desc">Local node. Runs domain adapter + local constraints + reserve rules. 2 Tim 2:21.</div>
+    </div>
+    <div class="role-row">
+      <div class="name">LIGHTHOUSE</div>
+      <div class="desc">Hub = Keeper + Steward together. Coordinates across vessels.</div>
+    </div>
+  </div>
+
+  <h2 class="section"><span class="num">§8</span>Kernel nouns (immutable)</h2>
+  <p style="font-size:14px;color:var(--muted-2);max-width:64ch;">
+    These thirteen nouns are canonical across all domains and implementations. Renaming any of them requires Canon (scope C) confirmation — 7 witnesses, 7 days of wait.
+  </p>
+  <div class="nouns">
+    <span class="noun">WORD</span>
+    <span class="noun">RED</span>
+    <span class="noun">LAW</span>
+    <span class="noun">WAY</span>
+    <span class="noun">GATE</span>
+    <span class="noun">FLOOR</span>
+    <span class="noun">WITNESS</span>
+    <span class="noun">WAIT</span>
+    <span class="noun">VESSEL</span>
+    <span class="noun">RULE</span>
+    <span class="noun">ACTION</span>
+    <span class="noun">STATE</span>
+    <span class="noun">LEDGER</span>
+  </div>
+
+  <p class="footnote">
+    The engine you're using runs this canon. <a href="/run.html">Drop any claim</a>
+    and the four gates fire in the order shown above. The
+    <a href="/identity">identity statement</a> names Whom the engine serves.
+    <a href="/llms.txt">/llms.txt</a> and <a href="/llms-full.txt">/llms-full.txt</a>
+    carry the same posture for any LLM crawler that asks. Source on
+    <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>; Apache 2.0.
+  </p>
+
+</main>
+
+</body>
+</html>

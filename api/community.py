@@ -58,50 +58,73 @@ TIERS: List[Dict[str, Any]] = [
         "id": "visitor",
         "rank": 0,
         "label": "Visitor",
-        "summary": "Anyone reading. Free to run polymathic, see the dashboard, "
-                   "read the almanac.",
+        "summary": "Has claimed a handle but has not yet entered wisdom into "
+                   "the engine. May read, may run polymathic, may see the "
+                   "dashboard — but cannot serve as witness for others.",
     },
     {
-        "id": "witness",
+        "id": "brother",
         "rank": 1,
-        "label": "Witness",
-        "summary": "Registered a handle. Can witness others' proposals; their "
-                   "signal counts toward the BROTHERS gate.",
-    },
-    {
-        "id": "apprentice",
-        "rank": 2,
-        "label": "Apprentice",
-        "summary": "Gave at least 3 witness signals. Can submit almanac "
-                   "proposals attributed to their handle.",
+        "label": "Brother",
+        "summary": "Has entered wisdom into the engine — proposed, attributed "
+                   "a polymathic run, attested for another, or confessed. A "
+                   "brother can serve as a witness for others (the BROTHERS "
+                   "gate requires brothers, not visitors). "
+                   "Mt 18:16; Dt 19:15.",
     },
     {
         "id": "contributor",
-        "rank": 3,
+        "rank": 2,
         "label": "Contributor",
-        "summary": "Has at least one accepted almanac entry. Their drafts "
-                   "carry weight in the curation queue.",
+        "summary": "A brother whose wisdom has been accepted into the "
+                   "Almanac's canon by the curator. Their drafts carry weight "
+                   "in the curation queue.",
     },
     {
         "id": "curator",
-        "rank": 4,
+        "rank": 3,
         "label": "Curator",
         "summary": "Appointed by the operator. Reviews and accepts drafts, "
-                   "shapes the almanac canon.",
+                   "shapes the Almanac canon. Holds the keys to the keeping.",
     },
 ]
 TIER_BY_ID = {t["id"]: t for t in TIERS}
 
 
+def has_entered_wisdom(stats: Dict[str, Any]) -> bool:
+    """True if the contributor has contributed any wisdom to the engine.
+
+    Per the canon: entering wisdom into the engine makes you a brother.
+    Any one of the following counts:
+      - submitted an almanac proposal (proposals_submitted >= 1)
+      - ran an attributed polymathic (polymathic_runs >= 1)
+      - witnessed another's submission (witnesses_given >= 1)
+      - confessed an error on a prior packet (confessions >= 1)
+
+    Mere registration of a handle does not count — claiming a name is
+    not the same as testifying."""
+    return (
+        int(stats.get("proposals_submitted", 0)) >= 1
+        or int(stats.get("polymathic_runs", 0)) >= 1
+        or int(stats.get("witnesses_given", 0)) >= 1
+        or int(stats.get("confessions", 0)) >= 1
+    )
+
+
 def tier_for_stats(stats: Dict[str, Any], curator: bool = False) -> str:
-    """Promote-only ladder. Once a contributor reaches a tier, they stay."""
+    """Promote-only ladder. Once a contributor reaches a tier, they stay.
+
+    Per Lighthouse Canon: a brother is one who has entered wisdom into
+    the engine. A brother can serve as a witness. Visitors with handles
+    who haven't entered wisdom yet remain visitors until they do.
+    """
     if curator:
         return "curator"
-    if stats.get("proposals_accepted", 0) >= 1:
+    if int(stats.get("proposals_accepted", 0)) >= 1:
         return "contributor"
-    if stats.get("witnesses_given", 0) >= 3:
-        return "apprentice"
-    return "witness"
+    if has_entered_wisdom(stats):
+        return "brother"
+    return "visitor"
 
 
 # --------------------------------------------------------------------------
@@ -109,23 +132,33 @@ def tier_for_stats(stats: Dict[str, Any], curator: bool = False) -> str:
 # --------------------------------------------------------------------------
 BADGES: List[Dict[str, Any]] = [
     {
-        "id": "witness:registered",
-        "label": "Witness",
-        "summary": "Picked up a handle. Now part of the keeping.",
-        "tier_unlock": "witness",
+        "id": "visitor:registered",
+        "label": "Visitor",
+        "summary": "Picked up a handle. Has not yet entered wisdom into the "
+                   "engine. A name claimed, not a testimony given.",
+        "tier_unlock": "visitor",
+    },
+    {
+        "id": "brother:first-wisdom",
+        "label": "Brother",
+        "summary": "Entered wisdom into the engine for the first time — "
+                   "proposed, attributed a polymathic run, witnessed for "
+                   "another, or confessed. Per the canon: this is what "
+                   "makes a brother. Mt 18:16; Dt 19:15.",
+        "tier_unlock": "brother",
     },
     {
         "id": "witness:first-witness",
         "label": "First Signal",
-        "summary": "Gave their first witness signal on another contributor's "
-                   "proposal.",
+        "summary": "Gave their first witness signal on another brother's "
+                   "submission. The witness function (not a tier) — brothers "
+                   "performing the work of attestation.",
     },
     {
-        "id": "apprentice:witnessed-three",
-        "label": "Apprentice",
-        "summary": "Gave three witness signals. Now eligible to submit "
-                   "attributed proposals.",
-        "tier_unlock": "apprentice",
+        "id": "witness:three-fold",
+        "label": "Three-fold",
+        "summary": "Witnessed for three different brothers. Reliable in the "
+                   "BROTHERS-gate function.",
     },
     {
         "id": "contributor:first-proposal",
@@ -176,20 +209,22 @@ BADGE_BY_ID = {b["id"]: b for b in BADGES}
 def awardable_badges(stats: Dict[str, Any], curator: bool, joined_seq: int) -> List[str]:
     """Return badge ids this contributor qualifies for, given current stats.
     Idempotent: callers should diff against already-earned badges."""
-    earned: List[str] = ["witness:registered"]  # everyone with a handle
-    if stats.get("witnesses_given", 0) >= 1:
+    earned: List[str] = ["visitor:registered"]  # everyone with a handle
+    if has_entered_wisdom(stats):
+        earned.append("brother:first-wisdom")
+    if int(stats.get("witnesses_given", 0)) >= 1:
         earned.append("witness:first-witness")
-    if stats.get("witnesses_given", 0) >= 3:
-        earned.append("apprentice:witnessed-three")
-    if stats.get("proposals_submitted", 0) >= 1:
+    if int(stats.get("witnesses_given", 0)) >= 3:
+        earned.append("witness:three-fold")
+    if int(stats.get("proposals_submitted", 0)) >= 1:
         earned.append("contributor:first-proposal")
-    if stats.get("proposals_accepted", 0) >= 1:
+    if int(stats.get("proposals_accepted", 0)) >= 1:
         earned.append("contributor:first-accepted")
-    if stats.get("proposals_accepted", 0) >= 5:
+    if int(stats.get("proposals_accepted", 0)) >= 5:
         earned.append("contributor:five-accepted")
-    if stats.get("polymathic_runs", 0) >= 1:
+    if int(stats.get("polymathic_runs", 0)) >= 1:
         earned.append("polymathic:first-run")
-    if stats.get("polymathic_concordant", 0) >= 1:
+    if int(stats.get("polymathic_concordant", 0)) >= 1:
         earned.append("polymathic:concordant")
     if joined_seq <= 50:
         earned.append("pioneer:early")
@@ -215,6 +250,7 @@ def _empty_stats() -> Dict[str, Any]:
         "witnesses_received": 0,
         "polymathic_runs": 0,
         "polymathic_concordant": 0,
+        "confessions": 0,
     }
 
 
@@ -278,10 +314,10 @@ def register_contributor(
             "display_name": display_name or handle,
             "bio": bio,
             "user_pubkey": (user_pubkey or "").strip()[:120],
-            "tier": "witness",
+            "tier": "visitor",
             "stats": _empty_stats(),
             "badges": [
-                {"id": "witness:registered", "earned_at": now}
+                {"id": "visitor:registered", "earned_at": now}
             ],
             "curator": False,
         }
@@ -465,8 +501,13 @@ def record_witness(
     note: str = "",
 ) -> Tuple[bool, str]:
     """Record a witness signal. Updates witness_given for the witness and
-    witnesses_received for the author. Both must be valid handles or
-    empty (anonymous proposals can't accumulate received-witness)."""
+    witnesses_received for the author. Both must be valid handles.
+
+    Per Lighthouse Canon: only a brother can serve as a witness — meaning
+    the witness handle must have already entered wisdom into the engine
+    (proposed, attributed a polymathic, witnessed before, or confessed).
+    A bare-handle visitor cannot witness for others; first they must
+    testify themselves. Mt 18:16; Dt 19:15."""
     if not is_valid_handle(witness_handle):
         return False, "witness handle invalid"
     if witness_handle == proposal_author:
@@ -474,6 +515,18 @@ def record_witness(
     rec = load_contributor(witness_handle)
     if rec is None:
         return False, "witness must be registered first"
+
+    # BROTHERS-gate gating: visitors-with-handles cannot witness. Only
+    # brothers (those who have entered wisdom) can. This grounds the
+    # gate in Dt 19:15 / Mt 18:16 — two or three witnesses, each of
+    # whom has demonstrated alignment themselves.
+    witness_stats = rec.get("stats", {}) or {}
+    if not has_entered_wisdom(witness_stats):
+        return False, (
+            "witness must be a brother (must have entered wisdom into the "
+            "engine first — propose, run polymathic, witness, or confess). "
+            "See /canon for the rule."
+        )
 
     bump_stat(witness_handle, "witnesses_given", 1)
     if proposal_author and is_valid_handle(proposal_author):
