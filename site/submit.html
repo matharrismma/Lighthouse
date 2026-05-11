@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Submit · Concordance Engine</title>
-  <meta name="description" content="Throw any information at the engine — a claim, a saying, a URL, a paragraph, a folk rule, a question. It lands in quarantine. The keeping decides what survives.">
+  <meta name="description" content="Throw any information at the engine — a claim, a saying, a URL, a paragraph, a folk rule, a question. It lands in intake. The keeping decides what survives.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Submit · Concordance Engine">
-  <meta property="og:description" content="Throw any information at the engine. It lands in quarantine. The keeping decides what survives.">
+  <meta property="og:description" content="Throw any information at the engine. It lands in intake. The keeping decides what survives.">
   <meta property="og:url" content="https://narrowhighway.com/submit.html">
   <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
   <meta property="og:site_name" content="Concordance Engine">
@@ -143,9 +143,10 @@
     <h1>Submit to the engine.</h1>
     <p class="preface">
       A claim. A saying. A URL. A folk rule. A question. A paragraph you wrote.
-      Anything you think might be worth working through. It lands in quarantine
+      Anything you think might be worth working through. It lands in intake
       while the engine decomposes it into atomic claims, runs the verifiers,
-      and projects a path. <em>The keeping decides what survives. No login,
+      and projects a path. Anything with an issue gets flushed to quarantine
+      and cleaned out. <em>The keeping decides what survives. No login,
       no email required.</em>
     </p>
   </div>
@@ -178,10 +179,9 @@
 
       <div class="footer-row">
         <div class="hint">
-          What you send is held in quarantine. The keeping decides what
-          survives.
+          What you send lands in intake. The keeping decides what survives.
         </div>
-        <button class="submit-btn" id="submitBtn" type="submit">Send to quarantine</button>
+        <button class="submit-btn" id="submitBtn" type="submit">Send to intake</button>
       </div>
 
       <div id="feedback"></div>
@@ -189,10 +189,10 @@
   </section>
 
   <p style="font-size:13px;color:var(--muted-2);max-width:60ch;line-height:1.6;">
-    The engine processes quarantine submissions on its own clock. Successful
-    decompositions surface as draft Almanac entries the operator reviews and
-    accepts; rejected ones stay quarantined with the elimination trail
-    attached so the engine can learn from what didn't survive.
+    The engine processes intake on its own clock. Successful decompositions
+    surface as draft Almanac entries the operator reviews and accepts.
+    Anything with an issue gets flushed to quarantine and cleaned out —
+    quarantine is the trash, not a holding pen.
   </p>
 
 </main>
@@ -211,7 +211,7 @@ $('submitForm').addEventListener('submit', async (e) => {
   fb.innerHTML = '<div class="feedback ok">Sending…</div>';
 
   try {
-    const r = await fetch('/quarantine/submit', {
+    const r = await fetch('/intake', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

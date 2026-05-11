@@ -105,8 +105,9 @@ data/activity/
 # to a fresh location only when you're ready to canonicalize.
 data/grid/
 
-# Inbox + quarantine — operator-only mailbox and ingest queue. Contains
-# user-submitted text and contact messages (may have email addresses,
-# names, etc). Never committed to a public repo.
+# Inbox + intake + quarantine — operator-only mailbox, working queue,
+# and trash. Contains user-submitted text and contact messages (may
+# have email addresses, names, etc). Never committed to a public repo.
 data/inbox/
+data/intake/
 data/quarantine/

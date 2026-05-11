@@ -250,8 +250,8 @@
     <label for="situation">Describe a situation</label>
     <textarea id="situation" placeholder="e.g. I was given a clear task that takes me toward a place I do not want to be, and I have been moving in the opposite direction…" maxlength="2000"></textarea>
     <div class="recognize-row">
-      <div class="recognize-hint">Engine surfaces. Human names.</div>
-      <button class="recognize-btn" id="recBtn" type="button">Surface closest patterns</button>
+      <div class="recognize-hint">A person is rarely one type. Engine surfaces the combination.</div>
+      <button class="recognize-btn" id="recBtn" type="button">Surface combination</button>
     </div>
     <div id="recognize-out"></div>
   </section>
@@ -403,16 +403,32 @@ $('recBtn').addEventListener('click', async () => {
     }
     const d = await r.json();
     const cands = d.candidates || [];
+    const combo = d.combination || null;
     if (!cands.length) {
       out.innerHTML = `<div style="color:var(--muted-2);font-family:'Crimson Pro',serif;font-style:italic;">${d.note || 'No pattern surfaced.'}</div>`;
     } else {
-      const parts = [`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;">Closest patterns</div>`];
+      const parts = [];
+      // Combination headline — the combination IS the reading
+      if (combo) {
+        const sigLine = combo.signature
+          ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:17px;color:var(--accent);font-style:italic;margin-top:6px;">${combo.signature}</div>`
+          : '';
+        const blendTag = combo.is_blend
+          ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.12em;margin-left:10px;">blend</span>`
+          : '';
+        parts.push(`<div style="background:rgba(217,168,114,0.07);border:1px solid rgba(217,168,114,0.32);border-radius:10px;padding:14px 18px;margin-bottom:18px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);">Pattern combination${blendTag}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;color:var(--text);margin-top:6px;">${combo.summary}</div>
+          ${sigLine}
+        </div>`);
+      }
+      parts.push(`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;">Component patterns</div>`);
       for (const c of cands) {
         const refs = (c.scripture || []).join('  ·  ');
         const markers = (c.matched_markers || []).map(m => `<li>${m.marker}</li>`).join('');
         parts.push(`<div class="cand">
           <h4>${c.name} <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted-2);">— ${c.category}</span></h4>
-          <div class="meta">${refs}  ·  confidence ${c.confidence}</div>
+          <div class="meta">${refs}  ·  weight ${c.weight}  ·  confidence ${c.confidence}</div>
           <div style="font-family:'Crimson Pro',serif;font-size:15px;color:var(--text);">${c.pattern}</div>
           <ul class="markers">${markers}</ul>
           <div style="margin-top:6px;"><a href="#" data-id="${c.id}" class="rhyme" style="color:var(--accent);font-size:13px;text-decoration:none;">Open full entry →</a></div>
@@ -430,6 +446,22 @@ $('recBtn').addEventListener('click', async () => {
     btn.disabled = false;
   }
 });
+
+// Prefill from /inbox.html "Recognize archetype" action
+(function prefillFromStorage() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from') === 'intake') {
+      const t = localStorage.getItem('concordance_prefill_text') || '';
+      if (t) {
+        $('situation').value = t;
+        localStorage.removeItem('concordance_prefill_text');
+        // Auto-run after a tick so the UI paints first
+        setTimeout(() => $('recBtn').click(), 100);
+      }
+    }
+  } catch (e) {}
+})();
 
 loadCatalog();
 </script>

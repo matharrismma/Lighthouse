@@ -1,8 +1,13 @@
 """Biblical archetype recognition.
 
 The engine does not say "you are Jonah." It surfaces "this situation
-shape resembles Jonah's pattern; here are the markers that matched;
-here is the failure mode and the restoration path that one took."
+shape resembles a combination of Jonah, Saul, and Esther; here are
+the markers that matched; here is the failure mode and restoration
+path each one took."
+
+A real person is rarely one archetype — usually a combination. The
+recognizer returns the blend, not a singleton. The combination IS the
+answer.
 
 Engine shows. Human names.
 
@@ -35,6 +40,67 @@ _STOP = {
 }
 
 _CACHE: Dict[str, Any] = {"mtime": 0.0, "entries": []}
+
+
+# Category-pair signatures. Order-independent: keyed by frozenset.
+# These are LOOKUPS — the engine doesn't generate phrases for unknown
+# pairs. If a combination isn't in this table, the engine surfaces the
+# raw categories and lets the human name the blend.
+_PAIR_SIGNATURES: Dict[frozenset, str] = {
+    frozenset({"fleer", "fleer"}):                     "doubled flight",
+    frozenset({"fleer", "disqualified"}):              "fleeing toward disqualification",
+    frozenset({"fleer", "betrayer"}):                  "fleeing that ends in betrayal",
+    frozenset({"fleer", "wrestler"}):                  "running while wrestling",
+    frozenset({"fleer", "yielder"}):                   "outward yielding masking inner flight",
+    frozenset({"fleer", "called_reluctant"}):          "reluctant calling becoming flight",
+    frozenset({"fleer", "converted"}):                 "the fleer turned back",
+    frozenset({"fleer", "positioned"}):                "position with the heart turned away",
+    frozenset({"yielder", "yielder"}):                 "consenting trust",
+    frozenset({"yielder", "wrestler"}):                "yielding through the wrestle",
+    frozenset({"yielder", "positioned"}):              "yielding into position",
+    frozenset({"yielder", "faithful_exile"}):          "faithful yielding in exile",
+    frozenset({"yielder", "called_reluctant"}):        "reluctance giving way to yield",
+    frozenset({"wrestler", "wrestler"}):               "doubled wrestle",
+    frozenset({"wrestler", "positioned"}):             "wrestling into position",
+    frozenset({"wrestler", "faithful_exile"}):         "wrestling faithful in exile",
+    frozenset({"wrestler", "called_reluctant"}):       "wrestling with the calling",
+    frozenset({"wrestler", "denier_restored"}):        "the wrestle that includes denial",
+    frozenset({"denier_restored", "converted"}):       "denial restored, then converted",
+    frozenset({"denier_restored", "wrestler"}):        "denial inside the wrestle",
+    frozenset({"denier_restored", "called_reluctant"}): "reluctant call that includes denial",
+    frozenset({"betrayer", "disqualified"}):           "betrayal compounding disqualification",
+    frozenset({"betrayer", "converted"}):              "betrayer turned, if turning happens",
+    frozenset({"converted", "converted"}):             "doubled conversion",
+    frozenset({"converted", "positioned"}):            "the converted placed in position",
+    frozenset({"converted", "called_reluctant"}):      "conversion through reluctant calling",
+    frozenset({"converted", "faithful_exile"}):        "converted to faithful exile",
+    frozenset({"positioned", "positioned"}):           "doubled positioning",
+    frozenset({"positioned", "faithful_exile"}):       "positioned faithful exile",
+    frozenset({"positioned", "called_reluctant"}):     "reluctance into position",
+    frozenset({"faithful_exile", "faithful_exile"}):   "doubled exile faithfulness",
+    frozenset({"faithful_exile", "called_reluctant"}): "reluctant calling, faithful in exile",
+    frozenset({"called_reluctant", "called_reluctant"}): "doubled reluctant calling",
+    frozenset({"called_reluctant", "disqualified"}):   "reluctance hardening into disqualification",
+    frozenset({"disqualified", "disqualified"}):       "doubled disqualification",
+    frozenset({"parable_figure", "parable_figure"}):   "parable inside parable",
+    frozenset({"type_of_christ", "type_of_christ"}):   "doubled type",
+}
+
+
+def _signature_for(categories: List[str]) -> Optional[str]:
+    """Look up a structural label for the top categories.
+
+    Uses top 2 (most common case). If they share a category, returns
+    the same-category label. Otherwise looks up the pair. Returns None
+    if no entry exists — the engine does not invent labels.
+    """
+    cats = [c for c in categories if c]
+    if not cats:
+        return None
+    if len(cats) == 1:
+        return _PAIR_SIGNATURES.get(frozenset({cats[0], cats[0]}))
+    pair = frozenset({cats[0], cats[1]})
+    return _PAIR_SIGNATURES.get(pair)
 
 
 def _tokens(text: str) -> set:
@@ -149,16 +215,19 @@ def recognize(situation: str, top_k: int = 3) -> Dict[str, Any]:
         return {
             "situation": text,
             "candidates": [],
+            "combination": None,
             "note": "No archetype markers matched. Engine has no shape to surface; describe the situation in more concrete terms.",
         }
 
-    max_score = top[0][0] if top else 1.0
+    # Normalize weights so the combination sums to 1.0 — a person is
+    # rarely a singleton; the blend IS the reading.
+    total_score = sum(s for s, _, _ in top) or 1.0
+    max_score = top[0][0]
+
     candidates = []
     for score, entry, hits in top:
-        # Confidence is relative to the top match — surfaces "this is
-        # roughly half as strong as the leader" rather than claiming
-        # a calibrated probability.
-        confidence = round(score / max(0.001, max_score), 3) if max_score > 0 else 0.0
+        weight = round(score / total_score, 3)        # share of the blend
+        confidence = round(score / max(0.001, max_score), 3)  # relative to leader
         candidates.append({
             "id": entry.get("id"),
             "name": entry.get("name"),
@@ -169,15 +238,36 @@ def recognize(situation: str, top_k: int = 3) -> Dict[str, Any]:
             "restoration_path": entry.get("restoration_path", ""),
             "matched_markers": hits,
             "score": round(score, 3),
-            "confidence": confidence,
+            "weight": weight,             # share of the combination
+            "confidence": confidence,     # strength vs the leader
             "rhymes_with": entry.get("rhymes_with", []),
             "contrast_to": entry.get("contrast_to", []),
         })
 
+    # Combination signature — structural, not generated.
+    top_cats = [c["category"] for c in candidates[:2] if c.get("category")]
+    sig_label = _signature_for(top_cats)
+    if len(candidates) == 1:
+        sig_summary = candidates[0]["name"]
+    else:
+        names = [c["name"] for c in candidates]
+        weights = [c["weight"] for c in candidates]
+        # "Jonah (0.55) + Saul (0.28) + Esther (0.17)"
+        sig_summary = " + ".join(f"{n} ({w})" for n, w in zip(names, weights))
+
+    combination = {
+        "summary": sig_summary,
+        "categories": top_cats,
+        "signature": sig_label,  # may be None if pair not in lookup
+        "dominant": candidates[0]["name"] if candidates else None,
+        "is_blend": len([c for c in candidates if c["weight"] >= 0.20]) > 1,
+    }
+
     return {
         "situation": text,
         "candidates": candidates,
-        "note": "Engine surfaces patterns. Human names whether they fit.",
+        "combination": combination,
+        "note": "Engine surfaces the combination. A person is rarely one type.",
     }
 
 
@@ -203,12 +293,16 @@ def verify_archetype_pattern(situation: str = "", text: str = "", **kwargs) -> D
             "reason": "no archetype shape recognized in this situation",
             "data": rec,
         }
-    top = cands[0]
+    combo = rec.get("combination", {}) or {}
     # The engine never says CONCORDANT for an archetype — only
-    # PROVISIONAL ("this shape is present, name it yourself") or
+    # PROVISIONAL ("this combination is present, name it yourself") or
     # QUARANTINE if nothing matches.
+    if combo.get("signature"):
+        reason = f"combination: {combo['signature']} — {combo.get('summary','')}"
+    else:
+        reason = f"combination: {combo.get('summary', cands[0]['name'])}"
     return {
         "verdict": "PROVISIONAL",
-        "reason": f"closest pattern: {top['name']} ({top['category']})",
+        "reason": reason,
         "data": rec,
     }

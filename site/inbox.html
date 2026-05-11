@@ -260,15 +260,15 @@
     <div class="stats-strip">
       <div class="stat-tile unread"><div class="lbl">Unread messages</div><div class="val" id="sMsgUnread">—</div></div>
       <div class="stat-tile">       <div class="lbl">Total messages</div> <div class="val" id="sMsgTotal">—</div></div>
-      <div class="stat-tile unread"><div class="lbl">Unread quarantine</div><div class="val" id="sQUnread">—</div></div>
-      <div class="stat-tile">       <div class="lbl">Total quarantine</div> <div class="val" id="sQTotal">—</div></div>
+      <div class="stat-tile unread"><div class="lbl">Pending intake</div><div class="val" id="sIUnread">—</div></div>
+      <div class="stat-tile">       <div class="lbl">In quarantine (trash)</div><div class="val" id="sQTrash">—</div></div>
     </div>
 
     <div class="tabs">
       <button class="tab active" data-tab="messages">Messages <span class="count" id="tabMsgCount">—</span></button>
+      <button class="tab" data-tab="intake">Intake <span class="count" id="tabICount">—</span></button>
       <button class="tab" data-tab="quarantine">Quarantine <span class="count" id="tabQCount">—</span></button>
       <button class="tab" data-tab="activity">Activity</button>
-      <button class="tab" data-tab="all">All inbox</button>
     </div>
 
     <div class="filter-bar" id="filterBar">
@@ -328,7 +328,7 @@ const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 
 let API_KEY = '';
 let CURRENT_TAB = 'messages';
-let DATA = {messages: [], quarantine: []};
+let DATA = {messages: [], intake: [], quarantine_flushed: []};
 
 try { API_KEY = localStorage.getItem('concordance_api_key') || ''; } catch (e) {}
 
@@ -418,13 +418,19 @@ async function verifyAndLoad() {
     $('keyFeedback').innerHTML = '<span style="color:#b8eccd">unlocked</span>';
     $('keyCard').style.opacity = 0.55;
     $('inboxPanel').style.display = 'block';
-    DATA = d;
+    // Normalize: prefer the canonical lanes, fall back to legacy shape
+    DATA = {
+      messages: d.messages || [],
+      intake: d.intake || d.quarantine || [],
+      quarantine_flushed: d.quarantine_flushed || [],
+    };
     $('sMsgUnread').textContent = d.unread_messages;
     $('sMsgTotal').textContent  = d.total_messages;
-    $('sQUnread').textContent   = d.unread_quarantine;
-    $('sQTotal').textContent    = d.total_quarantine;
+    $('sIUnread').textContent   = (d.unread_intake != null ? d.unread_intake : d.unread_quarantine) || 0;
+    $('sQTrash').textContent    = d.total_quarantine != null ? d.total_quarantine : 0;
     $('tabMsgCount').textContent = `(${d.total_messages})`;
-    $('tabQCount').textContent   = `(${d.total_quarantine})`;
+    $('tabICount').textContent   = `(${(d.total_intake != null ? d.total_intake : (d.quarantine || []).length)})`;
+    $('tabQCount').textContent   = `(${d.total_quarantine || 0})`;
     render();
   } catch (e) {
     $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">network error: ' + e.message + '</span>';
@@ -465,11 +471,11 @@ function renderMessage(m) {
   </div>`;
 }
 
-function renderQuarantine(q) {
+function renderIntake(q) {
   const stateClass = q.is_dismissed ? 'dismissed' : (q.is_read ? 'read' : 'unread');
   return `<div class="item ${stateClass}" id="item-${esc(q.id)}">
     <div class="meta">
-      <span class="source">quarantine</span>
+      <span class="source">intake</span>
       <span class="ts">${esc(fmtTime(q.submitted_at_iso))}</span>
       <span>${esc(q.ip_prefix||'')} ${esc(q.country||'')}</span>
       <span style="font-family:'JetBrains Mono',monospace;">${esc(q.id)}</span>
@@ -486,9 +492,23 @@ function renderQuarantine(q) {
         : `<button class="primary" onclick="mark('${esc(q.id)}','read')">Mark read</button>`}
       ${q.is_dismissed
         ? `<button onclick="mark('${esc(q.id)}','unread')">Restore</button>`
-        : `<button onclick="mark('${esc(q.id)}','dismiss')">Dismiss</button>`}
+        : `<button onclick="mark('${esc(q.id)}','dismiss')">Hide</button>`}
       <button onclick="runInEngine('${esc(q.id)}')">Run through engine →</button>
+      <button onclick="recognizeArchetype('${esc(q.id)}')">Recognize archetype</button>
+      <button onclick="flush('${esc(q.id)}')" title="Move to quarantine (trash)" style="border-color:rgba(224,124,124,0.35);color:#f7b9b3;">Flush →</button>
     </div>
+  </div>`;
+}
+
+function renderFlushed(q) {
+  return `<div class="item dismissed" id="item-${esc(q.id)}">
+    <div class="meta">
+      <span class="source" style="color:#f7b9b3;">quarantine</span>
+      <span class="ts">flushed ${esc(fmtTime(q.flushed_at_iso || q.submitted_at_iso))}</span>
+      <span style="font-family:'JetBrains Mono',monospace;">${esc(q.id)}</span>
+    </div>
+    ${q.title ? `<div class="subject">${esc(q.title)}</div>` : ''}
+    <div class="body short">${esc(q.text)}</div>
   </div>`;
 }
 
@@ -496,12 +516,32 @@ function render() {
   const list = $('itemList');
   const filter = $('filterSel').value;
   let items = [];
-  if (CURRENT_TAB === 'messages' || CURRENT_TAB === 'all') {
+
+  if (CURRENT_TAB === 'messages') {
     DATA.messages.forEach(m => items.push({...m, _type: 'message', _ts: m.received_at || 0}));
+  } else if (CURRENT_TAB === 'intake') {
+    DATA.intake.forEach(q => items.push({...q, _type: 'intake', _ts: q.submitted_at || 0}));
+  } else if (CURRENT_TAB === 'quarantine') {
+    // Trash view — list with a Clean button at the top
+    const flushed = DATA.quarantine_flushed || [];
+    let html = '';
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:14px 18px;background:rgba(224,124,124,0.06);border:1px solid rgba(224,124,124,0.25);border-radius:8px;">
+      <div style="font-family:'Crimson Pro',serif;font-style:italic;color:var(--muted-2);font-size:13.5px;">
+        ${flushed.length} item${flushed.length === 1 ? '' : 's'} flushed. Quarantine is the trash — empty it when you're ready.
+      </div>
+      <button onclick="cleanQuarantine()" style="background:transparent;color:#f7b9b3;border:1px solid rgba(224,124,124,0.4);border-radius:6px;padding:6px 14px;font:500 13px inherit;cursor:pointer;">Clean quarantine</button>
+    </div>`;
+    if (!flushed.length) {
+      html += '<div class="empty-state">Trash is empty.</div>';
+    } else {
+      html += flushed.sort((a,b) => (b.flushed_at||b.submitted_at||0) - (a.flushed_at||a.submitted_at||0))
+        .map(renderFlushed).join('');
+    }
+    list.innerHTML = html;
+    return;
   }
-  if (CURRENT_TAB === 'quarantine' || CURRENT_TAB === 'all') {
-    DATA.quarantine.forEach(q => items.push({...q, _type: 'quarantine', _ts: q.submitted_at || 0}));
-  }
+
+  // messages / intake share the filter logic
   items = items.filter(i => {
     if (filter === 'all') return true;
     if (filter === 'unread') return !i.is_read && !i.is_dismissed;
@@ -515,7 +555,7 @@ function render() {
     return;
   }
   list.innerHTML = items.map(i =>
-    i._type === 'message' ? renderMessage(i) : renderQuarantine(i)
+    i._type === 'message' ? renderMessage(i) : renderIntake(i)
   ).join('');
 }
 
@@ -527,18 +567,60 @@ window.mark = async function(id, action) {
       body: JSON.stringify({id, action}),
     });
     if (!r.ok) return;
-    // Update local cache and re-render
-    [...DATA.messages, ...DATA.quarantine].forEach(item => {
+    [...DATA.messages, ...DATA.intake].forEach(item => {
       if (item.id !== id) return;
       if (action === 'read') { item.is_read = true; item.is_dismissed = false; }
       else if (action === 'dismiss') { item.is_dismissed = true; item.is_read = false; }
       else if (action === 'unread') { item.is_read = false; item.is_dismissed = false; }
     });
-    // Recompute unread counts
-    DATA.unread_messages = DATA.messages.filter(m => !m.is_read && !m.is_dismissed).length;
-    DATA.unread_quarantine = DATA.quarantine.filter(q => !q.is_read && !q.is_dismissed).length;
-    $('sMsgUnread').textContent = DATA.unread_messages;
-    $('sQUnread').textContent = DATA.unread_quarantine;
+    const msgUn = DATA.messages.filter(m => !m.is_read && !m.is_dismissed).length;
+    const intUn = DATA.intake.filter(q => !q.is_read && !q.is_dismissed).length;
+    $('sMsgUnread').textContent = msgUn;
+    $('sIUnread').textContent = intUn;
+    render();
+  } catch (e) {}
+};
+
+window.flush = async function(id) {
+  if (!confirm('Flush this intake item to quarantine? It will be moved to the trash.')) return;
+  try {
+    const r = await fetch('/inbox/mark', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({id, action: 'flush'}),
+    });
+    if (!r.ok) return;
+    // Move locally
+    const idx = DATA.intake.findIndex(q => q.id === id);
+    if (idx >= 0) {
+      const [item] = DATA.intake.splice(idx, 1);
+      item.flushed_at = Math.floor(Date.now()/1000);
+      item.flushed_at_iso = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+      DATA.quarantine_flushed.unshift(item);
+    }
+    $('sIUnread').textContent = DATA.intake.filter(q => !q.is_read && !q.is_dismissed).length;
+    $('sQTrash').textContent  = DATA.quarantine_flushed.length;
+    $('tabICount').textContent = `(${DATA.intake.length})`;
+    $('tabQCount').textContent = `(${DATA.quarantine_flushed.length})`;
+    render();
+  } catch (e) {}
+};
+
+window.cleanQuarantine = async function() {
+  const n = DATA.quarantine_flushed.length;
+  if (!n) return;
+  if (!confirm(`Empty the quarantine? This will permanently remove ${n} item${n===1?'':'s'}.`)) return;
+  try {
+    const r = await fetch('/quarantine/clean', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      body: JSON.stringify({confirm: true}),
+    });
+    if (!r.ok) return;
+    const d = await r.json();
+    DATA.quarantine_flushed = [];
+    $('sQTrash').textContent = '0';
+    $('tabQCount').textContent = `(0)`;
     render();
   } catch (e) {}
 };
@@ -549,11 +631,19 @@ window.replyTo = function(email, subject) {
 };
 
 window.runInEngine = function(id) {
-  const q = DATA.quarantine.find(x => x.id === id);
+  const q = DATA.intake.find(x => x.id === id);
   if (!q) return;
-  // Push the text into /run.html with text encoded in localStorage
   try { localStorage.setItem('concordance_prefill_text', q.text); } catch (e) {}
   window.open('/run.html?prefill=1', '_blank');
+};
+
+window.recognizeArchetype = function(id) {
+  const q = DATA.intake.find(x => x.id === id);
+  if (!q) return;
+  try { localStorage.setItem('concordance_prefill_text', q.text); } catch (e) {}
+  // Open /archetypes.html with the situation prefilled via hash
+  const url = '/archetypes.html?from=intake&id=' + encodeURIComponent(id);
+  window.open(url, '_blank');
 };
 </script>
 </body>

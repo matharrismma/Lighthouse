@@ -385,18 +385,23 @@ def visits_stats(days: int = 7):
     }
 
 
-# -- Quarantine intake + operator inbox -----------------------------------
-# Easy ingest surface — anyone can throw text/url/title at the engine; it
-# lands in a quarantine queue that the operator reviews. Same surface
-# accepts contact messages. Operator-only endpoints view the queue and
-# mark items read/dismissed.
+# -- Intake + quarantine + operator inbox --------------------------------
+# Anyone can throw text/url/title at the engine — it lands in INTAKE, the
+# working queue. The operator decomposes intake items into provisional
+# packets and tests them; what survives is kept, what fails is FLUSHED
+# to QUARANTINE. Quarantine is the trash can — items there get cleaned
+# out periodically. The mailbox at /inbox surfaces both, plus contact
+# messages.
 
+_INTAKE_DIR    = Path(__file__).parent.parent / "data" / "intake"
 _QUARANTINE_DIR = Path(__file__).parent.parent / "data" / "quarantine"
 _INBOX_DIR     = Path(__file__).parent.parent / "data" / "inbox"
+_INTAKE_DIR.mkdir(parents=True, exist_ok=True)
 _QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
 _INBOX_DIR.mkdir(parents=True, exist_ok=True)
 
-_QUARANTINE_FILE = _QUARANTINE_DIR / "queue.jsonl"
+_INTAKE_FILE     = _INTAKE_DIR / "queue.jsonl"        # working queue
+_QUARANTINE_FILE = _QUARANTINE_DIR / "flushed.jsonl"  # trash (terminal)
 _INBOX_FILE      = _INBOX_DIR / "messages.jsonl"
 _INBOX_STATE     = _INBOX_DIR / "state.json"
 
@@ -410,10 +415,14 @@ def _short_hash(text: str) -> str:
 def _load_state() -> Dict[str, Any]:
     try:
         if _INBOX_STATE.exists():
-            return json.loads(_INBOX_STATE.read_text("utf-8"))
+            s = json.loads(_INBOX_STATE.read_text("utf-8"))
+            s.setdefault("read_ids", [])
+            s.setdefault("dismissed_ids", [])
+            s.setdefault("flushed_ids", [])
+            return s
     except Exception:
         pass
-    return {"read_ids": [], "dismissed_ids": []}
+    return {"read_ids": [], "dismissed_ids": [], "flushed_ids": []}
 
 
 def _save_state(state: Dict[str, Any]) -> None:
@@ -423,13 +432,17 @@ def _save_state(state: Dict[str, Any]) -> None:
         pass
 
 
-class _QuarantineSubmit(BaseModel):
+class _IntakeSubmit(BaseModel):
     """Throw anything at the engine. Title optional; text required.
     URL optional. Contributor handle optional. No email required."""
     title: str = ""
     text: str
     url: str = ""
     contributor_handle: str = ""
+
+
+# Back-compat: older clients posted to /quarantine/submit. Same payload.
+_QuarantineSubmit = _IntakeSubmit
 
 
 class _ContactSubmit(BaseModel):
@@ -440,13 +453,10 @@ class _ContactSubmit(BaseModel):
     message: str
 
 
-@app.post("/quarantine/submit", tags=["quarantine"])
-def quarantine_submit(request: Request, req: _QuarantineSubmit):
-    """Public ingest. Anyone, no auth. Lands in quarantine for the
-    operator to decompose into provisional packets.
-
-    Per the engine's posture: everything new enters quarantine. The
-    keeping decides what survives."""
+def _do_intake_submit(request: Request, req: _IntakeSubmit) -> Dict[str, Any]:
+    """Core intake handler. Used by /intake and the legacy
+    /quarantine/submit alias. Lands in data/intake/queue.jsonl —
+    intake is the working queue. Quarantine is the trash."""
     _rate_check(request, "propose")
     text = (req.text or "").strip()
     if not text:
@@ -462,6 +472,9 @@ def quarantine_submit(request: Request, req: _QuarantineSubmit):
     if handle and not _community.is_valid_handle(handle):
         handle = ""
 
+    # Keep the "q-" prefix on item IDs for backward compatibility with
+    # any state.json entries from before the rename — the prefix is
+    # opaque, the lane is determined by which file it lives in.
     record = {
         "id": "q-" + _short_hash(text + str(now)),
         "submitted_at": now,
@@ -476,7 +489,7 @@ def quarantine_submit(request: Request, req: _QuarantineSubmit):
         "polymathic_attempted": False,
     }
     try:
-        with open(_QUARANTINE_FILE, "a", encoding="utf-8") as fh:
+        with open(_INTAKE_FILE, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"could not persist: {exc}")
@@ -484,11 +497,25 @@ def quarantine_submit(request: Request, req: _QuarantineSubmit):
     return {
         "ok": True,
         "id": record["id"],
-        "message": "Thanks. It's in quarantine. The keeping decides what survives.",
+        "message": "Received. It's in intake. The keeping decides what survives.",
     }
 
 
-@app.post("/contact", tags=["quarantine"])
+@app.post("/intake", tags=["intake"])
+def intake_submit(request: Request, req: _IntakeSubmit):
+    """Public ingest. Anyone, no auth. Lands in INTAKE — the working
+    queue. The operator decomposes items into provisional packets;
+    what fails the test is flushed to quarantine."""
+    return _do_intake_submit(request, req)
+
+
+@app.post("/quarantine/submit", tags=["intake"], include_in_schema=False)
+def quarantine_submit_legacy(request: Request, req: _IntakeSubmit):
+    """Deprecated alias. Use /intake instead."""
+    return _do_intake_submit(request, req)
+
+
+@app.post("/contact", tags=["intake"])
 def contact_submit(request: Request, req: _ContactSubmit):
     """Leave Matt a message. Public, rate-limited."""
     _rate_check(request, "propose")
@@ -543,51 +570,205 @@ def _read_jsonl(path: Path, limit: Optional[int] = None) -> List[Dict[str, Any]]
     return out
 
 
-@app.get("/inbox", tags=["quarantine"])
+@app.get("/inbox", tags=["intake"])
 def inbox_index(request: Request, limit: int = Query(100, ge=1, le=500)):
-    """Operator-only mailbox + quarantine queue.
+    """Operator-only console feed.
 
-    Returns both contact messages and quarantine submissions, newest
-    first. Read/dismissed state is per-id in data/inbox/state.json."""
+    Returns three lanes:
+      - messages: contact form submissions
+      - intake: working queue (items awaiting decomposition)
+      - quarantine: flushed items (the trash; can be cleaned)
+
+    Read/dismissed/flushed state lives per-id in data/inbox/state.json.
+    """
     _community_require_api_key(request)
     state = _load_state()
     read = set(state.get("read_ids", []))
     dismissed = set(state.get("dismissed_ids", []))
+    flushed = set(state.get("flushed_ids", []))
+
     messages = _read_jsonl(_INBOX_FILE, limit=limit)
-    queue = _read_jsonl(_QUARANTINE_FILE, limit=limit)
+    intake = _read_jsonl(_INTAKE_FILE, limit=limit)
+    quarantine = _read_jsonl(_QUARANTINE_FILE, limit=limit)
+
     for m in messages:
         m["is_read"] = m.get("id") in read
         m["is_dismissed"] = m.get("id") in dismissed
-    for q in queue:
+    for q in intake:
         q["is_read"] = q.get("id") in read
         q["is_dismissed"] = q.get("id") in dismissed
+        q["is_flushed"] = q.get("id") in flushed
+    for q in quarantine:
+        # Items in quarantine are inherently flushed. Show read state for
+        # the operator's bookkeeping.
+        q["is_read"] = q.get("id") in read
+        q["is_flushed"] = True
+
     unread_msgs = sum(1 for m in messages if not m["is_read"] and not m["is_dismissed"])
-    unread_q    = sum(1 for q in queue    if not q["is_read"] and not q["is_dismissed"])
+    unread_intake = sum(1 for q in intake if not q["is_read"] and not q["is_dismissed"] and not q["is_flushed"])
+
     return {
         "unread_messages": unread_msgs,
-        "unread_quarantine": unread_q,
+        "unread_intake": unread_intake,
         "total_messages": len(messages),
-        "total_quarantine": len(queue),
+        "total_intake": len(intake),
+        "total_quarantine": len(quarantine),
+        # Back-compat aliases for older Console builds:
+        "unread_quarantine": unread_intake,
+        "quarantine": intake,
+        # Canonical lanes:
         "messages": messages,
-        "quarantine": queue,
+        "intake": intake,
+        "quarantine_flushed": quarantine,
     }
+
+
+def _move_intake_to_quarantine(item_id: str) -> bool:
+    """Move a single item from intake/queue.jsonl to quarantine/flushed.jsonl.
+    Returns True if moved, False if not found."""
+    if not _INTAKE_FILE.exists():
+        return False
+    kept: List[str] = []
+    moved: Optional[Dict[str, Any]] = None
+    try:
+        with _INTAKE_FILE.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                except Exception:
+                    kept.append(line.rstrip("\n"))
+                    continue
+                if rec.get("id") == item_id and moved is None:
+                    rec["flushed_at"] = int(time.time())
+                    rec["flushed_at_iso"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                    moved = rec
+                else:
+                    kept.append(json.dumps(rec, ensure_ascii=False))
+    except Exception:
+        return False
+    if moved is None:
+        return False
+    # Rewrite intake without the moved item, append to quarantine.
+    try:
+        tmp = _INTAKE_FILE.with_suffix(".jsonl.tmp")
+        with tmp.open("w", encoding="utf-8") as fh:
+            for ln in kept:
+                fh.write(ln + "\n")
+        tmp.replace(_INTAKE_FILE)
+        with _QUARANTINE_FILE.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(moved, ensure_ascii=False) + "\n")
+    except Exception:
+        return False
+    return True
+
+
+class _IntakeFlush(BaseModel):
+    id: str
+
+
+@app.post("/intake/flush", tags=["intake"])
+def intake_flush(request: Request, req: _IntakeFlush):
+    """Move an intake item to quarantine. Operator-only.
+
+    Quarantine is the trash; items there get cleaned periodically.
+    Use this when an intake item has any issue — wrong shape, spam,
+    out of scope, malformed.
+    """
+    _community_require_api_key(request)
+    item_id = (req.id or "").strip()
+    if not item_id:
+        raise HTTPException(status_code=400, detail="id required")
+    moved = _move_intake_to_quarantine(item_id)
+    if not moved:
+        raise HTTPException(status_code=404, detail="intake item not found")
+    state = _load_state()
+    flushed_ids = set(state.get("flushed_ids", []))
+    flushed_ids.add(item_id)
+    state["flushed_ids"] = sorted(flushed_ids)
+    _save_state(state)
+    return {"ok": True, "id": item_id, "action": "flushed"}
+
+
+class _QuarantineClean(BaseModel):
+    confirm: bool = False
+    only_older_than_days: int = 0  # 0 = clean everything
+
+
+@app.post("/quarantine/clean", tags=["intake"])
+def quarantine_clean(request: Request, req: _QuarantineClean):
+    """Empty the quarantine. Operator-only.
+
+    `confirm` must be True or this no-ops. Set `only_older_than_days`
+    to keep recent flushed items for review. Default 0 cleans all.
+    """
+    _community_require_api_key(request)
+    if not req.confirm:
+        raise HTTPException(status_code=400, detail="confirm must be true")
+    if not _QUARANTINE_FILE.exists():
+        return {"ok": True, "removed": 0, "remaining": 0}
+    cutoff = 0
+    if req.only_older_than_days and req.only_older_than_days > 0:
+        cutoff = int(time.time()) - (req.only_older_than_days * 86400)
+    removed = 0
+    remaining: List[str] = []
+    try:
+        with _QUARANTINE_FILE.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                except Exception:
+                    continue
+                ts = rec.get("flushed_at") or rec.get("submitted_at") or 0
+                if cutoff and ts > cutoff:
+                    remaining.append(json.dumps(rec, ensure_ascii=False))
+                else:
+                    removed += 1
+        with _QUARANTINE_FILE.open("w", encoding="utf-8") as fh:
+            for ln in remaining:
+                fh.write(ln + "\n")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"clean failed: {exc}")
+    return {"ok": True, "removed": removed, "remaining": len(remaining)}
 
 
 class _InboxMark(BaseModel):
     id: str
-    action: str  # "read" | "dismiss" | "unread"
+    action: str  # "read" | "dismiss" | "unread" | "flush"
 
 
-@app.post("/inbox/mark", tags=["quarantine"])
+@app.post("/inbox/mark", tags=["intake"])
 def inbox_mark(request: Request, req: _InboxMark):
-    """Mark an inbox/quarantine item as read, dismissed, or restored to unread."""
+    """Mark an inbox item.
+
+    Actions:
+      - read    : mark as read
+      - unread  : restore to unread
+      - dismiss : hide from default view (still in original lane)
+      - flush   : move from intake → quarantine (intake items only)
+    """
     _community_require_api_key(request)
     item_id = (req.id or "").strip()
     action = (req.action or "").strip().lower()
     if not item_id:
         raise HTTPException(status_code=400, detail="id required")
-    if action not in ("read", "dismiss", "unread"):
-        raise HTTPException(status_code=400, detail="action must be read|dismiss|unread")
+    if action not in ("read", "dismiss", "unread", "flush"):
+        raise HTTPException(status_code=400, detail="action must be read|dismiss|unread|flush")
+
+    if action == "flush":
+        moved = _move_intake_to_quarantine(item_id)
+        if not moved:
+            raise HTTPException(status_code=404, detail="intake item not found")
+        state = _load_state()
+        flushed_ids = set(state.get("flushed_ids", []))
+        flushed_ids.add(item_id)
+        state["flushed_ids"] = sorted(flushed_ids)
+        _save_state(state)
+        return {"ok": True, "id": item_id, "action": "flushed"}
+
     state = _load_state()
     read_ids = set(state.get("read_ids", []))
     dismissed_ids = set(state.get("dismissed_ids", []))
