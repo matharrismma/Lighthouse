@@ -178,30 +178,14 @@ def verify_duration_addition(spec: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
-# ── IANA timezone checks (Python stdlib zoneinfo) ───────────────────────
-
-def verify_timezone_exists(spec: Dict[str, Any]) -> VerifierResult:
-    """Check that a claimed IANA tz name exists in the system tz database."""
-    name = "calendar_time.timezone_exists"
-    tz = (spec.get("timezone") or "").strip()
-    claimed_exists = spec.get("claimed_timezone_valid")
-    if not tz or claimed_exists is None:
-        return na(name)
-    try:
-        from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
-    except ImportError:
-        return na(name)
-    try:
-        ZoneInfo(tz)
-        actual = True
-    except Exception:
-        actual = False
-    data = {"timezone": tz, "actual_exists": actual,
-            "claimed_exists": bool(claimed_exists),
-            "source": "Python stdlib zoneinfo (IANA tz database)"}
-    if actual == bool(claimed_exists):
-        return confirm(name, f"timezone {tz!r} exists={actual} (matches claim)", data)
-    return mismatch(name, f"timezone {tz!r} actually exists={actual}, claimed {claimed_exists}", data)
+# ── IANA timezone math (Python stdlib zoneinfo) ────────────────────────
+# Removed: verify_timezone_exists. Whether "America/New_York" is a valid
+# IANA tz name is a political/legal authority claim (the IANA committee
+# accepted the name) — it doesn't reduce to math. On the build queue at
+# data/build_queue/queue.jsonl.
+#
+# Kept: verify_utc_offset. Given a tz, computing the UTC offset at a
+# datetime is mechanical math (DST rules + offset table), so it survives.
 
 
 def verify_utc_offset(spec: Dict[str, Any]) -> VerifierResult:
@@ -267,8 +251,6 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_day_of_week(cv))
     if all(k in cv for k in ("start_iso", "duration_seconds", "claimed_end_iso")):
         results.append(verify_duration_addition(cv))
-    if "timezone" in cv and "claimed_timezone_valid" in cv:
-        results.append(verify_timezone_exists(cv))
     if "timezone" in cv and "at_iso" in cv and "claimed_utc_offset_hours" in cv:
         results.append(verify_utc_offset(cv))
 

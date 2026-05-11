@@ -201,15 +201,27 @@ def _lookup(spec: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 
 def verify_element(spec: Dict[str, Any]) -> VerifierResult:
-    """Verify any claim that ties together symbol/name/number/mass."""
+    """Verify a claim about an element's identity.
+
+    Three claim shapes are supported and all are DEFINITIONAL — they
+    reduce to identity not measurement:
+      * atomic_number ↔ proton count (Z is defined as the proton count)
+      * symbol ↔ canonical IUPAC two-letter abbreviation (definition)
+      * name ↔ canonical element name (definition)
+
+    Atomic MASS is intentionally NOT supported. Atomic mass is a measured
+    (or weighted-average measured) quantity — not derivable from constants
+    of truth without running mass spectrometry. On the engine's build
+    queue under data/build_queue/queue.jsonl.
+    """
     name = "periodic_table.element"
     el = _lookup(spec)
     if not el:
         return na(name)
     mismatches: List[str] = []
     data: Dict[str, Any] = {
-        "looked_up": el,
-        "source": "IUPAC 2021 standard atomic weights",
+        "looked_up": {k: v for k, v in el.items() if k != "atomic_mass"},
+        "source": "IUPAC element identity (definitional)",
     }
     claimed_z = spec.get("claimed_atomic_number")
     if claimed_z is not None:
@@ -234,41 +246,27 @@ def verify_element(spec: Dict[str, Any]) -> VerifierResult:
         data["claimed_symbol"] = norm
         if norm != el["symbol"]:
             mismatches.append(f"symbol: actual {el['symbol']}, claimed {norm}")
-    claimed_mass = spec.get("claimed_atomic_mass")
-    if claimed_mass is not None:
-        try:
-            cm = float(claimed_mass)
-            data["claimed_atomic_mass"] = cm
-            rel_tol = float(spec.get("mass_rel_tol") or 0.01)
-            threshold = abs(el["atomic_mass"]) * rel_tol
-            diff = abs(el["atomic_mass"] - cm)
-            data["actual_atomic_mass"] = el["atomic_mass"]
-            data["mass_diff"] = diff
-            if diff > threshold:
-                mismatches.append(
-                    f"atomic mass: actual {el['atomic_mass']}, claimed {cm} (tol {rel_tol})"
-                )
-        except (TypeError, ValueError):
-            pass
-    # Did the caller actually claim anything? If not, NA.
+    # Did the caller claim any of the supported (definitional) attributes?
     if not any(k in spec for k in (
-        "claimed_atomic_number", "claimed_name", "claimed_symbol", "claimed_atomic_mass",
+        "claimed_atomic_number", "claimed_name", "claimed_symbol",
     )):
         return na(name)
     if mismatches:
         return mismatch(name, "; ".join(mismatches), data)
     return confirm(
         name,
-        f"{el['symbol']} ({el['name']}, Z={el['atomic_number']}, m={el['atomic_mass']}) — claims match",
+        f"{el['symbol']} ({el['name']}, Z={el['atomic_number']}) — definitional claims match",
         data,
     )
 
 
 def list_elements() -> List[Dict[str, Any]]:
+    """Public listing — atomic_mass deliberately omitted because the
+    verifier does not confirm mass claims (measured quantity)."""
     return [
-        {"atomic_number": z, "symbol": s, "name": n, "atomic_mass": m,
+        {"atomic_number": z, "symbol": s, "name": n,
          "stable": s not in _NO_STABLE_ISOTOPE}
-        for z, s, n, m in _ELEMENTS
+        for z, s, n, _m in _ELEMENTS
     ]
 
 

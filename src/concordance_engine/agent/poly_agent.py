@@ -82,8 +82,7 @@ _ALL_DOMAINS = [
     # Materials / cross-domain
     "materials_science", "architecture",
     # Public-domain reference data verifiers
-    "physical_constants", "periodic_table", "ephemeris", "cross_references",
-    "food_database", "fred_economics",
+    "physical_constants", "periodic_table", "ephemeris",
 ]
 
 # Deduplicate while preserving order

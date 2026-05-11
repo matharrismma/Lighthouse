@@ -43,10 +43,8 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "claimed_pressure_Pa", "claimed_volume_m3", "claimed_temperature_K",
         "mass_kg", "specific_heat_J_per_kgK", "delta_T_K", "claimed_heat_J",
         "heat_J", "claimed_entropy_change_J_per_K",
-        # phase points at 1 atm (water, ethanol, iron, mercury, etc.):
-        "substance",
-        "claimed_boiling_point_C", "claimed_boiling_point_F", "claimed_boiling_point_K",
-        "claimed_melting_point_C", "claimed_melting_point_F", "claimed_melting_point_K",
+        # Phase-point fields intentionally removed — measurement lookup,
+        # not math. On the build queue.
     ],
     "energy": [
         "mass_kg", "height_m", "claimed_potential_energy_J",
@@ -78,9 +76,9 @@ _HAND_CURATED: Dict[str, List[str]] = {
                                 "iso8601_string", "claimed_iso8601_valid",
                                 "date_iso", "claimed_day_of_week",
                                 "start_iso", "duration_seconds", "claimed_end_iso",
-                                # IANA tz checks:
-                                "timezone", "claimed_timezone_valid",
-                                "at_iso", "claimed_utc_offset_hours",
+                                # IANA tz utc-offset math (the tz-exists
+                                # authority check was removed):
+                                "timezone", "at_iso", "claimed_utc_offset_hours",
                                 "offset_tolerance_hours"],
     "ecology":                 ["births", "deaths", "immigrants", "emigrants", "claimed_growth_rate"],
     "soil_science":            ["sand_pct", "silt_pct", "clay_pct", "claimed_texture_class"],
@@ -92,7 +90,7 @@ _HAND_CURATED: Dict[str, List[str]] = {
     "operations_research":     ["capacity", "demand", "costs", "claimed_optimal_allocation"],
     "law":                     ["statute_or_rule", "facts", "claimed_applies"],
     "history_chronology":      ["event", "claimed_year", "event_a", "event_b", "claimed_event_a_before_event_b"],
-    "scripture_anchors":       ["anchors", "refs", "claimed_pattern"],
+    "scripture_anchors":       ["refs", "claimed_pattern"],
     "theology_doctrine":       ["claim", "claimed_orthodox"],
     "governance_decision_packet": ["packet"],
     "philosophy":              ["argument_form", "premises", "conclusion", "claimed_valid"],
@@ -111,9 +109,10 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "constant", "claimed_value", "claimed_unit", "rel_tol",
     ],
     "periodic_table": [
+        # Definitional identity only: Z = proton count, symbol, name.
+        # claimed_atomic_mass intentionally removed (measurement lookup).
         "symbol", "name", "atomic_number",
-        "claimed_atomic_number", "claimed_atomic_mass", "claimed_name",
-        "claimed_symbol", "mass_rel_tol",
+        "claimed_atomic_number", "claimed_name", "claimed_symbol",
     ],
     "ephemeris": [
         "iso_date", "claimed_julian_day",
@@ -121,25 +120,6 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "year", "event", "claimed_event_iso",
         "lat", "lon", "tz_offset_hours",
         "claimed_sunrise_hour", "claimed_sunset_hour",
-    ],
-    "cross_references": [
-        # exists check
-        "from_ref", "to_ref", "claimed_connected",
-        # typology claim
-        "claim_a_ref", "claim_b_ref", "claimed_typology",
-        # listing (informational)
-        "list_for_ref", "list_limit",
-    ],
-    "food_database": [
-        "food", "amount_g",
-        "claimed_kcal", "claimed_protein_g", "claimed_carbs_g",
-        "claimed_fat_g", "claimed_fiber_g",
-        "rel_tol",
-    ],
-    "fred_economics": [
-        # series_id is one of: CPI_INFLATION, UNEMP_RATE, FED_FUNDS, REAL_GDP_GROWTH
-        # OR plain aliases like 'inflation', 'unemployment', 'fed_funds', 'gdp_growth'
-        "series_id", "year", "claimed_value", "rel_tol", "abs_tol",
     ],
 }
 
