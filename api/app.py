@@ -885,6 +885,51 @@ def intake_get_one(request: Request, item_id: str):
     return rec
 
 
+# -- Build queue (public) -----------------------------------------------
+# Surfaces what the engine knows it cannot yet verify. The principle is
+# transparency: a visitor should be able to see what we can verify, what
+# we're working on, and what we've decided we won't verify (and why).
+# Public, read-only.
+
+_BUILD_QUEUE_FILE = Path(__file__).parent.parent / "data" / "build_queue" / "queue.jsonl"
+
+
+@app.get("/build-queue", tags=["public"])
+def build_queue_list():
+    """Public listing of capability gaps with the math chains that would
+    close each one. Open status: actively wanted. Declined status: no
+    math chain exists; engine deliberately doesn't try.
+    """
+    items: List[Dict[str, Any]] = []
+    if _BUILD_QUEUE_FILE.exists():
+        try:
+            for line in _BUILD_QUEUE_FILE.read_text("utf-8", errors="replace").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    items.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        except OSError:
+            pass
+    by_status: Dict[str, List[Dict[str, Any]]] = {"open": [], "declined": [], "other": []}
+    for it in items:
+        s = (it.get("status") or "open").lower()
+        if s == "open":
+            by_status["open"].append(it)
+        elif s == "declined":
+            by_status["declined"].append(it)
+        else:
+            by_status["other"].append(it)
+    return {
+        "total": len(items),
+        "open": len(by_status["open"]),
+        "declined": len(by_status["declined"]),
+        "by_status": by_status,
+    }
+
+
 # -- Misalignment review -------------------------------------------------
 # Every non-CONCORDANT verdict from /polymathic is auto-logged. The
 # operator reviews each one and routes it: archive (user wrong), promote
@@ -2509,6 +2554,7 @@ class ConfessRequest(BaseModel):
     role: str = ""                            # confessor's role
     reason: str                               # what was wrong
     corrected_approach: Optional[str] = None  # what the right approach would be
+    contributor_handle: str = ""              # optional registered handle — bumps the confessions stat
 
 
 @app.post("/confess", include_in_schema=True)
@@ -2547,6 +2593,21 @@ def confess(req: ConfessRequest):
         entry = ledger.append(confession_packet, "CONFESSION", [])
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"ledger write failed: {exc}")
+
+    # Community attribution — optional handle. Bumps the `confessions`
+    # stat so the canon's "confess" path to brotherhood (has_entered_wisdom)
+    # actually fires for registered contributors. Without this bump, the
+    # ladder included confessions in theory but nothing wired the count.
+    handle = (req.contributor_handle or "").strip().lower()
+    if handle and _community.is_valid_handle(handle):
+        if _community.load_contributor(handle) is not None:
+            _community.bump_stat(handle, "confessions", 1)
+            _community.log_activity({
+                "kind": "confession",
+                "handle": handle,
+                "confessed_seq": req.ref_seq,
+                "confession_seq": entry.seq,
+            })
 
     return {
         "confessed_seq": req.ref_seq,

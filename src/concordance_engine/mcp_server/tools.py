@@ -67,6 +67,7 @@ from ..verifiers import history_chronology as _history_chronology
 from ..verifiers import physical_constants as _physical_constants
 from ..verifiers import periodic_table as _periodic_table
 from ..verifiers import ephemeris as _ephemeris
+from ..verifiers import layer_zero_grounding as _layer_zero_grounding
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -566,6 +567,11 @@ def verify_periodic_table(spec):
 def verify_ephemeris(spec):
     """Computational astronomy: Julian day, moon phase, equinox/solstice dates, sunrise/sunset by lat/lon. Algorithms from Meeus (public domain). Low-precision (±1 day for equinox, ±30 min for sunrise)."""
     return {"checks": [_r(r) for r in _ephemeris.run({"EPH_VERIFY": spec or {}})]}
+
+
+def verify_layer_zero_grounding(spec):
+    """Surface the WEB Bible (Layer 0) passages that anchor a Scripture-citing claim. Engine returns the actual text of cited verses; it does NOT interpret. CONFIRMED when one or more cited references resolve to real WEB passages; MISMATCH when any cited reference cannot be resolved (catches fabricated citations like 'Hezekiah 4:21'). Layer 0 is taken on faith; this verifier only surfaces."""
+    return {"checks": [_r(r) for r in _layer_zero_grounding.run({"LAYER0_VERIFY": spec or {}})]}
 
 
 def verify_quantum_computing(spec):
@@ -1504,6 +1510,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_physical_constants": verify_physical_constants,
     "verify_periodic_table": verify_periodic_table,
     "verify_ephemeris": verify_ephemeris,
+    "verify_layer_zero_grounding": verify_layer_zero_grounding,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

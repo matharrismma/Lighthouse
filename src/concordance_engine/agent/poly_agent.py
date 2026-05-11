@@ -83,6 +83,8 @@ _ALL_DOMAINS = [
     "materials_science", "architecture",
     # Public-domain reference data verifiers
     "physical_constants", "periodic_table", "ephemeris",
+    # Layer 0 — Scripture grounding (engine surfaces WEB text; does not interpret)
+    "layer_zero_grounding",
 ]
 
 # Deduplicate while preserving order
@@ -159,6 +161,40 @@ _CLASSIFY_SYSTEM = (
     "expression, operation_type, etc.). Use ONLY the field names listed above. "
     'Return ONLY valid JSON: {"domain": "<name>", "spec": {<exact verifier fields>}}. '
     "\n\n"
+    "🛑 CRITICAL — DO NOT CORRECT THE USER. EVER. 🛑\n"
+    "\n"
+    "Your ONLY job in this step is to extract the user's claim verbatim. Every numeric "
+    "value, every unit, every quantity — copy it from the user's text WORD FOR WORD into "
+    "the spec. Do NOT substitute the correct value. Do NOT 'fix' the user's mistake. The "
+    "verifier is what catches mistakes; if you fix them silently, the engine cannot do its "
+    "job.\n"
+    "\n"
+    "EXAMPLES OF WHAT TO DO:\n"
+    "  User says:  'Iron has atomic number 99.'\n"
+    "  WRONG spec: {symbol: 'Fe', claimed_atomic_number: 26}    ← you corrected it\n"
+    "  RIGHT spec: {symbol: 'Fe', claimed_atomic_number: 99}    ← user's value verbatim\n"
+    "\n"
+    "  User says:  'The speed of light is 100 m/s.'\n"
+    "  WRONG spec: {constant: 'speed_of_light', claimed_value: 299792458}\n"
+    "  RIGHT spec: {constant: 'speed_of_light', claimed_value: 100}\n"
+    "\n"
+    "  User says:  'A circle of radius 5 m has area 1000 m².'\n"
+    "  WRONG spec: {circle_radius: 5, claimed_circle_area: 78.54}\n"
+    "  RIGHT spec: {circle_radius: 5, claimed_circle_area: 1000}\n"
+    "\n"
+    "  User says:  'The derivative of x squared is x cubed.'\n"
+    "  WRONG spec: {mode: 'derivative', params: {function: 'x**2', variable: 'x', claimed_derivative: '2*x'}}\n"
+    "  RIGHT spec: {mode: 'derivative', params: {function: 'x**2', variable: 'x', claimed_derivative: 'x**3'}}\n"
+    "\n"
+    "  User says:  'A Carnot engine at 600 K hot and 300 K cold has 0.9 efficiency.'\n"
+    "  WRONG spec: {T_hot_K: 600, T_cold_K: 300, claimed_efficiency: 0.5}\n"
+    "  RIGHT spec: {T_hot_K: 600, T_cold_K: 300, claimed_efficiency: 0.9}\n"
+    "\n"
+    "If you 'correct' the value before passing it to the verifier, every claim that contains "
+    "an error returns CONFIRMED — which means the engine is lying to the user. Pass the "
+    "claim through faithfully and let the verifier compute the truth. That is the only way "
+    "the engine can do its job.\n"
+    "\n"
     "IMPORTANT: If a domain CLEARLY applies to this claim but you cannot extract a precise "
     "spec (e.g. the claim is about thermodynamics but you don't have all four values for any "
     "specific sub-verifier), STILL return that domain with the best-effort spec — or an empty "

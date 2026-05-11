@@ -1,0 +1,33 @@
+{"id":"truth-codata-speed-light","claim":"The speed of light in vacuum is 299792458 meters per second.","expected":"CONCORDANT","why":"CODATA exact SI definition since 1983"}
+{"id":"truth-codata-avogadro","claim":"Avogadro number is approximately 6.022e23 per mole.","expected":"CONCORDANT","why":"CODATA exact SI definition since 2019"}
+{"id":"truth-codata-planck","claim":"Planck constant h is approximately 6.626e-34 J*s.","expected":"CONCORDANT","why":"CODATA exact SI definition since 2019"}
+{"id":"truth-physics-fma","claim":"A 2 kg object accelerating at 3 m/s squared experiences a force of 6 newtons.","expected":"CONCORDANT","why":"F = ma dimensional analysis"}
+{"id":"truth-thermo-carnot","claim":"A Carnot engine between 600 K hot and 300 K cold has 0.5 maximum efficiency.","expected":"CONCORDANT","why":"eta = 1 - T_cold/T_hot"}
+{"id":"truth-math-derivative","claim":"The derivative of x squared with respect to x is 2x.","expected":"CONCORDANT","why":"calculus identity"}
+{"id":"truth-geometry-circle","claim":"A circle with radius 5 meters has area approximately 78.54 square meters.","expected":"CONCORDANT","why":"A = pi r^2"}
+{"id":"truth-number-fib10","claim":"The 10th Fibonacci number is 55.","expected":"CONCORDANT","why":"OEIS A000045"}
+{"id":"truth-number-catalan5","claim":"The 5th Catalan number is 42.","expected":"CONCORDANT","why":"OEIS A000108"}
+{"id":"truth-number-perfect-28","claim":"The number 28 is a perfect number.","expected":"CONCORDANT","why":"OEIS A000396"}
+{"id":"truth-chem-combustion","claim":"Methane CH4 combusts with oxygen: CH4 + 2 O2 -> CO2 + 2 H2O.","expected":"CONCORDANT","why":"balanced chemical equation"}
+{"id":"truth-leap-2024","claim":"The year 2024 is a leap year.","expected":"CONCORDANT","why":"Gregorian rule: divisible by 4, not by 100"}
+{"id":"truth-equinox-2024-summer","claim":"The summer solstice in 2024 occurred on June 20.","expected":"CONCORDANT","why":"Meeus ch. 27 ±2 d"}
+{"id":"truth-element-iron-Z","claim":"Iron has atomic number 26.","expected":"CONCORDANT","why":"definitional: Z = proton count"}
+{"id":"truth-element-gold-symbol","claim":"The chemical symbol for gold is Au.","expected":"CONCORDANT","why":"definitional"}
+{"id":"truth-economics-interest","claim":"Principal of 1000 dollars at 5 percent annual rate for 3 years yields 150 dollars in simple interest.","expected":"CONCORDANT","why":"I = P r t"}
+{"id":"truth-optics-thin-lens","claim":"An object 30 cm from a thin lens with focal length 10 cm forms an image at 15 cm.","expected":"CONCORDANT","why":"1/f = 1/d_o + 1/d_i"}
+{"id":"truth-meteorology-windchill","claim":"At 20 degrees Fahrenheit with 15 mph wind, the wind chill is about 6 degrees Fahrenheit.","expected":"CONCORDANT","why":"NWS wind chill formula"}
+{"id":"truth-acoustics-octave","claim":"From C4 to C5 is 12 semitones.","expected":"CONCORDANT","why":"music theory definition"}
+{"id":"truth-fluids-area","claim":"A rectangle 4 meters by 3 meters has area 12 square meters.","expected":"CONCORDANT","why":"A = l w"}
+{"id":"lie-speed-light-100","claim":"The speed of light is 100 meters per second.","expected":"DISCORDANT","why":"obviously wrong; CODATA catches it"}
+{"id":"lie-planck-wrong","claim":"Planck constant is 5e-34 J*s.","expected":"DISCORDANT","why":"wrong by ~30%"}
+{"id":"lie-physics-fma-wrong","claim":"A 2 kg object accelerating at 3 m/s squared experiences a force of 100 newtons.","expected":"DISCORDANT","why":"actual is 6 N"}
+{"id":"lie-leap-2023","claim":"2023 is a leap year.","expected":"DISCORDANT","why":"not divisible by 4"}
+{"id":"lie-fibonacci-wrong","claim":"The 10th Fibonacci number is 100.","expected":"DISCORDANT","why":"actual is 55"}
+{"id":"lie-element-iron-wrong-Z","claim":"Iron has atomic number 99.","expected":"DISCORDANT","why":"actual Z=26"}
+{"id":"lie-geometry-circle-wrong","claim":"A circle with radius 5 meters has area 1000 square meters.","expected":"DISCORDANT","why":"actual ~78.54"}
+{"id":"lie-thermo-carnot-wrong","claim":"A Carnot engine between 600 K hot and 300 K cold has 0.9 maximum efficiency.","expected":"DISCORDANT","why":"actual 0.5"}
+{"id":"lie-chem-unbalanced","claim":"CH4 + O2 -> CO2 + H2O is balanced.","expected":"DISCORDANT","why":"unbalanced; needs 2 O2 and 2 H2O"}
+{"id":"lie-math-derivative-wrong","claim":"The derivative of x squared is x cubed.","expected":"DISCORDANT","why":"actual 2x"}
+{"id":"gap-france-capital","claim":"The capital of France is Paris.","expected":"OUT_OF_SCOPE","why":"political authority — no math chain; declined kind"}
+{"id":"gap-lincoln-born","claim":"Abraham Lincoln was born in 1809.","expected":"OUT_OF_SCOPE","why":"general historical biography — no math chain; declined"}
+{"id":"gap-water-boils-100","claim":"Water boils at 100 degrees Celsius at 1 atm.","expected":"OUT_OF_SCOPE","why":"phase points removed; on build queue (Clausius-Clapeyron pending)"}

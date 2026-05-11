@@ -121,6 +121,9 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "lat", "lon", "tz_offset_hours",
         "claimed_sunrise_hour", "claimed_sunset_hour",
     ],
+    "layer_zero_grounding": [
+        "claim", "refs",
+    ],
 }
 
 

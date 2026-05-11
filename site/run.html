@@ -292,6 +292,62 @@
       margin-right: 6px;
     }
 
+    /* The math — surfaced computation per check */
+    .trail-row .math-toggle {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--accent);
+      background: rgba(217, 168, 114, 0.08);
+      border: 1px solid var(--accent-dim);
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+    .trail-row .math-toggle:hover { background: rgba(217, 168, 114, 0.16); }
+    .trail-row .math-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+    }
+    .trail-row.math-open .math-panel { display: block; }
+    .math-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      align-items: baseline;
+      padding: 3px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .math-row .mk { color: var(--muted-2); text-transform: lowercase; letter-spacing: 0.02em; }
+    .math-row .mv { color: var(--text); word-break: break-word; }
+    .math-row .mv.num { color: #b8eccd; }
+    .math-row .mv.formula { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    .math-row .mv.source {
+      color: var(--muted);
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12.5px;
+    }
+    .math-panel .math-source {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--muted-2);
+    }
+
     /* Axis overlaps */
     .overlap-grid {
       display: flex; flex-direction: column; gap: 6px;
@@ -434,6 +490,7 @@
       <a href="/submit.html">Submit</a>
       <a href="/almanac.html">Almanac</a>
       <a href="/archetypes.html">Archetypes</a>
+      <a href="/gaps.html">Gaps</a>
       <a href="/dashboard.html">Activity</a>
       <a href="/engine.html">Engine</a>
       <a href="/poly.html">Polymathic</a>
@@ -538,6 +595,84 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// "Show the math" — surfaces the actual computation each verifier ran.
+// The point of this site is that nothing is taken on authority. Every
+// CONFIRMED verdict displays the formula, input values, computed
+// result, and the constant-of-truth source (CODATA, physical law,
+// Scripture passage). The visitor can re-run the math by hand.
+const _FORMULA_KEYS = new Set(['formula','rule','equation','process','test','algo','algorithm']);
+const _SOURCE_KEYS  = new Set(['source','note']);
+const _SKIP_KEYS    = new Set([
+  'claim_normalized_C','rule','formula',  // surfaced separately
+  'claimed_unit_normalized', 'note',
+  'looked_up','match',                    // internal cross-reference shape
+  'mass_diff',                             // periodic_table removed-path artifact
+]);
+
+function _classifyKey(k, v) {
+  if (_FORMULA_KEYS.has(k)) return 'formula';
+  if (_SOURCE_KEYS.has(k))  return 'source';
+  if (typeof v === 'number') return 'num';
+  return '';
+}
+
+function _renderMathRows(data) {
+  if (!data || typeof data !== 'object') return '';
+  const out = [];
+  // Render formula / rule / equation FIRST so the math is at the top
+  for (const k of Object.keys(data)) {
+    if (!_FORMULA_KEYS.has(k)) continue;
+    const v = data[k];
+    if (v == null || v === '') continue;
+    out.push(`<div class="math-row"><span class="mk">${esc(k)}</span><span class="mv formula">${esc(String(v))}</span></div>`);
+  }
+  // Then the input + computed values, in the order they appear
+  for (const k of Object.keys(data)) {
+    if (_FORMULA_KEYS.has(k) || _SOURCE_KEYS.has(k) || _SKIP_KEYS.has(k)) continue;
+    const v = data[k];
+    if (v == null) continue;
+    let display;
+    if (typeof v === 'number') {
+      // Format numbers readably; very small/large get scientific
+      const abs = Math.abs(v);
+      if (abs !== 0 && (abs < 1e-3 || abs >= 1e6)) display = v.toExponential(6);
+      else display = String(v);
+    } else if (Array.isArray(v)) {
+      display = '[' + v.map(x => typeof x === 'number' ? x : JSON.stringify(x)).join(', ') + ']';
+    } else if (typeof v === 'object') {
+      display = JSON.stringify(v);
+    } else {
+      display = String(v);
+    }
+    const cls = _classifyKey(k, v);
+    out.push(`<div class="math-row"><span class="mk">${esc(k)}</span><span class="mv ${cls}">${esc(display)}</span></div>`);
+  }
+  // Source / note last (provenance)
+  const tail = [];
+  for (const k of _SOURCE_KEYS) {
+    const v = data[k];
+    if (v == null || v === '') continue;
+    tail.push(`<div class="math-source">${esc(k)}: ${esc(String(v))}</div>`);
+  }
+  return out.join('') + tail.join('');
+}
+
+function renderMathPanel(result) {
+  // The verifier result is either {checks: [{status, detail, data}, ...]}
+  // or a direct {status, detail, data} object. Handle both.
+  if (!result || typeof result !== 'object') return '';
+  const checks = Array.isArray(result.checks) ? result.checks
+                : (result.status ? [result] : []);
+  const parts = [];
+  for (const c of checks) {
+    const rows = _renderMathRows(c.data || {});
+    if (!rows) continue;
+    parts.push(rows);
+  }
+  if (!parts.length) return '';
+  return `<div class="math-panel">${parts.join('<div style="height:6px;"></div>')}</div>`;
+}
 
 const textarea = $('claim');
 const runBtn = $('runBtn');
@@ -658,6 +793,7 @@ function render(record, opts) {
         verdict: dr.verdict,
         detail: dr.detail || '',
         axes: dr.axis_dims || [],
+        result: dr.result || null,
       };
     }
   });
@@ -684,8 +820,10 @@ function render(record, opts) {
   const trailEl = $('trail');
   const trailRows = [];
   (record.atomic_claims || []).forEach((claimStr, idx) => {
-    const info = claimsByText[claimStr] || {verdict: 'NOT_APPLICABLE', domain: '(unknown)', detail: '', axes: []};
-    trailRows.push(`<div class="trail-row">
+    const info = claimsByText[claimStr] || {verdict: 'NOT_APPLICABLE', domain: '(unknown)', detail: '', axes: [], result: null};
+    const mathPanel = renderMathPanel(info.result);
+    const rowId = `trail-row-${idx}`;
+    trailRows.push(`<div class="trail-row" id="${rowId}">
       <div class="claim-text">${esc(claimStr)}</div>
       <div class="verifier-line">
         ${info.domain ? `<span class="domain-chip">${esc(info.domain)}</span>` : ''}
@@ -695,6 +833,7 @@ function render(record, opts) {
           : ''}
       </div>
       ${info.detail ? `<div class="detail">${esc(info.detail)}</div>` : ''}
+      ${mathPanel ? `<span class="math-toggle" onclick="this.parentNode.classList.toggle('math-open')">▾ Show the math</span>${mathPanel}` : ''}
     </div>`);
   });
   if (trailRows.length === 0) {
