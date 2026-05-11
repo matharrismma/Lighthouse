@@ -5139,6 +5139,20 @@ def polymathic_endpoint(request: Request, req: PolymathicRequest):
 
     d = record.to_dict()
 
+    # Drain the per-run block log into the response. When the classifier
+    # auto-corrected a user's claim, the spec-grounding check rejected it
+    # and the claim quarantined. Surfacing this here lets the operator
+    # see WHY a claim quarantined ("classifier substituted values") vs
+    # the ordinary case ("no verifier classified this claim at all").
+    try:
+        from concordance_engine.agent.poly_agent import _BLOCK_LOG as _poly_block_log
+        if _poly_block_log:
+            d["blocked_claims"] = [
+                {"claim": k, **v} for k, v in _poly_block_log.items()
+            ]
+    except Exception:
+        pass
+
     if req.store:
         try:
             from concordance_engine.cas import store as _cas_store

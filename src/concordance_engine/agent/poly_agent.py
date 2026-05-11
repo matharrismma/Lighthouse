@@ -28,6 +28,7 @@ from __future__ import annotations
 import inspect
 import json
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -136,6 +137,15 @@ _DECOMPOSE_SYSTEM = (
     "\n"
     "When in doubt, keep claims together. The verifier expects a complete "
     "verifiable statement, not a fragment. "
+    "\n\n"
+    "🛑 DO NOT CORRECT THE USER. Each atomic claim must preserve every "
+    "numeric value EXACTLY as the user stated it. If the user writes "
+    "'Iron has atomic number 99', the atomic claim is literally 'Iron has "
+    "atomic number 99' — NOT 'Iron has atomic number 26'. The downstream "
+    "verifier is what catches errors; if you silently fix them here, the "
+    "engine confirms fake claims. Copy values verbatim, including obviously "
+    "wrong ones.\n"
+    "\n"
     'Return ONLY valid JSON: {"claims": ["claim 1", "claim 2", ...]}'
 )
 
@@ -273,6 +283,7 @@ def classify_claims(
     model: str,
     api_key: Optional[str] = None,
     max_parallel: int = 5,
+    source_text: str = "",
 ) -> List[Dict[str, Any]]:
     """Step 2 of the two-stage pipeline: atomic claims → domain specs.
 
@@ -284,10 +295,24 @@ def classify_claims(
     from sum(call_latency) to ~max(call_latency) — a 3-claim situation
     that would have taken ~12s sequentially returns in ~3-4s.
     Result order matches input claim order.
+
+    `source_text` is the ORIGINAL user situation (pre-decomposition).
+    Used by the grounding guard — the decomposer can silently rewrite
+    numbers, so we ground spec values against the original input, not
+    the possibly-corrected atomic claim.
     """
     key = api_key or os.environ.get("ANTHROPIC_API_KEY")
     if not key or not claims:
         return []
+
+    # Combine the source text + the atomic claim — values present in
+    # either count as grounded. The atomic claim is part of the source
+    # if the decomposer was honest; the situation is part of the source
+    # if the decomposer rewrote the numbers.
+    def _grounding_text(claim: str) -> str:
+        if source_text:
+            return source_text + " || " + claim
+        return claim
 
     def _one(claim: str) -> Optional[Dict[str, Any]]:
         parsed = _oracle_call(_CLASSIFY_SYSTEM, claim, model, key, max_tokens=256)
@@ -295,8 +320,32 @@ def classify_claims(
             d = parsed.get("domain", "")
             spec = parsed.get("spec") or {}
             if d and d in _ALL_DOMAINS:
+                # GROUNDING GUARD — Claude (both decomposer AND classifier)
+                # is over-helpful and will silently "correct" obvious user
+                # errors. ("Iron has atomic number 99" gets decomposed to
+                # "Iron has atomic number 26".) If we let the corrected
+                # spec through, the engine cheerfully CONFIRMS a fake
+                # claim — the engine lying to the user.
+                #
+                # Check spec values against the ORIGINAL situation text
+                # (and the atomic claim as fallback). When ANY numeric
+                # value in the spec is not traceable to the source,
+                # BLOCK the classification and let the claim quarantine.
+                # Engine refuses to verify when it cannot trust the
+                # extraction.
+                grounded, missing = _spec_grounded_in_source(spec, _grounding_text(claim))
+                if not grounded:
+                    _BLOCK_LOG[claim] = {
+                        "domain": d, "spec": spec,
+                        "ungrounded_values": missing,
+                        "reason": "classifier_substituted_values",
+                    }
+                    return None
                 return {"domain": d, "spec": spec, "_source_claim": claim}
         return None
+
+    # Reset the block log for this run so callers see only this run's blocks
+    _BLOCK_LOG.clear()
 
     workers = max(1, min(max_parallel, len(claims)))
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -304,6 +353,86 @@ def classify_claims(
         # (orphans = claims not in the classified set, by claim text)
         outputs = list(pool.map(_one, claims))
     return [r for r in outputs if r is not None]
+
+
+# Per-run block log — populated by classify_claims._one when grounding
+# fails, drained by run_polymathic into the PolymathicRecord. Module
+# global is fine because polymathic runs are sequential at the API
+# layer.
+_BLOCK_LOG: Dict[str, Dict[str, Any]] = {}
+
+
+# ── Spec-grounding check ────────────────────────────────────────────────
+# Defense against Claude's auto-correction reflex. The classifier should
+# extract the user's claim verbatim, but Haiku frequently "fixes" obvious
+# errors silently. This check rejects any spec whose numeric values are
+# not traceable to the source claim text.
+
+_NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?")
+
+
+def _numbers_in_text(text: str) -> List[float]:
+    """Return every numeric token found in the text, as floats."""
+    nums: List[float] = []
+    for tok in _NUMBER_RE.findall(text or ""):
+        try:
+            nums.append(float(tok))
+        except ValueError:
+            continue
+    return nums
+
+
+def _walk_spec_numbers(value: Any):
+    """Yield every numeric value found anywhere in a spec dict/list. Booleans
+    are NOT treated as numbers (Python's bool-is-subclass-of-int quirk)."""
+    if isinstance(value, bool):
+        return
+    if isinstance(value, (int, float)):
+        yield float(value)
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from _walk_spec_numbers(v)
+    elif isinstance(value, list):
+        for v in value:
+            yield from _walk_spec_numbers(v)
+
+
+def _value_matches_source(spec_val: float, source_nums: List[float]) -> bool:
+    """True if `spec_val` matches some source-text number, allowing
+    common unit conversions (percent ↔ decimal, km ↔ m, etc.) — any
+    power-of-ten scaling within [-6, 6]."""
+    if abs(spec_val) < 1e-12:
+        return True  # zero is too common to police
+    for s in source_nums:
+        if abs(s) < 1e-12:
+            continue
+        # Exact / near-exact match (within 0.1% relative)
+        denom = max(abs(spec_val), abs(s))
+        if abs(spec_val - s) / denom < 0.001:
+            return True
+        # Power-of-10 conversion: spec_val ≈ s × 10^k for some -6 ≤ k ≤ 6
+        try:
+            ratio = spec_val / s
+        except ZeroDivisionError:
+            continue
+        for k in range(-6, 7):
+            target = 10.0 ** k
+            if target == 0:
+                continue
+            if abs(ratio - target) / target < 0.01:
+                return True
+    return False
+
+
+def _spec_grounded_in_source(spec: Dict[str, Any], source_text: str) -> Tuple[bool, List[float]]:
+    """Return (ok, ungrounded_values). ok is True iff every numeric in
+    `spec` appears (within power-of-ten tolerance) in `source_text`."""
+    source_nums = _numbers_in_text(source_text)
+    missing: List[float] = []
+    for v in _walk_spec_numbers(spec):
+        if not _value_matches_source(v, source_nums):
+            missing.append(v)
+    return (len(missing) == 0, missing)
 
 
 def _poly_oracle_combined(
@@ -517,7 +646,7 @@ def run_polymathic(
         atomic_claims = decompose_situation(situation, model, key)
         if atomic_claims:
             # Classify phase: classify each atomic claim
-            domain_specs = classify_claims(atomic_claims, model, key)
+            domain_specs = classify_claims(atomic_claims, model, key, source_text=situation)
             # Any claim that didn't map to a domain → quarantine
             classified_claims = {ds.get("_source_claim") for ds in domain_specs if ds.get("_source_claim")}
             quarantined_claims = [c for c in atomic_claims if c not in classified_claims]

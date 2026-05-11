@@ -93,7 +93,9 @@ def main() -> int:
     fail_count = 0
     failures: List[Dict[str, Any]] = []
 
-    for c in claims:
+    for i, c in enumerate(claims):
+        if i > 0:
+            time.sleep(0.5)  # gentle pacing — avoid rate-limit on the polymathic endpoint
         cid = c.get("id", "?")
         claim = c.get("claim", "")
         expected = c.get("expected", "")
