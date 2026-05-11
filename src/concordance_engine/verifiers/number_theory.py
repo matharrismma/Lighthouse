@@ -132,6 +132,118 @@ def verify_modular_inverse(spec: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
+# ── OEIS-style integer sequence checks ─────────────────────────────────
+# These are deterministic stdlib computations. Each is keyed to its OEIS
+# A-number so the data field carries the canonical reference.
+
+def _fibonacci(n: int) -> int:
+    if n < 0:
+        raise ValueError("Fibonacci undefined for negative index")
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+
+
+def _catalan(n: int) -> int:
+    if n < 0:
+        raise ValueError("Catalan undefined for negative index")
+    # C(n) = (2n)! / (n! * (n+1)!)  — exact via math.comb
+    return math.comb(2 * n, n) // (n + 1)
+
+
+def _triangular(n: int) -> int:
+    if n < 0:
+        raise ValueError("Triangular undefined for negative index")
+    return n * (n + 1) // 2
+
+
+def _is_perfect_number(n: int) -> bool:
+    """Sum of proper divisors equals n. The known perfect numbers are
+    6, 28, 496, 8128, 33550336, ... (OEIS A000396)."""
+    if n < 2:
+        return False
+    total = 1
+    r = int(math.isqrt(n))
+    for i in range(2, r + 1):
+        if n % i == 0:
+            total += i
+            if i != n // i:
+                total += n // i
+    return total == n
+
+
+_SEQUENCES: Dict[str, Dict[str, Any]] = {
+    "fibonacci":   {"oeis": "A000045", "fn": _fibonacci, "name": "Fibonacci"},
+    "catalan":     {"oeis": "A000108", "fn": _catalan,   "name": "Catalan"},
+    "triangular":  {"oeis": "A000217", "fn": _triangular,"name": "triangular"},
+}
+
+
+def verify_sequence_term(spec: Dict[str, Any]) -> VerifierResult:
+    """Check a claim of the form 'the n-th term of <sequence> is X'."""
+    name = "number_theory.sequence"
+    seq_name = (spec.get("sequence") or "").strip().lower()
+    n = spec.get("sequence_index")
+    claimed = spec.get("claimed_term")
+    if not seq_name or n is None or claimed is None:
+        return na(name)
+    entry = _SEQUENCES.get(seq_name)
+    if not entry:
+        return na(name)
+    try:
+        ni = int(n); ct = int(claimed)
+    except (TypeError, ValueError):
+        return error(name, "sequence_index and claimed_term must be integers")
+    if ni < 0 or ni > 2000:
+        return error(name, f"sequence_index out of supported range [0, 2000]: {ni}")
+    try:
+        actual = entry["fn"](ni)
+    except Exception as exc:
+        return error(name, f"sequence eval failed: {exc}")
+    data = {
+        "sequence": seq_name,
+        "oeis": entry["oeis"],
+        "index": ni,
+        "actual_term": actual,
+        "claimed_term": ct,
+        "source": f"OEIS {entry['oeis']}",
+    }
+    if actual == ct:
+        return confirm(
+            name,
+            f"{entry['name']}({ni}) = {actual} (matches claim, OEIS {entry['oeis']})",
+            data,
+        )
+    return mismatch(
+        name,
+        f"{entry['name']}({ni}) = {actual}, claimed {ct}",
+        data,
+    )
+
+
+def verify_perfect_number(spec: Dict[str, Any]) -> VerifierResult:
+    """Verify a claim that n is (or isn't) a perfect number. OEIS A000396."""
+    name = "number_theory.perfect_number"
+    n = spec.get("n_perfect")
+    claimed = spec.get("claimed_perfect")
+    if n is None or claimed is None:
+        return na(name)
+    try:
+        nf = int(n)
+    except (TypeError, ValueError):
+        return error(name, "n_perfect must be integer")
+    if nf < 1 or nf > 10_000_000:
+        return error(name, "n_perfect out of supported range")
+    actual = _is_perfect_number(nf)
+    cl = bool(claimed)
+    data = {"n": nf, "actual_perfect": actual, "claimed_perfect": cl,
+            "source": "OEIS A000396", "rule": "sum of proper divisors equals n"}
+    if actual == cl:
+        return confirm(name, f"is_perfect({nf}) = {actual} (matches claim)", data)
+    return mismatch(name, f"is_perfect({nf}) = {actual}, claimed {cl}", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     nv = packet.get("NUM_VERIFY") or {}
@@ -143,6 +255,10 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_factorial(nv))
     if all(k in nv for k in ("mod_a", "mod_m", "claimed_inverse")):
         results.append(verify_modular_inverse(nv))
+    if all(k in nv for k in ("sequence", "sequence_index", "claimed_term")):
+        results.append(verify_sequence_term(nv))
+    if "n_perfect" in nv and "claimed_perfect" in nv:
+        results.append(verify_perfect_number(nv))
     if not results:
         results.append(na("number_theory", "no NUM_VERIFY artifacts present"))
     return results

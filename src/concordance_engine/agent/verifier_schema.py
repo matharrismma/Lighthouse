@@ -74,7 +74,14 @@ _HAND_CURATED: Dict[str, List[str]] = {
     "real_estate":             ["loan_amount", "appraised_value", "claimed_ltv",
                                 "net_operating_income", "property_value", "claimed_cap_rate"],
     "music_theory":            ["note_a", "note_b", "claimed_semitones"],
-    "calendar_time":           ["year", "claimed_leap", "date", "claimed_weekday"],
+    "calendar_time":           ["year", "claimed_leap", "date", "claimed_weekday",
+                                "iso8601_string", "claimed_iso8601_valid",
+                                "date_iso", "claimed_day_of_week",
+                                "start_iso", "duration_seconds", "claimed_end_iso",
+                                # IANA tz checks:
+                                "timezone", "claimed_timezone_valid",
+                                "at_iso", "claimed_utc_offset_hours",
+                                "offset_tolerance_hours"],
     "ecology":                 ["births", "deaths", "immigrants", "emigrants", "claimed_growth_rate"],
     "soil_science":            ["sand_pct", "silt_pct", "clay_pct", "claimed_texture_class"],
     "construction":            ["length_m", "width_m", "depth_m", "claimed_volume_m3",
@@ -99,6 +106,22 @@ _HAND_CURATED: Dict[str, List[str]] = {
                                 "algo_name", "input_size", "claimed_runtime_ms"],
     "oceanography":            ["temperature_C", "salinity_psu", "claimed_density_kg_per_m3"],
     "phase":                   ["domain", "claim", "expected_phase"],
+    # Public-domain reference verifiers
+    "physical_constants": [
+        "constant", "claimed_value", "claimed_unit", "rel_tol",
+    ],
+    "periodic_table": [
+        "symbol", "name", "atomic_number",
+        "claimed_atomic_number", "claimed_atomic_mass", "claimed_name",
+        "claimed_symbol", "mass_rel_tol",
+    ],
+    "ephemeris": [
+        "iso_date", "claimed_julian_day",
+        "claimed_moon_phase", "phase_tolerance_days",
+        "year", "event", "claimed_event_iso",
+        "lat", "lon", "tz_offset_hours",
+        "claimed_sunrise_hour", "claimed_sunset_hour",
+    ],
 }
 
 

@@ -81,6 +81,8 @@ _ALL_DOMAINS = [
     "rhetoric", "philosophy",
     # Materials / cross-domain
     "materials_science", "architecture",
+    # Public-domain reference data verifiers
+    "physical_constants", "periodic_table", "ephemeris",
 ]
 
 # Deduplicate while preserving order

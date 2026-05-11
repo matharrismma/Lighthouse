@@ -64,6 +64,9 @@ from ..verifiers import operations_research as _operations_research
 from ..verifiers import law as _law
 from ..verifiers import theology_doctrine as _theology_doctrine
 from ..verifiers import history_chronology as _history_chronology
+from ..verifiers import physical_constants as _physical_constants
+from ..verifiers import periodic_table as _periodic_table
+from ..verifiers import ephemeris as _ephemeris
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -548,6 +551,21 @@ def verify_sports_analytics(spec):
 def verify_witness(spec):
     """Gate-chain completeness, reasoning trace presence, anchor resolution, no-fabricated-answer check."""
     return {"checks": [_r(r) for r in _witness.run({"WIT_VERIFY": spec or {}})]}
+
+
+def verify_physical_constants(spec):
+    """CODATA 2018 fundamental constants: c, h, k_B, N_A, R, G, m_e, m_p, m_n, epsilon_0, mu_0, alpha, Rydberg, Bohr radius, Stefan-Boltzmann, Avogadro, Faraday, atmosphere, standard gravity. Public domain (NIST)."""
+    return {"checks": [_r(r) for r in _physical_constants.run({"CONST_VERIFY": spec or {}})]}
+
+
+def verify_periodic_table(spec):
+    """IUPAC 2021 periodic table: symbol/name/atomic_number/atomic_mass cross-validation for all 118 elements. Public domain."""
+    return {"checks": [_r(r) for r in _periodic_table.run({"PT_VERIFY": spec or {}})]}
+
+
+def verify_ephemeris(spec):
+    """Computational astronomy: Julian day, moon phase, equinox/solstice dates, sunrise/sunset by lat/lon. Algorithms from Meeus (public domain). Low-precision (±1 day for equinox, ±30 min for sunrise)."""
+    return {"checks": [_r(r) for r in _ephemeris.run({"EPH_VERIFY": spec or {}})]}
 
 
 def verify_quantum_computing(spec):
@@ -1483,6 +1501,9 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_physics": verify_physics,
     "verify_statistics": verify_statistics,
     "verify_phase": verify_phase,
+    "verify_physical_constants": verify_physical_constants,
+    "verify_periodic_table": verify_periodic_table,
+    "verify_ephemeris": verify_ephemeris,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

@@ -178,6 +178,83 @@ def verify_duration_addition(spec: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
+# ── IANA timezone checks (Python stdlib zoneinfo) ───────────────────────
+
+def verify_timezone_exists(spec: Dict[str, Any]) -> VerifierResult:
+    """Check that a claimed IANA tz name exists in the system tz database."""
+    name = "calendar_time.timezone_exists"
+    tz = (spec.get("timezone") or "").strip()
+    claimed_exists = spec.get("claimed_timezone_valid")
+    if not tz or claimed_exists is None:
+        return na(name)
+    try:
+        from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+    except ImportError:
+        return na(name)
+    try:
+        ZoneInfo(tz)
+        actual = True
+    except Exception:
+        actual = False
+    data = {"timezone": tz, "actual_exists": actual,
+            "claimed_exists": bool(claimed_exists),
+            "source": "Python stdlib zoneinfo (IANA tz database)"}
+    if actual == bool(claimed_exists):
+        return confirm(name, f"timezone {tz!r} exists={actual} (matches claim)", data)
+    return mismatch(name, f"timezone {tz!r} actually exists={actual}, claimed {claimed_exists}", data)
+
+
+def verify_utc_offset(spec: Dict[str, Any]) -> VerifierResult:
+    """Check that a claimed UTC offset for a (timezone, datetime) is correct.
+    Useful for DST claims and historical-rule claims."""
+    name = "calendar_time.utc_offset"
+    tz = (spec.get("timezone") or "").strip()
+    iso = (spec.get("at_iso") or "").strip()
+    claimed_offset = spec.get("claimed_utc_offset_hours")
+    if not tz or not iso or claimed_offset is None:
+        return na(name)
+    try:
+        from zoneinfo import ZoneInfo
+    except ImportError:
+        return na(name)
+    try:
+        zi = ZoneInfo(tz)
+    except Exception:
+        return mismatch(name, f"timezone {tz!r} not found in tz database", {"timezone": tz})
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=zi)
+        else:
+            dt = dt.astimezone(zi)
+    except Exception as exc:
+        return error(name, f"at_iso parse failure: {exc}")
+    actual_offset = dt.utcoffset().total_seconds() / 3600.0
+    try:
+        co = float(claimed_offset)
+    except (TypeError, ValueError):
+        return error(name, "claimed_utc_offset_hours must be numeric")
+    tol = float(spec.get("offset_tolerance_hours") or 0.001)
+    data = {
+        "timezone": tz, "at": iso,
+        "actual_offset_hours": actual_offset,
+        "claimed_offset_hours": co,
+        "diff_hours": abs(actual_offset - co),
+        "source": "Python stdlib zoneinfo (IANA tz database)",
+    }
+    if abs(actual_offset - co) <= tol:
+        return confirm(
+            name,
+            f"{tz} at {iso}: UTC offset {actual_offset:+.2f} h (matches claim)",
+            data,
+        )
+    return mismatch(
+        name,
+        f"{tz} at {iso}: actual UTC offset {actual_offset:+.2f} h, claimed {co:+.2f}",
+        data,
+    )
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     cv = packet.get("CAL_VERIFY") or {}
@@ -190,6 +267,10 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_day_of_week(cv))
     if all(k in cv for k in ("start_iso", "duration_seconds", "claimed_end_iso")):
         results.append(verify_duration_addition(cv))
+    if "timezone" in cv and "claimed_timezone_valid" in cv:
+        results.append(verify_timezone_exists(cv))
+    if "timezone" in cv and "at_iso" in cv and "claimed_utc_offset_hours" in cv:
+        results.append(verify_utc_offset(cv))
 
     if not results:
         results.append(na("calendar_time", "no CAL_VERIFY artifacts present"))
