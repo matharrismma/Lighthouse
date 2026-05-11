@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Run · Concordance Engine</title>
+  <meta name="description" content="Drop any claim, paragraph, or LLM response. The engine decomposes it into atomic claims, runs each one through applicable verifiers, returns what survived. Permalink mints a tamper-evident receipt forever.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <!-- og-card injected -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Run · Concordance Engine">
+  <meta property="og:description" content="Drop any claim, paragraph, or LLM response. The engine decomposes it into atomic claims, runs each through applicable verifiers, returns what survived. Mints a permanent tamper-evident receipt.">
+  <meta property="og:url" content="https://narrowhighway.com/run.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <meta property="og:site_name" content="Concordance Engine">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Run · Concordance Engine">
+  <meta name="twitter:description" content="Drop any claim. The engine decomposes, verifies, seals.">
+  <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/run.html">
+
+  <style>
+    main.container.wide { max-width: 1100px; }
+    .hero {
+      max-width: 64ch;
+      margin: 4px 0 24px;
+    }
+    .hero p {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px; line-height: 1.65;
+      color: var(--text);
+      margin: 0;
+    }
+    .hero p em { color: var(--accent); font-style: italic; }
+
+    /* Input card */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 18px 14px;
+      margin-bottom: 30px;
+    }
+    textarea#claim {
+      width: 100%;
+      min-height: 140px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    textarea#claim:focus { border-color: var(--accent); }
+    textarea#claim::placeholder {
+      color: var(--muted-2);
+      font-style: italic;
+    }
+    .input-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .input-footer .hint {
+      font-size: 12.5px; color: var(--muted-2);
+    }
+    .input-footer .hint kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(255,255,255,0.07);
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+    button#runBtn {
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 22px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    button#runBtn:hover:not(:disabled) { background: #f0b952; }
+    button#runBtn:active { transform: translateY(1px); }
+    button#runBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Progress strip — shown while running */
+    .progress {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+    .progress .dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 1.4s ease-in-out infinite;
+      vertical-align: 1px;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+    /* Verdict banner */
+    .verdict-banner {
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 22px;
+      border-radius: 10px;
+      margin-bottom: 22px;
+      border: 1px solid;
+    }
+    .verdict-banner .vb-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      padding: 4px 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .verdict-banner .vb-meta {
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .verdict-banner.CONCORDANT  { background: rgba(111,196,124,0.06); border-color: rgba(111,196,124,0.35); }
+    .verdict-banner.CONCORDANT .vb-label { background: #6fc47c; color: #1a3320; }
+    .verdict-banner.DISCORDANT  { background: rgba(224,124,124,0.06); border-color: rgba(224,124,124,0.35); }
+    .verdict-banner.DISCORDANT .vb-label { background: #e07c7c; color: #421515; }
+    .verdict-banner.MIXED       { background: rgba(224,177,56,0.06); border-color: rgba(224,177,56,0.35); }
+    .verdict-banner.MIXED .vb-label { background: #e0b138; color: #3d2c08; }
+    .verdict-banner.QUARANTINE  { background: rgba(224,177,56,0.06); border-color: rgba(224,177,56,0.35); }
+    .verdict-banner.QUARANTINE .vb-label { background: #e0b138; color: #3d2c08; }
+    .verdict-banner.OUT_OF_SCOPE,
+    .verdict-banner.ERROR {
+      background: rgba(255,255,255,0.025); border-color: var(--border);
+    }
+    .verdict-banner.OUT_OF_SCOPE .vb-label,
+    .verdict-banner.ERROR .vb-label { background: var(--muted); color: var(--bg, #06050b); }
+
+    /* Section header */
+    .section-h {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 28px 0 12px;
+    }
+    .section-h .count {
+      font-size: 10.5px;
+      color: var(--accent);
+      margin-left: 8px;
+    }
+
+    /* Original text with claim highlights */
+    .original-text {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-dim);
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 18px 22px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16.5px;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+    .original-text .claim {
+      padding: 1px 4px;
+      border-radius: 3px;
+      border-bottom: 2px solid;
+      cursor: help;
+      transition: background 0.15s;
+    }
+    .claim.CONFIRMED   { background: rgba(111,196,124,0.18); border-bottom-color: #6fc47c; }
+    .claim.MISMATCH,
+    .claim.DISCORDANT  { background: rgba(224,124,124,0.18); border-bottom-color: #e07c7c; }
+    .claim.QUARANTINE,
+    .claim.QUARANTINED { background: rgba(224,177,56,0.18); border-bottom-color: #e0b138; }
+    .claim.PARTIAL     { background: rgba(224,177,56,0.10); border-bottom-color: #e0b138; }
+    .claim.NOT_APPLICABLE,
+    .claim.OUT_OF_SCOPE { background: rgba(255,255,255,0.04); border-bottom-color: var(--muted); color: var(--muted-2); }
+    .original-text .claim:hover { filter: brightness(1.15); }
+
+    /* Trail */
+    .trail {
+      display: flex; flex-direction: column;
+      gap: 10px;
+    }
+    .trail-row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+    }
+    .trail-row .claim-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .trail-row .verifier-line {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--muted-2);
+    }
+    .trail-row .domain-chip {
+      padding: 2px 8px;
+      background: rgba(217, 168, 114, 0.10);
+      color: var(--accent);
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+    }
+    .trail-row .verdict-chip {
+      padding: 2px 9px;
+      border-radius: 3px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      font-size: 10.5px;
+    }
+    .verdict-chip.CONFIRMED   { background: #6fc47c; color: #1a3320; }
+    .verdict-chip.MISMATCH    { background: #e07c7c; color: #421515; }
+    .verdict-chip.QUARANTINED,
+    .verdict-chip.QUARANTINE  { background: #e0b138; color: #3d2c08; }
+    .verdict-chip.PARTIAL     { background: #e0b138; color: #3d2c08; opacity: 0.7; }
+    .verdict-chip.NOT_APPLICABLE,
+    .verdict-chip.OUT_OF_SCOPE { background: rgba(255,255,255,0.07); color: var(--muted); }
+    .trail-row .detail {
+      margin-top: 8px;
+      font-size: 12.5px;
+      color: var(--text-dim, #aaa3b6);
+      line-height: 1.5;
+    }
+    .trail-row .axes {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .trail-row .axes .ax {
+      font-family: 'JetBrains Mono', monospace;
+      margin-right: 6px;
+    }
+
+    /* Axis overlaps */
+    .overlap-grid {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .overlap-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 14px;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .overlap-row:last-child { border-bottom: none; }
+    .overlap-row .ov-axis {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .overlap-row .ov-doms {
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .overlap-row .ov-doms .dchip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted-2);
+    }
+
+    /* Permalink card */
+    .permalink {
+      background: rgba(94, 196, 180, 0.06);
+      border: 1px solid rgba(94, 196, 180, 0.3);
+      border-left: 3px solid #5ec4b4;
+      border-radius: 0 var(--r) var(--r) 0;
+      padding: 16px 20px;
+      margin-top: 28px;
+    }
+    .permalink .pl-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #5ec4b4;
+      margin-bottom: 8px;
+    }
+    .permalink .pl-body {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.55;
+    }
+    .permalink .pl-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 8px 12px;
+      color: var(--text);
+      word-break: break-all;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .permalink .pl-url button {
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+    .permalink .pl-url button:hover { background: #f0b952; }
+
+    .empty-state {
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--muted-2);
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    .closest-precedent {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+      margin-top: 8px;
+    }
+    .closest-precedent .cp-hash {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .closest-precedent .cp-summary {
+      font-size: 13.5px;
+      color: var(--text);
+      margin: 6px 0;
+      line-height: 1.55;
+    }
+
+    .examples {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 8px;
+    }
+    .example-chip {
+      font-size: 12px;
+      padding: 4px 10px;
+      background: rgba(217, 168, 114, 0.08);
+      border: 1px solid var(--accent-dim);
+      color: var(--accent);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .example-chip:hover {
+      background: var(--accent);
+      color: #1a1208;
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/run.html" class="active">Run</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/dashboard.html">Activity</a>
+      <a href="/engine.html">Engine</a>
+      <a href="/poly.html">Polymathic</a>
+      <a href="/install.html">Install</a>
+      <a href="/connect.html" class="cta">Connect →</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Drop anything</div>
+    <h1>Run a claim through the engine.</h1>
+    <div class="hero">
+      <p>
+        Paste a claim. A paragraph. An LLM's response. A folk saying. The engine
+        decomposes it into atomic claims, fans each one across the applicable
+        verifiers, and surfaces the elimination trail. <em>What survives is sealed
+        to the ledger with a permanent receipt.</em>
+      </p>
+    </div>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom: 80px;">
+
+  <section class="input-card">
+    <textarea id="claim"
+      placeholder="Photosynthesis converts 6 CO2 + 6 H2O into C6H12O6 + 6 O2. The reaction requires light energy in the range of 400-700 nanometers."
+      autocomplete="off" spellcheck="true"></textarea>
+    <div class="input-footer">
+      <div class="hint">
+        <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run · rate limited per IP
+      </div>
+      <button id="runBtn">Run through the engine</button>
+    </div>
+    <div class="examples" id="examples">
+      <button class="example-chip" data-text="A 2 kg object moving at 5 m/s has 25 J of kinetic energy.">physics: KE</button>
+      <button class="example-chip" data-text="The balanced equation 2 H2 + O2 -> 2 H2O conserves all atoms.">chemistry: balance</button>
+      <button class="example-chip" data-text="A paired t-test with n=20, mean diff 0.5, sd 1.0, two-tailed, claims p of 0.04.">statistics: p-value</button>
+      <button class="example-chip" data-text="Plant tomatoes when the dogwoods bloom.">foxfire: planting</button>
+      <button class="example-chip" data-text="Romans 10:9 is part of the New Testament.">scripture: anchor</button>
+    </div>
+    <div class="progress" id="progress" hidden>
+      <span class="dot"></span><span id="progressText">decomposing into atomic claims…</span>
+    </div>
+  </section>
+
+  <section id="result" hidden>
+    <div class="verdict-banner" id="verdictBanner">
+      <div class="vb-label" id="vbLabel">—</div>
+      <div class="vb-meta" id="vbMeta">—</div>
+    </div>
+
+    <div class="section-h">The claim, annotated</div>
+    <div class="original-text" id="originalText"></div>
+
+    <div class="section-h">The elimination trail <span class="count" id="trailCount"></span></div>
+    <div class="trail" id="trail"></div>
+
+    <div class="section-h" id="overlapH" hidden>Axis overlaps <span class="count" id="overlapCount"></span></div>
+    <div class="overlap-grid" id="overlapGrid"></div>
+
+    <div class="section-h" id="precedentH" hidden>Closest precedent in the keeping</div>
+    <div id="precedentBox"></div>
+
+    <div class="permalink" id="permalinkCard" hidden>
+      <div class="pl-title">Permanent receipt</div>
+      <div class="pl-body" id="plBody">
+        This run is sealed to the engine's content-addressed store.
+        The URL below resolves forever to this exact result; any tampering
+        would change the hash.
+      </div>
+      <div class="pl-url">
+        <span id="plUrl">—</span>
+        <button onclick="copyPermalink()">Copy</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const textarea = $('claim');
+const runBtn = $('runBtn');
+const progress = $('progress');
+const progressText = $('progressText');
+const result = $('result');
+
+// Hook up example chips
+document.querySelectorAll('.example-chip').forEach(b => {
+  b.addEventListener('click', () => {
+    textarea.value = b.dataset.text;
+    textarea.focus();
+  });
+});
+
+textarea.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run();
+});
+runBtn.addEventListener('click', run);
+
+async function run() {
+  const text = (textarea.value || '').trim();
+  if (!text) { textarea.focus(); return; }
+
+  runBtn.disabled = true;
+  result.hidden = true;
+  progress.hidden = false;
+  progressText.textContent = 'decomposing into atomic claims…';
+
+  try {
+    const r = await fetch('/polymathic', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({situation: text, store: true, max_domains: 8}),
+    });
+    if (!r.ok) {
+      let detail = 'engine returned ' + r.status;
+      try { const d = await r.json(); detail = d.detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
+    progressText.textContent = 'rendering…';
+    const record = await r.json();
+    if (record.content_hash) {
+      history.pushState({}, '', '/run.html?h=' + record.content_hash);
+    }
+    render(record);
+  } catch (e) {
+    progress.hidden = true;
+    runBtn.disabled = false;
+    alert('Could not run: ' + e.message);
+  }
+}
+
+async function loadFromPermalink(hash) {
+  progress.hidden = false;
+  progressText.textContent = 'reading sealed run from CAS…';
+  try {
+    const r = await fetch('/cas/' + encodeURIComponent(hash));
+    if (!r.ok) throw new Error('no run found at ' + hash);
+    const record = await r.json();
+    // CAS stores the canonical record; the situation field on the
+    // top level is what we need.
+    render(record);
+  } catch (e) {
+    progress.hidden = true;
+    $('originalText').innerHTML =
+      `<em style="color: var(--muted-2);">Couldn't load permalink: ${esc(e.message)}</em>`;
+    result.hidden = false;
+  }
+}
+
+function render(record) {
+  progress.hidden = true;
+  runBtn.disabled = false;
+  result.hidden = false;
+
+  // 1. Verdict banner
+  const verdict = record.composite_verdict || 'OUT_OF_SCOPE';
+  const banner = $('verdictBanner');
+  banner.className = 'verdict-banner ' + verdict;
+  $('vbLabel').textContent = verdict;
+  const atomicCount = (record.atomic_claims || []).length;
+  const domainCount = (record.domain_results || []).length;
+  const quarCount = (record.quarantined_claims || []).length;
+  const verdictMeta = (() => {
+    const parts = [`${atomicCount} atomic claim${atomicCount===1?'':'s'} extracted`];
+    if (domainCount) parts.push(`${domainCount} verifier${domainCount===1?'':'s'} fired`);
+    if (quarCount) parts.push(`${quarCount} quarantined`);
+    return parts.join(' · ');
+  })();
+  $('vbMeta').textContent = verdictMeta;
+
+  // 2. Original text with atomic claims highlighted
+  // The atomic_claims are rephrased versions of the original. We try
+  // to highlight by matching key phrases; when we can't, we list the
+  // atomic claims below the original instead.
+  const original = record.situation || '(no situation text)';
+  const claimsByText = {};
+  // Map source_claim from domain_results to verdict
+  (record.domain_results || []).forEach(dr => {
+    const src = dr.source_claim;
+    if (src && !claimsByText[src]) {
+      claimsByText[src] = {
+        domain: dr.domain,
+        verdict: dr.verdict,
+        detail: dr.detail || '',
+        axes: dr.axis_dims || [],
+      };
+    }
+  });
+  // Quarantined claims
+  (record.quarantined_claims || []).forEach(c => {
+    if (!claimsByText[c]) claimsByText[c] = {verdict: 'QUARANTINED', domain: '(no verifier)', detail: 'no verifier matched this claim', axes: []};
+  });
+
+  // Render original with annotations — for each atomic_claim string, highlight
+  // matching content in the original
+  let annotated = esc(original);
+  (record.atomic_claims || []).forEach((claimStr, idx) => {
+    const info = claimsByText[claimStr] || {verdict: 'NOT_APPLICABLE'};
+    // The atomic claim is often a rephrasing; try to find shared trigrams
+    // in the original to anchor a highlight
+    const claimSafe = esc(claimStr);
+    // Highlight by appending a numbered marker if we can't anchor in text
+    // (Simple approach: just show the claim list inline)
+    // For now, we render the original plain and the trail below has the marks.
+  });
+  $('originalText').innerHTML = annotated;
+
+  // 3. Trail — per atomic claim
+  const trailEl = $('trail');
+  const trailRows = [];
+  (record.atomic_claims || []).forEach((claimStr, idx) => {
+    const info = claimsByText[claimStr] || {verdict: 'NOT_APPLICABLE', domain: '(unknown)', detail: '', axes: []};
+    trailRows.push(`<div class="trail-row">
+      <div class="claim-text">${esc(claimStr)}</div>
+      <div class="verifier-line">
+        ${info.domain ? `<span class="domain-chip">${esc(info.domain)}</span>` : ''}
+        <span class="verdict-chip ${esc(info.verdict)}">${esc(info.verdict)}</span>
+        ${info.axes && info.axes.length
+          ? `<span class="axes">${info.axes.map(a => `<span class="ax">${esc(a)}</span>`).join('')}</span>`
+          : ''}
+      </div>
+      ${info.detail ? `<div class="detail">${esc(info.detail)}</div>` : ''}
+    </div>`);
+  });
+  if (trailRows.length === 0) {
+    trailEl.innerHTML = '<div class="empty-state">No atomic claims extracted. Try a more specific statement.</div>';
+  } else {
+    trailEl.innerHTML = trailRows.join('');
+  }
+  $('trailCount').textContent = trailRows.length === 0 ? '' : `${trailRows.length} step${trailRows.length===1?'':'s'}`;
+
+  // 4. Axis overlaps
+  const overlaps = record.axis_overlaps || [];
+  if (overlaps.length) {
+    $('overlapH').hidden = false;
+    $('overlapCount').textContent = `${overlaps.length} axis${overlaps.length===1?'':'es'} fired`;
+    $('overlapGrid').innerHTML = overlaps.map(o => `
+      <div class="overlap-row">
+        <div class="ov-axis">${esc(o.axis || o.dimension || '?')}</div>
+        <div class="ov-doms">${(o.domains || []).map(d => `<span class="dchip">${esc(d)}</span>`).join('')}</div>
+      </div>`).join('');
+  } else {
+    $('overlapH').hidden = true;
+    $('overlapGrid').innerHTML = '';
+  }
+
+  // 5. Closest precedent
+  const cp = record.closest_precedent;
+  if (cp && cp.hash) {
+    $('precedentH').hidden = false;
+    $('precedentBox').innerHTML = `<div class="closest-precedent">
+      <div class="cp-summary">${esc(cp.summary || '(no summary)')}</div>
+      <div class="cp-hash">verdict: ${esc(cp.verdict || '?')} · seal: ${esc(cp.hash)}</div>
+    </div>`;
+  } else {
+    $('precedentH').hidden = true;
+    $('precedentBox').innerHTML = '';
+  }
+
+  // 6. Permalink
+  const hash = record.content_hash || record.permanent_ref;
+  if (hash) {
+    $('permalinkCard').hidden = false;
+    const url = location.origin + '/run.html?h=' + hash;
+    $('plUrl').textContent = url;
+    $('plUrl').dataset.url = url;
+  } else {
+    $('permalinkCard').hidden = true;
+  }
+
+  // Scroll into view
+  result.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+window.copyPermalink = function() {
+  const url = $('plUrl').dataset.url || $('plUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.pl-url button');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+};
+
+// Initial: load permalink if ?h= is set
+(function init() {
+  const params = new URLSearchParams(location.search);
+  const h = params.get('h');
+  if (h && /^[a-f0-9]{6,128}$/.test(h)) {
+    loadFromPermalink(h);
+  }
+})();
+</script>
+</body>
+</html>

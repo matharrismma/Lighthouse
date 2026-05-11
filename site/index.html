@@ -835,6 +835,7 @@
     Concordance
   </a>
   <div class="navlinks">
+    <a href="/run.html">Run</a>
     <a href="/engine.html">Engine</a>
     <a href="/verifiers.html">Verifiers</a>
     <a href="/grid.html">Grid</a>
@@ -849,8 +850,20 @@
   </div>
 </nav>
 
+<!-- ── DROP A CLAIM — interactive entry point (the front door to the engine) ── -->
+<section style="max-width:760px;margin:32px auto 8px;padding:0 24px;text-align:center;">
+  <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Drop anything → run</p>
+  <a href="/run.html"
+     style="display:inline-block;background:var(--surface);border:1px solid var(--accent-dim);border-left:3px solid var(--accent);border-radius:var(--r);padding:16px 22px;text-align:left;width:100%;max-width:720px;color:var(--text);text-decoration:none;transition:all 0.18s;font-family:'Crimson Pro',Georgia,serif;font-size:16.5px;line-height:1.55;font-style:italic;"
+     onmouseover="this.style.borderColor='var(--accent)';this.style.background='var(--surface-2,#1d1828)';"
+     onmouseout="this.style.borderColor='var(--accent-dim)';this.style.background='var(--surface)';">
+    <span style="color:var(--muted);font-style:normal;font-family:inherit;">Paste a claim, a paragraph, or an LLM's response.</span>
+    <span style="display:block;margin-top:6px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;font-style:normal;letter-spacing:0.04em;">The engine will decompose, verify, and seal what survives →</span>
+  </a>
+</section>
+
 <!-- ── HERO — THE ALMANAC ───────────────────────────── -->
-<header class="hero" style="text-align:center;padding-bottom:20px">
+<header class="hero" style="text-align:center;padding-bottom:20px;padding-top:30px;">
   <p class="hero-eyebrow" id="almanacHeroEyebrow">The Almanac · 21 entries · in your voice</p>
   <h1 class="hero-headline" id="almanacHeroHeadline">What the engine has <em>worked through</em>.</h1>
   <p class="hero-sub" id="almanacHeroSub">A curated book — pre-run polymathic protocols and folk wisdom verified by computation. Each entry has the math behind it and a short note on what the math actually shows. <strong>The Almanac does not panic.</strong></p>
