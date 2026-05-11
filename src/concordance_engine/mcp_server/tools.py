@@ -761,12 +761,13 @@ def verify_oceanography(spec):
 
 
 def verify_physics(spec):
-    """Physics umbrella: dimensional analysis and/or conservation law verification.
-    Pass 'dimensional' key for SI unit analysis, 'conservation' key for before/after balance.
-    Dimensional: spec={"dimensional": {"equation": "F = m * a", "symbols": {"F": "newton", "m": "kilogram", "a": "meter/second**2"}}}
-    Conservation: spec={"conservation": {"before": {"KE": 5.0, "PE": 10.0}, "after": {"KE": 8.0, "PE": 7.0}, "law": "energy"}}
-    Both keys fire independently if supplied."""
+    """Physics umbrella: dimensional / conservation / Newton's-second-law / kinetic-energy.
+    Accepts either the legacy nested shape ('dimensional' / 'conservation' keys) or the flat
+    PHYS_VERIFY shape (equation+symbols at top level, mass_kg+acceleration_m_per_s2+claimed_force_N
+    for F=ma, mass_kg+velocity_m_per_s+claimed_kinetic_energy_J for KE).
+    """
     out = {}
+    # Legacy nested shape
     if "dimensional" in spec:
         d = spec["dimensional"]
         out["dimensional"] = _r(physics.verify_dimensional_consistency(d["equation"], d["symbols"]))
@@ -784,6 +785,13 @@ def verify_physics(spec):
             out["conservation"] = _r(physics.verify_conservation(
                 before, after,
                 tolerance_relative=tol_rel, tolerance_absolute=tol_abs))
+    # Flat shape — delegate to the verifier module's run() so all the
+    # checks (dimensional, conservation, Newton's 2nd, KE, kinematics,
+    # relativistic) dispatch from one place.
+    if not out:
+        results = physics.run({"PHYS_VERIFY": spec or {}})
+        if results:
+            out["checks"] = [_r(r) for r in results]
     return out
 
 

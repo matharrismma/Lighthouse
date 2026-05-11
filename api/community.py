@@ -494,6 +494,57 @@ def total_contributors() -> int:
 # --------------------------------------------------------------------------
 # Witness signals — a contributor signaling that another's proposal looks sound
 # --------------------------------------------------------------------------
+def _proposal_id_is_real(proposal_id: str) -> Tuple[bool, str]:
+    """Verify that `proposal_id` refers to a real engine artifact:
+    a CAS hash, an Almanac entry id, or a ledger packet_hash. Without
+    this check, a brother can witness a fictitious id and inflate
+    witnesses_given without doing real attestation work.
+
+    Returns (ok, kind) — kind is 'cas' | 'almanac' | 'ledger' | ''."""
+    pid = (proposal_id or "").strip()
+    if not pid:
+        return False, ""
+
+    # 1. CAS hash — 64 hex chars
+    if len(pid) == 64 and all(c in "0123456789abcdefABCDEF" for c in pid):
+        try:
+            from concordance_engine.cas import exists as _cas_exists
+            if _cas_exists(pid):
+                return True, "cas"
+        except Exception:
+            pass
+
+    # 2. Almanac entry id — look up the shipped substrate
+    try:
+        almanac_path = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
+        if almanac_path.exists():
+            with almanac_path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if entry.get("id") == pid:
+                        return True, "almanac"
+    except Exception:
+        pass
+
+    # 3. Ledger entry hash — check the chain
+    try:
+        from concordance_engine.ledger import get_ledger
+        ledger = get_ledger()
+        for entry in ledger.iter_filtered(limit=5000):
+            if entry.get("packet_hash") == pid or entry.get("entry_hash") == pid:
+                return True, "ledger"
+    except Exception:
+        pass
+
+    return False, ""
+
+
 def record_witness(
     witness_handle: str,
     proposal_id: str,
@@ -507,7 +558,11 @@ def record_witness(
     the witness handle must have already entered wisdom into the engine
     (proposed, attributed a polymathic, witnessed before, or confessed).
     A bare-handle visitor cannot witness for others; first they must
-    testify themselves. Mt 18:16; Dt 19:15."""
+    testify themselves. Mt 18:16; Dt 19:15.
+
+    The proposal_id must reference a real engine artifact (CAS hash,
+    Almanac entry, or ledger packet_hash). Witnessing a fictional id
+    would inflate witnesses_given without actual attestation work."""
     if not is_valid_handle(witness_handle):
         return False, "witness handle invalid"
     if witness_handle == proposal_author:
@@ -528,6 +583,16 @@ def record_witness(
             "See /canon for the rule."
         )
 
+    # Grounding: the proposal must actually exist somewhere in the engine.
+    grounded, kind = _proposal_id_is_real(proposal_id)
+    if not grounded:
+        return False, (
+            "proposal_id does not reference a known engine artifact "
+            "(expected a CAS content hash, an Almanac entry id, or a "
+            "ledger packet_hash). Witnessing a fictional proposal would "
+            "be uncoupled from real attestation work."
+        )
+
     bump_stat(witness_handle, "witnesses_given", 1)
     if proposal_author and is_valid_handle(proposal_author):
         if load_contributor(proposal_author) is not None:
@@ -537,6 +602,7 @@ def record_witness(
         "handle": witness_handle,
         "target_handle": proposal_author,
         "proposal_id": proposal_id,
+        "proposal_kind": kind,
         "note": (note or "")[:200],
     })
     return True, "recorded"

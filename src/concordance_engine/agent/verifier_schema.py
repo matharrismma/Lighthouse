@@ -35,7 +35,18 @@ _HAND_CURATED: Dict[str, List[str]] = {
     "chemistry":               ["equation"],
     "physics_dimensional":     ["equation", "symbols"],
     "physics_conservation":    ["before", "after", "law"],
-    "physics":                 ["equation", "symbols", "before", "after", "law"],
+    "physics":                 [
+        # dimensional: {equation, symbols}
+        "equation", "symbols",
+        # conservation: {before, after, law}
+        "before", "after", "law",
+        # F=ma magnitude:
+        "mass_kg", "acceleration_m_per_s2", "claimed_force_N",
+        # KE = ½mv² magnitude:
+        "velocity_m_per_s", "claimed_kinetic_energy_J",
+        # tolerances
+        "rel_tol", "abs_tol", "tolerance_relative", "tolerance_absolute",
+    ],
     "mathematics":             ["mode", "params"],
     "thermodynamics": [
         "T_hot_K", "T_cold_K", "claimed_efficiency",
@@ -82,6 +93,24 @@ _HAND_CURATED: Dict[str, List[str]] = {
                                 "offset_tolerance_hours"],
     "ecology":                 ["births", "deaths", "immigrants", "emigrants", "claimed_growth_rate"],
     "soil_science":            ["sand_pct", "silt_pct", "clay_pct", "claimed_texture_class"],
+    "geometry":                [
+        # circle
+        "circle_radius", "claimed_circle_area", "claimed_circle_circumference",
+        # triangle / pythagorean
+        "tri_a", "tri_b", "tri_c", "claimed_valid_triangle",
+        "pyth_a", "pyth_b", "pyth_c", "claimed_right_triangle",
+        # polygon
+        "polygon_n", "claimed_interior_angle_sum_deg",
+        # rectangle / square
+        "rect_length", "rect_width", "claimed_rect_area", "claimed_rect_perimeter",
+        # sphere
+        "sphere_radius", "claimed_sphere_volume", "claimed_sphere_surface_area",
+        # cylinder
+        "cyl_radius", "cyl_height", "claimed_cyl_volume",
+        # cube
+        "cube_side", "claimed_cube_volume", "claimed_cube_surface_area",
+        "rel_tol",
+    ],
     "construction":            ["length_m", "width_m", "depth_m", "claimed_volume_m3",
                                 "area_m2", "coverage_m2_per_L", "claimed_liters"],
     "architecture":            ["floor_area_m2", "lot_area_m2", "claimed_FAR",
@@ -191,7 +220,22 @@ def format_field_spec_block() -> str:
         # explode the prompt. Most verifiers have ≤ 20 fields.
         fields_to_show = fields[:24]
         lines.append(f"  {domain:30} {{{', '.join(fields_to_show)}}}")
-    return "\n".join(lines)
+    # Disambiguation hints — when multiple domains could apply, prefer
+    # the one whose verifier actually checks the kind of claim being
+    # made. These bias the oracle without altering the field schemas.
+    hints = (
+        "\nDISAMBIGUATION HINTS (when more than one domain might apply):\n"
+        "  - Astronomical events (equinox, solstice, sunrise/sunset by lat/lon,\n"
+        "    moon phase on a date, Julian day): prefer 'ephemeris'. calendar_time\n"
+        "    is only for leap-year / day-of-week / duration-arithmetic / IANA-tz.\n"
+        "  - Magnitudes of basic mechanics (F=ma, KE=½mv², PE=mgh, kinematics):\n"
+        "    use 'physics' with the flat fields (mass_kg, acceleration_m_per_s2,\n"
+        "    claimed_force_N etc.). For unit/dimensional balance only, use the\n"
+        "    nested form {equation, symbols}.\n"
+        "  - Scripture references in a claim: layer_zero_grounding surfaces the\n"
+        "    actual WEB text; scripture_anchors only confirms a citation resolves.\n"
+    )
+    return "\n".join(lines) + hints
 
 
 # Cached at module load — the verifier source doesn't change during a process.

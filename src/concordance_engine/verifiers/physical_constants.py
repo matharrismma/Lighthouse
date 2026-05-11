@@ -124,6 +124,9 @@ _UNIT_ALIASES = {
     "j·s": "J*s", "j*s": "J*s", "joule·second": "J*s", "joule_second": "J*s",
     "joule/kelvin": "J/K", "j/k": "J/K", "j·k^-1": "J/K",
     "1/mol": "1/mol", "mol^-1": "1/mol", "per_mole": "1/mol",
+    "permole": "1/mol",            # space-squashed "per mole"
+    "permol": "1/mol",
+    "permolecule": "1/mol",
     "particles/mole": "1/mol", "particles/mol": "1/mol",
     "atoms/mole": "1/mol", "atoms/mol": "1/mol",
     "entities/mole": "1/mol", "molecules/mole": "1/mol",

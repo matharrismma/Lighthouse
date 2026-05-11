@@ -168,6 +168,210 @@ def verify_circle_properties(spec: Dict[str, Any]) -> VerifierResult:
     return confirm(name, f"r={rf} area={actual_area:.4f} circ={actual_circ:.4f} (matches claims)", data)
 
 
+def verify_rectangle_properties(spec: Dict[str, Any]) -> VerifierResult:
+    """A = l × w ;  P = 2(l + w).  Square is a special case (l = w)."""
+    name = "geometry.rectangle"
+    l = spec.get("rect_length") or spec.get("rect_l")
+    w = spec.get("rect_width") or spec.get("rect_w")
+    if l is None or w is None:
+        return na(name)
+    try:
+        lf, wf = float(l), float(w)
+    except (TypeError, ValueError):
+        return error(name, "rect_length and rect_width must be numeric")
+    if lf < 0 or wf < 0:
+        return error(name, f"rectangle dimensions must be non-negative; got l={lf}, w={wf}")
+    actual_area = lf * wf
+    actual_perim = 2.0 * (lf + wf)
+    rel_tol = float(spec.get("rel_tol") or 1e-4)
+    mismatches: List[str] = []
+    data: Dict[str, Any] = {
+        "l": lf, "w": wf,
+        "actual_area": actual_area, "actual_perimeter": actual_perim,
+        "rule": "A = l × w ;  P = 2(l + w)",
+    }
+    ca = spec.get("claimed_rect_area")
+    if ca is not None:
+        try:
+            caf = float(ca)
+            data["claimed_rect_area"] = caf
+            threshold = max(1e-6, rel_tol * actual_area) if actual_area > 0 else 1e-6
+            diff = abs(actual_area - caf)
+            data["area_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"area: actual {actual_area:.6f}, claimed {caf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_rect_area must be numeric")
+    cp = spec.get("claimed_rect_perimeter")
+    if cp is not None:
+        try:
+            cpf = float(cp)
+            data["claimed_rect_perimeter"] = cpf
+            threshold = max(1e-6, rel_tol * actual_perim) if actual_perim > 0 else 1e-6
+            diff = abs(actual_perim - cpf)
+            data["perimeter_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"perimeter: actual {actual_perim:.6f}, claimed {cpf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_rect_perimeter must be numeric")
+    # Did the caller actually claim anything?
+    if ca is None and cp is None:
+        return na(name)
+    if mismatches:
+        return mismatch(name, "; ".join(mismatches), data)
+    return confirm(name, f"l={lf} w={wf} area={actual_area:.4f} perim={actual_perim:.4f} (matches claims)", data)
+
+
+def verify_sphere_properties(spec: Dict[str, Any]) -> VerifierResult:
+    """V = (4/3)πr³ ;  A = 4πr²."""
+    import math
+    name = "geometry.sphere"
+    r = spec.get("sphere_radius")
+    if r is None:
+        return na(name)
+    try:
+        rf = float(r)
+    except (TypeError, ValueError):
+        return error(name, "sphere_radius must be numeric")
+    if rf < 0:
+        return error(name, f"sphere_radius must be non-negative; got {rf}")
+    actual_vol = (4.0 / 3.0) * math.pi * rf**3
+    actual_area = 4.0 * math.pi * rf**2
+    rel_tol = float(spec.get("rel_tol") or 1e-4)
+    mismatches: List[str] = []
+    data: Dict[str, Any] = {
+        "r": rf,
+        "actual_volume": actual_vol, "actual_surface_area": actual_area,
+        "rule": "V = (4/3)πr³ ;  A = 4πr²",
+    }
+    cv = spec.get("claimed_sphere_volume")
+    if cv is not None:
+        try:
+            cvf = float(cv)
+            data["claimed_sphere_volume"] = cvf
+            threshold = max(1e-6, rel_tol * actual_vol) if actual_vol > 0 else 1e-6
+            diff = abs(actual_vol - cvf)
+            data["volume_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"volume: actual {actual_vol:.6f}, claimed {cvf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_sphere_volume must be numeric")
+    ca = spec.get("claimed_sphere_surface_area")
+    if ca is not None:
+        try:
+            caf = float(ca)
+            data["claimed_sphere_surface_area"] = caf
+            threshold = max(1e-6, rel_tol * actual_area) if actual_area > 0 else 1e-6
+            diff = abs(actual_area - caf)
+            data["area_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"surface area: actual {actual_area:.6f}, claimed {caf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_sphere_surface_area must be numeric")
+    if cv is None and ca is None:
+        return na(name)
+    if mismatches:
+        return mismatch(name, "; ".join(mismatches), data)
+    return confirm(name, f"r={rf} V={actual_vol:.4f} A={actual_area:.4f} (matches claims)", data)
+
+
+def verify_cylinder_properties(spec: Dict[str, Any]) -> VerifierResult:
+    """V = πr²h ;  A_lateral = 2πrh ;  A_total = 2πr² + 2πrh."""
+    import math
+    name = "geometry.cylinder"
+    r = spec.get("cyl_radius")
+    h = spec.get("cyl_height")
+    if r is None or h is None:
+        return na(name)
+    try:
+        rf, hf = float(r), float(h)
+    except (TypeError, ValueError):
+        return error(name, "cyl_radius and cyl_height must be numeric")
+    if rf < 0 or hf < 0:
+        return error(name, f"cylinder dimensions must be non-negative; got r={rf}, h={hf}")
+    actual_vol = math.pi * rf**2 * hf
+    actual_lat = 2.0 * math.pi * rf * hf
+    actual_tot = 2.0 * math.pi * rf**2 + actual_lat
+    rel_tol = float(spec.get("rel_tol") or 1e-4)
+    mismatches: List[str] = []
+    data: Dict[str, Any] = {
+        "r": rf, "h": hf,
+        "actual_volume": actual_vol,
+        "actual_lateral_area": actual_lat,
+        "actual_total_area": actual_tot,
+        "rule": "V = πr²h ; A_lateral = 2πrh ; A_total = 2πr² + 2πrh",
+    }
+    cv = spec.get("claimed_cyl_volume")
+    if cv is not None:
+        try:
+            cvf = float(cv)
+            data["claimed_cyl_volume"] = cvf
+            threshold = max(1e-6, rel_tol * actual_vol) if actual_vol > 0 else 1e-6
+            diff = abs(actual_vol - cvf)
+            data["volume_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"volume: actual {actual_vol:.6f}, claimed {cvf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_cyl_volume must be numeric")
+    if cv is None:
+        return na(name)
+    if mismatches:
+        return mismatch(name, "; ".join(mismatches), data)
+    return confirm(name, f"r={rf} h={hf} V={actual_vol:.4f} (matches claims)", data)
+
+
+def verify_cube_properties(spec: Dict[str, Any]) -> VerifierResult:
+    """V = s³ ; A = 6s²."""
+    name = "geometry.cube"
+    s = spec.get("cube_side")
+    if s is None:
+        return na(name)
+    try:
+        sf = float(s)
+    except (TypeError, ValueError):
+        return error(name, "cube_side must be numeric")
+    if sf < 0:
+        return error(name, f"cube_side must be non-negative; got {sf}")
+    actual_vol = sf**3
+    actual_area = 6.0 * sf**2
+    rel_tol = float(spec.get("rel_tol") or 1e-4)
+    mismatches: List[str] = []
+    data: Dict[str, Any] = {
+        "s": sf,
+        "actual_volume": actual_vol, "actual_surface_area": actual_area,
+        "rule": "V = s³ ; A = 6s²",
+    }
+    cv = spec.get("claimed_cube_volume")
+    if cv is not None:
+        try:
+            cvf = float(cv)
+            data["claimed_cube_volume"] = cvf
+            threshold = max(1e-6, rel_tol * actual_vol) if actual_vol > 0 else 1e-6
+            diff = abs(actual_vol - cvf)
+            data["volume_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"volume: actual {actual_vol:.6f}, claimed {cvf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_cube_volume must be numeric")
+    ca = spec.get("claimed_cube_surface_area")
+    if ca is not None:
+        try:
+            caf = float(ca)
+            data["claimed_cube_surface_area"] = caf
+            threshold = max(1e-6, rel_tol * actual_area) if actual_area > 0 else 1e-6
+            diff = abs(actual_area - caf)
+            data["area_diff"] = diff
+            if diff > threshold:
+                mismatches.append(f"surface area: actual {actual_area:.6f}, claimed {caf}")
+        except (TypeError, ValueError):
+            return error(name, "claimed_cube_surface_area must be numeric")
+    if cv is None and ca is None:
+        return na(name)
+    if mismatches:
+        return mismatch(name, "; ".join(mismatches), data)
+    return confirm(name, f"s={sf} V={actual_vol:.4f} A={actual_area:.4f} (matches claims)", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     gv = packet.get("GEOM_VERIFY") or {}
@@ -181,6 +385,23 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         "claimed_circle_area" in gv or "claimed_circle_circumference" in gv
     ):
         results.append(verify_circle_properties(gv))
+    if (gv.get("rect_length") is not None or gv.get("rect_l") is not None) and (
+        gv.get("rect_width") is not None or gv.get("rect_w") is not None
+    ) and (
+        gv.get("claimed_rect_area") is not None or gv.get("claimed_rect_perimeter") is not None
+    ):
+        results.append(verify_rectangle_properties(gv))
+    if gv.get("sphere_radius") is not None and (
+        gv.get("claimed_sphere_volume") is not None
+        or gv.get("claimed_sphere_surface_area") is not None
+    ):
+        results.append(verify_sphere_properties(gv))
+    if gv.get("cyl_radius") is not None and gv.get("cyl_height") is not None and gv.get("claimed_cyl_volume") is not None:
+        results.append(verify_cylinder_properties(gv))
+    if gv.get("cube_side") is not None and (
+        gv.get("claimed_cube_volume") is not None or gv.get("claimed_cube_surface_area") is not None
+    ):
+        results.append(verify_cube_properties(gv))
     if not results:
         results.append(na("geometry", "no GEOM_VERIFY artifacts present"))
     return results

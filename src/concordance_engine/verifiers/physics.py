@@ -235,6 +235,92 @@ def verify_relativistic_speed_limit(spec: Dict[str, Any]) -> VerifierResult:
                    data)
 
 
+def verify_newtons_second_law(spec: Dict[str, Any]) -> VerifierResult:
+    """F = m × a (magnitude check, SI units).
+
+    Closes a gap that dimensional analysis can't catch: if user says
+    'F = 100 N when m=2 kg and a=3 m/s²', dimensional check is happy
+    (units balance) but the magnitude is wrong by ~17×. This check
+    verifies the actual product.
+    """
+    name = "physics.newtons_second_law"
+    m = spec.get("mass_kg")
+    a = spec.get("acceleration_m_per_s2")
+    F_claimed = spec.get("claimed_force_N")
+    if m is None or a is None or F_claimed is None:
+        return na(name)
+    try:
+        mf, af, Ff = float(m), float(a), float(F_claimed)
+    except (TypeError, ValueError):
+        return error(name, "mass_kg, acceleration_m_per_s2, and claimed_force_N must be numeric")
+    actual_F = mf * af
+    rel_tol = float(spec.get("rel_tol") or 1e-3)
+    abs_tol = float(spec.get("abs_tol") or 1e-6)
+    threshold = max(abs_tol, abs(actual_F) * rel_tol)
+    diff = abs(actual_F - Ff)
+    data = {
+        "mass_kg": mf, "acceleration_m_per_s2": af,
+        "actual_force_N": actual_F, "claimed_force_N": Ff,
+        "diff": diff, "tol_abs": threshold,
+        "formula": "F = m × a",
+        "source": "Newton's second law (definition of force)",
+    }
+    if diff <= threshold:
+        return confirm(
+            name,
+            f"{mf} kg × {af} m/s² = {actual_F} N (claim {Ff} within ±{threshold:.3g})",
+            data,
+        )
+    return mismatch(
+        name,
+        f"{mf} × {af} = {actual_F} N, claimed {Ff} N (diff {diff:.3g})",
+        data,
+    )
+
+
+def verify_kinetic_energy_basic(spec: Dict[str, Any]) -> VerifierResult:
+    """KE = ½ × m × v²  (magnitude check, SI units).
+
+    Same pattern as F=ma: cover the magnitude version of a basic
+    classical-mechanics identity. The `energy` verifier handles a
+    similar check; this is here so claims classified as `physics`
+    don't fall through.
+    """
+    name = "physics.kinetic_energy"
+    m = spec.get("mass_kg")
+    v = spec.get("velocity_m_per_s")
+    KE_claimed = spec.get("claimed_kinetic_energy_J")
+    if m is None or v is None or KE_claimed is None:
+        return na(name)
+    try:
+        mf, vf, Kf = float(m), float(v), float(KE_claimed)
+    except (TypeError, ValueError):
+        return error(name, "mass_kg, velocity_m_per_s, claimed_kinetic_energy_J must be numeric")
+    actual = 0.5 * mf * vf * vf
+    rel_tol = float(spec.get("rel_tol") or 1e-3)
+    abs_tol = float(spec.get("abs_tol") or 1e-6)
+    threshold = max(abs_tol, abs(actual) * rel_tol)
+    diff = abs(actual - Kf)
+    data = {
+        "mass_kg": mf, "velocity_m_per_s": vf,
+        "actual_kinetic_energy_J": actual, "claimed_kinetic_energy_J": Kf,
+        "diff": diff, "tol_abs": threshold,
+        "formula": "KE = ½ m v²",
+        "source": "classical mechanics (definition of kinetic energy)",
+    }
+    if diff <= threshold:
+        return confirm(
+            name,
+            f"½ × {mf} × {vf}² = {actual} J (claim {Kf} within ±{threshold:.3g})",
+            data,
+        )
+    return mismatch(
+        name,
+        f"½ × {mf} × {vf}² = {actual} J, claimed {Kf} J (diff {diff:.3g})",
+        data,
+    )
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     pv = packet.get("PHYS_VERIFY") or {}
@@ -268,6 +354,12 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
 
     if "speed_m_per_s" in pv:
         results.append(verify_relativistic_speed_limit(pv))
+
+    # Magnitude checks for everyday claims (F=ma, KE=½mv²)
+    if all(k in pv for k in ("mass_kg", "acceleration_m_per_s2", "claimed_force_N")):
+        results.append(verify_newtons_second_law(pv))
+    if all(k in pv for k in ("mass_kg", "velocity_m_per_s", "claimed_kinetic_energy_J")):
+        results.append(verify_kinetic_energy_basic(pv))
 
     if not results:
         results.append(na("physics", "no PHYS_VERIFY artifacts present"))
