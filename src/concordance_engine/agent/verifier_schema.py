@@ -136,6 +136,11 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "claimed_fat_g", "claimed_fiber_g",
         "rel_tol",
     ],
+    "fred_economics": [
+        # series_id is one of: CPI_INFLATION, UNEMP_RATE, FED_FUNDS, REAL_GDP_GROWTH
+        # OR plain aliases like 'inflation', 'unemployment', 'fed_funds', 'gdp_growth'
+        "series_id", "year", "claimed_value", "rel_tol", "abs_tol",
+    ],
 }
 
 

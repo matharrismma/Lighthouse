@@ -119,3 +119,7 @@ data/scripture/tsk_full.jsonl
 # Full USDA FoodData Central corpus fetched by scripts/fetch_usda.py
 # (~30 MB, ~7,800 foods). The seed at foods_seed.jsonl is shipped.
 data/nutrition/foods_full.jsonl
+
+# Full FRED corpus fetched by scripts/fetch_fred.py with the operator's
+# free FRED API key. The seed at fred_seed.jsonl is shipped.
+data/economics/fred_full.jsonl

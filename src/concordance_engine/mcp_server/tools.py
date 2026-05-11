@@ -69,6 +69,7 @@ from ..verifiers import periodic_table as _periodic_table
 from ..verifiers import ephemeris as _ephemeris
 from ..verifiers import cross_references as _cross_references
 from ..verifiers import food_database as _food_database
+from ..verifiers import fred_economics as _fred_economics
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -578,6 +579,11 @@ def verify_cross_references(spec):
 def verify_food_database(spec):
     """Nutritional facts (kcal, protein, carbs, fat, fiber) for common foods from USDA FoodData Central. Engine ships ~80 foods covering fruits/vegetables/grains/proteins/dairy/oils/beverages/sweets; operator can run scripts/fetch_usda.py to expand to the full SR Legacy corpus. Public domain (US gov)."""
     return {"checks": [_r(r) for r in _food_database.run({"FOOD_VERIFY": spec or {}})]}
+
+
+def verify_fred_economics(spec):
+    """US historical economic series from FRED/BLS/BEA (public domain). Verifies claims like 'US CPI inflation in 2022 was 8 percent' or 'unemployment in 2020 was 8.1 percent'. Engine ships annual 2000-2023 for inflation, unemployment, fed funds rate, real GDP growth; operator can run scripts/fetch_fred.py with a free FRED API key for full corpus."""
+    return {"checks": [_r(r) for r in _fred_economics.run({"ECON_VERIFY": spec or {}})]}
 
 
 def verify_quantum_computing(spec):
@@ -1547,6 +1553,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_ephemeris": verify_ephemeris,
     "verify_cross_references": verify_cross_references,
     "verify_food_database": verify_food_database,
+    "verify_fred_economics": verify_fred_economics,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,
