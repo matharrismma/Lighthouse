@@ -250,6 +250,101 @@ def verify_entropy_change(spec: Dict[str, Any]) -> VerifierResult:
     )
 
 
+# ── Phase points (boiling / melting / freezing) ────────────────────────
+# At 1 atm. Values from NIST + standard references. Public domain.
+
+# Substance → (melting_point_C, boiling_point_C) at 1 atm. Pulled in to
+# answer the common "water boils at 100°C" / "iron melts at 1538°C" claims.
+_PHASE_POINTS_C: Dict[str, Dict[str, float]] = {
+    "water":            {"melting_C": 0.0,    "boiling_C": 100.0},
+    "ethanol":          {"melting_C": -114.1, "boiling_C": 78.37},
+    "methanol":         {"melting_C": -97.6,  "boiling_C": 64.7},
+    "mercury":          {"melting_C": -38.83, "boiling_C": 356.73},
+    "nitrogen":         {"melting_C": -210.0, "boiling_C": -195.795},
+    "oxygen":           {"melting_C": -218.79,"boiling_C": -182.962},
+    "carbon dioxide":   {"melting_C": -56.6,  "boiling_C": -78.5},  # sublimation
+    "iron":             {"melting_C": 1538.0, "boiling_C": 2862.0},
+    "copper":           {"melting_C": 1084.62,"boiling_C": 2562.0},
+    "aluminum":         {"melting_C": 660.32, "boiling_C": 2470.0},
+    "gold":             {"melting_C": 1064.18,"boiling_C": 2856.0},
+    "silver":           {"melting_C": 961.78, "boiling_C": 2162.0},
+    "lead":             {"melting_C": 327.5,  "boiling_C": 1749.0},
+    "sodium chloride":  {"melting_C": 801.0,  "boiling_C": 1465.0},
+    "helium":           {"melting_C": -272.2, "boiling_C": -268.93},
+    "hydrogen":         {"melting_C": -259.2, "boiling_C": -252.879},
+}
+
+
+def _normalize_substance(s: str) -> str:
+    return (s or "").strip().lower()
+
+
+def _phase_check(spec: Dict[str, Any], kind: str) -> VerifierResult:
+    """Generic boiling/melting point check at 1 atm."""
+    name = f"thermodynamics.{kind}_point"
+    substance = _normalize_substance(spec.get("substance", ""))
+    if not substance:
+        return na(name)
+    table_key = "boiling_C" if kind == "boiling" else "melting_C"
+    claimed_C = spec.get(f"claimed_{kind}_point_C")
+    claimed_F = spec.get(f"claimed_{kind}_point_F")
+    claimed_K = spec.get(f"claimed_{kind}_point_K")
+    if claimed_C is None and claimed_F is None and claimed_K is None:
+        return na(name)
+    if substance not in _PHASE_POINTS_C:
+        return na(name)
+    actual_C = _PHASE_POINTS_C[substance][table_key]
+    # Convert claim to Celsius for comparison
+    if claimed_C is not None:
+        claim_C = float(claimed_C)
+        unit = "°C"
+        claim_value = claim_C
+    elif claimed_F is not None:
+        claim_C = (float(claimed_F) - 32.0) * 5.0 / 9.0
+        unit = "°F"
+        claim_value = float(claimed_F)
+    else:
+        claim_C = float(claimed_K) - 273.15
+        unit = "K"
+        claim_value = float(claimed_K)
+    # Tolerance: 0.5°C absolute or 0.5% relative, whichever larger
+    abs_tol = 0.5
+    rel_tol = 0.005
+    threshold = max(abs_tol, abs(actual_C) * rel_tol)
+    diff = abs(actual_C - claim_C)
+    data = {
+        "substance": substance,
+        "kind": kind,
+        f"actual_{kind}_point_C": actual_C,
+        "claimed_value": claim_value,
+        "claimed_unit": unit,
+        "claim_normalized_C": claim_C,
+        "diff_C": diff,
+        "source": "NIST + standard reference values at 1 atm",
+    }
+    if diff <= threshold:
+        return confirm(
+            name,
+            f"{substance} {kind} point = {actual_C}°C (matches claim {claim_value}{unit})",
+            data,
+        )
+    return mismatch(
+        name,
+        f"{substance} {kind} point = {actual_C}°C, claimed {claim_value}{unit} ({claim_C:.3f}°C)",
+        data,
+    )
+
+
+def verify_boiling_point(spec: Dict[str, Any]) -> VerifierResult:
+    """Boiling point at 1 atm for a known substance."""
+    return _phase_check(spec, "boiling")
+
+
+def verify_melting_point(spec: Dict[str, Any]) -> VerifierResult:
+    """Melting point at 1 atm for a known substance."""
+    return _phase_check(spec, "melting")
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     tv = packet.get("THERMO_VERIFY") or {}
@@ -271,6 +366,19 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
                                              "claimed_entropy_change_J_per_K")):
         results.append(verify_entropy_change(tv))
 
+    # Phase-point checks: any claimed_(boiling|melting)_point_(C|F|K) plus substance
+    if tv.get("substance") and any(
+        tv.get(k) is not None
+        for k in ("claimed_boiling_point_C", "claimed_boiling_point_F", "claimed_boiling_point_K")
+    ):
+        results.append(verify_boiling_point(tv))
+    if tv.get("substance") and any(
+        tv.get(k) is not None
+        for k in ("claimed_melting_point_C", "claimed_melting_point_F", "claimed_melting_point_K")
+    ):
+        results.append(verify_melting_point(tv))
+
     if not results:
-        results.append(na("thermodynamics", "no THERMO_VERIFY artifacts present"))
+        # NA, not error — verifier doesn't apply to this spec shape.
+        results.append(na("thermodynamics"))
     return results

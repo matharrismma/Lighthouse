@@ -237,9 +237,9 @@
     <p class="intro">
       Three witnesses fix a point on a line. A life is a curve. Archetypes are the
       shape of the curve — the way a kind of person tends to meet a kind of moment.
-      The engine surfaces the closest pattern; the reader names whether it fits.
-      Sources here are Scripture first. Other patterns (history, literature) sit
-      below.
+      The engine surfaces the closest patterns; the reader names whether they fit.
+      Scripture is the primary substrate. Literature and history sit below as
+      secondary patterns — same schema, lower authority.
     </p>
   </div>
 </div>
@@ -273,7 +273,12 @@ const CATEGORY_ORDER = [
   "fleer","yielder","wrestler",
   "denier_restored","betrayer",
   "called_reluctant","positioned","faithful_exile",
-  "converted","disqualified",
+  "shepherd_leader","intercessor","builder","watchman","repairer",
+  "mother_in_promise","loyal_friend","encourager",
+  "vindicated","resurrected","last_mercy",
+  "converted","proud_humbled",
+  "lone_voice","lukewarm",
+  "false_prophet","disqualified",
   "parable_figure","type_of_christ",
 ];
 const CATEGORY_LABEL = {
@@ -285,11 +290,33 @@ const CATEGORY_LABEL = {
   "called_reluctant": "Called Reluctant",
   "positioned": "Positioned",
   "faithful_exile": "Faithful in Exile",
+  "shepherd_leader": "Shepherd-Leaders",
+  "intercessor": "Intercessors",
+  "builder": "Builders",
+  "watchman": "Watchmen",
+  "repairer": "Repairers",
+  "mother_in_promise": "Mothers in Promise",
+  "loyal_friend": "Loyal Friends",
+  "encourager": "Encouragers",
+  "vindicated": "Vindicated",
+  "resurrected": "Resurrected",
+  "last_mercy": "Last Mercy",
   "converted": "Converted",
+  "proud_humbled": "Proud Humbled",
+  "lone_voice": "Lone Voices",
+  "lukewarm": "Lukewarm",
+  "false_prophet": "False Prophets",
   "disqualified": "Disqualified",
   "parable_figure": "Parable Figures",
   "type_of_christ": "Types of Christ",
 };
+
+function prettyCategory(cat) {
+  if (CATEGORY_LABEL[cat]) return CATEGORY_LABEL[cat];
+  // Fall back to title-cased category id so new categories show up
+  // sensibly without a code change.
+  return (cat || 'other').split('_').map(s => s ? s[0].toUpperCase() + s.slice(1) : s).join(' ');
+}
 
 let ENTRIES_INDEX = {};
 
@@ -324,12 +351,15 @@ function renderCatalog(d) {
   const parts = [];
   for (const cat of cats) {
     const items = byCat[cat];
-    const label = CATEGORY_LABEL[cat] || cat;
+    const label = prettyCategory(cat);
     parts.push(`<section class="cat-section"><h2>${label}<span class="ct">${items.length}</span></h2><div class="cat-grid">`);
     for (const it of items) {
-      const ref = (it.scripture || [])[0] || '';
+      const ref = (it.scripture || [])[0] || it.attribution || '';
+      const source = it.source && it.source !== 'Bible'
+        ? ` <span style="color:var(--muted-2);font-size:10px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;">${it.source}</span>`
+        : '';
       parts.push(`<div class="arch-card" data-id="${it.id}">
-        <h3>${it.name}</h3>
+        <h3>${it.name}${source}</h3>
         <div class="ref">${ref}</div>
         <p>${(it.pattern || '').slice(0, 180)}${(it.pattern || '').length > 180 ? '…' : ''}</p>
       </div>`);

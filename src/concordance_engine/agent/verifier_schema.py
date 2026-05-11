@@ -43,6 +43,10 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "claimed_pressure_Pa", "claimed_volume_m3", "claimed_temperature_K",
         "mass_kg", "specific_heat_J_per_kgK", "delta_T_K", "claimed_heat_J",
         "heat_J", "claimed_entropy_change_J_per_K",
+        # phase points at 1 atm (water, ethanol, iron, mercury, etc.):
+        "substance",
+        "claimed_boiling_point_C", "claimed_boiling_point_F", "claimed_boiling_point_K",
+        "claimed_melting_point_C", "claimed_melting_point_F", "claimed_melting_point_K",
     ],
     "energy": [
         "mass_kg", "height_m", "claimed_potential_energy_J",

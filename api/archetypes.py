@@ -25,7 +25,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 _DATA_DIR = Path(__file__).parent.parent / "data" / "archetypes"
-_BIBLE_FILE = _DATA_DIR / "bible.jsonl"
+# Source order is also authority order: Bible is the primary substrate;
+# literature and history sit below as secondary patterns. Lower-authority
+# entries don't override higher ones if id collisions ever occur.
+_SOURCE_FILES = [
+    ("Bible",      _DATA_DIR / "bible.jsonl"),
+    ("Literature", _DATA_DIR / "literature.jsonl"),
+    ("History",    _DATA_DIR / "history.jsonl"),
+]
+# Backward compat for any code that imports the old name
+_BIBLE_FILE = _SOURCE_FILES[0][1]
 
 # Stop words we strip when comparing situation text to markers.
 _STOP = {
@@ -47,6 +56,7 @@ _CACHE: Dict[str, Any] = {"mtime": 0.0, "entries": []}
 # pairs. If a combination isn't in this table, the engine surfaces the
 # raw categories and lets the human name the blend.
 _PAIR_SIGNATURES: Dict[frozenset, str] = {
+    # original 36
     frozenset({"fleer", "fleer"}):                     "doubled flight",
     frozenset({"fleer", "disqualified"}):              "fleeing toward disqualification",
     frozenset({"fleer", "betrayer"}):                  "fleeing that ends in betrayal",
@@ -84,6 +94,57 @@ _PAIR_SIGNATURES: Dict[frozenset, str] = {
     frozenset({"disqualified", "disqualified"}):       "doubled disqualification",
     frozenset({"parable_figure", "parable_figure"}):   "parable inside parable",
     frozenset({"type_of_christ", "type_of_christ"}):   "doubled type",
+    # second wave covering the 15 new categories
+    frozenset({"shepherd_leader", "shepherd_leader"}): "doubled shepherd-king",
+    frozenset({"shepherd_leader", "intercessor"}):     "shepherd who stands in the gap",
+    frozenset({"shepherd_leader", "wrestler"}):        "shepherd-king inside the wrestle",
+    frozenset({"shepherd_leader", "disqualified"}):    "shepherd disqualified by his own appetites",
+    frozenset({"shepherd_leader", "proud_humbled"}):   "shepherd-king who must be humbled",
+    frozenset({"intercessor", "intercessor"}):         "doubled intercession",
+    frozenset({"intercessor", "yielder"}):             "intercession out of yielded place",
+    frozenset({"intercessor", "wrestler"}):            "intercession wrestled out",
+    frozenset({"intercessor", "watchman"}):            "watchful intercession",
+    frozenset({"builder", "builder"}):                 "doubled building",
+    frozenset({"builder", "faithful_exile"}):          "the exile rebuilds",
+    frozenset({"builder", "repairer"}):                "build and repair as one work",
+    frozenset({"builder", "watchman"}):                "builds with sword and trowel",
+    frozenset({"watchman", "watchman"}):               "doubled watch",
+    frozenset({"watchman", "lone_voice"}):             "the watchman who is the only voice",
+    frozenset({"watchman", "faithful_exile"}):         "watching faithful in exile",
+    frozenset({"watchman", "yielder"}):                "watching yielded waiting",
+    frozenset({"mother_in_promise", "mother_in_promise"}): "doubled mothering of promise",
+    frozenset({"mother_in_promise", "intercessor"}):   "mother who intercedes",
+    frozenset({"mother_in_promise", "yielder"}):       "yielding into promise",
+    frozenset({"loyal_friend", "loyal_friend"}):       "doubled fidelity",
+    frozenset({"loyal_friend", "vindicated"}):         "fidelity vindicated late",
+    frozenset({"loyal_friend", "shepherd_leader"}):    "loyal companion of the shepherd-king",
+    frozenset({"loyal_friend", "encourager"}):         "fidelity that encourages",
+    frozenset({"vindicated", "vindicated"}):           "doubled vindication",
+    frozenset({"vindicated", "wrestler"}):             "the long wrestle ending in vindication",
+    frozenset({"vindicated", "faithful_exile"}):       "the exile vindicated",
+    frozenset({"proud_humbled", "proud_humbled"}):     "the same lesson twice",
+    frozenset({"proud_humbled", "converted"}):         "humbled to conversion",
+    frozenset({"proud_humbled", "disqualified"}):      "humbled into disqualification",
+    frozenset({"false_prophet", "false_prophet"}):     "doubled deceit",
+    frozenset({"false_prophet", "betrayer"}):          "false prophet who betrays",
+    frozenset({"false_prophet", "disqualified"}):      "false prophet disqualified",
+    frozenset({"lone_voice", "lone_voice"}):           "doubled solitary witness",
+    frozenset({"lone_voice", "wrestler"}):             "the wrestle of the lone witness",
+    frozenset({"lone_voice", "watchman"}):             "lone watchful voice",
+    frozenset({"lone_voice", "called_reluctant"}):     "reluctant lone witness",
+    frozenset({"lukewarm", "lukewarm"}):               "doubled drift",
+    frozenset({"lukewarm", "fleer"}):                  "drift that becomes flight",
+    frozenset({"lukewarm", "disqualified"}):           "drift hardened into disqualification",
+    frozenset({"repairer", "repairer"}):               "doubled repair",
+    frozenset({"repairer", "watchman"}):               "watchman who repairs",
+    frozenset({"repairer", "builder"}):                "repair as building",
+    frozenset({"last_mercy", "last_mercy"}):           "doubled last-hour mercy",
+    frozenset({"last_mercy", "converted"}):            "converted at the last hour",
+    frozenset({"encourager", "encourager"}):           "doubled encouragement",
+    frozenset({"encourager", "yielder"}):              "yielding encourager",
+    frozenset({"encourager", "loyal_friend"}):         "loyal encourager",
+    frozenset({"resurrected", "type_of_christ"}):      "resurrection as a type",
+    frozenset({"resurrected", "resurrected"}):         "doubled resurrection sign",
 }
 
 
@@ -112,29 +173,51 @@ def _tokens(text: str) -> set:
     return {t for t in s.split() if t and t not in _STOP and len(t) > 2}
 
 
+def _max_mtime() -> float:
+    """Return the latest mtime across all source files. If any source
+    changes on disk, we reload everything."""
+    latest = 0.0
+    for _, path in _SOURCE_FILES:
+        try:
+            if path.exists():
+                latest = max(latest, path.stat().st_mtime)
+        except OSError:
+            continue
+    return latest
+
+
 def _load_entries() -> List[Dict[str, Any]]:
-    """Load all archetype entries from disk, with mtime-based cache."""
-    if not _BIBLE_FILE.exists():
-        return []
-    try:
-        mtime = _BIBLE_FILE.stat().st_mtime
-    except OSError:
-        mtime = 0.0
+    """Load archetype entries from every source file, with mtime-based
+    cache. Sources are concatenated in authority order (Bible first)."""
+    mtime = _max_mtime()
     if _CACHE["entries"] and mtime <= _CACHE["mtime"]:
         return _CACHE["entries"]
     entries: List[Dict[str, Any]] = []
-    try:
-        with _BIBLE_FILE.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    entries.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
-    except OSError:
-        return []
+    seen_ids: set = set()
+    for source_label, path in _SOURCE_FILES:
+        if not path.exists():
+            continue
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    # Source-file label wins over any embedded "source" field
+                    # so we know exactly which substrate it came from.
+                    rec.setdefault("source", source_label)
+                    # First-wins on id collisions — Bible authority preserved
+                    rid = rec.get("id")
+                    if not rid or rid in seen_ids:
+                        continue
+                    seen_ids.add(rid)
+                    entries.append(rec)
+        except OSError:
+            continue
     # Precompute marker token sets for fast scoring
     for e in entries:
         e["_marker_sets"] = [_tokens(m) for m in (e.get("markers") or [])]
