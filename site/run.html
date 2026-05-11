@@ -69,8 +69,43 @@
       flex-wrap: wrap;
       gap: 10px;
     }
+    .input-footer .left-group {
+      display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap;
+    }
     .input-footer .hint {
       font-size: 12.5px; color: var(--muted-2);
+    }
+    /* Seal toggle — off by default; opt-in to mint a permalink */
+    .seal-toggle {
+      display: inline-flex; align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--muted-2);
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .seal-toggle:hover { border-color: var(--accent-dim); color: var(--text); }
+    .seal-toggle input[type="checkbox"] {
+      width: 14px; height: 14px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      margin: 0;
+    }
+    .seal-toggle.on {
+      border-color: rgba(94, 196, 180, 0.5);
+      background: rgba(94, 196, 180, 0.06);
+      color: #5ec4b4;
+    }
+    .seal-toggle .seal-label-detail {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.03em;
     }
     .input-footer .hint kbd {
       font-family: 'JetBrains Mono', monospace;
@@ -428,8 +463,15 @@
       placeholder="Photosynthesis converts 6 CO2 + 6 H2O into C6H12O6 + 6 O2. The reaction requires light energy in the range of 400-700 nanometers."
       autocomplete="off" spellcheck="true"></textarea>
     <div class="input-footer">
-      <div class="hint">
-        <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run · rate limited per IP
+      <div class="left-group">
+        <div class="hint">
+          <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run · rate limited per IP
+        </div>
+        <label class="seal-toggle" id="sealToggle" title="Seal this run to the engine's content-addressed store. A permalink is minted that resolves forever. Off by default — most runs don't need a receipt.">
+          <input type="checkbox" id="sealCheckbox">
+          <span>Seal & mint permalink</span>
+          <span class="seal-label-detail">(off)</span>
+        </label>
       </div>
       <button id="runBtn">Run through the engine</button>
     </div>
@@ -502,20 +544,32 @@ textarea.addEventListener('keydown', (e) => {
 });
 runBtn.addEventListener('click', run);
 
+const sealCheckbox = $('sealCheckbox');
+const sealToggle = $('sealToggle');
+
+sealCheckbox.addEventListener('change', () => {
+  const on = sealCheckbox.checked;
+  sealToggle.classList.toggle('on', on);
+  sealToggle.querySelector('.seal-label-detail').textContent = on ? '(on)' : '(off)';
+});
+
 async function run() {
   const text = (textarea.value || '').trim();
   if (!text) { textarea.focus(); return; }
 
+  const wantSeal = sealCheckbox.checked;
   runBtn.disabled = true;
   result.hidden = true;
   progress.hidden = false;
-  progressText.textContent = 'decomposing into atomic claims…';
+  progressText.textContent = wantSeal
+    ? 'decomposing → verifying → sealing…'
+    : 'decomposing into atomic claims…';
 
   try {
     const r = await fetch('/polymathic', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({situation: text, store: true, max_domains: 8}),
+      body: JSON.stringify({situation: text, store: wantSeal, max_domains: 8}),
     });
     if (!r.ok) {
       let detail = 'engine returned ' + r.status;
@@ -524,10 +578,10 @@ async function run() {
     }
     progressText.textContent = 'rendering…';
     const record = await r.json();
-    if (record.content_hash) {
+    if (wantSeal && record.content_hash) {
       history.pushState({}, '', '/run.html?h=' + record.content_hash);
     }
-    render(record);
+    render(record, {wantSeal});
   } catch (e) {
     progress.hidden = true;
     runBtn.disabled = false;
@@ -542,9 +596,9 @@ async function loadFromPermalink(hash) {
     const r = await fetch('/cas/' + encodeURIComponent(hash));
     if (!r.ok) throw new Error('no run found at ' + hash);
     const record = await r.json();
-    // CAS stores the canonical record; the situation field on the
-    // top level is what we need.
-    render(record);
+    // CAS stores the canonical record; this run is by definition sealed
+    // (the permalink wouldn't exist otherwise), so show the permalink card.
+    render(record, {viaPermalink: true});
   } catch (e) {
     progress.hidden = true;
     $('originalText').innerHTML =
@@ -553,7 +607,8 @@ async function loadFromPermalink(hash) {
   }
 }
 
-function render(record) {
+function render(record, opts) {
+  opts = opts || {};
   progress.hidden = true;
   runBtn.disabled = false;
   result.hidden = false;
@@ -663,9 +718,12 @@ function render(record) {
     $('precedentBox').innerHTML = '';
   }
 
-  // 6. Permalink
+  // 6. Permalink — only shown when the user explicitly sealed up front
+  //    OR they loaded this page via a ?h= permalink. Default runs
+  //    don't show it; nothing was written to CAS.
   const hash = record.content_hash || record.permanent_ref;
-  if (hash) {
+  const userOptedToSeal = opts.wantSeal || opts.viaPermalink;
+  if (hash && userOptedToSeal) {
     $('permalinkCard').hidden = false;
     const url = location.origin + '/run.html?h=' + hash;
     $('plUrl').textContent = url;
