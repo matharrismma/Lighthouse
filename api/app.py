@@ -7556,6 +7556,231 @@ def grid_residue():
     }
 
 
+@app.post("/grid/axis/candidates/polymathic", tags=["agents"])
+def grid_axis_candidates_polymathic(
+    request: Request,
+    refresh: bool = Query(False, description="Re-run polymathic on all clusters even if cached."),
+    cluster_index: int = Query(-1, description="Run a single cluster by index instead of all. -1 = all."),
+):
+    """Path 2 — the engine runs polymathic on its own ambiguity clusters.
+
+    For each cluster of canonical domains sharing the same axis signature,
+    constructs a situation describing the members and their verifier
+    docstrings, then submits to /polymathic. The polymathic agent extracts
+    claims, fans across applicable verifiers (linguistics, philosophy,
+    information_theory, formal_logic), and returns a composite verdict +
+    domain_results + axis_overlaps.
+
+    Whatever the engine returns is what it returns. The engine doesn't
+    name the missing dimension; it runs its own machinery on the meta-
+    question and surfaces what fires.
+
+    Result cached to data/grid/axis_candidates_polymathic.json. Cached
+    runs are returned for free; ?refresh=true re-fires the oracle calls.
+    Operator-only — each cluster is one oracle call (~$0.001-$0.01).
+
+    Returns cluster reports with the polymathic record stripped to its
+    most informative fields: composite_verdict, domains_fired,
+    axis_overlaps, atomic_claims, quarantined_claims, and the first
+    paragraph of the oracle's classification rationale where present."""
+    _community_require_api_key(request)
+
+    from pathlib import Path as _Path
+    import time as _t
+    cache_path = _Path(__file__).resolve().parent.parent / "data" / "grid" / "axis_candidates_polymathic.json"
+
+    # If cache exists and not refresh, return it
+    if cache_path.exists() and not refresh and cluster_index < 0:
+        try:
+            cached = json.loads(cache_path.read_text("utf-8"))
+            cached["cached"] = True
+            return cached
+        except Exception:
+            pass
+
+    try:
+        from concordance_engine import grid as _grid
+        from concordance_engine.agent.poly_agent import run_polymathic as _run_poly
+        from concordance_engine.mcp_server.tools import ALL_TOOLS
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+    def _doc(name: str) -> str:
+        fn = ALL_TOOLS.get(f"verify_{name}")
+        if not fn or not fn.__doc__:
+            return ""
+        d = fn.__doc__.strip().split("\n\n", 1)[0]
+        return " ".join(d.split())[:280]
+
+    # Build the ambiguity clusters (same logic as /grid/residue)
+    aliases_known = getattr(_grid, "ALIASES", {})
+    domains_canonical = {
+        n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()
+        if n not in aliases_known
+    }
+    by_signature: Dict[tuple, List[str]] = {}
+    for n, dims in domains_canonical.items():
+        sig = tuple(sorted(dims))
+        by_signature.setdefault(sig, []).append(n)
+    clusters_input = sorted(
+        [(list(sig), sorted(names)) for sig, names in by_signature.items() if len(names) >= 2],
+        key=lambda c: -len(c[1]),
+    )
+
+    def _run_one(sig: List[str], members: List[str]) -> Dict[str, Any]:
+        members_doc = "\n".join(
+            f"- {n} verifies: {_doc(n) or '(no docstring)'}" for n in members
+        )
+        situation = (
+            f"The Concordance engine has these {len(members)} canonical domains "
+            f"sharing identical axis signature [{', '.join(sig)}]:\n"
+            f"{members_doc}\n\n"
+            f"The 7 current axes do not distinguish them. What dimension of "
+            f"reality varies across these domains but is not yet captured? "
+            f"Consider scale, subject matter, temporal direction, observability, "
+            f"mode of claim, or other structural cuts."
+        )
+        try:
+            record = _run_poly(situation=situation, max_domains=8, decompose=True)
+            d = record.to_dict() if hasattr(record, "to_dict") else dict(record.__dict__)
+            return {
+                "signature": sig,
+                "members": members,
+                "composite_verdict": d.get("composite_verdict", "?"),
+                "domains_fired": [r.get("domain") for r in (d.get("domain_results") or []) if r.get("domain")],
+                "domain_count_fired": len(d.get("domain_results") or []),
+                "axis_overlaps": d.get("axis_overlaps", []),
+                "atomic_claim_count": len(d.get("atomic_claims") or []),
+                "quarantined_claim_count": len(d.get("quarantined_claims") or []),
+                "first_atomic_claim": (d.get("atomic_claims") or [{}])[0].get("text", "")[:240] if d.get("atomic_claims") else "",
+            }
+        except Exception as exc:
+            return {
+                "signature": sig,
+                "members": members,
+                "error": f"{type(exc).__name__}: {str(exc)[:200]}",
+            }
+
+    started = _t.time()
+    if cluster_index >= 0:
+        # single-cluster mode (no cache write)
+        if cluster_index >= len(clusters_input):
+            raise HTTPException(status_code=400, detail=f"cluster_index out of range; {len(clusters_input)} clusters")
+        sig, members = clusters_input[cluster_index]
+        result = _run_one(sig, members)
+        return {
+            "cluster_index": cluster_index,
+            "cluster": result,
+            "elapsed_sec": round(_t.time() - started, 2),
+            "cached": False,
+        }
+
+    # All-clusters mode — runs N oracle calls, then caches
+    results: List[Dict[str, Any]] = []
+    for sig, members in clusters_input:
+        results.append(_run_one(sig, members))
+
+    payload = {
+        "method": "polymathic_dispatch_v1",
+        "ran_at_iso": _t.strftime("%Y-%m-%dT%H:%M:%SZ", _t.gmtime()),
+        "elapsed_sec": round(_t.time() - started, 2),
+        "cluster_count": len(results),
+        "clusters": results,
+        "cached": False,
+        "notes": {
+            "purpose": "Second opinion on /grid/axis/candidates via the engine's own polymathic infrastructure. Submits each ambiguity cluster as a situation; reports what fires.",
+            "posture": "Whatever the engine returns is the report. The engine still doesn't name. The fan-out's pattern (which domains fire, which axis overlaps surface) is the signal.",
+        },
+    }
+    try:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+    return payload
+
+
+@app.get("/grid/axis/candidates", tags=["agents"])
+def grid_axis_candidates():
+    """Engine introspecting its own verifier schemas to surface variation
+    that the current axis vocabulary doesn't name.
+
+    For each ambiguity cluster (canonical domains sharing the same axis
+    signature), the engine analyzes the cluster members' input schemas
+    pulled directly from /manifest. Output per cluster:
+
+      - common_bare_names_across_all  — fields every member accepts
+      - common_units_across_all       — unit suffixes every member uses
+      - avg_pair_jaccard               — schema similarity (0-1); high means
+                                          the axes are sufficient, low means
+                                          a dimension exists the axes don't
+                                          name
+      - per-pair similarity            — which pairs are structurally closer
+      - unique_per_member              — what makes each member distinct
+      - distinct_unit_signatures       — which members use different physical
+                                          quantity spaces
+      - interpretation                 — engine-side reading:
+          near_alias_or_honest          high overlap, axes are sufficient
+          mixed                         partial overlap, partial implicit dim
+          implicit_dimension_present    low overlap, a dim exists unnamed
+
+    Pure structural inference. No oracle. The engine doesn't propose
+    names — it reports what variation it can see in its own work-shape.
+    Naming remains the human's act."""
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    from api.schema_analysis import build_all_schemas, analyze_cluster
+
+    all_schemas = build_all_schemas()
+
+    aliases_known = getattr(_grid, "ALIASES", {})
+    domains_canonical = {
+        n: list(dims) for n, dims in _grid.AXIS_DIMENSIONS.items()
+        if n not in aliases_known
+    }
+
+    by_signature: Dict[tuple, List[str]] = {}
+    for n, dims in domains_canonical.items():
+        sig = tuple(sorted(dims))
+        by_signature.setdefault(sig, []).append(n)
+
+    cluster_reports: List[Dict[str, Any]] = []
+    for sig, names in by_signature.items():
+        if len(names) < 2:
+            continue
+        member_schemas = {n: all_schemas[n] for n in names if n in all_schemas}
+        if not member_schemas:
+            continue
+        analysis = analyze_cluster(member_schemas)
+        cluster_reports.append({
+            "signature": list(sig),
+            "members": sorted(names),
+            "count": len(names),
+            "members_with_schema": len(member_schemas),
+            "analysis": analysis,
+        })
+    cluster_reports.sort(key=lambda c: -c["count"])
+
+    # Aggregate count by interpretation — the engine summarizing its own findings
+    counts_by_interp: Dict[str, int] = {}
+    for c in cluster_reports:
+        interp = c.get("analysis", {}).get("interpretation", "?")
+        counts_by_interp[interp] = counts_by_interp.get(interp, 0) + 1
+
+    return {
+        "method": "schema_analysis_v1",
+        "clusters": cluster_reports,
+        "cluster_count": len(cluster_reports),
+        "counts_by_interpretation": counts_by_interp,
+        "notes": {
+            "purpose": "The engine reading its own verifier schemas to surface what variation lives in the input shapes — variation the 7 axes do not yet name.",
+            "posture": "Engine reports what it sees. Names belong to the human.",
+        },
+    }
+
+
 @app.get("/grid/coherence", tags=["agents"])
 def grid_coherence():
     """Engine self-audit. The scaffold's structural anomalies as data.
