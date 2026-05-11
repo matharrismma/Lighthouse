@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Inbox · Concordance Engine</title>
-  <meta name="description" content="Operator-only mailbox + quarantine queue. Messages and submissions sit here until read or dismissed.">
+  <title>Console · Concordance Engine</title>
+  <meta name="description" content="Operator-only console. Messages, quarantine, activity, and the engine's working state — one view.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <meta name="robots" content="noindex,nofollow">
@@ -220,9 +220,12 @@
     <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
     <nav class="topnav">
       <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
-      <a href="/dashboard.html">Activity</a>
+      <a href="/dashboard.html">Public Activity</a>
       <a href="/curate.html">Curate</a>
-      <a href="/inbox.html" class="active">Inbox</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/archetypes.html">Archetypes</a>
+      <a href="/residue.html">Residue</a>
+      <a href="/inbox.html" class="active">Console</a>
     </nav>
   </div>
 </header>
@@ -230,10 +233,10 @@
 <div class="page-header">
   <div class="container wide">
     <div class="eyebrow">Operator only</div>
-    <h1>Inbox</h1>
-    <p style="max-width:60ch;color:var(--muted-2);font-size:14.5px;line-height:1.55;">
-      Contact messages and quarantine submissions sit here until read or
-      dismissed. Read state persists per-id in <code>data/inbox/state.json</code>.
+    <h1>Console</h1>
+    <p style="max-width:64ch;color:var(--muted-2);font-size:14.5px;line-height:1.55;">
+      One view. Messages, quarantine, activity, and the engine's working state.
+      Read state persists per-id in <code>data/inbox/state.json</code>.
     </p>
   </div>
 </div>
@@ -264,10 +267,11 @@
     <div class="tabs">
       <button class="tab active" data-tab="messages">Messages <span class="count" id="tabMsgCount">—</span></button>
       <button class="tab" data-tab="quarantine">Quarantine <span class="count" id="tabQCount">—</span></button>
-      <button class="tab" data-tab="all">All</button>
+      <button class="tab" data-tab="activity">Activity</button>
+      <button class="tab" data-tab="all">All inbox</button>
     </div>
 
-    <div class="filter-bar">
+    <div class="filter-bar" id="filterBar">
       <label>Show:</label>
       <select id="filterSel">
         <option value="all">All</option>
@@ -279,6 +283,39 @@
 
     <div class="item-list" id="itemList">
       <div class="empty-state">Loading…</div>
+    </div>
+
+    <div id="activityPanel" style="display:none;">
+      <!-- Activity strip -->
+      <div class="stats-strip" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-tile"><div class="lbl">Visits today</div><div class="val" id="aVisToday">—</div></div>
+        <div class="stat-tile"><div class="lbl">Visits 7d</div><div class="val" id="aVisWeek">—</div></div>
+        <div class="stat-tile"><div class="lbl">Ledger entries</div><div class="val" id="aLedger">—</div></div>
+        <div class="stat-tile"><div class="lbl">Almanac entries</div><div class="val" id="aAlmanac">—</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;" id="actDetail">
+        <div class="stat-tile" style="padding:18px 20px;">
+          <div class="lbl">Verdict mix (ledger)</div>
+          <div id="aVerdicts" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;">—</div>
+        </div>
+        <div class="stat-tile" style="padding:18px 20px;">
+          <div class="lbl">Visitors by class (7d)</div>
+          <div id="aUaClass" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;">—</div>
+        </div>
+        <div class="stat-tile" style="padding:18px 20px;">
+          <div class="lbl">Visitors by country (7d)</div>
+          <div id="aCountry" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;">—</div>
+        </div>
+        <div class="stat-tile" style="padding:18px 20px;">
+          <div class="lbl">Latest ledger entry</div>
+          <div id="aLatest" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted-2);">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;font-size:13px;color:var(--muted-2);font-family:'Crimson Pro',serif;font-style:italic;">
+        For the full public dashboard view, see <a href="/dashboard.html" style="color:var(--accent);">/dashboard.html</a>.
+      </div>
     </div>
 
   </section>
@@ -313,10 +350,58 @@ document.querySelectorAll('.tab').forEach(t => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     CURRENT_TAB = t.dataset.tab;
-    render();
+    if (CURRENT_TAB === 'activity') {
+      $('itemList').style.display = 'none';
+      $('filterBar').style.display = 'none';
+      $('activityPanel').style.display = 'block';
+      loadActivity();
+    } else {
+      $('itemList').style.display = 'flex';
+      $('filterBar').style.display = 'flex';
+      $('activityPanel').style.display = 'none';
+      render();
+    }
   });
 });
 $('filterSel').addEventListener('change', render);
+
+let ACTIVITY_LOADED = false;
+async function loadActivity() {
+  if (ACTIVITY_LOADED) return;  // cache once per session — refresh on key reload
+  try {
+    const r = await fetch('/dashboard/stats');
+    if (!r.ok) return;
+    const d = await r.json();
+    const v = d.visits || {};
+    $('aVisToday').textContent = v.today_external != null ? `${v.today_external} (${v.today_total||0} raw)` : '—';
+    $('aVisWeek').textContent  = v.week_total != null ? v.week_total : '—';
+    const l = d.ledger || {};
+    $('aLedger').textContent  = l.total_entries != null ? l.total_entries : '—';
+    const al = d.almanac || {};
+    $('aAlmanac').textContent = al.total_entries != null ? al.total_entries : '—';
+
+    // Verdicts
+    const verds = (l.by_overall) || {};
+    const verdLines = Object.entries(verds).sort((a,b)=>b[1]-a[1])
+      .map(([k,v]) => `<div><span style="color:var(--muted-2);">${esc(k)}</span> &nbsp; <span style="color:var(--text);">${v}</span></div>`).join('');
+    $('aVerdicts').innerHTML = verdLines || '<span style="color:var(--muted-2);">no entries yet</span>';
+
+    // UA class
+    const ua = v.by_ua_class_week || {};
+    const uaLines = Object.entries(ua).sort((a,b)=>b[1]-a[1])
+      .map(([k,n]) => `<div><span style="color:var(--muted-2);">${esc(k||'unknown')}</span> &nbsp; <span style="color:var(--text);">${n}</span></div>`).join('');
+    $('aUaClass').innerHTML = uaLines || '<span style="color:var(--muted-2);">no traffic</span>';
+
+    // Country
+    const co = v.by_country_week_top || {};
+    const coLines = Object.entries(co).sort((a,b)=>b[1]-a[1])
+      .map(([k,n]) => `<div><span style="color:var(--muted-2);">${esc(k||'??')}</span> &nbsp; <span style="color:var(--text);">${n}</span></div>`).join('');
+    $('aCountry').innerHTML = coLines || '<span style="color:var(--muted-2);">no traffic</span>';
+
+    $('aLatest').textContent = l.latest_iso || '—';
+    ACTIVITY_LOADED = true;
+  } catch (e) { /* noop */ }
+}
 
 async function verifyAndLoad() {
   try {

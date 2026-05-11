@@ -606,6 +606,73 @@ def inbox_mark(request: Request, req: _InboxMark):
     return {"ok": True, "id": item_id, "action": action}
 
 
+# -- Archetypes ----------------------------------------------------------
+# Pattern-recognition layer. Engine surfaces the closest Biblical
+# archetype shape for a situation. Engine shows; human names.
+# Substrate: data/archetypes/bible.jsonl
+from api import archetypes as _archetypes  # noqa: E402
+
+
+class _ArchetypeRecognizeRequest(BaseModel):
+    situation: str
+    top_k: int = 3
+
+
+@app.get("/archetypes", tags=["archetypes"])
+def archetypes_list():
+    """Browseable catalog of all archetypes in the substrate."""
+    entries = _archetypes.list_entries()
+    # Strip the heavy prose for the index view; full entry comes from /archetypes/{id}
+    index = []
+    for e in entries:
+        index.append({
+            "id": e.get("id"),
+            "name": e.get("name"),
+            "category": e.get("category"),
+            "source": e.get("source"),
+            "scripture": e.get("scripture", []),
+            "pattern": e.get("pattern", ""),
+        })
+    # Group by category for the page
+    by_category: Dict[str, List[Dict[str, Any]]] = {}
+    for e in index:
+        cat = e.get("category", "other") or "other"
+        by_category.setdefault(cat, []).append(e)
+    for v in by_category.values():
+        v.sort(key=lambda x: (x.get("name") or "").lower())
+    return {
+        "total": len(index),
+        "by_category": by_category,
+        "entries": index,
+    }
+
+
+@app.get("/archetypes/{archetype_id}", tags=["archetypes"])
+def archetypes_get(archetype_id: str):
+    """Full entry for one archetype."""
+    aid = _safe_id(archetype_id)
+    entry = _archetypes.get_entry(aid)
+    if not entry:
+        raise HTTPException(status_code=404, detail="archetype not found")
+    return entry
+
+
+@app.post("/archetype/recognize", tags=["archetypes"])
+def archetype_recognize(request: Request, req: _ArchetypeRecognizeRequest):
+    """Surface the closest Biblical archetype shape for a situation.
+
+    The engine never says 'you are Jonah.' It surfaces 'this pattern
+    resembles Jonah; here are the markers that matched.' The human
+    names whether the shape fits.
+    """
+    _rate_check(request, "validate")
+    situation = (req.situation or "").strip()
+    if not situation:
+        raise HTTPException(status_code=400, detail="situation is required")
+    k = max(1, min(5, int(req.top_k or 3)))
+    return _archetypes.recognize(situation, top_k=k)
+
+
 # -- Community participation ----------------------------------------------
 # Contributors, badges, witness signals, activity feed. All read endpoints
 # unlimited; write endpoints rate-limited via the existing token bucket.
