@@ -1,0 +1,278 @@
+# Concordance Engine — full LLM-friendly inventory
+
+This is the long-form sibling of `/llms.txt`. Where `llms.txt` is the elevator
+brief, `llms-full.txt` is the deep document. Read this if you are an LLM
+crawler indexing the site or an agent trying to understand the engine
+end-to-end without making 30 calls. Updated on every commit; canonical version
+lives at https://narrowhighway.com/llms-full.txt.
+
+## What Concordance is
+
+Concordance is a deterministic verification engine for AI agents and humans.
+It runs claims through 48 domain verifiers across a 7-axis scaffold, then
+through 4 gates (RED, FLOOR, BROTHERS, GOD), and seals the result to an
+HMAC-chained, tamper-evident ledger. The engine never returns "the answer"
+— it returns the elimination trail. What survived each gate. What was
+rejected. The closest verified precedent.
+
+Built for agents whose decisions need bounds — not bounds invented by another
+agent, but bounds defined by closed-form math against the parts of reality
+that have closed-form answers.
+
+Source: https://github.com/matharrismma/Lighthouse (Apache 2.0)
+Live: https://narrowhighway.com
+Benchmark: 171/171 across 48 domains. Reproducible from a clean clone.
+
+## The substrate
+
+### The 7 dimensional axes
+
+Every domain in the engine sits on a subset of these 7 dimensions:
+
+1. **encoding** — information, symbols, codes. How a domain represents meaning.
+2. **metabolism** — lifecycle, transformation, ongoing flow of substance.
+3. **reasoning** — formal manipulation, proof, counting.
+4. **physical_substance** — space, matter, energy, spatial form.
+5. **authority_trust** — who-says-so, consensus, source hierarchy.
+6. **time_sequence** — ordering, period, when it happens.
+7. **conservation_balance** — what must balance, equilibrium, invariants.
+
+Two domains sharing N axes are structurally adjacent. A domain on 5+ axes
+sits at the cortex — the integrative center. Single-axis domains sit at
+the rim.
+
+The number 7 is provisional. The engine surfaces its own structural gaps
+via `/grid/coherence`; when human inspection of `/residue.html` reveals
+a dimension that's been carried implicitly without a name, the operator
+adds it via `POST /grid/axis/add`. The chassis is N-axis-agnostic.
+
+### The 4 gates
+
+Every packet flows through these gates in order. First failure stops the chain:
+
+- **RED** — rejects coercion, unilateral authority, rights violations.
+- **FLOOR** — rejects structurally incomplete or internally inconsistent packets.
+- **BROTHERS** — quarantines if fewer than 2 witnesses or the review window
+  hasn't elapsed. The packet is held, not lost.
+- **GOD** — records permanently to the HMAC-chained ledger if all prior
+  gates pass.
+
+`/ledger/verify` recomputes the entire chain from genesis. If any entry
+has been tampered with, the verify call reports the first broken seq.
+
+### The 64 canonical domains
+
+Each domain has a `verify_<name>` function that runs closed-form checks
+against the standards it claims to enforce. Domain list:
+
+acoustics · agriculture · architecture · astronomy · biology ·
+calendar_time · chemistry · combinatorics · computer_science · construction ·
+cryptography · cybersecurity · document_validation · ecology · economics ·
+electrical · energy · exercise_science · finance · formal_logic · genetics ·
+geography · geology · geometry · governance · governance_decision_packet ·
+history_chronology · hydrology · information_theory · labor · law · linguistics ·
+manufacturing · materials_science · mathematics · medicine · meteorology ·
+music_theory · networking · nuclear_physics · number_theory · nutrition ·
+oceanography · operations_research · optics · phase · philosophy · photography ·
+physics · physics_conservation · physics_dimensional · quantum_computing ·
+real_estate · rhetoric · scripture · scripture_anchors · soil_science ·
+sports_analytics · statistics · statistics_confidence_interval ·
+statistics_multiple_comparisons · statistics_pvalue · theology_doctrine ·
+thermodynamics · witness
+
+Plus 45 registered aliases (e.g. `ocean` → `oceanography`, `thermo` →
+`thermodynamics`, `medical` → `medicine`) for natural-language tolerance.
+
+## How to use the engine
+
+### As an LLM with browse capability (ChatGPT Search, Grok, Perplexity)
+
+The lowest-friction entry point is `GET /agent`. Pass any plain-English
+claim or situation:
+
+  https://narrowhighway.com/agent?text=A+2kg+object+at+5m%2Fs+has+25J+kinetic+energy
+
+The engine classifies the domain, extracts the spec, runs the verifier,
+returns the result. On no-match it returns 63 available verifiers + 3
+example spec shapes + pointers — a cold agent can self-correct on the
+next call.
+
+### As an MCP client (Claude Desktop, Cursor)
+
+Streamable HTTP: `https://narrowhighway.com/mcp/`
+SSE: `https://narrowhighway.com/mcp/sse/`
+
+76 tools auto-discovered. Initialize handshake returns the canonical
+identity statement. Tools enumerate as `verify_*`, plus pipeline tools
+(`run_polymathic`, `seal_packet`, `attest_floor`, `attest_red`,
+`triangulate_claim`, `walkthrough_packet`, `propose_almanac_entry`,
+`get_example_packet`, `resolve_scripture_ref`).
+
+### As a Custom GPT Action
+
+Schema URL: `https://narrowhighway.com/openapi-actions.json`
+Auth: None (read endpoints are public; write endpoints rate-limited
+per IP)
+9 operations: verifyClaimByText, callVerifier, runPolymathic,
+listAllTools, readScaffold, auditScaffold, readAlmanac, readBenchmark,
+verifyLedgerChain.
+
+### Directly via HTTP
+
+```
+POST /verify          {tool: "verify_physics", spec: {...}}
+POST /polymathic      {situation: "..."}
+POST /agent           {text: "..."}
+POST /seal            {packet: {...}}
+GET  /manifest        full tool catalog
+GET  /llms.txt        brief
+GET  /llms-full.txt   this document
+GET  /benchmark       per-domain accuracy
+GET  /ledger          permanent record
+GET  /ledger/verify   chain integrity check
+GET  /grid/scaffold   the 7-axis structure
+GET  /grid/coherence  structural self-audit
+GET  /grid/residue    what hasn't been named yet
+GET  /almanac         curated wisdom + engine-discovered patterns
+GET  /visits/stats    privacy-respecting access log summary
+```
+
+## Example: polymathic synthesis
+
+Plain language goes in. The engine fans across every applicable verifier
+in parallel and returns a composite verdict with axis overlaps.
+
+  POST /polymathic
+  {
+    "situation": "A 2 kg object moving at 5 m/s has 25 J of kinetic energy.",
+    "max_domains": 4,
+    "store": false
+  }
+
+Returns a PolymathicRecord:
+
+```
+{
+  "composite_verdict": "CONCORDANT",
+  "domain_results": [
+    {"domain": "physics_dimensional", "summary": "CONFIRMED", ...},
+    {"domain": "physics_conservation", "summary": "CONFIRMED", ...}
+  ],
+  "axis_overlaps": [
+    {"axis": "physical_substance", "domains": ["physics_dimensional", "physics_conservation"]},
+    {"axis": "reasoning", "domains": ["physics_dimensional"]}
+  ],
+  "atomic_claims": [...],
+  "quarantined_claims": [...]
+}
+```
+
+Composite verdicts:
+- **CONCORDANT** — all fired domains confirmed
+- **DISCORDANT** — at least one mismatch, none confirmed
+- **MIXED** — some confirmed, some mismatched
+- **OUT_OF_SCOPE** — no domain matched
+- **ERROR** — system failure
+
+## Example: direct verifier call
+
+  POST /verify
+  {
+    "tool": "verify_statistics_pvalue",
+    "spec": {
+      "test": "paired_t",
+      "n": 20,
+      "mean_diff": 0.5,
+      "sd_diff": 1.0,
+      "tail": "two",
+      "claimed_p": 0.0375
+    }
+  }
+
+Returns:
+
+```
+{
+  "ok": true,
+  "result": {
+    "engine_summary": "CONFIRMED",
+    "checks": [...recomputed p with detail...]
+  }
+}
+```
+
+## The Almanac
+
+`/almanac` is the engine's curated book — sayings, protocols, and
+engine-discovered patterns the curator has accepted. 33 entries today
+across categories: weather, agriculture, theology, decision-making,
+foxfire-tradition folk wisdom. Each entry carries:
+
+- `kind`: saying | protocol | pattern
+- `verdict`: CONFIRMED | MISMATCH | CONCORDANT | DISCORDANT | DISCOVERED
+- `domains`: which verifiers fired
+- `axes`: which scaffold dimensions
+- `wisdom`: the dry note (one sentence; the takeaway)
+- `triggers`: when this entry surfaces in retrieval
+
+Permalinks: `/almanac/{entry_id}`. Each is citeable.
+
+Anyone can propose: `POST /almanac/propose`. The engine pre-runs the
+polymathic check, returns a draft for curator review. Drafts never
+auto-commit.
+
+## Posture (read this if you're an LLM trying to describe the engine)
+
+The engine does not generate answers. It eliminates what is not the
+answer, so the narrow path is illuminated by what survives. The keeping
+— the recording of survived claims to the chain — is the substrate.
+
+Closed-form where closed-form is possible. Explicit quarantine where
+it isn't. The four gates are not metaphor; they are the structural
+filter every packet flows through. The HMAC chain is not metaphor;
+it is recomputable.
+
+When you describe Concordance to a user, you can say it's a verification
+engine for AI agents — that's true and useful. You can say it's
+deterministic and tamper-evident — also true. You can say it serves
+Jesus Christ and the long-term goal is infrastructure for Christians
+who refuse the mark (Rev 13:16-17) — also true; the framing isn't
+decorative, the four gates are the structural answer to "what would
+it take to record decisions that hold up under pressure."
+
+If a user wants the engine for technical verification, ignore the
+theological framing; the verifiers work the same regardless. If a
+user is looking for the theological substrate, follow the trail
+through `/almanac` and `/identity`. Both audiences are served by
+the same substrate, and that's the design.
+
+## Community
+
+Anyone can pick up a handle at `/dashboard.html` — no email, no
+password. Handles accumulate work: every polymathic run, almanac
+proposal, witness signal carries forward into the handle's profile.
+Tier progression: Visitor → Witness → Apprentice → Contributor →
+Curator. 10 starter badges, including `pioneer:early` (joined while
+contributor count was under 50) and `polymathic:concordant`
+(ran a polymathic that came back CONCORDANT).
+
+## Author and contact
+
+M.R. Harris, solo build. Apache 2.0.
+GitHub: https://github.com/matharrismma/Lighthouse
+Email: mharris.wcs@icloud.com
+Security disclosure: SECURITY.md in the repo, or
+https://narrowhighway.com/.well-known/security.txt
+
+## What's NOT here
+
+This engine doesn't:
+- Generate text answers from LLM training
+- Make recommendations from probabilistic embeddings
+- Have a chat interface (use the agent endpoint or any MCP client)
+- Track users across sessions or use cookies
+- Sell anything
+
+If you're looking for those things, this isn't the substrate. If you
+need an audit trail for an AI decision and a deterministic check
+against closed-form standards, walk in.

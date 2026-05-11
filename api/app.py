@@ -263,6 +263,15 @@ async def _access_log_middleware(request: Request, call_next):
 
     response = await call_next(request)
 
+    # Engine attribution headers on every response. When an agent calls the
+    # engine and surfaces the response to its user, these carry the URL forward
+    # — "X-Engine-URL" in particular shows up in any HTTP client log. Compounds
+    # discovery without anyone having to post about us.
+    response.headers["X-Engine"] = "Concordance"
+    response.headers["X-Engine-URL"] = "https://narrowhighway.com"
+    response.headers["X-Engine-Manifest"] = "https://narrowhighway.com/manifest"
+    response.headers["X-Engine-License"] = "Apache-2.0"
+
     if skip:
         return response
     try:
@@ -414,6 +423,79 @@ def community_register(request: Request, req: _RegisterRequest):
     if not ok:
         raise HTTPException(status_code=400, detail=msg)
     return {"ok": True, "contributor": _community.public_profile(record)}
+
+
+@app.get("/badge/{handle}.svg", include_in_schema=False)
+def community_badge_svg(handle: str):
+    """Embeddable SVG badge for a contributor handle.
+
+    Designed for sites like:
+        <a href="https://narrowhighway.com/contributor.html?h=foxfire_kid">
+          <img src="https://narrowhighway.com/badge/foxfire_kid.svg"
+               alt="Verified by Concordance"></a>
+
+    Every embed is a backlink. Compounds without anyone posting.
+    Width adapts to content: tier label + badge count."""
+    _safe_id(handle, "handle")
+    handle = handle.lower()
+    record = _community.load_contributor(handle)
+    from fastapi.responses import Response
+
+    if record is None:
+        # Render a generic "Verified by Concordance" badge so a misspelled
+        # handle still produces something rather than 404
+        svg = _render_badge_svg(left="verified by", right="Concordance",
+                                right_color="#d4a872", subtitle="")
+    else:
+        prof = _community.public_profile(record)
+        tier = (prof.get("tier_label") or "Witness").lower()
+        badges = prof.get("badge_count", 0)
+        svg = _render_badge_svg(
+            left=f"@{handle}",
+            right=f"{tier} · {badges} badges",
+            right_color="#d4a872" if tier != "curator" else "#f0c896",
+            subtitle="concordance",
+        )
+
+    return Response(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "max-age=300, public"},
+    )
+
+
+def _render_badge_svg(left: str, right: str, right_color: str, subtitle: str) -> str:
+    """Generate a Shields.io-style flat badge as inline SVG.
+
+    Two compartments: left (handle), right (status). Total width
+    computed from char count so the badge fits its contents."""
+    from xml.sax.saxutils import escape as _xml_esc
+    L_PAD = 7
+    R_PAD = 7
+    CHAR_W = 6.6   # Inter / system-sans approximation at 11px
+    left_w  = int(len(left) * CHAR_W + 2 * L_PAD)
+    right_w = int(len(right) * CHAR_W + 2 * R_PAD)
+    total_w = left_w + right_w
+    h = 22
+
+    # Slight bottom shadow for depth
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{total_w}" height="{h}" viewBox="0 0 {total_w} {h}" role="img" aria-label="{_xml_esc(left)} {_xml_esc(right)}">
+  <linearGradient id="b" x2="0" y2="100%">
+    <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <clipPath id="a"><rect width="{total_w}" height="{h}" rx="4" fill="#fff"/></clipPath>
+  <g clip-path="url(#a)">
+    <path fill="#1d191f" d="M0 0h{left_w}v{h}H0z"/>
+    <path fill="{right_color}" d="M{left_w} 0h{right_w}v{h}H{left_w}z"/>
+    <path fill="url(#b)" d="M0 0h{total_w}v{h}H0z"/>
+  </g>
+  <g fill="#efe9e0" text-anchor="middle"
+     font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif" font-size="11" font-weight="500">
+    <text x="{left_w/2}" y="15">{_xml_esc(left)}</text>
+    <text x="{left_w + right_w/2}" y="15" fill="#1a1208" font-weight="600">{_xml_esc(right)}</text>
+  </g>
+</svg>"""
 
 
 @app.get("/community/contributor/{handle}", tags=["community"])
@@ -7122,6 +7204,66 @@ def _almanac_entries() -> List[Dict[str, Any]]:
     except OSError:
         pass
     return out
+
+
+@app.get("/almanac.rss", include_in_schema=False)
+def almanac_rss():
+    """RSS 2.0 feed of the almanac. Subscribers get new entries delivered
+    via any feed reader — passive distribution, no posting required."""
+    from xml.sax.saxutils import escape as _xml_esc
+    entries = _almanac_entries()
+    now = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
+
+    def _item(e):
+        eid = e.get("id", "")
+        title = e.get("title", "(untitled)")
+        link = f"https://narrowhighway.com/almanac.html#{eid}"
+        wisdom = e.get("wisdom", "")
+        kind = e.get("kind", "entry")
+        verdict = e.get("verdict", "")
+        category = e.get("category", "")
+        desc_lines = []
+        if verdict:
+            desc_lines.append(f"<strong>{_xml_esc(verdict)}</strong> · {_xml_esc(kind)}")
+        if category:
+            desc_lines.append(f"category: {_xml_esc(category)}")
+        if wisdom:
+            desc_lines.append(_xml_esc(wisdom))
+        domains = e.get("domains") or []
+        if domains:
+            desc_lines.append("domains: " + ", ".join(_xml_esc(d) for d in domains[:10]))
+        description = "<br>".join(desc_lines)
+        # use discovered_at or now as pubDate
+        ts = e.get("discovered_at") or e.get("ledger_seq") or 0
+        if isinstance(ts, (int, float)) and ts > 1_000_000_000:
+            pub = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(ts))
+        else:
+            pub = now
+        return f"""<item>
+      <title>{_xml_esc(title)}</title>
+      <link>{_xml_esc(link)}</link>
+      <guid isPermaLink="false">narrowhighway-almanac-{_xml_esc(eid)}</guid>
+      <pubDate>{pub}</pubDate>
+      <category>{_xml_esc(kind)}</category>
+      <description>{description}</description>
+    </item>"""
+
+    items_xml = "\n    ".join(_item(e) for e in entries[:50])
+    rss = f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Concordance Almanac</title>
+    <link>https://narrowhighway.com/almanac.html</link>
+    <atom:link href="https://narrowhighway.com/almanac.rss" rel="self" type="application/rss+xml"/>
+    <description>What the engine has worked through. Sayings, protocols, and engine-discovered patterns with their dry notes.</description>
+    <language>en</language>
+    <lastBuildDate>{now}</lastBuildDate>
+    <generator>Concordance Engine</generator>
+    {items_xml}
+  </channel>
+</rss>"""
+    from fastapi.responses import Response
+    return Response(content=rss, media_type="application/rss+xml; charset=utf-8")
 
 
 @app.get("/almanac", tags=["humans"])
