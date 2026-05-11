@@ -7945,6 +7945,36 @@ class _AxisAddRequest(_CommBaseModel):
     carriers: List[str]  # canonical domain names that carry this axis
 
 
+class _AxisRemoveRequest(_CommBaseModel):
+    """Body for POST /grid/axis/remove — operator-only. Comments the
+    extension out of the journal (reversible) and rebuilds in-memory."""
+    name: str
+
+
+@app.post("/grid/axis/remove", tags=["agents"])
+def grid_axis_remove(request: Request, req: _AxisRemoveRequest):
+    """Operator-only: comment out a previously-added axis extension.
+
+    Symmetric to /grid/axis/add. The journal entry is prefixed with
+    `# REMOVED` (preserves history); DIMENSIONS and AXIS_DIMENSIONS
+    are rebuilt without the removed axis.
+
+    To re-apply later: uncomment the line in
+    data/grid/axis_extensions.jsonl and restart the engine.
+
+    Requires X-API-Key."""
+    _community_require_api_key(request)
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    try:
+        result = _grid.remove_axis(name=req.name)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    return {"ok": True, **result}
+
+
 @app.post("/grid/axis/add", tags=["agents"])
 def grid_axis_add(request: Request, req: _AxisAddRequest):
     """Operator-only: name an axis the human has perceived in the residue.

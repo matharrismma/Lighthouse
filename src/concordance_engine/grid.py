@@ -467,6 +467,69 @@ def _apply_axis_extensions(exts: List[Dict[str, object]]) -> None:
 _apply_axis_extensions(_load_axis_extensions())
 
 
+def remove_axis(name: str) -> Dict[str, object]:
+    """Comment out an extension in the journal and rebuild the in-memory
+    state from the remaining non-commented entries.
+
+    Reversibility: the commented line stays in the journal as a record
+    that this axis was tried and rolled back. To restore, uncomment.
+
+    Returns a summary dict with what was removed and the resulting
+    DIMENSIONS count."""
+    import re
+    name = (name or "").strip().lower()
+    if not re.match(r"^[a-z][a-z0-9_]{2,31}$", name):
+        raise ValueError(f"invalid axis name: {name!r}")
+    if not _AXIS_EXT_FILE.exists():
+        raise ValueError(f"no extensions journal at {_AXIS_EXT_FILE}")
+
+    # Read existing lines
+    lines = _AXIS_EXT_FILE.read_text("utf-8", errors="replace").splitlines()
+    new_lines: List[str] = []
+    removed_count = 0
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("#") or not stripped:
+            new_lines.append(line)
+            continue
+        try:
+            rec = json.loads(stripped)
+        except Exception:
+            new_lines.append(line)
+            continue
+        if rec.get("name") == name:
+            # Comment it out — preserves the historical record
+            new_lines.append("# REMOVED " + stripped)
+            removed_count += 1
+        else:
+            new_lines.append(line)
+
+    if removed_count == 0:
+        raise ValueError(f"no extension entry found with name {name!r}")
+
+    # Atomic write
+    tmp = _AXIS_EXT_FILE.with_suffix(".jsonl.tmp")
+    tmp.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+    tmp.replace(_AXIS_EXT_FILE)
+
+    # Rebuild in-memory state: drop the dimension and rebuild carriers
+    # from the rebased extensions. The base AXIS_DIMENSIONS (from grid.py
+    # source) is the floor; extensions add on top.
+    if name in DIMENSIONS:
+        DIMENSIONS.remove(name)
+    for axis_name, dims in list(AXIS_DIMENSIONS.items()):
+        if name in dims:
+            new_dims = frozenset(d for d in dims if d != name)
+            AXIS_DIMENSIONS[axis_name] = new_dims
+
+    return {
+        "removed_axis": name,
+        "removed_entries": removed_count,
+        "dimensions_now": list(DIMENSIONS),
+        "dimension_count_now": len(DIMENSIONS),
+    }
+
+
 def add_axis(name: str, label: str, criterion: str, carriers: List[str]) -> Dict[str, object]:
     """Persist a new axis to the extensions journal and apply it
     in-place. Used by POST /grid/axis/add. Returns the loaded
