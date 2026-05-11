@@ -1313,16 +1313,37 @@ class _AcceptRequest(_CommBaseModel):
 
 
 def _community_require_api_key(request: Request) -> None:
-    """Inline equivalent of _check_api_key — used by community admin
-    endpoints that are defined before _check_api_key in the module.
-    Reads X-API-Key header and compares against the API_KEY env var.
-    If API_KEY is unset, auth is disabled (dev mode)."""
-    expected = os.environ.get("API_KEY", "")
-    if not expected:
+    """Operator auth gate for the Console + machine-to-machine endpoints.
+
+    Accepts either:
+      1. X-API-Key header (machine integrations, scripts, fetch_*.py)
+      2. Bearer session token from /auth/login (human Console operator
+         logged in with the CONCORDANCE_PASSPHRASE from .env)
+      3. X-Console-Token header (same token, different transport for
+         convenience when JS can't easily set Authorization)
+
+    If neither API_KEY nor CONCORDANCE_PASSPHRASE is configured, auth is
+    disabled (dev mode). In production at least one must be set."""
+    # Path 1: API key (existing)
+    expected_key = os.environ.get("API_KEY", "")
+    if expected_key:
+        got_key = request.headers.get("x-api-key", "") or request.headers.get("X-API-Key", "")
+        if got_key == expected_key:
+            return  # API-key auth ok
+
+    # Path 2/3: session token from /auth/login
+    auth_header = request.headers.get("authorization", "") or request.headers.get("Authorization", "")
+    token = auth_header.removeprefix("Bearer ").strip()
+    if not token:
+        token = request.headers.get("x-console-token", "") or request.headers.get("X-Console-Token", "")
+    if token and _verify_token(token):
+        return  # session-token auth ok
+
+    # Neither matched. If no auth is configured at all, this is dev mode.
+    if not expected_key and not _VALID_HASHES:
         return
-    got = request.headers.get("x-api-key", "") or request.headers.get("X-API-Key", "")
-    if got != expected:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+    raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 
 @app.post("/community/proposals/accept", tags=["community"])

@@ -244,15 +244,20 @@
 <main class="container wide" style="padding-bottom: 80px;">
 
   <section class="key-card" id="keyCard">
-    <h3 style="margin: 0; font-size: 13px;">Operator key required</h3>
+    <h3 style="margin: 0; font-size: 13px;">Operator login</h3>
     <p style="margin: 6px 0 0 0; color: var(--muted-2); font-size: 13px;">
-      Paste the engine API key. Stored in localStorage.
+      Sign in with your operator passphrase. The session token is stored
+      in localStorage and lasts 24 hours.
     </p>
     <div class="row">
-      <input type="password" id="apiKey" placeholder="X-API-Key" autocomplete="off" spellcheck="false">
-      <button id="saveKey">Unlock</button>
+      <input type="password" id="apiKey" placeholder="passphrase" autocomplete="current-password" spellcheck="false">
+      <button id="saveKey">Sign in</button>
     </div>
     <div id="keyFeedback">&nbsp;</div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;">
+      Scripts and machine integrations still use the X-API-Key header. This
+      login is for the human-facing Console only.
+    </div>
   </section>
 
   <section id="inboxPanel" style="display:none;">
@@ -331,23 +336,75 @@
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Console session token — issued by /auth/login in exchange for the
+// operator passphrase from .env. Lasts 24h. The same name (`API_KEY`)
+// is kept for code-path consistency but it is no longer the raw
+// X-API-Key; it's a Bearer session token sent as Authorization or
+// X-Console-Token. The server accepts both that token and the legacy
+// X-API-Key for machine integrations.
 let API_KEY = '';
 let CURRENT_TAB = 'messages';
 let DATA = {messages: [], intake: [], quarantine_flushed: []};
 
-try { API_KEY = localStorage.getItem('concordance_api_key') || ''; } catch (e) {}
+// Migration: anything stored under the old name is still a valid API
+// key — keep using it. New logins write to concordance_session_token.
+try {
+  API_KEY = localStorage.getItem('concordance_session_token') || '';
+  if (!API_KEY) {
+    API_KEY = localStorage.getItem('concordance_api_key') || '';
+  }
+} catch (e) {}
 
 if (API_KEY) {
-  $('apiKey').value = API_KEY;
+  $('apiKey').value = '••••••••';  // don't echo the actual token
   verifyAndLoad();
 }
 
-$('saveKey').addEventListener('click', () => {
+async function exchangePassphraseForToken(passphrase) {
+  const r = await fetch('/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({passphrase}),
+  });
+  if (!r.ok) {
+    let detail = 'login failed: ' + r.status;
+    try { const d = await r.json(); detail = d.detail || detail; } catch (_) {}
+    throw new Error(detail);
+  }
+  const d = await r.json();
+  return d.token;
+}
+
+// Send the credential under BOTH headers. The server tries X-API-Key
+// first (for legacy machine integrations) and falls through to
+// X-Console-Token / Authorization (session token from /auth/login).
+// Sending both means the same call site works regardless of whether
+// API_KEY currently holds a raw API key or a session token.
+function authHeaders(extra) {
+  const h = {
+    'X-API-Key': API_KEY,
+    'X-Console-Token': API_KEY,
+    'Authorization': 'Bearer ' + API_KEY,
+  };
+  if (extra) Object.assign(h, extra);
+  return h;
+}
+
+$('saveKey').addEventListener('click', async () => {
   const v = $('apiKey').value.trim();
-  if (!v) return;
-  API_KEY = v;
-  try { localStorage.setItem('concordance_api_key', v); } catch (e) {}
-  verifyAndLoad();
+  if (!v || v === '••••••••') return;
+  $('keyFeedback').innerHTML = '<span style="color:var(--muted-2)">signing in…</span>';
+  try {
+    const token = await exchangePassphraseForToken(v);
+    API_KEY = token;
+    try { localStorage.setItem('concordance_session_token', token); } catch (e) {}
+    // Clear the old API-key slot now that we have a proper session
+    try { localStorage.removeItem('concordance_api_key'); } catch (e) {}
+    $('apiKey').value = '••••••••';
+    await verifyAndLoad();
+  } catch (e) {
+    $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">' + esc(e.message) + '</span>';
+  }
 });
 
 document.querySelectorAll('.tab').forEach(t => {
@@ -387,7 +444,7 @@ let MIS_DATA = {items: [], pending: 0, archived: 0, promoted: 0, bugs: 0, total:
 async function loadMisalignments() {
   $('itemList').innerHTML = '<div class="empty-state">Loading misalignments…</div>';
   try {
-    const r = await fetch('/misalignments?limit=200' + _includeLocalQS(), { headers: {'X-API-Key': API_KEY} });
+    const r = await fetch('/misalignments?limit=200' + _includeLocalQS(), { headers: authHeaders() });
     if (!r.ok) {
       $('itemList').innerHTML = `<div class="empty-state">Failed (${r.status}).</div>`;
       return;
@@ -481,7 +538,7 @@ window.reviewMis = async function(id, status) {
   try {
     const r = await fetch('/misalignments/review', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({id, status, note, claim_pattern, needed_math, needed_substrate}),
     });
     if (!r.ok) {
@@ -542,7 +599,7 @@ function _includeLocalQS() {
 
 async function verifyAndLoad() {
   try {
-    const r = await fetch('/inbox?limit=200' + _includeLocalQS(), { headers: {'X-API-Key': API_KEY} });
+    const r = await fetch('/inbox?limit=200' + _includeLocalQS(), { headers: authHeaders() });
     if (r.status === 401) {
       $('keyFeedback').innerHTML = '<span style="color:#f7b9b3">key rejected (401)</span>';
       return;
@@ -552,7 +609,18 @@ async function verifyAndLoad() {
       return;
     }
     const d = await r.json();
-    $('keyFeedback').innerHTML = '<span style="color:#b8eccd">unlocked</span>';
+    $('keyFeedback').innerHTML = '<span style="color:#b8eccd">signed in</span> &nbsp; <a href="#" id="signOut" style="color:var(--muted-2);font-size:12px;">sign out</a>';
+    setTimeout(() => {
+      const so = $('signOut');
+      if (so) so.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          localStorage.removeItem('concordance_session_token');
+          localStorage.removeItem('concordance_api_key');
+        } catch (_) {}
+        location.reload();
+      });
+    }, 0);
     $('keyCard').style.opacity = 0.55;
     $('inboxPanel').style.display = 'block';
     // Normalize: prefer the canonical lanes, fall back to legacy shape
@@ -572,7 +640,7 @@ async function verifyAndLoad() {
     // Fetch misalignment count separately so its tab badge is accurate
     // on first unlock without forcing the operator to click the tab.
     try {
-      const mr = await fetch('/misalignments?limit=1' + _includeLocalQS(), { headers: {'X-API-Key': API_KEY} });
+      const mr = await fetch('/misalignments?limit=1' + _includeLocalQS(), { headers: authHeaders() });
       if (mr.ok) {
         const md = await mr.json();
         $('tabMisCount').textContent = `(${md.pending || 0})`;
@@ -775,7 +843,7 @@ window.mark = async function(id, action) {
   try {
     const r = await fetch('/inbox/mark', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({id, action}),
     });
     if (!r.ok) return;
@@ -798,7 +866,7 @@ window.flush = async function(id) {
   try {
     const r = await fetch('/inbox/mark', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({id, action: 'flush'}),
     });
     if (!r.ok) return;
@@ -827,7 +895,7 @@ window.airlock = async function(id, route) {
   try {
     const r = await fetch('/quarantine/airlock', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({id, route}),
     });
     if (!r.ok) {
@@ -864,7 +932,7 @@ window.projectOne = async function(id) {
   try {
     const r = await fetch('/intake/process/' + encodeURIComponent(id), {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({}),
     });
     if (!r.ok) {
@@ -892,7 +960,7 @@ window.projectAllPending = async function() {
   try {
     const r = await fetch('/intake/process', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-API-Key': API_KEY},
+      headers: authHeaders({'Content-Type': 'application/json'}),
       body: JSON.stringify({max_items: Math.min(pending, 25), force: false}),
     });
     if (!r.ok) {
