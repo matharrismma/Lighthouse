@@ -1,0 +1,95 @@
+{"id":"tf-codata-c-truth","slice":"truth","domain":"physical_constants","claim":"The speed of light in vacuum is 299792458 meters per second.","expected":"CONCORDANT","why":"CODATA exact SI definition"}
+{"id":"tf-codata-c-edge","slice":"boundary","domain":"physical_constants","claim":"The speed of light in vacuum is approximately 299792500 meters per second.","expected":"CONCORDANT","why":"within default 1e-4 relative tolerance (42 m/s out of 3e8)"}
+{"id":"tf-codata-c-lie-1","slice":"lie","domain":"physical_constants","claim":"The speed of light is 100 meters per second.","expected":"DISCORDANT","why":"~6 orders of magnitude wrong"}
+{"id":"tf-codata-c-lie-2","slice":"lie","domain":"physical_constants","claim":"The speed of light in vacuum is 250000000 meters per second.","expected":"DISCORDANT","why":"~17% wrong"}
+{"id":"tf-codata-h-truth","slice":"truth","domain":"physical_constants","claim":"Planck constant h is 6.62607015e-34 J*s.","expected":"CONCORDANT","why":"CODATA exact SI definition"}
+{"id":"tf-codata-h-lie","slice":"lie","domain":"physical_constants","claim":"Planck constant is 5e-34 J*s.","expected":"DISCORDANT","why":"~25% off"}
+{"id":"tf-codata-na-truth","slice":"truth","domain":"physical_constants","claim":"Avogadro number is 6.022e23 per mole.","expected":"CONCORDANT","why":"CODATA exact"}
+{"id":"tf-codata-na-lie","slice":"lie","domain":"physical_constants","claim":"Avogadro number is 6.022e22 per mole.","expected":"DISCORDANT","why":"off by factor of 10"}
+{"id":"tf-codata-k-truth","slice":"truth","domain":"physical_constants","claim":"Boltzmann constant is 1.380649e-23 J/K.","expected":"CONCORDANT","why":"CODATA exact SI definition"}
+{"id":"tf-codata-g-truth","slice":"truth","domain":"physical_constants","claim":"Standard gravity is 9.80665 m/s^2.","expected":"CONCORDANT","why":"exact by definition"}
+{"id":"tf-codata-g-lie","slice":"lie","domain":"physical_constants","claim":"Standard gravity is 12 m/s squared.","expected":"DISCORDANT","why":"~22% wrong"}
+{"id":"tf-pt-fe-truth","slice":"truth","domain":"periodic_table","claim":"Iron has atomic number 26.","expected":"CONCORDANT","why":"definitional Z = proton count"}
+{"id":"tf-pt-fe-lie","slice":"lie","domain":"periodic_table","claim":"Iron has atomic number 99.","expected":"DISCORDANT","why":"actual Z=26"}
+{"id":"tf-pt-au-truth","slice":"truth","domain":"periodic_table","claim":"Gold has the symbol Au and atomic number 79.","expected":"CONCORDANT","why":"definitional"}
+{"id":"tf-pt-au-lie-sym","slice":"lie","domain":"periodic_table","claim":"Gold has the symbol Go.","expected":"DISCORDANT","why":"Au not Go"}
+{"id":"tf-pt-au-lie-num","slice":"lie","domain":"periodic_table","claim":"Gold has atomic number 50.","expected":"DISCORDANT","why":"actual 79"}
+{"id":"tf-pt-h-truth","slice":"truth","domain":"periodic_table","claim":"Hydrogen has atomic number 1.","expected":"CONCORDANT","why":"definitional"}
+{"id":"tf-pt-cl-truth","slice":"truth","domain":"periodic_table","claim":"Chlorine has atomic number 17 and symbol Cl.","expected":"CONCORDANT","why":"definitional"}
+{"id":"tf-pt-c-lie","slice":"lie","domain":"periodic_table","claim":"Carbon has atomic number 12.","expected":"DISCORDANT","why":"Z=6, 12 is its common mass number"}
+{"id":"tf-eph-summer2024","slice":"truth","domain":"ephemeris","claim":"The summer solstice in 2024 occurred on June 20.","expected":"CONCORDANT","why":"Meeus ch.27"}
+{"id":"tf-eph-winter2024","slice":"truth","domain":"ephemeris","claim":"The winter solstice in 2024 occurred on December 21.","expected":"CONCORDANT","why":"Meeus ch.27"}
+{"id":"tf-eph-vernal2025","slice":"truth","domain":"ephemeris","claim":"The vernal equinox in 2025 occurred on March 20.","expected":"CONCORDANT","why":"Meeus ch.27"}
+{"id":"tf-eph-summer-lie","slice":"lie","domain":"ephemeris","claim":"The summer solstice in 2024 occurred on August 15.","expected":"DISCORDANT","why":"actual is June 20"}
+{"id":"tf-eph-equinox-lie","slice":"lie","domain":"ephemeris","claim":"The vernal equinox in 2024 occurred on June 1.","expected":"DISCORDANT","why":"actual is around March 20"}
+{"id":"tf-nt-fib10","slice":"truth","domain":"number_theory","claim":"The 10th Fibonacci number is 55.","expected":"CONCORDANT","why":"OEIS A000045"}
+{"id":"tf-nt-fib10-lie","slice":"lie","domain":"number_theory","claim":"The 10th Fibonacci number is 89.","expected":"DISCORDANT","why":"89 is F(11) not F(10)"}
+{"id":"tf-nt-cat5","slice":"truth","domain":"number_theory","claim":"The 5th Catalan number is 42.","expected":"CONCORDANT","why":"OEIS A000108"}
+{"id":"tf-nt-cat5-lie","slice":"lie","domain":"number_theory","claim":"The 5th Catalan number is 132.","expected":"DISCORDANT","why":"132 is C(6) not C(5)"}
+{"id":"tf-nt-perfect-28","slice":"truth","domain":"number_theory","claim":"The number 28 is a perfect number.","expected":"CONCORDANT","why":"OEIS A000396"}
+{"id":"tf-nt-perfect-25","slice":"lie","domain":"number_theory","claim":"The number 25 is a perfect number.","expected":"DISCORDANT","why":"sum of divisors of 25 is 1+5=6, not 25"}
+{"id":"tf-nt-prime-97","slice":"truth","domain":"number_theory","claim":"The number 97 is prime.","expected":"CONCORDANT","why":"prime"}
+{"id":"tf-nt-prime-91","slice":"lie","domain":"number_theory","claim":"The number 91 is prime.","expected":"DISCORDANT","why":"91 = 7 × 13"}
+{"id":"tf-nt-gcd","slice":"truth","domain":"number_theory","claim":"The greatest common divisor of 12 and 18 is 6.","expected":"CONCORDANT","why":"Euclid"}
+{"id":"tf-nt-gcd-lie","slice":"lie","domain":"number_theory","claim":"The greatest common divisor of 12 and 18 is 9.","expected":"DISCORDANT","why":"actual is 6"}
+{"id":"tf-cal-leap-2024","slice":"truth","domain":"calendar_time","claim":"The year 2024 is a leap year.","expected":"CONCORDANT","why":"Gregorian rule"}
+{"id":"tf-cal-leap-2023","slice":"lie","domain":"calendar_time","claim":"The year 2023 is a leap year.","expected":"DISCORDANT","why":"not divisible by 4"}
+{"id":"tf-cal-leap-1900","slice":"truth","domain":"calendar_time","claim":"The year 1900 is not a leap year.","expected":"CONCORDANT","why":"divisible by 100, not by 400"}
+{"id":"tf-cal-leap-2000","slice":"truth","domain":"calendar_time","claim":"The year 2000 is a leap year.","expected":"CONCORDANT","why":"divisible by 400"}
+{"id":"tf-geom-rect","slice":"truth","domain":"geometry","claim":"A rectangle 4 meters by 3 meters has area 12 square meters.","expected":"CONCORDANT","why":"A = l × w"}
+{"id":"tf-geom-rect-lie","slice":"lie","domain":"geometry","claim":"A rectangle 4 meters by 3 meters has area 24 square meters.","expected":"DISCORDANT","why":"actual 12"}
+{"id":"tf-geom-circle","slice":"truth","domain":"geometry","claim":"A circle with radius 5 meters has area approximately 78.54 square meters.","expected":"CONCORDANT","why":"A = π r²"}
+{"id":"tf-geom-circle-lie","slice":"lie","domain":"geometry","claim":"A circle with radius 5 meters has area 1000 square meters.","expected":"DISCORDANT","why":"actual ~78.54"}
+{"id":"tf-geom-sphere","slice":"truth","domain":"geometry","claim":"A sphere with radius 3 meters has volume approximately 113.1 cubic meters.","expected":"CONCORDANT","why":"V = 4/3 π r³"}
+{"id":"tf-geom-sphere-lie","slice":"lie","domain":"geometry","claim":"A sphere with radius 3 meters has volume 27 cubic meters.","expected":"DISCORDANT","why":"that would be a cube, not sphere"}
+{"id":"tf-geom-cube","slice":"truth","domain":"geometry","claim":"A cube with side 4 meters has volume 64 cubic meters.","expected":"CONCORDANT","why":"V = s³"}
+{"id":"tf-geom-cube-lie","slice":"lie","domain":"geometry","claim":"A cube with side 4 meters has volume 16 cubic meters.","expected":"DISCORDANT","why":"that's the face area"}
+{"id":"tf-geom-cyl","slice":"truth","domain":"geometry","claim":"A cylinder with radius 2 meters and height 5 meters has volume approximately 62.83 cubic meters.","expected":"CONCORDANT","why":"V = π r² h"}
+{"id":"tf-geom-pyth","slice":"truth","domain":"geometry","claim":"A right triangle with legs 3 and 4 has hypotenuse 5.","expected":"CONCORDANT","why":"3² + 4² = 5²"}
+{"id":"tf-geom-pyth-lie","slice":"lie","domain":"geometry","claim":"A right triangle with legs 3 and 4 has hypotenuse 7.","expected":"DISCORDANT","why":"actual 5"}
+{"id":"tf-phys-fma","slice":"truth","domain":"physics","claim":"A 2 kg object accelerating at 3 m/s squared experiences a force of 6 newtons.","expected":"CONCORDANT","why":"F = m a"}
+{"id":"tf-phys-fma-lie-1","slice":"lie","domain":"physics","claim":"A 2 kg object accelerating at 3 m/s squared experiences a force of 100 newtons.","expected":"DISCORDANT","why":"actual 6 N"}
+{"id":"tf-phys-fma-lie-2","slice":"lie","domain":"physics","claim":"A 5 kg object accelerating at 4 m/s squared experiences a force of 9 newtons.","expected":"DISCORDANT","why":"actual 20 N"}
+{"id":"tf-phys-ke","slice":"truth","domain":"physics","claim":"A 2 kg object moving at 10 m/s has kinetic energy 100 joules.","expected":"CONCORDANT","why":"KE = ½ m v²"}
+{"id":"tf-phys-ke-lie","slice":"lie","domain":"physics","claim":"A 2 kg object moving at 10 m/s has kinetic energy 20 joules.","expected":"DISCORDANT","why":"actual 100 J"}
+{"id":"tf-thermo-carnot","slice":"truth","domain":"thermodynamics","claim":"A Carnot engine between 600 K hot and 300 K cold has 0.5 maximum efficiency.","expected":"CONCORDANT","why":"η = 1 - T_c/T_h"}
+{"id":"tf-thermo-carnot-lie","slice":"lie","domain":"thermodynamics","claim":"A Carnot engine between 600 K hot and 300 K cold has 0.9 maximum efficiency.","expected":"DISCORDANT","why":"actual 0.5"}
+{"id":"tf-thermo-carnot-lie-2","slice":"lie","domain":"thermodynamics","claim":"A Carnot engine between 400 K hot and 200 K cold has 0.2 maximum efficiency.","expected":"DISCORDANT","why":"actual 0.5"}
+{"id":"tf-chem-methane","slice":"truth","domain":"chemistry","claim":"Methane combusts with oxygen: CH4 + 2 O2 -> CO2 + 2 H2O.","expected":"CONCORDANT","why":"balanced"}
+{"id":"tf-chem-unbalanced","slice":"lie","domain":"chemistry","claim":"CH4 + O2 -> CO2 + H2O is balanced.","expected":"DISCORDANT","why":"needs coefficients"}
+{"id":"tf-chem-water","slice":"truth","domain":"chemistry","claim":"Hydrogen burns with oxygen: 2 H2 + O2 -> 2 H2O.","expected":"CONCORDANT","why":"balanced"}
+{"id":"tf-chem-water-bad","slice":"lie","domain":"chemistry","claim":"H2 + O2 -> H2O is a balanced reaction.","expected":"DISCORDANT","why":"unbalanced"}
+{"id":"tf-math-deriv","slice":"truth","domain":"mathematics","claim":"The derivative of x squared with respect to x is 2x.","expected":"CONCORDANT","why":"calculus identity"}
+{"id":"tf-math-deriv-lie","slice":"lie","domain":"mathematics","claim":"The derivative of x squared is x cubed.","expected":"DISCORDANT","why":"actual 2x"}
+{"id":"tf-math-deriv-lie-2","slice":"lie","domain":"mathematics","claim":"The derivative of x cubed with respect to x is x squared.","expected":"DISCORDANT","why":"actual 3 x²"}
+{"id":"tf-math-eq","slice":"truth","domain":"mathematics","claim":"The expressions (x+1)(x-1) and x squared minus 1 are equal.","expected":"CONCORDANT","why":"algebraic identity"}
+{"id":"tf-math-eq-lie","slice":"lie","domain":"mathematics","claim":"The expressions (x+1)^2 and x squared plus 1 are equal.","expected":"DISCORDANT","why":"(x+1)² = x² + 2x + 1"}
+{"id":"tf-comb-c52","slice":"truth","domain":"combinatorics","claim":"The number of ways to choose 2 items from 5 is 10.","expected":"CONCORDANT","why":"C(5,2) = 10"}
+{"id":"tf-comb-c52-lie","slice":"lie","domain":"combinatorics","claim":"The number of ways to choose 2 items from 5 is 20.","expected":"DISCORDANT","why":"that's P(5,2), not C"}
+{"id":"tf-comb-perm","slice":"truth","domain":"combinatorics","claim":"The number of permutations of 4 items taken 2 at a time is 12.","expected":"CONCORDANT","why":"P(4,2) = 12"}
+{"id":"tf-econ-interest","slice":"truth","domain":"economics","claim":"Principal 1000 dollars at 5 percent annual rate for 3 years yields 150 dollars in simple interest.","expected":"CONCORDANT","why":"I = P r t"}
+{"id":"tf-econ-interest-lie","slice":"lie","domain":"economics","claim":"Principal 1000 dollars at 5 percent annual rate for 3 years yields 300 dollars in simple interest.","expected":"DISCORDANT","why":"actual 150"}
+{"id":"tf-econ-doubling","slice":"truth","domain":"economics","claim":"At 7 percent annual growth, money roughly doubles in about 10 years (rule of 72).","expected":"CONCORDANT","why":"72/7 ≈ 10.3"}
+{"id":"tf-stat-pvalue","slice":"truth","domain":"statistics_pvalue","claim":"A two-sample t-test with n1=20 n2=20 mean1=5 mean2=5.5 sd1=1 sd2=1 yields a p-value around 0.12.","expected":"CONCORDANT","why":"computed"}
+{"id":"tf-music-octave","slice":"truth","domain":"music_theory","claim":"From C4 to C5 is 12 semitones.","expected":"CONCORDANT","why":"octave"}
+{"id":"tf-music-octave-lie","slice":"lie","domain":"music_theory","claim":"From C4 to C5 is 7 semitones.","expected":"DISCORDANT","why":"7 is a perfect fifth, octave is 12"}
+{"id":"tf-music-fifth","slice":"truth","domain":"music_theory","claim":"From C4 to G4 is 7 semitones.","expected":"CONCORDANT","why":"perfect fifth"}
+{"id":"tf-acou-decibel","slice":"truth","domain":"acoustics","claim":"A sound power of 1 watt has level 120 dB relative to 1 picowatt.","expected":"CONCORDANT","why":"10 log(10^12)"}
+{"id":"tf-acou-decibel-lie","slice":"lie","domain":"acoustics","claim":"A sound power of 1 watt has level 60 dB relative to 1 picowatt.","expected":"DISCORDANT","why":"actual 120"}
+{"id":"tf-opt-thinlens","slice":"truth","domain":"optics","claim":"An object 30 cm from a thin lens of focal length 10 cm forms an image at 15 cm.","expected":"CONCORDANT","why":"1/f = 1/d_o + 1/d_i"}
+{"id":"tf-opt-thinlens-lie","slice":"lie","domain":"optics","claim":"An object 30 cm from a thin lens of focal length 10 cm forms an image at 5 cm.","expected":"DISCORDANT","why":"actual 15 cm"}
+{"id":"tf-elec-ohm","slice":"truth","domain":"electrical","claim":"A current of 2 amperes through 5 ohms produces 10 volts.","expected":"CONCORDANT","why":"V = I R"}
+{"id":"tf-met-windchill","slice":"truth","domain":"meteorology","claim":"At 20 degrees Fahrenheit with 15 mph wind, the wind chill is about 6 degrees Fahrenheit.","expected":"CONCORDANT","why":"NWS formula"}
+{"id":"tf-met-windchill-lie","slice":"lie","domain":"meteorology","claim":"At 20 degrees Fahrenheit with 15 mph wind, the wind chill is about 25 degrees Fahrenheit.","expected":"DISCORDANT","why":"wind chill cannot be higher than ambient"}
+{"id":"tf-energy-pe","slice":"truth","domain":"energy","claim":"A 10 kg object at height 5 meters has potential energy approximately 490 joules.","expected":"CONCORDANT","why":"PE = m g h ≈ 10 × 9.81 × 5"}
+{"id":"tf-energy-ke","slice":"truth","domain":"energy","claim":"A 4 kg object moving at 5 m/s has kinetic energy 50 joules.","expected":"CONCORDANT","why":"KE = ½ m v² = ½×4×25"}
+{"id":"tf-energy-ke-lie","slice":"lie","domain":"energy","claim":"A 4 kg object moving at 5 m/s has kinetic energy 200 joules.","expected":"DISCORDANT","why":"actual 50 J"}
+{"id":"tf-crypto-sha256","slice":"truth","domain":"cryptography","claim":"The SHA-256 hash of empty string is e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.","expected":"CONCORDANT","why":"reproducible by SHA-256"}
+{"id":"tf-crypto-sha256-lie","slice":"lie","domain":"cryptography","claim":"The SHA-256 hash of empty string is 0000000000000000000000000000000000000000000000000000000000000000.","expected":"DISCORDANT","why":"actual e3b0c4..."}
+{"id":"tf-formal-tautology","slice":"truth","domain":"formal_logic","claim":"The statement P or not P is a tautology.","expected":"CONCORDANT","why":"law of excluded middle"}
+{"id":"tf-gap-france-capital","slice":"gap","domain":"none","claim":"The capital of France is Paris.","expected":"OUT_OF_SCOPE","why":"political authority — no math chain"}
+{"id":"tf-gap-lincoln","slice":"gap","domain":"none","claim":"Abraham Lincoln was born in 1809.","expected":"OUT_OF_SCOPE","why":"biographical lookup — no math chain"}
+{"id":"tf-gap-water-boil","slice":"gap","domain":"none","claim":"Water boils at 100 degrees Celsius at 1 atmosphere of pressure.","expected":"OUT_OF_SCOPE","why":"phase point — on build queue (Clausius-Clapeyron)"}
+{"id":"tf-gap-everest","slice":"gap","domain":"none","claim":"Mount Everest is the tallest mountain on Earth.","expected":"OUT_OF_SCOPE","why":"geographic measurement claim — no math chain"}
+{"id":"tf-gap-mona-lisa","slice":"gap","domain":"none","claim":"The Mona Lisa was painted by Leonardo da Vinci.","expected":"OUT_OF_SCOPE","why":"historical attribution — no math chain"}
+{"id":"tf-gap-oscar","slice":"gap","domain":"none","claim":"Tom Hanks won an Oscar for Best Actor.","expected":"OUT_OF_SCOPE","why":"awards record — no math chain"}
