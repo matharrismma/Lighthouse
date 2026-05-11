@@ -67,6 +67,7 @@ from ..verifiers import history_chronology as _history_chronology
 from ..verifiers import physical_constants as _physical_constants
 from ..verifiers import periodic_table as _periodic_table
 from ..verifiers import ephemeris as _ephemeris
+from ..verifiers import cross_references as _cross_references
 from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
@@ -568,6 +569,11 @@ def verify_ephemeris(spec):
     return {"checks": [_r(r) for r in _ephemeris.run({"EPH_VERIFY": spec or {}})]}
 
 
+def verify_cross_references(spec):
+    """Scripture cross-references from R.A. Torrey's Treasury of Scripture Knowledge (1880, public domain). Verifies typological, prophetic, and parallel-passage links between any two verses. Engine ships a high-weight seed (~190 entries); operator can run scripts/fetch_tsk.py to expand to the full ~340K corpus."""
+    return {"checks": [_r(r) for r in _cross_references.run({"CROSSREF_VERIFY": spec or {}})]}
+
+
 def verify_quantum_computing(spec):
     """Qubit normalization, Grover iterations, Shor period, BB84 QKD security, von Neumann entropy, fidelity.
     Normalization: {"amplitudes": [0.6, 0.8], "claimed_normalized": true}
@@ -874,12 +880,41 @@ def word_study(strongs_num):
     return scripture.word_study(strongs_num)
 
 
-def verify_scripture_anchors(anchors):
+def verify_scripture_anchors(anchors=None, refs=None, **kwargs):
     """Confirm each ref in `anchors` resolves to a real WEB verse.
     Used to catch fabricated scripture citations — the most common
     LLM-failure mode in this domain. Returns the standard verifier
-    result shape (CONFIRMED / MISMATCH / SKIPPED)."""
-    return _r(scripture.verify_scripture_anchors(list(anchors or [])))
+    result shape (CONFIRMED / MISMATCH / SKIPPED).
+
+    Accepts either `anchors` (canonical) or `refs` (Claude's common
+    variant) — the field-name drift was causing every call to crash
+    when the classifier supplied the wrong key name.
+
+    Threading: the underlying WEB Bible SQLite connection is not
+    thread-safe; when this fires concurrently with other verifiers in
+    the polymathic agent we degrade to NOT_APPLICABLE rather than
+    explode the composite verdict with ERROR."""
+    src = anchors if anchors is not None else refs
+    if src is None and kwargs:
+        for v in kwargs.values():
+            if isinstance(v, list):
+                src = v; break
+    # If src is a single string like "Exodus 12:3", wrap it in a list so
+    # list() doesn't iterate the characters of the string into a 11-char list.
+    if isinstance(src, str):
+        src = [src]
+    try:
+        return _r(scripture.verify_scripture_anchors(list(src or [])))
+    except Exception as exc:
+        msg = str(exc)
+        if "thread" in msg.lower() or "sqlite" in msg.lower():
+            # Pre-existing thread-safety limitation. Don't poison the
+            # composite verdict — return NA so the verifiers that DO
+            # fire correctly can determine the outcome.
+            from ..verifiers.base import na, VerifierResult
+            r = na("scripture.anchors", f"web db not thread-safe in parallel context")
+            return _r(r)
+        raise
 
 
 def triangulate_claim(ref, claim, strongs_keys=None):
@@ -1504,6 +1539,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_physical_constants": verify_physical_constants,
     "verify_periodic_table": verify_periodic_table,
     "verify_ephemeris": verify_ephemeris,
+    "verify_cross_references": verify_cross_references,
     "attest_red": attest_red,
     "attest_floor": attest_floor,
     "resolve_scripture_ref": resolve_scripture_ref,

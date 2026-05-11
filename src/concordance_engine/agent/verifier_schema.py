@@ -92,7 +92,7 @@ _HAND_CURATED: Dict[str, List[str]] = {
     "operations_research":     ["capacity", "demand", "costs", "claimed_optimal_allocation"],
     "law":                     ["statute_or_rule", "facts", "claimed_applies"],
     "history_chronology":      ["event", "claimed_year", "event_a", "event_b", "claimed_event_a_before_event_b"],
-    "scripture_anchors":       ["refs", "claimed_pattern"],
+    "scripture_anchors":       ["anchors", "refs", "claimed_pattern"],
     "theology_doctrine":       ["claim", "claimed_orthodox"],
     "governance_decision_packet": ["packet"],
     "philosophy":              ["argument_form", "premises", "conclusion", "claimed_valid"],
@@ -121,6 +121,14 @@ _HAND_CURATED: Dict[str, List[str]] = {
         "year", "event", "claimed_event_iso",
         "lat", "lon", "tz_offset_hours",
         "claimed_sunrise_hour", "claimed_sunset_hour",
+    ],
+    "cross_references": [
+        # exists check
+        "from_ref", "to_ref", "claimed_connected",
+        # typology claim
+        "claim_a_ref", "claim_b_ref", "claimed_typology",
+        # listing (informational)
+        "list_for_ref", "list_limit",
     ],
 }
 
