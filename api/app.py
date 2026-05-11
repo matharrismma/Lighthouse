@@ -1122,6 +1122,56 @@ def archetype_recognize(request: Request, req: _ArchetypeRecognizeRequest):
     return _archetypes.recognize(situation, top_k=k)
 
 
+# -- The Walk (Coach OS) -------------------------------------------------
+# Orchestration layer: given a situation, surfaces patterns, Scripture,
+# Scripture-defined protocols, closest precedent, and the four-gate
+# walk as prompts the user answers themselves. Engine shows; user walks.
+from api import walk as _walk_mod  # noqa: E402
+
+
+class _WalkRequest(BaseModel):
+    situation: str
+
+
+@app.post("/walk", tags=["walk"])
+def walk_situation(request: Request, req: _WalkRequest):
+    """Walk a situation through the Coach OS.
+
+    Returns a composed view: patterns (archetypes), scripture (Layer 0
+    passages), protocols (Mt 18 conflict, discernment, confession,
+    witness, test-spirits, reproof — when they apply), closest
+    precedent, and the four gates as prompts to walk.
+
+    The engine does not answer. It surfaces the field and asks the
+    questions. The user walks.
+    """
+    _rate_check(request, "validate")
+    situation = (req.situation or "").strip()
+    if not situation:
+        raise HTTPException(status_code=400, detail="situation is required")
+    if len(situation) > 4000:
+        raise HTTPException(status_code=400, detail="situation too long (max 4000 chars)")
+    return _walk_mod.walk(situation)
+
+
+@app.get("/walk/protocols", tags=["walk"])
+def walk_protocols_index():
+    """List the Scripture-defined protocols the engine recognizes."""
+    items = _walk_mod._load_protocols()
+    return {
+        "total": len(items),
+        "protocols": [
+            {
+                "id": p.get("id"),
+                "name": p.get("name"),
+                "scripture": p.get("scripture", []),
+                "summary": p.get("summary", ""),
+            }
+            for p in items
+        ],
+    }
+
+
 # -- Community participation ----------------------------------------------
 # Contributors, badges, witness signals, activity feed. All read endpoints
 # unlimited; write endpoints rate-limited via the existing token bucket.
