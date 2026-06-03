@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preferences · Narrow Highway</title>
+  <meta name="description" content="Your preferences. Add the streaming services you subscribe to. Pin shows you want in the schedule. Set family-mode and daypart preferences. Stored on your device — we never log in to anything for you.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#0a0810">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <script src="/scheduler.js" defer></script>
+  <script src="/nh-nav.js" defer></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --r-lg: 18px; --maxw: 880px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.55; min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+
+    .hero { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 22px; }
+    .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .hero-title { font-size: clamp(28px, 4vw, 38px); font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .hero-sub { color: var(--text-dim); font-size: 15px; max-width: 60ch; }
+
+    .section { max-width: var(--maxw); margin: 0 auto; padding: 24px 24px 8px; }
+    .section-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .sub-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .sub-chip:hover { border-color: var(--accent-hi); color: var(--text); }
+    .sub-chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .sub-chip .ico { font-size: 18px; }
+    .sub-chip .label { font-weight: 500; }
+    .sub-chip .check {
+      margin-left: auto; opacity: 0.3;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    }
+    .sub-chip.on .check { opacity: 1; color: var(--accent); }
+
+    .tier-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin: 16px 0 8px;
+    }
+
+    .preference-row {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      padding: 10px 0;
+    }
+    .preference-label { font-size: 13px; color: var(--text-dim); margin-right: 8px; min-width: 130px; }
+    .pref-chip {
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer; transition: all 0.15s;
+      color: var(--text-dim);
+    }
+    .pref-chip:hover { color: var(--text); border-color: var(--accent-hi); }
+    .pref-chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+    }
+    .toggle-row-label { font-size: 14px; font-weight: 500; }
+    .toggle-row-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .toggle {
+      width: 44px; height: 24px;
+      background: var(--border-hi); border-radius: 12px;
+      position: relative; cursor: pointer;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.15s;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { background: #0a0810; transform: translateX(20px); }
+
+    .pin-list { display: flex; flex-direction: column; gap: 8px; }
+    .pin-row {
+      display: flex; gap: 10px; align-items: center;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .pin-row-svc { font-size: 16px; }
+    .pin-row-title { flex: 1; font-size: 13px; }
+    .pin-row-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); letter-spacing: 0.08em; }
+    .pin-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px 8px; }
+    .pin-remove:hover { color: var(--fail); }
+
+    .pin-add { display: grid; grid-template-columns: 140px 1fr 80px 80px auto; gap: 8px; margin-top: 12px; }
+    @media (max-width: 600px) { .pin-add { grid-template-columns: 1fr 1fr; } }
+
+    .pin-add input, .pin-add select {
+      padding: 9px 11px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit; font-size: 13px;
+    }
+    .pin-add input:focus, .pin-add select:focus { outline: none; border-color: var(--accent); }
+    .pin-add button {
+      padding: 9px 16px;
+      background: var(--accent); color: #0a0810;
+      border: none; border-radius: 6px;
+      font-weight: 600; font-size: 12px;
+      cursor: pointer;
+    }
+    .pin-add button:hover { background: var(--accent-hi); }
+
+    .save-row {
+      max-width: var(--maxw); margin: 24px auto; padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .save-row a.btn {
+      display: inline-block; padding: 11px 22px;
+      background: var(--accent); color: #0a0810;
+      border-radius: 6px; font-weight: 600; font-size: 13px;
+    }
+    .save-row a.btn:hover { background: var(--accent-hi); }
+    .save-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--pass); letter-spacing: 0.1em;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .save-status.show { opacity: 1; }
+
+    .footer-note {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 24px 24px 60px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted); letter-spacing: 0.04em; line-height: 1.7;
+    }
+    .footer-note strong { color: var(--text-dim); }
+  </style>
+</head>
+<body data-nh-crumb="Preferences">
+
+<header class="hero">
+  <div class="hero-eyebrow">⚙ Preferences</div>
+  <h1 class="hero-title">Your subscriptions. Our schedule.</h1>
+  <p class="hero-sub">
+    Toggle which services you have. Pin a few shows you want in the rotation.
+    Tell us your tastes. We mix it all together with our public-domain library
+    into a personalized lineup. <strong>Never logs in to anything for you</strong> —
+    deep-links out cleanly.
+  </p>
+</header>
+
+<!-- Subscriptions -->
+<div class="section">
+  <h2 class="section-title">YOUR SUBSCRIPTIONS</h2>
+  <p class="section-sub">Toggle every service you have. Used to know what to schedule alongside our library.</p>
+
+  <div class="tier-label">Video / Streaming TV</div>
+  <div class="sub-grid" id="subs-video"></div>
+
+  <div class="tier-label">Music</div>
+  <div class="sub-grid" id="subs-audio"></div>
+
+  <div class="tier-label">Audiobooks</div>
+  <div class="sub-grid" id="subs-audiobook"></div>
+</div>
+
+<!-- Tastes -->
+<div class="section">
+  <h2 class="section-title">YOUR TASTES</h2>
+  <p class="section-sub">Genre and pacing hints for the scheduler.</p>
+
+  <div class="preference-row">
+    <span class="preference-label">Genres</span>
+    <div id="pref-genres" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+  </div>
+  <div class="preference-row">
+    <span class="preference-label">Dayparts</span>
+    <div id="pref-dayparts" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+  </div>
+  <div class="preference-row">
+    <span class="preference-label">Pace</span>
+    <div id="pref-pace" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+  </div>
+</div>
+
+<!-- Modes -->
+<div class="section">
+  <h2 class="section-title">MODES</h2>
+  <p class="section-sub">Standing rules the scheduler always obeys.</p>
+
+  <div class="toggle-row" id="toggle-family-row">
+    <div>
+      <div class="toggle-row-label">Family-mode</div>
+      <div class="toggle-row-sub">Filter out adult-content even from your services. Default ON.</div>
+    </div>
+    <div class="toggle" id="toggle-family"></div>
+  </div>
+
+  <div class="toggle-row" id="toggle-sabbath-row">
+    <div>
+      <div class="toggle-row-label">Sabbath morning mode</div>
+      <div class="toggle-row-sub">Sunday 6-11 AM: Scripture, sermon, devotion only. No entertainment block.</div>
+    </div>
+    <div class="toggle" id="toggle-sabbath"></div>
+  </div>
+</div>
+
+<!-- Pinned shows -->
+<div class="section">
+  <h2 class="section-title">PINNED SHOWS (from your services)</h2>
+  <p class="section-sub">Pin shows you want in the rotation. Paste the URL from Netflix/Disney+/etc., set the season + episode you're currently on.</p>
+
+  <div class="pin-list" id="pin-list"></div>
+
+  <div class="pin-add">
+    <select id="pin-service"></select>
+    <input id="pin-title" type="text" placeholder="Show title (e.g. The Chosen)">
+    <input id="pin-season" type="number" min="1" placeholder="S" title="Season">
+    <input id="pin-episode" type="number" min="1" placeholder="E" title="Episode">
+    <button id="pin-add-btn">+ Pin</button>
+  </div>
+  <input id="pin-url" type="url" placeholder="Optional: paste the URL (https://netflix.com/title/...)" style="width:100%; margin-top:8px; padding:9px 11px; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:13px;">
+</div>
+
+<div class="save-row">
+  <a class="btn" href="/schedule.html">View Tonight's Lineup →</a>
+  <span class="save-status" id="save-status">Saved.</span>
+</div>
+
+<div class="footer-note">
+  <strong>Privacy:</strong> All preferences stored in your browser's localStorage. Nothing sent to a server.
+  Nothing logs in to your services. Deep-links open the platforms in their own tabs;
+  we never touch your accounts.
+</div>
+
+<script>
+  function ready() {
+    if (!window.NH || !window.NH.Sched) { setTimeout(ready, 50); return; }
+    init();
+  }
+  ready();
+
+  function init() {
+    const Sched = window.NH.Sched;
+    const services = Sched.SERVICES;
+    const subs = new Set(Sched.getSubscriptions());
+
+    // Render subscription chips
+    function renderSubs() {
+      const buckets = { video: [], audio: [], audiobook: [] };
+      services.forEach(s => buckets[s.tier]?.push(s));
+      for (const tier of Object.keys(buckets)) {
+        const el = document.getElementById('subs-' + tier);
+        if (!el) continue;
+        el.innerHTML = buckets[tier].map(s => {
+          const on = subs.has(s.id);
+          return `<button class="sub-chip ${on ? 'on' : ''}" data-id="${s.id}">
+            <span class="ico">${s.emoji}</span>
+            <span class="label">${s.label}</span>
+            <span class="check">${on ? '✓' : '+'}</span>
+          </button>`;
+        }).join('');
+      }
+      document.querySelectorAll('.sub-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const id = chip.dataset.id;
+          if (subs.has(id)) subs.delete(id); else subs.add(id);
+          Sched.setSubscriptions(Array.from(subs));
+          renderSubs();
+          flash();
+        });
+      });
+    }
+
+    // Render tastes
+    const tastes = Sched.getTastes();
+    const GENRES = ['comedy','drama','western','sci-fi','family','documentary','sports','music'];
+    const DAYPARTS = [
+      {id:'morning', label:'Morning'},
+      {id:'daytime', label:'Daytime'},
+      {id:'family',  label:'Family Block'},
+      {id:'evening', label:'Evening'},
+      {id:'late_night', label:'Late Night'},
+    ];
+    const PACES = [
+      {id:'one_and_done', label:'One-and-done'},
+      {id:'few_eps',      label:'Few eps'},
+      {id:'marathon',     label:'Marathon'},
+    ];
+
+    function chipRow(containerId, list, current, isMulti) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = list.map(item => {
+        const id = item.id || item;
+        const label = item.label || item;
+        const on = isMulti ? current.includes(id) : current === id;
+        return `<button class="pref-chip ${on ? 'on' : ''}" data-id="${id}">${label}</button>`;
+      }).join('');
+      el.querySelectorAll('.pref-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const id = chip.dataset.id;
+          if (isMulti) {
+            const key = containerId === 'pref-genres' ? 'genres' : 'dayparts';
+            const arr = tastes[key] || [];
+            const idx = arr.indexOf(id);
+            if (idx >= 0) arr.splice(idx, 1); else arr.push(id);
+            tastes[key] = arr;
+          } else {
+            tastes.pace = id;
+          }
+          Sched.setTastes(tastes);
+          chipRow('pref-genres', GENRES, tastes.genres || [], true);
+          chipRow('pref-dayparts', DAYPARTS, tastes.dayparts || [], true);
+          chipRow('pref-pace', PACES, tastes.pace, false);
+          flash();
+        });
+      });
+    }
+    chipRow('pref-genres', GENRES, tastes.genres || [], true);
+    chipRow('pref-dayparts', DAYPARTS, tastes.dayparts || [], true);
+    chipRow('pref-pace', PACES, tastes.pace, false);
+
+    // Toggles
+    function syncToggles() {
+      document.getElementById('toggle-family').classList.toggle('on', !!tastes.familyMode);
+      document.getElementById('toggle-sabbath').classList.toggle('on', !!tastes.sabbathMode);
+    }
+    document.getElementById('toggle-family-row').addEventListener('click', () => { tastes.familyMode = !tastes.familyMode; Sched.setTastes(tastes); syncToggles(); flash(); });
+    document.getElementById('toggle-sabbath-row').addEventListener('click', () => { tastes.sabbathMode = !tastes.sabbathMode; Sched.setTastes(tastes); syncToggles(); flash(); });
+    syncToggles();
+
+    // Pinned shows
+    const pinSvc = document.getElementById('pin-service');
+    pinSvc.innerHTML = '<option value="">— pick a service —</option>' +
+      services.map(s => `<option value="${s.id}">${s.emoji} ${s.label}</option>`).join('');
+
+    function renderPins() {
+      const list = Sched.getPinned();
+      const container = document.getElementById('pin-list');
+      if (!list.length) {
+        container.innerHTML = '<div style="color: var(--muted); font-size: 13px; padding: 12px 4px;">No pinned shows yet. Add one below.</div>';
+        return;
+      }
+      container.innerHTML = list.map((p, i) => {
+        const svc = services.find(s => s.id === p.service) || { emoji: '📺', label: p.service };
+        return `<div class="pin-row" data-idx="${i}">
+          <span class="pin-row-svc">${svc.emoji}</span>
+          <span class="pin-row-title">${escapeHtml(p.title || svc.label + ' show')}</span>
+          <span class="pin-row-meta">S${p.s || 1} E${p.e || 1}</span>
+          <button class="pin-remove" data-idx="${i}" title="Remove">×</button>
+        </div>`;
+      }).join('');
+      container.querySelectorAll('.pin-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.idx, 10);
+          const list = Sched.getPinned();
+          list.splice(idx, 1);
+          Sched.setPinned(list);
+          renderPins();
+          flash();
+        });
+      });
+    }
+    renderPins();
+
+    document.getElementById('pin-add-btn').addEventListener('click', () => {
+      const service = pinSvc.value;
+      const title = document.getElementById('pin-title').value.trim();
+      const s = parseInt(document.getElementById('pin-season').value || '1', 10);
+      const e = parseInt(document.getElementById('pin-episode').value || '1', 10);
+      const url = document.getElementById('pin-url').value.trim();
+      if (!service || !title) {
+        alert('Pick a service and enter a title.');
+        return;
+      }
+      const list = Sched.getPinned();
+      list.push({ service, title, s, e, url });
+      Sched.setPinned(list);
+      document.getElementById('pin-title').value = '';
+      document.getElementById('pin-season').value = '';
+      document.getElementById('pin-episode').value = '';
+      document.getElementById('pin-url').value = '';
+      renderPins();
+      flash();
+    });
+
+    function escapeHtml(s) { return (s || '').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+    function flash() {
+      const el = document.getElementById('save-status');
+      el.classList.add('show');
+      clearTimeout(window.__flashT);
+      window.__flashT = setTimeout(() => el.classList.remove('show'), 1400);
+    }
+
+    renderSubs();
+  }
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

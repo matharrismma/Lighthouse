@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sermons & Devotions — Narrow Highway · Channel 4</title>
+<meta name="description" content="Channel 4 — Narrow Highway Sermons & Devotions. Spurgeon, Edwards, Bunyan read aloud, 24/7. Public-domain Reformed and Puritan writings.">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 0 auto; padding: 0 1em 2em; background: #1f1809; color: #f4ecd5; line-height: 1.5; }
+  nav.top { padding: 0.8em 0; font-size: 0.9em; }
+  nav.top a { color: #c9b48a; text-decoration: none; }
+  h1 { color: #f4ecd5; font-size: 2em; margin: 0.4em 0 0.1em; }
+  .ch-meta { font-size: 0.9em; color: #c9b48a; font-family: 'Courier New', monospace; letter-spacing: 0.1em; }
+  .tagline { font-style: italic; color: #c9b48a; margin: 0.2em 0 1em; }
+  .player-wrap { background: #000; border: 2px solid #c9b48a; border-radius: 4px; aspect-ratio: 16/9; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  video { width: 100%; height: 100%; display: block; background: #000; }
+  .player-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.6em 1em; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #f4ecd5; font-size: 0.9em; pointer-events: none; }
+  .player-overlay .label { color: #c9b48a; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.15em; }
+  .live-badge { display: inline-block; padding: 0.15em 0.6em; background: #806010; color: #fff; font-weight: bold; font-size: 0.8em; border-radius: 3px; margin-right: 0.5em; }
+  .live-badge.coming { background: #6a4d10; }
+  .live-badge::before { content: '● '; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 1.2em; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .card { background: #3a2e15; border: 1px solid #5c4920; border-radius: 4px; padding: 1em 1.2em; }
+  .card h2 { color: #c9b48a; margin: 0 0 0.4em; font-size: 1.1em; border-bottom: 1px solid #5c4920; padding-bottom: 0.3em; }
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  .schedule-table td { padding: 0.3em 0.4em; border-bottom: 1px solid #4d3e1a; }
+  .schedule-table td.time { color: #c9b48a; font-family: 'Courier New', monospace; width: 5em; }
+  .embed-row { background: #4d3e1a; padding: 0.8em 1em; border-radius: 4px; font-size: 0.85em; margin-top: 1em; color: #c9b48a; }
+  .embed-row code { background: #1f1809; padding: 0.15em 0.4em; border-radius: 3px; color: #f4ecd5; }
+  .fallback-row { background: #3a2e15; border: 1px solid #5c4920; border-radius: 4px; padding: 1em 1.2em; margin-top: 1em; }
+  .fallback-row a { color: #c9b48a; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/channels.html">All Channels</a></nav>
+
+<div class="ch-meta">CHANNEL 4 · NARROW HIGHWAY</div>
+<h1>Sermons & Devotions</h1>
+<p class="tagline">Spurgeon, Edwards, Bunyan — read aloud · 24/7</p>
+
+<div class="player-wrap">
+  <video id="hls-player" controls autoplay muted playsinline poster="/img/channel-sermons-devotions.png"></video>
+  <div class="player-overlay">
+    <span class="live-badge coming">COMING SOON</span>
+    <span class="label">NOW READING</span>
+    <span id="now-playing-title">—</span>
+    <span class="label" style="margin-left: 1em;">UP NEXT</span>
+    <span id="next-title">—</span>
+  </div>
+</div>
+
+<div class="embed-row">
+  <strong>Plex Live TV / Roku / VLC (when live):</strong>
+  <code id="hls-url">/channels/nh-sermons-devotions/live.m3u8</code>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>About this channel</h2>
+    <p>Charles Spurgeon, Jonathan Edwards, John Bunyan — the great Reformed and Puritan voices, read aloud. Spurgeon's <em>Morning &amp; Evening</em> for daily devotional cadence, his <em>All of Grace</em> book, Edwards' Select Sermons and the <em>Religious Affections</em>. Audio with verse cards; scripture readings between selections.</p>
+    <h2 style="margin-top:1em;">Inventory</h2>
+    <ul style="list-style:none; padding:0;">
+      <li>· Spurgeon · Morning &amp; Evening — 52 readings</li>
+      <li>· Spurgeon · All of Grace — 11 chapters</li>
+      <li>· Edwards · Select Sermons — 39 sermons</li>
+      <li>· Edwards · Religious Affections — 35 parts</li>
+    </ul>
+    <p style="margin-top:1em; font-size: 0.9em; color: #c9b48a;"><strong>137 readings</strong> · ~60 hours of unique substrate.</p>
+  </div>
+
+  <div class="card">
+    <h2>Today's schedule (when live)</h2>
+    <table class="schedule-table">
+      <tr><td class="time">06:00</td><td>Morning Devotion (Spurgeon)</td></tr>
+      <tr><td class="time">07:00</td><td>Morning Sermon (All of Grace)</td></tr>
+      <tr><td class="time">09:00</td><td>Edwards Reading</td></tr>
+      <tr><td class="time">12:00</td><td>Midday Devotion</td></tr>
+      <tr><td class="time">14:00</td><td>Afternoon Sermon (Edwards)</td></tr>
+      <tr><td class="time">17:00</td><td>Evening Devotion</td></tr>
+      <tr><td class="time">18:00</td><td>Evening Sermon (All of Grace)</td></tr>
+      <tr><td class="time">20:00</td><td>Religious Affections</td></tr>
+      <tr><td class="time">22:00</td><td>Night Devotion</td></tr>
+      <tr><td class="time">00:00</td><td>Overnight Reading</td></tr>
+      <tr><td class="time">04:00</td><td>Pre-Dawn Devotion</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="fallback-row" id="fallback-row">
+  <strong>This is a programming source, not a separate live channel.</strong>
+  Sermons &amp; Devotions content feeds the unified <a href="/channels/narrow-highway/">Narrow Highway channel</a>
+  during devotional dayparts (midday, evening, Sunday). Browse this page to see what's in the pool,
+  or visit the <a href="/canon.html">Codex deck</a> for the underlying texts.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script>
+(function() {
+  var HLS_URL = '/channels/nh-sermons-devotions/live.m3u8';
+  var video = document.getElementById('hls-player');
+  var nowTitle = document.getElementById('now-playing-title');
+  var nextTitle = document.getElementById('next-title');
+  var urlBox = document.getElementById('hls-url');
+  urlBox.textContent = location.origin + HLS_URL;
+  // Try to load HLS; if it errors (likely until encode finishes), the fallback message already shows.
+  if (window.Hls && Hls.isSupported()) {
+    var hls = new Hls({ liveSyncDurationCount: 3 });
+    hls.loadSource(HLS_URL);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, function(_, d) { if (d.fatal) console.warn('HLS not ready:', d); });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = HLS_URL;
+  }
+  function refreshNow() {
+    fetch('/channels/nh-sermons-devotions/now.json', { cache: 'no-store' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(j) {
+        if (!j) return;
+        if (j.current && j.current.title) nowTitle.textContent = j.current.title;
+        if (j.next && j.next.title) nextTitle.textContent = j.next.title;
+      })
+      .catch(function() {});
+  }
+  refreshNow();
+  setInterval(refreshNow, 60000);
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

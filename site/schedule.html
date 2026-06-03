@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tonight's Lineup · Narrow Highway</title>
+  <meta name="description" content="Your TV Guide. Mix the Narrow Highway PD library with your own Netflix, Disney+, Apple TV+, Spotify subscriptions. Episodes in order, family-mode by default, deep-links out cleanly.">
+  <link rel="canonical" href="https://narrowhighway.com/schedule.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Tonight's Lineup · Narrow Highway">
+  <meta property="og:description" content="Your TV Guide. Mix the Narrow Highway PD library with your own Netflix, Disney+, Apple TV+, Spotify subscriptions. Episodes in order, family-mode by default, deep-links out cleanly.">
+  <meta property="og:url" content="https://narrowhighway.com/schedule.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tonight's Lineup · Narrow Highway">
+  <meta name="twitter:description" content="Your TV Guide. Mix the Narrow Highway PD library with your own Netflix, Disney+, Apple TV+, Spotify subscriptions. Episodes in order, family-mode by default, deep-links out cleanly.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#0a0810">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <script src="/scheduler.js" defer></script>
+  <script src="/nh-nav.js" defer></script>
+  <script src="/nh-feedback.js" defer></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --r-lg: 18px; --maxw: 980px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.55; min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+
+    .deck-hero { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 22px; }
+    .deck-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .deck-title { font-size: clamp(28px, 4vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .deck-title em { font-family: 'Crimson Pro', serif; font-style: italic; color: var(--accent); }
+    .deck-sub { color: var(--text-dim); font-size: 15px; max-width: 60ch; }
+
+    .controls {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 0 24px 16px;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    }
+    .ctrl-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-dim);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .ctrl-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .ctrl-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+    .ctrl-spacer { flex: 1; }
+    .ctrl-link { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .ctrl-link:hover { color: var(--accent); }
+
+    .lineup { max-width: var(--maxw); margin: 0 auto; padding: 8px 24px 60px; }
+
+    .daypart-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent);
+      margin: 28px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .daypart-hours { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+
+    .item {
+      display: flex; gap: 14px; align-items: stretch;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      transition: all 0.15s;
+      text-decoration: none; color: inherit;
+    }
+    .item:hover {
+      border-color: var(--accent);
+      background: var(--surface-2);
+      transform: translateX(2px);
+    }
+    .item.ours { border-left: 3px solid var(--accent); }
+    .item.theirs { border-left: 3px solid var(--pass); }
+    .item-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.08em;
+      color: var(--accent); font-weight: 600;
+      min-width: 90px;
+      padding-top: 2px;
+    }
+    .item-body { flex: 1; min-width: 0; }
+    .item-meta-row {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .item-kind-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 3px;
+      background: var(--accent-soft); color: var(--accent);
+    }
+    .item.theirs .item-kind-tag { background: rgba(111,196,124,0.14); color: var(--pass); }
+    .item-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .item-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; }
+    .item-blurb {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; color: var(--muted);
+      letter-spacing: 0.06em; margin-top: 5px;
+    }
+    .item-cta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent);
+      align-self: center;
+      padding-left: 12px;
+      white-space: nowrap;
+    }
+    .item-fb {
+      align-self: center;
+      padding-left: 12px;
+    }
+
+    .empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--muted); font-size: 14px;
+      background: var(--surface);
+      border: 1px dashed var(--border-hi);
+      border-radius: var(--r);
+    }
+    .empty p { margin-bottom: 12px; }
+    .empty a.btn { display: inline-block; padding: 10px 18px; background: var(--accent); color: #0a0810; border-radius: 6px; font-weight: 600; font-size: 13px; }
+    .empty a.btn:hover { background: var(--accent-hi); }
+
+    .now-mark {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--pass);
+      margin: 18px 0;
+    }
+    .now-mark::before, .now-mark::after { content: ''; flex: 1; height: 1px; background: var(--border-hi); }
+    .now-mark .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pass); box-shadow: 0 0 10px var(--pass); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+    .loading-spin { display: inline-block; width: 24px; height: 24px; border: 2px solid var(--border-hi); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body data-nh-crumb="Tonight's Lineup">
+
+<header class="deck-hero">
+  <div class="deck-eyebrow">📺 Tonight's Lineup</div>
+  <h1 class="deck-title">Your <em>TV Guide</em>, on your schedule.</h1>
+  <p class="deck-sub">
+    Mix the Narrow Highway library — westerns, comedies, radio, kids — with your own Netflix,
+    Disney+, Apple TV+, Spotify, and anything else you subscribe to. Episodes in order,
+    family-mode on, alignment-gated. Click a row to start.
+  </p>
+</header>
+
+<div class="controls">
+  <button class="ctrl-btn" id="daypart-family" data-daypart="family">Family Block</button>
+  <button class="ctrl-btn active" id="daypart-evening" data-daypart="evening">Evening</button>
+  <button class="ctrl-btn" id="daypart-late_night" data-daypart="late_night">Late Night</button>
+  <button class="ctrl-btn" id="daypart-all">All Dayparts</button>
+  <div class="ctrl-spacer"></div>
+  <button class="ctrl-btn" id="regen">↻ Regenerate</button>
+  <a class="ctrl-link" href="/profile.html">⚙ Preferences →</a>
+</div>
+
+<div class="lineup" id="lineup">
+  <div class="loading"><div class="loading-spin"></div><div>Building tonight's lineup…</div></div>
+</div>
+
+<script>
+  let CATALOG = null;
+  let selectedDayparts = ['evening'];
+
+  async function loadCatalog() {
+    try {
+      const r = await fetch('/library.json');
+      if (!r.ok) throw new Error('catalog failed');
+      CATALOG = await r.json();
+      const adapted = { shows: (CATALOG.items || []).map(it => Object.assign({}, it, { episodes: it.episodes || [] })) };
+      CATALOG = adapted;
+    } catch (e) {
+      CATALOG = { shows: [] };
+    }
+  }
+
+  function buildAndRender() {
+    if (!window.NH || !window.NH.Sched) {
+      // scheduler.js not loaded yet; retry
+      setTimeout(buildAndRender, 100);
+      return;
+    }
+    const Sched = window.NH.Sched;
+    const subs = Sched.getSubscriptions();
+    const tastes = Sched.getTastes();
+    const pinned = Sched.getPinned();
+
+    const items = Sched.generateSchedule({
+      catalog: CATALOG,
+      subscriptions: subs,
+      tastes: tastes,
+      pinned: pinned,
+      date: new Date(),
+      dayparts: selectedDayparts,
+    });
+
+    renderLineup(items, subs.length, pinned.length);
+  }
+
+  function renderLineup(items, subCount, pinnedCount) {
+    const lineup = document.getElementById('lineup');
+    if (!items.length) {
+      lineup.innerHTML = `
+        <div class="empty">
+          <p><strong>The lineup is empty.</strong> Add your subscriptions and tastes to personalize what plays when.</p>
+          <a class="btn" href="/profile.html">Set preferences →</a>
+        </div>`;
+      return;
+    }
+
+    // Group by daypart
+    const byDp = {};
+    items.forEach(it => {
+      (byDp[it.daypart] = byDp[it.daypart] || []).push(it);
+    });
+
+    const dpLabels = { morning: 'Morning · 6 AM-11 AM', daytime: 'Daytime · 11 AM-5 PM', family: 'Family Block · 5 PM-8 PM', evening: 'Evening · 8 PM-11 PM', late_night: 'Late Night · 11 PM-2 AM' };
+
+    let html = '';
+    const order = ['morning','daytime','family','evening','late_night'];
+    for (const dp of order) {
+      const dpItems = byDp[dp];
+      if (!dpItems || !dpItems.length) continue;
+      const [labelTitle, labelHours] = (dpLabels[dp] || dp).split(' · ');
+      html += `<div class="daypart-header"><span>${labelTitle}</span><span class="daypart-hours">${labelHours || ''}</span></div>`;
+
+      dpItems.forEach(it => {
+        const klass = it.kind === 'theirs' ? 'theirs' : 'ours';
+        const kindTag = it.kind === 'theirs'
+          ? `${it.service_emoji} ${escapeHtml(it.service_label)}`
+          : 'OURS · FREE';
+        const sub = it.kind === 'theirs'
+          ? (it.s != null ? `S${it.s} E${it.e || 1}` : 'queued') + ' · deep-link to ' + escapeHtml(it.service_label)
+          : `Episode ${it.ep_idx + 1} · ${escapeHtml(it.ep_title || '')}`;
+        const cta = it.kind === 'theirs' ? '→ open' : '▶ play';
+        const href = it.kind === 'theirs'
+          ? (it.url || '#')
+          : it.deeplink;
+        const target = it.kind === 'theirs' ? ' target="_blank" rel="noopener"' : '';
+        const fbSlug = it.kind === 'ours' ? ('sched:' + it.slug) : ('sched:' + (it.service_id || 'theirs') + ':' + (it.title || ''));
+        html += `
+          <a class="item ${klass}" href="${href}"${target}>
+            <div class="item-time">${escapeHtml(it.time)}</div>
+            <div class="item-body">
+              <div class="item-meta-row">
+                <span class="item-kind-tag">${kindTag}</span>
+              </div>
+              <div class="item-title">${escapeHtml(it.title || '')}</div>
+              <div class="item-sub">${sub}</div>
+              <div class="item-blurb">${escapeHtml(it.blurb || '')}</div>
+            </div>
+            <div class="item-fb" data-nh-feedback="${escapeHtml(fbSlug)}" data-nh-feedback-label="${escapeHtml(it.title || '')}"></div>
+            <div class="item-cta">${cta}</div>
+          </a>`;
+      });
+    }
+
+    if (subCount === 0) {
+      html += `
+        <div class="empty" style="margin-top: 28px;">
+          <p>No subscriptions on file. Add yours to mix your shows into the lineup.</p>
+          <a class="btn" href="/profile.html">Add subscriptions →</a>
+        </div>`;
+    } else if (pinnedCount === 0) {
+      html += `
+        <div class="empty" style="margin-top: 28px;">
+          <p>You have <strong>${subCount} subscription${subCount === 1 ? '' : 's'}</strong> set — but no pinned shows. Pin a few favorites with their URLs to weave them into the schedule.</p>
+          <a class="btn" href="/profile.html">Pin shows →</a>
+        </div>`;
+    }
+
+    lineup.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return (s || '').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  }
+
+  // Daypart controls
+  document.querySelectorAll('.ctrl-btn[data-daypart]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ctrl-btn[data-daypart]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('daypart-all').classList.remove('active');
+      selectedDayparts = [btn.dataset.daypart];
+      buildAndRender();
+    });
+  });
+  document.getElementById('daypart-all').addEventListener('click', () => {
+    document.querySelectorAll('.ctrl-btn[data-daypart]').forEach(b => b.classList.remove('active'));
+    document.getElementById('daypart-all').classList.add('active');
+    selectedDayparts = ['family','evening','late_night'];
+    buildAndRender();
+  });
+  document.getElementById('regen').addEventListener('click', buildAndRender);
+
+  loadCatalog().then(buildAndRender);
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

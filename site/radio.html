@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radio · Narrow Highway</title>
+  <meta name="description" content="A curated radio dial — shortwave via public WebSDR, AM and FM via direct streams. Public radio, classical, jazz, ambient, Christian, world. No ads, no login.">
+  <link rel="canonical" href="https://narrowhighway.com/radio.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Radio · Narrow Highway">
+  <meta property="og:description" content="A curated radio dial — shortwave via public WebSDR, AM and FM via direct streams. Public radio, classical, jazz, ambient, Christian, world. No ads, no login.">
+  <meta property="og:url" content="https://narrowhighway.com/radio.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Radio · Narrow Highway">
+  <meta name="twitter:description" content="A curated radio dial — shortwave via public WebSDR, AM and FM via direct streams. Public radio, classical, jazz, ambient, Christian, world. No ads, no login.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    :root{--bg:#0a0810;--surface:#161320;--surface2:#1d1828;--border:#29232f;--text:#ede7db;--dim:#b3aabd;--muted:#9b94ac;--accent:#c9a87c;--accenthi:#e3c498;--pass:#6fc47c;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;min-height:100dvh;}
+    a{color:var(--accent);text-decoration:none;}
+    .rwrap{max-width:880px;margin:0 auto;padding:34px 22px 24px;}
+    h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.7rem,3.5vw,2.2rem);color:#f4ecd5;margin-bottom:6px;}
+    .sub{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted);font-size:14px;max-width:55ch;margin-bottom:22px;}
+
+    .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:22px;}
+    .tab{padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);user-select:none;}
+    .tab:hover{color:var(--text);}
+    .tab.active{color:var(--accenthi);border-bottom-color:var(--accent);}
+
+    .stations{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;}
+    .station{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 14px;cursor:pointer;transition:background .12s,border-color .12s;}
+    .station:hover{background:var(--surface2);border-left-color:var(--accenthi);}
+    .station.playing{background:#1a221c;border-left-color:var(--pass);}
+    .station .name{font-size:13.5px;color:var(--text);font-weight:500;}
+    .station .meta{font-size:11px;color:var(--muted);margin-top:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em;}
+    .station .ext{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;color:var(--accent);margin-top:6px;opacity:.7;}
+
+    .note{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.6;}
+
+    /* ── Shortwave first-experience panels ───────────────────────── */
+    .sw-intro{background:linear-gradient(180deg,#1a1424,#161320);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:18px;}
+    .sw-intro h2{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:1.15rem;color:#f4ecd5;margin-bottom:8px;}
+    .sw-intro p{font-family:'Crimson Pro',Georgia,serif;font-size:14.5px;color:var(--dim);line-height:1.65;margin-bottom:10px;}
+    .sw-intro p:last-child{margin-bottom:0;}
+    .sw-intro em{color:var(--accenthi);font-style:italic;}
+
+    .start-here{margin-bottom:18px;}
+    .start-here h3{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+    .start-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;}
+    .start-card{background:#1a221c;border:1px solid #2a3a2c;border-left:2px solid var(--pass);border-radius:0 8px 8px 0;padding:12px 14px;cursor:pointer;transition:background .12s;}
+    .start-card:hover{background:#1f2a22;}
+    .start-card .step{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;color:var(--pass);margin-bottom:4px;}
+    .start-card .name{font-family:'Crimson Pro',Georgia,serif;font-size:15px;color:#f4ecd5;margin-bottom:4px;}
+    .start-card .why{font-size:12px;color:var(--muted);line-height:1.5;}
+    .start-card .freq{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent);margin-top:6px;letter-spacing:.04em;}
+
+    .bands{margin-bottom:18px;}
+    .bands summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);padding:8px 0;list-style:none;outline:none;}
+    .bands summary::-webkit-details-marker{display:none;}
+    .bands summary::before{content:'▸ ';color:var(--muted);font-size:11px;}
+    .bands[open] summary::before{content:'▾ ';}
+    .bands-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px;padding:10px 0 4px;}
+    .band{background:var(--surface);border-left:2px solid var(--border);padding:8px 12px;border-radius:0 4px 4px 0;}
+    .band .b-name{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accenthi);letter-spacing:.06em;}
+    .band .b-freq{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+    .band .b-when{font-size:11.5px;color:var(--dim);margin-top:4px;font-family:'Crimson Pro',Georgia,serif;font-style:italic;}
+
+    .list-h{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+
+    /* Player chrome lives site-wide in nh-shell.js — pages just call window.nhRadio.play(). */
+  </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/radio.html",
+  "name": "Radio · Narrow Highway",
+  "description": "A curated radio dial — shortwave via public WebSDR, AM and FM via direct streams. Public radio, classical, jazz, ambient, Christian, world. No ads, no login.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "RadioBroadcastService",
+  "broadcastDisplayName": "Narrow Highway Radio",
+  "broadcastFrequency": [
+    {
+      "@type": "BroadcastFrequencySpecification",
+      "broadcastSignalModulation": "AM"
+    },
+    {
+      "@type": "BroadcastFrequencySpecification",
+      "broadcastSignalModulation": "FM"
+    },
+    {
+      "@type": "BroadcastFrequencySpecification",
+      "broadcastSignalModulation": "SW"
+    }
+  ]
+}
+</script>
+</head>
+<body data-nh-toc="off">
+
+<main class="rwrap">
+  <h1>Radio</h1>
+  <p class="sub">A dial worth turning. Shortwave through a public WebSDR (KiwiSDR network — ~600 receivers worldwide). AM and FM stream directly from the stations themselves.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="sw">Shortwave</div>
+    <div class="tab" data-tab="am">AM</div>
+    <div class="tab" data-tab="fm">FM</div>
+  </div>
+
+  <div id="content"><div class="note">Loading…</div></div>
+
+  <p class="note" id="footnote"></p>
+</main>
+
+<script>
+let stations = {sw:[], am:[], fm:[]};
+let currentTab = 'sw';
+
+const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function init() {
+  try {
+    const r = await fetch('/radio/stations.json', {cache:'no-store'});
+    stations = await r.json();
+  } catch(e) {
+    document.getElementById('content').innerHTML = '<div class="note">Could not load the station list. Check that /radio/stations.json is reachable.</div>';
+    return;
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+  render();
+}
+
+function switchTab(t) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === t));
+  render();
+}
+
+function currentlyPlayingStream() {
+  if (!window.nhRadio || !window.nhRadio.isOn()) return null;
+  const s = window.nhRadio.getStation();
+  return s ? s.stream : null;
+}
+
+function render() {
+  const list = stations[currentTab] || [];
+  const content = document.getElementById('content');
+  const fn = document.getElementById('footnote');
+  const playingStream = currentlyPlayingStream();
+
+  if (currentTab === 'sw') {
+    // First-experience teacher: intro → start-here picks → bands guide → full list.
+    // "Start here" picks are hard-coded URLs pointed at WWV / BBC / Romania —
+    // the three most reliable first listens for someone who has never heard
+    // shortwave before. WWV is the magical one: NIST atomic-clock time signal,
+    // always on, audible somewhere in the world day or night.
+    const starters = [
+      {
+        step: 'Pick 1',
+        name: 'WWV — the time signal',
+        why: 'NIST atomic clock in Fort Collins, Colorado. A voice gives the exact time every minute, between steady ticks. Always on, always works — this is the easiest first listen. If you only ever tune one shortwave station, make it this one.',
+        freq: '10000 kHz · 10 MHz · AM',
+        url: 'http://sdr.hu/?url=http://k3fef.com:8073&f=10000.00amz0'
+      },
+      {
+        step: 'Pick 2',
+        name: 'BBC World Service',
+        why: 'English-language news and feature programming, broadcast worldwide for nearly a century. A familiar voice — and the carrier wave still has the texture of a long journey.',
+        freq: '9410 kHz · 31m band · AM',
+        url: 'http://kiwisdr.kuriga.com:8073/?f=9410.00amz0'
+      },
+      {
+        step: 'Pick 3',
+        name: 'Radio Romania International',
+        why: 'Eastern Europe in plain English: news, music, calls home for Romanians abroad. Surprisingly warm. A good window into a place most Americans never visit on radio.',
+        freq: '9500 kHz · 31m band · AM',
+        url: 'http://websdr.ewi.utwente.nl:8901/?tune=9500usb'
+      }
+    ];
+
+    const bands = [
+      { name: '49 meters', freq: '5.9–6.2 MHz',     when: 'After dark. Strong, easy to find, full of voices. Best beginner band at night.' },
+      { name: '41 meters', freq: '7.2–7.45 MHz',    when: 'Night. Some broadcast + a lot of amateur radio chatter just above.' },
+      { name: '31 meters', freq: '9.4–9.9 MHz',     when: 'Day or night. The all-rounder. BBC, Romania, China, VOA.' },
+      { name: '25 meters', freq: '11.6–12.1 MHz',   when: 'Afternoon and evening. Reliable; another beginner-friendly band.' },
+      { name: '19 meters', freq: '15.1–15.8 MHz',   when: 'Daytime. BBC, VOA, WRMI. Quieter at night.' },
+      { name: '16 meters', freq: '17.5–17.9 MHz',   when: 'Midday only. Long-distance daylight catch.' },
+      { name: '13 meters', freq: '21.45–21.85 MHz', when: 'Sunspot peaks. Skip in solar minima — the band goes silent.' }
+    ];
+
+    const intro = `
+      <section class="sw-intro">
+        <h2>Shortwave — the long-distance dial</h2>
+        <p>Shortwave radio bounces off the <em>ionosphere</em> — a layer of charged particles 50 to 250 miles up. A signal from Romania leaves the transmitter going up, hits the ionosphere, and skips back down somewhere on the other side of the world. That's how a $30 receiver in your kitchen can pull in a station from Bucharest.</p>
+        <p>You don't need to own a receiver to start. The links below open <em>KiwiSDR</em> — a network of public receivers around the world that you control from your browser. Pick one of the three first-listens below; it will take you to a receiver already pre-tuned to that station. Put on headphones if you can.</p>
+      </section>
+    `;
+
+    const starterCards = `
+      <section class="start-here">
+        <h3>Start here — three first listens</h3>
+        <div class="start-cards">
+          ${starters.map((s, i) => `
+            <div class="start-card" data-starter="${i}">
+              <div class="step">${esc(s.step)}</div>
+              <div class="name">${esc(s.name)}</div>
+              <div class="why">${esc(s.why)}</div>
+              <div class="freq">${esc(s.freq)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+
+    const bandsGuide = `
+      <details class="bands">
+        <summary>Bands guide — when each part of the dial is alive</summary>
+        <div class="bands-grid">
+          ${bands.map(b => `
+            <div class="band">
+              <div class="b-name">${esc(b.name)}</div>
+              <div class="b-freq">${esc(b.freq)}</div>
+              <div class="b-when">${esc(b.when)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </details>
+    `;
+
+    const fullList = `
+      <h3 class="list-h">Full station list — ${list.length} broadcasters</h3>
+      <div class="stations">
+        ${list.map((s, i) => `
+          <div class="station" data-idx="${i}">
+            <div class="name">${esc(s.name)}</div>
+            <div class="meta">${s.freq_khz ? s.freq_khz + ' kHz · ' : ''}${esc(s.schedule_utc || '')}</div>
+            <div class="meta" style="color:var(--dim);">${esc(s.target || '')}</div>
+            <div class="ext">open in webSDR ↗</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    content.innerHTML = intro + starterCards + bandsGuide + fullList;
+
+    // Wire the three starter cards
+    content.querySelectorAll('.start-card').forEach(el => {
+      el.addEventListener('click', () => {
+        const s = starters[+el.dataset.starter];
+        if (s.url) window.open(s.url, '_blank', 'noopener');
+      });
+    });
+    // Wire the full list
+    content.querySelectorAll('.station').forEach(el => {
+      el.addEventListener('click', () => {
+        const s = stations.sw[+el.dataset.idx];
+        if (s.url) window.open(s.url, '_blank', 'noopener');
+      });
+    });
+    fn.innerHTML = 'Each link opens a public <strong>KiwiSDR</strong> — a real receiver somewhere in the world, pre-tuned to that frequency. You\'re sharing the receiver with 3–7 other listeners; if it says <em>"all slots taken,"</em> try another from <a href="http://kiwisdr.com/public/" target="_blank" rel="noopener">the public list</a> and tune to the same kHz. Reception changes with the sun and the season — if a station is silent, come back at a different hour.';
+  } else {
+    content.innerHTML = '<div class="stations">' + list.map((s, i) => {
+      const isCurrent = playingStream && s.stream === playingStream;
+      return `
+      <div class="station ${isCurrent ? 'playing' : ''}" data-idx="${i}" data-stream="${esc(s.stream||'')}">
+        <div class="name">${esc(s.name)}</div>
+        <div class="meta">${esc(s.city || '')}</div>
+        <div class="meta" style="color:var(--dim);">${esc(s.format || '')}</div>
+      </div>`;
+    }).join('') + '</div>';
+    content.querySelectorAll('.station').forEach(el => {
+      el.addEventListener('click', () => {
+        const s = stations[currentTab][+el.dataset.idx];
+        if (window.nhRadio && s.stream) {
+          window.nhRadio.play(s);
+          document.querySelectorAll('.station.playing').forEach(x => x.classList.remove('playing'));
+          el.classList.add('playing');
+        }
+      });
+    });
+    fn.innerHTML = 'AM/FM streams play directly from the broadcaster — and keep playing as you move around the site (stop with the button in the player strip). Some streams are geo-restricted or occasionally offline; try another if one fails.';
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>

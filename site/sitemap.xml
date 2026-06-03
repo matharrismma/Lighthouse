@@ -1,30 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-curated sitemap of public pages. The auto-generated per-card sitemap
+     is sitemap_cards.xml; sitemap_index.xml points crawlers at both.
+     Operator/admin pages (keep, inbox, outreach, dashboard, etc.) are
+     deliberately excluded. Last rebuilt 2026-05-22 around the family content. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Front door -->
   <url><loc>https://narrowhighway.com/</loc><priority>1.0</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/workspace.html</loc><priority>0.98</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/family.html</loc><priority>0.95</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/media-center.html</loc><priority>0.95</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/learn-deep.html</loc><priority>0.95</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/codex-deep.html</loc><priority>0.95</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/take-part.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/games/wilderness-trail.html</loc><priority>0.85</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/games/chess.html</loc><priority>0.85</priority><changefreq>monthly</changefreq></url>
+
+  <!-- The four canonical doorways -->
+  <url><loc>https://narrowhighway.com/guidance.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/tradition.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/assembly.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/testimony.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/witnesses.html</loc><priority>0.85</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/refuge.html</loc><priority>0.85</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/organic-design.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/assembly/today.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/assembly/listen.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+
+  <url><loc>https://narrowhighway.com/welcome.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/about.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/workshop.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/contact.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+
+  <!-- Family content — what families actually search for -->
+  <url><loc>https://narrowhighway.com/hymns.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/recipes.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/kids.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/games.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/bible-trivia.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/curriculum.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/reading.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/bibles.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/canon.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/codex.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://narrowhighway.com/almanac.html</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://narrowhighway.com/how-it-works.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/verifiers.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/install.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/try.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/library.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/agents.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/benchmark.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/theory.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/grid.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/poly.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/engine.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/connect.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/setup.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/reach.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/share.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://narrowhighway.com/dashboard.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://narrowhighway.com/residue.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/curate.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/encyclopedia.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/apothecary.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/places.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/atlas.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/characters.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/parable.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/reading-room.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/maker.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/calendar.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/daily.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/today.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/paths.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+
+  <!-- Watch &amp; listen — the channels -->
+  <url><loc>https://narrowhighway.com/watch.html</loc><priority>0.9</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/radio.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/live.html</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/listen.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/pilots.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/podcast.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/podcast-theatre.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/church-streams.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels/narrow-highway/</loc><priority>0.8</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels/nh-hymns-247/</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels/nh-sermons-devotions/</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels/nh-hundred-acre/</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/channels/nh-scifi-theatre/</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+
+  <!-- Take part -->
+  <url><loc>https://narrowhighway.com/household.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/common-book.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/prayer.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/scribe.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/submit-content.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/submit-recipe.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/submit-curriculum.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/pitch.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/sponsors.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/support.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+
+  <!-- The verification engine — the hero tool -->
+  <url><loc>https://narrowhighway.com/walks.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/discern-teaching.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/walk.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/try.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/run.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/how-it-works.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/verifiers.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/benchmark.html</loc><priority>0.85</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/theory.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/training.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/chronicle.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/grid.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/pyodide.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/reach.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/poly.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/packets.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/tools.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/search.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/agents.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/connect.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/mcp.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+
+  <!-- Linked from homepage More section -->
+  <url><loc>https://narrowhighway.com/letters.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/shepherd-room.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/wallet-transparency.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+
+  <!-- Original works -->
+  <url><loc>https://narrowhighway.com/works.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/apokalypsis.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/molasses.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/dade.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+
+  <!-- Use cases -->
+  <url><loc>https://narrowhighway.com/use-cases/faith.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/use-cases/science.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/use-cases/governance.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+
+  <!-- Discoverability fill — these were buried, now surfaced (2026-06-01) -->
+  <url><loc>https://narrowhighway.com/learn.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/deposit.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/map.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/hearth.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/library.html</loc><priority>0.7</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/shelves.html</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/fieldkit.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/witness.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/schedule.html</loc><priority>0.7</priority><changefreq>daily</changefreq></url>
+  <url><loc>https://narrowhighway.com/archetypes.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/stack.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/wallet-help.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://narrowhighway.com/seeds.html</loc><priority>0.5</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://narrowhighway.com/receipts.html</loc><priority>0.5</priority><changefreq>weekly</changefreq></url>
+
+  <!-- Feeds for AI crawlers -->
   <url><loc>https://narrowhighway.com/llms.txt</loc><priority>0.5</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/llms-full.txt</loc><priority>0.6</priority><changefreq>weekly</changefreq></url>
   <url><loc>https://narrowhighway.com/almanac.rss</loc><priority>0.5</priority><changefreq>daily</changefreq></url>
-  <url><loc>https://narrowhighway.com/.well-known/agents.txt</loc><priority>0.5</priority><changefreq>weekly</changefreq></url>
-  <url><loc>https://narrowhighway.com/use-cases/science.html</loc><priority>0.7</priority></url>
-  <url><loc>https://narrowhighway.com/use-cases/governance.html</loc><priority>0.7</priority></url>
-  <url><loc>https://narrowhighway.com/use-cases/faith.html</loc><priority>0.7</priority></url>
+
 </urlset>

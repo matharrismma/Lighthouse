@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Shepherd's Room — Narrow Highway</title>
+<meta name="description" content="A dedicated room for the Shepherd. Ask a question; he answers from the substrate — Codex, hymns, almanac, devotionals, recipes — with citations. No external LLM.">
+<style>
+  body { font-family: Georgia, serif; max-width: 880px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+
+  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.5em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.4em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.05em; margin-top: 0.3em; }
+
+  .intro { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.4em; font-size: 0.95em; }
+  .intro strong { color: #806010; }
+
+  .ask-row { background: #fff; border: 2px solid #b8945a; border-radius: 6px; padding: 1em 1.2em; margin-top: 0.6em; }
+  .ask-row textarea { width: 100%; border: 1px solid #c9b48a; border-radius: 4px; padding: 0.6em 0.8em; font-family: inherit; font-size: 1em; min-height: 3.5em; resize: vertical; color: #2a2a28; box-sizing: border-box; }
+  .ask-row .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5em; }
+  .ask-row button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.55em 1.4em; border-radius: 4px; font-family: inherit; font-size: 0.95em; cursor: pointer; }
+  .ask-row button:hover { background: #2a5570; }
+
+  .conversation { margin-top: 1.5em; }
+  .turn { margin-bottom: 1.2em; }
+  .turn.user { text-align: right; }
+  .turn .bubble { display: inline-block; max-width: 88%; padding: 0.7em 1em; border-radius: 6px; text-align: left; }
+  .turn.user .bubble { background: #1a3a52; color: #f4ecd5; }
+  .turn.shepherd .bubble { background: #fff; border: 1px solid #d4c8a5; }
+  .turn.shepherd .who { font-family: 'Courier New', monospace; font-size: 0.78em; letter-spacing: 0.12em; color: #806010; margin-bottom: 0.3em; }
+  .turn.shepherd .who::before { content: '🜲 '; }
+  .turn.shepherd p { margin: 0.4em 0; }
+  .citations { margin-top: 0.7em; padding-top: 0.5em; border-top: 1px dashed #c9b48a; font-size: 0.88em; }
+  .citations .label { font-family: 'Courier New', monospace; font-size: 0.78em; letter-spacing: 0.1em; color: #806010; margin-bottom: 0.3em; }
+  .citation { background: #f3eedb; padding: 0.4em 0.6em; border-radius: 3px; margin: 0.25em 0; }
+  .citation a { color: #1a3a52; text-decoration: none; border-bottom: 1px dashed #c9b48a; }
+  .citation .src { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.1em; margin-right: 0.4em; }
+  .citation .ref { font-style: italic; color: #6a5a3a; font-size: 0.85em; margin-left: 0.4em; }
+
+  .empty { color: #6a5a3a; font-style: italic; padding: 1.5em; text-align: center; }
+  .pre-asked { display: flex; flex-wrap: wrap; gap: 0.4em; margin: 0.7em 0; }
+  .pre-asked button { background: #f3eedb; color: #1a3a52; border: 1px solid #d4c8a5; padding: 0.3em 0.75em; border-radius: 3px; font-family: inherit; font-size: 0.85em; cursor: pointer; }
+  .pre-asked button:hover { background: #1a3a52; color: #f4ecd5; }
+
+  .stats { background: #f3eedb; padding: 0.5em 0.9em; border-radius: 4px; font-size: 0.82em; color: #6a5a3a; font-family: 'Courier New', monospace; margin-top: 1em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/walk.html">Walk</a> · <a href="/canon.html">Codex</a></nav>
+
+<div class="masthead">
+  <div class="eyebrow">A DEDICATED PLACE TO ASK</div>
+  <h1>The Shepherd's Room</h1>
+  <div class="tagline">Ask a question. He answers from the substrate, with citations.</div>
+</div>
+
+<div class="intro">
+  <strong>How this is different from chat.</strong> The Shepherd does not invent answers. Every reply comes <em>only</em> from the substrate this site holds — the Codex, the Almanac, the hymn book, the daily devotionals, the recipe and project catalogs. Each cited source is a link you can click and read in full.
+  <br><br>
+  <strong>Stored on your device.</strong> Your questions don't go to a third-party AI. They're scored against the substrate locally on the engine.
+</div>
+
+<div class="ask-row">
+  <textarea id="askInput" placeholder="What's troubling you? What are you trying to learn? Ask anything — 'how do I bake bread', 'a verse about peace', 'who is the apothecary'…"></textarea>
+  <div class="controls">
+    <div class="pre-asked">
+      <button data-ex="a verse about grace">a verse about grace</button>
+      <button data-ex="how do I bake bread">how do I bake bread</button>
+      <button data-ex="psalm about waiting">psalm about waiting</button>
+      <button data-ex="how to tie a bowline">how to tie a bowline</button>
+    </div>
+    <button id="askBtn">Ask the Shepherd</button>
+  </div>
+</div>
+
+<div id="conversation" class="conversation">
+  <div class="empty">Ask something to begin. The Shepherd will answer from the substrate.</div>
+</div>
+
+<div class="stats" id="stats">Corpus: loading…</div>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script src="/nh-scripture.js"></script>
+<script>
+(function () {
+  const ns = (window.NHHousehold && NHHousehold.namespace) ? NHHousehold.namespace('shepherd_history') : null;
+  const $input = document.getElementById('askInput');
+  const $convo = document.getElementById('conversation');
+  const $stats = document.getElementById('stats');
+
+  // Load corpus stats so the user sees what's indexed
+  fetch('/shepherd/corpus.stats', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j) { $stats.textContent = 'Substrate: engine not reachable (the Shepherd needs the FastAPI engine running).'; return; }
+      const parts = Object.entries(j.by_source || {}).map(function (e) { return e[0] + '=' + e[1]; });
+      $stats.textContent = 'Substrate: ' + j.total + ' indexed documents (' + parts.join(', ') + ').';
+    })
+    .catch(function () { $stats.textContent = 'Substrate: engine offline.'; });
+
+  function loadHistory() {
+    if (!ns) return [];
+    return (ns.get() || { turns: [] }).turns || [];
+  }
+  function saveHistory(turns) {
+    if (!ns) return;
+    ns.set({ turns: turns.slice(-20) }); // cap last 20
+  }
+
+  function render() {
+    const turns = loadHistory();
+    if (turns.length === 0) {
+      $convo.innerHTML = '<div class="empty">Ask something to begin. The Shepherd will answer from the substrate.</div>';
+      return;
+    }
+    $convo.innerHTML = '';
+    turns.forEach(function (t) {
+      const div = document.createElement('div');
+      div.className = 'turn ' + t.who;
+      if (t.who === 'shepherd') {
+        const citsHtml = (t.citations || []).map(function (c) {
+          return '<div class="citation"><span class="src">' + esc(c.source.toUpperCase()) + '</span>' +
+            '<a href="' + esc(c.url) + '">' + esc(c.title) + '</a>' +
+            (c.ref ? '<span class="ref">— ' + esc(c.ref) + '</span>' : '') +
+            (c.snippet ? '<div style="margin-top:0.3em; color:#5a4a30;">' + esc(c.snippet) + '</div>' : '') +
+            '</div>';
+        }).join('');
+        div.innerHTML =
+          '<article class="bubble" data-readable data-voice-label="The Shepherd\'s answer">' +
+          '<div class="who">THE SHEPHERD</div>' +
+          '<p>' + esc(t.summary) + '</p>' +
+          (citsHtml ? '<div class="citations"><div class="label">FROM THE SUBSTRATE</div>' + citsHtml + '</div>' : '') +
+          '</article>';
+      } else {
+        div.innerHTML = '<div class="bubble">' + esc(t.text) + '</div>';
+      }
+      $convo.appendChild(div);
+    });
+    // Re-scan for voice readers + scripture autolink on the new turns
+    if (window.NHVoice && window.NHVoice.scan) window.NHVoice.scan();
+    if (window.NHScripture && window.NHScripture.run) window.NHScripture.run();
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function compose(q, results) {
+    if (!results || results.length === 0) {
+      return "I don't find anything on that in the substrate yet — the family might want to add to it. Try asking differently, or browse the decks directly.";
+    }
+    const top = results[0];
+    if (top.source === 'hymn') {
+      return 'There is a hymn for that. The strongest match is "' + top.title + '" — a hymn the church has sung for generations.';
+    }
+    if (top.source === 'recipe') {
+      return 'There\'s a recipe in our Family Table for that: "' + top.title + '". You can read it in full and cook it tonight.';
+    }
+    if (top.source === 'maker') {
+      return 'There\'s a maker project for that: "' + top.title + '". Click through for the materials and steps.';
+    }
+    if (top.source === 'devotional') {
+      return 'A devotional from the substrate touches on this: "' + top.title + '". Open it for the reflection.';
+    }
+    if (top.source === 'almanac') {
+      return 'The Almanac has an entry on this: ' + top.title + '. The verdict and sources are below.';
+    }
+    if (top.source === 'curriculum') {
+      return 'This is something the homeschool curriculum can help with — open the deck for the lessons.';
+    }
+    return 'Here is what the substrate has on that.';
+  }
+
+  function ask(text) {
+    text = (text || '').trim();
+    if (!text) return;
+    const turns = loadHistory();
+    turns.push({ who: 'user', text: text, at: new Date().toISOString() });
+    saveHistory(turns);
+    render();
+    $input.value = '';
+    fetch('/shepherd/context?q=' + encodeURIComponent(text) + '&k=5', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        const results = (j && j.results) || [];
+        const summary = compose(text, results);
+        const newTurns = loadHistory();
+        newTurns.push({ who: 'shepherd', summary: summary, citations: results, at: new Date().toISOString() });
+        saveHistory(newTurns);
+        render();
+      })
+      .catch(function () {
+        const newTurns = loadHistory();
+        newTurns.push({ who: 'shepherd', summary: "The engine isn't reachable right now. Try again, or browse the decks directly.", citations: [], at: new Date().toISOString() });
+        saveHistory(newTurns);
+        render();
+      });
+  }
+
+  function esc(s) { return String(s || '').replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+
+  document.getElementById('askBtn').addEventListener('click', function () { ask($input.value); });
+  $input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ask($input.value); }
+  });
+  document.querySelectorAll('.pre-asked button').forEach(function (b) {
+    b.addEventListener('click', function () { ask(b.dataset.ex); });
+  });
+
+  render();
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

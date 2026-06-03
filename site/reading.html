@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Plans — Narrow Highway</title>
+<meta name="description" content="Daily Bible and classics reading plans tracked per household. Stored on your device, private to your family. Streaks, progress, who's read today.">
+  <link rel="canonical" href="https://narrowhighway.com/reading.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Reading Plans — Narrow Highway">
+  <meta property="og:description" content="Daily Bible and classics reading plans tracked per household. Stored on your device, private to your family. Streaks, progress, who's read today.">
+  <meta property="og:url" content="https://narrowhighway.com/reading.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Reading Plans — Narrow Highway">
+  <meta name="twitter:description" content="Daily Bible and classics reading plans tracked per household. Stored on your device, private to your family. Streaks, progress, who's read today.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .plan-card { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 0.9em; }
+  .plan-card.active { border-left: 5px solid #1f5b1f; }
+  .plan-card h3 { margin: 0 0 0.3em; color: #1a3a52; font-size: 1.15em; }
+  .plan-card .blurb { font-size: 0.92em; color: #6a5a3a; margin-bottom: 0.5em; }
+  .plan-meta { font-family: 'Courier New', monospace; font-size: 0.82em; color: #6a5a3a; letter-spacing: 0.04em; margin-bottom: 0.4em; }
+  .today-row { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em 1em; margin: 0.5em 0; }
+  .today-row strong { color: #806010; }
+  .day-of-plan { font-size: 1.05em; color: #1a3a52; font-weight: bold; margin-bottom: 0.3em; }
+  .reading-list { margin: 0.3em 0 0.6em 0; padding: 0; list-style: none; }
+  .reading-list li { padding: 0.2em 0; }
+  .reading-list a { color: #1a3a52; text-decoration: none; border-bottom: 1px dashed #c9b48a; }
+  .reading-list a:hover { border-bottom-style: solid; }
+  .members-check { display: flex; flex-wrap: wrap; gap: 0.6em; margin: 0.4em 0; }
+  .member-chip { background: #f3eedb; border: 1px solid #c9b48a; padding: 0.3em 0.7em; border-radius: 16px; font-size: 0.88em; cursor: pointer; transition: background 0.15s; }
+  .member-chip.checked { background: #1f5b1f; color: #fff; border-color: #1f5b1f; }
+  .member-chip:hover { background: #e5dcb9; }
+  .member-chip.checked:hover { background: #2a7a2a; }
+  .streak { font-size: 0.95em; color: #1a3a52; }
+  .streak strong { color: #806010; }
+  button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.5em 1.2em; border-radius: 4px; font-family: inherit; font-size: 0.92em; cursor: pointer; }
+  button:hover { background: #2a5570; }
+  button.secondary { background: #c9b48a; color: #1a3a52; }
+  .no-household { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a></nav>
+
+<h1>Reading plans</h1>
+
+<div class="intro">
+  <p>Daily Bible and classic-Christian reading plans tracked across your family. Mark today's reading once each member finishes; streaks build automatically. <strong>Stored on this device only.</strong></p>
+</div>
+
+<div id="needHousehold" class="no-household" style="display:none;">
+  <strong>Set up your household first.</strong> Reading plans track per family member. <a href="/household.html"><strong>Create your household →</strong></a>
+</div>
+
+<div id="mainSection">
+
+<h2>Active plans</h2>
+<div id="activePlans"></div>
+
+<h2>Choose a plan</h2>
+<div id="planCatalog"></div>
+
+</div><!-- /mainSection -->
+
+<script src="/nh-household.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('reading_plans');
+
+  // ===== Bible book table — chapter counts (used by programmatic plans) =====
+  const OT_BOOKS = [
+    ['Genesis',50],['Exodus',40],['Leviticus',27],['Numbers',36],['Deuteronomy',34],
+    ['Joshua',24],['Judges',21],['Ruth',4],['1 Samuel',31],['2 Samuel',24],
+    ['1 Kings',22],['2 Kings',25],['1 Chronicles',29],['2 Chronicles',36],
+    ['Ezra',10],['Nehemiah',13],['Esther',10],['Job',42],['Psalms',150],
+    ['Proverbs',31],['Ecclesiastes',12],['Song of Solomon',8],
+    ['Isaiah',66],['Jeremiah',52],['Lamentations',5],['Ezekiel',48],['Daniel',12],
+    ['Hosea',14],['Joel',3],['Amos',9],['Obadiah',1],['Jonah',4],['Micah',7],
+    ['Nahum',3],['Habakkuk',3],['Zephaniah',3],['Haggai',2],['Zechariah',14],['Malachi',4],
+  ];
+  const NT_BOOKS = [
+    ['Matthew',28],['Mark',16],['Luke',24],['John',21],['Acts',28],
+    ['Romans',16],['1 Corinthians',16],['2 Corinthians',13],['Galatians',6],
+    ['Ephesians',6],['Philippians',4],['Colossians',4],['1 Thessalonians',5],['2 Thessalonians',3],
+    ['1 Timothy',6],['2 Timothy',4],['Titus',3],['Philemon',1],['Hebrews',13],
+    ['James',5],['1 Peter',5],['2 Peter',3],['1 John',5],['2 John',1],['3 John',1],['Jude',1],['Revelation',22],
+  ];
+  // Pre-expand to a flat (book, chapter) list, in canonical order
+  function flattenChapters(books) {
+    const out = [];
+    books.forEach(function (b) { for (let i = 1; i <= b[1]; i++) out.push(b[0] + ' ' + i); });
+    return out;
+  }
+  const OT_ALL = flattenChapters(OT_BOOKS);     // 929 chapters
+  const NT_ALL = flattenChapters(NT_BOOKS);     // 260 chapters
+  const ALL_CH = OT_ALL.concat(NT_ALL);         // 1189 total
+
+  // ===== Plan catalog =====
+  const PLANS = {
+    oneyear: {
+      name: "One Year Bible",
+      days: 365,
+      blurb: "Whole Bible in a year. Each day: one OT passage (about 2½ chapters) + one NT chapter + a psalm + a proverb. Steady, doable, complete.",
+      kind: 'Bible',
+      lookup: function (d) {
+        // OT: 929 chapters / 365 days ≈ 2.55. Take 3 chapters days 1-204; 2 chapters days 205-365.
+        const otStart = (d < 204) ? (d * 3) : (204 * 3 + (d - 204) * 2);
+        const otEnd   = Math.min(OT_ALL.length - 1, otStart + (d < 204 ? 2 : 1));
+        const otRange = (otStart === otEnd)
+          ? OT_ALL[otStart]
+          : (OT_ALL[otStart] + ' – ' + OT_ALL[otEnd]);
+        // NT: 260 chapters / 365 days. Read 1 chapter most days, skip on Sundays (reflection days).
+        const ntCh = NT_ALL[d % NT_ALL.length];
+        return [
+          { title: otRange },
+          { title: ntCh },
+          { title: 'Psalm ' + ((d % 150) + 1) },
+          { title: 'Proverbs ' + ((d % 31) + 1) },
+        ];
+      },
+    },
+    chronological: {
+      name: 'Chronological Bible (1 year)',
+      days: 365,
+      blurb: 'Read the Bible in the order events happened. Genesis → Job → Exodus → … → Revelation. ~3 chapters per day.',
+      kind: 'Bible',
+      lookup: function (d) {
+        // Approximate chronological order (Job slotted after Genesis, prophets interleaved with Kings)
+        const CHRON = [
+          'Genesis 1-11', 'Job 1-3', 'Job 4-7', 'Job 8-11', 'Job 12-15',
+          'Job 16-19', 'Job 20-23', 'Job 24-28', 'Job 29-31', 'Job 32-37',
+          'Job 38-42', 'Genesis 12-25', 'Genesis 26-36', 'Genesis 37-50',
+          'Exodus 1-15', 'Exodus 16-40', 'Leviticus 1-27', 'Numbers 1-21',
+          'Numbers 22-36', 'Deuteronomy 1-34', 'Joshua 1-24', 'Judges 1-21',
+          'Ruth 1-4', '1 Samuel 1-31', '2 Samuel 1-24',
+          'Psalms 1-25', 'Psalms 26-50', 'Psalms 51-75', 'Psalms 76-100',
+          'Psalms 101-125', 'Psalms 126-150',
+          '1 Kings 1-22', '2 Kings 1-25', 'Isaiah 1-39', 'Isaiah 40-66',
+          'Jeremiah 1-52', 'Lamentations 1-5', 'Ezekiel 1-48', 'Daniel 1-12',
+          'Hosea-Malachi', '1 Chronicles 1-29', '2 Chronicles 1-36',
+          'Ezra 1-10', 'Nehemiah 1-13', 'Esther 1-10',
+          'Matthew 1-14', 'Matthew 15-28', 'Mark 1-16', 'Luke 1-12',
+          'Luke 13-24', 'John 1-11', 'John 12-21', 'Acts 1-14', 'Acts 15-28',
+          'Romans 1-16', '1 Cor 1-16', '2 Cor 1-13', 'Galatians 1-6',
+          'Ephesians 1-6', 'Phil-Colossians', '1-2 Thessalonians',
+          '1-2 Timothy, Titus, Philemon', 'Hebrews 1-13', 'James, 1-2 Peter',
+          '1-3 John, Jude', 'Revelation 1-11', 'Revelation 12-22',
+        ];
+        return [{ title: 'Day ' + (d + 1) + ' / 365 — ' + CHRON[d % CHRON.length] }];
+      },
+    },
+    '90day': {
+      name: 'Bible in 90 days',
+      days: 90,
+      blurb: 'Whole Bible in 90 days. ~13 chapters per day. Intense but transformative.',
+      kind: 'Bible',
+      lookup: function (d) {
+        const perDay = Math.ceil(ALL_CH.length / 90);  // ~14 chapters
+        const start = d * perDay;
+        const end = Math.min(ALL_CH.length - 1, start + perDay - 1);
+        return [{ title: 'Day ' + (d + 1) + ' / 90 — ' + ALL_CH[start] + ' through ' + ALL_CH[end] }];
+      },
+    },
+    gospels_30day: {
+      name: 'The Four Gospels in 30 days',
+      days: 30,
+      blurb: 'Matthew, Mark, Luke, John in one month. ~3 chapters per day. Read Jesus four times.',
+      kind: 'Bible',
+      lookup: function (d) {
+        const gospels = NT_ALL.slice(0, 28+16+24+21);   // first 89 NT chapters
+        const perDay = 3;
+        const start = (d * perDay) % gospels.length;
+        const end = Math.min(gospels.length - 1, start + perDay - 1);
+        return [{ title: gospels[start] + ' – ' + gospels[end] }];
+      },
+    },
+    new_testament_90: {
+      name: 'New Testament in 90 days',
+      days: 90,
+      blurb: '~3 chapters of New Testament per day. Read the entire NT in 3 months at a quiet pace.',
+      kind: 'Bible',
+      lookup: function (d) {
+        const perDay = 3;
+        const start = (d * perDay) % NT_ALL.length;
+        const end = Math.min(NT_ALL.length - 1, start + perDay - 1);
+        return [{ title: NT_ALL[start] + ' – ' + NT_ALL[end] }];
+      },
+    },
+    psalms_proverbs: {
+      name: 'Psalms + Proverbs (monthly)',
+      days: 31,
+      blurb: 'Five psalms and one chapter of Proverbs per day. Restarts each month.',
+      kind: 'Bible',
+      lookup: function (d) {
+        const day = (d % 31) + 1;
+        const psalms = [day, day + 30, day + 60, day + 90, day + 120].filter(function (n) { return n <= 150; });
+        return [
+          { title: 'Psalms ' + psalms.join(', ') },
+          { title: 'Proverbs ' + day },
+        ];
+      },
+    },
+    codex_pilgrim: {
+      name: "Pilgrim's Progress (40 days)",
+      days: 40,
+      blurb: "John Bunyan's allegorical journey. About 6 pages a day for 40 days.",
+      kind: 'Classics',
+      lookup: function (d) {
+        return [{ title: "Pilgrim's Progress — Day " + (d + 1) + " / 40", href: '/canon.html?text=pilgrims-progress' }];
+      },
+    },
+    codex_imitation: {
+      name: 'The Imitation of Christ (90 days)',
+      days: 90,
+      blurb: "Thomas à Kempis, c.1418. One short chapter per day for 90 days.",
+      kind: 'Classics',
+      lookup: function (d) {
+        return [{ title: 'Imitation of Christ — Chapter ' + (d + 1) }];
+      },
+    },
+  };
+
+  const $active   = document.getElementById('activePlans');
+  const $catalog  = document.getElementById('planCatalog');
+  const $needHh   = document.getElementById('needHousehold');
+  const $main     = document.getElementById('mainSection');
+
+  function load() { return ns.get() || { plans: {} }; }
+  function save(state) { ns.set(state); }
+  function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+  function refreshHouseholdGate() {
+    const hh = NHHousehold.get();
+    const ready = hh && hh.members && hh.members.length > 0;
+    $needHh.style.display = ready ? 'none' : 'block';
+    $main.style.display = ready ? 'block' : 'none';
+    if (ready) render();
+  }
+
+  function streakOf(planState) {
+    // count consecutive days ending today with at least one member checked off
+    let s = 0;
+    const days = (planState.completed || []).slice().sort();
+    const today = new Date(todayKey() + 'T00:00:00Z');
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today.getTime() - i * 86400000).toISOString().slice(0, 10);
+      const rec = (planState.daily || {})[d];
+      if (rec && Object.values(rec).some(Boolean)) s++;
+      else if (i > 0) break;
+      else break; // if today not done, streak is 0 (or 1 if continuing from yesterday — kept simple here)
+    }
+    return s;
+  }
+
+  function dayIndexOf(planState) {
+    const start = planState.started_at ? new Date(planState.started_at + 'T00:00:00Z') : new Date(todayKey() + 'T00:00:00Z');
+    const today = new Date(todayKey() + 'T00:00:00Z');
+    const days = Math.floor((today.getTime() - start.getTime()) / 86400000);
+    return Math.max(0, days);
+  }
+
+  function renderActive() {
+    const state = load();
+    const planIds = Object.keys(state.plans || {});
+    if (planIds.length === 0) {
+      $active.innerHTML = '<div style="color: #6a5a3a; font-style: italic; padding: 0.6em 0.2em;">No active plans yet. Start one from the catalog below.</div>';
+      return;
+    }
+    $active.innerHTML = '';
+    const hh = NHHousehold.get();
+    const members = (hh && hh.members) || [];
+    planIds.forEach(function (pid) {
+      const plan = PLANS[pid];
+      if (!plan) return;
+      const ps = state.plans[pid];
+      const d = dayIndexOf(ps);
+      const wrapped = d % plan.days;
+      const readings = plan.lookup(wrapped);
+      const today = todayKey();
+      ps.daily = ps.daily || {};
+      ps.daily[today] = ps.daily[today] || {};
+
+      const div = document.createElement('div');
+      div.className = 'plan-card active';
+      const readingHtml = readings.map(function (r) {
+        return r.href
+          ? '<li><a href="' + r.href + '">' + r.title + '</a></li>'
+          : '<li>' + r.title + '</li>';
+      }).join('');
+      const memberChips = members.map(function (m) {
+        const checked = !!ps.daily[today][m.name];
+        return '<button class="member-chip ' + (checked ? 'checked' : '') + '" data-member="' + encodeURIComponent(m.name) + '">' +
+          (checked ? '✓ ' : '') + (m.name || '') + '</button>';
+      }).join('');
+      div.innerHTML =
+        '<div class="plan-meta">' + plan.kind.toUpperCase() + ' · ' + plan.name + '</div>' +
+        '<div class="day-of-plan">Day ' + (wrapped + 1) + ' / ' + plan.days + '</div>' +
+        '<ul class="reading-list">' + readingHtml + '</ul>' +
+        '<div style="font-size: 0.88em; color: #6a5a3a; margin-top: 0.2em;">Who has read today:</div>' +
+        '<div class="members-check">' + memberChips + '</div>' +
+        '<div class="streak">Household streak: <strong>' + streakOf(ps) + ' days</strong> &nbsp; · &nbsp; ' +
+        '<button class="secondary" data-stop="' + pid + '" style="font-size: 0.85em; padding: 0.3em 0.7em;">Pause this plan</button></div>';
+      $active.appendChild(div);
+
+      div.querySelectorAll('button[data-member]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          const m = decodeURIComponent(b.dataset.member);
+          const cur = load();
+          cur.plans[pid].daily[today] = cur.plans[pid].daily[today] || {};
+          cur.plans[pid].daily[today][m] = !cur.plans[pid].daily[today][m];
+          save(cur);
+          renderActive();
+        });
+      });
+      div.querySelector('button[data-stop]').addEventListener('click', function () {
+        if (!confirm('Pause "' + plan.name + '"? Your progress stays on disk; you can resume anytime.')) return;
+        const cur = load();
+        delete cur.plans[pid];
+        save(cur);
+        renderActive(); renderCatalog();
+      });
+    });
+  }
+
+  function renderCatalog() {
+    const state = load();
+    $catalog.innerHTML = '';
+    Object.keys(PLANS).forEach(function (pid) {
+      const plan = PLANS[pid];
+      const active = !!(state.plans && state.plans[pid]);
+      const div = document.createElement('div');
+      div.className = 'plan-card';
+      div.innerHTML =
+        '<div class="plan-meta">' + plan.kind.toUpperCase() + ' · ' + plan.days + ' days</div>' +
+        '<h3>' + plan.name + '</h3>' +
+        '<div class="blurb">' + plan.blurb + '</div>' +
+        (active
+          ? '<button class="secondary" disabled>Already active</button>'
+          : '<button data-start="' + pid + '">Start this plan</button>');
+      $catalog.appendChild(div);
+      const startBtn = div.querySelector('button[data-start]');
+      if (startBtn) {
+        startBtn.addEventListener('click', function () {
+          const cur = load();
+          cur.plans = cur.plans || {};
+          cur.plans[pid] = { started_at: todayKey(), daily: {} };
+          save(cur);
+          renderActive(); renderCatalog();
+          window.scrollTo(0, 0);
+        });
+      }
+    });
+  }
+
+  function render() { renderActive(); renderCatalog(); }
+  NHHousehold.subscribe(refreshHouseholdGate);
+  refreshHouseholdGate();
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

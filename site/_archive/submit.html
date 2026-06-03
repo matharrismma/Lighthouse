@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.submit.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Submit · Concordance Engine</title>
+  <meta name="description" content="Throw any information at the engine — a claim, a saying, a URL, a paragraph, a folk rule, a question. It lands in intake. The keeping decides what survives.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Submit · Concordance Engine">
+  <meta property="og:description" content="Throw any information at the engine. It lands in intake. The keeping decides what survives.">
+  <meta property="og:url" content="https://narrowhighway.com/submit.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <meta property="og:site_name" content="Concordance Engine">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://narrowhighway.com/submit.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Submit · Concordance Engine","description":"Throw any information at the engine — a claim, a saying, a URL, a paragraph. It lands in intake. The keeping decides what survives. No login, no email required.","url":"https://narrowhighway.com/submit.html","applicationCategory":"DataIntake","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+
+  <style>
+    main.container.wide { max-width: 720px; }
+    .submit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 24px;
+      margin: 14px 0 28px;
+    }
+    .field-row { margin-bottom: 14px; }
+    .field-row label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .field-row label .opt { color: var(--muted-2); text-transform: lowercase; letter-spacing: 0.05em; font-weight: 400; }
+    input[type="text"], input[type="url"], textarea#text {
+      width: 100%;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, input[type="url"]:focus, textarea#text:focus {
+      border-color: var(--accent);
+    }
+    textarea#text {
+      min-height: 160px;
+      resize: vertical;
+      font-family: 'Inter', sans-serif;
+    }
+    .footer-row {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      margin-top: 18px;
+    }
+    .footer-row .hint {
+      font-size: 12.5px; color: var(--muted-2);
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      max-width: 38ch;
+    }
+    button.submit-btn {
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 22px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button.submit-btn:hover:not(:disabled) { background: #f0b952; }
+    button.submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .feedback {
+      margin-top: 14px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .feedback.ok {
+      background: rgba(94, 196, 180, 0.08);
+      border: 1px solid rgba(94, 196, 180, 0.35);
+      color: #b8eccd;
+    }
+    .feedback.err {
+      background: rgba(224, 124, 124, 0.08);
+      border: 1px solid rgba(224, 124, 124, 0.35);
+      color: #f7b9b3;
+    }
+    .feedback .qid {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .preface {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 0 22px;
+    }
+    .preface em { color: var(--accent); font-style: italic; }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+            <a href="/daily.html" class="keep-on-mobile" data-i18n="nav.today">Today</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" class="keep-on-mobile" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/scribe.html" class="keep-on-mobile" data-i18n="nav.scribe">Scribe</a>
+            <a href="/bibles.html" data-i18n="nav.bibles">Bibles</a>
+            <a href="/almanac.html" class="keep-on-mobile" data-i18n="nav.almanac">Almanac</a>
+            <a href="/library.html" data-i18n="nav.library">Library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Throw anything</div>
+    <h1 data-i18n="page.submit.h1">Submit to the engine.</h1>
+    <p class="preface">
+      A claim. A saying. A URL. A folk rule. A question. A paragraph you wrote.
+      Anything you think might be worth working through. It lands in intake
+      while the engine decomposes it into atomic claims, runs the verifiers,
+      and projects a path. Anything with an issue gets flushed to quarantine
+      and cleaned out. <em>The keeping decides what survives. No login,
+      no email required.</em>
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom: 80px;">
+
+  <section class="submit-card">
+    <form id="submitForm">
+
+      <div class="field-row">
+        <label for="title">Title <span class="opt">(optional)</span></label>
+        <input type="text" id="title" maxlength="200" placeholder="A short name for what you're submitting" autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <label for="text">What you're submitting</label>
+        <textarea id="text" required maxlength="10000" placeholder="A claim, saying, paragraph, or paste of text. Anything worth working through. The engine will decompose it."></textarea>
+      </div>
+
+      <div class="field-row">
+        <label for="url">Source URL <span class="opt">(optional, if you have one)</span></label>
+        <input type="url" id="url" maxlength="400" placeholder="https://..." autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <label for="handle">Your handle <span class="opt">(optional — your contributor handle, if any)</span></label>
+        <input type="text" id="handle" maxlength="32" pattern="^[a-z][a-z0-9_-]{2,31}$" placeholder="foxfire_kid" autocomplete="off">
+      </div>
+
+      <div class="footer-row">
+        <div class="hint">
+          What you send lands in intake. The keeping decides what survives.
+        </div>
+        <button class="submit-btn" id="submitBtn" type="submit">Send to intake</button>
+      </div>
+
+      <div id="feedback"></div>
+    </form>
+  </section>
+
+  <p style="font-size:13px;color:var(--muted-2);max-width:60ch;line-height:1.6;">
+    The engine processes intake on its own clock. Successful decompositions
+    surface as draft Almanac entries the operator reviews and accepts.
+    Anything with an issue gets flushed to quarantine and cleaned out —
+    quarantine is the trash, not a holding pen.
+  </p>
+
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+$('submitForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = ($('text').value || '').trim();
+  if (!text) { $('text').focus(); return; }
+
+  const btn = $('submitBtn');
+  const fb = $('feedback');
+  btn.disabled = true;
+  fb.innerHTML = '<div class="feedback ok">Sending…</div>';
+
+  try {
+    const r = await fetch('/intake', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        title: $('title').value,
+        text: text,
+        url: $('url').value,
+        contributor_handle: $('handle').value,
+      }),
+    });
+    if (!r.ok) {
+      let detail = 'engine returned ' + r.status;
+      try { const d = await r.json(); detail = d.detail || detail; } catch (_) {}
+      throw new Error(detail);
+    }
+    const d = await r.json();
+    fb.innerHTML = `<div class="feedback ok">
+      ${d.message || 'Kept. The engine will see what survives.'}
+      <div class="qid">id: ${d.id}</div>
+    </div>`;
+    // Clear the form
+    $('title').value = '';
+    $('text').value = '';
+    $('url').value = '';
+  } catch (e) {
+    fb.innerHTML = `<div class="feedback err">Could not send: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

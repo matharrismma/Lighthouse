@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.apokalypsis.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apokalypsis · The Revelation as John lived it · M.R. Harris</title>
+  <meta name="description" content="Apokalypsis — the Greek title of the Book of Revelation, meaning unveiling. A serial by M.R. Harris. The Revelation as the apostle John lived it on Patmos: the fishing, the missing of Peter, the prefect's sentence, the long silence before the voice. Audio on Spotify. Full text here.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="book">
+  <meta property="og:title" content="Apokalypsis · The Revelation as John lived it">
+  <meta property="og:description" content="A serial by M.R. Harris. The Revelation as the apostle John lived it on Patmos. Audio on Spotify. Full text here.">
+  <meta property="og:url" content="https://narrowhighway.com/apokalypsis.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/apokalypsis.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    main.apk-wrap {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 24px 22px 80px;
+    }
+    .apk-hero {
+      text-align: center;
+      margin: 8px 0 28px;
+    }
+    .apk-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .apk-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(38px, 6vw, 56px);
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 6px;
+      line-height: 1.05;
+    }
+    .apk-byline {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      color: var(--accent-hi);
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+    .apk-tagline {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      max-width: 60ch;
+      margin: 0 auto 22px;
+    }
+
+    .apk-blurb {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 auto 28px;
+      padding: 18px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+    }
+    .apk-blurb em { color: var(--accent); font-style: italic; }
+
+    /* Spotify embed */
+    .apk-player {
+      max-width: 720px;
+      margin: 0 auto 32px;
+    }
+    .apk-player iframe {
+      border-radius: 12px;
+      width: 100%;
+      min-height: 352px;
+      border: 0;
+    }
+    .apk-player-meta {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .apk-player-meta a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed var(--accent);
+      padding-bottom: 1px;
+    }
+    .apk-player-meta a:hover { color: var(--accent-hi); }
+
+    /* Episode list */
+    .apk-toc-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      margin: 8px 0 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .apk-toc-head h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .apk-toc-head .sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+    .apk-eps { display: flex; flex-direction: column; gap: 10px; }
+    .apk-ep {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .apk-ep:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .apk-ep-head {
+      display: flex; gap: 14px; align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .apk-ep-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      min-width: 50px;
+    }
+    .apk-ep-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .apk-ep-words {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted-2);
+      letter-spacing: 0.04em;
+    }
+    .apk-ep-script {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .apk-ep.open .apk-ep-script {
+      display: block;
+    }
+    .apk-ep .read-aloud {
+      margin-top: 12px;
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+    .apk-ep .read-aloud:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<main class="apk-wrap">
+
+  <div class="apk-hero">
+    <div class="apk-eyebrow">A serial by M.R. Harris</div>
+    <h1 class="apk-title" data-i18n="page.apokalypsis.h1">Apokalypsis.</h1>
+    <div class="apk-byline">The Revelation as John lived it</div>
+    <p class="apk-tagline">
+      An old man on a volcanic rock at the edge of the empire.<br>
+      He hears something behind him. The unveiling begins.
+    </p>
+  </div>
+
+  <div class="apk-blurb">
+    <em>Apokalypsis</em> is the Greek title of the Book of Revelation. It means <em>unveiling</em>.
+    This serial is the Revelation as the apostle John lived it on the island of Patmos —
+    the fishing, the missing of Peter, the prefect Marcus Loreius Nerva, the long silence before the voice,
+    the writing down of what he saw because writing makes a shape out of what has no shape.
+    The audio is on Spotify. The script is here.
+  </div>
+
+  <!-- Spotify show embed — the full series in one player -->
+  <div class="apk-player">
+    <iframe
+      data-testid="embed-iframe"
+      src="https://open.spotify.com/embed/show/0zWxTwkyiBEUjNmQwEG63Z?utm_source=narrowhighway"
+      width="100%"
+      height="352"
+      frameborder="0"
+      allowfullscreen
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy"
+      title="Apokalypsis on Spotify"></iframe>
+    <div class="apk-player-meta">
+      <span>🎧 audio on Spotify</span>
+      <a href="https://open.spotify.com/show/0zWxTwkyiBEUjNmQwEG63Z" target="_blank" rel="noopener">Open in Spotify →</a>
+      <a href="/hearth.html?room=bible" target="_blank">Discuss in the Hearth →</a>
+    </div>
+  </div>
+
+  <div class="apk-toc-head">
+    <h2>The episodes · read along</h2>
+    <span class="sub" id="apk-count">— episodes</span>
+  </div>
+  <div class="apk-eps" id="apk-eps">
+    <div style="padding:40px;text-align:center;color:var(--muted);font-style:italic;">Loading the unveiling…</div>
+  </div>
+
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  async function load() {
+    const root = document.getElementById('apk-eps');
+    try {
+      const r = await fetch('/serial/apokalypsis/episodes?limit=100');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const eps = d.episodes || [];
+      document.getElementById('apk-count').textContent = `${eps.length} episodes`;
+      if (!eps.length) {
+        root.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-style:italic;">No episodes yet.</div>';
+        return;
+      }
+      root.innerHTML = eps.map(ep => `
+        <div class="apk-ep" data-ep="${ep.ep_num}">
+          <div class="apk-ep-head">
+            <span class="apk-ep-num">EP ${String(ep.ep_num).padStart(3, '0')}</span>
+            <span class="apk-ep-title">${esc(ep.title || 'Untitled')}</span>
+            <span class="apk-ep-words">${ep.summary ? esc(ep.summary.slice(0, 80)) : ''}</span>
+          </div>
+          <div class="apk-ep-script" id="apk-script-${ep.ep_num}">Loading…</div>
+        </div>
+      `).join('');
+
+      root.querySelectorAll('.apk-ep').forEach(el => {
+        el.addEventListener('click', async (e) => {
+          if (e.target.classList.contains('read-aloud')) return;
+          const epNum = el.dataset.ep;
+          const scriptDiv = document.getElementById('apk-script-' + epNum);
+          if (el.classList.contains('open')) {
+            el.classList.remove('open');
+            return;
+          }
+          el.classList.add('open');
+          if (scriptDiv.dataset.loaded) return;
+          try {
+            const r = await fetch('/serial/apokalypsis/episode/' + epNum);
+            if (!r.ok) throw new Error('http ' + r.status);
+            const epData = await r.json();
+            const script = epData.script || '(script unavailable)';
+            scriptDiv.innerHTML = `
+              <button class="read-aloud" type="button" data-speak="#script-text-${epNum}">🔊 read aloud</button>
+              <div id="script-text-${epNum}" style="margin-top:14px;">${esc(script)}</div>
+            `;
+            scriptDiv.dataset.loaded = '1';
+            // Re-wire data-speak buttons since audio.js wired earlier
+            if (window._audio) {
+              // Manually wire — audio.js wires on load only
+              const btn = scriptDiv.querySelector('.read-aloud');
+              btn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const target = document.getElementById('script-text-' + epNum);
+                if (target && window._audio) window._audio.speak(target.textContent);
+              });
+            }
+          } catch (err) {
+            scriptDiv.textContent = 'Could not load: ' + err.message;
+          }
+        });
+      });
+    } catch (err) {
+      root.innerHTML = `<div style="padding:30px;color:var(--muted);font-style:italic;">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

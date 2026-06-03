@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.daily.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Journal · Narrow Highway</title>
+  <meta name="description" content="The three-pillar daily anchor. One Mind practice, one Body layer, one Spirit (Floor of Discovery) section. Plus today's parable, protocol, almanac wisdom, devotional reflection, and sermon — deterministic per day, soul + mind + body together.">
+  <script src="/nh-nav.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Today's devotion · Mind, Body, Spirit">
+  <meta property="og:description" content="Three pillars, deterministic per day. Mind + Body + Spirit. Plus parable, protocol, devotional, sermon — same anchor on reload.">
+  <meta property="og:url" content="https://narrowhighway.com/daily.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/daily.html">
+
+  <style>
+    .dy-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .dy-intro em { color: var(--accent); font-style: italic; }
+    .dy-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .dy-date-row {
+      display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+      margin: 0 0 22px;
+    }
+    .dy-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 5px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(217,168,114,0.4);
+      background: rgba(217,168,114,0.07);
+    }
+    .dy-weekday {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 17px;
+      color: var(--text-dim);
+    }
+    .dy-axes {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .dy-axis-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 11px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      letter-spacing: 0.06em;
+    }
+    .dy-day-nav {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .dy-day-nav a {
+      color: var(--accent);
+      padding: 3px 10px;
+      border: 1px solid var(--border-hi);
+      border-radius: 12px;
+      text-decoration: none;
+    }
+    .dy-day-nav a:hover { background: var(--surface); border-color: var(--accent); }
+
+    /* Three pillars */
+    .dy-pillars {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+    @media (min-width: 1080px) {
+      .dy-pillars { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .dy-pillar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 24px;
+      display: flex; flex-direction: column;
+    }
+    .dy-pillar.mind   { border-left: 4px solid #b88ed6; }
+    .dy-pillar.body   { border-left: 4px solid var(--pass); }
+    .dy-pillar.spirit { border-left: 4px solid var(--accent); }
+
+    .dy-pillar-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .dy-pillar.mind   .dy-pillar-label { color: #b88ed6; }
+    .dy-pillar.body   .dy-pillar-label { color: var(--pass); }
+    .dy-pillar.spirit .dy-pillar-label { color: var(--accent); }
+
+    .dy-pillar h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 4px;
+      line-height: 1.25;
+    }
+    .dy-pillar .dy-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .dy-pillar .dy-body-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .dy-pillar .dy-scripture {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.18);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+    }
+    .dy-pillar.body   .dy-scripture { border-left-color: var(--pass); }
+    .dy-pillar.mind   .dy-scripture { border-left-color: #b88ed6; }
+    .dy-pillar .dy-scripture-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .dy-pillar .dy-scripture-refs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .dy-pillar.body .dy-scripture-refs { color: var(--pass); }
+    .dy-pillar.mind .dy-scripture-refs { color: #b88ed6; }
+    .dy-pillar .dy-scripture-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      margin-top: 5px;
+      line-height: 1.55;
+    }
+    .dy-pillar .dy-failures {
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .dy-pillar .dy-failures b {
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 9.5px;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .dy-pillar .dy-failures ul { margin: 0; padding-left: 16px; }
+    .dy-pillar .dy-check, .dy-pillar .dy-practice {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .dy-pillar .dy-check {
+      background: rgba(111,196,124,0.06);
+      border: 1px dashed rgba(111,196,124,0.3);
+    }
+    .dy-pillar .dy-practice {
+      background: rgba(184,142,214,0.06);
+      border: 1px dashed rgba(184,142,214,0.3);
+    }
+    .dy-pillar .dy-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+      display: block;
+    }
+    .dy-pillar.body .dy-label { color: var(--pass); }
+    .dy-pillar.mind .dy-label { color: #b88ed6; }
+    .dy-pillar .dy-closing {
+      margin-top: auto;
+      padding-top: 12px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14.5px;
+      text-align: center;
+    }
+    .dy-pillar.mind   .dy-closing { color: #b88ed6; }
+    .dy-pillar.spirit .dy-closing { color: var(--accent); }
+    .dy-pillar .dy-license {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    /* Sub-cards */
+    .dy-sub {
+      display: flex; flex-direction: column; gap: 14px;
+      margin-bottom: 30px;
+    }
+    .dy-subcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 22px;
+    }
+    .dy-subcard.parable    { border-left: 3px solid var(--accent); }
+    .dy-subcard.protocol   { border-left: 3px solid #7fa8c0; }
+    .dy-subcard.almanac    { border-left: 3px solid #c4a030; }
+    .dy-subcard.devotional { border-left: 3px solid #6fc47c; }
+    .dy-subcard.sermon     { border-left: 3px solid #e3c498; }
+
+    .dy-subcard-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .dy-subcard-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .dy-subcard.parable    .dy-subcard-kind { color: var(--accent); }
+    .dy-subcard.protocol   .dy-subcard-kind { color: #7fa8c0; }
+    .dy-subcard.almanac    .dy-subcard-kind { color: #c4a030; }
+    .dy-subcard.devotional .dy-subcard-kind { color: #6fc47c; }
+    .dy-subcard.sermon     .dy-subcard-kind { color: #e3c498; }
+    .dy-subcard h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+      flex: 1;
+    }
+    .dy-subcard .dy-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .dy-parable-text, .dy-devotional-body, .dy-sermon-preview {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+    .dy-parable-question {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 15.5px;
+      color: var(--accent-hi);
+      padding: 10px 14px;
+      border-left: 2px solid var(--accent);
+      background: rgba(201, 168, 124, 0.04);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 10px;
+    }
+    .dy-meta-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      line-height: 1.6;
+    }
+    .dy-devotional-scripture {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(111,196,124,0.06);
+      border-left: 2px solid #6fc47c;
+      border-radius: 0 6px 6px 0;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .dy-devotional-scripture .ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 10.5px;
+      color: #6fc47c;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .dy-protocol-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14.5px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      line-height: 1.55;
+    }
+    .dy-protocol-step {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(127,168,192,0.05);
+      border: 1px dashed rgba(127,168,192,0.3);
+      border-radius: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .dy-protocol-step b {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #7fa8c0;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 3px;
+    }
+    .dy-author {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Comments */
+    .dy-comments {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px 24px;
+      margin-top: 24px;
+    }
+    .dy-comments h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .dy-comments h3 .ct { color: var(--accent); }
+    .dy-comment-form { margin-bottom: 18px; }
+    .dy-comment-form label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+    .dy-comment-form textarea, .dy-comment-form input, .dy-comment-form select {
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border-hi);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .dy-comment-form input, .dy-comment-form select {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+    .dy-comment-form textarea { resize: vertical; min-height: 70px; }
+    .dy-comment-form *:focus { border-color: var(--accent); }
+    .dy-comment-form .row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .dy-comment-form .row > * { flex: 1; min-width: 180px; }
+    .dy-comment-actions {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .dy-submit-btn {
+      padding: 8px 18px;
+      background: var(--accent);
+      color: #1a1208;
+      border: none; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .dy-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .dy-comment-status {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--text-dim);
+    }
+    .dy-comment-status.ok { color: var(--pass); font-style: normal; }
+    .dy-comment-status.err { color: var(--fail); font-style: normal; }
+    .dy-comment-list { display: flex; flex-direction: column; gap: 10px; }
+    .dy-comment {
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .dy-comment-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .dy-comment-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .dy-comment-pillar {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dy-comment-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .dy-comment-body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      white-space: pre-wrap;
+    }
+    .dy-comments-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      font-size: 14px;
+      padding: 10px 0;
+    }
+
+    .dy-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 24px;
+      text-align: center;
+    }
+  </style>
+<link rel="stylesheet" href="/nh-print.css" media="print">
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Today · the three-pillar anchor</div>
+    <h1 id="dy-h1" data-i18n="page.daily.h1">Mind, Body, Spirit.</h1>
+    <p class="dy-intro">
+      <b>Today's devotion</b> draws from three pillars on the same axis. <em>Mind</em> — one biblical mind practice. <em>Body</em> — one layer of the Nested Control Systems Framework (public domain), the physiology that runs while you walk. <em>Spirit</em> — one Floor of Discovery section. Plus today's parable, today's Scripture-defined protocol, an almanac entry that meets them, a devotional reflection from the keeping, and a sermon. Same day, same anchor; refresh returns what you came to.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the daily anchor</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar">
+    <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a>
+    <a href="/daily.html" class="active">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a>
+    <a href="/parable.html">Parable</a>
+    <a href="/bibles.html">Bibles</a>
+    <a href="/places.html">Places</a>
+    <a href="/scribe.html">Scribe</a>
+    <a href="/receipts.html">Receipts</a>
+    <a href="/misalignments.html">Misalignments</a>
+    <a href="/almanac.html">Almanac</a>
+    <a href="/atlas.html">Atlas</a>
+    <a href="/encyclopedia.html">Encyclopedia</a>
+    <a href="/chronicle.html">Chronicle</a>
+    <a href="/canon.html">Canon</a>
+    <a href="/fieldkit.html">FieldKit</a>
+    <a href="/archetypes.html">Archetypes</a>
+    <a href="/walk.html">Shepherd</a>
+    <a href="/packets.html">Index</a>
+  </div>
+
+  <div id="dy-content"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  /* Visitor identity (shared across lenses) */
+  const VISITOR_KEY = 'concordance_visitor_id';
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VISITOR_ID = getVisitorId();
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  function renderDevotion(d) {
+    const content = document.getElementById('dy-content');
+    const mind   = d.mind;
+    const body   = d.body;
+    const spirit = d.spirit;
+    const x      = d.extras || {};
+    const parable = x.parable, proto = x.protocol, alm = x.almanac;
+    const devo = x.devotional, sermon = x.sermon;
+    const axes = (d.shared_axes || []).map(a => `<span class="dy-axis-chip">${esc(a.replace(/_/g, ' '))}</span>`).join('');
+
+    const today  = Math.floor(Date.now() / 86400000);
+    const prev   = `/daily.html?day=${(d.day_index || today) - 1}`;
+    const next   = `/daily.html?day=${(d.day_index || today) + 1}`;
+    const isToday = !d.day_index || d.day_index === today;
+    const dayNav = `<div class="dy-day-nav">
+      <a href="${esc(prev)}">← prev</a>
+      ${isToday ? '' : '<a href="/daily.html">today</a>'}
+      <a href="${esc(next)}">next →</a>
+    </div>`;
+
+    const dateRow = `<div class="dy-date-row">
+      <span class="dy-date">${esc(d.iso_date)}</span>
+      <span class="dy-weekday">${esc(d.weekday)}</span>
+      ${axes ? `<div class="dy-axes">${axes}</div>` : ''}
+      ${dayNav}
+    </div>`;
+
+    const mindPillar = mind ? `
+      <div class="dy-pillar mind">
+        <div class="dy-pillar-label">Mind · the renewed mind</div>
+        <h2>${esc(mind.title)}</h2>
+        <div class="dy-num">Practice ${esc(mind.number)} of 10</div>
+        <div class="dy-body-text">${esc(mind.summary)}</div>
+        ${(mind.scripture || []).length ? `
+          <div class="dy-scripture">
+            <div class="dy-scripture-label">Scripture</div>
+            <div class="dy-scripture-refs">${esc(mind.scripture.join(' · '))}</div>
+          </div>` : ''}
+        ${mind.practice ? `
+          <div class="dy-practice">
+            <span class="dy-label">Today's practice</span>
+            ${esc(mind.practice)}
+          </div>` : ''}
+        ${mind.closing ? `<div class="dy-closing">${esc(mind.closing)}</div>` : ''}
+      </div>` : '';
+
+    const bodyPillar = body ? `
+      <div class="dy-pillar body">
+        <div class="dy-pillar-label">Body · Nested Control System</div>
+        <h2>${esc(body.title)}</h2>
+        <div class="dy-num">Layer ${esc(body.number)} of 5</div>
+        <div class="dy-body-text">${esc(body.function)}</div>
+        ${(body.failures || []).length ? `
+          <div class="dy-failures">
+            <b>Common failure phenotypes</b>
+            <ul>${body.failures.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+          </div>` : ''}
+        ${body.falsifiable_check ? `
+          <div class="dy-check">
+            <span class="dy-label">Falsifiable check</span>
+            ${esc(body.falsifiable_check)}
+          </div>` : ''}
+        ${body.scripture_anchor ? `
+          <div class="dy-scripture" style="margin-top:12px;">
+            <div class="dy-scripture-label">Scripture anchor</div>
+            <div class="dy-scripture-text">${esc(body.scripture_anchor)}</div>
+          </div>` : ''}
+        ${body.license ? `<div class="dy-license">${esc(body.license)} · Nested Control Systems Framework</div>` : ''}
+      </div>` : '';
+
+    const spiritPillar = spirit ? `
+      <div class="dy-pillar spirit">
+        <div class="dy-pillar-label">Spirit · Floor of Discovery</div>
+        <h2>${esc(spirit.title)}</h2>
+        <div class="dy-num">Section ${esc(spirit.number)} of 10</div>
+        <div class="dy-body-text">${esc(spirit.summary)}</div>
+        ${(spirit.scripture || []).length ? `
+          <div class="dy-scripture">
+            <div class="dy-scripture-label">Scripture</div>
+            <div class="dy-scripture-refs">${esc(spirit.scripture.join(' · '))}</div>
+          </div>` : ''}
+        ${spirit.closing ? `<div class="dy-closing">${esc(spirit.closing)}</div>` : ''}
+      </div>` : '';
+
+    const pillars = (mindPillar || bodyPillar || spiritPillar)
+      ? `<div class="dy-pillars">${mindPillar}${bodyPillar}${spiritPillar}</div>` : '';
+
+    const parableCard = parable ? `
+      <div class="dy-subcard parable">
+        <div class="dy-subcard-head">
+          <span class="dy-subcard-kind">Today's parable · ${esc(parable.gate || '')}</span>
+          <h3>${esc(parable.id)}</h3>
+          <a class="dy-link" href="/parable.html">All parables →</a>
+        </div>
+        <div class="dy-parable-text">${esc(parable.text)}</div>
+        ${parable.question ? `<div class="dy-parable-question">${esc(parable.question)}</div>` : ''}
+        ${parable.wisdom ? `<div class="dy-meta-line">${esc(parable.wisdom)}</div>` : ''}
+      </div>` : '';
+
+    const firstStep = proto?.first_step || {};
+    const protoCard = proto ? `
+      <div class="dy-subcard protocol">
+        <div class="dy-subcard-head">
+          <span class="dy-subcard-kind">Today's protocol · ${esc((proto.scripture || []).join(' · '))}</span>
+          <h3>${esc(proto.name)}</h3>
+          <a class="dy-link" href="/walk.html">Walk it →</a>
+        </div>
+        ${proto.summary ? `<div class="dy-protocol-summary">${esc(proto.summary)}</div>` : ''}
+        ${firstStep.title ? `
+          <div class="dy-protocol-step">
+            <b>Step 1 · ${esc(firstStep.scripture || '')}</b>
+            ${esc(firstStep.do || '')}
+          </div>` : ''}
+        ${proto.step_count > 1 ? `<div class="dy-meta-line" style="margin-top:8px;">${proto.step_count} steps total — walk the rest in the Shepherd.</div>` : ''}
+      </div>` : '';
+
+    const devoCard = devo ? `
+      <div class="dy-subcard devotional">
+        <div class="dy-subcard-head">
+          <span class="dy-subcard-kind">Today's reflection · ${esc(devo.date || '')}</span>
+          <h3>${esc(devo.title)}</h3>
+          <span class="dy-author">— ${esc(devo.author || 'Matt Harris')}</span>
+        </div>
+        ${devo.body ? `<div class="dy-devotional-body">${esc(devo.body)}</div>` : ''}
+        ${devo.scripture_text ? `
+          <div class="dy-devotional-scripture">
+            ${devo.scripture_ref ? `<span class="ref">${esc(devo.scripture_ref)}</span>` : ''}
+            ${esc(devo.scripture_text)}
+          </div>` : ''}
+      </div>` : '';
+
+    const almCard = alm ? `
+      <div class="dy-subcard almanac">
+        <div class="dy-subcard-head">
+          <span class="dy-subcard-kind">Today's almanac · ${esc(alm.verdict || '')}</span>
+          <h3>${esc(alm.title)}</h3>
+          <a class="dy-link" href="${esc(alm.permalink)}">Open in Almanac →</a>
+        </div>
+        ${alm.wisdom ? `<div class="dy-meta-line">${esc(alm.wisdom)}</div>` : ''}
+      </div>` : '';
+
+    const sermonCard = sermon ? `
+      <div class="dy-subcard sermon">
+        <div class="dy-subcard-head">
+          <span class="dy-subcard-kind">Today's sermon · ${esc(sermon.primary_scripture || '')}</span>
+          <h3>${esc(sermon.title)}</h3>
+          <span class="dy-author">— ${esc(sermon.author || 'Matt Harris')}</span>
+        </div>
+        ${sermon.preview ? `<div class="dy-sermon-preview">${esc(sermon.preview)}${sermon.truncated ? ' …' : ''}</div>` : ''}
+      </div>` : '';
+
+    const subCards = (parableCard || protoCard || devoCard || almCard || sermonCard)
+      ? `<div class="dy-sub">${devoCard}${parableCard}${protoCard}${almCard}${sermonCard}</div>` : '';
+
+    const commentsBlock = `
+      <div class="dy-comments">
+        <h3>Comments · <span class="ct" id="dy-c-count">0</span></h3>
+        <div class="dy-comment-form" id="dy-c-form">
+          <label for="dy-c-body">Add your reflection</label>
+          <textarea id="dy-c-body" maxlength="2000" placeholder="What landed for you today? Push back, agree, add a verse, name what you noticed."></textarea>
+          <div class="row">
+            <input id="dy-c-name" type="text" maxlength="80" placeholder="Name (optional)">
+            <select id="dy-c-pillar">
+              <option value="">(no pillar)</option>
+              <option value="mind">on Mind</option>
+              <option value="body">on Body</option>
+              <option value="spirit">on Spirit</option>
+              <option value="parable">on the parable</option>
+              <option value="protocol">on the protocol</option>
+              <option value="devotional">on the reflection</option>
+              <option value="sermon">on the sermon</option>
+              <option value="almanac">on the almanac</option>
+            </select>
+          </div>
+          <div class="dy-comment-actions">
+            <button class="dy-submit-btn" id="dy-c-submit" type="button" disabled>Post comment</button>
+            <span class="dy-comment-status" id="dy-c-status"></span>
+          </div>
+        </div>
+        <div class="dy-comment-list" id="dy-c-list"><div class="dy-comments-empty">Loading…</div></div>
+      </div>`;
+
+    content.innerHTML = dateRow + pillars + subCards + commentsBlock;
+    wireComments(d.iso_date);
+  }
+
+  async function wireComments(isoDate) {
+    const body = document.getElementById('dy-c-body');
+    const name = document.getElementById('dy-c-name');
+    const pillar = document.getElementById('dy-c-pillar');
+    const submit = document.getElementById('dy-c-submit');
+    const status = document.getElementById('dy-c-status');
+    const list = document.getElementById('dy-c-list');
+    const count = document.getElementById('dy-c-count');
+
+    async function loadList() {
+      try {
+        const r = await fetch('/daily/comments?iso_date=' + encodeURIComponent(isoDate));
+        if (!r.ok) throw new Error('http ' + r.status);
+        const d = await r.json();
+        count.textContent = d.total || 0;
+        if (!d.comments || !d.comments.length) {
+          const emptyMsg = (window._i18n && _i18n.t('empty.no_comments', 'No comments yet. Be the first to add a reflection.')) || 'No comments yet. Be the first to add a reflection.';
+          list.innerHTML = '<div class="dy-comments-empty">' + esc(emptyMsg) + '</div>';
+          return;
+        }
+        list.innerHTML = d.comments.map(c => `
+          <div class="dy-comment">
+            <div class="dy-comment-head">
+              <span class="dy-comment-name">${esc(c.display_name || 'anon')}</span>
+              ${c.pillar ? `<span class="dy-comment-pillar">on ${esc(c.pillar)}</span>` : ''}
+              <span class="dy-comment-when">${esc(fmtWhen(c.logged_at_iso))}</span>
+            </div>
+            <div class="dy-comment-body">${esc(c.body)}</div>
+          </div>`).join('');
+      } catch (err) {
+        const tmpl = (window._i18n && _i18n.t('empty.comments_error', 'Could not load comments: {error}')) || 'Could not load comments: {error}';
+        list.innerHTML = '<div class="dy-comments-empty">' + esc(tmpl.replace('{error}', err.message)) + '</div>';
+      }
+    }
+
+    body.addEventListener('input', () => {
+      submit.disabled = body.value.trim().length < 2;
+    });
+    submit.addEventListener('click', async () => {
+      submit.disabled = true;
+      status.classList.remove('ok','err');
+      status.textContent = (window._i18n && _i18n.t('status.posting', 'Posting…')) || 'Posting…';
+      try {
+        const r = await fetch('/daily/comment', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            iso_date: isoDate,
+            visitor_id: VISITOR_ID,
+            body: body.value.trim(),
+            display_name: name.value.trim(),
+            pillar: pillar.value,
+          }),
+        });
+        if (!r.ok) {
+          let detail = 'engine returned ' + r.status;
+          try { const j = await r.json(); detail = j.detail || detail; } catch (_) {}
+          throw new Error(detail);
+        }
+        status.classList.add('ok');
+        status.textContent = (window._i18n && _i18n.t('status.kept', 'Kept.')) || 'Kept.';
+        body.value = '';
+        await loadList();
+      } catch (err) {
+        status.classList.add('err');
+        status.textContent = err.message;
+        submit.disabled = body.value.trim().length < 2;
+      }
+    });
+
+    loadList();
+  }
+
+  // Reader's chosen Scripture language — shared with all lenses.
+  function getLang() {
+    try { return localStorage.getItem('concordance_lang') || 'en'; }
+    catch (_) { return 'en'; }
+  }
+
+  async function load(day) {
+    const content = document.getElementById('dy-content');
+    content.innerHTML = '<div class="dy-empty">Loading today\'s devotion…</div>';
+    try {
+      const params = new URLSearchParams();
+      if (day != null) params.set('day', day);
+      const lang = getLang();
+      if (lang && lang !== 'en') params.set('lang', lang);
+      const url = '/daily' + (params.toString() ? '?' + params.toString() : '');
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      renderDevotion(d);
+    } catch (err) {
+      content.innerHTML = `<div class="dy-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  (function () {
+    const sp = new URLSearchParams(location.search);
+    const day = sp.get('day');
+    load(day ? parseInt(day, 10) : null);
+  })();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+<script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+</body>
+</html>

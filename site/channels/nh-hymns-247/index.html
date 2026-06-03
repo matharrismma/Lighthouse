@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hymns 24/7 — Narrow Highway · Channel 3</title>
+<meta name="description" content="Channel 3 — Narrow Highway Hymns 24/7. Continuous public-domain hymns with verse cards. Amazing Grace, Rock of Ages, Holy Holy Holy, A Mighty Fortress.">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 0 auto; padding: 0 1em 2em; background: #1a2a18; color: #f4ecd5; line-height: 1.5; }
+  nav.top { padding: 0.8em 0; font-size: 0.9em; }
+  nav.top a { color: #c9b48a; text-decoration: none; }
+  h1 { color: #f4ecd5; font-size: 2em; margin: 0.4em 0 0.1em; }
+  .ch-meta { font-size: 0.9em; color: #c9b48a; font-family: 'Courier New', monospace; letter-spacing: 0.1em; }
+  .tagline { font-style: italic; color: #c9b48a; margin: 0.2em 0 1em; }
+  .player-wrap { background: #000; border: 2px solid #c9b48a; border-radius: 4px; aspect-ratio: 16/9; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  video { width: 100%; height: 100%; display: block; background: #000; }
+  .player-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.6em 1em; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #f4ecd5; font-size: 0.9em; pointer-events: none; }
+  .player-overlay .label { color: #c9b48a; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.15em; }
+  .live-badge { display: inline-block; padding: 0.15em 0.6em; background: #5c8a3a; color: #fff; font-weight: bold; font-size: 0.8em; border-radius: 3px; margin-right: 0.5em; }
+  .live-badge::before { content: '● '; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 1.2em; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .card { background: #2a3d24; border: 1px solid #3a5530; border-radius: 4px; padding: 1em 1.2em; }
+  .card h2 { color: #c9b48a; margin: 0 0 0.4em; font-size: 1.1em; border-bottom: 1px solid #3a5530; padding-bottom: 0.3em; }
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  .schedule-table td { padding: 0.3em 0.4em; border-bottom: 1px solid #3a5530; }
+  .schedule-table td.time { color: #c9b48a; font-family: 'Courier New', monospace; width: 5em; }
+  .hymn-list { list-style: none; padding: 0; margin: 0.5em 0; }
+  .hymn-list li { padding: 0.25em 0; border-bottom: 1px dashed #3a5530; }
+  .embed-row { background: #3a5530; padding: 0.8em 1em; border-radius: 4px; font-size: 0.85em; margin-top: 1em; color: #c9b48a; }
+  .embed-row code { background: #1a2a18; padding: 0.15em 0.4em; border-radius: 3px; color: #f4ecd5; }
+  .fallback-row { background: #2a3d24; border: 1px solid #3a5530; border-radius: 4px; padding: 1em 1.2em; margin-top: 1em; }
+  .fallback-row a { color: #c9b48a; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/channels.html">All Channels</a></nav>
+
+<div class="ch-meta">CHANNEL 3 · NARROW HIGHWAY</div>
+<h1>Hymns 24/7</h1>
+<p class="tagline">The songs Christians have sung for centuries · continuous rotation</p>
+
+<div class="player-wrap">
+  <video id="hls-player" controls autoplay muted playsinline poster="/img/channel-hymns-247.png"></video>
+  <div class="player-overlay">
+    <span class="live-badge">LIVE</span>
+    <span class="label">NOW SINGING</span>
+    <span id="now-playing-title">—</span>
+    <span class="label" style="margin-left: 1em;">UP NEXT</span>
+    <span id="next-title">—</span>
+  </div>
+</div>
+
+<div class="embed-row">
+  <strong>Plex Live TV / Roku / VLC:</strong>
+  <code id="hls-url">/channels/nh-hymns-247/live.m3u8</code>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>About this channel</h2>
+    <p>Twenty-one public-domain hymns presented as verse cards with gentle narration, looped continuously through eight programming blocks across the day. Scripture readings between hymns. Christ-honoring music for any hour.</p>
+    <p>Path to deeper inventory: Hymnary.org has 3,000+ PD hymns we can render the same way.</p>
+    <h2 style="margin-top:1em;">Hymnal · 21 hymns</h2>
+    <ul class="hymn-list">
+      <li>Amazing Grace · Newton · 1779</li>
+      <li>Rock of Ages · Toplady · 1776</li>
+      <li>Holy, Holy, Holy · Heber · 1826</li>
+      <li>A Mighty Fortress · Luther · 1529</li>
+      <li>Come, Thou Fount · Robinson · 1758</li>
+      <li>Crown Him with Many Crowns · Bridges · 1851</li>
+      <li>Doxology · Ken · 1674</li>
+      <li>O for a Thousand Tongues · Wesley · 1739</li>
+      <li>Abide with Me · Lyte · 1847</li>
+      <li>Joy to the World · Watts · 1719</li>
+      <li>All Hail the Power · Perronet · 1779</li>
+      <li>When I Survey the Wondrous Cross · Watts · 1707</li>
+      <li>O God, Our Help in Ages Past · Watts · 1719</li>
+      <li>Jesus Shall Reign · Watts · 1719</li>
+      <li>Hark! the Herald Angels Sing · Wesley · 1739</li>
+      <li>Christ the Lord Is Risen Today · Wesley · 1739</li>
+      <li>Love Divine, All Loves Excelling · Wesley · 1747</li>
+      <li>There Is a Fountain · Cowper · 1772</li>
+      <li>Praise to the Lord, the Almighty · Neander · 1680</li>
+      <li>Now Thank We All Our God · Rinkart · 1636</li>
+      <li>Just As I Am · Elliott · 1835</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Today's schedule</h2>
+    <table class="schedule-table">
+      <tr><td class="time">06:00</td><td>Morning Hymns</td></tr>
+      <tr><td class="time">09:00</td><td>Hymns of Praise</td></tr>
+      <tr><td class="time">12:00</td><td>Midday Hymns</td></tr>
+      <tr><td class="time">15:00</td><td>Afternoon Reflection</td></tr>
+      <tr><td class="time">18:00</td><td>Evening Hymns</td></tr>
+      <tr><td class="time">21:00</td><td>Hymns Before Sleep</td></tr>
+      <tr><td class="time">00:00</td><td>Overnight Vigil</td></tr>
+      <tr><td class="time">04:00</td><td>Pre-Dawn Hymns</td></tr>
+    </table>
+    <p style="margin-top:1em; font-size:0.85em; color:#c9b48a;">2,837 slots / 23.99 hours per day · ~20 min cadence on scripture cards.</p>
+  </div>
+</div>
+
+<div class="fallback-row" id="fallback-row">
+  <strong>This is a programming source, not a separate live channel.</strong>
+  Hymns content feeds the unified <a href="/channels/narrow-highway/">Narrow Highway channel</a>
+  during morning, midday, evening, and overnight blocks. The HLS day above is a working preview if you
+  want to watch a hymns-only loop, but the on-air broadcast is the unified channel. Browse hymn lyrics
+  at the <a href="/hymns.html">hymn deck</a>.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script>
+(function() {
+  var HLS_URL = '/channels/nh-hymns-247/live.m3u8';
+  var video = document.getElementById('hls-player');
+  var fallback = document.getElementById('fallback-row');
+  var nowTitle = document.getElementById('now-playing-title');
+  var nextTitle = document.getElementById('next-title');
+  var urlBox = document.getElementById('hls-url');
+  urlBox.textContent = location.origin + HLS_URL;
+  function showFallback() { fallback.style.display = 'block'; }
+  if (window.Hls && Hls.isSupported()) {
+    var hls = new Hls({ liveSyncDurationCount: 3 });
+    hls.loadSource(HLS_URL);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.ERROR, function(_, d) { if (d.fatal) { console.error('HLS:', d); showFallback(); } });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = HLS_URL;
+    video.addEventListener('error', showFallback);
+  } else { showFallback(); }
+  function refreshNow() {
+    fetch('/channels/nh-hymns-247/now.json', { cache: 'no-store' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(j) {
+        if (!j) return;
+        if (j.current && j.current.title) nowTitle.textContent = j.current.title;
+        if (j.next && j.next.title) nextTitle.textContent = j.next.title;
+      })
+      .catch(function() {});
+  }
+  refreshNow();
+  setInterval(refreshNow, 60000);
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

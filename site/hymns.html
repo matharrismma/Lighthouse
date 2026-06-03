@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hymn Lyrics &amp; History — Classic Christian Hymns · Narrow Highway</title>
+  <meta name="description" content="The hymnody Christians have sung for centuries. Amazing Grace. Rock of Ages. A Mighty Fortress. All public-domain, all family-safe, all free. Read, share, and (soon) hear sung renderings.">
+  <link rel="canonical" href="https://narrowhighway.com/hymns.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Hymn Lyrics &amp; History — Classic Christian Hymns">
+  <meta property="og:description" content="The hymnody Christians have sung for centuries — Amazing Grace, Rock of Ages, A Mighty Fortress. All public-domain, all free.">
+  <meta property="og:url" content="https://narrowhighway.com/hymns.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hymns · Narrow Highway">
+  <meta name="twitter:description" content="The hymns Christians have sung for centuries — all public-domain, all free.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#0a0810">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <script src="/nh-feedback.js" defer></script>
+  <script src="/nh-nav.js" defer></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --r-lg: 18px; --maxw: 1180px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.55; min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+
+    .deck-hero { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 22px; }
+    .deck-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .deck-title { font-size: clamp(28px, 4vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .deck-title em { font-family: 'Crimson Pro', serif; font-style: italic; color: var(--accent); }
+    .deck-sub { color: var(--text-dim); font-size: 15px; max-width: 60ch; }
+
+    .hymn-grid {
+      max-width: var(--maxw); margin: 0 auto; padding: 0 24px 60px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 980px) { .hymn-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .hymn-grid { grid-template-columns: 1fr; } }
+
+    .hymn-card {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 18px 20px 16px;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      display: flex; flex-direction: column;
+      min-height: 180px;
+    }
+    .hymn-card:hover {
+      border-color: var(--accent);
+      background: var(--surface-2);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 0 1px var(--accent-soft);
+    }
+    .hymn-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,124,0.4), transparent);
+      opacity: 0.5;
+    }
+    .hymn-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .hymn-title {
+      font-family: 'Crimson Pro', serif;
+      font-size: 22px; font-weight: 600; line-height: 1.2;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .hymn-author { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+    .hymn-author em { font-style: italic; color: var(--muted); }
+    .hymn-preview {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic; font-size: 14px;
+      color: var(--text-dim); line-height: 1.55;
+      margin-bottom: 12px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .hymn-meta {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: auto; padding-top: 10px;
+    }
+    .hymn-meta .badge {
+      padding: 2px 7px; border-radius: 3px;
+      background: var(--accent-soft); color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .hymn-fb { position: absolute; top: 12px; right: 12px; }
+
+    /* Modal — full hymn text */
+    .hymn-modal {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(10,8,16,0.88); backdrop-filter: blur(6px);
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 6vh 20px 40px; overflow-y: auto;
+    }
+    .hymn-modal.open { display: flex; }
+    .hymn-page {
+      width: min(680px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-lg);
+      padding: 32px 36px 28px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .hymn-page-close {
+      position: absolute; top: 14px; right: 18px;
+      background: none; border: none;
+      font-size: 24px; color: var(--muted); cursor: pointer;
+      font-family: inherit; line-height: 1;
+    }
+    .hymn-page-close:hover { color: var(--text); }
+    .hymn-page-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .hymn-page-title {
+      font-family: 'Crimson Pro', serif;
+      font-size: 30px; font-weight: 600; line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .hymn-page-byline { font-size: 13.5px; color: var(--text-dim); margin-bottom: 18px; }
+    .hymn-page-byline em { font-style: italic; color: var(--muted); }
+    .hymn-page-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: 18px; line-height: 1.75;
+      color: var(--text); white-space: pre-wrap;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .hymn-page-meta-row {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--muted); letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .hymn-page-meta-row .k { color: var(--muted-2); margin-right: 4px; }
+    .hymn-page-meta-row .v { color: var(--text-dim); }
+    .hymn-page-actions {
+      display: flex; gap: 8px; align-items: center;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .pd-note {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--pass);
+      letter-spacing: 0.1em; padding: 3px 8px; border-radius: 3px;
+      background: rgba(111,196,124,0.08); border: 1px solid rgba(111,196,124,0.25);
+    }
+    .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+  </style>
+<link rel="stylesheet" href="/nh-print.css" media="print">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/hymns.html",
+  "name": "Hymn Lyrics &amp; History — Classic Christian Hymns · Narrow Highway",
+  "description": "The hymnody Christians have sung for centuries. Amazing Grace. Rock of Ages. A Mighty Fortress. All public-domain, all family-safe, all free. Read, share, and (soon) hear sung renderings.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "MusicComposition"
+  },
+  "keywords": "Christian hymns, hymn lyrics, hymn history, public domain hymns",
+  "inLanguage": "en"
+}
+</script>
+</head>
+<body data-nh-crumb="Hymns">
+
+<header class="deck-hero">
+  <div class="deck-eyebrow">⛪ The Hymnal</div>
+  <h1 class="deck-title">The songs Christians have sung <em>for centuries</em>.</h1>
+  <p class="deck-sub">
+    Amazing Grace. Rock of Ages. A Mighty Fortress. Holy, Holy, Holy. Joy to the World.
+    Every hymn here is public domain — author died before 1900, text unencumbered.
+    Read, share, and (soon) hear sung renderings via our free TTS pipeline.
+  </p>
+</header>
+
+<div class="hymn-grid" id="hymn-grid">
+  <div class="loading">Loading the hymnal…</div>
+</div>
+
+<!-- Modal: full hymn text -->
+<div class="hymn-modal" id="hymn-modal" onclick="if(event.target===this)closeHymn()">
+  <div class="hymn-page">
+    <button class="hymn-page-close" onclick="closeHymn()" aria-label="Close">×</button>
+    <div class="hymn-page-eyebrow" id="hymn-page-eyebrow">HYMN</div>
+    <h2 class="hymn-page-title" id="hymn-page-title">—</h2>
+    <div class="hymn-page-byline" id="hymn-page-byline">—</div>
+    <div class="hymn-page-text" id="hymn-page-text">—</div>
+    <div class="hymn-page-meta-row" id="hymn-page-meta"></div>
+    <div class="hymn-page-actions">
+      <span class="pd-note" id="hymn-pd-note">PD by year</span>
+      <span style="flex: 1;"></span>
+      <div id="hymn-page-fb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let HYMNS = [];
+
+  async function load() {
+    try {
+      const r = await fetch('/hymns.json');
+      const j = await r.json();
+      HYMNS = j.hymns || [];
+      render();
+    } catch (e) {
+      document.getElementById('hymn-grid').innerHTML = '<div class="loading">Hymnal unavailable.</div>';
+    }
+  }
+
+  function previewText(text) {
+    const firstVerse = (text || '').split('\n\n')[0] || '';
+    return firstVerse.replace(/\n/g, ' ');
+  }
+
+  function escapeHtml(s) {
+    return (s || '').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  }
+
+  function render() {
+    const grid = document.getElementById('hymn-grid');
+    if (!HYMNS.length) {
+      grid.innerHTML = '<div class="loading">No hymns loaded.</div>';
+      return;
+    }
+    grid.innerHTML = HYMNS.map(h => `
+      <div class="hymn-card" data-slug="${escapeHtml(h.slug)}" onclick="openHymn('${escapeHtml(h.slug)}')">
+        <div class="hymn-fb" data-nh-feedback="hymn:${escapeHtml(h.slug)}" data-nh-feedback-label="${escapeHtml(h.title)}"></div>
+        <div class="hymn-eyebrow">${escapeHtml(h.year || '')} · ${escapeHtml((h.meter || '').slice(0, 22))}</div>
+        <div class="hymn-title">${escapeHtml(h.title)}</div>
+        <div class="hymn-author"><em>${escapeHtml(h.author || '—')}</em></div>
+        <div class="hymn-preview">${escapeHtml(previewText(h.text))}</div>
+        <div class="hymn-meta">
+          ${(h.topic || []).slice(0, 3).map(t => `<span class="badge">${escapeHtml(t)}</span>`).join('')}
+          <span>${(h.scripture || []).slice(0, 2).join(' · ')}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.openHymn = function (slug) {
+    const h = HYMNS.find(x => x.slug === slug);
+    if (!h) return;
+    document.getElementById('hymn-page-eyebrow').textContent = 'HYMN · ' + (h.year || '');
+    document.getElementById('hymn-page-title').textContent = h.title;
+    document.getElementById('hymn-page-byline').innerHTML = '<em>' + escapeHtml(h.author || '—') + '</em>';
+    document.getElementById('hymn-page-text').textContent = h.text || '';
+    document.getElementById('hymn-pd-note').textContent = h.pd_basis || 'PD';
+    const meta = document.getElementById('hymn-page-meta');
+    const rows = [];
+    if (h.meter) rows.push(`<span><span class="k">METER:</span> <span class="v">${escapeHtml(h.meter)}</span></span>`);
+    if ((h.scripture || []).length) rows.push(`<span><span class="k">SCRIPTURE:</span> <span class="v">${escapeHtml(h.scripture.join(' · '))}</span></span>`);
+    if ((h.topic || []).length) rows.push(`<span><span class="k">TOPIC:</span> <span class="v">${escapeHtml(h.topic.join(' · '))}</span></span>`);
+    if (h.verse_count) rows.push(`<span><span class="k">VERSES:</span> <span class="v">${h.verse_count}</span></span>`);
+    meta.innerHTML = rows.join('');
+    // Mount feedback
+    const fbEl = document.getElementById('hymn-page-fb');
+    if (fbEl && window.NH && window.NH.Feedback) {
+      fbEl.innerHTML = '';
+      window.NH.Feedback.mount(fbEl, 'hymn:' + h.slug, { label: h.title });
+    }
+    document.getElementById('hymn-modal').classList.add('open');
+  };
+
+  window.closeHymn = function () {
+    document.getElementById('hymn-modal').classList.remove('open');
+  };
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHymn(); });
+
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+<script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+</body>
+</html>

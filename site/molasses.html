@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.molasses.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Molasses · A novel of the Great Molasses Flood, Boston 1919 · M.R. Harris</title>
+  <meta name="description" content="Molasses — a novel of the Great Molasses Flood of Boston, January 15, 1919. By M.R. Harris. Four parts: The Tank, The Flood, The Proceeding, What Remains. Full text on narrowhighway.com.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="book">
+  <meta property="og:title" content="Molasses · A novel of the Great Molasses Flood, Boston 1919">
+  <meta property="og:description" content="A novel by M.R. Harris. January 15, 1919 — the day a two-million-gallon tank of molasses gave way on Commercial Street. Four parts. Full text on narrowhighway.com.">
+  <meta property="og:url" content="https://narrowhighway.com/molasses.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/molasses.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    main.mol-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 22px 80px;
+    }
+    .mol-hero {
+      text-align: center;
+      margin: 8px 0 28px;
+    }
+    .mol-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .mol-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(40px, 6vw, 60px);
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+      line-height: 1.0;
+      letter-spacing: -0.01em;
+    }
+    .mol-byline {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      color: var(--accent-hi);
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+    .mol-tagline {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      max-width: 56ch;
+      margin: 0 auto 18px;
+    }
+    .mol-meta {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .mol-meta b { color: var(--accent); font-weight: 500; }
+
+    .mol-blurb {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 auto 36px;
+      padding: 20px 26px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+    }
+    .mol-blurb em { color: var(--accent); font-style: italic; }
+
+    /* Parts list */
+    .mol-parts-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 32px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mol-parts-heading h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    .mol-parts-heading .sub {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+    #mol-parts {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .mol-part {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color 0.18s ease;
+    }
+    .mol-part:hover { border-color: var(--accent); }
+    .mol-part-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 16px 22px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .mol-part-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-weight: 600;
+      flex-shrink: 0;
+      min-width: 60px;
+    }
+    .mol-part-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      flex-grow: 1;
+      letter-spacing: -0.01em;
+    }
+    .mol-part-stats {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+    .mol-part-body {
+      display: none;
+      padding: 6px 28px 28px;
+      border-top: 1px solid var(--border);
+    }
+    .mol-part.open .mol-part-body { display: block; }
+
+    /* The actual text */
+    .mol-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 19px;
+      line-height: 1.72;
+      color: var(--text);
+      max-width: 65ch;
+      margin: 0 auto;
+    }
+    .mol-text p {
+      margin: 0 0 1em;
+      text-indent: 1.5em;
+    }
+    .mol-text p:first-of-type { text-indent: 0; }
+    .mol-text p:first-of-type::first-letter {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 3.6em;
+      line-height: 0.9;
+      float: left;
+      padding: 4px 8px 0 0;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .mol-text h2, .mol-text h3 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 2em 0 0.6em;
+      text-align: center;
+    }
+    .mol-text .mol-chapter-marker {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: var(--accent);
+      margin: 2.4em 0 1em;
+    }
+    .mol-text .mol-break {
+      text-align: center;
+      margin: 2em 0;
+      color: var(--muted);
+      letter-spacing: 1em;
+    }
+
+    .mol-loading, .mol-error {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* Channel + works hint */
+    .mol-channel-hint {
+      max-width: 60ch;
+      margin: 48px auto 0;
+      text-align: center;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .mol-channel-hint a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+    }
+  </style>
+
+  <script defer src="/i18n.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+  <main class="mol-wrap">
+    <header class="mol-hero">
+      <div class="mol-eyebrow">A novel · complete · text on this site</div>
+      <h1 class="mol-title">Molasses</h1>
+      <div class="mol-byline">by M.R. Harris</div>
+      <p class="mol-tagline">A novel of the Great Molasses Flood, Boston, 1919.</p>
+      <div class="mol-meta" id="mol-meta">— parts · — words</div>
+    </header>
+
+    <div class="mol-blurb">
+      <em>January 15, 1919.</em> The temperature has risen overnight from below freezing to above it.
+      A two-million-gallon tank of molasses stands on Commercial Street in the North End of Boston.
+      He is not on Commercial Street when it happens. He is in an office on the other side of the city,
+      reading a set of plans for a water treatment facility in Dorchester — doing the ordinary work of a man
+      who assesses structures and writes what he finds and goes on to the next structure. He hears the tank go.
+      Then the proceeding, and what remains.
+    </div>
+
+    <div class="mol-parts-heading">
+      <h2>The four parts</h2>
+      <span class="sub">Click any part to expand.</span>
+    </div>
+
+    <div id="mol-parts"><div class="mol-loading">Loading…</div></div>
+
+    <div class="mol-channel-hint">
+      Full body of work: <a href="/works.html">narrowhighway.com/works</a>.
+    </div>
+  </main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  // Number words for parts
+  const PART_WORDS = ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+
+  function renderParagraphs(paragraphs, chapterBreaks) {
+    if (!paragraphs || !paragraphs.length) return '<div class="mol-loading">No text.</div>';
+    const breakIdx = new Set((chapterBreaks || []).map(b => b.index));
+    const breakLabels = {};
+    (chapterBreaks || []).forEach(b => { breakLabels[b.index] = b.label; });
+    const html = [];
+    paragraphs.forEach((p, i) => {
+      // Chapter break marker
+      if (breakIdx.has(i) && i > 0) {
+        // Skip — the chapter heading is already the paragraph text
+      }
+      const kind = p.kind || 'paragraph';
+      const text = p.text || '';
+      if (kind === 'heading') {
+        const level = p.level || 2;
+        html.push(`<h${Math.min(level + 1, 4)}>${esc(text)}</h${Math.min(level + 1, 4)}>`);
+      } else if (kind === 'break') {
+        html.push('<div class="mol-break">· · ·</div>');
+      } else if (kind === 'paragraph') {
+        // Detect inline chapter markers ("Chapter 11", "PART THREE: ...")
+        const m = text.match(/^(Chapter\s+\d+|PART\s+(?:ONE|TWO|THREE|FOUR|FIVE|SIX|\d+))[\s—–-]*(.*)/i);
+        if (m) {
+          const marker = m[1];
+          const rest = m[2].trim();
+          html.push(`<div class="mol-chapter-marker">${esc(marker)}</div>`);
+          if (rest) html.push(`<p>${esc(rest)}</p>`);
+        } else {
+          html.push(`<p>${esc(text)}</p>`);
+        }
+      }
+    });
+    return `<div class="mol-text">${html.join('\n')}</div>`;
+  }
+
+  async function loadPart(epNum, bodyEl, partEl) {
+    if (bodyEl.dataset.loaded === '1') return;
+    bodyEl.innerHTML = '<div class="mol-loading">Loading…</div>';
+    try {
+      const r = await fetch('/serial/molasses/episode/' + epNum);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      const rec = data.episode || data;
+      const paragraphs = rec.paragraphs || [];
+      const breaks = rec.chapter_breaks || [];
+      bodyEl.innerHTML = renderParagraphs(paragraphs, breaks);
+      bodyEl.dataset.loaded = '1';
+    } catch (err) {
+      bodyEl.innerHTML = `<div class="mol-error">Could not load: ${esc(err.message)}</div>`;
+    }
+  }
+
+  async function init() {
+    try {
+      const r = await fetch('/serial/molasses');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      const world = data.world || {};
+      const eps = data.episodes || [];
+
+      // Meta header
+      const totalWords = world.total_words || eps.reduce((a, e) => a + (e.word_count || 0), 0);
+      document.getElementById('mol-meta').innerHTML =
+        `<span><b>${eps.length}</b> parts</span>` +
+        `<span><b>${totalWords.toLocaleString()}</b> words</span>` +
+        `<span><b>1919</b> Boston</span>`;
+
+      // Parts
+      const root = document.getElementById('mol-parts');
+      if (!eps.length) {
+        root.innerHTML = '<div class="mol-loading">No parts ingested yet.</div>';
+        return;
+      }
+      root.innerHTML = eps.map(ep => {
+        const num = ep.ep_num;
+        const partLabel = PART_WORDS[num - 1] || String(num);
+        return `
+        <div class="mol-part" data-ep="${num}">
+          <div class="mol-part-head">
+            <span class="mol-part-num">PART ${partLabel.toUpperCase()}</span>
+            <span class="mol-part-title">${esc(ep.title || '')}</span>
+            <span class="mol-part-stats">${(ep.word_count || 0).toLocaleString()} words</span>
+          </div>
+          <div class="mol-part-body" id="mol-body-${num}"></div>
+        </div>`;
+      }).join('');
+
+      // Click handlers
+      document.querySelectorAll('.mol-part-head').forEach(head => {
+        head.addEventListener('click', () => {
+          const part = head.parentElement;
+          const num = parseInt(part.dataset.ep);
+          const body = document.getElementById('mol-body-' + num);
+          const isOpen = part.classList.contains('open');
+          if (isOpen) {
+            part.classList.remove('open');
+          } else {
+            part.classList.add('open');
+            loadPart(num, body, part);
+          }
+        });
+      });
+    } catch (err) {
+      document.getElementById('mol-parts').innerHTML =
+        `<div class="mol-error">Could not load Molasses: ${esc(err.message)}</div>`;
+    }
+  }
+
+  init();
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

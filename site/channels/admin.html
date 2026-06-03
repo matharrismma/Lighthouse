@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Channel Operator — Narrow Highway</title>
+<style>
+  body { font-family: 'JetBrains Mono', 'Courier New', monospace; background: #0c1018; color: #c9b48a; padding: 1.5em; max-width: 1300px; margin: 0 auto; line-height: 1.5; font-size: 14px; }
+  h1 { color: #f4ecd5; font-family: Georgia, serif; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #f4ecd5; font-family: Georgia, serif; margin-top: 1.5em; }
+  table { width: 100%; border-collapse: collapse; margin-top: 0.5em; }
+  th, td { padding: 0.5em 0.7em; text-align: left; border-bottom: 1px solid #2a2438; vertical-align: top; }
+  th { background: #16131f; color: #c9b48a; font-weight: 600; }
+  tr:nth-child(even) { background: #14111c; }
+  .badge { display: inline-block; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.85em; font-weight: bold; }
+  .badge-live { background: #1f5b1f; color: #d4ead4; }
+  .badge-coming { background: #806010; color: #fff5d4; }
+  .badge-pending { background: #444; color: #ccc; }
+  .nav { margin-bottom: 1em; }
+  .nav a { color: #c9b48a; text-decoration: none; margin-right: 1em; }
+  .cell-cmd { font-size: 0.85em; color: #c9a87c; background: #16131f; padding: 0.15em 0.5em; border-radius: 3px; }
+  pre { background: #16131f; border-radius: 4px; padding: 1em; overflow-x: auto; font-size: 12px; color: #d8d2c4; }
+</style>
+</head>
+<body>
+
+<div class="nav"><a href="/">← Narrow Highway</a> · <a href="/channels.html">Channels</a></div>
+
+<h1>Channel Operator Dashboard</h1>
+<p>Status of all FAST channels managed by this engine. Read-only view; commands shown for reference.</p>
+
+<h2>Status</h2>
+<table id="status-table">
+  <thead>
+    <tr>
+      <th>Channel</th>
+      <th>Inventory (h)</th>
+      <th>HLS</th>
+      <th>MRSS</th>
+      <th>EPG</th>
+      <th>Now Playing</th>
+      <th>Next</th>
+    </tr>
+  </thead>
+  <tbody id="status-body">
+    <tr><td colspan="7">Loading…</td></tr>
+  </tbody>
+</table>
+
+<h2>Daily refresh commands</h2>
+<pre id="cmds">
+# Rebuild today's schedule + HLS day for every channel
+for ch in nh_scifi_theatre nh_hundred_acre nh_hymns_247 nh_sermons_devotions; do
+  python tools/fast_channel_schedule.py --channel content/channels/$ch.json
+  python tools/fast_channel_hls.py      --channel content/channels/$ch.json --date $(date -u +%Y-%m-%d)
+done
+python tools/fast_channel_index.py
+python tools/fast_channel_now_all.py
+</pre>
+
+<h2>YouTube Live push (per-channel)</h2>
+<pre>
+$env:YT_STREAM_KEY_NH_HYMNS_247 = "xxxx-xxxx-xxxx-xxxx"
+python tools/fast_channel_youtube_live.py --channel nh-hymns-247 --supervise
+</pre>
+
+<h2>Wallet — live on-chain snapshot</h2>
+<table>
+  <thead><tr><th>Field</th><th>Value</th></tr></thead>
+  <tbody id="wallet-onchain-body">
+    <tr><td colspan="2">Loading…</td></tr>
+  </tbody>
+</table>
+<p style="font-size: 0.85em; margin-top: 0.5em;">
+  <button id="verifyPendingBtn">Sweep + verify pending txids against Base RPC</button>
+</p>
+
+<h2>Wallet analytics — funnel</h2>
+<table>
+  <thead><tr><th>Stage</th><th>Count</th><th>%</th></tr></thead>
+  <tbody id="wallet-analytics-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+</table>
+
+<!-- ─────────── Card library operator panels (LOOP 11-19) ─────────── -->
+
+<h2>Card library — health</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+  <tbody id="libHealthBody"><tr><td colspan="2">Loading…</td></tr></tbody>
+</table>
+
+<h2>Promotion queue — operator decisions needed</h2>
+<table>
+  <thead><tr><th>Card</th><th>Transition</th><th>Reason</th><th>Decide</th></tr></thead>
+  <tbody id="promQueueBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+
+<h2>Shepherd — intake telemetry</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+  <tbody id="intakeBody"><tr><td colspan="2">Loading…</td></tr></tbody>
+</table>
+
+<h2>Walks cache — solve permanently</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+  <tbody id="cacheBody"><tr><td colspan="2">Loading…</td></tr></tbody>
+</table>
+
+<h2>Household stacks — across all stacks</h2>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+  <tbody id="stacksBody"><tr><td colspan="2">Loading…</td></tr></tbody>
+</table>
+
+<h2>Rebalancer — suggestions awaiting operator decision</h2>
+<table>
+  <thead><tr><th>Kind</th><th>Targets</th><th>Reason</th><th>Decide</th></tr></thead>
+  <tbody id="rebalQueueBody"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+<p style="font-size:0.85em; color:#806010; margin-top:0.4em;">
+  Suggestions come from <code>tools/rebalance_library.py --apply</code>. Approving an <code>archive_orphan</code> or <code>canonize_walk</code> applies the change immediately. <code>merge_duplicate</code> and <code>split_box</code> are acknowledgments only — the operator does the merge/split by hand.
+</p>
+
+<p style="font-size: 0.85em; margin-top: 1em;">
+  <code>python tools/rebalance_library.py --apply</code> — nightly rebalancer (see <code>data/rebalance/</code> for reports).
+  <br>
+  <code>python tools/intake_train.py</code> — nightly intake training report (see <code>data/intake/training_report.md</code>).
+  <br>
+  <code>python tools/migrate_substrate.py</code> — re-run adapter→disk migration.
+</p>
+
+<h2>Record a creator payout</h2>
+<p style="font-size: 0.9em;">
+  After you sign a USDC transfer to a creator's wallet (from Coinbase Wallet or any wallet),
+  paste the txid + creator name + amount below. This logs it in the transparency ledger.
+  No keys involved — your wallet already signed; we just record what happened.
+</p>
+<div style="background:#16131f;border:1px solid #2a2438;border-radius:4px;padding:0.9em 1.1em;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5em;margin-bottom:0.5em;">
+    <div>
+      <label style="font-size:0.78em;color:#888;letter-spacing:0.08em;">CREATOR ID / NAME</label>
+      <input type="text" id="payoutCreator" placeholder="e.g. sarah_jones" style="width:100%;padding:0.45em 0.6em;background:#0c1018;border:1px solid #2a2438;border-radius:3px;color:#f4ecd5;font-family:inherit;">
+    </div>
+    <div>
+      <label style="font-size:0.78em;color:#888;letter-spacing:0.08em;">AMOUNT (USD)</label>
+      <input type="number" id="payoutAmount" step="0.01" min="0" placeholder="e.g. 25.00" style="width:100%;padding:0.45em 0.6em;background:#0c1018;border:1px solid #2a2438;border-radius:3px;color:#f4ecd5;font-family:inherit;">
+    </div>
+  </div>
+  <div style="margin-bottom:0.5em;">
+    <label style="font-size:0.78em;color:#888;letter-spacing:0.08em;">TXID (0x… 66 chars)</label>
+    <input type="text" id="payoutTxid" placeholder="0x..." style="width:100%;padding:0.45em 0.6em;background:#0c1018;border:1px solid #2a2438;border-radius:3px;color:#f4ecd5;font-family:'Courier New',monospace;font-size:0.85em;">
+  </div>
+  <div style="margin-bottom:0.5em;">
+    <label style="font-size:0.78em;color:#888;letter-spacing:0.08em;">NOTE (optional, public)</label>
+    <input type="text" id="payoutNote" maxlength="120" placeholder="e.g. May patron-pool share" style="width:100%;padding:0.45em 0.6em;background:#0c1018;border:1px solid #2a2438;border-radius:3px;color:#f4ecd5;font-family:inherit;">
+  </div>
+  <button id="recordPayoutBtn">Record this payout</button>
+  <span id="payoutResult" style="margin-left:0.7em;font-size:0.88em;"></span>
+</div>
+
+<h2>User submissions — operator queue</h2>
+<p style="font-size: 0.9em;">Items submitted via <code>/submit-content.html</code>. Approve sends them to <code>user_content_primary</code>; reject keeps them archived but unaired.</p>
+<table>
+  <thead><tr><th>Submitted</th><th>Category</th><th>Title</th><th>Creator</th><th>Status</th><th>Link</th></tr></thead>
+  <tbody id="submissions-body"><tr><td colspan="6">No submissions endpoint reachable yet.</td></tr></tbody>
+</table>
+
+<h2>User-content pool sizes</h2>
+<table id="user-pools-table">
+  <thead><tr><th>Pool</th><th>Items</th><th>Notes</th></tr></thead>
+  <tbody id="user-pools-body"><tr><td colspan="3">Loading…</td></tr></tbody>
+</table>
+<p style="font-size: 0.85em;">Score thresholds: ≥+20 → peak slots · 0..+20 → primary · −5..0 → secondary (overnight) · ≤−5 → operator review for cancellation.</p>
+
+<h2>HLS endpoint URLs</h2>
+<table>
+  <thead><tr><th>Channel</th><th>HLS live</th><th>MRSS</th><th>Manifest</th></tr></thead>
+  <tbody id="urls-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+</table>
+
+<script>
+async function load() {
+  const [now, idx] = await Promise.all([
+    fetch('/channels/now.json', {cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+    fetch('/channels/index.json', {cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+  ]);
+  const nowMap = {};
+  (now?.channels || []).forEach(c => nowMap[c.channel_id] = c);
+  const channels = idx?.channels || [];
+  const sb = document.getElementById('status-body');
+  const ub = document.getElementById('urls-body');
+  sb.innerHTML = '';
+  ub.innerHTML = '';
+  if (!channels.length) {
+    sb.innerHTML = '<tr><td colspan="7">No channels indexed.</td></tr>';
+    return;
+  }
+  channels.forEach(c => {
+    const n = nowMap[c.id] || {};
+    const cur = n.current || {};
+    const nxt = n.next || {};
+    const hls = c.status?.hls_live ? '<span class="badge badge-live">LIVE</span>' : '<span class="badge badge-coming">building</span>';
+    const mrss = c.status?.mrss_live ? '<span class="badge badge-live">yes</span>' : '<span class="badge badge-pending">no</span>';
+    const epg = c.status?.epg_live ? '<span class="badge badge-live">yes</span>' : '<span class="badge badge-pending">no</span>';
+    sb.insertAdjacentHTML('beforeend',
+      `<tr><td><strong>${c.id}</strong><br><span style="color:#888">${c.name}</span></td>
+       <td>${(c.inventory_hours || 0).toFixed(1)}</td>
+       <td>${hls}</td>
+       <td>${mrss}</td>
+       <td>${epg}</td>
+       <td>${cur.title ? `${cur.title}<br><span style="color:#888;font-size:0.85em">${cur.block||''}</span>` : '—'}</td>
+       <td>${nxt.title || '—'}</td></tr>`);
+    ub.insertAdjacentHTML('beforeend',
+      `<tr><td><strong>${c.id}</strong></td>
+       <td><code>${c.live_hls}</code></td>
+       <td><code>${c.mrss}</code></td>
+       <td><code>${c.manifest}</code></td></tr>`);
+  });
+
+  // User-content pool counts (from the unified manifest)
+  fetch('/content/channels/narrow_highway.json', {cache:'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(m => {
+      if (!m) return;
+      const pools = ['user_content_primary', 'user_content_secondary', 'user_content_cancelled'];
+      const tbody = document.getElementById('user-pools-body');
+      tbody.innerHTML = '';
+      const notes = {
+        user_content_primary:   'Plays in weekday afternoons, Saturday variety, Friday primetime',
+        user_content_secondary: 'Demoted by votes — plays overnight only (00:05–04:05)',
+        user_content_cancelled: 'Removed from rotation; archived for audit',
+      };
+      pools.forEach(p => {
+        const items = (m.content_pool || {})[p] || [];
+        tbody.insertAdjacentHTML('beforeend',
+          `<tr><td><code>${p}</code></td>
+           <td>${items.length}</td>
+           <td>${notes[p] || ''}</td></tr>`);
+      });
+    })
+    .catch(() => {});
+
+  // Submission queue (operator's pending review list)
+  fetch('/intake/user-content?status=quarantined', {cache:'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j || !j.submissions) return;
+      const sb = document.getElementById('submissions-body');
+      sb.innerHTML = '';
+      if (j.submissions.length === 0) {
+        sb.innerHTML = '<tr><td colspan="6">No pending submissions.</td></tr>';
+        return;
+      }
+      j.submissions.forEach(s => {
+        sb.insertAdjacentHTML('beforeend',
+          `<tr><td>${(s.submitted_at||'').slice(0,16).replace('T',' ')}</td>
+           <td>${s.category||''}</td>
+           <td>${(s.title||'').slice(0,60)}</td>
+           <td>${(s.creator_name||'').slice(0,30)}</td>
+           <td><span class="badge badge-coming">${s.status||'quarantined'}</span></td>
+           <td><a href="${s.content_url}" target="_blank">view</a></td></tr>`);
+      });
+    })
+    .catch(() => {});
+}
+load();
+setInterval(load, 60000);
+
+// ---- Wallet panels ----
+async function loadWalletPanels() {
+  // On-chain snapshot
+  try {
+    const oc = await fetch('/wallet/onchain', {cache:'no-store'}).then(r => r.ok ? r.json() : null);
+    const tb = document.getElementById('wallet-onchain-body');
+    if (!oc || !oc.available) {
+      tb.innerHTML = '<tr><td colspan="2">No wallet published yet (or RPC unreachable).</td></tr>';
+    } else {
+      tb.innerHTML =
+        '<tr><td>Basename</td><td><code>' + (oc.basename || '—') + '</code></td></tr>' +
+        '<tr><td>Address</td><td><code style="font-size:0.85em;">' + (oc.address || '—') + '</code></td></tr>' +
+        '<tr><td>USDC balance (Base)</td><td><strong>$' + (oc.usdc_balance || 0).toFixed(2) + '</strong></td></tr>' +
+        '<tr><td>ETH balance (Base)</td><td>' + (oc.eth_balance || 0).toFixed(6) + '</td></tr>' +
+        '<tr><td>Snapshot at</td><td style="font-family:Courier New,monospace;font-size:0.85em;">' + (oc.as_of || '').slice(0,19) + '</td></tr>';
+    }
+  } catch (e) {
+    document.getElementById('wallet-onchain-body').innerHTML = '<tr><td colspan="2">RPC unreachable.</td></tr>';
+  }
+
+  // Analytics funnel
+  try {
+    const a = await fetch('/wallet/analytics', {cache:'no-store'}).then(r => r.ok ? r.json() : null);
+    const tb = document.getElementById('wallet-analytics-body');
+    if (!a) { tb.innerHTML = '<tr><td colspan="3">Not reachable.</td></tr>'; return; }
+    const f = a.funnel || {};
+    tb.innerHTML =
+      '<tr><td>Page views</td><td>' + (f.page_view || 0) + '</td><td>—</td></tr>' +
+      '<tr><td>Amount picked</td><td>' + (f.amount_picked || 0) + '</td><td>' + (f.picked_pct || 0) + '%</td></tr>' +
+      '<tr><td>Send clicked</td><td>' + (f.send_clicked || 0) + '</td><td>' + (f.click_pct || 0) + '%</td></tr>' +
+      '<tr><td>Send confirmed</td><td>' + (f.send_confirmed || 0) + '</td><td>' + (f.conversion_pct || 0) + '%</td></tr>';
+  } catch (e) {}
+}
+loadWalletPanels();
+setInterval(loadWalletPanels, 60000);
+
+document.getElementById('verifyPendingBtn').addEventListener('click', async function () {
+  this.disabled = true; this.textContent = 'Sweeping…';
+  try {
+    const r = await fetch('/wallet/verify-pending', {method: 'POST'}).then(r => r.json());
+    this.textContent = 'Done · checked ' + r.checked + ' · verified ' + r.verified + ' · failed ' + r.failed;
+  } catch (e) {
+    this.textContent = 'RPC unreachable.';
+  }
+  this.disabled = false;
+  setTimeout(() => this.textContent = 'Sweep + verify pending txids against Base RPC', 5000);
+});
+
+document.getElementById('recordPayoutBtn').addEventListener('click', async function () {
+  const txid = document.getElementById('payoutTxid').value.trim();
+  const creator = document.getElementById('payoutCreator').value.trim();
+  const amount = parseFloat(document.getElementById('payoutAmount').value);
+  const note = document.getElementById('payoutNote').value.trim();
+  const $result = document.getElementById('payoutResult');
+  if (!txid || !creator || !amount || amount <= 0) {
+    $result.textContent = 'Need txid + creator + amount.';
+    $result.style.color = '#c96c6c';
+    return;
+  }
+  this.disabled = true;
+  try {
+    const r = await fetch('/wallet/record-payout', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({txid, creator_id: creator, amount_usd: amount, note, chain: 'base'}),
+    }).then(r => r.json());
+    $result.textContent = 'Recorded as ' + (r.id || 'OK');
+    $result.style.color = '#6fc47c';
+    document.getElementById('payoutTxid').value = '';
+    document.getElementById('payoutCreator').value = '';
+    document.getElementById('payoutAmount').value = '';
+    document.getElementById('payoutNote').value = '';
+    loadWalletPanels();
+  } catch (e) {
+    $result.textContent = 'Failed: ' + (e.message || 'unknown');
+    $result.style.color = '#c96c6c';
+  }
+  this.disabled = false;
+});
+
+// =============================================================================
+// LOOP 11-19 — Card library operator panels
+// =============================================================================
+async function loadCardPanels() {
+  // Library health
+  try {
+    const r = await fetch('/promotion/health').then(r => r.json());
+    const $lh = document.getElementById('libHealthBody');
+    if ($lh) {
+      const ls = r.by_lifecycle_stage || {};
+      const tm = r.total_metrics || {};
+      $lh.innerHTML =
+        '<tr><td>Total cards</td><td>' + r.total_cards + '</td></tr>' +
+        '<tr><td>By lifecycle</td><td>' + Object.entries(ls).map(([k,v]) => k+'='+v).join(' · ') + '</td></tr>' +
+        '<tr><td>Flagged cards</td><td>' + r.flagged_cards + '</td></tr>' +
+        '<tr><td>Pending promotions</td><td>' + r.pending_promotions + '</td></tr>' +
+        '<tr><td>Total paperclips</td><td>' + (tm.paperclips_count || 0) + '</td></tr>' +
+        '<tr><td>Total helpful votes</td><td>' + (tm.helpful_count || 0) + '</td></tr>' +
+        '<tr><td>Total walks</td><td>' + (tm.walks_through_count || 0) + '</td></tr>';
+    }
+  } catch (e) {}
+
+  // Promotion queue
+  try {
+    const r = await fetch('/promotion/queue').then(r => r.json());
+    const $pq = document.getElementById('promQueueBody');
+    if ($pq) {
+      if (!r.items || r.items.length === 0) {
+        $pq.innerHTML = '<tr><td colspan="4">No pending promotions. Library is keeping up.</td></tr>';
+      } else {
+        $pq.innerHTML = r.items.map(it =>
+          '<tr>' +
+            '<td><a href="/card.html?id=' + it.card_id + '">' + (it.card_title || it.card_id) + '</a></td>' +
+            '<td>' + (it.card_current_stage || '?') + ' → <strong>' + it.suggested + '</strong></td>' +
+            '<td><span style="font-size:0.85em;">' + (it.reason || '') + '</span></td>' +
+            '<td>' +
+              '<button onclick="approvePromo(\'' + it.card_id + '\',\'' + it.suggested + '\')">Approve</button> ' +
+              '<button onclick="rejectPromo(\'' + it.card_id + '\',\'' + it.suggested + '\')">Reject</button>' +
+            '</td>' +
+          '</tr>'
+        ).join('');
+      }
+    }
+  } catch (e) {}
+
+  // Intake stats (interviewer)
+  try {
+    const r = await fetch('/shepherd/intake/stats').then(r => r.json());
+    const $is = document.getElementById('intakeBody');
+    if ($is) {
+      $is.innerHTML =
+        '<tr><td>Total interviews</td><td>' + r.total_interviews + '</td></tr>' +
+        '<tr><td>Convergence rate</td><td>' + ((r.convergence_rate || 0) * 100).toFixed(1) + '%</td></tr>' +
+        '<tr><td>Avg follow-ups before walk</td><td>' + r.avg_followups_before_walk + '</td></tr>' +
+        '<tr><td>By outcome</td><td>' + Object.entries(r.by_outcome || {}).map(([k,v]) => k+'='+v).join(' · ') + '</td></tr>' +
+        '<tr><td>By audience</td><td>' + Object.entries(r.by_audience || {}).map(([k,v]) => k+'='+v).join(' · ') + '</td></tr>' +
+        '<tr><td>By tradition</td><td>' + Object.entries(r.by_tradition || {}).map(([k,v]) => k+'='+v).join(' · ') + '</td></tr>';
+    }
+  } catch (e) {}
+
+  // Cache + replay stats
+  try {
+    const r = await fetch('/walks/cache/stats').then(r => r.json());
+    const $cs = document.getElementById('cacheBody');
+    if ($cs) {
+      const hr = r.hit_rate === null ? 'n/a' : ((r.hit_rate || 0) * 100).toFixed(1) + '%';
+      $cs.innerHTML =
+        '<tr><td>Cache checks</td><td>' + r.checks + '</td></tr>' +
+        '<tr><td>Cache hits</td><td>' + r.hits + '</td></tr>' +
+        '<tr><td>Hit rate</td><td>' + hr + '</td></tr>' +
+        '<tr><td>Cache size</td><td>' + (r.cache_size || 0) + '</td></tr>' +
+        '<tr><td>Replay entries</td><td>' + (r.replay_count || 0) + '</td></tr>' +
+        '<tr><td>Invalidations</td><td>' + (r.invalidations || 0) + '</td></tr>';
+    }
+  } catch (e) {}
+
+  // Stacks health
+  try {
+    const r = await fetch('/stacks/health').then(r => r.json());
+    const $sh = document.getElementById('stacksBody');
+    if ($sh) {
+      $sh.innerHTML =
+        '<tr><td>Total stacks</td><td>' + r.total_stacks + '</td></tr>' +
+        '<tr><td>Total paperclips across stacks</td><td>' + r.total_paperclips_across_stacks + '</td></tr>' +
+        '<tr><td>Total authored across stacks</td><td>' + r.total_authored_across_stacks + '</td></tr>' +
+        '<tr><td>Total tipped (USD)</td><td>$' + r.total_tipped_usd_across_stacks + '</td></tr>';
+    }
+  } catch (e) {}
+
+  // Rebalance queue (LOOP 32)
+  try {
+    const r = await fetch('/rebalance/queue').then(r => r.json());
+    const $rb = document.getElementById('rebalQueueBody');
+    if ($rb) {
+      if (!r.items || r.items.length === 0) {
+        $rb.innerHTML = '<tr><td colspan="4">No suggestions pending. Library is settled.</td></tr>';
+      } else {
+        $rb.innerHTML = r.items.map(it => {
+          const ids = (it.card_ids || []).join(', ') || (it.box ? 'box: ' + it.box : '—');
+          const idsArg = JSON.stringify(it.card_ids || []);
+          return '<tr>' +
+            '<td><strong>' + (it.kind || '') + '</strong></td>' +
+            '<td><span style="font-size:0.85em; font-family:monospace;">' + ids + '</span></td>' +
+            '<td><span style="font-size:0.88em;">' + (it.reason || '') + '</span></td>' +
+            '<td>' +
+              '<button onclick="approveRebal(\'' + it.kind + '\',' + idsArg + ')">Apply</button> ' +
+              '<button onclick="rejectRebal(\'' + it.kind + '\',' + idsArg + ')">Reject</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+  } catch (e) {}
+}
+
+window.approveRebal = async function (kind, cardIds) {
+  const note = prompt('Operator note (optional):') || '';
+  const r = await fetch('/rebalance/approve', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({kind, card_ids: cardIds, operator_note: note}),
+  }).then(r => r.json());
+  alert('Rebalance approve: ' + JSON.stringify(r));
+  loadCardPanels();
+};
+
+window.rejectRebal = async function (kind, cardIds) {
+  const note = prompt('Reason for rejection (optional):') || '';
+  const r = await fetch('/rebalance/reject', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({kind, card_ids: cardIds, operator_note: note}),
+  }).then(r => r.json());
+  alert('Rebalance reject: ' + JSON.stringify(r));
+  loadCardPanels();
+};
+
+window.approvePromo = async function (cid, suggested) {
+  const note = prompt('Operator note (optional):') || '';
+  const r = await fetch('/promotion/approve', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({card_id: cid, suggested, operator_note: note}),
+  }).then(r => r.json());
+  alert('Approve: ' + JSON.stringify(r));
+  loadCardPanels();
+};
+
+window.rejectPromo = async function (cid, suggested) {
+  const note = prompt('Reason for rejection (optional):') || '';
+  const r = await fetch('/promotion/reject', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({card_id: cid, suggested, operator_note: note}),
+  }).then(r => r.json());
+  alert('Reject: ' + JSON.stringify(r));
+  loadCardPanels();
+};
+
+// Run scan + then load panels
+fetch('/promotion/scan', {method: 'POST'}).catch(() => {}).then(() => loadCardPanels());
+</script>
+
+</body>
+</html>

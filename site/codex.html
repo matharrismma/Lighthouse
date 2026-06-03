@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Codex — Narrow Highway</title>
+<meta name="description" content="The Codex: 66 books of Scripture, the ecumenical creeds, the Westminster Shorter Catechism, the Lord's Prayer, the Shema. The doctrinal substrate of Narrow Highway, navigable in one place.">
+<link rel="canonical" href="https://narrowhighway.com/codex.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Codex — Narrow Highway">
+<meta property="og:description" content="66 books of Scripture, the ecumenical creeds, the Westminster Shorter Catechism, the Lord's Prayer, the Shema — the doctrinal substrate in one place.">
+<meta property="og:url" content="https://narrowhighway.com/codex.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Codex — Narrow Highway">
+<meta name="twitter:description" content="Scripture, creeds, catechism — the doctrinal substrate in one place.">
+<meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 980px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+
+  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.5em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
+
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  h2 { color: #1a3a52; margin-top: 1.8em; font-size: 1.2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; font-family: Georgia, serif; font-weight: bold; letter-spacing: 0.02em; }
+  h3 { color: #1a3a52; margin-top: 1.2em; font-size: 1.05em; }
+
+  .filters { margin: 0.6em 0; display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; }
+  .filters strong { font-size: 0.85em; color: #6a5a3a; margin-right: 0.4em; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.25em 0.7em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .filter-btn:hover { background: #e5dcb9; }
+  .filter-btn.active:hover { background: #2a5570; }
+
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.4em; margin-top: 0.5em; }
+  .book-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 3px; padding: 0.5em 0.7em; text-decoration: none; color: #1a3a52; transition: all 0.1s; }
+  .book-tile.NT { border-left-color: #5c8a3a; }
+  .book-tile.OT { border-left-color: #b8945a; }
+  .book-tile:hover { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; transform: translateY(-1px); }
+  .book-tile:hover .meta { color: #c9b48a; }
+  .book-tile strong { display: block; font-size: 1em; font-family: Georgia, serif; }
+  .book-tile .meta { font-size: 0.78em; color: #806010; font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
+  .book-tile .theme { font-size: 0.82em; color: #5a4a30; font-style: italic; margin-top: 0.15em; }
+
+  .creed-card { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 0.7em; }
+  .creed-card h3 { margin: 0 0 0.2em; color: #1a3a52; font-family: Georgia, serif; font-size: 1.15em; }
+  .creed-card .era { font-family: 'Courier New', monospace; font-size: 0.78em; letter-spacing: 0.1em; color: #806010; margin-bottom: 0.3em; }
+  .creed-card .text { background: #fff5d4; border-left: 4px solid #b8945a; padding: 0.7em 1em; margin: 0.5em 0; font-family: 'Crimson Pro', Georgia, serif; font-size: 1em; line-height: 1.5; color: #5a4a30; white-space: pre-line; max-height: 18em; overflow-y: auto; }
+  .creed-card .anchors { font-size: 0.83em; color: #6a5a3a; }
+  .creed-card .anchors strong { color: #1a3a52; }
+
+  .qa-card { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.4em; }
+  .qa-card .qnum { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.08em; }
+  .qa-card .q { color: #1a3a52; font-weight: bold; margin: 0.2em 0; font-family: Georgia, serif; }
+  .qa-card .a { color: #3a3a38; font-style: italic; padding-left: 1em; border-left: 2px solid #c9b48a; }
+  .qa-card .proofs { font-size: 0.78em; color: #6a5a3a; margin-top: 0.3em; font-family: 'Courier New', monospace; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/canon.html">The Canon spec</a> · <a href="/shepherd-room.html">Ask the Shepherd</a></nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE DOCTRINAL SUBSTRATE</div>
+  <h1>The Codex</h1>
+  <div class="tagline">66 books of Scripture · the ecumenical creeds · the Westminster Shorter Catechism · the Shema · the Lord's Prayer</div>
+</div>
+
+<div class="intro">
+  <p>The Codex is what holds the rest up. The Bible is the foundation; the creeds are the church's anchoring confessions through history; the catechism is the structured instruction. Every Shepherd answer cites these. Every curriculum lesson references these. Every reading plan walks through them.</p>
+  <p>This page is the navigable index. Click any book, creed, or Q&amp;A to drill in.</p>
+</div>
+
+<h2>The 66 books</h2>
+<div class="filters">
+  <strong>Filter:</strong>
+  <button class="filter-btn book-filter active" data-f="all">All</button>
+  <button class="filter-btn book-filter" data-f="OT">Old Testament (39)</button>
+  <button class="filter-btn book-filter" data-f="NT">New Testament (27)</button>
+  <button class="filter-btn book-filter" data-f="Pentateuch">Pentateuch</button>
+  <button class="filter-btn book-filter" data-f="Historical">Historical</button>
+  <button class="filter-btn book-filter" data-f="Wisdom">Wisdom</button>
+  <button class="filter-btn book-filter" data-f="Major Prophets">Major Prophets</button>
+  <button class="filter-btn book-filter" data-f="Minor Prophets">Minor Prophets</button>
+  <button class="filter-btn book-filter" data-f="Gospels">Gospels</button>
+  <button class="filter-btn book-filter" data-f="Pauline Epistles">Pauline Epistles</button>
+  <button class="filter-btn book-filter" data-f="General Epistles">General Epistles</button>
+</div>
+<div id="bookGrid" class="book-grid"></div>
+
+<h2>The ecumenical creeds</h2>
+<div id="creedList"></div>
+
+<h2>The Westminster Shorter Catechism (selected anchors)</h2>
+<p style="font-size: 0.92em; color: #6a5a3a; margin-bottom: 0.6em;">24 of the 107 Q&amp;As are surfaced here — the most catechetically load-bearing across God, sin, Christ, salvation, sanctification, the moral law, and the Lord's Prayer. The full 107 are public domain and can be added by an operator pass.</p>
+<div id="catechismList"></div>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script src="/nh-scripture.js"></script>
+<script>
+(async function () {
+  // ----- Bible books -----
+  const booksData = await fetch('/content/codex/bible_books.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  const $bookGrid = document.getElementById('bookGrid');
+  let books = (booksData && booksData.books) || [];
+  let filter = 'all';
+
+  function renderBooks() {
+    let list = books.slice();
+    if (filter === 'OT' || filter === 'NT') list = list.filter(function (b) { return b.testament === filter; });
+    else if (filter !== 'all') list = list.filter(function (b) { return b.section === filter; });
+    if (list.length === 0) { $bookGrid.innerHTML = '<div class="empty">No books match.</div>'; return; }
+    $bookGrid.innerHTML = list.map(function (b) {
+      return '<a class="book-tile ' + b.testament + '" href="/canon.html?ref=' + encodeURIComponent(b.book + ' 1') + '">' +
+        '<strong>' + esc(b.book) + '</strong>' +
+        '<span class="meta">' + b.chapters + ' ch · ' + esc(b.section) + '</span>' +
+        '<div class="theme">' + esc(b.theme || '') + '</div>' +
+        '</a>';
+    }).join('');
+  }
+  document.querySelectorAll('.book-filter').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.book-filter').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      filter = b.dataset.f;
+      renderBooks();
+    });
+  });
+  renderBooks();
+
+  // ----- Creeds -----
+  const creedsData = await fetch('/content/codex/creeds.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  const $creedList = document.getElementById('creedList');
+  const creeds = (creedsData && creedsData.creeds) || [];
+  $creedList.innerHTML = creeds.map(function (c) {
+    const anchors = (c.anchored_to || []).map(esc).join(' · ');
+    return '<article class="creed-card" data-readable data-voice-label="' + esc(c.title) + '">' +
+      '<h3>' + esc(c.title) + '</h3>' +
+      '<div class="era">' + esc(c.era || '') + '</div>' +
+      '<div style="font-size:0.92em; color:#5a4a30; margin-bottom:0.4em;">' + esc(c.use || '') + '</div>' +
+      '<div class="text">' + esc(c.text) + '</div>' +
+      (anchors ? '<div class="anchors"><strong>Anchored to:</strong> ' + anchors + '</div>' : '') +
+      '</article>';
+  }).join('');
+
+  // ----- Catechism -----
+  const catData = await fetch('/content/codex/catechism_westminster_shorter.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  const $catList = document.getElementById('catechismList');
+  const qs = (catData && catData.questions) || [];
+  $catList.innerHTML = qs.map(function (q) {
+    const proofs = (q.proof_texts || []).map(esc).join(' · ');
+    return '<article class="qa-card" data-readable>' +
+      '<div class="qnum">Q' + q.q + '</div>' +
+      '<div class="q">' + esc(q.question) + '</div>' +
+      '<div class="a">' + esc(q.answer) + '</div>' +
+      (proofs ? '<div class="proofs">' + proofs + '</div>' : '') +
+      '</article>';
+  }).join('');
+
+  // Re-scan for voice readers + scripture autolinker on the rendered content
+  if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+  if (window.NHScripture && NHScripture.run) NHScripture.run();
+
+  function esc(s) { return String(s || '').replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

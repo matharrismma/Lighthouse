@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Calendar — Narrow Highway</title>
+<meta name="description" content="Liturgical calendar — Christian feast days, Easter computation, seasons. Plus your own family events. Stored on your device.">
+  <link rel="canonical" href="https://narrowhighway.com/calendar.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Family Calendar — Narrow Highway">
+  <meta property="og:description" content="Liturgical calendar — Christian feast days, Easter computation, seasons. Plus your own family events. Stored on your device.">
+  <meta property="og:url" content="https://narrowhighway.com/calendar.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Family Calendar — Narrow Highway">
+  <meta name="twitter:description" content="Liturgical calendar — Christian feast days, Easter computation, seasons. Plus your own family events. Stored on your device.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 940px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .today { background: #fff; border-left: 5px solid #b8945a; padding: 1em 1.3em; margin: 0.8em 0; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .today .date-row { font-family: 'Courier New', monospace; font-size: 0.85em; color: #6a5a3a; letter-spacing: 0.06em; }
+  .today h3 { margin: 0.2em 0; color: #1a3a52; font-size: 1.4em; font-weight: normal; font-family: Georgia, serif; }
+  .today .season { font-style: italic; color: #806010; }
+  .feast-card { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.6em 0.9em; margin-bottom: 0.4em; }
+  .feast-card .when { font-family: 'Courier New', monospace; font-size: 0.8em; color: #6a5a3a; }
+  .feast-card .what { color: #1a3a52; font-weight: bold; margin-top: 0.15em; }
+  .feast-card .note { font-size: 0.88em; color: #6a5a3a; }
+  .feast-card.upcoming { border-left: 3px solid #c9b48a; }
+  .feast-card.today { border-left: 5px solid #5c8a3a; background: #f9f5e6; }
+  .feast-card.past { opacity: 0.6; }
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 0.4em; }
+  .month-grid .head { background: #1a3a52; color: #f4ecd5; padding: 0.3em; font-size: 0.75em; text-align: center; letter-spacing: 0.05em; font-family: 'Courier New', monospace; }
+  .month-grid .cell { background: #fff; border: 1px solid #e5dcb9; padding: 0.4em; min-height: 4.5em; font-size: 0.85em; position: relative; }
+  .month-grid .cell.today { border: 2px solid #5c8a3a; }
+  .month-grid .cell.other-month { background: #f3eedb; color: #b3a589; }
+  .month-grid .cell .daynum { font-weight: bold; color: #1a3a52; font-size: 0.95em; }
+  .month-grid .cell .marker { font-size: 0.72em; color: #806010; margin-top: 0.15em; font-family: 'Courier New', monospace; }
+  .month-grid .cell .event { font-size: 0.78em; background: #c9b48a; color: #1a3a52; padding: 0.05em 0.3em; border-radius: 2px; margin-top: 0.15em; display: inline-block; }
+  .month-nav { display: flex; align-items: center; gap: 0.6em; margin: 0.5em 0; }
+  .month-nav button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.3em 0.8em; border-radius: 3px; font-family: inherit; cursor: pointer; }
+  .month-nav .month-label { font-size: 1.05em; font-weight: bold; color: #1a3a52; }
+  .add-event { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.2em; margin-top: 0.6em; }
+  .add-event .row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 0.6em; align-items: end; }
+  .add-event input, .add-event button { font-family: inherit; font-size: 0.95em; padding: 0.45em 0.6em; }
+  .add-event input { border: 1px solid #c9b48a; border-radius: 3px; background: #fff; color: #2a2a28; }
+  .add-event button { background: #1a3a52; color: #f4ecd5; border: none; border-radius: 3px; cursor: pointer; }
+  .event-list { margin-top: 0.5em; }
+  .event-row { display: flex; justify-content: space-between; padding: 0.3em 0.6em; background: #fff; border: 1px solid #e5dcb9; border-radius: 3px; margin-bottom: 0.2em; }
+  .event-row .when { font-family: 'Courier New', monospace; font-size: 0.85em; color: #6a5a3a; }
+  .event-row button { background: none; border: none; color: #8b1f1f; cursor: pointer; font-size: 0.82em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a></nav>
+
+<h1>Family Calendar</h1>
+
+<div class="intro">
+  <p>The Christian liturgical calendar — Easter, Advent, feast days, seasons — overlaid with your own family events. Stored on this device; not on our server. Future: optional wallet-signed sync, channel suggestions per day, and overlay of your subscribed church livestreams.</p>
+</div>
+
+<div id="today" class="today"></div>
+
+<h2>The month</h2>
+<div class="month-nav">
+  <button id="prevMonth">←</button>
+  <span class="month-label" id="monthLabel"></span>
+  <button id="nextMonth">→</button>
+  <button id="todayBtn" style="background:#c9b48a;color:#1a3a52;margin-left:auto;">Today</button>
+</div>
+<div class="month-grid" id="monthGrid"></div>
+
+<h2>Upcoming Christian feast days</h2>
+<div id="upcomingFeasts"></div>
+
+<h2>Family events</h2>
+<div class="add-event">
+  <div class="row">
+    <input type="date" id="evDate">
+    <input type="text" id="evTitle" placeholder="What is the event?" maxlength="80">
+    <button id="addEventBtn">Add event</button>
+  </div>
+</div>
+<div class="event-list" id="eventList"></div>
+
+<script src="/nh-household.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('calendar');
+
+  // === Easter computation (Anonymous Gregorian / Meeus algorithm) ===
+  function easterSunday(year) {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(Date.UTC(year, month - 1, day));
+  }
+
+  function addDays(date, n) {
+    const d = new Date(date.getTime());
+    d.setUTCDate(d.getUTCDate() + n);
+    return d;
+  }
+
+  function isoDate(d) { return d.toISOString().slice(0, 10); }
+
+  // Liturgical seasons: returns {season, season_name} for a given UTC date
+  function liturgicalSeason(date) {
+    const y = date.getUTCFullYear();
+    const easter = easterSunday(y);
+    const ashWed = addDays(easter, -46);
+    const palmSun = addDays(easter, -7);
+    const pentecost = addDays(easter, 49);
+    const advent4 = (function () {
+      // 4th Sunday before Christmas (Dec 25). Find the Sunday on or before Dec 25-21=Dec 4? Actually start
+      // is the Sunday closest to Nov 30 (St. Andrew). Use: 4th Sun before Christmas.
+      const christmas = new Date(Date.UTC(y, 11, 25));
+      const dow = christmas.getUTCDay();
+      const sundayBefore = addDays(christmas, -dow); // Sunday on or before Christmas
+      return addDays(sundayBefore, -21); // 3 Sundays earlier = Advent 1
+    })();
+    const christmas = new Date(Date.UTC(y, 11, 25));
+    const epiphany = new Date(Date.UTC(y, 0, 6));
+    const t = date.getTime();
+    if (t >= ashWed.getTime() && t < easter.getTime()) return { season: 'lent', season_name: 'Lent' };
+    if (t >= easter.getTime() && t < pentecost.getTime()) return { season: 'easter', season_name: 'Eastertide' };
+    if (t >= advent4.getTime() && t <= christmas.getTime()) return { season: 'advent', season_name: 'Advent' };
+    if (t > christmas.getTime() && t < new Date(Date.UTC(y, 0, 7)).getTime()) return { season: 'christmas', season_name: 'Christmastide' };
+    if (t >= new Date(Date.UTC(y, 0, 1)).getTime() && t <= epiphany.getTime()) return { season: 'christmas', season_name: 'Christmastide' };
+    return { season: 'ordinary', season_name: 'Ordinary Time' };
+  }
+
+  function feastsForYear(y) {
+    const easter = easterSunday(y);
+    // Each feast carries a recommended scripture reading — anchor for the day.
+    const list = [
+      { date: new Date(Date.UTC(y, 0, 1)),  name: "New Year's Day",   reading: 'Psalm 90' },
+      { date: new Date(Date.UTC(y, 0, 6)),  name: 'Epiphany',         reading: 'Matthew 2:1-12' },
+      { date: addDays(easter, -46),         name: 'Ash Wednesday',    reading: 'Joel 2:12-17; Matthew 6:1-21' },
+      { date: addDays(easter, -7),          name: 'Palm Sunday',      reading: 'Matthew 21:1-11' },
+      { date: addDays(easter, -3),          name: 'Maundy Thursday',  reading: 'John 13:1-17, 31b-35' },
+      { date: addDays(easter, -2),          name: 'Good Friday',      reading: 'Isaiah 52:13–53:12; John 18-19' },
+      { date: easter,                       name: 'Easter Sunday',    reading: '1 Corinthians 15:1-26; Matthew 28:1-10' },
+      { date: addDays(easter, 39),          name: 'Ascension Day',    reading: 'Acts 1:1-11' },
+      { date: addDays(easter, 49),          name: 'Pentecost',        reading: 'Acts 2:1-21' },
+      { date: addDays(easter, 56),          name: 'Trinity Sunday',   reading: 'Isaiah 6:1-8; 2 Corinthians 13:11-14' },
+      { date: new Date(Date.UTC(y, 9, 31)), name: 'Reformation Day',  reading: 'Romans 1:16-17; Ephesians 2:8-10' },
+      { date: new Date(Date.UTC(y, 10, 1)), name: "All Saints' Day",  reading: 'Revelation 7:9-17' },
+      { date: new Date(Date.UTC(y, 11, 25)),name: 'Christmas Day',    reading: 'Luke 2:1-20; John 1:1-14' },
+    ];
+    return list.sort(function (a, b) { return a.date.getTime() - b.date.getTime(); });
+  }
+
+  function todayUTC() {
+    const n = new Date();
+    return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
+  }
+
+  // === Render: TODAY block ===
+  function renderToday() {
+    const today = todayUTC();
+    const season = liturgicalSeason(today);
+    const dayName = today.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+    const datePretty = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+    const todayIso = isoDate(today);
+    const feasts = feastsForYear(today.getUTCFullYear()).filter(function (f) { return isoDate(f.date) === todayIso; });
+    let feastLine = '';
+    if (feasts.length) {
+      const items = feasts.map(function (f) {
+        const reading = f.reading ? ' &mdash; <em>read</em>: ' + f.reading : '';
+        return '<strong>' + f.name + '</strong>' + reading;
+      }).join('<br>');
+      feastLine = '<div style="margin-top: 0.4em;"><div style="font-family:Courier New,monospace; font-size:0.78em; letter-spacing:0.08em; color:#806010;">TODAY ON THE CHURCH CALENDAR</div>' + items + '</div>';
+    }
+    document.getElementById('today').innerHTML =
+      '<div class="date-row">TODAY</div>' +
+      '<h3>' + dayName + ', ' + datePretty + '</h3>' +
+      '<div class="season">' + season.season_name + '</div>' +
+      feastLine;
+  }
+
+  // === Render: upcoming feasts ===
+  function renderUpcomingFeasts() {
+    const today = todayUTC();
+    const y = today.getUTCFullYear();
+    let all = feastsForYear(y).concat(feastsForYear(y + 1));
+    all = all.filter(function (f) { return f.date.getTime() >= today.getTime() - 24 * 86400000; })
+             .slice(0, 6);
+    const el = document.getElementById('upcomingFeasts');
+    el.innerHTML = all.map(function (f) {
+      const cls = isoDate(f.date) === isoDate(today) ? 'today' :
+                  f.date.getTime() < today.getTime() ? 'past' : 'upcoming';
+      const pretty = f.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+      const reading = f.reading ? '<div class="note"><em>read</em>: ' + f.reading + '</div>' : '';
+      return '<div class="feast-card ' + cls + '"><div class="when">' + pretty + '</div><div class="what">' + f.name + '</div>' + reading + '</div>';
+    }).join('');
+  }
+
+  // === Render: month grid ===
+  let viewYear, viewMonth;  // 0-indexed month
+  function setView(d) { viewYear = d.getUTCFullYear(); viewMonth = d.getUTCMonth(); renderMonth(); }
+  function shiftMonth(n) {
+    let m = viewMonth + n, y = viewYear;
+    while (m < 0)  { m += 12; y -= 1; }
+    while (m > 11) { m -= 12; y += 1; }
+    viewYear = y; viewMonth = m; renderMonth();
+  }
+  function renderMonth() {
+    const today = todayUTC();
+    const first = new Date(Date.UTC(viewYear, viewMonth, 1));
+    const startDow = first.getUTCDay();
+    const gridStart = addDays(first, -startDow);
+    const feasts = feastsForYear(viewYear).concat(feastsForYear(viewYear - 1)).concat(feastsForYear(viewYear + 1));
+    const feastByDay = {};
+    feasts.forEach(function (f) { feastByDay[isoDate(f.date)] = f.name; });
+    const events = (load().events || []);
+    const evByDay = {};
+    events.forEach(function (e) {
+      if (!evByDay[e.date]) evByDay[e.date] = [];
+      evByDay[e.date].push(e.title);
+    });
+    document.getElementById('monthLabel').textContent =
+      first.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    const grid = document.getElementById('monthGrid');
+    const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    let html = days.map(function (d) { return '<div class="head">' + d + '</div>'; }).join('');
+    for (let i = 0; i < 42; i++) {
+      const d = addDays(gridStart, i);
+      const inMonth = d.getUTCMonth() === viewMonth;
+      const isToday = isoDate(d) === isoDate(today);
+      const feastN = feastByDay[isoDate(d)];
+      const evN = evByDay[isoDate(d)] || [];
+      let cls = 'cell';
+      if (!inMonth) cls += ' other-month';
+      if (isToday) cls += ' today';
+      let inner = '<div class="daynum">' + d.getUTCDate() + '</div>';
+      if (feastN) inner += '<div class="marker">' + feastN + '</div>';
+      evN.forEach(function (t) {
+        const safe = t.length > 18 ? t.slice(0, 17) + '…' : t;
+        inner += '<div class="event">' + safe.replace(/[<>&]/g, function(c){return c==='<'?'&lt;':c==='>'?'&gt;':'&amp;';}) + '</div>';
+      });
+      html += '<div class="' + cls + '">' + inner + '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  // === Family events (per household) ===
+  function load() { return ns.get() || { events: [] }; }
+  function save(state) { ns.set(state); }
+
+  function renderEvents() {
+    const events = (load().events || []).slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+    const today = isoDate(todayUTC());
+    const future = events.filter(function (e) { return e.date >= today; }).slice(0, 30);
+    const el = document.getElementById('eventList');
+    if (future.length === 0) {
+      el.innerHTML = '<div style="color:#6a5a3a; font-style: italic; padding: 0.5em;">No family events yet. Add one above.</div>';
+      return;
+    }
+    el.innerHTML = future.map(function (e, i) {
+      const pretty = new Date(e.date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
+      return '<div class="event-row"><span><span class="when">' + pretty + '</span> &nbsp; ' + e.title.replace(/[<>&]/g, function(c){return c==='<'?'&lt;':c==='>'?'&gt;':'&amp;';}) + '</span><button data-id="' + e.id + '">×</button></div>';
+    }).join('');
+    el.querySelectorAll('button[data-id]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        const id = b.dataset.id;
+        const s = load();
+        s.events = (s.events || []).filter(function (ev) { return ev.id !== id; });
+        save(s);
+        renderEvents(); renderMonth();
+      });
+    });
+  }
+
+  document.getElementById('addEventBtn').addEventListener('click', function () {
+    const date = document.getElementById('evDate').value;
+    const title = document.getElementById('evTitle').value.trim();
+    if (!date || !title) return;
+    const s = load();
+    s.events = s.events || [];
+    s.events.push({ id: 'ev_' + Date.now().toString(36), date: date, title: title });
+    save(s);
+    document.getElementById('evTitle').value = '';
+    renderEvents(); renderMonth();
+  });
+  document.getElementById('prevMonth').addEventListener('click', function () { shiftMonth(-1); });
+  document.getElementById('nextMonth').addEventListener('click', function () { shiftMonth(1); });
+  document.getElementById('todayBtn').addEventListener('click', function () { setView(todayUTC()); });
+
+  setView(todayUTC());
+  renderToday();
+  renderUpcomingFeasts();
+  renderEvents();
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

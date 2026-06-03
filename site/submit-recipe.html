@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit a Recipe — Narrow Highway</title>
+<meta name="description" content="Submit a family recipe to Narrow Highway's Family Table. Aligned, operator-reviewed. As revenue allows, contributors earn from sponsor underwriting — paid in crypto wallet.">
+  <link rel="canonical" href="https://narrowhighway.com/submit-recipe.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Submit a Recipe — Narrow Highway">
+  <meta property="og:description" content="Submit a family recipe to Narrow Highway's Family Table. Aligned, operator-reviewed. As revenue allows, contributors earn from sponsor underwriting — paid in crypto wallet.">
+  <meta property="og:url" content="https://narrowhighway.com/submit-recipe.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Submit a Recipe — Narrow Highway">
+  <meta name="twitter:description" content="Submit a family recipe to Narrow Highway's Family Table. Aligned, operator-reviewed. As revenue allows, contributors earn from sponsor underwriting — paid in crypto wallet.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 720px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .form-row { margin: 0.9em 0; }
+  label { display: block; font-weight: bold; color: #1a3a52; margin-bottom: 0.3em; font-size: 0.92em; }
+  label .req { color: #c8392a; }
+  label .hint { font-weight: normal; color: #6a5a3a; font-style: italic; font-size: 0.88em; margin-left: 0.4em; }
+  input, textarea, select {
+    width: 100%; padding: 0.55em 0.7em; font-family: inherit; font-size: 1em;
+    border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28; box-sizing: border-box;
+  }
+  textarea { min-height: 5em; resize: vertical; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7em; }
+  @media (max-width: 540px) { .grid-3 { grid-template-columns: 1fr; } }
+  .alignment-box { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 4px; padding: 1em 1.2em; margin: 1em 0; font-size: 0.92em; }
+  .alignment-box h3 { margin: 0 0 0.3em; font-size: 1em; color: #806010; }
+  .checkbox-row { margin: 0.6em 0; font-size: 0.93em; }
+  .checkbox-row input { margin-right: 0.5em; width: auto; }
+  .wallet-box { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 1em 1.3em; font-size: 0.93em; }
+  .wallet-box h3 { margin: 0 0 0.3em; font-size: 1em; color: #1a3a52; }
+  .submit-btn { background: #1a3a52; color: #f4ecd5; padding: 0.7em 2em; border: none; border-radius: 4px;
+    font-family: Georgia, serif; font-size: 1.05em; cursor: pointer; margin-top: 0.5em; }
+  .submit-btn:hover { background: #2a5570; }
+  .submit-btn:disabled { background: #888; cursor: not-allowed; }
+  .result { margin-top: 1em; padding: 1em 1.3em; border-radius: 4px; display: none; }
+  .result.success { background: #d4ead4; border: 1px solid #1f5b1f; color: #1f5b1f; }
+  .result.error { background: #f7d4d4; border: 1px solid #8b1f1f; color: #8b1f1f; display: block; }
+  .hint-pd { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 4px; padding: 0.6em 1em; font-size: 0.88em; color: #1f5b1f; margin-top: 0.3em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/recipes.html">Recipes</a></nav>
+
+<h1>Submit a Family Recipe</h1>
+
+<div class="intro">
+  <p>Pass it down. If you have a recipe your family loves — and you have rights to share it — submit it here. Our operator reviews every submission for alignment and family-safety. Approved recipes join the public Family Table and any family on Narrow Highway can favorite them.</p>
+  <p><strong>Heritage / public-domain recipes welcome too</strong> — if it's from a pre-1929 cookbook or a family pattern you adapted, we want it.</p>
+</div>
+
+<form id="recipeForm">
+  <div class="form-row">
+    <label>Recipe title <span class="req">*</span></label>
+    <input type="text" name="title" required maxlength="100" placeholder="e.g. Grandma's Brown Sugar Apple Pie">
+  </div>
+
+  <div class="grid-3">
+    <div class="form-row">
+      <label>Course <span class="req">*</span></label>
+      <select name="course" required>
+        <option value="">Choose…</option>
+        <option value="breakfast">Breakfast</option>
+        <option value="main">Main</option>
+        <option value="side">Side</option>
+        <option value="soup">Soup</option>
+        <option value="dessert">Dessert</option>
+        <option value="preserving">Preserving</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Yield <span class="hint">e.g. Serves 6</span></label>
+      <input type="text" name="yield_text" maxlength="40" placeholder="Serves 6">
+    </div>
+    <div class="form-row">
+      <label>Time</label>
+      <input type="text" name="time_text" maxlength="40" placeholder="1 hour">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Source / origin <span class="req">*</span> <span class="hint">family pattern, your kitchen, a PD cookbook, etc.</span></label>
+    <input type="text" name="source" required maxlength="120" placeholder="My grandmother's kitchen, Ohio, 1950s">
+    <div class="hint-pd">If from a published cookbook: confirm copyright status. Pre-1929 publications are usually PD. If it's your own original recipe, write "Original — [your name]."</div>
+  </div>
+
+  <div class="form-row">
+    <label>Ingredients <span class="req">*</span> <span class="hint">one per line</span></label>
+    <textarea name="ingredients" required placeholder="2 cups flour&#10;1 cup sugar&#10;½ cup butter&#10;..."></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>Method <span class="req">*</span> <span class="hint">numbered steps; one per line</span></label>
+    <textarea name="method" required style="min-height: 8em;" placeholder="1. Preheat oven to 350°F.&#10;2. Cream butter and sugar.&#10;3. ..."></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>Family note <span class="hint">optional — the story or tip that goes with this recipe</span></label>
+    <textarea name="family_note" maxlength="500" placeholder="My grandmother made this every Christmas Eve. She always doubled the cinnamon."></textarea>
+  </div>
+
+  <div class="grid-3" style="grid-template-columns: 1fr 1fr;">
+    <div class="form-row">
+      <label>Your name <span class="req">*</span></label>
+      <input type="text" name="creator_name" required maxlength="80">
+    </div>
+    <div class="form-row">
+      <label>Your email <span class="req">*</span> <span class="hint">we contact you about your submission</span></label>
+      <input type="email" name="creator_email" required>
+    </div>
+  </div>
+
+  <div class="wallet-box">
+    <h3>Payment wallet (optional)</h3>
+    <p>If your recipe earns from sponsor underwriting (a homeschool publisher, a family-products company, etc.), we send your share directly to a self-custodial crypto wallet. We never custody funds. <strong>No credit cards, ever.</strong></p>
+    <div class="form-row" style="margin-top: 0.5em;">
+      <label>Wallet address <span class="hint">EVM 0x… or Bitcoin bc1… — leave blank to contribute as a volunteer</span></label>
+      <input type="text" name="wallet_address" maxlength="120" placeholder="0x... or bc1...">
+    </div>
+  </div>
+
+  <div class="alignment-box">
+    <h3>Confirm before submitting</h3>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_rights" required>I have the right to share this recipe (it is original, family-passed-down, or from a public-domain source)</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_safety" required>The recipe is family-safe and reasonable for general home cooking</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_tested" required>I have actually made this recipe (no AI-generated theoretical recipes please)</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_review" required>I accept that the operator reviews every submission and may decline it</label></div>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">Submit recipe for review</button>
+  <div id="result" class="result"></div>
+</form>
+
+<h2>What happens next</h2>
+<ul>
+  <li><strong>Operator review</strong> — typically within 2 weeks. We email with the decision.</li>
+  <li><strong>If approved</strong>, the recipe joins the Family Table; any household on Narrow Highway can favorite it.</li>
+  <li><strong>Family feedback</strong> (favorites, future ratings) signals which recipes are most loved.</li>
+  <li><strong>Payment</strong> when applicable: transparent email + on-chain txid when a recipe earns revenue.</li>
+  <li><strong>Withdraw anytime</strong> by emailing <a href="mailto:partnerships@narrowhighway.com">partnerships@narrowhighway.com</a>.</li>
+</ul>
+
+<script>
+document.getElementById('recipeForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const result = document.getElementById('result');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  const fd = new FormData(e.target);
+  const payload = { source_type: 'recipe_submission' };
+  fd.forEach(function (v, k) { payload[k] = v; });
+  // Parse ingredients/method into arrays
+  payload.ingredients_list = (payload.ingredients || '').split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+  payload.method_steps = (payload.method || '').split(/\r?\n/).map(function (s) { return s.trim().replace(/^\d+[.)]\s*/, ''); }).filter(Boolean);
+  payload.submitted_at = new Date().toISOString();
+  payload.status = 'quarantined';
+
+  try {
+    const r = await fetch('/intake/recipe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (r.ok) {
+      const j = await r.json().catch(function () { return {}; });
+      result.className = 'result success';
+      result.textContent = 'Submitted. Reference ID: ' + (j.id || '(check your email)') +
+        '. We\'ll email you within 2 weeks.';
+      result.style.display = 'block';
+      btn.textContent = 'Submitted';
+    } else { throw new Error('Engine returned ' + r.status); }
+  } catch (err) {
+    result.className = 'result error';
+    result.innerHTML = 'Our submission engine isn\'t reachable right now. ' +
+      '<a href="mailto:partnerships@narrowhighway.com?subject=' +
+      encodeURIComponent('Recipe submission: ' + (payload.title || '')) + '&body=' +
+      encodeURIComponent(JSON.stringify(payload, null, 2)) + '">Email your submission instead</a>.';
+    result.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Submit recipe for review';
+  }
+});
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

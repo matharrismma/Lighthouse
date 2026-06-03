@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The book of paths — Narrow Highway</title>
+<meta name="description" content="Walks the tradition has walked. Curated paths through the cards.">
+  <link rel="canonical" href="https://narrowhighway.com/paths.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The book of paths — Narrow Highway">
+  <meta property="og:description" content="Walks the tradition has walked. Curated paths through the cards.">
+  <meta property="og:url" content="https://narrowhighway.com/paths.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The book of paths — Narrow Highway">
+  <meta name="twitter:description" content="Walks the tradition has walked. Curated paths through the cards.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 980px; margin: 0 auto; padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+
+  .masthead { text-align: center; padding: 1.5em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.2em; color: #1a3a52; margin: 0.2em 0 0.1em; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1em; }
+
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+
+  .tabs { display: flex; gap: 0.3em; margin-bottom: 1em; border-bottom: 2px solid #d4c8a5; }
+  .tab { background: none; border: none; padding: 0.6em 1em; font-family: Georgia, serif; font-size: 1em; color: #6a5a3a; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #1a3a52; border-bottom-color: #1a3a52; font-weight: bold; }
+
+  .path-row {
+    background: #fffef7;
+    border: 1px solid #d4c8a5;
+    border-left: 4px solid #c9b48a;
+    border-radius: 3px;
+    padding: 0.9em 1.1em;
+    margin-bottom: 0.5em;
+    text-decoration: none;
+    color: #2a2a28;
+    display: block;
+    transition: background 0.08s, transform 0.08s;
+  }
+  .path-row:hover { background: #f5f0e0; transform: translateY(-1px); }
+  .path-row.featured { border-left-color: #5c8a3a; background: #fffdf3; }
+  .path-row.public { border-left-color: #1a3a52; }
+  .path-row.public_review { border-left-color: #c9a87c; border-style: dashed solid solid solid; }
+  .path-row h3 { margin: 0 0 0.2em; color: #1a3a52; font-size: 1.1em; }
+  .path-row .body { font-size: 0.95em; color: #5a4a30; font-style: italic; line-height: 1.5; }
+  .path-row .meta { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.4em; padding-top: 0.4em; border-top: 1px dashed #d4c8a5; }
+  .path-row .meta .stage { padding: 0.05em 0.4em; border-radius: 8px; background: #f3eedb; border: 1px solid #d4c8a5; margin-right: 0.3em; }
+  .path-row .meta .stage.featured { background: #5c8a3a; color: #fff; border-color: #5c8a3a; }
+  .path-row .meta .stage.public_review { background: #ffe0b0; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; padding: 1.5em; border-radius: 6px; text-align: center; color: #6a5a3a; }
+
+  .principle { margin-top: 2.5em; padding: 0.9em 1.1em; background: #f3eedb; border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0; font-size: 0.88em; color: #5a4a30; font-style: italic; }
+  .principle strong { font-style: normal; color: #1a3a52; }
+
+  /* Path view (when ?id= is set) */
+  .narration { background: #fff5d4; border-left: 4px solid #b8945a; padding: 1em 1.3em; margin: 1em 0; color: #5a4a30; font-style: italic; }
+  .narration .label { display: block; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.18em; text-transform: uppercase; color: #806010; font-style: normal; margin-bottom: 0.3em; }
+
+  .step {
+    background: #fffef7; border: 1px solid #d4c8a5; border-radius: 4px;
+    padding: 0; margin-bottom: 0.8em; position: relative; overflow: hidden;
+    box-shadow: 0 1px 0 #e8e0c0, 0 4px 10px rgba(60,40,0,0.05);
+  }
+  .step::before {
+    content: "";
+    display: block;
+    height: 0.9em;
+    background: linear-gradient(to bottom, transparent calc(100% - 2px), #c66 calc(100% - 2px), #c66 calc(100% - 1px), transparent 100%);
+    border-bottom: 1px solid #d4c8a5;
+  }
+  .step-face { padding: 0.7em 1em 0.9em; }
+  .step .step-num { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.14em; }
+  .step h2 { margin: 0.1em 0 0.3em; color: #1a3a52; font-size: 1.15em; }
+  .step .src { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; }
+  .step .body { font-size: 0.95em; color: #2a2a28; margin: 0.4em 0; }
+  .step .narr { font-size: 0.92em; color: #5a4a30; font-style: italic; padding-top: 0.4em; border-top: 1px dashed #d4c8a5; margin-top: 0.4em; }
+  .step a { color: #1a3a52; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a>
+  <a href="/walks.html">Walk a question</a>
+  <a href="/codex.html">The Codex</a>
+  <a href="/atlas.html">Spatial atlas</a>
+</nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE ATLAS · BOOK OF PATHS</div>
+  <h1>The book of paths</h1>
+  <div class="tagline">Walks the tradition has walked. Pick one. Step through it.</div>
+</div>
+
+<div id="root"></div>
+
+<p class="principle">
+  <strong>What this is.</strong> Cards are nodes; paths are walks. The Atlas is the shelf of paths the family has walked or the operator has curated. A walk that survived. The act of walking it is the teaching. Replay any path; it warms the working set so the cards come to hand.
+</p>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script>
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const pathId = params.get('id');
+  const root = document.getElementById('root');
+
+  if (pathId) {
+    await renderPath(pathId);
+  } else {
+    await renderList();
+  }
+
+  async function renderList() {
+    root.innerHTML =
+      '<div class="intro"><p>Each row is a walk. Some are operator-curated (canonical). Some are walks the engine surfaced and the family kept. Pick one to step through it card by card.</p></div>' +
+      '<div class="tabs">' +
+        '<button class="tab active" data-f="all">All paths</button>' +
+        '<button class="tab" data-f="featured">Featured</button>' +
+        '<button class="tab" data-f="public">Public</button>' +
+        '<button class="tab" data-f="public_review">In review</button>' +
+      '</div>' +
+      '<div id="list"><div class="empty">Loading…</div></div>';
+
+    let currentFilter = 'all';
+    for (const t of document.querySelectorAll('.tab')) {
+      t.addEventListener('click', () => {
+        for (const x of document.querySelectorAll('.tab')) x.classList.remove('active');
+        t.classList.add('active');
+        currentFilter = t.dataset.f;
+        loadList(currentFilter);
+      });
+    }
+    await loadList(currentFilter);
+  }
+
+  async function loadList(filter) {
+    let url = '/atlas/paths';
+    if (filter && filter !== 'all') url += '?lifecycle=' + encodeURIComponent(filter);
+    const r = await fetch(url, { cache: 'no-store' });
+    const j = await r.json();
+    const $list = document.getElementById('list');
+    if (!j.paths || j.paths.length === 0) {
+      $list.innerHTML = '<div class="empty">No paths yet on this shelf. Walks land here as the family uses /walks.html — and operator-curated paths can be authored directly.</div>';
+      return;
+    }
+    $list.innerHTML = j.paths.map(p => {
+      const stage = p.lifecycle_stage || 'public';
+      const paperclips = (p.metrics || {}).paperclips_count || 0;
+      const walks = (p.metrics || {}).walks_through_count || 0;
+      return '<a class="path-row ' + esc(stage) + '" href="/paths.html?id=' + esc(p.card_id) + '">' +
+        '<h3>' + esc(p.title || '(untitled)') + '</h3>' +
+        (p.body ? '<div class="body">' + esc(p.body) + '</div>' : '') +
+        '<div class="meta">' +
+          '<span class="stage ' + esc(stage) + '">' + esc(stage) + '</span>' +
+          '<span>' + p.step_count + ' cards</span>' +
+          (walks > 0 ? ' · <span>' + walks + ' walks</span>' : '') +
+          (paperclips > 0 ? ' · <span>📎 ' + paperclips + '</span>' : '') +
+          (p.author ? ' · <span>by ' + esc(p.author) + '</span>' : '') +
+        '</div>' +
+      '</a>';
+    }).join('');
+  }
+
+  async function renderPath(id) {
+    root.innerHTML = '<div class="empty">Loading path…</div>';
+    let path;
+    try {
+      const r = await fetch('/atlas/paths/' + encodeURIComponent(id), { cache: 'no-store' });
+      path = await r.json();
+    } catch (e) {
+      root.innerHTML = '<div class="empty">Could not load this path.</div>';
+      return;
+    }
+    if (!path || path.error || !path.title) {
+      root.innerHTML = '<div class="empty">Path not found.</div>';
+      return;
+    }
+    // Warm prefetch + bump walks_through
+    fetch('/atlas/paths/' + encodeURIComponent(id) + '/replay', { method: 'POST' }).catch(() => {});
+
+    const steps = (path.cards || []).map((c, i) =>
+      '<div class="step">' +
+        '<div class="step-face">' +
+          '<span class="step-num">CARD ' + (i+1).toString().padStart(2,'0') + ' / ' + (path.step_count||0).toString().padStart(2,'0') + '</span>' +
+          '<h2><a href="/card.html?id=' + esc(c.card_id) + '">' + esc(c.title || '') + '</a></h2>' +
+          ((c.source && c.source.label) ? '<div class="src">' + esc(c.source.label) + (c.source.ref ? ' · ' + esc(c.source.ref) : '') + '</div>' : '') +
+          (c.body ? '<div class="body">' + esc(c.body) + '</div>' : '') +
+          (c.narration ? '<div class="narr">' + esc(c.narration) + '</div>' : '') +
+        '</div>' +
+      '</div>'
+    ).join('');
+
+    root.innerHTML =
+      '<div class="intro"><h2 style="margin:0; color:#1a3a52;">' + esc(path.title) + '</h2>' +
+        (path.author ? '<div style="font-family:\'Courier New\', monospace; font-size:0.85em; color:#806010; margin-top:0.2em;">' + esc(path.author) + ' · ' + esc((path.lifecycle_stage||'')) + '</div>' : '') +
+      '</div>' +
+      '<div class="narration" data-readable data-voice-label="Shepherd narration"><span class="label">Shepherd</span>' + esc(path.body || 'Walk these in order.') + '</div>' +
+      steps +
+      '<div style="margin-top:1em; text-align:center; font-family:\'Courier New\', monospace; font-size:0.85em; color:#6a5a3a;">' +
+        '<a href="/paths.html">← Back to all paths</a>' +
+      '</div>';
+
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+})();
+</script>
+
+<script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

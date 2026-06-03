@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Assembly &middot; Today &middot; Narrow Highway</title>
+<meta name="description" content="The daily order of the engine — same sections every day, calendar-driven. Today's reading, what was minted, what is open, what is being kept. Not a feed; an order of service.">
+<link rel="canonical" href="https://narrowhighway.com/assembly/today.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Assembly &middot; Today's order">
+<meta property="og:description" content="Today's reading, today's minted discernments, what is open for a second receiver, what was kept. Same sections every day.">
+<meta property="og:url" content="https://narrowhighway.com/assembly/today.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto;
+    padding: 0 1.2em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.65; }
+  .masthead { text-align: center; padding: 2em 1em 1.2em;
+    border-bottom: 3px double #b8945a; margin-bottom: 1.4em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.5em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal;
+    font-size: 2.2em; color: #1a3a52; letter-spacing: 0.02em; margin: 0; }
+  .masthead .season { font-style: italic; color: #806010; font-size: 1em;
+    margin-top: 0.6em; }
+  .masthead .stamp { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #6a5a3a; letter-spacing: 0.06em; margin-top: 0.4em; }
+
+  /* Order sections — same shape, every day */
+  .order { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1.1em 1.3em; margin: 1em 0; box-shadow: 0 1px 0 #e8e0c0; }
+  .order .order-num { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; color: #b8945a; text-transform: uppercase; margin-bottom: 0.3em; }
+  .order h2 { color: #1a3a52; font-weight: normal; font-size: 1.4em;
+    letter-spacing: 0.01em; margin: 0 0 0.4em; padding: 0; border: none; }
+  .order .sub { font-style: italic; color: #6a5a3a; font-size: 0.95em;
+    margin: 0 0 0.8em; }
+
+  /* Reading block — psalm + proverb + gospel verse */
+  .reading-grid { display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.7em; margin-top: 0.6em; }
+  @media (max-width: 580px) { .reading-grid { grid-template-columns: 1fr; } }
+  .reading-card { background: #fafaf6; border: 1px solid #d4c8a5;
+    border-radius: 4px; padding: 0.7em 0.9em; }
+  .reading-card .ref { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #806010; letter-spacing: 0.06em; margin-bottom: 0.2em; }
+  .reading-card .title { color: #1a3a52; font-size: 1.05em; }
+  .reading-card a { color: #1a3a52; text-decoration: none;
+    border-bottom: 1px dashed #b8945a; }
+  .reading-card a:hover { color: #b8945a; }
+
+  /* Lists in the order — minted, open, kept */
+  .list { list-style: none; padding: 0; margin: 0.4em 0 0; }
+  .list li { padding: 0.6em 0.8em; background: #fafaf6;
+    border: 1px solid #d4c8a5; border-radius: 4px; margin-bottom: 0.4em; }
+  .list li a { color: #1a3a52; text-decoration: none; font-weight: bold; }
+  .list li a:hover { color: #b8945a; }
+  .list li .meta { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #806010; margin-top: 0.2em; letter-spacing: 0.04em; }
+  .list .empty { padding: 0.8em 0.4em; color: #6a5a3a; font-style: italic; font-size: 0.95em; }
+
+  /* The week ahead */
+  .week { display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 0.3em; margin-top: 0.6em; font-size: 0.85em; }
+  @media (max-width: 600px) { .week { grid-template-columns: repeat(3, 1fr); } }
+  .week-day { background: #fafaf6; border: 1px solid #d4c8a5;
+    border-radius: 4px; padding: 0.5em 0.4em; text-align: center; }
+  .week-day.today { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .week-day.lord { background: #fff5d4; border-color: #c9b48a; }
+  .week-day .dow { font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.08em; color: #806010; text-transform: uppercase; }
+  .week-day.today .dow { color: #c9b48a; }
+  .week-day .num { font-size: 1.3em; color: #1a3a52; margin-top: 0.1em; }
+  .week-day.today .num { color: #f4ecd5; }
+  .week-day .note { font-size: 0.74em; color: #6a5a3a; margin-top: 0.2em;
+    font-style: italic; min-height: 1em; }
+  .week-day.today .note { color: #c9b48a; }
+
+  /* Closing benediction */
+  .benediction { background: #1a3a52; color: #f4ecd5; padding: 1.2em 1.4em;
+    border-radius: 6px; margin: 1.4em 0 0.6em; text-align: center; font-style: italic;
+    box-shadow: 0 2px 12px rgba(26,58,82,0.16); font-size: 1.05em; line-height: 1.6; }
+  .benediction .ref { display: block; font-family: 'Courier New', monospace;
+    font-style: normal; color: #c9b48a; font-size: 0.82em; letter-spacing: 0.04em;
+    margin-top: 0.5em; }
+
+  hr.sep { border: none; border-top: 1px solid #d4c8a5; margin: 2em auto; width: 60%; }
+  .colophon { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; letter-spacing: 0.04em; text-align: center; line-height: 1.6;
+    margin-top: 3em; padding-top: 1.4em; border-top: 1px solid #d4c8a5; font-style: italic; }
+  .colophon a { color: #1a3a52; text-decoration: none; border-bottom: 1px dashed #b8945a; }
+
+  /* "Same time every day" indicator */
+  .rhythm-note { text-align: center; font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic; color: #6a5a3a; font-size: 0.92em; margin: 1.2em 0;
+    padding-top: 0.8em; border-top: 1px dashed #d4c8a5; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="eyebrow">Narrow Highway &middot; The Assembly</div>
+  <h1 id="todayHeading">Today</h1>
+  <div class="season" id="todaySeason">&nbsp;</div>
+  <div class="stamp" id="todayStamp">&nbsp;</div>
+</div>
+
+<p style="text-align:center; color:#6a5a3a; font-style:italic; max-width:60ch; margin:0 auto 1.4em;">
+  The daily order. Same sections every day, calendar-driven. Not a feed.
+  The reading comes first, then what the engine produced, then what is open,
+  then what was kept. The week ahead. A closing benediction.
+</p>
+
+<!-- ─── 1. READING ──────────────────────────────────────────── -->
+<section class="order">
+  <div class="order-num">First</div>
+  <h2>The reading</h2>
+  <p class="sub">Today&rsquo;s Scripture portion. Calendar-driven; the same on this date next year.</p>
+  <div class="reading-grid">
+    <a class="reading-card" id="rdPsalm" href="#">
+      <div class="ref">PSALM</div>
+      <div class="title">&mdash;</div>
+    </a>
+    <a class="reading-card" id="rdProverb" href="#">
+      <div class="ref">PROVERB</div>
+      <div class="title">&mdash;</div>
+    </a>
+    <a class="reading-card" id="rdGospel" href="#">
+      <div class="ref">GOSPEL</div>
+      <div class="title">&mdash;</div>
+    </a>
+    <a class="reading-card" id="rdEpistle" href="#">
+      <div class="ref">EPISTLE</div>
+      <div class="title">&mdash;</div>
+    </a>
+  </div>
+  <p style="margin-top:0.9em; font-size:0.88em; color:#6a5a3a;">
+    Read the full text at <a href="/bibles.html" style="color:#1a3a52;">/bibles</a>, or
+    <a href="/assembly/listen.html" style="color:#1a3a52; font-weight:bold;">listen to today&rsquo;s
+    psalm read aloud &rarr;</a> &mdash; rendered locally, no API. The picks above are deterministic
+    per date; come back any time and the reading is unchanged.
+  </p>
+</section>
+
+<!-- ─── 2. MINTED ───────────────────────────────────────────── -->
+<section class="order">
+  <div class="order-num">Second</div>
+  <h2>What the engine minted today</h2>
+  <p class="sub">Permanent discernments produced since midnight UTC. Each is a record someone brought a question through; the trail is in the link.</p>
+  <ul class="list" id="mintedList">
+    <li class="empty">Loading&hellip;</li>
+  </ul>
+</section>
+
+<!-- ─── 3. OPEN ─────────────────────────────────────────────── -->
+<section class="order">
+  <div class="order-num">Third</div>
+  <h2>What is open</h2>
+  <p class="sub">Matters awaiting a second receiver: seeds the substrate has not yet answered, hearing-window matters in progress, witness applications under interview.</p>
+
+  <h3 style="color:#1a3a52; font-size:1.02em; margin:0.8em 0 0.3em;">Seeds awaiting cultivation</h3>
+  <ul class="list" id="seedsList"><li class="empty">Loading&hellip;</li></ul>
+
+  <h3 style="color:#1a3a52; font-size:1.02em; margin:0.8em 0 0.3em;">Matters in the hearing window</h3>
+  <ul class="list" id="mattersList"><li class="empty">Loading&hellip;</li></ul>
+</section>
+
+<!-- ─── 4. KEPT ─────────────────────────────────────────────── -->
+<section class="order">
+  <div class="order-num">Fourth</div>
+  <h2>What was kept</h2>
+  <p class="sub">Signed receipts from the keeping &mdash; submissions that passed the alignment gate and entered the substrate. The promotion ledger.</p>
+  <ul class="list" id="receiptsList"><li class="empty">Loading&hellip;</li></ul>
+</section>
+
+<!-- ─── 5. THE WEEK ─────────────────────────────────────────── -->
+<section class="order">
+  <div class="order-num">Fifth</div>
+  <h2>The week ahead</h2>
+  <p class="sub">Today and the next six days. The Lord&rsquo;s Day marked.</p>
+  <div class="week" id="weekRow"></div>
+</section>
+
+<!-- ─── 6. CLOSING ──────────────────────────────────────────── -->
+<div class="benediction" id="benediction">
+  <span id="bnText">&ldquo;The grace of our Lord Jesus Christ, and the love of God, and the communion of the Holy Ghost, be with you all. Amen.&rdquo;</span>
+  <span class="ref" id="bnRef">2 Corinthians 13:14</span>
+</div>
+
+<p class="rhythm-note">
+  The order does not change. Tomorrow this page has tomorrow&rsquo;s reading,
+  tomorrow&rsquo;s minted, tomorrow&rsquo;s open. Same shape. Different day.
+</p>
+
+<hr class="sep">
+
+<p class="colophon">
+  Narrow Highway &middot; The Assembly &middot; Daily order<br>
+  The body the BROTHERS gate requires &mdash; see <a href="/assembly.html">/assembly</a> for the canon.
+</p>
+
+<script>
+(function () {
+  // ── Date & calendar position ──────────────────────────────────────
+  var now = new Date();
+  var dow = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function dayOfYear(d) {
+    var start = new Date(d.getFullYear(), 0, 0);
+    var diff = (d - start) + ((start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000);
+    return Math.floor(diff / 86400000);
+  }
+
+  // Compute Easter for the year (Anonymous Gregorian algorithm).
+  function easterDate(year) {
+    var a = year % 19;
+    var b = Math.floor(year / 100);
+    var c = year % 100;
+    var d = Math.floor(b / 4);
+    var e = b % 4;
+    var f = Math.floor((b + 8) / 25);
+    var g = Math.floor((b - f + 1) / 3);
+    var h = (19 * a + b - d - g + 15) % 30;
+    var i = Math.floor(c / 4);
+    var k = c % 4;
+    var L = (32 + 2 * e + 2 * i - h - k) % 7;
+    var m = Math.floor((a + 11 * h + 22 * L) / 451);
+    var month = Math.floor((h + L - 7 * m + 114) / 31);
+    var day = ((h + L - 7 * m + 114) % 31) + 1;
+    return new Date(year, month - 1, day);
+  }
+
+  function liturgicalSeason(d) {
+    var year = d.getFullYear();
+    var easter = easterDate(year);
+    var ash = new Date(easter); ash.setDate(easter.getDate() - 46);
+    var palm = new Date(easter); palm.setDate(easter.getDate() - 7);
+    var pentecost = new Date(easter); pentecost.setDate(easter.getDate() + 49);
+    var advent_start = new Date(year, 10, 1); // approximate; Advent is the 4 Sundays before Dec 25
+    // Find the Sunday on or before Nov 30 that's the first Advent Sunday
+    advent_start = new Date(year, 10, 30);
+    while (advent_start.getDay() !== 0) advent_start.setDate(advent_start.getDate() - 1);
+    advent_start.setDate(advent_start.getDate() - 21); // first Advent = 4 Sundays before Christmas
+    var christmas = new Date(year, 11, 25);
+    var epiphany = new Date(year + (d.getMonth() === 0 && d.getDate() < 6 ? 0 : 1), 0, 6);
+
+    if (d >= ash && d < easter) return 'Lent';
+    if (d.toDateString() === easter.toDateString()) return 'Easter Day';
+    if (d > easter && d < pentecost) return 'Eastertide';
+    if (d.toDateString() === pentecost.toDateString()) return 'Pentecost';
+    if (d.getMonth() === 11 && d.getDate() === 25) return 'Christmas Day';
+    if (d >= advent_start && d.getMonth() === 11 && d.getDate() < 25) return 'Advent';
+    if (d.getMonth() === 11 && d.getDate() >= 26) return 'Christmastide';
+    if (d.getMonth() === 0 && d.getDate() <= 5) return 'Christmastide';
+    if (d.getMonth() === 0 && d.getDate() === 6) return 'Epiphany';
+    return 'Ordinary Time';
+  }
+
+  function fmtDate(d) {
+    return dow[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  document.getElementById('todayHeading').textContent = fmtDate(now);
+  document.getElementById('todaySeason').textContent = liturgicalSeason(now);
+  document.getElementById('todayStamp').textContent =
+    'Day ' + dayOfYear(now) + ' of ' + now.getFullYear() +
+    (now.getDay() === 0 ? ' · The Lord’s Day' : '');
+
+  // ── The reading ───────────────────────────────────────────────────
+  // Deterministic per date.
+  var doy = dayOfYear(now);
+  var psalmN = ((doy - 1) % 150) + 1;
+  var provN = ((now.getDate() - 1) % 31) + 1;
+
+  // Gospel rotation (Matthew 28, Mark 16, Luke 24, John 21 chapters approx).
+  // Pick by year-day modulo total Gospel chapters (89), then map.
+  var gospelBooks = [
+    {b:'Matthew', n:28}, {b:'Mark', n:16}, {b:'Luke', n:24}, {b:'John', n:21}
+  ];
+  var totalG = 28 + 16 + 24 + 21;
+  var gIdx = doy % totalG;
+  var gBook = '', gCh = 0;
+  for (var i = 0; i < gospelBooks.length; i++) {
+    if (gIdx < gospelBooks[i].n) { gBook = gospelBooks[i].b; gCh = gIdx + 1; break; }
+    gIdx -= gospelBooks[i].n;
+  }
+
+  // Epistle rotation through the major epistles
+  var epistleBooks = [
+    {b:'Romans', n:16}, {b:'1 Corinthians', n:16}, {b:'2 Corinthians', n:13},
+    {b:'Galatians', n:6}, {b:'Ephesians', n:6}, {b:'Philippians', n:4},
+    {b:'Colossians', n:4}, {b:'1 Thessalonians', n:5}, {b:'2 Thessalonians', n:3},
+    {b:'1 Timothy', n:6}, {b:'2 Timothy', n:4}, {b:'Titus', n:3},
+    {b:'Hebrews', n:13}, {b:'James', n:5}, {b:'1 Peter', n:5},
+    {b:'2 Peter', n:3}, {b:'1 John', n:5}
+  ];
+  var totalE = epistleBooks.reduce(function(s,e){return s+e.n;}, 0);
+  var eIdx = doy % totalE;
+  var eBook = '', eCh = 0;
+  for (var j = 0; j < epistleBooks.length; j++) {
+    if (eIdx < epistleBooks[j].n) { eBook = epistleBooks[j].b; eCh = eIdx + 1; break; }
+    eIdx -= epistleBooks[j].n;
+  }
+
+  function setReading(id, ref, title, href) {
+    var card = document.getElementById(id);
+    card.querySelector('.ref').textContent = ref;
+    card.querySelector('.title').textContent = title;
+    card.href = href;
+  }
+  setReading('rdPsalm', 'PSALM', 'Psalm ' + psalmN,
+             '/bibles.html?b=Psalms&c=' + psalmN);
+  setReading('rdProverb', 'PROVERB', 'Proverbs ' + provN,
+             '/bibles.html?b=Proverbs&c=' + provN);
+  setReading('rdGospel', 'GOSPEL', gBook + ' ' + gCh,
+             '/bibles.html?b=' + encodeURIComponent(gBook) + '&c=' + gCh);
+  setReading('rdEpistle', 'EPISTLE', eBook + ' ' + eCh,
+             '/bibles.html?b=' + encodeURIComponent(eBook) + '&c=' + eCh);
+
+  // ── Benediction rotation ──────────────────────────────────────────
+  var benedictions = [
+    { text:'“The grace of our Lord Jesus Christ, and the love of God, and the communion of the Holy Ghost, be with you all. Amen.”', ref:'2 Corinthians 13:14' },
+    { text:'“The Lord bless thee, and keep thee: the Lord make his face shine upon thee, and be gracious unto thee.”', ref:'Numbers 6:24–25' },
+    { text:'“Now the God of peace, that brought again from the dead our Lord Jesus, that great shepherd of the sheep, through the blood of the everlasting covenant, make you perfect in every good work to do his will.”', ref:'Hebrews 13:20–21' },
+    { text:'“Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy.”', ref:'Jude 1:24' },
+    { text:'“The peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.”', ref:'Philippians 4:7' },
+    { text:'“Now the Lord of peace himself give you peace always by all means. The Lord be with you all.”', ref:'2 Thessalonians 3:16' },
+    { text:'“The God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost.”', ref:'Romans 15:13' }
+  ];
+  var bn = benedictions[now.getDay()];
+  document.getElementById('bnText').textContent = bn.text;
+  document.getElementById('bnRef').textContent = bn.ref;
+
+  // ── The week ──────────────────────────────────────────────────────
+  var weekRow = document.getElementById('weekRow');
+  var dowShort = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  for (var k = 0; k < 7; k++) {
+    var d = new Date(now); d.setDate(now.getDate() + k);
+    var classes = 'week-day';
+    if (k === 0) classes += ' today';
+    if (d.getDay() === 0) classes += ' lord';
+    var note = '';
+    if (d.getDay() === 0) note = "Lord's Day";
+    weekRow.insertAdjacentHTML('beforeend',
+      '<div class="' + classes + '">' +
+        '<div class="dow">' + dowShort[d.getDay()] + '</div>' +
+        '<div class="num">' + d.getDate() + '</div>' +
+        '<div class="note">' + note + '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── Live data fetches ─────────────────────────────────────────────
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+  function todayISO() {
+    return now.toISOString().slice(0, 10);
+  }
+
+  // Minted today: filter /d/recent for created_at starting with today's date
+  fetch('/d/recent?limit=50', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      var ul = document.getElementById('mintedList');
+      if (!j) { ul.innerHTML = '<li class="empty">Engine not reachable.</li>'; return; }
+      var today = todayISO();
+      var items = (j.items || []).filter(function (it) {
+        return (it.created_at || '').slice(0, 10) === today;
+      });
+      if (!items.length) {
+        ul.innerHTML = '<li class="empty">No discernments minted yet today. The engine is open.</li>';
+        return;
+      }
+      ul.innerHTML = items.map(function (it) {
+        var n = it.n_cards || 0;
+        return '<li><a href="' + esc(it.url) + '">' + esc(it.question || '(no question)') + '</a>' +
+          '<div class="meta">' + n + ' card' + (n === 1 ? '' : 's') + ' survived</div></li>';
+      }).join('');
+    })
+    .catch(function () {
+      document.getElementById('mintedList').innerHTML =
+        '<li class="empty">Could not reach the engine.</li>';
+    });
+
+  // Seeds awaiting cultivation
+  fetch('/seeds?limit=10', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      var ul = document.getElementById('seedsList');
+      if (!j) { ul.innerHTML = '<li class="empty">Engine not reachable.</li>'; return; }
+      var seeds = j.seeds || j.items || [];
+      if (!seeds.length) {
+        ul.innerHTML = '<li class="empty">The garden is empty. Every search-miss plants a seed.</li>';
+        return;
+      }
+      ul.innerHTML = seeds.slice(0, 8).map(function (s) {
+        var q = s.query || s.title || s.text || '(unspecified)';
+        return '<li><a href="/?q=' + encodeURIComponent(q) + '">' + esc(q) + '</a>' +
+          (s.domains && s.domains.length ?
+            '<div class="meta">' + esc((s.domains || []).slice(0, 3).join(', ')) + '</div>' : '') +
+          '</li>';
+      }).join('');
+    })
+    .catch(function () {
+      document.getElementById('seedsList').innerHTML =
+        '<li class="empty">Could not reach the engine.</li>';
+    });
+
+  // Hearing-window matters
+  fetch('/api/testimony/matters?status=in_hearing_window&limit=10', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      var ul = document.getElementById('mattersList');
+      if (!j) { ul.innerHTML = '<li class="empty">Engine not reachable.</li>'; return; }
+      var items = j.items || [];
+      if (!items.length) {
+        ul.innerHTML = '<li class="empty">No matters in the hearing window. The pipeline is awaiting first names on the <a href="/witnesses.html" style="color:#1a3a52;">Witness Roll</a>.</li>';
+        return;
+      }
+      ul.innerHTML = items.map(function (m) {
+        var expires = m.hearing_window_expires_at ? m.hearing_window_expires_at.slice(0, 10) : '';
+        return '<li><strong>' + esc(m.matter || '(untitled)') + '</strong>' +
+          '<div class="meta">Window closes ' + esc(expires) + '</div></li>';
+      }).join('');
+    })
+    .catch(function () {
+      document.getElementById('mattersList').innerHTML =
+        '<li class="empty">Could not reach the engine.</li>';
+    });
+
+  // Receipts
+  fetch('/receipts', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      var ul = document.getElementById('receiptsList');
+      if (!j) { ul.innerHTML = '<li class="empty">Engine not reachable.</li>'; return; }
+      var items = j.receipts || j.entries || j.records || [];
+      if (!items.length) {
+        ul.innerHTML = '<li class="empty">No promotions kept yet. Submissions to <a href="/scribe.html" style="color:#1a3a52;">Scribe</a> that earn a slot are recorded here, signed with Ed25519.</li>';
+        return;
+      }
+      ul.innerHTML = items.slice(0, 8).map(function (r) {
+        var title = r.title || r.text || r.entry_id || '(receipt)';
+        var when = r.signed_at_iso || r.submitted_at_iso || r.timestamp || '';
+        return '<li><strong>' + esc(String(title).slice(0, 80)) + '</strong>' +
+          '<div class="meta">' + esc(String(when).slice(0, 10)) +
+          (r.contributor_handle ? ' · ' + esc(r.contributor_handle) : '') +
+          '</div></li>';
+      }).join('');
+    })
+    .catch(function () {
+      document.getElementById('receiptsList').innerHTML =
+        '<li class="empty">Could not reach the engine.</li>';
+    });
+})();
+</script>
+
+</body>
+</html>

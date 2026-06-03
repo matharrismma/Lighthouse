@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.unit.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unit · Concordance</title>
+  <link rel="canonical" href="https://narrowhighway.com/unit.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Unit · Concordance">
+  <meta property="og:description" content="Unit · Concordance">
+  <meta property="og:url" content="https://narrowhighway.com/unit.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Unit · Concordance">
+  <meta name="twitter:description" content="Unit · Concordance">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#0a0810; color:#ede7db; margin:0; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
+    .crumb { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; color:#6e6878; margin-bottom:10px; }
+    .crumb a { color:#c9a87c; text-decoration:none; }
+    h1.title { font-family:'Crimson Pro', Georgia, serif; font-weight:600; font-size:32px; margin:4px 0 14px; line-height:1.2; }
+    .meta { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:24px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#6e6878; letter-spacing:0.06em; }
+    .meta span b { color:#c9a87c; }
+    .section { background:#0f0d11; border:1px solid #29232f; border-radius:10px; padding:22px 26px; margin-bottom:18px; }
+    .section h2 { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#c9a87c; margin:0 0 10px; font-weight:600; }
+    .rule { font-family:'Crimson Pro', Georgia, serif; font-size:17px; line-height:1.6; color:#ede7db; }
+    .examples { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .ex { background:#161320; border:1px solid #29232f; padding:6px 12px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:12.5px; color:#ede7db; }
+    .manipulative { font-family:'Crimson Pro', Georgia, serif; font-size:15.5px; line-height:1.6; color:#b3aabd; }
+    .diagrams { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+    .diagram { background:#161320; border:1px solid #29232f; border-radius:8px; padding:14px; text-align:center; color:#ede7db; }
+    .diagram .dlabel { font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em; color:#c9a87c; text-transform:uppercase; margin-bottom:8px; }
+    .diagram svg { width:100%; max-width:240px; height:auto; color:#ede7db; }
+    .modes { display:flex; flex-direction:column; gap:10px; }
+    .mode { background:#161320; border:1px solid #29232f; border-radius:8px; padding:14px 16px; }
+    .mode.active { border-color:#c9a87c; background:#1d1828; }
+    .mode-label { font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em; color:#c9a87c; text-transform:uppercase; margin-bottom:4px; cursor:pointer; }
+    .mode-instr { font-family:'Crimson Pro', Georgia, serif; font-size:14.5px; color:#b3aabd; margin:2px 0 6px; }
+    .mode-script { font-family:'Crimson Pro', Georgia, serif; font-style:italic; font-size:14.5px; color:#ede7db; border-left:3px solid #c9a87c; padding-left:12px; margin:6px 0 0; }
+    .wedges { display:flex; flex-wrap:wrap; gap:6px; }
+    .wedge { background:#161320; border:1px solid #29232f; padding:5px 11px; border-radius:14px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:#ede7db; text-decoration:none; transition:all 0.12s; }
+    .wedge:hover { border-color:#c9a87c; color:#c9a87c; }
+    .check-prompt { font-family:'Crimson Pro', Georgia, serif; font-size:16px; color:#ede7db; line-height:1.55; }
+    .check-toggle { background:transparent; border:1px solid #29232f; color:#c9a87c; padding:8px 14px; border-radius:6px; cursor:pointer; font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.06em; margin-top:14px; }
+    .check-toggle:hover { border-color:#c9a87c; }
+    .check-answer { display:none; margin-top:12px; padding:14px 16px; background:rgba(111,196,124,0.05); border:1px solid rgba(111,196,124,0.25); border-radius:6px; font-family:'Crimson Pro', Georgia, serif; font-size:14.5px; line-height:1.55; color:#ede7db; }
+    .check-answer.show { display:block; }
+    .check-answer .ta { font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em; color:#c9a87c; text-transform:uppercase; display:block; margin-top:10px; margin-bottom:4px; }
+    .check-answer .teach { color:#b3aabd; font-style:italic; }
+    .mastery-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:16px 18px; background:#161320; border:1px solid #29232f; border-radius:10px; margin-top:24px; }
+    .mastery-row .label { font-family:'JetBrains Mono', monospace; font-size:11px; color:#b3aabd; letter-spacing:0.08em; margin-right:auto; }
+    .mastery-row button { background:transparent; border:1px solid #29232f; color:#ede7db; padding:8px 14px; border-radius:7px; cursor:pointer; font-family:inherit; font-size:13px; transition:all 0.12s; }
+    .mastery-row button.primary { background:#c9a87c; color:#1a1208; border-color:#c9a87c; font-weight:600; }
+    .mastery-row button.primary:hover { background:#e3c498; }
+    .mastery-row button:hover { border-color:#c9a87c; color:#c9a87c; }
+    .mastery-state { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; }
+    .mastery-state.mastered { color:#6fc47c; }
+    .mastery-state.working  { color:#c4a030; }
+    .nav-row { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:24px; font-family:'JetBrains Mono', monospace; font-size:11.5px; }
+    .nav-row a { color:#c9a87c; text-decoration:none; border:1px solid #29232f; padding:8px 14px; border-radius:6px; transition:all 0.12s; }
+    .nav-row a:hover { border-color:#c9a87c; }
+    .nav-row .prereqs-warn { color:#c96c6c; font-family:'Crimson Pro', Georgia, serif; font-style:italic; font-size:13px; }
+    .empty { background:#161320; padding:40px; text-align:center; border-radius:10px; border:1px dashed #29232f; color:#6e6878; font-style:italic; font-family:'Crimson Pro', Georgia, serif; }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+  <nav class="topnav" style="background:rgba(10,8,16,0.92);backdrop-filter:blur(14px);border-bottom:1px solid #29232f;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100;">
+    <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.22em;color:#c9a87c;text-decoration:none;text-transform:uppercase;">Concordance</a>
+    <div style="display:flex;gap:22px;font-size:13px;align-items:center;flex-wrap:wrap;">
+      <a href="/curriculum.html" style="color:#c9a87c;text-decoration:none;font-weight:600;" data-i18n="nav.curriculum">Curriculum</a>
+      <a href="/daily.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.today">Today</a>
+      <a href="/apothecary.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.apothecary">Apothecary</a>
+      <a href="/walk.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.shepherd">Shepherd</a>
+      <a href="/scribe.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.scribe">Scribe</a>
+      <a href="/almanac.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.almanac">Almanac</a>
+      <a href="/library.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.library">Library</a>
+    </div>
+  </nav>
+  <main id="root">
+    <div class="empty">Loading the unit…</div>
+  </main>
+
+  <script>
+  (async () => {
+    const root = document.getElementById('root');
+    const params = new URLSearchParams(location.search);
+    const uid = params.get('id');
+    if (!uid) {
+      root.innerHTML = '<div class="empty">No unit id in the URL. Go to <a href="/curriculum.html" style="color:#c9a87c;">/curriculum.html</a> and pick one.</div>';
+      return;
+    }
+
+    // Each track has its own endpoint; try them all.
+    const TRACK_ROUTES = ['phonics','math','reading','writing','science','bible_curriculum','social_studies','workready'];
+    let unit = null, trackKey = null;
+    for (const tk of TRACK_ROUTES) {
+      try {
+        const r = await fetch(`/${tk}/${encodeURIComponent(uid)}`);
+        if (r.ok) {
+          unit = await r.json();
+          trackKey = tk;
+          break;
+        }
+      } catch (_) {}
+    }
+    if (!unit) {
+      root.innerHTML = `<div class="empty">Couldn't find unit '${uid}'. <a href="/curriculum.html" style="color:#c9a87c;">Back to curriculum</a>.</div>`;
+      return;
+    }
+
+    // Visitor identity (shared with Composer + curriculum dashboard)
+    const VKEY = 'concordance_visitor_id';
+    function getVid() {
+      try {
+        let id = localStorage.getItem(VKEY);
+        if (!id) {
+          const buf = new Uint8Array(12);
+          (window.crypto && crypto.getRandomValues) ? crypto.getRandomValues(buf) : buf.forEach((_,i)=>buf[i]=Math.floor(Math.random()*256));
+          id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0,12);
+          localStorage.setItem(VKEY, id);
+        }
+        return id;
+      } catch (_) { return 'anon'; }
+    }
+    const VID = getVid();
+
+    // Fetch current mastery + prerequisite check + curriculum index
+    // (so we can tell whether `unit.next` points at a real unit or a
+    // roadmap stub — and show 'coming' instead of a 404 link if stub).
+    const [mast, wedgeList, currIndex] = await Promise.all([
+      fetch('/mastery/visitor?visitor_id=' + encodeURIComponent(VID)).then(r => r.json()).catch(() => ({current:{}})),
+      fetch('/wedges').then(r => r.json()).then(d => d.wedges || []).catch(() => []),
+      fetch('/curriculum').then(r => r.json()).catch(() => ({tracks:{}})),
+    ]);
+    const allIds = new Set();
+    for (const t of Object.values(currIndex.tracks || {})) {
+      for (const u of t) allIds.add(u.id);
+    }
+    const nextExists = unit.next && allIds.has(unit.next);
+    const wedgeById = Object.fromEntries(wedgeList.map(w => [w.id, w]));
+    const current = mast.current || {};
+    const myState = current[uid] || 'not_started';
+    const prereqs = unit.prerequisites || [];
+    const missing = prereqs.filter(p => current[p] !== 'mastered');
+
+    const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    // Render
+    const examplesHtml = (unit.examples || []).map(e => {
+      // Examples can be strings OR objects with weak/strong (workready shape)
+      if (typeof e === 'string') return `<span class="ex">${esc(e)}</span>`;
+      if (e && e.weak && e.strong) return `<span class="ex" style="display:block;flex-basis:100%;"><span style="color:#c96c6c;">${esc(e.weak)}</span> → <span style="color:#6fc47c;">${esc(e.strong)}</span></span>`;
+      return `<span class="ex">${esc(JSON.stringify(e))}</span>`;
+    }).join('');
+
+    const modesHtml = (unit.modes || []).map((m, i) => `
+      <div class="mode" data-idx="${i}">
+        <div class="mode-label">${esc(m.label || m.id || 'mode')}</div>
+        <div class="mode-instr">${esc(m.instruction || '')}</div>
+        ${m.script ? `<div class="mode-script">${esc(m.script)}</div>` : ''}
+      </div>
+    `).join('');
+
+    const wedgeChips = (unit.wedges || []).map(wid => {
+      const w = wedgeById[wid];
+      if (!w) return `<span class="wedge">${esc(wid)}</span>`;
+      return `<a class="wedge" href="/wedges/${encodeURIComponent(wid)}" title="${esc(w.when_to_use || '')}">L${w.level} ${esc(w.name)}</a>`;
+    }).join('');
+
+    const ck = unit.check || {};
+    const checkAnswerHtml = ck.answer ? `
+      <div class="check-answer" id="checkAnswer">
+        <div>${esc(ck.answer)}</div>
+        ${ck.teaching_note ? `<span class="ta">Teaching note</span><div class="teach">${esc(ck.teaching_note)}</div>` : ''}
+        ${ck.common_misses ? `<span class="ta">Common misses</span><div class="teach">${esc((ck.common_misses || []).join(' · '))}</div>` : ''}
+      </div>` : '';
+
+    const trackLabel = (unit.track || trackKey).replace(/_/g, ' ');
+
+    const stateLabel = (s) => s === 'mastered' ? '✓ MASTERED' : s === 'working' ? '… WORKING' : 'NOT STARTED';
+
+    root.innerHTML = `
+      <p class="crumb"><a href="/curriculum.html">Curriculum</a> · ${esc(trackKey)} · #${unit.unit_seq || '-'}</p>
+      <h1 class="title">${esc(unit.title || uid)}</h1>
+      <div class="meta">
+        <span>track: <b>${esc(trackLabel)}</b></span>
+        <span>id: <b>${esc(uid)}</b></span>
+        ${unit.next ? (nextExists
+          ? `<span>next: <b><a href="/unit.html?id=${encodeURIComponent(unit.next)}" style="color:#c9a87c;text-decoration:none;">${esc(unit.next)}</a></b></span>`
+          : `<span>next (coming): <b style="color:#6e6878;">${esc(unit.next)}</b></span>`
+        ) : ''}
+      </div>
+
+      ${missing.length ? `
+        <div class="section" style="border-color:rgba(201,108,108,0.4);">
+          <h2 style="color:#c96c6c;">Needs prerequisites</h2>
+          <p style="font-family:'Crimson Pro',Georgia,serif;font-size:15px;color:#b3aabd;margin:0 0 8px;">Mark these as mastered first:</p>
+          ${missing.map(m => `<a href="/unit.html?id=${encodeURIComponent(m)}" style="color:#c9a87c;display:inline-block;margin-right:14px;font-family:'JetBrains Mono',monospace;font-size:12px;">→ ${esc(m)}</a>`).join('')}
+        </div>` : ''}
+
+      ${unit.rule ? `
+        <section class="section">
+          <h2>The rule</h2>
+          <p class="rule">${esc(unit.rule)}</p>
+        </section>` : ''}
+
+      ${examplesHtml ? `
+        <section class="section">
+          <h2>Examples</h2>
+          <div class="examples">${examplesHtml}</div>
+        </section>` : ''}
+
+      ${unit.decodable_sentence ? `
+        <section class="section">
+          <h2>Decodable sentence</h2>
+          <p class="rule" style="font-style:italic;font-size:18px;">${esc(unit.decodable_sentence)}</p>
+        </section>` : ''}
+
+      ${unit.manipulative ? `
+        <section class="section">
+          <h2>Manipulative</h2>
+          <p class="manipulative">${esc(unit.manipulative)}</p>
+        </section>` : ''}
+
+      ${(unit.svg_diagram || (unit.svg_diagrams && unit.svg_diagrams.length)) ? `
+        <section class="section">
+          <h2>Diagram${unit.svg_diagrams && unit.svg_diagrams.length > 1 ? 's' : ''}</h2>
+          <div class="diagrams">
+            ${unit.svg_diagram ? `<div class="diagram">${unit.svg_diagram}</div>` : ''}
+            ${(unit.svg_diagrams || []).map(d => `
+              <div class="diagram">
+                ${d.label ? `<div class="dlabel">${esc(d.label)}</div>` : ''}
+                ${d.svg || ''}
+              </div>
+            `).join('')}
+          </div>
+        </section>` : ''}
+
+      ${modesHtml ? `
+        <section class="section">
+          <h2>Three modes — pick one to start</h2>
+          <div class="modes">${modesHtml}</div>
+        </section>` : ''}
+
+      ${wedgeChips ? `
+        <section class="section">
+          <h2>Wedges — when stuck, escalate in order</h2>
+          <div class="wedges">${wedgeChips}</div>
+        </section>` : ''}
+
+      ${ck.prompt ? `
+        <section class="section">
+          <h2>Check</h2>
+          <p class="check-prompt">${esc(ck.prompt)}</p>
+          <button class="check-toggle" id="checkToggle" type="button">Show answer ▾</button>
+          ${checkAnswerHtml}
+        </section>` : ''}
+
+      <div class="mastery-row">
+        <span class="label">Your status on this unit:</span>
+        <span class="mastery-state ${myState}" id="curState">${stateLabel(myState)}</span>
+        <button id="markWorking" type="button">Mark working</button>
+        <button id="markMastered" type="button" class="primary">Mark mastered ✓</button>
+        <button id="markReset" type="button">Reset</button>
+      </div>
+
+      <div class="nav-row">
+        <a href="/curriculum.html">← All curriculum</a>
+        ${unit.next && nextExists ? `<a href="/unit.html?id=${encodeURIComponent(unit.next)}">Next: ${esc(unit.next)} →</a>` : ''}
+        ${unit.next && !nextExists ? `<span class="prereqs-warn">Next (coming): ${esc(unit.next)}</span>` : ''}
+      </div>
+
+      <div class="what-next" style="margin-top:30px;padding:18px 22px;background:rgba(217,168,114,0.05);border:1px dashed #c9a87c;border-radius:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:#c9a87c;font-weight:600;margin-bottom:10px;">What next?</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">
+          <a href="/?q=${encodeURIComponent(unit.title || uid)}" style="display:block;padding:12px 14px;background:#161320;border:1px solid #29232f;border-left:3px solid #7fa8c0;border-radius:6px;text-decoration:none;color:inherit;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#7fa8c0;text-transform:uppercase;margin-bottom:3px;">Search related</div>
+            <div style="color:#ede7db;font-size:13.5px;font-weight:500;">Find more substrate that touches this unit</div>
+          </a>
+          <a href="/scribe.html?prefill=${encodeURIComponent('Working through ' + (unit.title || uid))}" style="display:block;padding:12px 14px;background:#161320;border:1px solid #29232f;border-left:3px solid #6fc47c;border-radius:6px;text-decoration:none;color:inherit;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#6fc47c;text-transform:uppercase;margin-bottom:3px;">Write a note</div>
+            <div style="color:#ede7db;font-size:13.5px;font-weight:500;">Record what the kid found hard or easy</div>
+          </a>
+          ${unit.wedges && unit.wedges.length ? `
+          <a href="/wedges/${encodeURIComponent(unit.wedges[0])}" style="display:block;padding:12px 14px;background:#161320;border:1px solid #29232f;border-left:3px solid #b88ed6;border-radius:6px;text-decoration:none;color:inherit;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#b88ed6;text-transform:uppercase;margin-bottom:3px;">Read the wedge</div>
+            <div style="color:#ede7db;font-size:13.5px;font-weight:500;">If stuck: open the first wedge for this unit</div>
+          </a>` : ''}
+          <a href="/curriculum.html" style="display:block;padding:12px 14px;background:#161320;border:1px solid #29232f;border-left:3px solid #c4a030;border-radius:6px;text-decoration:none;color:inherit;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#c4a030;text-transform:uppercase;margin-bottom:3px;">Pick a different track</div>
+            <div style="color:#ede7db;font-size:13.5px;font-weight:500;">Math · Reading · Bible · Science · Social · Writing</div>
+          </a>
+        </div>
+      </div>
+    `;
+
+    // Wire interactions
+    const toggle = document.getElementById('checkToggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const ans = document.getElementById('checkAnswer');
+        if (!ans) return;
+        ans.classList.toggle('show');
+        toggle.textContent = ans.classList.contains('show') ? 'Hide answer ▴' : 'Show answer ▾';
+      });
+    }
+
+    async function setState(state) {
+      try {
+        await fetch('/mastery/mark', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ visitor_id: VID, unit_id: uid, state }),
+        });
+        const el = document.getElementById('curState');
+        el.className = 'mastery-state ' + (state === 'reset' ? '' : state);
+        el.textContent = state === 'reset' ? 'NOT STARTED' : stateLabel(state);
+      } catch (e) {
+        alert('Could not record mastery: ' + e.message);
+      }
+    }
+    document.getElementById('markWorking').addEventListener('click', () => setState('working'));
+    document.getElementById('markMastered').addEventListener('click', () => setState('mastered'));
+    document.getElementById('markReset').addEventListener('click', () => setState('reset'));
+  })();
+  </script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

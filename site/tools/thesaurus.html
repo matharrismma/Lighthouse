@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thesaurus — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  .search { display: flex; gap: 0.5em; margin-bottom: 1em; }
+  .search input { flex: 1; font: inherit; padding: 0.6em 0.8em; border: 1px solid #c9b48a; border-radius: 4px; }
+  .search button { font: inherit; padding: 0.6em 1.2em; background: #1a3a52; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+  .group { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.2em; margin-bottom: 0.8em; }
+  .group h3 { margin: 0 0 0.4em; color: #1a3a52; }
+  .words { display: flex; flex-wrap: wrap; gap: 0.3em; }
+  .word { background: #f4ecd5; border: 1px solid #c9b48a; padding: 0.15em 0.6em; border-radius: 4px; font-size: 0.92em; cursor: pointer; color: #5c4a2a; text-decoration: none; }
+  .word:hover { background: #1a3a52; color: #fff; }
+  .err { color: #b03020; padding: 0.8em; background: #fee; border: 1px solid #b03020; border-radius: 4px; }
+  .info { color: #6a5a3a; font-style: italic; }
+</style>
+</head>
+<body>
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Thesaurus</h1>
+<p class="info">Synonyms, antonyms, and related words via Datamuse.</p>
+
+<div class="search">
+  <input id="word" type="text" placeholder="enter a word..." autofocus autocomplete="off">
+  <button onclick="lookup()">Find</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const $r = document.getElementById('result');
+  const $w = document.getElementById('word');
+
+  async function fetchSet(url) {
+    const r = await fetch(url);
+    if (!r.ok) return [];
+    return (await r.json()).map(o => o.word).slice(0, 30);
+  }
+
+  async function lookup() {
+    const q = $w.value.trim().toLowerCase();
+    if (!q) return;
+    $r.innerHTML = '<p>Looking up...</p>';
+    const enc = encodeURIComponent(q);
+    try {
+      const [syn, ant, similar, related] = await Promise.all([
+        fetchSet(`https://api.datamuse.com/words?rel_syn=${enc}&max=30`),
+        fetchSet(`https://api.datamuse.com/words?rel_ant=${enc}&max=30`),
+        fetchSet(`https://api.datamuse.com/words?ml=${enc}&max=30`),
+        fetchSet(`https://api.datamuse.com/words?rel_trg=${enc}&max=30`),
+      ]);
+      if (syn.length + ant.length + similar.length + related.length === 0) {
+        $r.innerHTML = `<div class="err">No results for <b>${q}</b>.</div>`;
+        return;
+      }
+      let html = '';
+      if (syn.length)     html += renderGroup('Synonyms', syn);
+      if (ant.length)     html += renderGroup('Antonyms', ant);
+      if (similar.length) html += renderGroup('Similar meaning', similar);
+      if (related.length) html += renderGroup('Related concepts', related);
+      $r.innerHTML = html;
+    } catch (e) {
+      $r.innerHTML = `<div class="err">Lookup failed: ${e.message}</div>`;
+    }
+  }
+  function renderGroup(title, words) {
+    let html = `<div class="group"><h3>${title}</h3><div class="words">`;
+    for (const w of words) {
+      html += `<a class="word" href="#" onclick="$w.value='${w.replace(/'/g,"\\'")}'; lookup(); return false;">${w}</a>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+  $w.addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

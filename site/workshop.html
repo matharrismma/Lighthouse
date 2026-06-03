@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Workshop · watch the engine work · Narrow Highway</title>
+<meta name="description" content="A living view of the Narrow Highway verification engine: a little harbor village where agents carry every card through the gates — the harbor, the witness hall, the aligning room, the scriptorium, and the lighthouse. Click any building to look inside.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Workshop · watch the engine work">
+<meta property="og:description" content="Watch the Narrow Highway verification engine as a working harbor village — agents carrying every card through the gates. Look inside.">
+<meta property="og:url" content="https://narrowhighway.com/workshop.html">
+<meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+<link rel="canonical" href="https://narrowhighway.com/workshop.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0c0a16; overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+
+  .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+    display: flex; align-items: center; gap: 14px; padding: 10px 16px;
+    background: linear-gradient(180deg, rgba(12,10,22,.92), rgba(12,10,22,0));
+    pointer-events: none; }
+  .bar a { pointer-events: auto; }
+  .brand { color: #f4efe4; text-decoration: none; font-weight: 700; font-size: 15px;
+    letter-spacing: .2px; display: flex; align-items: center; gap: 8px; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%;
+    background: #ffd98a; box-shadow: 0 0 12px #ffd98a; }
+  .title { color: #bdb6cc; font-size: 13px; font-weight: 500; }
+  .title b { color: #f4efe4; font-weight: 600; }
+  .back { margin-left: auto; color: #bdb6cc; text-decoration: none; font-size: 13px;
+    border: 1px solid rgba(255,255,255,.14); border-radius: 8px; padding: 6px 12px;
+    background: rgba(255,255,255,.04); }
+  .back:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+
+  #legend { position: fixed; left: 16px; bottom: 14px; z-index: 5; max-width: min(440px, 86vw);
+    color: #cfc8dc; font-size: 12px; line-height: 1.5;
+    background: rgba(14,12,26,.78); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px; padding: 12px 14px; backdrop-filter: blur(6px); }
+  #legend h3 { margin: 0 0 6px; font-size: 12px; color: #f4efe4; letter-spacing: .4px;
+    text-transform: uppercase; }
+  #legend p { margin: 0; color: #9b94ac; }
+  #legend .row { display: flex; gap: 8px; margin-top: 5px; }
+  #legend .sw { width: 11px; height: 11px; border-radius: 3px; flex: none; margin-top: 2px; }
+  #legend .hint { margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(255,255,255,.08);
+    color: #c9a87c; font-style: italic; font-family: 'Crimson Pro', Georgia, serif; }
+
+  #hud { position: fixed; right: 16px; bottom: 14px; z-index: 5; color: #cfc8dc; font-size: 12px;
+    background: rgba(14,12,26,.78); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px; padding: 12px 14px; backdrop-filter: blur(6px); min-width: 178px; }
+  #hud h3 { margin: 0 0 8px; font-size: 12px; color: #f4efe4; letter-spacing: .4px;
+    text-transform: uppercase; }
+  #hud .stat { display: flex; justify-content: space-between; gap: 18px; margin: 4px 0; }
+  #hud .stat b { color: #ffd98a; font-variant-numeric: tabular-nums; font-weight: 600; }
+  #hud .live { display: flex; align-items: center; gap: 6px; margin-top: 9px;
+    padding-top: 8px; border-top: 1px solid rgba(255,255,255,.08); color: #9b94ac; }
+  #hud .pulse { width: 8px; height: 8px; border-radius: 50%; background: #8fd6a0;
+    box-shadow: 0 0 8px #8fd6a0; }
+  #hud .pulse.down { background: #d98a8a; box-shadow: 0 0 8px #d98a8a; }
+  @media (max-width: 560px) { #legend { font-size: 11px; } .title { display: none; } }
+
+  /* look-inside panel — shared look with the homepage village hero */
+  .village-panel { position: fixed; inset: 0; z-index: 9990;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(8,6,14,.82);
+    opacity: 0; transition: opacity .2s; padding: 16px; }
+  .village-panel.open { opacity: 1; }
+  .vp-card { width: min(450px, 94vw); background: #161320;
+    border: 1px solid #3a3142; border-top: 3px solid #c9a87c; border-radius: 14px;
+    padding: 22px 24px 24px; box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    transform: translateY(16px); transition: transform .2s; position: relative; }
+  .village-panel.open .vp-card { transform: translateY(0); }
+  .vp-close { position: absolute; top: 8px; right: 12px; background: none; border: 0;
+    color: #9b94ac; font-size: 25px; line-height: 1; cursor: pointer; }
+  .vp-close:hover { color: #fff; }
+  .vp-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: .18em; text-transform: uppercase; color: #c9a87c; margin-bottom: 5px; }
+  .vp-title { font-family: 'Crimson Pro', Georgia, serif; font-weight: 400;
+    font-size: 1.55rem; color: #f4ecd5; margin: 0 0 11px; }
+  .vp-role { font-size: 14px; color: #cfc8dc; line-height: 1.6; margin: 0 0 14px; }
+  .vp-rule { margin: 0 0 16px; padding: 10px 14px; background: rgba(201,168,124,.07);
+    border-left: 3px solid #c9a87c; border-radius: 0 8px 8px 0;
+    font-family: 'Crimson Pro', Georgia, serif; font-style: italic;
+    color: #e3c498; font-size: 14px; line-height: 1.45; }
+  .vp-rule cite { display: block; margin-top: 6px; font-style: normal;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: .1em; color: #9b94ac; }
+  .vp-link { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px;
+    background: #c9a87c; color: #1a1820; border-radius: 7px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; font-weight: 600; text-decoration: none; }
+  .vp-link:hover { background: #e8c896; }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="bar">
+  <a class="brand" href="/"><span class="dot"></span> Narrow Highway</a>
+  <span class="title">The Workshop &middot; <b>watch the engine work</b></span>
+  <a class="back" href="/">&larr; home</a>
+</div>
+
+<div id="legend">
+  <h3>What you're watching</h3>
+  <p>Every piece of content is a card. Agents carry each card up the road, gate to
+     gate. Nothing reaches the channel without passing through.</p>
+  <div class="row"><span class="sw" style="background:#ffb347"></span>
+    <span>A fresh card, just gathered at the harbor.</span></div>
+  <div class="row"><span class="sw" style="background:#8fd6a0"></span>
+    <span>A card that passed the witness hall &mdash; two or three witnesses agreed.</span></div>
+  <div class="row"><span class="sw" style="background:#6b6b72"></span>
+    <span>A card turned away at a gate &mdash; carried to the residue pile, not hidden.</span></div>
+  <p class="hint">Click any building &mdash; or the Shepherd &mdash; to look inside.</p>
+</div>
+
+<div id="hud">
+  <h3>The Keep, right now</h3>
+  <div class="stat"><span>Cards in the keep</span><b id="s-cards">&middot;&middot;&middot;</b></div>
+  <div class="stat"><span>Passed the witnesses</span><b id="s-passed">&middot;&middot;&middot;</b></div>
+  <div class="stat"><span>Awaiting the keeper</span><b id="s-queue">&middot;&middot;&middot;</b></div>
+  <div class="stat"><span>Broadcast since you came</span><b id="s-bcast">0</b></div>
+  <div class="live"><span class="pulse" id="livedot"></span><span id="livetxt">engine: checking&hellip;</span></div>
+</div>
+
+<div class="village-panel" id="villagePanel" hidden>
+  <div class="vp-card" role="dialog" aria-modal="true" aria-labelledby="vpTitle">
+    <button class="vp-close" id="vpClose" aria-label="Close">&times;</button>
+    <div class="vp-tag" id="vpTag"></div>
+    <h2 class="vp-title" id="vpTitle"></h2>
+    <p class="vp-role" id="vpRole"></p>
+    <blockquote class="vp-rule"><span id="vpRule"></span><cite id="vpRef"></cite></blockquote>
+    <a class="vp-link" id="vpLink" href="#"><span id="vpLinkLabel"></span> &rarr;</a>
+  </div>
+</div>
+
+<script src="/nh-village.js"></script>
+<script>
+(function () {
+  var cv = document.getElementById('scene');
+  if (!cv || !window.NHVillage) return;
+  var panel = document.getElementById('villagePanel');
+
+  function fmt(n) { return n == null ? '···' : Number(n).toLocaleString('en-US'); }
+
+  function openPanel(key) {
+    var d = NHVillage.interiors[key];
+    if (!d) return;
+    document.getElementById('vpTag').textContent = d.tag;
+    document.getElementById('vpTitle').textContent = d.name;
+    document.getElementById('vpRole').textContent = d.role;
+    document.getElementById('vpRule').textContent = d.rule;
+    document.getElementById('vpRef').textContent = d.ref ? '— ' + d.ref : '';
+    document.getElementById('vpLinkLabel').textContent = d.linkLabel || 'Open';
+    document.getElementById('vpLink').href = d.link || '#';
+    panel.hidden = false;
+    requestAnimationFrame(function () { panel.classList.add('open'); });
+    V.focusStation(key);
+    V.setPaused(true);
+  }
+  function closePanel() {
+    panel.classList.remove('open');
+    V.clearFocus();
+    V.setPaused(false);
+    setTimeout(function () { panel.hidden = true; }, 220);
+  }
+  document.getElementById('vpClose').addEventListener('click', closePanel);
+  panel.addEventListener('click', function (e) { if (e.target === panel) closePanel(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) closePanel();
+  });
+
+  var V = NHVillage(cv, {
+    mode: 'full',
+    live: true,
+    onInside: openPanel,
+    onShepherd: function () { openPanel('shepherd'); },
+    onUpdate: function (live) {
+      document.getElementById('s-cards').textContent  = fmt(live.cards);
+      document.getElementById('s-passed').textContent = fmt(live.passed);
+      document.getElementById('s-queue').textContent  = fmt(live.queue);
+      document.getElementById('s-bcast').textContent  = live.bcast;
+      var dot = document.getElementById('livedot');
+      var txt = document.getElementById('livetxt');
+      dot.className = 'pulse' + (live.ok ? '' : ' down');
+      txt.textContent = live.ok ? 'engine: alive' : 'engine: slow — village runs on';
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<title>Soft Rains Pilot v2 — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; line-height: 1.6; color: #2a2a28; background: #fafaf6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.8em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .video-wrap { background: #000; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 1em 0; }
+  video { width: 100%; display: block; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em 1.5em; background: #fff; border: 1px solid #d4c8a5; padding: 1em 1.5em; border-radius: 6px; margin: 1em 0; }
+  .stat-grid .label { color: #6a5a3a; font-size: 0.92em; }
+  .stat-grid .val { font-weight: bold; color: #1a3a52; }
+  .scenes-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1em; }
+  .scene { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em; font-size: 0.92em; }
+  .scene .id { display: inline-block; background: #1B4D8C; color: #fff; padding: 0.1em 0.5em; border-radius: 3px; font-weight: bold; margin-right: 0.4em; }
+  .scene.fallback .id { background: #b07020; }
+  .scene .title { font-weight: bold; }
+  .scene .motion-type { color: #6a5a3a; font-size: 0.85em; margin-top: 0.3em; }
+  .fallback-badge { display: inline-block; background: #fff5d4; color: #806010; padding: 0.05em 0.4em; border-radius: 3px; font-size: 0.78em; margin-left: 0.4em; }
+  .verdict { padding: 1em; border-radius: 6px; margin: 1em 0; }
+  .verdict.success { background: #d4ead4; color: #1f5b1f; }
+  .preview-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em; margin: 1em 0; }
+  .preview-row img { width: 100%; height: auto; border: 1px solid #ccc; border-radius: 3px; display: block; cursor: pointer; }
+  code { background: #f0eada; padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<h1>Soft Rains Pilot v2</h1>
+
+<div class="verdict success">
+  <strong>Pilot v2 rendered successfully.</strong> 23:20 runtime, 1920×1080 H.264, full audio mix with theme music + foley overlays. Render took ~25 min, ~886 credits.
+</div>
+
+<h2>Watch</h2>
+
+<div class="video-wrap">
+  <video controls preload="metadata" src="/media/_pilots/soft_rains/final.mp4"></video>
+</div>
+
+<h2>What's in this pilot</h2>
+
+<div class="stat-grid">
+  <div class="label">Title</div><div class="val">There Will Come Soft Rains</div>
+  <div class="label">Source</div><div class="val">Ray Bradbury 1950 · X Minus One 1956 broadcast</div>
+  <div class="label">Series</div><div class="val">Sci-Fi Theatre — pilot</div>
+  <div class="label">Runtime</div><div class="val">23:20</div>
+  <div class="label">Resolution</div><div class="val">1920×1080 @ 30 fps</div>
+  <div class="label">File size</div><div class="val">504 MB</div>
+  <div class="label">Audio mix</div><div class="val">Original NBC body + intro VO over theme music + closing VO over closing theme + 4 foley overlays</div>
+  <div class="label">Intro narrator</div><div class="val">Brian (ElevenLabs)</div>
+  <div class="label">Closing voice</div><div class="val">M.R. Harris (your voice)</div>
+  <div class="label">Visual style</div><div class="val">1950 pulp magazine illustration · halftone · inked outlines · saturated cyan/cadmium</div>
+  <div class="label">Animation</div><div class="val">19 of 22 scenes Runway gen4_turbo (loop + action) · 3 Ken Burns fallback (file-size cap) · 2 KB title cards</div>
+</div>
+
+<h2>Preview frames at six timestamps</h2>
+
+<div class="preview-row">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_0010s.jpg" alt="00:10">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_0120s.jpg" alt="02:00">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_0360s.jpg" alt="06:00">
+</div>
+<div class="preview-row">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_0720s.jpg" alt="12:00">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_1050s.jpg" alt="17:30">
+  <img src="/media/_pilots/soft_rains/_previews/preview_at_1320s.jpg" alt="22:00">
+</div>
+
+<h2>Scene-by-scene motion type</h2>
+
+<div class="scenes-grid">
+  <div class="scene"><span class="id">01</span><span class="title">Suburban Home, Pre-Dawn</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">02</span><span class="title">Inside the House</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">03</span><span class="title">The Family-Shaped Voids</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene"><span class="id">04</span><span class="title">The Dog Arrives</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">05</span><span class="title">The Dog Searches</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene"><span class="id">06</span><span class="title">The Mice</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">07</span><span class="title">The Routine Continues</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">08</span><span class="title">The Backyard</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene fallback"><span class="id">09</span><span class="title">The Nursery</span><span class="fallback-badge">Ken Burns fallback</span><div class="motion-type">expected animation but file size exceeded API limit</div></div>
+  <div class="scene"><span class="id">10</span><span class="title">The Garden</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">11</span><span class="title">Living Room and the Poem</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">12</span><span class="title">Sara Teasdale's Poem</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene"><span class="id">13</span><span class="title">The Wind Rises</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene fallback"><span class="id">14</span><span class="title">The Tree Falls</span><span class="fallback-badge">Ken Burns fallback</span><div class="motion-type">expected animation but file size exceeded API limit</div></div>
+  <div class="scene"><span class="id">15</span><span class="title">The House Reacts</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene"><span class="id">16</span><span class="title">The Water Runs Out</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">17</span><span class="title">The Voices in the Walls</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene"><span class="id">18</span><span class="title">The Roof Falls</span><div class="motion-type">runway_existing (motion test clip reused)</div></div>
+  <div class="scene"><span class="id">19</span><span class="title">The Final Wall</span><div class="motion-type">runway_action · gen4_turbo</div></div>
+  <div class="scene"><span class="id">20</span><span class="title">The Last Voice</span><div class="motion-type">runway_loop · gen4_turbo</div></div>
+  <div class="scene fallback"><span class="id">21</span><span class="title">Aftermath and Implication</span><span class="fallback-badge">Ken Burns fallback</span><div class="motion-type">expected animation but file size exceeded API limit</div></div>
+  <div class="scene"><span class="id">22</span><span class="title">End Credit</span><div class="motion-type">ken_burns (intentional — final hold)</div></div>
+</div>
+
+<h2>Known issues to address for v3</h2>
+
+<ol>
+  <li><strong>3 scenes fell back to Ken Burns</strong> (scenes 9, 14, 21 + closing) because their source PNGs exceeded Runway's data-URI size cap (~3500 KB). Fix: pre-resize PNGs to fit, or upload to Runway's asset endpoint first.</li>
+  <li><strong>Closing card uses fallback motion</strong> for the same reason. Same fix.</li>
+  <li><strong>Audio peak −0.5 dB, mean −19.7 dB</strong> — well within ITU-R BS.1770 podcast / YouTube target. No clipping. Could be slightly louder for streaming preference (target −16 LUFS).</li>
+  <li><strong>Music ducking</strong> is fixed -3 dB right now. Could try sidechain compression for tighter mix.</li>
+  <li><strong>No title sequence yet</strong> — the intro is a Ken-Burns extended over the intro frame. Phase 5 should add a proper title sequence with hand-lettered typography per the Visual Style Bible.</li>
+</ol>
+
+<h2>Cost summary</h2>
+
+<div class="stat-grid">
+  <div class="label">Runway credits at start</div><div class="val">10,000</div>
+  <div class="label">After hero frames</div><div class="val">9,810 (−190)</div>
+  <div class="label">After v2 build</div><div class="val">9,114 (−696)</div>
+  <div class="label">Total Runway spend</div><div class="val">886 credits</div>
+  <div class="label">ElevenLabs characters used</div><div class="val">~6,000 (under 1% of monthly cap)</div>
+  <div class="label">Out-of-pocket today</div><div class="val">$0 — all on existing subscriptions</div>
+</div>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

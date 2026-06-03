@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Discernment Engine · Narrow Highway</title>
+<meta name="description" content="A discernment engine. Bring a question, or a claim to test. The engine runs it through the gates — two or three witnesses, the alignment read, sixty-nine domain verifiers — and hands back only what survives, every source shown.">
+  <link rel="canonical" href="https://narrowhighway.com/walks.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The Discernment Engine · Narrow Highway">
+  <meta property="og:description" content="A discernment engine. Bring a question, or a claim to test. The engine runs it through the gates — two or three witnesses, the alignment read, sixty-nine domain verifiers — and hands back only what survives, every source shown.">
+  <meta property="og:url" content="https://narrowhighway.com/walks.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Discernment Engine · Narrow Highway">
+  <meta name="twitter:description" content="A discernment engine. Bring a question, or a claim to test. The engine runs it through the gates — two or three witnesses, the alignment read, sixty-nine domain verifiers — and hands back only what survives, every source shown.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 1080px; margin: 0 auto; padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+
+  .masthead { text-align: center; padding: 1.5em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.2em; color: #1a3a52; letter-spacing: 0.04em; margin: 0.2em 0 0.1em; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1em; }
+
+  .ask {
+    background: #fff;
+    border: 1px solid #d4c8a5;
+    border-radius: 6px;
+    padding: 1em 1.2em;
+    margin-bottom: 1.2em;
+    box-shadow: 0 1px 0 #e8e0c0;
+  }
+  .ask label { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.12em; text-transform: uppercase; }
+  .ask-row { display: flex; gap: 0.5em; margin-top: 0.4em; }
+  .ask input { flex: 1; font-family: Georgia, serif; font-size: 1.1em; padding: 0.6em 0.8em; border: 1px solid #d4c8a5; border-radius: 4px; background: #fffef7; color: #2a2a28; }
+  .ask input:focus { outline: none; border-color: #1a3a52; box-shadow: 0 0 0 2px rgba(26,58,82,0.1); }
+  .ask button { background: #1a3a52; color: #f4ecd5; border: 1px solid #1a3a52; padding: 0.5em 1.4em; font-family: inherit; font-size: 1em; border-radius: 4px; cursor: pointer; }
+  .ask button:hover { background: #2a5570; }
+  .ask .help { font-size: 0.85em; color: #6a5a3a; margin-top: 0.5em; font-style: italic; }
+
+  /* Conversation turns — Shepherd interview */
+  .turn { padding: 0.7em 1em; margin: 0.5em 0; border-radius: 4px; max-width: 90%; }
+  .turn.user { background: #f3eedb; border-right: 4px solid #b8945a; margin-left: auto; color: #2a2a28; }
+  .turn.shepherd { background: #fff5d4; border-left: 4px solid #1a3a52; color: #1a3a52; }
+  .turn .who { font-family: 'Courier New', monospace; font-size: 0.7em; color: #806010; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.2em; }
+  .turn .body-text { font-size: 1.02em; line-height: 1.5; }
+
+  .skip-row { margin-top: 0.6em; font-size: 0.85em; color: #6a5a3a; text-align: right; }
+  .skip-row button { background: none; border: 1px solid #c9b48a; color: #1a3a52; padding: 0.3em 0.8em; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 0.9em; }
+  .skip-row button:hover { background: #f3eedb; }
+
+  .reply-row { display: flex; gap: 0.5em; margin-top: 0.6em; }
+  .reply-row input { flex: 1; font-family: Georgia, serif; font-size: 1.05em; padding: 0.55em 0.8em; border: 1px solid #d4c8a5; border-radius: 4px; background: #fffef7; }
+  .reply-row button { background: #1a3a52; color: #f4ecd5; border: 1px solid #1a3a52; padding: 0.5em 1em; font-family: inherit; font-size: 0.95em; border-radius: 4px; cursor: pointer; }
+
+  /* Quick-reply chips for the interview */
+  .chips { display: flex; gap: 0.4em; flex-wrap: wrap; margin: 0.4em 0; }
+  .chip {
+    display: inline-block; padding: 0.35em 0.85em; background: #fff;
+    border: 1px solid #d4c8a5; border-radius: 14px; font-size: 0.92em;
+    color: #1a3a52; cursor: pointer; font-family: Georgia, serif;
+  }
+  .chip:hover { background: #f3eedb; }
+
+  .narration {
+    background: #fff5d4;
+    border-left: 4px solid #b8945a;
+    padding: 0.9em 1.2em;
+    margin: 1em 0;
+    color: #5a4a30;
+    font-style: italic;
+    font-size: 1.02em;
+  }
+  .narration .shepherd-label { display: block; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.18em; text-transform: uppercase; color: #806010; font-style: normal; margin-bottom: 0.3em; }
+
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9em; margin-top: 1em; }
+
+  .pulled {
+    background: #fffef7;
+    border: 1px solid #d4c8a5;
+    border-radius: 4px;
+    padding: 0;
+    box-shadow: 0 1px 0 #e8e0c0, 0 4px 10px rgba(60, 40, 0, 0.05);
+    text-decoration: none;
+    color: #2a2a28;
+    display: block;
+    transition: transform 0.08s, box-shadow 0.08s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pulled:hover { transform: translateY(-2px); box-shadow: 0 1px 0 #e8e0c0, 0 6px 14px rgba(60, 40, 0, 0.08); }
+  .pulled::before {
+    content: "";
+    display: block;
+    height: 0.9em;
+    background: linear-gradient(to bottom, transparent calc(100% - 2px), #c66 calc(100% - 2px), #c66 calc(100% - 1px), transparent 100%);
+    border-bottom: 1px solid #d4c8a5;
+  }
+  .pulled-face { padding: 0.6em 0.9em 0.8em; }
+  .pulled .step-num { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.12em; }
+  .pulled h3 { margin: 0.15em 0 0.3em; color: #1a3a52; font-size: 1.05em; font-weight: bold; line-height: 1.25; }
+  .pulled .src { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; letter-spacing: 0.04em; margin-top: 0.2em; }
+  .pulled .narr { font-size: 0.92em; color: #5a4a30; font-style: italic; margin-top: 0.5em; padding-top: 0.4em; border-top: 1px dashed #d4c8a5; }
+  .pulled .pill-mini { display: inline-block; padding: 0.05em 0.45em; border-radius: 8px; background: #f3eedb; color: #1a3a52; font-size: 0.7em; font-family: 'Courier New', monospace; border: 1px solid #d4c8a5; margin-right: 0.2em; }
+  .pulled .pill-mini.tier-scripture { background: #fff5d4; border-color: #b8945a; }
+  .pulled .pill-mini.tier-words_in_red { background: #ffd4d4; border-color: #c66; }
+  .pulled .pill-mini.tier-creed, .pulled .pill-mini.tier-catechism { background: #ede4ce; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; padding: 1.5em; border-radius: 6px; text-align: center; color: #6a5a3a; }
+  .loading { background: #fff; border: 1px solid #d4c8a5; padding: 1.2em; border-radius: 4px; text-align: center; color: #6a5a3a; font-style: italic; }
+
+  .meta-strip { display: flex; gap: 1em; flex-wrap: wrap; font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; padding: 0.5em 0.2em; margin-top: 0.6em; border-top: 1px dashed #d4c8a5; }
+
+  .principle {
+    margin-top: 2.5em; padding: 0.9em 1.1em;
+    background: #f3eedb; border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0;
+    font-size: 0.9em; color: #5a4a30; font-style: italic;
+  }
+  .principle strong { font-style: normal; color: #1a3a52; }
+
+  .suggestion { display: inline-block; background: #fff; border: 1px solid #d4c8a5; padding: 0.3em 0.8em; margin: 0.2em 0.2em 0.2em 0; border-radius: 14px; font-size: 0.88em; color: #1a3a52; cursor: pointer; font-family: Georgia, serif; }
+  .suggestion:hover { background: #f3eedb; }
+
+  .convo { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em; margin-bottom: 1.2em; box-shadow: 0 1px 0 #e8e0c0; }
+
+  /* Permanent-record banner — appears after a discernment is saved */
+  .saved-permalink { background: #1a3a52; color: #f4ecd5; border-radius: 6px;
+    padding: 0.9em 1.1em; margin: 1.2em 0 0; box-shadow: 0 2px 8px rgba(26,58,82,0.18); }
+  .saved-permalink .sp-label { font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #c9b48a; margin-bottom: 0.4em; }
+  .saved-permalink .sp-row { display: flex; flex-wrap: wrap; gap: 0.5em; align-items: center; }
+  .saved-permalink .sp-url { flex: 1; min-width: 220px; background: rgba(0,0,0,0.25);
+    padding: 0.4em 0.7em; border-radius: 4px; font-family: 'Courier New', monospace;
+    font-size: 0.85em; color: #fff5d4; word-break: break-all; }
+  .saved-permalink .sp-btn { background: #c9b48a; color: #1a3a52; border: 1px solid #c9b48a;
+    padding: 0.45em 0.95em; font-family: 'Courier New', monospace; font-size: 0.82em;
+    letter-spacing: 0.06em; border-radius: 4px; cursor: pointer; text-decoration: none; }
+  .saved-permalink .sp-btn:hover { background: #e8d6a8; }
+  .saved-permalink .sp-btn.outline { background: transparent; color: #f4ecd5;
+    border-color: rgba(244,236,213,0.5); }
+  .saved-permalink .sp-btn.outline:hover { background: rgba(244,236,213,0.1); }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/walks.html",
+  "name": "The Discernment Engine · Narrow Highway",
+  "description": "A discernment engine. Bring a question, or a claim to test. The engine runs it through the gates — two or three witnesses, the alignment read, sixty-nine domain verifiers — and hands back only what survives, every source shown.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "WebApplication",
+  "applicationCategory": "ReferenceApplication",
+  "operatingSystem": "Web",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "keywords": "discernment engine, claim verification, four gates, scripture-aligned reasoning"
+}
+</script>
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a>
+  <a href="/codex.html">The Codex</a>
+  <a href="/walk.html">Situational walk</a>
+</nav>
+
+<div class="masthead">
+  <div class="eyebrow">A DISCERNMENT ENGINE &middot; RUNNING NOW</div>
+  <h1>The Discernment Engine</h1>
+  <div class="tagline">Bring a question, or a claim to test. The engine runs it through the gates and hands back only what survives.</div>
+</div>
+
+<div class="ask" id="askPanel">
+  <label for="q">Bring a question or a claim.</label>
+  <div class="ask-row">
+    <input id="q" type="text" placeholder="A question, a claim, a verse, a topic — e.g. “Is the Sabbath still binding?”  /  Romans 8:28  /  Honey never spoils  /  sourdough" autocomplete="off">
+    <button id="askBtn">Discern</button>
+  </div>
+  <div class="help">
+    Or try:
+    <span class="suggestion" data-q="What is the chief end of man?">chief end of man</span>
+    <span class="suggestion" data-q="Is the Sabbath still binding?">is the Sabbath still binding?</span>
+    <span class="suggestion" data-q="I want to teach my kids about the Trinity">teach my kids the Trinity</span>
+    <span class="suggestion" data-q="Romans 8:28">Romans 8:28</span>
+    <span class="suggestion" data-q="Honey never spoils">honey never spoils (claim)</span>
+  </div>
+</div>
+
+<div id="convo"></div>
+<div id="result"></div>
+
+<p class="principle">
+  <strong>How the engine works.</strong> Shepherd asks before the engine runs — up to three follow-ups, never more (press "just walk" any time). Then the shaped question goes through the gates: <em>two or three witnesses</em> (no claim passes on one source), the <em>alignment read</em>, and <em>sixty-plus domain verifiers</em>. What survives is laid out as cards — each carries its source and its authority tier. The trail is the reasoning. If the engine vanished tomorrow, the cards would still teach.
+</p>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script>
+(function () {
+  const $q = document.getElementById('q');
+  const $btn = document.getElementById('askBtn');
+  const $convo = document.getElementById('convo');
+  const $result = document.getElementById('result');
+  let interviewId = null;
+  let conversationTurns = [];
+
+  const params = new URLSearchParams(location.search);
+
+  // Long-form handoff from /discern-teaching.html (uses sessionStorage so
+  // the URL is not length-limited).
+  if (params.get('from') === 'teaching') {
+    try {
+      const pending = sessionStorage.getItem('nh_pending_teaching');
+      if (pending) {
+        $q.value = pending;
+        sessionStorage.removeItem('nh_pending_teaching');
+        sessionStorage.removeItem('nh_pending_teaching_at');
+        setTimeout(startInterview, 30);
+      }
+    } catch (_) { /* sessionStorage blocked; fall through */ }
+  }
+
+  if (params.get('q') && !$q.value) {
+    $q.value = params.get('q');
+    setTimeout(startInterview, 30);
+  }
+
+  $btn.addEventListener('click', startInterview);
+  $q.addEventListener('keydown', e => { if (e.key === 'Enter') startInterview(); });
+  for (const el of document.querySelectorAll('.suggestion')) {
+    el.addEventListener('click', () => { $q.value = el.dataset.q; startInterview(); });
+  }
+
+  async function startInterview() {
+    const query = $q.value.trim();
+    if (!query) return;
+    history.replaceState(null, '', '/walks.html?q=' + encodeURIComponent(query));
+    interviewId = null;
+    conversationTurns = [];
+    $convo.innerHTML = '';
+    $result.innerHTML = '<div class="loading">Reading your question…</div>';
+    addTurn('user', query);
+    await sendTurn(query);
+  }
+
+  async function sendTurn(text, skipToWalk = false) {
+    const askedBy = (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'anon';
+    let r;
+    try {
+      const resp = await fetch('/shepherd/interview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: text,
+          interview_id: interviewId,
+          asked_by: askedBy,
+          skip_to_walk: skipToWalk,
+        }),
+      });
+      r = await resp.json();
+    } catch (e) {
+      $result.innerHTML = '<div class="empty">Couldn\'t reach the engine. Try again in a moment.</div>';
+      return;
+    }
+    interviewId = r.interview_id;
+    if (r.state === 'needs_followup') {
+      $result.innerHTML = '';
+      addTurn('shepherd', r.shepherd_says, r.ask_kind, r.followups_remaining);
+      return;
+    }
+    if (r.state === 'ready_to_walk') {
+      addTurn('shepherd', r.shepherd_says || 'Walking now.');
+      // Shepherd may recommend a smaller walk (k=1 for "one card", k=14 for "full study").
+      // Default k=7 if no recommendation came back.
+      await runWalk(r.shaped_query, r.recommended_k || 7);
+      return;
+    }
+  }
+
+  function addTurn(role, text, askKind, followupsRemaining) {
+    conversationTurns.push({ role, text });
+    if ($convo.children.length === 0) {
+      const wrap = document.createElement('div');
+      wrap.className = 'convo';
+      wrap.id = 'convoWrap';
+      $convo.appendChild(wrap);
+    }
+    const wrap = document.getElementById('convoWrap');
+    const turn = document.createElement('div');
+    turn.className = 'turn ' + role;
+    turn.innerHTML = '<div class="who">' + (role === 'user' ? 'You' : 'Shepherd') + '</div><div class="body-text">' + esc(text) + '</div>';
+    wrap.appendChild(turn);
+
+    if (role === 'shepherd') {
+      // Add chips for known ask-kinds
+      const chips = chipsFor(askKind);
+      if (chips.length) {
+        const chipBox = document.createElement('div');
+        chipBox.className = 'chips';
+        for (const c of chips) {
+          const el = document.createElement('span');
+          el.className = 'chip';
+          el.textContent = c;
+          el.addEventListener('click', () => { addTurn('user', c); sendTurn(c); });
+          chipBox.appendChild(el);
+        }
+        wrap.appendChild(chipBox);
+      }
+      // Add reply input + skip button
+      const reply = document.createElement('div');
+      reply.className = 'reply-row';
+      reply.innerHTML =
+        '<input id="replyInput" type="text" placeholder="Or type your answer..." autocomplete="off">' +
+        '<button id="replyBtn">Send</button>';
+      wrap.appendChild(reply);
+      const skip = document.createElement('div');
+      skip.className = 'skip-row';
+      skip.innerHTML = '<button id="skipBtn">Just walk — I\'ll take what you\'ve got (' + (followupsRemaining || 0) + ' follow-ups left)</button>';
+      wrap.appendChild(skip);
+      document.getElementById('replyInput').focus();
+      document.getElementById('replyInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('replyBtn').click();
+      });
+      document.getElementById('replyBtn').addEventListener('click', () => {
+        const v = document.getElementById('replyInput').value.trim();
+        if (!v) return;
+        // Remove the reply controls
+        reply.remove(); skip.remove(); chipBox && chipBox.remove();
+        addTurn('user', v);
+        sendTurn(v);
+      });
+      document.getElementById('skipBtn').addEventListener('click', () => {
+        reply.remove(); skip.remove(); chipBox && chipBox.remove();
+        addTurn('user', '[just walk]');
+        sendTurn('', true);
+      });
+    }
+  }
+
+  function chipsFor(askKind) {
+    switch (askKind) {
+      case 'audience': return ['for myself', 'for my kids', 'for a sermon', 'family worship'];
+      case 'tradition': return ['1689 Baptist', 'WCF', 'Three Forms', 'all of them'];
+      case 'use_intent': return ['understand it', 'memorize it', 'teach it'];
+      case 'scope_size': return ['one card', 'short walk', 'full study'];
+      case 'time_horizon': return ['right now', 'this week', 'this season'];
+      case 'specificity': return [];
+      default: return [];
+    }
+  }
+
+  async function runWalk(shapedQuery, k) {
+    $result.innerHTML = '<div class="loading">Running it through the gates — keeping what survives…</div>';
+    let r;
+    try {
+      const resp = await fetch('/cards/walk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: shapedQuery,
+          k: k || 7,
+          asked_by: (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'anon',
+        }),
+      });
+      r = await resp.json();
+    } catch (e) {
+      $result.innerHTML = '<div class="empty">Discernment failed. Try again.</div>';
+      return;
+    }
+    if (!r || !r.steps || r.steps.length === 0) {
+      $result.innerHTML =
+        '<div class="narration"><span class="shepherd-label">Shepherd</span>' + esc(r && r.narration ? r.narration : 'No cards yet.') + '</div>' +
+        '<div class="empty"><p>The library doesn\'t have cards on this one yet. Your question is on the intake list — the operator will see it.</p></div>';
+      return;
+    }
+
+    const cards = r.steps.map((s, i) =>
+      '<a class="pulled" href="/card.html?id=' + esc(s.card_id) + '">' +
+        '<div class="pulled-face">' +
+          '<span class="step-num">CARD ' + (i+1).toString().padStart(2,'0') + '</span>' +
+          '<h3>' + esc(s.title || '') + '</h3>' +
+          '<div>' +
+            (s.source && s.source.authority_tier ? '<span class="pill-mini tier-' + esc(s.source.authority_tier) + '">' + esc((s.source.authority_tier||'').replace(/_/g,' ')) + '</span>' : '') +
+            (s.shelf ? '<span class="pill-mini">' + esc(s.shelf) + (s.box ? ' / ' + esc(s.box) : '') + '</span>' : '') +
+          '</div>' +
+          (s.source && s.source.label ? '<div class="src">' + esc(s.source.label) + (s.source.ref ? ' &middot; ' + esc(s.source.ref) : '') + '</div>' : '') +
+          '<div class="narr">' + esc(s.narration || '') + '</div>' +
+        '</div>' +
+      '</a>'
+    ).join('');
+
+    $result.innerHTML =
+      '<div class="narration" data-readable data-voice-label="Shepherd narration">' +
+        '<span class="shepherd-label">Shepherd</span>' +
+        esc(r.narration || '') +
+      '</div>' +
+      '<div class="board">' + cards + '</div>' +
+      '<div class="meta-strip">' +
+        '<span>' + r.step_count + ' card' + (r.step_count===1?'':'s') + ' survived</span>' +
+        (r.corpus_size ? '<span>out of a substrate of ' + r.corpus_size + '</span>' : '') +
+        '<span>each one sourced &middot; every gate logged</span>' +
+      '</div>';
+
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+
+    // Mint a permanent /d/<slug> artifact so this discernment becomes a real
+    // piece of internet: indexable, shareable, citable. Every use widens the
+    // distribution surface. Silent on failure — the walk above already showed.
+    mintDiscernment(r);
+  }
+
+  async function mintDiscernment(walk) {
+    try {
+      const origQ = ($q && $q.value.trim()) || (params.get('q') || '');
+      if (!origQ) return;
+      const resp = await fetch('/d/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: origQ,
+          interview: conversationTurns,
+          narration: walk.narration || '',
+          cards: walk.steps || [],
+          corpus_size: walk.corpus_size || 0,
+          asked_by: (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'anon',
+        }),
+      });
+      if (!resp.ok) return;
+      const saved = await resp.json();
+      if (!saved || !saved.slug) return;
+      const fullUrl = window.location.origin + saved.url;
+      try { history.replaceState(null, '', saved.url); } catch (_) {}
+      const banner = document.createElement('div');
+      banner.className = 'saved-permalink';
+      banner.innerHTML =
+        '<div class="sp-label">Saved as a permanent record</div>' +
+        '<div class="sp-row">' +
+          '<span class="sp-url">' + esc(fullUrl) + '</span>' +
+          '<button class="sp-btn" id="spCopy">Copy link</button>' +
+          '<a class="sp-btn outline" href="' + esc(saved.url) + '">Open the record &rarr;</a>' +
+          '<a class="sp-btn outline" href="#" id="spPrint">Print</a>' +
+        '</div>';
+      $result.appendChild(banner);
+      document.getElementById('spCopy').addEventListener('click', function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(fullUrl);
+        var b = this, t = b.textContent; b.textContent = 'Copied';
+        setTimeout(function () { b.textContent = t; }, 1500);
+      });
+      document.getElementById('spPrint').addEventListener('click', function (e) {
+        e.preventDefault(); window.print();
+      });
+    } catch (e) { /* silent */ }
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+})();
+</script>
+
+<script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

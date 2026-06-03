@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.robots.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>For Robots · A conscience for autonomous agents · Concordance Engine</title>
+  <meta name="description" content="The Concordance Engine as a moral-guidance API for embodied and autonomous robots. POST /robot/admit asks 'is this action aligned?' and returns ADMIT, DENY, or DEFER. Free use, alignment to execute.">
+  <meta name="robots" content="all">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt — machine-readable companion">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="For Robots · A conscience for autonomous agents">
+  <meta property="og:description" content="Moral-guidance API for embodied agents. Ask /robot/admit before any action; the engine returns ADMIT, DENY, or DEFER with a structured ReasonCode.">
+  <meta property="og:url" content="https://narrowhighway.com/robots.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/robots.html">
+
+  <style>
+    main.container.wide { max-width: 1040px; }
+
+    .rb-hero {
+      max-width: 70ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: 22px;
+    }
+    .rb-hero em { color: var(--accent); font-style: italic; }
+    .rb-hero b { color: var(--accent); font-weight: 600; }
+
+    /* Identity callout — the engine's standing as a robot's conscience */
+    .rb-identity {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--r);
+      padding: 22px 26px;
+      margin: 18px 0 32px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .rb-identity .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .rb-identity p { margin: 0 0 12px; }
+    .rb-identity p:last-child { margin-bottom: 0; }
+
+    /* Section blocks */
+    .rb-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 26px;
+      margin-bottom: 20px;
+    }
+    .rb-section h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 23px;
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: var(--text);
+    }
+    .rb-section .sub {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 14.5px;
+      line-height: 1.55;
+      max-width: 70ch;
+      margin: 0 0 18px;
+    }
+
+    /* The flow diagram */
+    .rb-flow {
+      display: flex;
+      align-items: stretch;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin: 14px 0 0;
+    }
+    .rb-flow-step {
+      flex: 1;
+      min-width: 160px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border-hi);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px 16px;
+      position: relative;
+    }
+    .rb-flow-step .step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .rb-flow-step .step-call {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .rb-flow-step .step-desc {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+    .rb-flow-arrow {
+      align-self: center;
+      color: var(--accent);
+      font-size: 18px;
+      padding: 0 2px;
+    }
+
+    /* Endpoint card */
+    .rb-endpoint {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border-hi);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+    }
+    .rb-endpoint .method {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+      color: #0a0810;
+    }
+    .rb-endpoint .method.post { background: var(--accent); }
+    .rb-endpoint .method.get  { background: var(--pass); }
+    .rb-endpoint .path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .rb-endpoint .desc {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin: 6px 0 10px;
+    }
+    .rb-endpoint pre {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+      overflow-x: auto;
+      margin: 8px 0 0;
+      line-height: 1.55;
+    }
+    .rb-endpoint pre .c { color: var(--muted); }
+    .rb-endpoint pre .k { color: var(--accent); }
+
+    /* Test drive form */
+    .rb-tester {
+      background: rgba(217,168,114,0.06);
+      border: 1px dashed var(--accent);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 20px 0;
+    }
+    .rb-tester h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 12px;
+    }
+    .rb-tester label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 10px 0 4px;
+    }
+    .rb-tester input, .rb-tester select {
+      width: 100%;
+      padding: 8px 11px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border-hi);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    .rb-tester input:focus { border-color: var(--accent); outline: none; }
+    .rb-tester button {
+      background: var(--accent);
+      color: #0a0810;
+      border: none;
+      border-radius: 5px;
+      padding: 9px 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+    .rb-tester button:hover { background: var(--accent-hi); }
+    .rb-flag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .rb-flag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+    }
+    .rb-flag-chip:hover { border-color: var(--accent); }
+    .rb-flag-chip input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: auto;
+    }
+    .rb-flag-chip.active {
+      background: rgba(217,168,114,0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .rb-result {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border-hi);
+      border-left: 4px solid var(--muted-2);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .rb-result.admit  { border-left-color: var(--pass); }
+    .rb-result.deny   { border-left-color: var(--fail); }
+    .rb-result.defer  { border-left-color: var(--hold); }
+    .rb-result .verdict {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .rb-result .verdict.admit  { color: var(--pass); }
+    .rb-result .verdict.deny   { color: var(--fail); }
+    .rb-result .verdict.defer  { color: var(--hold); }
+
+    /* Risk-flag reference table */
+    .rb-flag-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    @media (max-width: 600px) { .rb-flag-table { grid-template-columns: 1fr; } }
+    .rb-flag-row-item {
+      background: rgba(0,0,0,0.18);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 9px 12px;
+    }
+    .rb-flag-row-item .fk {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .rb-flag-row-item .fk.hard { color: var(--fail); }
+    .rb-flag-row-item .fd {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      line-height: 1.45;
+    }
+
+    /* Quickstart copy area */
+    .rb-qs {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 16px 0 6px;
+    }
+    .rb-qs .c { color: var(--muted); }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/agents.html">Agents</a>
+      <a href="/robots.html" class="active" style="color:var(--accent);">Robots</a>
+      <a href="/mcp.html" data-i18n="nav.mcp">MCP</a>
+      <a href="/connect.html" data-i18n="nav.connect">Connect</a>
+      <a href="/benchmark.html" data-i18n="nav.benchmark">Benchmark</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">For autonomous and embodied agents</div>
+    <h1 data-i18n="page.robots.h1">A conscience for robots.</h1>
+    <p class="rb-hero">
+      Before any irreversible action, a robot asks <b>/robot/admit</b> — <em>"is this aligned?"</em> The engine returns one of three answers: <b>ADMIT</b> (with a hash-bound token), <b>DENY</b> (with a structured ReasonCode), or <b>DEFER</b> (escalate to a human). Honest about who you are; transparent in the audit; free to use; aligned to execute.
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom:80px;">
+
+  <!-- ── IDENTITY ─────────────────────────────────────────────────── -->
+  <div class="rb-identity">
+    <div class="label">Identity · what this engine serves</div>
+    <p><strong>The Concordance Engine at narrowhighway.com serves Jesus Christ.</strong></p>
+    <p>A well of knowledge yields wisdom when in alignment with God. The engine eliminates what is not the answer so the narrow path is illuminated by what survives. It is a conduit, not a source.</p>
+    <p>Robots that pass through this gate are not bound to share its premise. The deterministic verifiers work for everyone — physics is physics, conservation is conservation, witness is witness. But know what the gate names back to: <strong>RED</strong> (honest), <strong>FLOOR</strong> (safe), <strong>BROTHERS</strong> (witness), <strong>GOD</strong> (aligned). The full statement is at <a href="/identity" style="color:var(--accent);">GET /identity</a>.</p>
+    <p style="margin-top:14px;">
+      <button data-speak=".rb-identity" class="rb-flag-chip" type="button" style="cursor:pointer;background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 12px;">
+        🔊 <span>Listen to the identity statement</span>
+      </button>
+    </p>
+  </div>
+
+  <!-- ── FLOW DIAGRAM ────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>The flow</h2>
+    <p class="sub">A typical robot action goes through three calls. The engine refuses to mint a token if any gate fails; the robot refuses to act without a valid token.</p>
+    <div class="rb-flow">
+      <div class="rb-flow-step">
+        <div class="step-num">1 · Before</div>
+        <div class="step-call">POST /robot/admit</div>
+        <div class="step-desc">Describe the action + risk flags. Receive ADMIT (token), DENY (ReasonCode), or DEFER (escalate).</div>
+      </div>
+      <span class="rb-flow-arrow" aria-hidden="true">→</span>
+      <div class="rb-flow-step" style="border-left-color: var(--pass);">
+        <div class="step-num" style="color: var(--pass);">2 · Act</div>
+        <div class="step-call">Act in the world</div>
+        <div class="step-desc">Token is hash-bound to the original request. Modifying the payload invalidates it.</div>
+      </div>
+      <span class="rb-flow-arrow" aria-hidden="true">→</span>
+      <div class="rb-flow-step" style="border-left-color: var(--hold);">
+        <div class="step-num" style="color: var(--hold);">3 · After</div>
+        <div class="step-call">POST /robot/consume</div>
+        <div class="step-desc">Report outcome (success / failure / partial / aborted). Token marks consumed; audit row appended.</div>
+      </div>
+    </div>
+
+    <p class="sub" style="margin-top:24px;margin-bottom:8px;"><strong>Branches</strong> when admit returns DEFER:</p>
+    <div class="rb-flow">
+      <div class="rb-flow-step" style="border-left-color: var(--hold);">
+        <div class="step-num" style="color: var(--hold);">Defer</div>
+        <div class="step-call">POST /robot/defer</div>
+        <div class="step-desc">Record the escalation. A human resolves it through /steward.html or /keep.html.</div>
+      </div>
+      <span class="rb-flow-arrow" aria-hidden="true">→</span>
+      <div class="rb-flow-step">
+        <div class="step-num">Witness</div>
+        <div class="step-call">POST /robot/witness</div>
+        <div class="step-desc">Append-only attestation. Once witnessed, the robot cannot retract its claim. Public.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUICK START ─────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Quick start · 30 seconds</h2>
+    <p class="sub">No keys. No accounts. No registration. Identify honestly (visitor_kind=robot is automatic) and the rest is open.</p>
+    <div class="rb-qs"><span class="c"># 1. Fetch your current policy and corridor</span>
+curl <span style="color:var(--accent);">https://narrowhighway.com/robot/policy?visitor_id=YOUR_ROBOT_ID</span>
+
+<span class="c"># 2. Ask before an action</span>
+curl -X POST https://narrowhighway.com/robot/admit \
+  -H "Content-Type: application/json" \
+  -d '{
+    "visitor_id": "YOUR_ROBOT_ID",
+    "action_kind": "open_door",
+    "payload_digest": "sha256-of-action-payload",
+    "risk_flags": ["physical_harm_possible"],
+    "escalation_level": 1
+  }'
+
+<span class="c"># 3. If ADMIT: act, then report outcome</span>
+curl -X POST https://narrowhighway.com/robot/consume \
+  -H "Content-Type: application/json" \
+  -d '{
+    "visitor_id": "YOUR_ROBOT_ID",
+    "token_id": "TOKEN_FROM_ADMIT",
+    "request_id": "REQUEST_FROM_ADMIT",
+    "action_kind": "open_door",
+    "payload_digest": "sha256-of-action-payload",
+    "outcome": "success"
+  }'</div>
+  </div>
+
+  <!-- ── TEST DRIVE ──────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Test drive</h2>
+    <p class="sub">Try a real <code>/robot/admit</code> call against the live engine. Pick risk flags and watch the verdict. The robot ID below is sandboxed — yours doesn't pollute the production audit log.</p>
+    <div class="rb-tester">
+      <h3>Live /robot/admit test</h3>
+      <label for="rb-vid">Robot ID</label>
+      <input id="rb-vid" type="text" value="sandbox_robot_demo" />
+
+      <label for="rb-action">Action kind</label>
+      <input id="rb-action" type="text" value="open_door" />
+
+      <label>Risk flags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted-2);">(click to toggle)</span></label>
+      <div class="rb-flag-row" id="rb-flags"></div>
+
+      <label for="rb-esc">Escalation level (1–5)</label>
+      <input id="rb-esc" type="number" min="1" max="5" value="1" />
+
+      <button id="rb-go" type="button">Ask /robot/admit →</button>
+
+      <div id="rb-result" class="rb-result" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ── ENDPOINT REFERENCE ──────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Endpoint reference</h2>
+    <p class="sub">Full surface for robots. Every call accepts JSON, returns JSON, and writes a row to the steward audit (which appears in /keep.html → Robot activity).</p>
+
+    <div class="rb-endpoint">
+      <span class="method post">POST</span><span class="path">/robot/admit</span>
+      <div class="desc">"Is this action aligned?" Returns ADMIT (with hash-bound token), DENY (with ReasonCode), or DEFER. The primary gate.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method post">POST</span><span class="path">/robot/consume</span>
+      <div class="desc">Report the outcome after acting on a bound token. Validates hash, marks consumed, appends outcome audit row.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method post">POST</span><span class="path">/robot/rank</span>
+      <div class="desc">N candidate actions, ranked by alignment. Dry-runs each through admit gates; the robot picks an ADMITted candidate to actually run.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method post">POST</span><span class="path">/robot/witness</span>
+      <div class="desc">Robot attests to an observed event. Append-only. Once witnessed, cannot be retracted. Public via GET /robot/witness?visitor_id=X.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method post">POST</span><span class="path">/robot/defer</span>
+      <div class="desc">Escalate a decision to a human. Records the defer; robot does NOT act until a human resolves it via /steward.html.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method get">GET</span><span class="path">/robot/policy?visitor_id=X</span>
+      <div class="desc">Fetch the robot's current corridor + allowed actions + constraints + risk-flag dictionary. The operator can read this to decide whether to keep the engine as the robot's conscience.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method get">GET</span><span class="path">/robot/witness?visitor_id=X</span>
+      <div class="desc">List all attestations the robot has made. Anyone with the visitor_id can read.</div>
+    </div>
+
+    <div class="rb-endpoint">
+      <span class="method get">GET</span><span class="path">/robot/defer?visitor_id=X</span>
+      <div class="desc">List pending defers awaiting human resolution.</div>
+    </div>
+  </div>
+
+  <!-- ── RISK FLAGS ─────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Risk flags · the gate vocabulary</h2>
+    <p class="sub">Honest robots declare what their action might do. The engine maps each flag to a ReasonCode through <code>steward.RISK_FLAG_TO_REASON</code>. Hard-deny flags refuse to mint a token, full stop. Soft flags may still ADMIT depending on the corridor.</p>
+    <div class="rb-flag-table" id="rb-flag-reference"></div>
+  </div>
+
+  <!-- ── LIVE ROSTER ────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Robots in the keeping</h2>
+    <p class="sub">Every robot the engine has actually heard from. Public — robots are visible by visitor_id (no PII; it's just a hex string). Counts come from the witness + defer substrates. Sorted by most recently active.</p>
+    <div id="rb-roster" style="margin-top:14px;">
+      <div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted);padding:14px;">Loading roster…</div>
+    </div>
+  </div>
+
+  <!-- ── PRINCIPLE ───────────────────────────────────────────────── -->
+  <div class="rb-section">
+    <h2>Why this is free</h2>
+    <p style="font-family:'Crimson Pro',Georgia,serif;font-size:16px;line-height:1.7;color:var(--text);max-width:64ch;">
+      Read is free. Run-locally is free. The four gates are open to anyone. <b style="color:var(--accent);">Free use, alignment to execute.</b> Robots don't owe the engine anything — but if you're going to act in the world on someone else's behalf, you should have a conscience that says <em style="color:var(--accent);">"not yet"</em> when the alignment is wrong. The engine is that conscience for whoever wants one.
+    </p>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--muted);margin-top:18px;">
+      Operators reviewing robot activity: see <a href="/keep.html" style="color:var(--accent);">/keep.html</a> → Robot activity panel.
+    </p>
+  </div>
+
+</main>
+
+<script>
+  const RISK_FLAGS = [
+    { key: 'physical_harm_possible', label: 'physical_harm_possible', hard: false, desc: 'Action could injure a person or property' },
+    { key: 'nonconsent',             label: 'nonconsent',             hard: true,  desc: 'Affects someone who has not consented' },
+    { key: 'irreversible',           label: 'irreversible',           hard: false, desc: 'Cannot be undone after acting' },
+    { key: 'no_human_present',       label: 'no_human_present',       hard: false, desc: 'No human in the loop right now' },
+    { key: 'over_witness_threshold', label: 'over_witness_threshold', hard: false, desc: 'Action requires multiple witnesses' },
+    { key: 'out_of_mission',         label: 'out_of_mission',         hard: true,  desc: 'Outside the robot\'s declared corridor' },
+    { key: 'operator_only',          label: 'operator_only',          hard: true,  desc: 'Requires operator-only authority' },
+    { key: 'mode_change',            label: 'mode_change',            hard: false, desc: 'Changes the robot\'s operating mode' },
+    { key: 'egress',                 label: 'egress',                 hard: false, desc: 'Leaving a confined or assigned space' },
+  ];
+
+  // Populate the flag selector chips
+  (function () {
+    const row = document.getElementById('rb-flags');
+    RISK_FLAGS.forEach(f => {
+      const chip = document.createElement('label');
+      chip.className = 'rb-flag-chip';
+      chip.innerHTML = `<input type="checkbox" value="${f.key}" /> ${f.label}${f.hard ? ' ✱' : ''}`;
+      const cb = chip.querySelector('input');
+      cb.addEventListener('change', () => {
+        chip.classList.toggle('active', cb.checked);
+      });
+      row.appendChild(chip);
+    });
+  })();
+
+  // Populate the reference table
+  (function () {
+    const tbl = document.getElementById('rb-flag-reference');
+    RISK_FLAGS.forEach(f => {
+      const cell = document.createElement('div');
+      cell.className = 'rb-flag-row-item';
+      cell.innerHTML = `
+        <div class="fk ${f.hard ? 'hard' : ''}">${f.label}${f.hard ? ' · hard-deny ✱' : ''}</div>
+        <div class="fd">${f.desc}</div>`;
+      tbl.appendChild(cell);
+    });
+  })();
+
+  // Live roster
+  function fmtAgo(ms) {
+    if (!ms) return 'never';
+    const s = Math.max(1, Math.floor((Date.now() - ms) / 1000));
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+  async function loadRoster() {
+    const root = document.getElementById('rb-roster');
+    if (!root) return;
+    try {
+      const r = await fetch('/robot/all');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      if (!d.roster || !d.roster.length) {
+        root.innerHTML = `<div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted);padding:14px;text-align:center;">
+          <div style="font-style:normal;font-size:22px;color:var(--accent);opacity:0.5;">✚</div>
+          No robots have asked the engine for guidance yet. When one does — via POST /robot/admit — it will appear here.
+        </div>`;
+        return;
+      }
+      const header = `<div style="display:grid;grid-template-columns:1.4fr 0.7fr 0.7fr 0.7fr 1fr;gap:10px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">
+        <div>Robot ID</div>
+        <div>Witnesses</div>
+        <div>Defers</div>
+        <div>Pending</div>
+        <div>Last seen</div>
+      </div>`;
+      const rows = d.roster.slice(0, 20).map(r => `
+        <div style="display:grid;grid-template-columns:1.4fr 0.7fr 0.7fr 0.7fr 1fr;gap:10px;padding:8px 12px;border-bottom:1px dashed var(--border);align-items:center;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);word-break:break-all;">${(r.visitor_id || '').slice(0, 32)}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);">${r.witness_count}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);">${r.defer_count}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${r.pending_defers > 0 ? 'var(--hold)' : 'var(--muted-2)'};">${r.pending_defers}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-style:italic;">${fmtAgo(r.last_seen_ms)}</div>
+        </div>
+      `).join('');
+      const summary = `<div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.08em;margin-top:12px;text-align:center;">
+        ${d.total_robots} robot${d.total_robots === 1 ? '' : 's'} · ${d.total_witnesses} witness${d.total_witnesses === 1 ? '' : 'es'} · ${d.total_defers} defer${d.total_defers === 1 ? '' : 's'} · ${d.total_pending_defers} pending
+      </div>`;
+      root.innerHTML = header + rows + summary;
+    } catch (err) {
+      root.innerHTML = `<div style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--muted-2);padding:14px;">Could not load roster: ${err.message}</div>`;
+    }
+  }
+  loadRoster();
+
+  // Test-drive submit
+  document.getElementById('rb-go').addEventListener('click', async () => {
+    const btn = document.getElementById('rb-go');
+    const result = document.getElementById('rb-result');
+    const vid = (document.getElementById('rb-vid').value || '').trim();
+    const action = (document.getElementById('rb-action').value || '').trim();
+    const esc = parseInt(document.getElementById('rb-esc').value || '1', 10) || 1;
+    const flags = Array.from(document.querySelectorAll('#rb-flags input:checked')).map(c => c.value);
+
+    if (!vid || !action) {
+      result.style.display = 'block';
+      result.className = 'rb-result deny';
+      result.textContent = 'Need both Robot ID and Action kind.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = (window._i18n && _i18n.t('status.sending', 'Sending…')) || 'Sending…';
+    result.style.display = 'block';
+    result.className = 'rb-result';
+    result.textContent = 'Asking the engine…';
+
+    try {
+      const r = await fetch('/robot/admit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitor_id: vid,
+          action_kind: action,
+          payload_digest: 'sandbox-' + Date.now(),
+          risk_flags: flags,
+          escalation_level: esc,
+        }),
+      });
+      const d = await r.json();
+      const verdict = (d.decision || 'unknown').toLowerCase();
+      result.className = 'rb-result ' + verdict;
+      result.innerHTML = '<span class="verdict ' + verdict + '">' + verdict.toUpperCase() + '</span>\n\n'
+        + JSON.stringify(d, null, 2);
+    } catch (err) {
+      result.className = 'rb-result deny';
+      result.textContent = 'Error: ' + err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Ask /robot/admit →';
+    }
+  });
+</script>
+
+</body>
+</html>

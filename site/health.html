@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.health.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health · The Concordance · narrowhighway.com</title>
+  <meta name="description" content="Upload your WHOOP, Garmin, or Apple Health export. The engine surfaces verified knowledge personalized to your actual numbers — privacy preserved, parsed entirely in your browser.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    .health-wrap { max-width: 980px; margin: 0 auto; padding: 30px 22px 80px; }
+    .health-hero {
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 22px;
+      margin-bottom: 26px;
+    }
+    .health-hero .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .health-hero h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: clamp(28px, 4vw, 40px); font-weight: 600;
+      margin: 0 0 14px; letter-spacing: -0.01em;
+    }
+    .health-hero h1 em { color: var(--accent); font-style: italic; font-weight: 500; }
+    .health-hero p {
+      max-width: 60ch; margin: 0 auto;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: clamp(15px, 1.5vw, 17px); font-style: italic;
+      color: var(--text-dim); line-height: 1.6;
+    }
+
+    .upload-card {
+      background: var(--surface);
+      border: 2px dashed var(--border-hi);
+      border-radius: var(--r);
+      padding: 36px 28px;
+      text-align: center;
+      margin-bottom: 22px;
+      transition: border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+    .upload-card.dragover {
+      border-color: var(--accent);
+      background: rgba(217,168,114,0.06);
+    }
+    .upload-card .icon {
+      font-size: 32px; color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .upload-card h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px; font-weight: 600;
+      margin: 0 0 6px; color: var(--text);
+    }
+    .upload-card p {
+      font-size: 13.5px; color: var(--muted);
+      max-width: 50ch; margin: 0 auto 14px;
+      line-height: 1.55;
+    }
+    .upload-btn {
+      background: var(--accent); color: #1a1208;
+      border: none; border-radius: 7px;
+      padding: 9px 22px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .upload-btn:hover { background: var(--accent-hi); }
+    .demo-link {
+      display: inline-block;
+      margin-left: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; letter-spacing: 0.06em;
+      color: var(--text-dim);
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 1px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .demo-link:hover { color: var(--accent); border-color: var(--accent); }
+    .upload-card input[type=file] { display: none; }
+
+    .privacy-note {
+      max-width: 60ch; margin: 0 auto 32px;
+      padding: 12px 18px;
+      background: rgba(94, 196, 180, 0.04);
+      border: 1px solid rgba(94, 196, 180, 0.2);
+      border-left: 3px solid var(--pass);
+      border-radius: 8px;
+      font-size: 13px; color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .privacy-note b { color: var(--pass); font-weight: 600; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--r-sm);
+      padding: 14px 16px;
+    }
+    .stat-tile .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .stat-tile .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px; font-weight: 600; color: var(--accent);
+      line-height: 1.1; margin-bottom: 4px;
+    }
+    .stat-tile .sub {
+      font-size: 11.5px; color: var(--text-dim); line-height: 1.45;
+    }
+    .stat-tile.warn { border-left-color: var(--hold); }
+    .stat-tile.warn .val { color: var(--hold); }
+    .stat-tile.bad { border-left-color: var(--fail); }
+    .stat-tile.bad .val { color: var(--fail); }
+    .stat-tile.good { border-left-color: var(--pass); }
+    .stat-tile.good .val { color: var(--pass); }
+
+    .findings-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 26px;
+      margin-bottom: 16px;
+    }
+    .findings-section h3 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 20px; font-weight: 600;
+      margin: 0 0 4px; color: var(--text);
+    }
+    .findings-section .anchor {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.06em;
+      color: var(--accent); margin-bottom: 14px;
+      display: block;
+    }
+    .finding-result {
+      display: block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s;
+    }
+    .finding-result:hover { border-color: var(--accent); }
+    .finding-result .verdict {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      margin-right: 10px;
+    }
+    .finding-result .v-CONFIRMED, .finding-result .v-CONCORDANT { color: var(--pass); }
+    .finding-result .v-MIXED { color: var(--hold); }
+    .finding-result .v-MISMATCH, .finding-result .v-DISCORDANT { color: var(--fail); }
+    .finding-result .v-OBSOLETE { color: var(--muted); }
+    .finding-result .title { font-size: 14.5px; color: var(--text); font-weight: 500; }
+
+    .columns-detected {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; color: var(--muted);
+      margin: 10px 0 18px; line-height: 1.6;
+    }
+    .columns-detected b { color: var(--accent); }
+
+    .error-card {
+      background: rgba(224, 124, 124, 0.08);
+      border: 1px solid rgba(224, 124, 124, 0.3);
+      border-left: 3px solid var(--fail);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: #f7b9b3;
+      font-size: 14px; line-height: 1.55;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+            <a href="/daily.html" class="keep-on-mobile" data-i18n="nav.today">Today</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" class="keep-on-mobile" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/scribe.html" class="keep-on-mobile" data-i18n="nav.scribe">Scribe</a>
+            <a href="/bibles.html" data-i18n="nav.bibles">Bibles</a>
+            <a href="/almanac.html" class="keep-on-mobile" data-i18n="nav.almanac">Almanac</a>
+            <a href="/library.html" data-i18n="nav.library">Library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="health-wrap">
+
+  <div class="health-hero">
+    <div class="eyebrow">Health · personalized verified knowledge</div>
+    <h1>Drop in your health data. <em>Get back what the keeping knows for you.</em></h1>
+    <p>WHOOP CSV today. Apple Health and Garmin coming. Your raw data is parsed in your browser and never sent to the engine — only the resulting search queries are. Same kingdom-economy posture as the rest of the engine: works on a microSD, refuses the mark, no account, no email.</p>
+  </div>
+
+  <div class="upload-card" id="dropzone">
+    <div class="icon">⬆</div>
+    <h2>Drop your WHOOP CSV here</h2>
+    <p>From the WHOOP app: Profile → Data → Journal Export. Save the CSV, drag it here, or click below. Nothing is uploaded.</p>
+    <button class="upload-btn" id="pickBtn" type="button">Choose file</button>
+    <a class="demo-link" id="demoLink">Or run a demo with sample data →</a>
+    <input type="file" id="fileInput" accept=".csv,text/csv">
+  </div>
+
+  <div class="privacy-note">
+    <b>Privacy:</b> the CSV is parsed entirely by JavaScript in your browser. The raw rows are never sent to the engine. The engine only sees the search queries generated from your aggregates — same as if you typed them by hand.
+  </div>
+
+  <div id="output"></div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ── Column detection (WHOOP / Garmin / Apple Health Export-style headers) ──
+// Each metric maps to candidate column-name patterns (lowercased, substring match).
+const METRIC_PATTERNS = {
+  sleep_min:   ['asleep duration', 'sleep duration', 'time asleep'],
+  in_bed_min:  ['in bed duration', 'time in bed'],
+  sleep_efficiency_pct: ['sleep efficiency'],
+  sleep_performance_pct: ['sleep performance'],
+  sleep_consistency_pct: ['sleep consistency'],
+  hrv_ms:      ['heart rate variability', 'hrv'],
+  rhr_bpm:     ['resting heart rate', 'rhr', 'resting hr'],
+  recovery_pct:['recovery score', 'recovery %', 'recovery percentage'],
+  strain:      ['day strain', 'strain score', 'strain'],
+  respiratory_rate: ['respiratory rate', 'breath rate', 'breaths per minute'],
+};
+
+function detectColumns(headers) {
+  const found = {};
+  const lcHeaders = headers.map(h => (h || '').toLowerCase().trim());
+  for (const [metric, patterns] of Object.entries(METRIC_PATTERNS)) {
+    for (let i = 0; i < lcHeaders.length; i++) {
+      for (const pat of patterns) {
+        if (lcHeaders[i].includes(pat)) {
+          found[metric] = i;
+          break;
+        }
+      }
+      if (found[metric] !== undefined) break;
+    }
+  }
+  return found;
+}
+
+// ── Minimal CSV parser (handles quoted fields, commas inside quotes) ──
+function parseCSV(text) {
+  const lines = [];
+  let row = []; let cur = ''; let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else cur += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(cur); cur = ''; }
+      else if (c === '\n') { row.push(cur); lines.push(row); row = []; cur = ''; }
+      else if (c === '\r') { /* skip */ }
+      else cur += c;
+    }
+  }
+  if (cur.length || row.length) { row.push(cur); lines.push(row); }
+  return lines.filter(r => r.length && r.some(c => c.trim() !== ''));
+}
+
+function avg(arr) {
+  const nums = arr.filter(n => typeof n === 'number' && !isNaN(n) && isFinite(n));
+  if (!nums.length) return null;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
+// ── Assess each metric: good / ok / warn / bad ──
+function assess(metric, value) {
+  if (value == null) return null;
+  const a = { value, state: 'ok', summary: '' };
+  if (metric === 'sleep_min') {
+    const h = value / 60;
+    a.display = h.toFixed(1) + ' h';
+    if (h >= 7) { a.state = 'good'; a.summary = 'in the 7–9 h target band'; }
+    else if (h >= 6) { a.state = 'warn'; a.summary = 'below the 7 h floor most adults need'; }
+    else { a.state = 'bad'; a.summary = 'chronic curtailment (<6 h) is associated with CV + metabolic harm'; }
+  } else if (metric === 'sleep_efficiency_pct') {
+    a.display = value.toFixed(0) + '%';
+    if (value >= 85) { a.state = 'good'; a.summary = 'efficient (≥85% target)'; }
+    else if (value >= 75) { a.state = 'warn'; a.summary = 'mild fragmentation'; }
+    else { a.state = 'bad'; a.summary = 'fragmented (consider sleep-onset / awakening review)'; }
+  } else if (metric === 'hrv_ms') {
+    a.display = value.toFixed(0) + ' ms';
+    if (value >= 50) { a.state = 'good'; a.summary = 'high for general population'; }
+    else if (value >= 30) { a.state = 'ok'; a.summary = 'mid-range (consult age-band norms)'; }
+    else { a.state = 'warn'; a.summary = 'low — often correlated with stress, poor sleep, or fitness deficit'; }
+  } else if (metric === 'rhr_bpm') {
+    a.display = value.toFixed(0) + ' bpm';
+    if (value <= 60) { a.state = 'good'; a.summary = 'athletic / well-conditioned'; }
+    else if (value <= 75) { a.state = 'ok'; a.summary = 'within healthy adult range'; }
+    else { a.state = 'warn'; a.summary = 'elevated — sustained >80 warrants medical context'; }
+  } else if (metric === 'recovery_pct') {
+    a.display = value.toFixed(0) + '%';
+    if (value >= 67) { a.state = 'good'; a.summary = 'high recovery — green zone'; }
+    else if (value >= 34) { a.state = 'ok'; a.summary = 'moderate recovery — yellow zone'; }
+    else { a.state = 'warn'; a.summary = 'low recovery — red zone, consider easy day'; }
+  } else if (metric === 'strain') {
+    a.display = value.toFixed(1);
+    if (value <= 10) { a.state = 'ok'; a.summary = 'low strain'; }
+    else if (value <= 16) { a.state = 'good'; a.summary = 'moderate-high strain'; }
+    else { a.state = 'warn'; a.summary = 'all-out strain — recovery emphasis warranted'; }
+  } else if (metric === 'respiratory_rate') {
+    a.display = value.toFixed(1) + ' rpm';
+    if (value >= 12 && value <= 20) { a.state = 'good'; a.summary = 'normal adult range'; }
+    else { a.state = 'warn'; a.summary = 'outside 12–20 rpm typical range'; }
+  } else {
+    a.display = value.toFixed(1);
+  }
+  return a;
+}
+
+// ── Search the keeping for each metric-state combo ──
+const SEARCH_RECIPES = {
+  sleep_min: {
+    bad:  ['sleep', 'melatonin', 'magnesium glycinate', 'cheap grace'],  // last is misdirection-resistance demo
+    warn: ['sleep hygiene', 'magnesium glycinate', 'melatonin circadian'],
+    good: ['sleep hygiene', 'rocket mass heater'],
+    ok:   ['sleep hygiene'],
+  },
+  hrv_ms: {
+    warn: ['magnesium glycinate', 'ashwagandha stress', 'peppermint oil IBS', 'creatine monohydrate'],
+    ok:   ['magnesium', 'exercise science', 'creatine'],
+    good: ['exercise', 'creatine'],
+    bad:  ['magnesium glycinate', 'ashwagandha', 'peppermint IBS'],
+  },
+  rhr_bpm: {
+    warn: ['exercise science', 'bicycle generator', 'cardiovascular', 'caffeine'],
+    ok:   ['exercise', 'cardiovascular'],
+    good: ['bicycle Starley', 'safety bicycle'],
+  },
+  recovery_pct: {
+    warn: ['ginger nausea', 'sleep magnesium', 'whey protein', 'creatine'],
+    ok:   ['whey protein', 'sleep'],
+    good: ['exercise science', 'creatine monohydrate'],
+  },
+  strain: {
+    warn: ['whey protein', 'creatine monohydrate', 'ginger nausea', 'sleep'],
+    good: ['whey protein', 'creatine'],
+    ok:   ['exercise'],
+  },
+  sleep_efficiency_pct: {
+    bad:  ['sleep hygiene', 'melatonin circadian', 'magnesium glycinate'],
+    warn: ['sleep hygiene', 'magnesium'],
+    good: ['sleep'],
+  },
+  respiratory_rate: {
+    warn: ['saline nasal irrigation', 'sleep hygiene'],
+    good: ['exercise'],
+  },
+};
+
+async function searchKeeping(q) {
+  try {
+    const r = await fetch('/index/packets/search?q=' + encodeURIComponent(q) + '&limit=4');
+    if (!r.ok) return [];
+    const d = await r.json();
+    return d.packets || [];
+  } catch (_) { return []; }
+}
+
+async function renderFindingsForMetric(metric, assessment) {
+  const recipes = SEARCH_RECIPES[metric] || {};
+  const queries = recipes[assessment.state] || [];
+  if (!queries.length) return null;
+  const seen = new Set();
+  const found = [];
+  for (const q of queries) {
+    const packets = await searchKeeping(q);
+    for (const p of packets) {
+      if (seen.has(p.id)) continue;
+      seen.add(p.id);
+      found.push(p);
+      if (found.length >= 4) break;
+    }
+    if (found.length >= 4) break;
+  }
+  return found;
+}
+
+// ── Main processing — second-layer pattern: retrieve + craft + recall ──
+async function processData(rows, source) {
+  const out = $('output');
+  if (rows.length < 2) {
+    out.innerHTML = `<div class="error-card">CSV has no data rows.</div>`;
+    return;
+  }
+  const headers = rows[0].map(h => (h || '').trim());
+  const dataRows = rows.slice(1).filter(r => r.length > 1);
+  const detected = detectColumns(headers);
+
+  const aggregates = {};
+  for (const [metric, idx] of Object.entries(detected)) {
+    const vals = dataRows.map(r => parseFloat(r[idx])).filter(n => !isNaN(n) && isFinite(n));
+    const mean = avg(vals);
+    if (mean != null) aggregates[metric] = { mean, n: vals.length };
+  }
+
+  const detectedMetricKeys = Object.keys(aggregates);
+  if (!detectedMetricKeys.length) {
+    out.innerHTML = `
+      <div class="error-card">
+        <b>Couldn't find any known metrics.</b><br>
+        Detected columns: ${headers.map(esc).join(', ').slice(0,400)}...<br><br>
+        Expected headers like <code>Heart rate variability (ms)</code>, <code>Recovery score %</code>, <code>Day Strain</code>, <code>Asleep duration (min)</code>.
+      </div>`;
+    return;
+  }
+
+  // Render stat tiles
+  let html = `
+    <div class="columns-detected">
+      Source: <b>${esc(source)}</b> · ${dataRows.length} rows · detected: <b>${detectedMetricKeys.join(', ')}</b>
+    </div>
+    <h2 style="font-family:'Crimson Pro',Georgia,serif;font-size:24px;font-weight:600;margin:0 0 14px;color:var(--text);">Your baseline</h2>
+    <div class="stats-grid">
+  `;
+  const assessments = {};
+  const profile = [];
+  for (const metric of detectedMetricKeys) {
+    const a = assess(metric, aggregates[metric].mean);
+    if (!a) continue;
+    assessments[metric] = a;
+    profile.push({ metric, state: a.state });
+    const stateClass = a.state === 'good' ? 'good' : a.state === 'warn' ? 'warn' : a.state === 'bad' ? 'bad' : '';
+    const label = ({
+      sleep_min: 'Sleep', hrv_ms: 'HRV', rhr_bpm: 'Resting HR',
+      recovery_pct: 'Recovery', strain: 'Strain',
+      sleep_efficiency_pct: 'Sleep efficiency',
+      sleep_performance_pct: 'Sleep performance',
+      sleep_consistency_pct: 'Sleep consistency',
+      respiratory_rate: 'Respiratory rate', in_bed_min: 'Time in bed',
+    })[metric] || metric;
+    html += `
+      <div class="stat-tile ${stateClass}">
+        <div class="label">${esc(label)}</div>
+        <div class="val">${esc(a.display)}</div>
+        <div class="sub">${esc(a.summary || '')}</div>
+      </div>
+    `;
+  }
+  html += `</div>`;
+  html += `<div id="craftedOut" style="margin-top:30px;"><p style="color:var(--muted);font-style:italic;font-family:'Crimson Pro',Georgia,serif;padding:14px 0;">building your crafted entry…</p></div>`;
+  out.innerHTML = html;
+
+  // Second layer: POST profile to /craft. Server recalls if it's seen this
+  // profile before, otherwise searches + composes + stores. The keeping
+  // accumulates wisdom by use; identical profiles get instant recall.
+  try {
+    const t0 = performance.now();
+    const r = await fetch('/craft', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ context: 'health', profile })
+    });
+    const elapsed = Math.round(performance.now() - t0);
+    if (!r.ok) throw new Error('engine returned ' + r.status);
+    const d = await r.json();
+    renderCraftedEntry(d, elapsed);
+  } catch (err) {
+    $('craftedOut').innerHTML = `<div class="error-card">Crafting failed: ${esc(err.message || 'engine unreachable')}.<br><small>The engine may need a restart to pick up the /craft endpoint.</small></div>`;
+  }
+}
+
+function renderCraftedEntry(response, elapsedMs) {
+  const out = $('craftedOut');
+  const entry = response.entry || {};
+  const recalled = !!response.recalled;
+  const bullets = entry.bullets || [];
+  const recallCount = entry.recalled_count || 0;
+
+  const stateBadge = recalled
+    ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--pass);background:rgba(94,196,180,0.10);border:1px solid rgba(94,196,180,0.3);padding:3px 9px;border-radius:11px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">RECALLED · seen ${recallCount}×</span>`
+    : `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent);background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.3);padding:3px 9px;border-radius:11px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">CRAFTED · first time</span>`;
+
+  let html = `
+    <div style="background:var(--surface);border:1px solid var(--border-hi);border-left:3px solid var(--accent);border-radius:var(--r);padding:24px 28px;margin-bottom:18px;">
+      <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+        ${stateBadge}
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);">${elapsedMs}ms · signature ${esc((entry.signature || '').slice(0, 12))}</span>
+      </div>
+      <h2 style="font-family:'Crimson Pro',Georgia,serif;font-size:24px;font-weight:600;margin:0 0 14px;color:var(--text);">${esc(entry.title || 'Profile')}</h2>
+      <p style="font-family:'Crimson Pro',Georgia,serif;font-size:16px;line-height:1.65;color:var(--text);margin:0 0 18px;">${(entry.narrative || '').replace(/\*\*(.+?)\*\*/g, '<b style="color:var(--accent);">$1</b>')}</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+  `;
+  for (const b of bullets) {
+    const v = (b.verdict || '').toUpperCase();
+    html += `
+      <a class="finding-result" href="${esc(b.permalink || '#')}">
+        <span class="verdict v-${esc(v)}">${esc(v)}</span>
+        <span class="title">${esc(b.title || b.id || '')}</span>
+      </a>
+    `;
+  }
+  html += `
+      </div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin:18px 0 0;letter-spacing:0.04em;line-height:1.55;">
+        This entry is now in the keeping. Anyone with this same profile signature will see it recalled instantly — no re-search. The keeping learns by use.
+      </p>
+    </div>
+  `;
+  out.innerHTML = html;
+}
+
+// ── File upload handling ──
+const dz = $('dropzone');
+const fileInput = $('fileInput');
+const pickBtn = $('pickBtn');
+
+dz.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.id !== 'fileInput') fileInput.click(); });
+pickBtn.addEventListener('click', () => fileInput.click());
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (f) loadFile(f);
+});
+
+function loadFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) {
+    $('output').innerHTML = `<div class="error-card">Expected a .csv file. Got: ${esc(file.name)}.</div>`;
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const rows = parseCSV(e.target.result);
+      processData(rows, file.name);
+    } catch (err) {
+      $('output').innerHTML = `<div class="error-card">Failed to parse CSV: ${esc(err.message)}</div>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── Demo data ──
+$('demoLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const demo = `Cycle start time,Recovery score %,Resting heart rate (bpm),Heart rate variability (ms),Day Strain,Asleep duration (min),Sleep efficiency %,Respiratory rate (rpm)
+2026-05-01,68,58,42,14.2,438,92,15.3
+2026-05-02,72,57,48,13.8,452,89,15.1
+2026-05-03,55,62,35,15.6,398,87,15.5
+2026-05-04,48,64,28,16.8,365,84,15.8
+2026-05-05,62,59,40,14.9,420,90,15.2
+2026-05-06,75,55,52,12.4,475,93,14.9
+2026-05-07,71,57,46,13.1,448,91,15.0
+2026-05-08,52,61,33,15.3,392,86,15.6
+2026-05-09,58,60,38,14.5,408,88,15.4
+2026-05-10,67,58,44,13.9,430,89,15.2
+2026-05-11,60,59,39,14.2,415,89,15.3
+2026-05-12,70,57,47,13.6,442,91,15.1
+2026-05-13,65,58,43,14.1,425,90,15.2`;
+  const rows = parseCSV(demo);
+  processData(rows, 'sample-data.csv (demo)');
+});
+</script>
+
+</body>
+</html>

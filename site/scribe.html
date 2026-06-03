@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.scribe.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scribe · Narrow Highway</title>
+  <meta name="description" content="The Scribe lens. Every writing you've sent the engine, the keeping's current verdict on it, and the receipt that proves what survived. The loop closes here.">
+  <script src="/nh-nav.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Scribe · Your writings, the keeping's verdict">
+  <meta property="og:description" content="Every writing you've sent the engine, the keeping's current verdict, and the receipt that proves what survived.">
+  <meta property="og:url" content="https://narrowhighway.com/scribe.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/scribe.html">
+
+  <style>
+    .sc-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .sc-intro em { color: var(--accent); font-style: italic; }
+    .sc-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .sc-tab-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin: 16px 0 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .sc-tab {
+      background: none; border: none;
+      padding: 8px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -7px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .sc-tab:hover { color: var(--accent); }
+    .sc-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .sc-list { display: flex; flex-direction: column; gap: 10px; }
+    .sc-card {
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      transition: border-color 0.15s;
+    }
+    .sc-card:hover { border-color: var(--border-hi); }
+    .sc-card.promoted   { border-left: 4px solid var(--pass); }
+    .sc-card.archived   { border-left: 4px solid var(--muted-2); }
+    .sc-card.pending    { border-left: 4px solid var(--hold); }
+    .sc-card.not_found  { border-left: 4px solid var(--fail); }
+
+    .sc-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .sc-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .sc-title.untitled { font-style: italic; color: var(--text-dim); font-weight: 400; }
+    .sc-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hi);
+    }
+    .sc-status.promoted  { color: var(--pass); border-color: rgba(111,196,124,0.45); background: rgba(111,196,124,0.07); }
+    .sc-status.pending   { color: var(--hold); border-color: rgba(196,160,48,0.45); background: rgba(196,160,48,0.07); }
+    .sc-status.archived  { color: var(--muted); border-color: var(--border-hi); }
+    .sc-status.not_found { color: var(--fail); border-color: rgba(201,108,108,0.45); }
+    .sc-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .sc-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin: 6px 0 10px;
+      white-space: pre-wrap;
+    }
+    .sc-text.truncated::after {
+      content: ' …';
+      color: var(--muted);
+    }
+    .sc-foot {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+    }
+    .sc-foot a { color: var(--accent); }
+    .sc-foot a:hover { color: var(--accent-hi); }
+    .sc-promoted-line {
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: rgba(111,196,124,0.07);
+      border: 1px dashed rgba(111,196,124,0.35);
+      border-radius: var(--r-sm);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .sc-promoted-line a { color: var(--pass); font-weight: 600; }
+
+    .sc-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* Single-writing view */
+    .sc-one {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 32px;
+      max-width: 760px;
+    }
+    .sc-one .sc-head { margin-bottom: 12px; }
+    .sc-one .sc-title { font-size: 22px; }
+    .sc-one .sc-text {
+      font-size: 17px;
+      color: var(--text);
+      margin: 16px 0 18px;
+    }
+    .sc-receipt {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      color: var(--text-dim);
+    }
+    .sc-receipt .sr-key {
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 10px;
+      margin-right: 8px;
+    }
+    .sc-receipt .sr-val { color: var(--text); word-break: break-all; }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Scribe · the writing lens</div>
+    <h1 id="sc-h1" data-i18n="page.scribe.h1">Your writings. The keeping's verdict.</h1>
+    <p class="sc-intro" id="sc-intro">
+      One Concordance, many lenses. <b>The Scribe</b> is the writing lens — every saying, question, claim, or note you've sent the engine, plus the keeping's current verdict on it: <em>pending</em>, <em>promoted</em> (passed the tests, lives in the Almanac), or <em>archived</em> (reviewed and pruned). The loop closes here.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the writing tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar">
+    <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a>
+    <a href="/parable.html">Parable</a>
+    <a href="/bibles.html">Bibles</a>
+    <a href="/places.html">Places</a>
+    <a href="/scribe.html" class="active">Scribe</a><a href="/misalignments.html">Misalignments</a>
+    <a href="/almanac.html">Almanac</a>
+    <a href="/atlas.html">Atlas</a>
+    <a href="/encyclopedia.html">Encyclopedia</a>
+    <a href="/chronicle.html">Chronicle</a>
+    <a href="/canon.html">Canon</a>
+    <a href="/fieldkit.html">FieldKit</a>
+    <a href="/archetypes.html">Archetypes</a>
+    <a href="/walk.html">Shepherd</a>
+    <a href="/packets.html">Index</a>
+  </div>
+
+  <!-- ── TOOL COMPOSER — drag tools into the chat, run them in combination ── -->
+  <section id="workbench" style="background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--r);padding:24px 26px;margin-bottom:34px;">
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px;">
+      <h2 style="font-family:'Crimson Pro',Georgia,serif;font-size:22px;font-weight:600;margin:0;color:var(--text);">Tool composer</h2>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);">new · drag &middot; drop &middot; combine</span>
+    </div>
+    <p style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim);max-width:64ch;margin:0 0 18px;font-size:14.5px;line-height:1.55;">
+      Drag any tool icon into the chat below. Stack as many as you want. Type your question. The engine runs your query across the selected tools in combination and returns the merged verdict trail.
+    </p>
+
+    <!-- Icon palette -->
+    <div id="wbPalette" style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px;">
+      <!-- groups populated by JS -->
+    </div>
+
+    <!-- Composer (drop zone + text + run) -->
+    <div id="wbComposer" style="background:var(--bg);border:2px dashed var(--border-hi);border-radius:10px;padding:16px;transition:border-color 0.15s;">
+      <div id="wbChips" style="display:flex;flex-wrap:wrap;gap:6px;min-height:32px;margin-bottom:10px;align-items:center;">
+        <span id="wbChipsHint" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.04em;">drop tools here, or click any icon above</span>
+      </div>
+      <textarea id="wbText" placeholder="Type your question or scenario — e.g., 'I have joint pain and high stress' or 'is the prosperity gospel biblical' or leave empty and let the tools speak..."
+        style="width:100%;background:transparent;border:none;color:var(--text);font-family:inherit;font-size:15px;line-height:1.55;outline:none;resize:vertical;min-height:60px;max-height:160px;padding:0;"></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <span id="wbHint" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.04em;">
+          <b>Ctrl+Enter</b> to run · tools narrow the search to their domain
+        </span>
+        <div style="display:flex;gap:8px;">
+          <button id="wbClearBtn" type="button" style="background:transparent;border:1px solid var(--border-hi);color:var(--text-dim);padding:8px 14px;border-radius:7px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;">Clear</button>
+          <button id="wbRunBtn" type="button" style="background:var(--accent);color:#1a1208;border:none;padding:8px 22px;border-radius:7px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;">Run combined →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="wbResults" style="margin-top:22px;"></div>
+  </section>
+
+  <div id="sc-content"></div>
+</main>
+
+<script>
+// ── Tool composer wiring ──
+(function workbench() {
+  // Tool catalog — emoji glyph + label + search-term + matching domain(s)
+  const TOOLS = {
+    lenses: {
+      label: 'Lenses',
+      items: [
+        { id: 'bibles', glyph: '📖', label: 'Bibles', q: 'bible scripture', domains: ['scripture'] },
+        { id: 'apothecary', glyph: '🌿', label: 'Apothecary', q: 'apothecary remedy', domains: ['medicine','nutrition'] },
+        { id: 'almanac', glyph: '📋', label: 'Almanac', q: 'almanac saying', domains: [] },
+        { id: 'shepherd', glyph: '🛐', label: 'Shepherd', q: 'four gates walk', domains: ['theology'] },
+        { id: 'fieldkit', glyph: '🧭', label: 'Field Kit', q: 'practical fieldkit', domains: [] },
+        { id: 'archetypes', glyph: '🎭', label: 'Archetypes', q: 'archetype pattern', domains: [] },
+        { id: 'places', glyph: '🗺', label: 'Places', q: 'biblical place', domains: ['geography','scripture'] },
+        { id: 'parable', glyph: '📝', label: 'Parable', q: 'parable story', domains: ['scripture','rhetoric'] },
+      ],
+    },
+    sciences: {
+      label: 'Sciences',
+      items: [
+        { id: 'chemistry', glyph: '⚗', label: 'Chemistry', q: 'chemistry chemical', domains: ['chemistry'] },
+        { id: 'physics', glyph: '🧪', label: 'Physics', q: 'physics force energy', domains: ['physics','physics_dimensional','physics_conservation'] },
+        { id: 'biology', glyph: '🦠', label: 'Biology', q: 'biology biological', domains: ['biology'] },
+        { id: 'genetics', glyph: '🧬', label: 'Genetics', q: 'DNA codon genetic', domains: ['genetics'] },
+        { id: 'medicine', glyph: '💊', label: 'Medicine', q: 'medicine clinical', domains: ['medicine'] },
+        { id: 'nutrition', glyph: '🍎', label: 'Nutrition', q: 'nutrition vitamin', domains: ['nutrition'] },
+        { id: 'statistics', glyph: '📊', label: 'Statistics', q: 'statistics p-value sample', domains: ['statistics','statistics_pvalue'] },
+        { id: 'mathematics', glyph: '🔢', label: 'Math', q: 'mathematics math equation', domains: ['mathematics','number_theory','combinatorics','geometry'] },
+        { id: 'cryptography', glyph: '🔐', label: 'Cryptography', q: 'cryptography hash key', domains: ['cryptography'] },
+        { id: 'exercise', glyph: '💪', label: 'Exercise', q: 'exercise training fitness', domains: ['exercise_science'] },
+      ],
+    },
+    practical: {
+      label: 'Practical',
+      items: [
+        { id: 'agriculture', glyph: '🌱', label: 'Agriculture', q: 'agriculture farming crop', domains: ['agriculture','soil_science'] },
+        { id: 'energy', glyph: '⚡', label: 'Energy', q: 'energy power fuel', domains: ['energy','thermodynamics'] },
+        { id: 'construction', glyph: '🏗', label: 'Construction', q: 'construction building', domains: ['construction','architecture'] },
+        { id: 'electrical', glyph: '💡', label: 'Electrical', q: 'electrical circuit voltage', domains: ['electrical'] },
+        { id: 'hydrology', glyph: '🌊', label: 'Water', q: 'water purification', domains: ['hydrology'] },
+        { id: 'meteorology', glyph: '🌬', label: 'Weather', q: 'weather meteorology', domains: ['meteorology'] },
+        { id: 'geology', glyph: '🗻', label: 'Geology', q: 'geology rock soil', domains: ['geology'] },
+        { id: 'manufacturing', glyph: '⚙', label: 'Manufacturing', q: 'manufacturing process', domains: ['manufacturing'] },
+      ],
+    },
+    humanities: {
+      label: 'Humanities',
+      items: [
+        { id: 'scripture', glyph: '📜', label: 'Scripture', q: 'Bible scripture verse', domains: ['scripture','scripture_anchors'] },
+        { id: 'theology', glyph: '✝', label: 'Theology', q: 'theology Christ', domains: ['theology','theology_doctrine'] },
+        { id: 'philosophy', glyph: '💭', label: 'Philosophy', q: 'philosophy logic', domains: ['philosophy'] },
+        { id: 'rhetoric', glyph: '🗣', label: 'Rhetoric', q: 'rhetoric ethos pathos', domains: ['rhetoric'] },
+        { id: 'linguistics', glyph: '📚', label: 'Linguistics', q: 'linguistics Greek Hebrew', domains: ['linguistics'] },
+        { id: 'history', glyph: '🕰', label: 'History', q: 'history historical', domains: ['history','history_chronology'] },
+        { id: 'governance', glyph: '⚖', label: 'Governance', q: 'governance law', domains: ['governance','law'] },
+        { id: 'finance', glyph: '💰', label: 'Finance', q: 'finance interest debt', domains: ['finance','economics'] },
+      ],
+    },
+    phonics: {
+      label: 'Phonics',
+      items: [
+        { id: 'phonics_vowels', glyph: '🅰', label: 'Short vowels', q: 'short vowel phonics decodable', domains: ['phonics','linguistics'] },
+        { id: 'phonics_blends', glyph: '🅱', label: 'Blends', q: 'blend consonant phonics', domains: ['phonics','linguistics'] },
+        { id: 'phonics_digraphs', glyph: '🅲', label: 'Digraphs', q: 'digraph th sh ch phonics', domains: ['phonics','linguistics'] },
+        { id: 'phonics_long', glyph: '🅳', label: 'Long vowels', q: 'long vowel CVCe phonics', domains: ['phonics','linguistics'] },
+      ],
+    },
+    math: {
+      label: 'Math',
+      items: [
+        { id: 'math_counting', glyph: '🔟', label: 'Counting', q: 'counting number sense ten-frame', domains: ['mathematics'] },
+        { id: 'math_add', glyph: '➕', label: 'Addition', q: 'addition count on ten-frame', domains: ['mathematics'] },
+        { id: 'math_sub', glyph: '➖', label: 'Subtraction', q: 'subtraction take away difference', domains: ['mathematics'] },
+        { id: 'math_place', glyph: '🔢', label: 'Place value', q: 'place value tens ones', domains: ['mathematics'] },
+        { id: 'math_shapes', glyph: '🔺', label: 'Shapes', q: 'shapes circle square triangle rectangle', domains: ['mathematics'] },
+        { id: 'math_money', glyph: '💵', label: 'Money', q: 'money coin dollar cents penny nickel dime quarter', domains: ['mathematics','finance'] },
+        { id: 'math_time', glyph: '⏰', label: 'Time', q: 'time clock hour half past', domains: ['mathematics'] },
+      ],
+    },
+    reading: {
+      label: 'Reading',
+      items: [
+        { id: 'reading_main', glyph: '📖', label: 'Main idea', q: 'main idea reading comprehension', domains: ['rhetoric','linguistics'] },
+        { id: 'reading_seq', glyph: '🔢', label: 'Sequencing', q: 'sequencing first next then last', domains: ['rhetoric','linguistics'] },
+        { id: 'reading_cause', glyph: '↪', label: 'Cause/effect', q: 'cause effect because so since', domains: ['rhetoric','formal_logic'] },
+      ],
+    },
+    writing: {
+      label: 'Writing',
+      items: [
+        { id: 'writing_sentence', glyph: '✏', label: 'Sentence', q: 'sentence complete subject predicate', domains: ['rhetoric','linguistics'] },
+        { id: 'writing_caps', glyph: '🅰', label: 'Capitals', q: 'capitalization names first word I', domains: ['rhetoric','linguistics'] },
+        { id: 'writing_para', glyph: '📝', label: 'Paragraph', q: 'paragraph topic detail closing', domains: ['rhetoric','linguistics'] },
+      ],
+    },
+    science: {
+      label: 'Science',
+      items: [
+        { id: 'science_seasons', glyph: '🍂', label: 'Seasons', q: 'seasons spring summer fall winter', domains: ['meteorology','geography'] },
+        { id: 'science_plants', glyph: '🌱', label: 'Plants', q: 'plant parts roots stem leaves flower fruit seed', domains: ['biology'] },
+        { id: 'science_water', glyph: '💧', label: 'Water cycle', q: 'water cycle evaporation condensation precipitation', domains: ['hydrology','meteorology'] },
+        { id: 'science_senses', glyph: '👁', label: 'Senses', q: 'five senses sight hearing touch taste smell', domains: ['biology'] },
+        { id: 'science_states', glyph: '🧊', label: 'States', q: 'states matter solid liquid gas', domains: ['chemistry','physics'] },
+      ],
+    },
+    social: {
+      label: 'Social studies',
+      items: [
+        { id: 'social_community', glyph: '🏘', label: 'Community', q: 'community helpers police firefighter teacher', domains: ['governance','labor'] },
+        { id: 'social_maps', glyph: '🗺', label: 'Maps', q: 'map skills compass north south east west', domains: ['geography'] },
+        { id: 'social_calendar', glyph: '📅', label: 'Calendar', q: 'calendar timeline BC AD century year', domains: ['history_chronology'] },
+      ],
+    },
+    bible_curr: {
+      label: 'Bible',
+      items: [
+        { id: 'bible_psalm', glyph: '🐑', label: 'Psalm 23', q: 'psalm 23 shepherd valley', domains: ['scripture','theology'] },
+        { id: 'bible_lords', glyph: '🙏', label: "Lord's Prayer", q: 'Lord prayer Our Father hallowed', domains: ['scripture','theology'] },
+        { id: 'bible_beat', glyph: '⛰', label: 'Beatitudes', q: 'beatitudes blessed Matthew 5', domains: ['scripture','theology'] },
+        { id: 'bible_ten', glyph: '📜', label: 'Ten Commandments', q: 'ten commandments Exodus 20', domains: ['scripture','theology','governance'] },
+      ],
+    },
+    workready: {
+      label: 'WorkReady',
+      items: [
+        { id: 'wr_comm', glyph: '💼', label: 'Communication', q: 'résumé interview communication workready', domains: ['rhetoric','labor'] },
+        { id: 'wr_math', glyph: '🧮', label: 'Numeracy', q: 'workplace math measurement workready', domains: ['mathematics','statistics'] },
+        { id: 'wr_problem', glyph: '🧩', label: 'Problem-solving', q: 'workplace troubleshooting problem-solving workready', domains: ['formal_logic','reasoning'] },
+        { id: 'wr_team', glyph: '🤝', label: 'Teamwork', q: 'teamwork conflict workready', domains: ['governance','rhetoric'] },
+        { id: 'wr_ethic', glyph: '⏱', label: 'Work-ethic', q: 'punctuality reliability work ethic workready', domains: ['labor'] },
+        { id: 'wr_tech', glyph: '💻', label: 'Tech-literacy', q: 'computer literacy file email workready', domains: ['computer_science'] },
+      ],
+    },
+  };
+
+  const selectedTools = new Map(); // id -> tool spec
+
+  const palette = document.getElementById('wbPalette');
+  const composer = document.getElementById('wbComposer');
+  const chipsEl = document.getElementById('wbChips');
+  const chipsHint = document.getElementById('wbChipsHint');
+  const textEl = document.getElementById('wbText');
+  const runBtn = document.getElementById('wbRunBtn');
+  const clearBtn = document.getElementById('wbClearBtn');
+  const resultsEl = document.getElementById('wbResults');
+
+  function makeToolButton(tool) {
+    const btn = document.createElement('button');
+    btn.className = 'wb-tool';
+    btn.draggable = true;
+    btn.dataset.toolId = tool.id;
+    btn.type = 'button';
+    btn.style.cssText = 'background:var(--bg);border:1px solid var(--border-hi);color:var(--text);padding:7px 12px;border-radius:18px;cursor:grab;font-family:inherit;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:all 0.12s;user-select:none;';
+    btn.innerHTML = `<span style="font-size:15px;">${tool.glyph}</span><span>${tool.label}</span>`;
+    btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; });
+    btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--border-hi)'; btn.style.color = 'var(--text)'; });
+    btn.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', tool.id);
+      e.dataTransfer.effectAllowed = 'copy';
+      btn.style.opacity = '0.4';
+    });
+    btn.addEventListener('dragend', () => { btn.style.opacity = '1'; });
+    btn.addEventListener('click', () => addTool(tool));
+    return btn;
+  }
+
+  // Build palette
+  for (const groupKey of Object.keys(TOOLS)) {
+    const group = TOOLS[groupKey];
+    const groupEl = document.createElement('div');
+    groupEl.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;';
+    const labelEl = document.createElement('span');
+    labelEl.style.cssText = 'font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-right:6px;min-width:90px;';
+    labelEl.textContent = group.label;
+    groupEl.appendChild(labelEl);
+    for (const tool of group.items) groupEl.appendChild(makeToolButton(tool));
+    palette.appendChild(groupEl);
+  }
+
+  function addTool(tool) {
+    if (selectedTools.has(tool.id)) return;
+    selectedTools.set(tool.id, tool);
+    renderChips();
+  }
+
+  function removeTool(id) {
+    selectedTools.delete(id);
+    renderChips();
+  }
+
+  function renderChips() {
+    chipsHint.style.display = selectedTools.size ? 'none' : 'inline';
+    const existing = Array.from(chipsEl.querySelectorAll('.wb-chip'));
+    for (const c of existing) c.remove();
+    for (const [id, tool] of selectedTools) {
+      const chip = document.createElement('span');
+      chip.className = 'wb-chip';
+      chip.style.cssText = 'background:rgba(217,168,114,0.12);border:1px solid var(--accent);color:var(--text);padding:4px 6px 4px 10px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-family:inherit;';
+      chip.innerHTML = `<span>${tool.glyph}</span><span>${tool.label}</span>
+        <button type="button" aria-label="Remove" style="background:transparent;border:none;color:var(--muted);cursor:pointer;padding:0 4px;font-size:14px;line-height:1;">&times;</button>`;
+      chip.querySelector('button').addEventListener('click', () => removeTool(id));
+      chipsEl.appendChild(chip);
+    }
+  }
+
+  // Drag-drop targets on composer
+  composer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    composer.style.borderColor = 'var(--accent)';
+  });
+  composer.addEventListener('dragleave', () => { composer.style.borderColor = 'var(--border-hi)'; });
+  composer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    composer.style.borderColor = 'var(--border-hi)';
+    const id = e.dataTransfer.getData('text/plain');
+    if (!id) return;
+    // Find tool by id
+    for (const groupKey of Object.keys(TOOLS)) {
+      for (const t of TOOLS[groupKey].items) {
+        if (t.id === id) { addTool(t); return; }
+      }
+    }
+  });
+
+  // Ctrl+Enter to run
+  textEl.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runCombined();
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    selectedTools.clear();
+    renderChips();
+    textEl.value = '';
+    resultsEl.innerHTML = '';
+  });
+
+  runBtn.addEventListener('click', runCombined);
+
+  const STOPWORDS = new Set(['a','an','the','and','or','but','of','for','to','in','on','at','by','with','from','is','are','was','were','be','been','being','it','this','that','these','those','i','me','my','you','your','we','us','our','they','them','their','as','if','so','not','no','do','does','did','have','has','had','can','could','should','would','will','what','which','who','whom','when','where','why','how','about','some','any','than','then','too','very','also']);
+
+  async function _searchOne(q) {
+    try {
+      const r = await fetch('/index/packets/search?q=' + encodeURIComponent(q) + '&limit=8');
+      if (!r.ok) return [];
+      const d = await r.json();
+      return d.packets || [];
+    } catch (_) { return []; }
+  }
+
+  // Two-pass: try original query, then fall back to per-keyword union
+  async function fetchSearch(q) {
+    if (!q) return [];
+    const first = await _searchOne(q);
+    if (first.length) return first;
+    const toks = (q.toLowerCase().match(/[a-z][a-z0-9'-]{1,}/g) || [])
+      .filter(t => !STOPWORDS.has(t) && t.length > 2);
+    if (toks.length <= 1) return [];
+    const merged = new Map();
+    for (const tok of toks) {
+      const ps = await _searchOne(tok);
+      for (const p of ps) {
+        if (!merged.has(p.id)) merged.set(p.id, { ...p, _hits: 1 });
+        else merged.get(p.id)._hits += 1;
+      }
+    }
+    // Rank by hits desc then score
+    return Array.from(merged.values())
+      .sort((a, b) => (b._hits - a._hits) || ((b.score || 0) - (a.score || 0)))
+      .slice(0, 8);
+  }
+
+  async function runCombined() {
+    const text = textEl.value.trim();
+    const tools = Array.from(selectedTools.values());
+    if (!text && !tools.length) {
+      resultsEl.innerHTML = '<p style="color:var(--muted);font-style:italic;font-family:\'Crimson Pro\',Georgia,serif;padding:10px 0;">Add at least one tool or type a question.</p>';
+      return;
+    }
+    resultsEl.innerHTML = '<p style="color:var(--muted);font-style:italic;font-family:\'Crimson Pro\',Georgia,serif;padding:14px 0;">running across ' + tools.length + ' tool' + (tools.length===1?'':'s') + '…</p>';
+
+    const t0 = performance.now();
+    const queries = [];
+    if (text) queries.push({ q: text, source: 'text' });
+    for (const tool of tools) queries.push({ q: tool.q, source: tool.id });
+
+    const allPackets = new Map(); // id → {packet, matched_via: Set<source>}
+    for (const { q, source } of queries) {
+      const packets = await fetchSearch(q);
+      for (const p of packets) {
+        if (!allPackets.has(p.id)) {
+          allPackets.set(p.id, { packet: p, matched_via: new Set([source]), max_score: p.score || 0 });
+        } else {
+          const cur = allPackets.get(p.id);
+          cur.matched_via.add(source);
+          cur.max_score = Math.max(cur.max_score, p.score || 0);
+        }
+      }
+    }
+
+    // Boost packets that match multiple sources OR whose domains overlap with selected tools
+    const selectedDomains = new Set();
+    for (const t of tools) for (const d of (t.domains || [])) selectedDomains.add(d);
+
+    const ranked = Array.from(allPackets.values()).map(item => {
+      const domains = item.packet.domains || [];
+      const domainOverlap = domains.filter(d => selectedDomains.has(d)).length;
+      const sourceCount = item.matched_via.size;
+      const score = (item.max_score || 0) + sourceCount * 3 + domainOverlap * 2;
+      return { ...item, score };
+    });
+    ranked.sort((a, b) => b.score - a.score);
+    const elapsed = Math.round(performance.now() - t0);
+
+    if (!ranked.length) {
+      resultsEl.innerHTML = `
+        <p style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin:0 0 12px;">You asked &middot; ${escapeHtml(text)} &middot; ${tools.length} tools &middot; ${elapsed}ms</p>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 26px;">
+          <p style="font-family:'Crimson Pro',Georgia,serif;font-size:16px;color:var(--text);font-style:italic;margin:0 0 10px;">Nothing in the keeping yet matches this combination.</p>
+          <p style="font-size:13px;color:var(--text-dim);margin:0;">Try different tools, broader phrasing, or write it to the Scribe so the keeping can grow.</p>
+        </div>`;
+      return;
+    }
+
+    // Render
+    const verdictColor = (v) => ({
+      'CONFIRMED': 'var(--pass)', 'CONCORDANT': 'var(--pass)',
+      'MIXED': 'var(--hold)',
+      'MISMATCH': 'var(--fail)', 'DISCORDANT': 'var(--fail)',
+      'OBSOLETE': 'var(--muted)',
+    }[v] || 'var(--muted)');
+    const verdictGlyph = (v) => ({
+      'CONFIRMED': '✓', 'CONCORDANT': '✓', 'MIXED': '~',
+      'MISMATCH': '✗', 'DISCORDANT': '✗', 'OBSOLETE': '◦',
+    }[v] || '·');
+
+    const toolsLabel = tools.map(t => `${t.glyph} ${t.label}`).join(' &middot; ');
+    let html = `
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.10em;text-transform:uppercase;margin:0 0 14px;">
+        Combined search ${text ? '&middot; <span style="color:var(--text)">' + escapeHtml(text) + '</span> ' : ''}&middot;
+        ${tools.length ? '<span style="color:var(--accent)">' + toolsLabel + '</span> &middot;' : ''}
+        ${ranked.length} result${ranked.length===1?'':'s'} &middot; ${elapsed}ms
+      </p>
+    `;
+    for (const item of ranked.slice(0, 12)) {
+      const p = item.packet;
+      const v = (p.verdict || '').toUpperCase();
+      const matched = Array.from(item.matched_via).filter(s => s !== 'text').map(id => {
+        // Find tool to get glyph
+        for (const groupKey of Object.keys(TOOLS)) {
+          for (const t of TOOLS[groupKey].items) if (t.id === id) return t.glyph;
+        }
+        return '';
+      }).filter(Boolean).join(' ');
+      html += `
+        <a href="${escapeHtml(p.permalink || '#')}" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${verdictColor(v)};border-radius:8px;padding:14px 18px;margin-bottom:8px;text-decoration:none;color:inherit;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--accent)';this.style.borderLeftColor='${verdictColor(v)}';" onmouseleave="this.style.borderColor='var(--border)';this.style.borderLeftColor='${verdictColor(v)}';">
+          <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px;">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:${verdictColor(v)};letter-spacing:0.06em;min-width:100px;">${verdictGlyph(v)} ${escapeHtml(v)}</span>
+            <span style="color:var(--text);font-size:15px;font-weight:500;flex:1;min-width:200px;">${escapeHtml(p.title || p.id)}</span>
+            ${matched ? `<span style="font-size:12px;color:var(--muted);">via ${matched}</span>` : ''}
+          </div>
+          ${p.summary ? `<p style="font-size:13px;color:var(--text-dim);margin:6px 0 0;line-height:1.5;">${escapeHtml((p.summary || '').slice(0, 200))}${p.summary.length > 200 ? '…' : ''}</p>` : ''}
+        </a>
+      `;
+    }
+    resultsEl.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+})();
+</script>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  /* Identity — mirror of /walk.html. Same VISITOR_ID across all lenses. */
+  const VISITOR_KEY = 'concordance_visitor_id';
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VISITOR_ID = getVisitorId();
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const now = Date.now();
+      const s = Math.max(1, Math.floor((now - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      if (s < 86400*30) return Math.floor(s/86400) + 'd ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  function renderCard(w, opts) {
+    opts = opts || {};
+    const status = w.status || 'pending';
+    const title = (w.title || '').trim() || '(untitled)';
+    const titleCls = (w.title || '').trim() ? '' : 'untitled';
+    const handle = w.contributor_handle ? `<span class="sc-meta">by ${esc(w.contributor_handle)}</span>` : '';
+    let promotedLine = '';
+    if (status === 'promoted' && w.almanac_entry && w.almanac_entry.id) {
+      promotedLine = `<div class="sc-promoted-line">Promoted to the Almanac as <a href="/almanac.html?q=${encodeURIComponent(w.almanac_entry.id)}">${esc(w.almanac_entry.title || w.almanac_entry.id)}</a>.</div>`;
+    }
+    const text = (opts.preview != null) ? opts.preview : (w.text || '');
+    const truncCls = (opts.preview != null) ? 'truncated' : (w.text_truncated ? 'truncated' : '');
+    return `<div class="sc-card ${esc(status)}">
+      <div class="sc-head">
+        <div class="sc-title ${titleCls}">${esc(title)}</div>
+        <span class="sc-status ${esc(status)}">${esc(status)}</span>
+        <span class="sc-meta">${esc(fmtWhen(w.submitted_at))}</span>
+        ${handle}
+      </div>
+      ${text ? `<div class="sc-text ${truncCls}">${esc(text)}</div>` : ''}
+      ${promotedLine}
+      <div class="sc-foot">
+        <a href="${esc(w.view_url || ('/scribe.html?id=' + w.id))}">View →</a>
+      </div>
+    </div>`;
+  }
+
+  async function renderMine() {
+    const content = document.getElementById('sc-content');
+    content.innerHTML = '<div class="sc-empty">Loading your writings…</div>';
+    try {
+      const r = await fetch('/scribe/mine?visitor_id=' + encodeURIComponent(VISITOR_ID));
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      if (!d.writings || !d.writings.length) {
+        content.innerHTML = `<div class="sc-empty">You haven't written anything yet. The <a href="/">Scribe card on the home page</a> is where to start.</div>`;
+        return;
+      }
+      const tabs = renderTabs('mine', d.writings.length);
+      const list = `<div class="sc-list">${d.writings.map(w => renderCard(w)).join('')}</div>`;
+      content.innerHTML = tabs + list;
+      wireTabs();
+    } catch (err) {
+      content.innerHTML = `<div class="sc-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  async function renderRecent() {
+    const content = document.getElementById('sc-content');
+    content.innerHTML = '<div class="sc-empty">Loading the recent feed…</div>';
+    try {
+      const r = await fetch('/scribe/recent?limit=30');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const tabs = renderTabs('recent', d.writings.length);
+      if (!d.writings || !d.writings.length) {
+        content.innerHTML = tabs + `<div class="sc-empty">No recent writings to show.</div>`;
+        wireTabs();
+        return;
+      }
+      const list = `<div class="sc-list">${d.writings.map(w => renderCard(w, {preview: w.preview})).join('')}</div>`;
+      content.innerHTML = tabs + list;
+      wireTabs();
+    } catch (err) {
+      content.innerHTML = `<div class="sc-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderTabs(active, _count) {
+    return `<div class="sc-tab-row">
+      <button class="sc-tab ${active==='mine'?'active':''}" data-tab="mine">Your writings</button>
+      <button class="sc-tab ${active==='recent'?'active':''}" data-tab="recent">Recent (public)</button>
+    </div>`;
+  }
+  function wireTabs() {
+    document.querySelectorAll('.sc-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        const next = t.dataset.tab;
+        if (next === 'mine') { history.replaceState({}, '', '/scribe.html'); renderMine(); }
+        else if (next === 'recent') { history.replaceState({}, '', '/scribe.html?view=recent'); renderRecent(); }
+      });
+    });
+  }
+
+  async function renderOne(itemId) {
+    const content = document.getElementById('sc-content');
+    document.getElementById('sc-h1').innerText = 'One writing.';
+    document.getElementById('sc-intro').innerHTML = 'The keeping decides what survives. This is one writing\'s current verdict.';
+    content.innerHTML = '<div class="sc-empty">Loading…</div>';
+    try {
+      const r = await fetch('/scribe/' + encodeURIComponent(itemId));
+      if (!r.ok) {
+        if (r.status === 404) {
+          content.innerHTML = `<div class="sc-empty">No writing with that id is in the system. It may have been cleared in a periodic prune.</div>`;
+          return;
+        }
+        throw new Error('http ' + r.status);
+      }
+      const w = await r.json();
+      const status = w.status || 'pending';
+      let promotedLine = '';
+      if (status === 'promoted' && w.almanac_entry && w.almanac_entry.id) {
+        promotedLine = `<div class="sc-promoted-line">Promoted to the Almanac as <a href="/almanac.html?q=${encodeURIComponent(w.almanac_entry.id)}">${esc(w.almanac_entry.title || w.almanac_entry.id)}</a>. The keeping accepted it.</div>`;
+      }
+      let receipt = '';
+      if (w.receipt) {
+        receipt = `<div class="sc-receipt">
+          <div><span class="sr-key">Receipt</span> <span class="sr-val">${esc(w.receipt.receipt_id || '')}</span></div>
+          <div><span class="sr-key">Signature</span> <span class="sr-val">${esc((w.receipt.signature || '').slice(0,80))}…</span></div>
+          <div><span class="sr-key">Promoted at</span> <span class="sr-val">${esc(w.receipt.signed_at || w.receipt.minted_at || '')}</span></div>
+        </div>`;
+      }
+      const handle = w.contributor_handle ? `<span class="sc-meta">by ${esc(w.contributor_handle)}</span>` : '';
+      const title = (w.title || '').trim() || '(untitled)';
+      const titleCls = (w.title || '').trim() ? '' : 'untitled';
+      content.innerHTML = `
+        <div class="sc-one">
+          <div class="sc-head">
+            <div class="sc-title ${titleCls}">${esc(title)}</div>
+            <span class="sc-status ${esc(status)}">${esc(status)}</span>
+            <span class="sc-meta">${esc(fmtWhen(w.submitted_at))}</span>
+            ${handle}
+          </div>
+          <div class="sc-text">${esc(w.text || '')}</div>
+          ${promotedLine}
+          ${receipt}
+          <div class="sc-foot" style="margin-top:14px;">
+            <a href="/scribe.html">← Your writings</a>
+            <a href="/scribe.html?view=recent">Recent (public)</a>
+          </div>
+          <div id="scribeReach"></div>
+        </div>`;
+      // Async enrichment — the Scribe reaches into the keeping
+      enrichWriting(w.text || title);
+    } catch (err) {
+      content.innerHTML = `<div class="sc-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  /* ── Async enrichment: Scribe draws from Apothecary + Almanac ──
+     After a single writing renders, fetch the Apothecary compound and search
+     for the same text. The Scribe brings the keeping to your writing. */
+  async function enrichWriting(text) {
+    const box = document.getElementById('scribeReach');
+    if (!box || !text) return;
+    const parts = [];
+
+    const [apothRes, searchRes] = await Promise.allSettled([
+      fetch('/apothecary?condition=' + encodeURIComponent(text)).then(r => r.ok ? r.json() : null),
+      fetch('/index/packets/search?q=' + encodeURIComponent(text) + '&limit=4').then(r => r.ok ? r.json() : null),
+    ]);
+
+    // Apothecary compound
+    const apoth = apothRes.status === 'fulfilled' ? apothRes.value : null;
+    const compound = apoth && apoth.compound ? apoth.compound : null;
+    if (compound) {
+      const slotColors = {scripture:'#c9a87c', proverb:'#c9a87c', protocol:'var(--pass)', mind:'#b88ed6',
+        training:'var(--pass)', fieldkit:'#c4a030', body:'#7fa8c0', parable:'#b88ed6',
+        philosopher:'#b88ed6', father:'#c9a87c', almanac:'#6fc47c'};
+      const showSlots = ['scripture','protocol','mind','almanac','fieldkit','training'];
+      const cards = showSlots.map(slot => {
+        const ing = compound[slot];
+        if (!ing || typeof ing !== 'object') return '';
+        const color = slotColors[slot] || 'var(--muted)';
+        const title = ing.title || ing.name || ing.id || slot;
+        const snip = ing.text || ing.body || ing.snippet || '';
+        const short = snip.length > 100 ? snip.slice(0, 100) + '…' : snip;
+        return `<div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:${color};text-transform:uppercase;margin-bottom:3px;">${esc(slot)}</div>
+          <div style="font-family:'Crimson Pro',Georgia,serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px;">${esc(title)}</div>
+          ${short ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:13px;color:var(--text-dim);line-height:1.45;font-style:italic;">${esc(short)}</div>` : ''}
+        </div>`;
+      }).filter(Boolean).join('');
+      if (cards) {
+        parts.push(`<div style="border-top:1px dashed #b88ed6;margin-top:22px;padding-top:18px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#b88ed6;margin-bottom:4px;">The Scribe also found</div>
+          <div style="font-family:'Crimson Pro',Georgia,serif;font-size:16px;color:var(--text);margin-bottom:12px;">From the Apothecary — ingredients for your writing</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">${cards}</div>
+        </div>`);
+      }
+    }
+
+    // Search results from the keeping
+    const sr = searchRes.status === 'fulfilled' ? searchRes.value : null;
+    const hits = sr ? (sr.packets || sr.results || sr.hits || []) : [];
+    if (hits.length > 0) {
+      const items = hits.slice(0, 3).map(h => {
+        const htitle = h.title || h.claim || h.id || '';
+        const verdict = (h.verdict || '').toUpperCase();
+        const vColor = verdict === 'CONFIRMED' ? 'var(--pass)' : verdict === 'MISMATCH' ? 'var(--fail)' : 'var(--muted)';
+        return `<div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;gap:10px;align-items:baseline;">
+          ${verdict ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:${vColor};white-space:nowrap;">${esc(verdict)}</span>` : ''}
+          <span style="font-family:'Crimson Pro',Georgia,serif;font-size:14px;color:var(--text);">${esc(htitle)}</span>
+        </div>`;
+      }).join('');
+      parts.push(`<div style="border-top:1px dashed #7fa8c0;margin-top:18px;padding-top:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#7fa8c0;margin-bottom:4px;">Also in the keeping</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">${items}</div>
+        <div style="margin-top:8px;"><a href="/?q=${encodeURIComponent(text)}" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7fa8c0;letter-spacing:0.04em;">Search all ${(sr.total || hits.length)} results →</a></div>
+      </div>`);
+    }
+
+    if (parts.length) box.innerHTML = parts.join('');
+  }
+
+  /* Boot — three views: ?id=<x> single, ?view=recent feed, default mine */
+  (function () {
+    const sp = new URLSearchParams(location.search);
+    const id   = (sp.get('id') || '').trim();
+    const view = (sp.get('view') || '').trim();
+    if (id) renderOne(id);
+    else if (view === 'recent') renderRecent();
+    else renderMine();
+  })();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

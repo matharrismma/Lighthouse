@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.witness.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attest as a Witness · Concordance Engine</title>
+  <meta name="description" content="A walker has asked you to witness their BROTHERS gate. Read the situation, hear their answer, and put your name to what you see. In the mouth of two or three witnesses every word shall be established (Mt 18:16).">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <link rel="canonical" href="https://narrowhighway.com/witness.html">
+  <meta name="robots" content="noindex">
+
+  <style>
+    .wt-card {
+      max-width: 720px;
+      margin: 16px 0;
+      padding: 24px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .wt-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .wt-intro em { color: var(--accent); font-style: italic; }
+    .wt-intro b { color: var(--accent); }
+
+    .wt-section { margin-bottom: 18px; }
+    .wt-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .wt-quote {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--text);
+      padding: 12px 16px;
+      background: var(--bg-2, rgba(0,0,0,0.18));
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      white-space: pre-wrap;
+    }
+    .wt-quote.empty {
+      color: var(--muted-2);
+      font-style: italic;
+      border-left-color: var(--border);
+    }
+
+    .wt-form {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+    .wt-form label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 10px 0 5px;
+    }
+    .wt-form input, .wt-form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border-hi);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .wt-form input { font-family: 'Inter', sans-serif; font-size: 14.5px; }
+    .wt-form input:focus, .wt-form textarea:focus { border-color: var(--accent); }
+    .wt-form textarea { resize: vertical; min-height: 80px; }
+
+    .wt-actions {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+      margin-top: 16px;
+    }
+    .wt-submit {
+      background: var(--accent); color: #1a1208;
+      border: none; border-radius: 6px;
+      padding: 10px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+      cursor: pointer;
+    }
+    .wt-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .wt-status {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14px; color: var(--text-dim);
+    }
+    .wt-status.error { color: var(--fail); font-style: normal; }
+    .wt-status.ok { color: var(--pass); font-style: normal; }
+
+    .wt-prior {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+    .wt-witness {
+      padding: 10px 14px;
+      background: rgba(111, 196, 124, 0.05);
+      border: 1px solid rgba(111, 196, 124, 0.30);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .wt-witness-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .wt-witness-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-left: 8px;
+    }
+    .wt-witness-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      margin-left: auto;
+      float: right;
+    }
+    .wt-witness-attest {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-top: 4px;
+      white-space: pre-wrap;
+    }
+    .wt-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 32px 20px;
+      text-align: center;
+    }
+    .wt-error {
+      color: var(--fail);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 14px;
+      background: rgba(201,108,108,0.06);
+      border: 1px solid rgba(201,108,108,0.3);
+      border-radius: 6px;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+            <a href="/daily.html" class="keep-on-mobile" data-i18n="nav.today">Today</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" class="keep-on-mobile" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/scribe.html" class="keep-on-mobile" data-i18n="nav.scribe">Scribe</a>
+            <a href="/bibles.html" data-i18n="nav.bibles">Bibles</a>
+            <a href="/almanac.html" class="keep-on-mobile" data-i18n="nav.almanac">Almanac</a>
+            <a href="/library.html" data-i18n="nav.library">Library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Witness · Mt 18:16</div>
+    <h1 data-i18n="page.witness.h1">Attest as a witness.</h1>
+    <p class="wt-intro">
+      Someone has asked you to witness their walk through a <em>BROTHERS</em> gate. The four gates require <b>two or three witnesses</b>. Read the situation, hear what they have already named, and put your name to what you see. Honest correction is part of the keeping.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the witness tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+  <div id="wt-content"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  async function loadContext(visitorId, walkId) {
+    const content = document.getElementById('wt-content');
+    content.innerHTML = '<div class="wt-empty">Loading the walk…</div>';
+    try {
+      const r = await fetch('/witness/walk/context?walker_visitor_id=' + encodeURIComponent(visitorId) +
+                            '&walk_id=' + encodeURIComponent(walkId));
+      if (!r.ok) {
+        if (r.status === 404) {
+          content.innerHTML = '<div class="wt-empty">No walk found at that link. It may have been cleared, or the link is incomplete.</div>';
+          return;
+        }
+        throw new Error('http ' + r.status);
+      }
+      const d = await r.json();
+      renderContext(d, visitorId, walkId);
+    } catch (err) {
+      content.innerHTML = '<div class="wt-error">Could not reach the engine: ' + esc(err.message) + '</div>';
+    }
+  }
+
+  function renderContext(d, visitorId, walkId) {
+    const content = document.getElementById('wt-content');
+    const brothers = (d.brothers_answer || '').trim();
+    const situation = (d.situation || '').trim();
+    const witnesses = d.witnesses || [];
+    const witnessHtml = witnesses.length
+      ? witnesses.map(w => `<div class="wt-witness">
+          <div>
+            <span class="wt-witness-name">${esc(w.witness_name)}</span>
+            ${w.witness_role ? `<span class="wt-witness-role">${esc(w.witness_role)}</span>` : ''}
+            <span class="wt-witness-when">${esc(fmtWhen(w.logged_at_iso))}</span>
+          </div>
+          ${w.attestation ? `<div class="wt-witness-attest">${esc(w.attestation)}</div>` : ''}
+        </div>`).join('')
+      : `<div class="wt-empty" style="padding:14px 0;">No witnesses yet. You can be the first.</div>`;
+
+    content.innerHTML = `
+      <article class="wt-card">
+        <div class="wt-section">
+          <div class="wt-label">The situation</div>
+          <div class="wt-quote${situation ? '' : ' empty'}">${esc(situation || '(no situation text)')}</div>
+        </div>
+        <div class="wt-section">
+          <div class="wt-label">What the walker named on BROTHERS</div>
+          <div class="wt-quote${brothers ? '' : ' empty'}">${esc(brothers || '(walker has not yet answered the BROTHERS gate)')}</div>
+        </div>
+
+        <form class="wt-form" id="wt-form">
+          <label for="wt-name">Your name (1-80 chars)</label>
+          <input id="wt-name" type="text" maxlength="80" placeholder="e.g. James Elder" autocomplete="name">
+          <label for="wt-role">Your role (optional)</label>
+          <input id="wt-role" type="text" maxlength="80" placeholder="e.g. pastor / brother in Christ / counselor / friend">
+          <label for="wt-attestation">Your attestation (optional)</label>
+          <textarea id="wt-attestation" maxlength="4000" placeholder="What have you heard? What do you affirm — or what do you push back on? A witness can confirm, qualify, or dissent."></textarea>
+          <div class="wt-actions">
+            <button type="submit" class="wt-submit" disabled>Put my name to this</button>
+            <span class="wt-status" id="wt-status"></span>
+          </div>
+        </form>
+
+        <div class="wt-prior">
+          <div class="wt-label">Prior witnesses · ${witnesses.length}</div>
+          ${witnessHtml}
+        </div>
+      </article>`;
+
+    const nameEl = document.getElementById('wt-name');
+    const submitEl = document.querySelector('.wt-submit');
+    const statusEl = document.getElementById('wt-status');
+    nameEl.addEventListener('input', () => {
+      submitEl.disabled = nameEl.value.trim().length < 1;
+    });
+
+    document.getElementById('wt-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitEl.disabled = true;
+      statusEl.classList.remove('error','ok');
+      statusEl.textContent = 'Sending…';
+      try {
+        const r = await fetch('/witness/walk', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            walker_visitor_id: visitorId,
+            walk_id: walkId,
+            witness_name: nameEl.value.trim(),
+            witness_role: document.getElementById('wt-role').value.trim(),
+            attestation: document.getElementById('wt-attestation').value.trim(),
+          }),
+        });
+        if (!r.ok) {
+          let detail = 'engine returned ' + r.status;
+          try { const j = await r.json(); detail = j.detail || detail; } catch (_) {}
+          throw new Error(detail);
+        }
+        statusEl.classList.add('ok');
+        statusEl.textContent = 'Recorded. Your name is now on this walk.';
+        // Refresh the prior list
+        setTimeout(() => loadContext(visitorId, walkId), 800);
+      } catch (err) {
+        statusEl.classList.add('error');
+        statusEl.textContent = err.message;
+        submitEl.disabled = false;
+      }
+    });
+  }
+
+  (function () {
+    const sp = new URLSearchParams(location.search);
+    const visitorId = (sp.get('walker_visitor_id') || sp.get('visitor_id') || '').trim().toLowerCase();
+    const walkId    = (sp.get('walk_id') || '').trim();
+    if (!visitorId || !walkId) {
+      document.getElementById('wt-content').innerHTML =
+        '<div class="wt-empty">This link is incomplete. A witness link includes <code>walker_visitor_id</code> and <code>walk_id</code> parameters from the walker.</div>';
+      return;
+    }
+    loadContext(visitorId, walkId);
+  })();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

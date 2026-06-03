@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet Transparency — Narrow Highway</title>
+<meta name="description" content="Public ledger of every dollar that flows through Narrow Highway. Incoming patron support, outgoing creator payouts, all with on-chain txids. Verify yourself.">
+  <link rel="canonical" href="https://narrowhighway.com/wallet-transparency.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Wallet Transparency — Narrow Highway">
+  <meta property="og:description" content="Public ledger of every dollar that flows through Narrow Highway. Incoming patron support, outgoing creator payouts, all with on-chain txids. Verify yourself.">
+  <meta property="og:url" content="https://narrowhighway.com/wallet-transparency.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Wallet Transparency — Narrow Highway">
+  <meta name="twitter:description" content="Public ledger of every dollar that flows through Narrow Highway. Incoming patron support, outgoing creator payouts, all with on-chain txids. Verify yourself.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 920px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; font-family: Georgia, serif; font-weight: normal; font-size: 2em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.4em; }
+  .badge { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 3px; padding: 0.4em 0.8em; font-size: 0.9em; color: #1f5b1f; display: inline-block; }
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6em; margin: 0.8em 0; }
+  .total { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.8em 1em; }
+  .total .num { font-size: 1.8em; color: #1a3a52; font-family: Georgia, serif; }
+  .total .lbl { font-size: 0.78em; color: #806010; letter-spacing: 0.1em; font-family: 'Courier New', monospace; text-transform: uppercase; margin-top: 0.2em; }
+  .address-row { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.2em; margin-top: 0.5em; }
+  .address-row code { font-family: 'Courier New', monospace; font-size: 0.95em; background: #f3eedb; padding: 0.3em 0.6em; border-radius: 3px; word-break: break-all; }
+  .ledger { margin-top: 0.5em; }
+  .entry { background: #fff; border: 1px solid #d4c8a5; border-left: 4px solid #c9b48a; border-radius: 4px; padding: 0.6em 1em; margin-bottom: 0.4em; font-size: 0.95em; }
+  .entry.out { border-left-color: #1f4a4d; }
+  .entry.in { border-left-color: #5c8a3a; }
+  .entry .meta { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.06em; }
+  .entry .amount { float: right; font-weight: bold; color: #1a3a52; font-size: 1.1em; font-family: Georgia, serif; }
+  .entry .amount.out { color: #1f4a4d; }
+  .entry .body { margin-top: 0.2em; }
+  .entry .txid { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; }
+  .entry .txid a { color: #1a3a52; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+
+  .allocation { background: #f3eedb; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.2em; font-size: 0.95em; }
+  .allocation table { width: 100%; border-collapse: collapse; }
+  .allocation td { padding: 0.3em 0.5em; }
+  .allocation td:nth-child(2) { text-align: right; font-family: Courier New, monospace; color: #806010; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/support.html">Support</a></nav>
+
+<h1>Wallet Transparency</h1>
+
+<div class="intro">
+  <p>Every dollar that flows through Narrow Highway flows on-chain. The operator's wallet address is published below; anyone can verify the balance, history, and outgoing transactions at the block explorer. This page is the human-readable index of the same data — what came in, what went out, what it was for.</p>
+  <p><span class="badge">No custody.</span> <span class="badge">No middleman.</span> <span class="badge">Verifiable.</span></p>
+</div>
+
+<h2>Operator wallet</h2>
+<div class="address-row">
+  <div><strong>Base Name:</strong> <code id="evmBasename" style="font-size: 1.05em;">— loading —</code></div>
+  <div style="margin-top: 0.5em; font-size: 0.9em; color: #6a5a3a;"><strong>Underlying address:</strong> <code id="evmAddr">— loading —</code></div>
+  <div style="margin-top: 0.5em;"><strong>Bitcoin:</strong> <code id="btcAddr">— loading —</code></div>
+  <div id="explorerLinks" style="margin-top: 0.6em; font-size: 0.88em;"></div>
+</div>
+
+<h2>On-chain right now</h2>
+<p style="font-size: 0.9em; color: #6a5a3a;">Live read from the Base network. No keys, no middleman — just a read-only RPC call against the operator's wallet.</p>
+<div class="totals" id="onchainTotals">
+  <div class="total"><div class="num" id="oc-usdc">—</div><div class="lbl">USDC on Base</div></div>
+  <div class="total"><div class="num" id="oc-eth">—</div><div class="lbl">ETH on Base (gas)</div></div>
+</div>
+
+<h2>Totals (logged on the site; the chain is the source of truth)</h2>
+<div class="totals" id="totals">
+  <div class="total"><div class="num" id="t-in-count">—</div><div class="lbl">Incoming entries</div></div>
+  <div class="total"><div class="num" id="t-out-count">—</div><div class="lbl">Outgoing payouts</div></div>
+  <div class="total"><div class="num" id="t-in-usd">—</div><div class="lbl">Logged in (USD)</div></div>
+  <div class="total"><div class="num" id="t-out-usd">—</div><div class="lbl">Logged out (USD)</div></div>
+</div>
+
+<h2>Allocation</h2>
+<div class="allocation">
+  <p>How incoming funds are used. Reviewed quarterly; significant changes are documented in <a href="/REVENUE_DISCIPLINE.md">REVENUE_DISCIPLINE.md</a>.</p>
+  <table id="allocationTable"></table>
+</div>
+
+<h2>The ledger</h2>
+<div id="ledger" class="ledger"></div>
+
+<p style="margin-top: 1.4em; font-size: 0.88em; color: #6a5a3a;">
+  <strong>Phase 1 note:</strong> entries are written when senders confirm a transaction. Amounts are self-reported (and verifiable on-chain). Phase 2 will add automatic RPC verification that marks each entry verified on-chain.
+</p>
+
+<script>
+(async function () {
+  // Operator info
+  try {
+    const op = await fetch('/wallet/operator-address', { cache: 'no-store' }).then(function (r) { return r.json(); });
+    const $basename = document.getElementById('evmBasename');
+    if ($basename) $basename.textContent = op.evm_basename || '(not yet published)';
+    document.getElementById('evmAddr').textContent = op.evm_address || '(not yet published — the basename above resolves to it once set)';
+    document.getElementById('btcAddr').textContent = op.btc_address || '(not accepting BTC in Phase 1)';
+    if (op.evm_address && op.explorer_urls) {
+      const links = (op.chains_accepted || []).map(function (c) {
+        const e = op.explorer_urls[c];
+        if (!e) return '';
+        return '<a href="' + e + op.evm_address + '" target="_blank" rel="noopener" style="margin-right: 1em; color:#1a3a52;">' + c + ' explorer →</a>';
+      }).join('');
+      document.getElementById('explorerLinks').innerHTML = links;
+    }
+    // Allocation
+    const alloc = op.allocation || {};
+    const t = document.getElementById('allocationTable');
+    t.innerHTML = (
+      '<tr><td>Operator runway</td><td>' + (alloc.operator_runway_pct || 35) + '%</td></tr>' +
+      '<tr><td>Creator payouts</td><td>' + (alloc.creator_payouts_pct || 40) + '%</td></tr>' +
+      '<tr><td>Infrastructure (hosting / encoding / CDN)</td><td>' + (alloc.infrastructure_pct || 15) + '%</td></tr>' +
+      '<tr><td>Acquisition (PD content / tape libraries / partner deals)</td><td>' + (alloc.acquisition_pct || 10) + '%</td></tr>'
+    );
+  } catch (_) {
+    document.getElementById('evmAddr').textContent = '(engine offline)';
+  }
+
+  // Live on-chain balance
+  try {
+    const oc = await fetch('/wallet/onchain', { cache: 'no-store' }).then(function (r) { return r.json(); });
+    if (oc && oc.available) {
+      document.getElementById('oc-usdc').textContent = '$' + (oc.usdc_balance || 0).toFixed(2);
+      document.getElementById('oc-eth').textContent = (oc.eth_balance || 0).toFixed(6);
+    } else {
+      document.getElementById('oc-usdc').textContent = '—';
+      document.getElementById('oc-eth').textContent = '—';
+    }
+  } catch (_) {}
+
+  // Ledger
+  try {
+    const data = await fetch('/wallet/transparency', { cache: 'no-store' }).then(function (r) { return r.json(); });
+    const t = data.totals || {};
+    document.getElementById('t-in-count').textContent = t.in_count || 0;
+    document.getElementById('t-out-count').textContent = t.out_count || 0;
+    document.getElementById('t-in-usd').textContent = '$' + (t.in_usd || 0).toFixed(2);
+    document.getElementById('t-out-usd').textContent = '$' + (t.out_usd || 0).toFixed(2);
+    const $ledger = document.getElementById('ledger');
+    const entries = (data.entries || []).slice().reverse();
+    if (entries.length === 0) {
+      $ledger.innerHTML = '<div class="empty">No entries yet. As patrons send and creators get paid, every transaction logs here with a verifiable txid.</div>';
+      return;
+    }
+    $ledger.innerHTML = '';
+    entries.forEach(function (e) {
+      const div = document.createElement('div');
+      div.className = 'entry ' + (e.direction || 'in');
+      const amt = (e.amount_usd != null) ? '$' + e.amount_usd.toFixed(2) : '—';
+      const verified = e.verified_on_chain ? ' <span style="color:#1f5b1f;font-size:0.78em;">✓ verified</span>' : '';
+      const explorer = e.chain ? ({
+        base: 'https://basescan.org/tx/',
+        optimism: 'https://optimistic.etherscan.io/tx/',
+        ethereum: 'https://etherscan.io/tx/',
+      })[e.chain] : '';
+      const note = e.direction === 'in'
+        ? (e.message ? ' &mdash; <em>' + esc(e.message) + '</em>' : '')
+        : (e.note ? ' &mdash; <em>' + esc(e.note) + '</em>' : '');
+      const intent = e.intent ? '<span style="color:#806010;">[' + esc(e.intent) + ']</span> ' : '';
+      div.innerHTML =
+        '<div class="amount ' + e.direction + '">' + (e.direction === 'in' ? '+' : '−') + amt + '</div>' +
+        '<div class="meta">' + (e.recorded_at || '').slice(0, 16).replace('T', ' ') + ' · ' + esc(e.chain || '') + ' · ' + esc(e.token || '') + verified + '</div>' +
+        '<div class="body">' + intent +
+          (e.direction === 'in'
+            ? 'from ' + esc(e.from_redacted || 'wallet') + (e.creator_id ? ' → creator ' + esc(e.creator_id) : '')
+            : 'payout to creator ' + esc(e.creator_id || '—')) + note +
+        '</div>' +
+        '<div class="txid">' + (explorer ? '<a href="' + explorer + e.txid + '" target="_blank" rel="noopener">' + esc(e.txid) + '</a>' : esc(e.txid)) + '</div>';
+      $ledger.appendChild(div);
+    });
+  } catch (_) {
+    document.getElementById('ledger').innerHTML = '<div class="empty">Engine offline; ledger temporarily unavailable.</div>';
+  }
+
+  function esc(s) { return String(s || '').replace(/[<>&"]/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;' }[c]; }); }
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

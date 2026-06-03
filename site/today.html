@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today on the Highway — Narrow Highway</title>
+<meta name="description" content="Today on Narrow Highway — liturgical day, scripture, hymn, on the channel, your reading plan. One calm daily view for the family.">
+  <link rel="canonical" href="https://narrowhighway.com/today.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Today on the Highway — Narrow Highway">
+  <meta property="og:description" content="Today on Narrow Highway — liturgical day, scripture, hymn, on the channel, your reading plan. One calm daily view for the family.">
+  <meta property="og:url" content="https://narrowhighway.com/today.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Today on the Highway — Narrow Highway">
+  <meta name="twitter:description" content="Today on Narrow Highway — liturgical day, scripture, hymn, on the channel, your reading plan. One calm daily view for the family.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 880px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  .date-eyebrow { font-family: 'Courier New', monospace; font-size: 0.78em; letter-spacing: 0.18em; text-transform: uppercase; color: #6a5a3a; }
+  h1 { color: #1a3a52; font-family: Georgia, serif; font-weight: normal; font-size: 2.5em; margin: 0.2em 0 0.1em; letter-spacing: 0.005em; }
+  .season-line { color: #806010; font-style: italic; font-size: 1.1em; margin-bottom: 0.8em; }
+
+  .panel { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.1em 1.3em; margin-top: 0.9em; }
+  .panel h2 { color: #1a3a52; margin: 0 0 0.4em; font-size: 1em; border-left: 4px solid #c9b48a; padding-left: 0.6em; font-family: Georgia, serif; font-weight: bold; letter-spacing: 0.03em; }
+  .panel .body { font-size: 1.02em; }
+  .panel .body p { margin: 0.3em 0; }
+  .panel .meta { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; letter-spacing: 0.06em; margin-top: 0.3em; }
+  .panel a { color: #1a3a52; }
+
+  .scripture-box { background: #fff5d4; border-left: 5px solid #b8945a; padding: 1em 1.3em; margin-top: 0.9em; border-radius: 4px; font-family: 'Crimson Pro', Georgia, serif; font-size: 1.08em; font-style: italic; color: #5a4a30; }
+  .scripture-box .ref { display: block; font-style: normal; font-family: 'Courier New', monospace; font-size: 0.78em; letter-spacing: 0.1em; color: #806010; margin-top: 0.4em; }
+
+  .feast-banner { background: #d4ead4; border: 1px solid #1f5b1f; border-left-width: 6px; padding: 0.8em 1.2em; margin-top: 0.6em; border-radius: 4px; }
+  .feast-banner .feast-name { font-weight: bold; color: #1a3a52; font-size: 1.1em; }
+  .feast-banner .feast-reading { font-size: 0.9em; color: #1f5b1f; margin-top: 0.2em; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; margin-top: 0.9em; }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+
+  .quick-links { background: #f3eedb; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.6em 1em; margin-top: 1.2em; text-align: center; font-size: 0.92em; }
+  .quick-links a { display: inline-block; margin: 0.2em 0.4em; color: #1a3a52; padding: 0.2em 0.6em; background: #fff; border-radius: 3px; text-decoration: none; border: 1px solid #d4c8a5; }
+  .quick-links a:hover { background: #1a3a52; color: #f4ecd5; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/calendar.html">Calendar</a> · <a href="/reading.html">Reading</a></nav>
+
+<div class="date-eyebrow" id="dateEyebrow">— Loading…</div>
+<h1 id="dayName">Today</h1>
+<div class="season-line" id="seasonLine"></div>
+
+<article data-readable data-voice-label="Today's verse">
+  <div class="scripture-box" id="scriptureBox">
+    <span id="scriptureText">For God so loved the world, that he gave his only begotten Son…</span>
+    <span class="ref" id="scriptureRef">John 3:16</span>
+  </div>
+</article>
+
+<div id="feastBanner"></div>
+
+<div class="panel" id="todaysCardPanel">
+  <h2>Today's card</h2>
+  <div class="body">Loading…</div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h2>Today's hymn</h2>
+    <div class="body" id="hymnBody">—</div>
+    <div class="meta"><a href="/hymns.html">all hymns →</a></div>
+  </div>
+  <div class="panel">
+    <h2>On the channel right now</h2>
+    <div class="body" id="channelBody">—</div>
+    <div class="meta"><a href="/channels/narrow-highway/">watch →</a></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h2>Your reading</h2>
+    <div class="body" id="readingBody">No active plan. <a href="/reading.html">Start one →</a></div>
+  </div>
+  <div class="panel">
+    <h2>From the Common Book</h2>
+    <div class="body" id="commonBody">Nothing recent. <a href="/common-book.html">Open the Common Book →</a></div>
+  </div>
+</div>
+
+<div class="quick-links">
+  <a href="/canon.html">📖 Codex</a>
+  <a href="/walk.html">👞 Walk</a>
+  <a href="/almanac.html">📰 Almanac</a>
+  <a href="/apothecary.html">🌿 Apothecary</a>
+  <a href="/tools.html">🧰 Tools</a>
+  <a href="/recipes.html">🍽️ Recipes</a>
+  <a href="/maker.html">🔧 Maker</a>
+</div>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script src="/nh-scripture.js"></script>
+<script>
+(function () {
+  // === Date / season setup ===
+  const now = new Date();
+  const utcDay = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  document.getElementById('dateEyebrow').textContent =
+    'TODAY · ' + utcDay.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }).toUpperCase();
+  document.getElementById('dayName').textContent =
+    utcDay.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+  // === Easter / liturgical season (duplicate of calendar.html logic) ===
+  function easter(y) {
+    const a = y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b/4), e=b%4,
+      f=Math.floor((b+8)/25), g=Math.floor((b-f+1)/3),
+      h=(19*a+b-d-g+15)%30, i=Math.floor(c/4), k=c%4,
+      l=(32+2*e+2*i-h-k)%7, m=Math.floor((a+11*h+22*l)/451),
+      mo=Math.floor((h+l-7*m+114)/31), da=((h+l-7*m+114)%31)+1;
+    return new Date(Date.UTC(y, mo-1, da));
+  }
+  function addDays(d, n) { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate()+n); return x; }
+  function iso(d) { return d.toISOString().slice(0,10); }
+  function season(d) {
+    const y = d.getUTCFullYear(), e = easter(y);
+    const ashWed = addDays(e, -46), pent = addDays(e, 49);
+    const christmas = new Date(Date.UTC(y, 11, 25));
+    const dow = christmas.getUTCDay();
+    const advent1 = addDays(addDays(christmas, -dow), -21);
+    const t = d.getTime();
+    if (t >= ashWed.getTime() && t < e.getTime()) return 'Lent';
+    if (t >= e.getTime() && t < pent.getTime()) return 'Eastertide';
+    if (t >= advent1.getTime() && t <= christmas.getTime()) return 'Advent';
+    if (t > christmas.getTime() || d.getUTCMonth() === 0 && d.getUTCDate() <= 6) return 'Christmastide';
+    return 'Ordinary Time';
+  }
+  const FEASTS = (function (y) {
+    const e = easter(y);
+    return [
+      { date: new Date(Date.UTC(y,0,1)), name: "New Year's Day", reading: 'Psalm 90' },
+      { date: new Date(Date.UTC(y,0,6)), name: 'Epiphany', reading: 'Matthew 2:1-12' },
+      { date: addDays(e,-46), name: 'Ash Wednesday', reading: 'Joel 2:12-17; Matthew 6:1-21' },
+      { date: addDays(e,-7), name: 'Palm Sunday', reading: 'Matthew 21:1-11' },
+      { date: addDays(e,-3), name: 'Maundy Thursday', reading: 'John 13:1-17, 31b-35' },
+      { date: addDays(e,-2), name: 'Good Friday', reading: 'Isaiah 52:13–53:12; John 18-19' },
+      { date: e, name: 'Easter Sunday', reading: '1 Corinthians 15:1-26; Matthew 28:1-10' },
+      { date: addDays(e,39), name: 'Ascension Day', reading: 'Acts 1:1-11' },
+      { date: addDays(e,49), name: 'Pentecost', reading: 'Acts 2:1-21' },
+      { date: addDays(e,56), name: 'Trinity Sunday', reading: 'Isaiah 6:1-8; 2 Corinthians 13:11-14' },
+      { date: new Date(Date.UTC(y,9,31)), name: 'Reformation Day', reading: 'Romans 1:16-17; Ephesians 2:8-10' },
+      { date: new Date(Date.UTC(y,10,1)), name: "All Saints' Day", reading: 'Revelation 7:9-17' },
+      { date: new Date(Date.UTC(y,11,25)), name: 'Christmas Day', reading: 'Luke 2:1-20; John 1:1-14' },
+    ];
+  })(utcDay.getUTCFullYear());
+
+  document.getElementById('seasonLine').textContent = season(utcDay);
+
+  const todayFeasts = FEASTS.filter(function (f) { return iso(f.date) === iso(utcDay); });
+  if (todayFeasts.length) {
+    document.getElementById('feastBanner').innerHTML = todayFeasts.map(function (f) {
+      return '<div class="feast-banner">' +
+        '<div class="feast-name">' + f.name + '</div>' +
+        '<div class="feast-reading">Read: ' + f.reading + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  // === Today's verse — rotates by day-of-year through a curated set ===
+  const VERSES = [
+    { text: 'Enter ye in at the strait gate: for wide is the gate, and broad is the way, that leadeth to destruction, and many there be which go in thereat: because strait is the gate, and narrow is the way, which leadeth unto life, and few there be that find it.', ref: 'Matthew 7:13-14' },
+    { text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.', ref: 'John 3:16' },
+    { text: 'In the beginning was the Word, and the Word was with God, and the Word was God.', ref: 'John 1:1' },
+    { text: 'The Lord is my shepherd; I shall not want.', ref: 'Psalm 23:1' },
+    { text: 'Trust in the LORD with all thine heart; and lean not unto thine own understanding.', ref: 'Proverbs 3:5' },
+    { text: 'For by grace are ye saved through faith; and that not of yourselves: it is the gift of God.', ref: 'Ephesians 2:8' },
+    { text: 'I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me.', ref: 'Galatians 2:20' },
+    { text: 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.', ref: 'Romans 8:28' },
+    { text: 'Finally, brethren, whatsoever things are true, whatsoever things are honest, whatsoever things are just, whatsoever things are pure, whatsoever things are lovely, whatsoever things are of good report; if there be any virtue, and if there be any praise, think on these things.', ref: 'Philippians 4:8' },
+    { text: 'Be still, and know that I am God.', ref: 'Psalm 46:10' },
+    { text: 'The LORD is good unto them that wait for him, to the soul that seeketh him.', ref: 'Lamentations 3:25' },
+    { text: 'For we walk by faith, not by sight.', ref: '2 Corinthians 5:7' },
+    { text: 'Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.', ref: 'Colossians 3:16' },
+    { text: 'And he is before all things, and by him all things consist.', ref: 'Colossians 1:17' },
+  ];
+  const dayOfYear = Math.floor((utcDay - new Date(Date.UTC(utcDay.getUTCFullYear(), 0, 0))) / 86400000);
+  const v = VERSES[dayOfYear % VERSES.length];
+  document.getElementById('scriptureText').textContent = '"' + v.text + '"';
+  document.getElementById('scriptureRef').textContent = v.ref;
+
+  // === Today's card (LOOP 49) — pulls from /daily-card ===
+  fetch('/daily-card', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.card) return;
+      const wrapper = document.getElementById('todaysCardPanel');
+      if (!wrapper) return;
+      const c = j.card; const s = c.source || {};
+      wrapper.innerHTML =
+        '<h2>Today\'s card</h2>' +
+        '<div class="body" style="background:#fffef7; border-left:4px solid #b8945a; padding:0.8em 1em; border-radius:0 3px 3px 0;">' +
+          '<a href="/card.html?id=' + c.id + '" style="text-decoration:none; color:#1a3a52;">' +
+            '<strong style="font-size:1.1em;">' + c.title.replace(/[<>&"]/g, '') + '</strong>' +
+          '</a>' +
+          (c.body ? '<div style="margin-top:0.4em; font-style:italic; color:#5a4a30;">' + String(c.body).slice(0,260).replace(/[<>&"]/g,'') + (c.body.length>260?'…':'') + '</div>' : '') +
+          (s.label ? '<div class="meta" style="margin-top:0.5em;">' + String(s.label).replace(/[<>&"]/g,'') + (s.ref ? ' · ' + String(s.ref).replace(/[<>&"]/g,'') : '') + '</div>' : '') +
+        '</div>';
+    })
+    .catch(function () {});
+
+  // === Today's hymn — pulls from /hymns.json if present ===
+  fetch('/hymns.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.hymns || !j.hymns.length) return;
+      const h = j.hymns[dayOfYear % j.hymns.length];
+      document.getElementById('hymnBody').innerHTML =
+        '<strong>' + (h.title || '') + '</strong><br>' +
+        '<span style="font-size:0.9em;color:#6a5a3a;">' + (h.author || '') +
+        (h.year ? ' · ' + h.year : '') + '</span>';
+    })
+    .catch(function () {});
+
+  // === On the channel right now ===
+  fetch('/channels/narrow-highway/now.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j) return;
+      const cur = (j.current && j.current.title) || (j.upcoming && j.upcoming[0] && j.upcoming[0].title);
+      const block = (j.current && j.current.block) || (j.upcoming && j.upcoming[0] && j.upcoming[0].block);
+      if (cur) {
+        document.getElementById('channelBody').innerHTML =
+          '<strong>' + esc(cur) + '</strong>' +
+          (block ? '<br><span style="font-size:0.88em;color:#6a5a3a;">' + esc(block) + '</span>' : '');
+      }
+    })
+    .catch(function () {});
+
+  // === Your reading plan progress (from household-scoped localStorage) ===
+  function getReadingProgress() {
+    try {
+      const hh = NHHousehold && NHHousehold.get();
+      if (!hh) return null;
+      const ns = NHHousehold.namespace('reading_plans');
+      const state = ns.get();
+      if (!state || !state.plans) return null;
+      const ids = Object.keys(state.plans);
+      if (ids.length === 0) return null;
+      // Show the first active plan's "today" info (simple)
+      const pid = ids[0];
+      return { plan_id: pid, started_at: state.plans[pid].started_at };
+    } catch (_) { return null; }
+  }
+  const rp = getReadingProgress();
+  if (rp) {
+    const PLAN_NAMES = {
+      oneyear: 'One Year Bible', chronological: 'Chronological Bible',
+      '90day': 'Bible in 90 days', new_testament_90: 'New Testament in 90 days',
+      gospels_30day: 'The Four Gospels', psalms_proverbs: 'Psalms + Proverbs',
+      codex_pilgrim: "Pilgrim's Progress", codex_imitation: 'The Imitation of Christ',
+    };
+    const startedAt = rp.started_at ? new Date(rp.started_at + 'T00:00:00Z') : utcDay;
+    const day = Math.max(1, Math.floor((utcDay.getTime() - startedAt.getTime()) / 86400000) + 1);
+    document.getElementById('readingBody').innerHTML =
+      '<strong>' + (PLAN_NAMES[rp.plan_id] || rp.plan_id) + '</strong> — day ' + day +
+      '<br><a href="/reading.html">open reading plan →</a>';
+  }
+
+  // === Recent Common Book entry ===
+  try {
+    if (window.NHHousehold && NHHousehold.get()) {
+      const cb = NHHousehold.namespace('common_book').get();
+      if (cb && cb.entries && cb.entries.length) {
+        const last = cb.entries[cb.entries.length - 1];
+        document.getElementById('commonBody').innerHTML =
+          '<span style="font-size:0.85em;color:#6a5a3a;">' + esc(last.kind || 'note') + ' · ' + esc(last.author || '') + '</span><br>' +
+          esc((last.body || '').slice(0, 120)) + (last.body && last.body.length > 120 ? '…' : '') +
+          '<br><a href="/common-book.html">open the Common Book →</a>';
+      }
+    }
+  } catch (_) {}
+
+  function esc(s) {
+    return String(s || '').replace(/[<>&"']/g, function (c) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

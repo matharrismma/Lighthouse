@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My stack — Narrow Highway</title>
+<meta name="description" content="Your household stack of cards. Paperclipped, authored, forked. Shared inbox.">
+  <link rel="canonical" href="https://narrowhighway.com/stack.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="My stack — Narrow Highway">
+  <meta property="og:description" content="Your household stack of cards. Paperclipped, authored, forked. Shared inbox.">
+  <meta property="og:url" content="https://narrowhighway.com/stack.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="My stack — Narrow Highway">
+  <meta name="twitter:description" content="Your household stack of cards. Paperclipped, authored, forked. Shared inbox.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 1000px; margin: 0 auto; padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+
+  .masthead { text-align: center; padding: 1.5em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.2em; color: #1a3a52; margin: 0.2em 0 0.1em; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1em; }
+
+  .tabs { display: flex; gap: 0.3em; margin-bottom: 1em; border-bottom: 2px solid #d4c8a5; }
+  .tab { background: none; border: none; padding: 0.6em 1em; font-family: Georgia, serif; font-size: 1em; color: #6a5a3a; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #1a3a52; border-bottom-color: #1a3a52; font-weight: bold; }
+  .tab .count { font-family: 'Courier New', monospace; font-size: 0.75em; color: #806010; margin-left: 0.3em; }
+
+  .card-row {
+    background: #fffef7;
+    border: 1px solid #d4c8a5;
+    border-left: 4px solid #c9b48a;
+    border-radius: 3px;
+    padding: 0.7em 1em;
+    margin-bottom: 0.4em;
+    display: flex;
+    gap: 0.6em;
+    align-items: flex-start;
+    text-decoration: none;
+    color: #2a2a28;
+    transition: background 0.08s;
+  }
+  .card-row:hover { background: #f5f0e0; }
+  .card-row.tier-scripture { border-left-color: #b8945a; background: #fffdf3; }
+  .card-row.tier-creed, .card-row.tier-catechism { border-left-color: #806010; }
+  .card-row.tier-user_household { border-left-color: #5c8a3a; }
+  .card-row .info { flex: 1; min-width: 0; }
+  .card-row h3 { margin: 0 0 0.15em; color: #1a3a52; font-size: 1.05em; font-weight: bold; }
+  .card-row .src { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; letter-spacing: 0.04em; }
+  .card-row .meta { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.2em; }
+  .card-row .actions { display: flex; gap: 0.3em; }
+  .card-row .actions button { background: #fff; border: 1px solid #d4c8a5; color: #1a3a52; padding: 0.3em 0.7em; font-family: inherit; font-size: 0.78em; border-radius: 3px; cursor: pointer; }
+  .card-row .actions button:hover { background: #f3eedb; }
+  .card-row .actions button.danger { color: #c66; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; padding: 1.5em; border-radius: 6px; text-align: center; color: #6a5a3a; }
+
+  .hh-id { font-family: 'Courier New', monospace; background: #f3eedb; padding: 0.2em 0.5em; border-radius: 3px; font-size: 0.85em; color: #1a3a52; }
+
+  .author-form { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.2em; margin: 1em 0; }
+  .author-form h3 { margin: 0 0 0.5em; color: #1a3a52; font-size: 1.1em; }
+  .author-form input, .author-form textarea { width: 100%; box-sizing: border-box; padding: 0.5em 0.7em; border: 1px solid #d4c8a5; border-radius: 3px; font-family: Georgia, serif; font-size: 0.95em; background: #fffef7; margin-bottom: 0.4em; }
+  .author-form textarea { min-height: 6em; }
+  .author-form button { background: #1a3a52; color: #f4ecd5; border: 1px solid #1a3a52; padding: 0.5em 1.2em; border-radius: 3px; cursor: pointer; font-family: inherit; }
+
+  .inbox-item { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.4em; }
+  .inbox-item .who { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; }
+  .inbox-item .msg { font-style: italic; color: #5a4a30; margin-top: 0.3em; }
+
+  .principle { margin-top: 2.5em; padding: 0.9em 1.1em; background: #f3eedb; border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0; font-size: 0.88em; color: #5a4a30; font-style: italic; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a>
+  <a href="/walks.html">Walk the cards</a>
+  <a href="/codex.html">The Codex</a>
+</nav>
+
+<div class="masthead">
+  <div class="eyebrow">YOUR HOUSEHOLD · YOUR STACK</div>
+  <h1>My stack</h1>
+  <div class="tagline">The cards you've kept. Paperclipped, authored, forked. Free to share.</div>
+</div>
+
+<p style="text-align:center; color:#6a5a3a; font-size:0.9em;">
+  Household: <span class="hh-id" id="hhId">loading…</span>
+</p>
+
+<div class="tabs">
+  <button class="tab active" data-tab="paperclipped">📎 Paperclipped <span class="count" id="cntPaper">0</span></button>
+  <button class="tab" data-tab="authored">✍️ Authored <span class="count" id="cntAuth">0</span></button>
+  <button class="tab" data-tab="forked">🔀 Forked <span class="count" id="cntFork">0</span></button>
+  <button class="tab" data-tab="inbox">📬 Inbox <span class="count" id="cntInbox">0</span></button>
+  <button class="tab" data-tab="author">+ New note</button>
+</div>
+
+<div id="content"></div>
+
+<p class="principle">
+  <strong>Your stack is yours.</strong> Cards stay on your stack until you remove them. Private by default — shared only when you choose. Forks attribute. Tips route through the wallet at <code>narrowhighway.base.eth</code>. We never sell your stack and we never paywall a card.
+</p>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script>
+(async function () {
+  // Establish household id (auto-create one if first visit)
+  let hhId;
+  try {
+    const hh = (window.NHHousehold && NHHousehold.get && NHHousehold.get()) || {};
+    hhId = hh.id;
+    if (!hhId && window.NHHousehold && NHHousehold.create) {
+      NHHousehold.create({ name: 'My household' });
+      hhId = NHHousehold.id();
+    }
+  } catch (e) { hhId = null; }
+  if (!hhId) hhId = 'anon_' + Math.random().toString(36).slice(2,10);
+  document.getElementById('hhId').textContent = hhId;
+
+  let currentTab = 'paperclipped';
+  let stack = null;
+
+  async function loadStack() {
+    try {
+      const r = await fetch('/stacks/' + encodeURIComponent(hhId), { cache: 'no-store' });
+      stack = await r.json();
+    } catch (e) {
+      stack = { paperclipped_card_ids: [], authored_card_ids: [], forked_card_ids: [], inbox: [] };
+    }
+    document.getElementById('cntPaper').textContent = (stack.paperclipped_card_ids || []).length;
+    document.getElementById('cntAuth').textContent = (stack.authored_card_ids || []).length;
+    document.getElementById('cntFork').textContent = (stack.forked_card_ids || []).length;
+    document.getElementById('cntInbox').textContent = (stack.inbox || []).length;
+    render();
+  }
+
+  function setTab(t) {
+    currentTab = t;
+    for (const el of document.querySelectorAll('.tab')) {
+      el.classList.toggle('active', el.dataset.tab === t);
+    }
+    render();
+  }
+  for (const el of document.querySelectorAll('.tab')) {
+    el.addEventListener('click', () => setTab(el.dataset.tab));
+  }
+
+  async function render() {
+    const $c = document.getElementById('content');
+    if (currentTab === 'author') {
+      $c.innerHTML =
+        '<div class="author-form">' +
+          '<h3>Author a new note for your stack</h3>' +
+          '<input id="ntTitle" placeholder="Title (short, terse — this is an index card)">' +
+          '<textarea id="ntBody" placeholder="The body. Keep it terse. If long-form is needed, link the source instead."></textarea>' +
+          '<input id="ntSrcLabel" placeholder="Source label (e.g. \'Family discussion 2026-05\')">' +
+          '<input id="ntSrcUrl" placeholder="Source URL or repo path (optional)">' +
+          '<input id="ntSrcRef" placeholder="Source ref (page, verse, etc.)">' +
+          '<input id="ntBands" placeholder="Bands (comma-separated tags)">' +
+          '<button id="ntSave">Save to my stack</button>' +
+          '<span id="ntStatus" style="margin-left:0.7em; font-style:italic; color:#6a5a3a;"></span>' +
+        '</div>';
+      document.getElementById('ntSave').addEventListener('click', async () => {
+        const payload = {
+          title: document.getElementById('ntTitle').value.trim(),
+          body: document.getElementById('ntBody').value.trim(),
+          source_label: document.getElementById('ntSrcLabel').value.trim() || null,
+          source_url: document.getElementById('ntSrcUrl').value.trim() || null,
+          source_ref: document.getElementById('ntSrcRef').value.trim() || null,
+          bands: document.getElementById('ntBands').value.split(',').map(s => s.trim()).filter(Boolean),
+        };
+        if (!payload.title) { document.getElementById('ntStatus').textContent = 'Title required.'; return; }
+        const r = await fetch('/stacks/' + encodeURIComponent(hhId) + '/note', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+        });
+        const j = await r.json();
+        if (j.status === 'authored') {
+          document.getElementById('ntStatus').textContent = 'Filed as ' + j.card_id;
+          await loadStack();
+          setTab('authored');
+        } else {
+          document.getElementById('ntStatus').textContent = 'Failed: ' + JSON.stringify(j);
+        }
+      });
+      return;
+    }
+
+    if (currentTab === 'inbox') {
+      const inbox = stack.inbox || [];
+      if (inbox.length === 0) {
+        $c.innerHTML = '<div class="empty">Inbox empty. When another household shares a card or stack with you, it lands here.</div>';
+        return;
+      }
+      $c.innerHTML = inbox.map(item =>
+        '<div class="inbox-item">' +
+          '<div class="who">From ' + esc(item.from_household) + ' · ' + esc((item.ts||'').slice(0,10)) + '</div>' +
+          (item.kind === 'card'
+            ? '<div><a href="/card.html?id=' + esc(item.card_id) + '">' + esc(item.card_title || item.card_id) + '</a></div>'
+            : '<div>Shared stack — ' + (item.stack_snapshot||[]).length + ' cards</div>') +
+          (item.message ? '<div class="msg">"' + esc(item.message) + '"</div>' : '') +
+        '</div>'
+      ).join('');
+      return;
+    }
+
+    const ids = currentTab === 'paperclipped' ? (stack.paperclipped_card_ids || [])
+              : currentTab === 'authored' ? (stack.authored_card_ids || [])
+              : (stack.forked_card_ids || []);
+    if (ids.length === 0) {
+      $c.innerHTML = '<div class="empty">' +
+        (currentTab === 'paperclipped' ? 'No cards on your stack yet. Walk the cards at <a href="/walks.html">/walks.html</a>; paperclip the ones you want to keep.' :
+         currentTab === 'authored' ? 'No authored cards yet. Use the "+ New note" tab to write the first one.' :
+         'No forks yet. Find a public card you want to refine and fork it.') +
+        '</div>';
+      return;
+    }
+    // Fetch all cards in parallel
+    const cards = await Promise.all(ids.map(id =>
+      fetch('/cards/' + encodeURIComponent(id), {cache:'no-store'}).then(r => r.ok ? r.json() : null).catch(() => null)
+    ));
+    $c.innerHTML = cards.filter(Boolean).map(c => {
+      const tier = ((c.source||{}).authority_tier || '');
+      return '<a class="card-row tier-' + esc(tier) + '" href="/card.html?id=' + esc(c.id) + '">' +
+        '<div class="info">' +
+          '<h3>' + esc(c.title || '') + '</h3>' +
+          ((c.source && c.source.label) ? '<div class="src">' + esc(c.source.label) + (c.source.ref ? ' · ' + esc(c.source.ref) : '') + '</div>' : '') +
+          '<div class="meta">' + esc(c.shelf || '') + (c.box ? ' / ' + esc(c.box) : '') + ' · ' + esc(tier.replace(/_/g,' ')) + '</div>' +
+        '</div>' +
+        (currentTab === 'paperclipped' ?
+          '<div class="actions"><button class="danger" onclick="event.preventDefault(); event.stopPropagation(); unpaperclip(\'' + esc(c.id) + '\');">Remove</button></div>' :
+          '') +
+      '</a>';
+    }).join('');
+  }
+
+  window.unpaperclip = async function (cardId) {
+    if (!confirm('Remove this card from your stack? (The card itself stays in the library.)')) return;
+    const r = await fetch('/stacks/' + encodeURIComponent(hhId) + '/unpaperclip', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({card_id: cardId})
+    });
+    if (r.ok) await loadStack();
+  };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  await loadStack();
+})();
+</script>
+
+<script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

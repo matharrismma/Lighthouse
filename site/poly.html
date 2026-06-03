@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-page-title="page.poly.title">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -540,7 +540,17 @@
   <meta name="twitter:description" content="Describe a situation. Every applicable domain verifier fires simultaneously and returns a composite verdict.">
   <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
   <link rel="canonical" href="https://narrowhighway.com/poly.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Concordance — Polymathic","description":"Describe a situation. Every applicable domain verifier fires simultaneously and returns a composite verdict.","url":"https://narrowhighway.com/poly.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
 </head>
 <body>
 <div class="shell">
@@ -548,17 +558,26 @@
   <div class="top">
     <a href="/" class="brand">CONCORDANCE</a>
     <nav class="nav-links">
-      <a href="/try.html">Try</a>
-      <a href="/grid.html">Grid</a>
-      <a href="/benchmark.html">Benchmark</a>
-      <a href="/how-it-works.html">How it works</a>
+      <a href="/daily.html">Today</a>
+      <a href="/apothecary.html">Apothecary</a>
+      <a href="/training.html">Training</a>
+      <a href="/parable.html">Parable</a>
+      <a href="/bibles.html">Bibles</a>
+      <a href="/places.html">Places</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/walk.html">Walk</a>
+      <a href="/packets.html">Packets</a>
     </nav>
+  </div>
+
+  <div id="polyRecent" style="display:none;margin-bottom:24px;padding:14px 16px;background:rgba(217,168,124,0.05);border:1px dashed var(--border-bright);border-radius:10px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px;">Your recent runs</div>
+    <div id="polyRecentList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
 
   <div class="input-section">
     <div class="input-label" id="polyInputLabel">
-      <strong>Polymathic scan.</strong> Describe a situation — not just a single claim.
-      Every applicable domain verifier fires simultaneously.
+      <strong>Hand the engine a hard situation.</strong> One that touches several domains at once — biology + labor + law, agriculture + hydrology + genetics, ethics + finance + governance. Every applicable verifier fires in parallel and returns its verdict. <em>The engine eliminates what it cannot confirm; what survives is what survives.</em>
       <button class="listen-btn" data-narrate-target="#polyInputLabel" style="margin-left:8px" title="Read aloud">
         <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
       </button>
@@ -606,6 +625,73 @@
   const runBtn   = document.getElementById('runBtn');
   const resultsEl= document.getElementById('results');
   const exBlock  = document.getElementById('exampleBlock');
+  const recentEl     = document.getElementById('polyRecent');
+  const recentListEl = document.getElementById('polyRecentList');
+
+  /* Identity — mirror of /walk.html, /scribe.html, /apothecary.html.
+     Same 12-hex token across every lens so the visitor's history follows. */
+  const VISITOR_KEY = 'concordance_visitor_id';
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VISITOR_ID = getVisitorId();
+
+  /* Scripture-language choice — shared with all lenses. Reverse-MT'd by
+     the server before retrieval; original preserved in the saved record. */
+  function getLang() {
+    try { return localStorage.getItem('concordance_lang') || 'en'; }
+    catch (_) { return 'en'; }
+  }
+
+  function fmtAgo(epoch) {
+    if (!epoch) return '';
+    const sec = Math.max(0, Math.floor(Date.now()/1000 - epoch));
+    if (sec < 60)     return 'just now';
+    if (sec < 3600)   return Math.floor(sec/60) + 'm ago';
+    if (sec < 86400)  return Math.floor(sec/3600) + 'h ago';
+    if (sec < 604800) return Math.floor(sec/86400) + 'd ago';
+    return Math.floor(sec/604800) + 'w ago';
+  }
+
+  async function loadRecent() {
+    try {
+      const r = await fetch(`${API}/polymathic/mine?visitor_id=${encodeURIComponent(VISITOR_ID)}&limit=10`);
+      if (!r.ok) return;
+      const d = await r.json();
+      const items = d.items || [];
+      if (!items.length) { recentEl.style.display = 'none'; return; }
+      recentListEl.innerHTML = items.map(it => {
+        const preview = (it.situation || '').replace(/\s+/g, ' ').trim().slice(0, 70);
+        const verdict = (it.result && it.result.composite_verdict) || '?';
+        return `<button class="recent-item" data-situation="${encodeURIComponent(it.situation || '')}" style="padding:5px 12px;border-radius:13px;border:1px solid var(--border-bright);background:var(--surface);color:var(--muted);font-family:inherit;font-size:13px;cursor:pointer;text-align:left;display:flex;gap:8px;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.08em;padding:2px 7px;border-radius:9px;background:rgba(0,0,0,0.2);color:var(--text);">${verdict}</span>
+          <span>${preview.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>
+          <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${fmtAgo(it.saved_at)}</span>
+        </button>`;
+      }).join('');
+      recentListEl.querySelectorAll('.recent-item').forEach(b => {
+        b.addEventListener('click', () => {
+          inputEl.value = decodeURIComponent(b.dataset.situation || '');
+          inputEl.dispatchEvent(new Event('input'));
+          run();
+        });
+      });
+      recentEl.style.display = '';
+    } catch (_) { /* no-op */ }
+  }
 
   inputEl.addEventListener('input', () => {
     runBtn.disabled = inputEl.value.trim() === '';
@@ -674,12 +760,21 @@
     fetch(`${API}/polymathic`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ situation, max_domains: 10, contributor_handle }),
+      body: JSON.stringify({
+        situation,
+        max_domains: 10,
+        contributor_handle,
+        visitor_id: VISITOR_ID,
+        lang: getLang(),
+      }),
     })
     .then(r => r.ok ? r.json() : r.json().then(e => Promise.reject(e)))
-    .then(data => renderRecord(data))
+    .then(data => { renderRecord(data); loadRecent(); })
     .catch(err  => renderError(err));
   }
+
+  // Load recent runs on page boot
+  loadRecent();
 
   // Situation text of the most recent run — needed by refineAndRerun
   let _lastSituation = '';
@@ -959,5 +1054,6 @@
   }
 </script>
 <script src="/narrator.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
 </body>
 </html>

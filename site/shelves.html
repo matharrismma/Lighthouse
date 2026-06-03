@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The shelves — Narrow Highway</title>
+<meta name="description" content="Browse every card by shelf and box. The full substrate, walkable.">
+  <link rel="canonical" href="https://narrowhighway.com/shelves.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The shelves — Narrow Highway">
+  <meta property="og:description" content="Browse every card by shelf and box. The full substrate, walkable.">
+  <meta property="og:url" content="https://narrowhighway.com/shelves.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The shelves — Narrow Highway">
+  <meta name="twitter:description" content="Browse every card by shelf and box. The full substrate, walkable.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 0 auto; padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+
+  .masthead { text-align: center; padding: 1.5em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.2em; color: #1a3a52; margin: 0.2em 0 0.1em; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1em; }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5em; margin: 1em 0; }
+  .summary-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 4px solid #c9b48a; padding: 0.6em 0.9em; border-radius: 3px; }
+  .summary-tile .label { font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.12em; text-transform: uppercase; color: #806010; }
+  .summary-tile .value { font-size: 1.6em; color: #1a3a52; font-family: Georgia, serif; }
+
+  .shelf-block { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.2em; margin-bottom: 1.4em; box-shadow: 0 1px 0 #e8e0c0; }
+  .shelf-block h2 { margin: 0 0 0.4em; color: #1a3a52; font-family: Georgia, serif; font-weight: normal; font-size: 1.4em; }
+  .shelf-block .shelf-meta { font-family: 'Courier New', monospace; font-size: 0.8em; color: #806010; letter-spacing: 0.08em; margin-bottom: 0.5em; }
+  .shelf-block .boxes { display: flex; gap: 0.3em; flex-wrap: wrap; margin-bottom: 0.6em; }
+  .box-pill {
+    background: #f3eedb; border: 1px solid #d4c8a5; padding: 0.3em 0.8em; border-radius: 14px;
+    color: #1a3a52; font-size: 0.9em; cursor: pointer; font-family: Georgia, serif;
+  }
+  .box-pill:hover { background: #fff5d4; }
+  .box-pill.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .box-pill .count { font-family: 'Courier New', monospace; font-size: 0.8em; opacity: 0.7; margin-left: 0.3em; }
+
+  .card-list { margin-top: 0.5em; }
+  .card-item {
+    display: block; background: #fffef7; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a;
+    padding: 0.5em 0.8em; margin-bottom: 0.3em; text-decoration: none; color: #2a2a28;
+    border-radius: 3px; transition: background 0.06s, transform 0.06s;
+  }
+  .card-item:hover { background: #f3eedb; transform: translateX(2px); }
+  .card-item.tier-scripture { border-left-color: #b8945a; background: #fffdf3; }
+  .card-item.tier-creed, .card-item.tier-catechism { border-left-color: #806010; }
+  .card-item.tier-father { border-left-color: #5a7090; }
+  .card-item.tier-matt { border-left-color: #5c8a3a; }
+  .card-item .title { color: #1a3a52; font-weight: bold; font-size: 1em; }
+  .card-item .src { font-family: 'Courier New', monospace; font-size: 0.78em; color: #6a5a3a; letter-spacing: 0.04em; margin-top: 0.1em; }
+  .card-item .metrics { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; margin-top: 0.1em; }
+
+  .empty { color: #6a5a3a; font-style: italic; padding: 0.6em; }
+
+  .principle {
+    margin-top: 2em; padding: 0.9em 1.1em;
+    background: #f3eedb; border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0;
+    font-size: 0.88em; color: #5a4a30; font-style: italic;
+  }
+  .principle strong { font-style: normal; color: #1a3a52; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a>
+  <a href="/walks.html">Walk the cards</a>
+  <a href="/paths.html">Book of paths</a>
+  <a href="/stack.html">My stack</a>
+</nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE BOOKCASE</div>
+  <h1>The shelves</h1>
+  <div class="tagline">Every card, sorted by where it lives.</div>
+</div>
+
+<div id="summary" class="summary"></div>
+<div id="shelves"></div>
+
+<p class="principle">
+  <strong>The bookcase metaphor.</strong> Cards live on shelves; shelves hold boxes; boxes hold cards. Click any box to see the cards on it. Click any card to walk it. This is the substrate made physical — not a feed, not a stream. A library.
+</p>
+
+<script src="/nh-sabbath.js"></script>
+<script>
+(async function () {
+  // Load aggregate stats
+  let stats;
+  try {
+    stats = await (await fetch('/cards/stats', {cache:'no-store'})).json();
+  } catch (e) {
+    document.getElementById('shelves').innerHTML = '<div class="empty">Failed to load substrate stats.</div>';
+    return;
+  }
+
+  // Render summary tiles
+  const $sum = document.getElementById('summary');
+  $sum.innerHTML =
+    '<div class="summary-tile"><div class="label">Total cards</div><div class="value">' + stats.total + '</div></div>' +
+    '<div class="summary-tile"><div class="label">Shelves</div><div class="value">' + Object.keys(stats.by_shelf||{}).length + '</div></div>' +
+    '<div class="summary-tile"><div class="label">Connections</div><div class="value">' + (stats.by_kind.connection || 0) + '</div></div>' +
+    '<div class="summary-tile"><div class="label">Scripture</div><div class="value">' + (stats.by_authority_tier.scripture || 0) + '</div></div>' +
+    '<div class="summary-tile"><div class="label">Catechism</div><div class="value">' + (stats.by_authority_tier.catechism || 0) + '</div></div>' +
+    '<div class="summary-tile"><div class="label">Fathers</div><div class="value">' + (stats.by_authority_tier.father || 0) + '</div></div>';
+
+  // Render each shelf
+  const shelves = Object.entries(stats.by_shelf || {}).sort((a,b) => b[1] - a[1]);
+  const $shelves = document.getElementById('shelves');
+  $shelves.innerHTML = shelves.map(([shelf, count]) =>
+    '<div class="shelf-block" data-shelf="' + esc(shelf) + '">' +
+      '<h2>' + esc(shelf.charAt(0).toUpperCase() + shelf.slice(1)) + '</h2>' +
+      '<div class="shelf-meta">' + count + ' cards · click a box to expand</div>' +
+      '<div class="boxes" id="boxes-' + esc(shelf) + '"><span class="empty">Loading boxes…</span></div>' +
+      '<div class="card-list" id="cards-' + esc(shelf) + '"></div>' +
+    '</div>'
+  ).join('');
+
+  // For each shelf, load its cards to derive boxes
+  for (const [shelf, _] of shelves) {
+    fetch('/cards?shelf=' + encodeURIComponent(shelf) + '&limit=500', {cache:'no-store'})
+      .then(r => r.json())
+      .then(j => renderShelf(shelf, j.cards || []));
+  }
+
+  function renderShelf(shelf, cards) {
+    // Count by box
+    const boxCounts = {};
+    for (const c of cards) {
+      const b = c.box || '(no box)';
+      boxCounts[b] = (boxCounts[b] || 0) + 1;
+    }
+    const $boxes = document.getElementById('boxes-' + cssId(shelf));
+    const boxList = Object.entries(boxCounts).sort((a,b) => b[1] - a[1]);
+    $boxes.innerHTML = boxList.map(([box, n]) =>
+      '<span class="box-pill" data-shelf="' + esc(shelf) + '" data-box="' + esc(box) + '">' +
+        esc(box) + '<span class="count">' + n + '</span>' +
+      '</span>'
+    ).join('');
+    // Wire clicks
+    for (const pill of $boxes.querySelectorAll('.box-pill')) {
+      pill.addEventListener('click', () => {
+        const wasActive = pill.classList.contains('active');
+        for (const p of $boxes.querySelectorAll('.box-pill')) p.classList.remove('active');
+        const $list = document.getElementById('cards-' + cssId(shelf));
+        if (wasActive) {
+          $list.innerHTML = '';
+          return;
+        }
+        pill.classList.add('active');
+        const filtered = cards.filter(c => (c.box || '(no box)') === pill.dataset.box);
+        renderCardList($list, filtered);
+      });
+    }
+  }
+
+  function renderCardList($el, cards) {
+    if (cards.length === 0) { $el.innerHTML = '<div class="empty">No cards in this box.</div>'; return; }
+    $el.innerHTML = cards.slice(0, 50).map(c => {
+      const tier = ((c.source||{}).authority_tier || '');
+      const m = c.metrics || {};
+      const sig = [];
+      if (m.paperclips_count) sig.push('📎' + m.paperclips_count);
+      if (m.helpful_count) sig.push('👍' + m.helpful_count);
+      if (m.cite_count) sig.push('cited ' + m.cite_count);
+      return '<a class="card-item tier-' + esc(tier) + '" href="/card.html?id=' + esc(c.id) + '">' +
+        '<span class="title">' + esc(c.title || '(untitled)') + '</span>' +
+        ((c.source && c.source.label) ? '<div class="src">' + esc(c.source.label) + ((c.source||{}).ref ? ' · ' + esc(c.source.ref) : '') + '</div>' : '') +
+        (sig.length ? '<div class="metrics">' + sig.join(' · ') + '</div>' : '') +
+      '</a>';
+    }).join('') + (cards.length > 50 ? '<div class="empty">…' + (cards.length - 50) + ' more — refine by box to see them all.</div>' : '');
+  }
+
+  function cssId(s) { return String(s).replace(/[^a-zA-Z0-9_-]/g, '_'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c])); }
+})();
+</script>
+
+<script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch a Show — Narrow Highway</title>
+<meta name="description" content="Pitch a show to Narrow Highway. Tell us what you'd love your family to watch — viewers can flag interest; the operator decides what gets made.">
+<link rel="canonical" href="https://narrowhighway.com/pitch.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Pitch a Show — Narrow Highway">
+<meta property="og:description" content="Pitch a show. Other viewers can flag interest; the operator weighs the signal and decides what gets made.">
+<meta property="og:url" content="https://narrowhighway.com/pitch.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pitch a Show — Narrow Highway">
+<meta name="twitter:description" content="Pitch a show. Viewers flag interest; the operator decides what gets made.">
+<meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 900px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  h2 { color: #1a3a52; border-left: 4px solid #c9b48a; padding-left: 0.6em; margin-top: 1.6em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.2em; margin-bottom: 1em; }
+  .form { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.2em; margin-bottom: 1.6em; }
+  .form label { display: block; font-weight: bold; color: #5c4a2a; margin-top: 0.8em; }
+  .form input[type=text], .form textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 0.5em 0.7em; border: 1px solid #c9b48a; border-radius: 3px; margin-top: 0.2em; }
+  .form textarea { font-family: Georgia, serif; min-height: 4.5em; resize: vertical; }
+  .form .hint { color: #6a5a3a; font-size: 0.88em; font-weight: normal; }
+  .form button { margin-top: 1em; font: inherit; padding: 0.6em 1.5em; background: #1a3a52; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+  .pitches { list-style: none; padding: 0; }
+  .pitch { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em; margin-bottom: 0.6em; display: flex; gap: 1em; align-items: flex-start; }
+  .pitch .vote { display: flex; flex-direction: column; align-items: center; min-width: 60px; cursor: pointer; padding-top: 0.2em; }
+  .pitch .vote .count { font-size: 1.6em; font-weight: bold; color: #1a3a52; line-height: 1; }
+  .pitch .vote .label { font-size: 0.75em; color: #6a5a3a; }
+  .pitch .vote.voted { color: #5c8a3a; }
+  .pitch .vote.voted .count { color: #5c8a3a; }
+  .pitch .body { flex: 1; }
+  .pitch .title { font-weight: bold; color: #1a3a52; font-size: 1.1em; }
+  .pitch .logline { color: #444; font-style: italic; margin: 0.2em 0; }
+  .pitch .why { color: #555; font-size: 0.95em; }
+  .pitch .meta { color: #888; font-size: 0.82em; margin-top: 0.4em; }
+  .status-msg { padding: 0.6em 1em; border-radius: 4px; margin: 0.6em 0; font-size: 0.95em; }
+  .status-msg.ok { background: #d4ead4; color: #1f5b1f; }
+  .status-msg.err { background: #fee; color: #b03020; }
+</style>
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a></nav>
+<h1>Pitch a Show</h1>
+
+<div class="intro">
+  <p>Have an idea for a show you'd like us to produce? Pitch it. Other viewers can flag interest below; the operator reads the signals and decides what actually gets made.</p>
+  <p>Rules: family-safe, public-domain source material if any, and grounded in something true. Operator reviews every pitch before it goes live. Interest counts inform; they don't decide.</p>
+</div>
+
+<div class="form">
+  <h2 style="border:none; padding:0; margin-top:0;">Your pitch</h2>
+  <label>Title
+    <input id="p-title" type="text" maxlength="80" placeholder="e.g. The Time Machine — Wells, full-cast radio drama">
+  </label>
+  <label>Log line <span class="hint">(one sentence, &lt;140 chars)</span>
+    <input id="p-logline" type="text" maxlength="140" placeholder="A man builds a machine that travels through time, and finds the future is darker than expected.">
+  </label>
+  <label>Why this one? <span class="hint">(short paragraph)</span>
+    <textarea id="p-why" maxlength="500" placeholder="Why this story? Why now? What's the angle?"></textarea>
+  </label>
+  <label>Source (optional) <span class="hint">(Internet Archive / Project Gutenberg URL — PD source for the story if any)</span>
+    <input id="p-source" type="text" maxlength="240" placeholder="https://gutenberg.org/...">
+  </label>
+  <label>Your name (optional)
+    <input id="p-name" type="text" maxlength="60" placeholder="anonymous">
+  </label>
+  <button onclick="submitPitch()">Submit pitch</button>
+  <div id="form-status"></div>
+</div>
+
+<h2>Current pitches</h2>
+<div id="pitches"></div>
+
+<script>
+  const $list = document.getElementById('pitches');
+  const $status = document.getElementById('form-status');
+
+  // Local persistence layer — store + sync with engine endpoint
+  function getMyVotes() {
+    try { return JSON.parse(localStorage.getItem('nh_pitch_votes') || '{}'); }
+    catch (e) { return {}; }
+  }
+  function saveMyVotes(v) { localStorage.setItem('nh_pitch_votes', JSON.stringify(v)); }
+
+  async function loadPitches() {
+    try {
+      const r = await fetch('/api/pitches');
+      if (!r.ok) {
+        // Engine endpoint not yet wired — fall back to a static placeholder
+        $list.innerHTML = '<p style="color:#888;font-style:italic;">No pitches yet. Be the first.</p>';
+        return;
+      }
+      const data = await r.json();
+      const myVotes = getMyVotes();
+      const items = (data.pitches || []).filter(p => p.status === 'approved')
+        .sort((a, b) => (b.votes || 0) - (a.votes || 0) || (b.created_at || '').localeCompare(a.created_at || ''));
+      if (!items.length) {
+        $list.innerHTML = '<p style="color:#888;font-style:italic;">No approved pitches yet. Yours could be first.</p>';
+        return;
+      }
+      let html = '<ul class="pitches">';
+      for (const p of items) {
+        const voted = !!myVotes[p.id];
+        html += `<li class="pitch">`;
+        html += `<div class="vote ${voted ? 'voted' : ''}" onclick="vote('${p.id}')">`;
+        html += `<div class="count">${p.votes || 0}</div>`;
+        html += `<div class="label">${voted ? 'voted' : 'vote'}</div>`;
+        html += `</div>`;
+        html += `<div class="body">`;
+        html += `<div class="title">${escapeHtml(p.title)}</div>`;
+        html += `<div class="logline">${escapeHtml(p.logline || '')}</div>`;
+        if (p.why) html += `<div class="why">${escapeHtml(p.why)}</div>`;
+        html += `<div class="meta">pitched ${p.created_at ? new Date(p.created_at).toLocaleDateString() : ''}${p.author ? ' by ' + escapeHtml(p.author) : ''}`;
+        if (p.source) html += ` · <a href="${escapeHtml(p.source)}" target="_blank" rel="noopener">source</a>`;
+        html += `</div></div></li>`;
+      }
+      html += '</ul>';
+      $list.innerHTML = html;
+    } catch (e) {
+      $list.innerHTML = `<p class="status-msg err">Could not load pitches: ${e.message}</p>`;
+    }
+  }
+  function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  async function submitPitch() {
+    const title = document.getElementById('p-title').value.trim();
+    const logline = document.getElementById('p-logline').value.trim();
+    const why = document.getElementById('p-why').value.trim();
+    const source = document.getElementById('p-source').value.trim();
+    const author = document.getElementById('p-name').value.trim();
+    if (!title || !logline) {
+      $status.innerHTML = '<div class="status-msg err">Title and log-line required.</div>';
+      return;
+    }
+    try {
+      const r = await fetch('/api/pitches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, logline, why, source, author }),
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      $status.innerHTML = '<div class="status-msg ok">Thanks. Your pitch is in the operator queue.</div>';
+      ['p-title','p-logline','p-why','p-source','p-name'].forEach(id => document.getElementById(id).value = '');
+      loadPitches();
+    } catch (e) {
+      $status.innerHTML = `<div class="status-msg err">Submission failed: ${e.message}. Engine endpoint may not be wired yet — your pitch was not sent.</div>`;
+    }
+  }
+
+  async function vote(id) {
+    const myVotes = getMyVotes();
+    if (myVotes[id]) return; // already voted
+    try {
+      const r = await fetch(`/api/pitches/${encodeURIComponent(id)}/vote`, { method: 'POST' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      myVotes[id] = Date.now();
+      saveMyVotes(myVotes);
+      loadPitches();
+    } catch (e) {
+      alert('Vote failed: ' + e.message);
+    }
+  }
+
+  loadPitches();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live · Narrow Highway · 24/7</title>
+  <meta name="description" content="The Narrow Highway 24/7 channel. Hymns, sermons, sci-fi theatre, kids storytime, classic TV. Watch live in any browser, or add to Plex, Jellyfin, VLC, Kodi.">
+  <link rel="canonical" href="https://narrowhighway.com/live.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:title" content="Watch Narrow Highway Live · 24/7">
+  <meta property="og:description" content="A curated internet for Christian families. The Good ole days in a box. Hymns, sermons, sci-fi theatre, kids storytime, classic TV — 24/7, free, family-safe.">
+  <meta property="og:image" content="/img/og_card.png">
+  <meta property="og:url" content="https://narrowhighway.com/live.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/img/favicon.ico">
+  <link rel="apple-touch-icon" href="/img/apple_touch_icon.png">
+  <meta name="theme-color" content="#0a0810">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; line-height: 1.55; min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hi); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── TOP NAV (matches watch.html) ─────────────────────── */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,8,16,0.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 9px;
+    }
+    .wordmark-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px rgba(201,168,124,0.55);
+    }
+    .breadcrumbs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .breadcrumbs a { color: var(--text-dim); }
+    .breadcrumbs a:hover { color: var(--accent); }
+    .breadcrumbs .crumb-sep { color: #4e4858; margin: 0 8px; }
+
+    /* ── HERO ─────────────────────────────── */
+    .hero {
+      max-width: 1180px; margin: 0 auto; padding: 36px 24px 8px;
+      text-align: center;
+    }
+    .hero img.brand-logo {
+      max-width: 420px; width: 70%; height: auto;
+      display: block; margin: 0 auto 16px;
+    }
+    .hero .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px); font-weight: 700; letter-spacing: -0.01em;
+      line-height: 1.1; margin-bottom: 10px;
+    }
+    .hero h1 em { color: var(--accent-hi); font-style: italic; font-family: 'Crimson Pro', serif; font-weight: 400; }
+    .hero p.sub {
+      color: var(--text-dim); font-size: 16px; max-width: 64ch; margin: 0 auto;
+    }
+
+    /* ── PLAYER ───────────────────────────── */
+    .player-wrap {
+      max-width: 1080px; margin: 28px auto 0; padding: 0 24px;
+    }
+    .player-frame {
+      position: relative;
+      background: #000;
+      border-radius: var(--r);
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow:
+        0 0 0 1px var(--border-hi),
+        0 0 0 6px #1a1418,
+        0 0 0 7px var(--border-hi),
+        0 30px 80px rgba(0,0,0,0.7);
+    }
+    .player-frame video {
+      width: 100%; height: 100%;
+      display: block;
+      background: #000;
+    }
+
+    .now-row {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      margin-top: 14px; padding: 14px 18px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      font-size: 13.5px;
+    }
+    .live-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #c75050; display: inline-block; margin-right: 6px;
+      box-shadow: 0 0 0 4px rgba(199, 80, 80, 0.18);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .live-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase;
+    }
+    .now-title { color: var(--text); font-weight: 600; }
+    .now-block { color: var(--text-dim); margin-left: auto; font-size: 12.5px; }
+
+    /* ── STREAM URL COPY-BOX ─────────────────── */
+    .url-box {
+      max-width: 1080px; margin: 20px auto 0; padding: 0 24px;
+    }
+    .url-box-inner {
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 14px 18px;
+    }
+    .url-box-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase;
+    }
+    .url-box-input {
+      flex: 1; min-width: 260px;
+      background: var(--bg); border: 1px solid var(--border-hi); color: var(--text);
+      padding: 10px 12px; border-radius: var(--r-sm);
+      font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    }
+    .url-box-copy {
+      background: var(--accent); color: var(--bg); border: 1px solid var(--accent);
+      padding: 10px 18px; border-radius: var(--r-sm); cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+      letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+    }
+    .url-box-copy:hover { background: var(--accent-hi); }
+    .url-box-copy.copied { background: var(--pass); border-color: var(--pass); color: var(--bg); }
+
+    /* ── WHERE-TO-WATCH GRID ──────────────────── */
+    .where { max-width: 1180px; margin: 36px auto 0; padding: 0 24px; }
+    .where h2 {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .where-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .where-card {
+      background: var(--surface); border: 1px solid var(--border-hi);
+      border-radius: var(--r); padding: 18px 20px;
+      transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .where-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+    .where-card.pending { opacity: 0.6; }
+    .where-card.pending:hover { transform: none; border-color: var(--border-hi); box-shadow: none; }
+    .where-card .platform {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .where-card .name {
+      font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px;
+    }
+    .where-card .note { color: var(--text-dim); font-size: 13.5px; line-height: 1.45; }
+    .where-card a.go {
+      display: inline-block; margin-top: 12px;
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 7px 14px; border-radius: var(--r-sm);
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+    }
+    .where-card a.go:hover { background: var(--accent); color: var(--bg); }
+    .where-card.pending a.go { pointer-events: none; opacity: 0.5; }
+
+    /* ── PER-APP INSTRUCTIONS ────────────────── */
+    .apps { max-width: 1080px; margin: 40px auto; padding: 0 24px; }
+    .apps h2 {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .app-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px 22px; margin-bottom: 14px;
+    }
+    .app-block h3 {
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 17px;
+      color: var(--accent-hi); margin-bottom: 10px;
+    }
+    .app-block ol { margin: 6px 0 0; padding-left: 22px; color: var(--text); }
+    .app-block ol li { margin-bottom: 6px; font-size: 14px; }
+    .app-block code {
+      background: var(--bg); padding: 2px 7px; border-radius: 3px;
+      color: var(--accent-hi); font-size: 12px; border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-block; max-width: 100%; overflow-wrap: anywhere;
+    }
+
+    /* ── FOOTER ───────────────────────────── */
+    footer {
+      max-width: 1180px; margin: 40px auto 32px; padding: 22px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 13px; text-align: center;
+    }
+    footer a { color: var(--text-dim); }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.7rem; }
+      .url-box-input { font-size: 11px; min-width: 200px; }
+      .url-box-copy { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+
+
+<header class="hero">
+  <img src="/img/channel-narrow-highway.png" alt="Narrow Highway · A Curated Christian Family Platform" class="brand-logo">
+  <div class="eyebrow">The Channel · 24/7 · Free · Family-Safe</div>
+  <h1>Watch <em>Narrow Highway</em> live</h1>
+  <p class="sub">Hymns at dawn. Sermons through the morning. Kids storytime after school. Sci-fi theatre at primetime. One channel, six days plus Sabbath.</p>
+</header>
+
+<!-- Live player -->
+<div class="player-wrap">
+  <div class="player-frame">
+    <video id="ch-video" controls playsinline muted poster="/img/channel-narrow-highway.png"></video>
+  </div>
+  <div class="now-row">
+    <span><span class="live-dot"></span><span class="live-tag">Live</span></span>
+    <span class="now-title" id="now-title">Loading channel…</span>
+    <span class="now-block" id="now-block">—</span>
+  </div>
+</div>
+
+<!-- M3U copy-box -->
+<div class="url-box">
+  <div class="url-box-inner">
+    <span class="url-box-label">Stream URL</span>
+    <input class="url-box-input" id="m3u-url" readonly value="https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8" onclick="this.select()">
+    <button class="url-box-copy" id="m3u-copy">Copy</button>
+  </div>
+</div>
+
+<!-- Where to watch -->
+<section class="where">
+  <h2>Where to watch</h2>
+  <div class="where-grid">
+    <div class="where-card pending" id="card-youtube">
+      <div class="platform">Free · No signup</div>
+      <div class="name">YouTube Live</div>
+      <div class="note">24/7 stream on YouTube. Watch in any browser; subscribe for the bell.</div>
+      <a href="#" class="go" id="youtube-link">Pending verification</a>
+    </div>
+    <div class="where-card">
+      <div class="platform">Free · This page</div>
+      <div class="name">Watch in browser</div>
+      <div class="note">The player above streams the same feed. No apps required — works on every modern browser.</div>
+      <a href="#ch-video" class="go">Play now</a>
+    </div>
+    <div class="where-card">
+      <div class="platform">Free · Your device</div>
+      <div class="name">Plex / Jellyfin / VLC / Kodi</div>
+      <div class="note">Paste the stream URL above into any IPTV-capable app. Per-app instructions below.</div>
+      <a href="#apps" class="go">How-to</a>
+    </div>
+    <div class="where-card pending" id="card-roku">
+      <div class="platform">Free · Tier 2</div>
+      <div class="name">Roku Channel Store</div>
+      <div class="note">Pending Roku Direct Publisher approval. Will appear in the Roku Channel Store.</div>
+      <a href="#" class="go">Pending submission</a>
+    </div>
+  </div>
+</section>
+
+<!-- Per-app instructions -->
+<section class="apps" id="apps">
+  <h2>Add Narrow Highway to your apps</h2>
+
+  <div class="app-block">
+    <h3>Plex Live TV (custom IPTV)</h3>
+    <ol>
+      <li>Open Plex → <em>Settings</em> → <em>Manage</em> → <em>Live TV &amp; DVR</em>.</li>
+      <li>Click <em>Set up Plex DVR</em> → <em>Continue without a tuner</em> → <em>Have an M3U tuner</em>.</li>
+      <li>Paste the URL: <code>https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8</code></li>
+      <li>For EPG (program guide), use: <code>https://narrowhighway.com/channels/narrow-highway/epg.xml</code></li>
+      <li>Save. The channel appears in Plex's Live TV guide.</li>
+    </ol>
+  </div>
+
+  <div class="app-block">
+    <h3>Jellyfin Live TV</h3>
+    <ol>
+      <li>Open Jellyfin admin → <em>Dashboard</em> → <em>Live TV</em> → <em>Add</em>.</li>
+      <li>Tuner type: <em>M3U Tuner</em>. URL: <code>https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8</code></li>
+      <li>Save the tuner, then add a guide source: type <em>XMLTV</em>, URL: <code>https://narrowhighway.com/channels/narrow-highway/epg.xml</code></li>
+      <li>Refresh the guide. Narrow Highway appears in your Live TV section.</li>
+    </ol>
+  </div>
+
+  <div class="app-block">
+    <h3>VLC (any platform)</h3>
+    <ol>
+      <li>Open VLC → <em>Media</em> → <em>Open Network Stream</em> (Ctrl+N / Cmd+N).</li>
+      <li>Paste: <code>https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8</code></li>
+      <li>Click <em>Play</em>.</li>
+    </ol>
+  </div>
+
+  <div class="app-block">
+    <h3>Kodi (PVR IPTV Simple Client)</h3>
+    <ol>
+      <li>Install the <em>PVR IPTV Simple Client</em> add-on (Add-ons → My add-ons → PVR clients).</li>
+      <li>Configure → <em>M3U Play List URL</em>: <code>https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8</code></li>
+      <li>EPG: <em>XMLTV URL</em>: <code>https://narrowhighway.com/channels/narrow-highway/epg.xml</code></li>
+      <li>Enable the add-on and restart Kodi. Channel appears under TV.</li>
+    </ol>
+  </div>
+
+  <div class="app-block">
+    <h3>TVHeadend / generic IPTV</h3>
+    <ol>
+      <li>Add a new IPTV network or playlist source.</li>
+      <li>URL: <code>https://narrowhighway.com/channels/narrow-highway/hls/day.m3u8</code></li>
+      <li>EPG (XMLTV): <code>https://narrowhighway.com/channels/narrow-highway/epg.xml</code></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  Free to watch. No accounts. No ads. No tracking.<br>
+  <a href="/">narrowhighway.com</a> · <a href="/watch.html">TV Deck</a> · <a href="/codex.html">Codex</a> · <a href="/agents.html">For Agents</a>
+</footer>
+
+<!-- HLS.js for browsers without native HLS -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+(function() {
+  const video = document.getElementById('ch-video');
+  const url = '/channels/narrow-highway/hls/day.m3u8';
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({ liveSyncDuration: 6, liveMaxLatencyDuration: 30 });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = url;
+  } else {
+    const r = document.querySelector('.now-row');
+    if (r) r.innerHTML = '<span class="now-title">This browser cannot play HLS directly. Paste the Stream URL above into VLC or any IPTV app.</span>';
+  }
+
+  // Copy button
+  document.getElementById('m3u-copy').addEventListener('click', function() {
+    const input = document.getElementById('m3u-url');
+    input.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    this.textContent = 'Copied';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = 'Copy'; this.classList.remove('copied'); }, 1800);
+  });
+
+  // Now-playing label from manifest
+  fetch('/channels/narrow-highway/now.json', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      if (!j) return;
+      const now = (j.upcoming && j.upcoming[0]) || j.current || null;
+      if (now) {
+        document.getElementById('now-title').textContent = now.title || now.block_name || 'Narrow Highway';
+        document.getElementById('now-block').textContent = now.block_name || '';
+      } else {
+        document.getElementById('now-title').textContent = j.channel_name || 'Narrow Highway · 24/7';
+      }
+    })
+    .catch(() => {});
+})();
+</script>
+
+</body>
+</html>

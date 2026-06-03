@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discern this teaching &middot; Narrow Highway</title>
+<meta name="description" content="Paste a sermon excerpt, a paragraph from a Christian book, or a transcript line. The engine reads it against Scripture, doctrine, and the historical Christian record &mdash; and hands back what aligns, what is conditional, and what is outside the reference.">
+<link rel="canonical" href="https://narrowhighway.com/discern-teaching.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Discern this teaching &middot; Narrow Highway">
+<meta property="og:description" content="Test what you have heard against Scripture, doctrine, and the historical Christian record. Paste a teaching; the engine walks it through the four gates and gives back the trail.">
+<meta property="og:url" content="https://narrowhighway.com/discern-teaching.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto;
+    padding: 0 1.2em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.65; }
+  .masthead { text-align: center; padding: 2em 1em 1.2em;
+    border-bottom: 3px double #b8945a; margin-bottom: 1.4em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.5em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal;
+    font-size: 2.3em; color: #1a3a52; letter-spacing: 0.02em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.05em;
+    margin-top: 0.6em; max-width: 56ch; margin-left: auto; margin-right: auto; }
+  h2 { color: #1a3a52; font-weight: normal; font-size: 1.45em; letter-spacing: 0.01em;
+    margin-top: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d4c8a5; }
+  h3 { color: #1a3a52; font-weight: bold; font-size: 1.02em; margin-top: 1.2em; margin-bottom: 0.4em; }
+  p { margin: 0.8em 0; }
+  ul { margin: 0.6em 0 0.6em 1.2em; padding-left: 0; }
+  ul li { margin: 0.35em 0; }
+  .form-card { background: #fff; border: 2px solid #1a3a52; border-radius: 6px;
+    padding: 1.3em 1.4em; margin: 1.4em 0; box-shadow: 0 2px 12px rgba(26,58,82,0.08); }
+  .form-card label { display: block; font-weight: bold; color: #1a3a52;
+    margin-bottom: 0.4em; font-size: 0.95em; }
+  .form-card label .hint { font-weight: normal; color: #6a5a3a;
+    font-size: 0.88em; font-style: italic; margin-left: 0.4em; }
+  .form-card textarea {
+    width: 100%; box-sizing: border-box; font-family: Georgia, serif; font-size: 1em;
+    padding: 0.8em 1em; border: 1px solid #c9b48a; border-radius: 4px;
+    background: #fafaf6; resize: vertical; min-height: 8em; line-height: 1.5; }
+  .form-card textarea:focus { outline: none; border-color: #1a3a52;
+    box-shadow: 0 0 0 3px rgba(26,58,82,0.15); }
+  .form-card .meta-row { margin-top: 0.9em; display: flex; flex-wrap: wrap;
+    gap: 0.7em; align-items: center; font-size: 0.88em; color: #6a5a3a; }
+  .form-card input[type=text] {
+    flex: 1; min-width: 200px; font-family: Georgia, serif; font-size: 0.95em;
+    padding: 0.55em 0.8em; border: 1px solid #c9b48a; border-radius: 4px;
+    background: #fafaf6; }
+  .form-card input[type=text]:focus { outline: none; border-color: #1a3a52; }
+  .form-card .actions { margin-top: 1.1em; display: flex; gap: 0.7em; align-items: center; flex-wrap: wrap; }
+  .form-card button {
+    background: #1a3a52; color: #f4ecd5; padding: 0.7em 1.6em; border: none;
+    border-radius: 4px; font-family: Georgia, serif; font-size: 1em; cursor: pointer;
+    font-weight: bold; letter-spacing: 0.02em; }
+  .form-card button:hover { background: #2a5570; }
+  .form-card button:disabled { background: #888; cursor: not-allowed; }
+  .form-card .counter { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; }
+  .form-card .counter.warn { color: #806010; }
+  .posture-block { background: #fff5d4; border-left: 4px solid #b8945a;
+    padding: 0.9em 1.2em; margin: 1em 0; border-radius: 0 4px 4px 0; font-size: 0.94em; }
+  .posture-block strong { color: #1a3a52; }
+  .returns { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 0.9em 1.2em; margin: 1em 0; }
+  .returns h3 { margin-top: 0; }
+  .returns .label { font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.08em; text-transform: uppercase; color: #806010;
+    display: inline-block; margin-right: 0.4em; }
+  .returns .row { margin: 0.5em 0; }
+  .refuse { background: #f3eedb; border-left: 4px solid #b8945a;
+    padding: 0.9em 1.2em; margin: 1em 0; border-radius: 0 4px 4px 0; }
+  .refuse strong { color: #1a3a52; font-style: normal; }
+  .doorways { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1em 1.3em; margin-top: 1.8em; }
+  .doorways h3 { margin-top: 0; }
+  .doorways a { display: block; padding: 0.5em 0; color: #1a3a52; text-decoration: none;
+    border-bottom: 1px dashed #d4c8a5; }
+  .doorways a:last-child { border-bottom: 0; }
+  .doorways a:hover { color: #b8945a; }
+  .doorways a em { color: #806010; font-style: italic; font-family: Georgia, serif;
+    margin-left: 0.4em; }
+  hr.sep { border: none; border-top: 1px solid #d4c8a5; margin: 2em auto; width: 60%; }
+  .colophon { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; letter-spacing: 0.04em; text-align: center; line-height: 1.6;
+    margin-top: 3em; padding-top: 1.4em; border-top: 1px solid #d4c8a5; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="eyebrow">Narrow Highway &middot; A tool for testing what you have heard</div>
+  <h1>Discern this teaching</h1>
+  <p class="tagline">Paste a sermon excerpt, a paragraph from a Christian book, or a transcript line. The engine reads it against Scripture, doctrine, and the historical Christian record &mdash; and gives the trail back.</p>
+</div>
+
+<form class="form-card" id="discernForm" novalidate>
+  <label for="teaching">
+    The teaching
+    <span class="hint">Paste the text you want weighed. A paragraph or a page is fine.</span>
+  </label>
+  <textarea id="teaching" name="teaching" rows="10" autofocus
+    placeholder="Paste a sermon excerpt, a paragraph from a Christian book, a teaching from social media, or a transcript line. The engine reads what you bring &mdash; it does not need the speaker's name to do its work."></textarea>
+
+  <div class="meta-row">
+    <label for="source" style="margin: 0; font-weight: normal; color: #6a5a3a;">
+      Source (optional):
+    </label>
+    <input type="text" id="source" name="source"
+      placeholder="URL, book title, or speaker name &mdash; for the record only">
+  </div>
+
+  <div class="actions">
+    <button type="submit" id="submitBtn">Run it through the gates &rarr;</button>
+    <span class="counter" id="counter">0 chars</span>
+  </div>
+  <div id="formError" style="color:#8b1f1f; margin-top:0.6em; font-size:0.9em; display:none;"></div>
+</form>
+
+<h2>What this does</h2>
+<p>You bring a piece of teaching &mdash; the kind you would read out loud to a friend and ask, <em>does that sound right?</em> The engine reads it against:</p>
+<ul>
+  <li><strong>Scripture</strong> &mdash; every Bible reference, quoted or alluded to, checked for accurate citation and context</li>
+  <li><strong>Doctrine</strong> &mdash; the theology-doctrine verifier reads the teaching against the historical Christian record (creeds, fathers, catechisms)</li>
+  <li><strong>The four gates</strong> &mdash; RED (disqualifying patterns), FLOOR (protective minimum), BROTHERS (a second witness), GOD (the timing check)</li>
+</ul>
+
+<h2>What this returns</h2>
+<div class="returns">
+  <div class="row"><span class="label">Stable</span> &mdash; what aligns plainly with Scripture and the reference</div>
+  <div class="row"><span class="label">Conditional</span> &mdash; what holds in specific contexts but not as a universal claim</div>
+  <div class="row"><span class="label">Hold</span> &mdash; what falls outside the reference, with the citation that disagrees</div>
+  <div class="row" style="margin-top:0.8em; padding-top:0.6em; border-top:1px dashed #d4c8a5;">
+    Plus the <strong>trail</strong> &mdash; every verifier output, every gate result, every cited source. You can verify the engine&rsquo;s reasoning yourself. The discernment is minted as a permanent record at <code>/d/&lt;slug&gt;</code> that you can share, print, or refer back to.
+  </div>
+</div>
+
+<h2>What this is &mdash; and what it is not</h2>
+<div class="posture-block">
+  <p style="margin-top:0;"><strong>A tool, not a tribunal.</strong> This page reads <em>a teaching</em> against the reference. It does not adjudicate <em>the speaker</em>, does not rule on a person&rsquo;s salvation, does not replace pastoral discernment in a real church, and is not authorized teaching itself.</p>
+  <p style="margin-bottom:0;">The engine names what aligns and what does not. The reader weighs the result against their own convictions, their pastor&rsquo;s counsel, and the Scripture they can read for themselves. The trail is here so you can check it.</p>
+</div>
+
+<h2>What works well</h2>
+<ul>
+  <li><strong>A paragraph from a sermon</strong> &mdash; a single load-bearing claim is usually enough to read carefully</li>
+  <li><strong>A page from a book</strong> &mdash; chapter abstracts, conclusions, or sections that take a specific position</li>
+  <li><strong>A transcript line or social post</strong> &mdash; short, sharp statements that someone is teaching as true</li>
+  <li><strong>A devotional excerpt</strong> &mdash; the daily-meditation kind, where the claim is concentrated</li>
+</ul>
+<p style="font-size:0.92em; color:#6a5a3a; font-style:italic;">For full transcripts (sermons, conference talks), excerpt the load-bearing sections rather than pasting everything. Long inputs can be brought, but a sharper extract reads more sharply.</p>
+
+<h2>What this refuses</h2>
+<div class="refuse">
+  <p><strong>Reading the person.</strong> The tool reads the teaching, not the teacher. If the teaching aligns, that does not vindicate everything the speaker has ever said. If it does not, that does not condemn them &mdash; it names what was said, on its own.</p>
+  <p><strong>Anonymous accusation.</strong> The teaching is what we read. The source name on the form is for the record, not the verdict.</p>
+  <p><strong>Tribal sorting.</strong> The four gates apply the same to a teaching from a denomination we share with and a teaching from one we do not. If we cannot weigh a teaching cleanly, we do not weigh it.</p>
+  <p><strong>Replacing pastoral counsel.</strong> A church elder who knows the speaker, the context, and the people involved is doing different work. This tool does not.</p>
+</div>
+
+<h2>The doorways</h2>
+<div class="doorways">
+  <h3>Related surfaces</h3>
+  <a href="/walks.html"><strong>The engine</strong><em>&mdash; for any question (not only teachings).</em></a>
+  <a href="/guidance.html"><strong>Guidance</strong><em>&mdash; the working canon. What the engine is, what it refuses.</em></a>
+  <a href="/witnesses.html"><strong>Witness Roll</strong><em>&mdash; named people who sign discernments.</em></a>
+  <a href="/verifiers.html"><strong>69 verifiers</strong><em>&mdash; the domain-specific checks the engine runs.</em></a>
+</div>
+
+<hr class="sep">
+
+<p class="colophon">
+  Narrow Highway / Lighthouse / Concordance Engine<br>
+  narrowhighway.com &middot; Scripture quoted from the public-domain KJV<br>
+  A tool, not a tribunal. The trail is the reasoning.
+</p>
+
+<script>
+(function () {
+  var $form = document.getElementById('discernForm');
+  var $teaching = document.getElementById('teaching');
+  var $source = document.getElementById('source');
+  var $counter = document.getElementById('counter');
+  var $submit = document.getElementById('submitBtn');
+  var $err = document.getElementById('formError');
+
+  function updateCounter() {
+    var n = $teaching.value.length;
+    $counter.textContent = n.toLocaleString() + ' chars';
+    $counter.classList.toggle('warn', n > 10000);
+  }
+  $teaching.addEventListener('input', updateCounter);
+  updateCounter();
+
+  $form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    $err.style.display = 'none';
+    $err.innerHTML = '';
+    var text = $teaching.value.trim();
+    if (text.length < 30) {
+      $err.innerHTML = 'Bring a little more &mdash; even a sentence or two so the engine has something to read.';
+      $err.style.display = '';
+      $teaching.focus();
+      return;
+    }
+    var source = $source.value.trim();
+
+    $submit.disabled = true;
+    $submit.textContent = 'Reading...';
+
+    try {
+      var r = await fetch('/api/discern-teaching', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teaching: text,
+          source: source,
+        }),
+      });
+      if (!r.ok) {
+        var detail = '';
+        try { var ej = await r.json(); detail = ej.detail || ''; } catch (_) {}
+        throw new Error('Engine returned ' + r.status + (detail ? ': ' + detail : ''));
+      }
+      var data = await r.json();
+      if (data && data.url) {
+        // Land on the structured permanent record
+        location.href = data.url;
+      } else {
+        throw new Error('Engine response missing url');
+      }
+    } catch (err) {
+      $submit.disabled = false;
+      $submit.textContent = 'Run it through the gates →';
+      $err.innerHTML = 'Could not reach the engine: ' + (err.message || String(err)) +
+        '. The page is a tool, not the engine itself &mdash; if you keep seeing this, the engine may be restarting. Try again in a minute.';
+      $err.style.display = '';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Handoff · Mac · Narrow Highway</title>
+  <meta name="description" content="Complete project handoff to the MacBook — connect, pull the repo, continue training and Claude work.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    .h-card{max-width:880px;margin:1.4rem auto;background:#fff;border:1px solid #e5d9c4;border-radius:8px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .h-card h1{margin:0 0 .2rem;font-size:1.7rem;color:#3a2f24}
+    .h-card h2{font-size:1.1rem;color:#5a4937;margin:1.9rem 0 .5rem;border-bottom:1px solid #ede4d2;padding-bottom:.3rem}
+    .h-card h3{font-size:.95rem;color:#5a4937;margin:1rem 0 .3rem}
+    .h-card pre{background:#1c1a17;color:#e8d9b8;padding:.85rem 1.05rem;border-radius:5px;font-size:.84rem;overflow-x:auto;line-height:1.55}
+    .h-card pre code{color:inherit;background:none;padding:0}
+    .h-card code{background:#f4ecd9;padding:1px 5px;border-radius:3px;font-size:.86em}
+    .h-card .note{background:#fff5d4;border-left:4px solid #b8945a;padding:.7em 1em;margin:1em 0;border-radius:0 4px 4px 0;font-size:.92em;color:#5a4630}
+    .h-card .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#a08864;margin-bottom:.3rem}
+    .h-card table{border-collapse:collapse;width:100%;font-size:.86rem;margin:.6rem 0}
+    .h-card th,.h-card td{text-align:left;padding:.35rem .6rem;border-bottom:1px solid #ede4d2;vertical-align:top}
+    .h-card th{color:#a08864;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+    .h-card kbd{background:#f4ecd9;border:1px solid #d4c499;border-bottom-width:2px;border-radius:3px;padding:1px 5px;font-family:ui-monospace,monospace;font-size:.85em}
+    .h-card .big{display:inline-block;background:#8b5d2e;color:#fff;padding:.6rem 1.1rem;border-radius:6px;text-decoration:none;font-weight:600;margin:.4rem .4rem .4rem 0}
+    .h-card .big:hover{background:#704a25}
+    .h-card .step-num{display:inline-block;width:1.6rem;height:1.6rem;background:#8b5d2e;color:#fff;border-radius:50%;text-align:center;line-height:1.6rem;font-weight:600;margin-right:.4rem;font-size:.85rem}
+    .topo{background:#1c1a17;color:#cfc3ad;padding:1rem;border-radius:6px;font-size:.72rem;line-height:1.4;overflow-x:auto;white-space:pre;font-family:ui-monospace,monospace}
+    .ok{color:#3f7a4d;font-weight:600}
+  </style>
+</head>
+<body>
+
+<div class="h-card">
+  <div class="eyebrow">Project Handoff · operator-only · 2026-05-28</div>
+  <h1>Pick up Narrow Highway on the Mac</h1>
+  <p style="color:#6e5d49">Windows keeps running its local jobs (encoding, storage, failover). From here, the Mac is the development + training machine. Everything you need to continue is below.</p>
+
+  <p>
+    <a class="big" href="/mac/HANDOFF.md">📄 Full handoff (Claude reads this)</a>
+    <a class="big" href="https://narrowhighway.com" style="background:#3d6b8c">🌐 Live site</a>
+    <a class="big" href="/keep.html" style="background:#3f7a4d">🔑 Operator dashboard</a>
+  </p>
+
+  <div class="note">
+    <strong>For Claude on the Mac:</strong> open <a href="/mac/HANDOFF.md"><code>narrowhighway.com/mac/HANDOFF.md</code></a> first — it's the complete cold-start context (philosophy, topology, what's running, open work, gotchas). This page is the human quickstart.
+  </div>
+
+  <h2>The topology — what lives where now</h2>
+  <div class="topo">PUBLIC                Cloudflare DNS + CDN
+narrowhighway.com ─────────┐
+api.narrowhighway.com ──┐   │   (apex + api → Hetzner, grey cloud)
+www → 301 → apex        ▼   ▼
+┌───────────────────────────────────────┐
+│ HETZNER  nh-engine-1   5.78.186.55     │  ◀ THE LIVE SYSTEM
+│ Tailscale 100.107.218.110  (Hillsboro) │
+│ engine · Caddy TLS · site · API        │
+│ substrate (236 MB) · 3 daily timers    │
+└───────────────────────────────────────┘
+              ▲   Tailscale tailnet
+   ┌──────────┼───────────┐
+WINDOWS              MAC (you)
+harrismotors         matts-macbook-pro
+encode·storage       training · all Claude work
+·failover            ·dev repo of record</div>
+
+  <h2>First 15 minutes</h2>
+
+  <div><span class="step-num">1</span><b>Reach the engine box</b> (keyless — Tailscale SSH is on):</div>
+<pre><code>ssh nh@100.107.218.110</code></pre>
+
+  <div><span class="step-num">2</span><b>Pull the working repo</b> (clean copy, no heavy media):</div>
+<pre><code>mkdir -p ~/Lighthouse
+rsync -avz nh@100.107.218.110:/home/nh/Lighthouse/ ~/Lighthouse/ \
+  --exclude='.venv' --exclude='__pycache__'
+cd ~/Lighthouse</code></pre>
+
+  <div><span class="step-num">3</span><b>Python env + secrets:</b></div>
+<pre><code>python3 -m venv .venv && . .venv/bin/activate
+pip install -e ".[mcp]" fastapi "uvicorn[standard]" httpx anthropic python-dotenv pyyaml pint
+scp nh@100.107.218.110:/home/nh/Lighthouse/.env ~/Lighthouse/.env   # secrets (not in repo)</code></pre>
+
+  <div><span class="step-num">4</span><b>Point Claude (Code or Desktop) at <code>~/Lighthouse</code></b> and hand it <code>narrowhighway.com/mac/HANDOFF.md</code>. You're picked up.</div>
+
+  <h2>What's running (manage from the Mac over SSH)</h2>
+  <table>
+    <tr><th>Command</th><th>Does</th></tr>
+    <tr><td><code>sudo systemctl status nh-engine</code></td><td>engine health</td></tr>
+    <tr><td><code>sudo systemctl restart nh-engine</code></td><td>restart (no more elevated PowerShell)</td></tr>
+    <tr><td><code>journalctl -u nh-engine -f</code></td><td>live logs</td></tr>
+    <tr><td><code>python tools/spend_guard.py status</code></td><td>$/$500 month-to-date</td></tr>
+    <tr><td><code>systemctl list-timers | grep nh-</code></td><td>backup·reading·gather timers</td></tr>
+  </table>
+  <p style="color:#6e5d49;font-size:.9em">The gather cycle runs daily (10:00 UTC): cross-domain connections (free), capacity proposals (free), daily devotional (~$0.025) — all under the $500 guard.</p>
+
+  <h2>Continue the training (the main Mac work)</h2>
+  <p style="color:#6e5d49">MLX is Apple-Silicon only — the Mac is the only machine that can fine-tune. First adapter (<code>mlx-Mistral-7B-Instruct--20260527-171852</code>) is trained + registered. The workspace at <code>~/lighthouse-mac/</code> has the corpus + trainer.</p>
+  <pre><code># 1. grow corpus (gated, alignment-filtered, spend-guarded)
+python tools/generate_corpus.py --base anthropic --max-cost 10 --prompts &lt;topics&gt;
+# 2. re-train          3. register          4. benchmark (MLX runs here)
+python tools/finetune_mlx.py --corpus &lt;corpus&gt; --epochs 3 --batch-size 2
+python tools/model_registry.py register --backend mlx --adapter &lt;dir&gt; --run &lt;id&gt; ...
+python tools/run_benchmark.py --base "local:&lt;run-id&gt;"
+# 5. ship adapter to the engine box
+tailscale file cp adapter.tgz nh-engine-1:</code></pre>
+  <p style="color:#6e5d49;font-size:.9em">Full trajectory: <code>docs/STANDALONE_MODEL.md</code>.</p>
+
+  <h2>Open work — pick up here</h2>
+  <ul style="line-height:1.7;color:#5a4937">
+    <li><b>Skills layer polish</b> — visual pass on <a href="/map.html">/map.html</a>; link the map from cards/walks; homepage entry tile; surface capacity proposals in /keep; wire the "effective" signal (skill↔walk).</li>
+    <li><b>Research bots (Phase 3)</b> — needs your curated PD/trusted-source allowlist. Extract facts+citations only, treat fetched content as untrusted, gate everything.</li>
+    <li><b>Card-gen volume (Phase 2)</b> — daily new-card ceiling within $500.</li>
+    <li><b>Commit to git</b> — <code>gh</code> auth is expired; everything this session is uncommitted.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Standing rules carried over:</strong> PD-only · operator approves every publish/removal · copyright (extract, never copy) · fetched content is untrusted (no instruction-following) · $500/mo cap · secrets in <code>.env</code> only, never in chat · <em>not AI — one organ in a body.</em>
+  </div>
+
+  <p style="color:#6e5d49;font-size:.85em;margin-top:1.6rem;border-top:1px solid #ede4d2;padding-top:1rem">
+    The body is alive on Hetzner. This page + <a href="/mac/HANDOFF.md">HANDOFF.md</a> are everything you need to continue on the Mac. <code>noindex</code> — operator-only.
+  </p>
+</div>
+
+</body>
+</html>

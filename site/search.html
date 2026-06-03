@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — Narrow Highway</title>
+<meta name="description" content="Search the substrate of Narrow Highway. Hymns, recipes, projects, almanac, devotionals, curriculum. Everything indexed in one place.">
+  <link rel="canonical" href="https://narrowhighway.com/search.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Search — Narrow Highway">
+  <meta property="og:description" content="Search the substrate of Narrow Highway. Hymns, recipes, projects, almanac, devotionals, curriculum. Everything indexed in one place.">
+  <meta property="og:url" content="https://narrowhighway.com/search.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Search — Narrow Highway">
+  <meta name="twitter:description" content="Search the substrate of Narrow Highway. Hymns, recipes, projects, almanac, devotionals, curriculum. Everything indexed in one place.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; font-family: Georgia, serif; font-weight: normal; font-size: 2em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.2em; margin-bottom: 1em; font-size: 0.93em; }
+
+  .search-row { background: #fff; border: 2px solid #b8945a; border-radius: 6px; padding: 0.6em 0.9em; display: flex; gap: 0.5em; }
+  .search-row input { flex: 1; border: none; outline: none; font-family: inherit; font-size: 1.05em; background: transparent; color: #2a2a28; }
+  .search-row button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.4em 1em; border-radius: 4px; font-family: inherit; cursor: pointer; }
+
+  .filter-row { margin: 0.6em 0; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; border: 1px solid #d4c8a5; padding: 0.3em 0.75em; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; margin-right: 0.3em; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+
+  .results { margin-top: 1em; }
+  .result { background: #fff; border: 1px solid #d4c8a5; border-left: 4px solid #c9b48a; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.5em; }
+  .result .src { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.12em; text-transform: uppercase; }
+  .result h3 { margin: 0.2em 0 0.3em; }
+  .result h3 a { color: #1a3a52; text-decoration: none; border-bottom: 1px dashed #c9b48a; }
+  .result h3 a:hover { border-bottom-style: solid; }
+  .result .ref { font-style: italic; color: #6a5a3a; font-size: 0.88em; }
+  .result .snippet { color: #5a4a30; font-size: 0.95em; margin-top: 0.3em; }
+  .result .score { float: right; font-family: 'Courier New', monospace; font-size: 0.78em; color: #c9b48a; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+  .stats { background: #f3eedb; padding: 0.4em 0.8em; border-radius: 3px; font-size: 0.82em; color: #6a5a3a; font-family: 'Courier New', monospace; margin-top: 0.5em; display: inline-block; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a></nav>
+
+<h1>Search the substrate</h1>
+
+<div class="intro">
+  Search across hymns, recipes, maker projects, almanac entries, devotionals, and curriculum. Powered by the same retrieval engine as the <a href="/shepherd-room.html">Shepherd's Room</a> — no external AI, no tracking, results scored locally.
+</div>
+
+<div class="search-row">
+  <input type="text" id="q" placeholder="What are you looking for? (e.g. grace, bread, scout knots, peace)" autofocus>
+  <button id="goBtn">Search</button>
+</div>
+
+<div class="filter-row" id="filterRow"></div>
+<div class="stats" id="stats">Substrate: loading…</div>
+
+<div id="results" class="results"></div>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script>
+(function () {
+  const $q = document.getElementById('q');
+  const $results = document.getElementById('results');
+  const $stats = document.getElementById('stats');
+  const $filterRow = document.getElementById('filterRow');
+  let currentSource = null;
+  let lastQuery = '';
+
+  fetch('/shepherd/corpus.stats', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j) { $stats.textContent = 'Engine offline — search unavailable.'; return; }
+      const parts = Object.entries(j.by_source || {}).map(function (e) { return e[0] + '=' + e[1]; });
+      $stats.textContent = 'Indexed: ' + j.total + ' docs (' + parts.join(', ') + ').';
+      $filterRow.innerHTML = '<strong style="color:#6a5a3a;font-size:0.85em;">Filter:</strong> ' +
+        '<button class="filter-btn active" data-src="">All</button>' +
+        Object.keys(j.by_source || {}).map(function (s) {
+          return '<button class="filter-btn" data-src="' + s + '">' + s + '</button>';
+        }).join('');
+      $filterRow.querySelectorAll('.filter-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          $filterRow.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          currentSource = b.dataset.src || null;
+          if (lastQuery) doSearch(lastQuery);
+        });
+      });
+    })
+    .catch(function () { $stats.textContent = 'Engine offline.'; });
+
+  function doSearch(q) {
+    if (!q.trim()) { $results.innerHTML = ''; return; }
+    lastQuery = q;
+    const url = '/shepherd/context?q=' + encodeURIComponent(q) + '&k=20' +
+      (currentSource ? '&source=' + encodeURIComponent(currentSource) : '');
+    fetch(url, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        const results = (j && j.results) || [];
+        if (results.length === 0) {
+          $results.innerHTML = '<div class="empty">No matches for "' + esc(q) + '"' +
+            (currentSource ? ' in <strong>' + esc(currentSource) + '</strong>' : '') + '. Try different words.</div>';
+          return;
+        }
+        $results.innerHTML = results.map(function (r) {
+          return '<div class="result">' +
+            '<div class="score">score ' + (r.score || 0).toFixed(2) + '</div>' +
+            '<div class="src">' + esc(r.source) + '</div>' +
+            '<h3><a href="' + esc(r.url) + '">' + esc(r.title) + '</a></h3>' +
+            (r.ref ? '<div class="ref">' + esc(r.ref) + '</div>' : '') +
+            (r.snippet ? '<div class="snippet">' + esc(r.snippet) + '</div>' : '') +
+            '</div>';
+        }).join('');
+      })
+      .catch(function () { $results.innerHTML = '<div class="empty">Engine offline.</div>'; });
+  }
+
+  function esc(s) { return String(s || '').replace(/[<>&"]/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;' }[c]; }); }
+
+  document.getElementById('goBtn').addEventListener('click', function () { doSearch($q.value); });
+  $q.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); doSearch($q.value); }
+  });
+
+  // If page loaded with ?q=, auto-search
+  const params = new URLSearchParams(location.search);
+  if (params.get('q')) { $q.value = params.get('q'); doSearch(params.get('q')); }
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit a Lesson — Narrow Highway Curriculum</title>
+<meta name="description" content="Submit a homeschool lesson plan to Narrow Highway. Aligned, family-safe, operator-reviewed. As revenue allows, we pay aligned creators in crypto.">
+  <link rel="canonical" href="https://narrowhighway.com/submit-curriculum.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Submit a Lesson — Narrow Highway Curriculum">
+  <meta property="og:description" content="Submit a homeschool lesson plan to Narrow Highway. Aligned, family-safe, operator-reviewed. As revenue allows, we pay aligned creators in crypto.">
+  <meta property="og:url" content="https://narrowhighway.com/submit-curriculum.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Submit a Lesson — Narrow Highway Curriculum">
+  <meta name="twitter:description" content="Submit a homeschool lesson plan to Narrow Highway. Aligned, family-safe, operator-reviewed. As revenue allows, we pay aligned creators in crypto.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 720px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .form-row { margin: 0.9em 0; }
+  label { display: block; font-weight: bold; color: #1a3a52; margin-bottom: 0.3em; font-size: 0.92em; }
+  label .req { color: #c8392a; }
+  label .hint { font-weight: normal; color: #6a5a3a; font-style: italic; font-size: 0.88em; margin-left: 0.4em; }
+  input, textarea, select { width: 100%; padding: 0.55em 0.7em; font-family: inherit; font-size: 1em;
+    border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28; }
+  textarea { min-height: 5em; resize: vertical; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+  @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+  .alignment-box { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 4px; padding: 1em 1.2em; margin: 1em 0; font-size: 0.92em; }
+  .alignment-box h3 { margin: 0 0 0.3em; font-size: 1em; color: #806010; }
+  .checkbox-row { margin: 0.6em 0; font-size: 0.93em; }
+  .checkbox-row input { margin-right: 0.5em; width: auto; }
+  .wallet-box { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 1em 1.3em; font-size: 0.93em; }
+  .wallet-box h3 { margin: 0 0 0.3em; font-size: 1em; color: #1a3a52; }
+  .submit-btn { background: #1a3a52; color: #f4ecd5; padding: 0.7em 2em; border: none; border-radius: 4px;
+    font-family: Georgia, serif; font-size: 1.05em; cursor: pointer; margin-top: 0.5em; }
+  .submit-btn:hover { background: #2a5570; }
+  .submit-btn:disabled { background: #888; cursor: not-allowed; }
+  .result { margin-top: 1em; padding: 1em 1.3em; border-radius: 4px; display: none; }
+  .result.success { background: #d4ead4; border: 1px solid #1f5b1f; color: #1f5b1f; }
+  .result.error { background: #f7d4d4; border: 1px solid #8b1f1f; color: #8b1f1f; display: block; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/curriculum.html">Curriculum</a></nav>
+
+<h1>Submit a Lesson</h1>
+
+<div class="intro">
+  <p>Parents, teachers, ministries, and curriculum authors — submit your lesson plans here. Our operator reviews every submission before it enters the curriculum. Approved lessons go into the rotation; families benefit; you get credited as the author.</p>
+  <p><strong>We pay aligned creators as revenue allows</strong> — directly to your self-custodial crypto wallet. We never custody funds. We don't accept credit-card payouts and we don't process card transactions, on principle.</p>
+</div>
+
+<form id="curriculumForm">
+  <div class="form-row">
+    <label>Lesson title <span class="req">*</span></label>
+    <input type="text" name="title" required maxlength="120" placeholder="What is this lesson about?">
+  </div>
+
+  <div class="grid-2">
+    <div class="form-row">
+      <label>Age tier <span class="req">*</span></label>
+      <select name="age_tier" required>
+        <option value="">Choose…</option>
+        <option value="k">K (Kindergarten)</option>
+        <option value="1-2">1–2 (Early elementary)</option>
+        <option value="3-5">3–5 (Upper elementary)</option>
+        <option value="6-8">6–8 (Middle school)</option>
+        <option value="9-12">9–12 (High school)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Subject <span class="req">*</span></label>
+      <select name="subject" required>
+        <option value="">Choose…</option>
+        <option value="bible">Bible</option>
+        <option value="reading">Reading</option>
+        <option value="writing">Writing</option>
+        <option value="math">Math</option>
+        <option value="history">History</option>
+        <option value="science">Science</option>
+        <option value="music">Music</option>
+        <option value="art">Art</option>
+        <option value="latin_greek">Latin / Greek</option>
+        <option value="practical">Practical</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Lesson summary <span class="req">*</span> <span class="hint">2–3 sentences</span></label>
+    <textarea name="summary" required maxlength="600" placeholder="What will the student learn, and how is it taught?"></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>Lesson content <span class="req">*</span> <span class="hint">paste the lesson text, or link to a doc/video</span></label>
+    <textarea name="content" required maxlength="20000" placeholder="The lesson itself — text, instructions, exercises. If you have a longer document or a video, paste a public link instead."></textarea>
+  </div>
+
+  <div class="form-row">
+    <label>Estimated lesson length (minutes) <span class="req">*</span></label>
+    <input type="number" name="minutes" required min="5" max="240" placeholder="e.g. 30">
+  </div>
+
+  <div class="grid-2">
+    <div class="form-row">
+      <label>Author name <span class="req">*</span></label>
+      <input type="text" name="creator_name" required maxlength="80">
+    </div>
+    <div class="form-row">
+      <label>Email <span class="req">*</span> <span class="hint">we use this to contact you about your submission</span></label>
+      <input type="email" name="creator_email" required>
+    </div>
+  </div>
+
+  <div class="wallet-box">
+    <h3>Payment wallet (optional)</h3>
+    <p>If we eventually pay you for this content (sponsor underwriting, partnership royalties, patron-circle distributions), we send payment to a self-custodial crypto wallet you provide.</p>
+    <p style="margin: 0.4em 0;"><strong>NO credit-card information — ever.</strong> If we never raise revenue against your lesson, you owe us nothing and we owe you nothing; you've contributed to a free resource.</p>
+    <div class="form-row" style="margin-top: 0.6em;">
+      <label>Your wallet address <span class="hint">EVM (0x...) or Bitcoin address — leave blank to contribute as a volunteer</span></label>
+      <input type="text" name="wallet_address" maxlength="120" placeholder="0x... or bc1...">
+    </div>
+  </div>
+
+  <div class="alignment-box">
+    <h3>Alignment expectations</h3>
+    <p>Before submitting, confirm:</p>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_christian" required>The lesson honors Christ where it speaks of faith</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_family" required>Family-safe (any age in the room can hear it)</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_factual" required>I have checked the lesson's facts and citations</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_rights" required>I own the rights to this content (or it is fully public domain)</label></div>
+    <div class="checkbox-row"><label><input type="checkbox" name="align_review" required>I accept that the operator reviews every submission</label></div>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">Submit lesson for review</button>
+  <div id="result" class="result"></div>
+</form>
+
+<h2>What happens next</h2>
+<ul>
+  <li><strong>Operator review</strong> — typically within 2 weeks. We email you with the decision.</li>
+  <li><strong>If approved</strong>, the lesson enters the curriculum on the appropriate age × subject tile. Your name is credited as the author.</li>
+  <li><strong>Family feedback</strong> over time signals which lessons are most useful. Higher-rated lessons get featured in defaults.</li>
+  <li><strong>Payment</strong> (when applicable): we send a transparent note via email when a lesson earns revenue, with the txid we used to push to your wallet.</li>
+  <li><strong>You may withdraw your lesson anytime</strong> by emailing <a href="mailto:partnerships@narrowhighway.com">partnerships@narrowhighway.com</a>.</li>
+</ul>
+
+<script>
+document.getElementById('curriculumForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const result = document.getElementById('result');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  const fd = new FormData(e.target);
+  const payload = { source: 'curriculum_submission' };
+  fd.forEach(function(v, k) { payload[k] = v; });
+  payload.submitted_at = new Date().toISOString();
+  payload.status = 'quarantined';
+  try {
+    const r = await fetch('/intake/curriculum', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (r.ok) {
+      const j = await r.json().catch(function() { return {}; });
+      result.className = 'result success';
+      result.textContent = 'Submitted. Reference ID: ' + (j.id || '(check your email)') +
+        '. We\'ll review and email you within 2 weeks.';
+      result.style.display = 'block';
+      btn.textContent = 'Submitted';
+    } else {
+      throw new Error('Engine returned ' + r.status);
+    }
+  } catch (err) {
+    // Fallback to mailto
+    result.className = 'result error';
+    result.innerHTML = 'Our submission engine isn\'t reachable right now. ' +
+      '<a href="mailto:partnerships@narrowhighway.com?subject=' +
+      encodeURIComponent('Curriculum submission: ' + (payload.title || '')) + '&body=' +
+      encodeURIComponent(JSON.stringify(payload, null, 2)) + '">Email your submission instead</a>.';
+    result.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Submit lesson for review';
+  }
+});
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

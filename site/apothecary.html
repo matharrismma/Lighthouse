@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.apothecary.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apothecary — A Remedy for What You Carry · Narrow Highway</title>
+  <meta name="description" content="The Apothecary compounds a remedy from the substrate. Name a condition; the engine prepares Scripture + protocol + mind practice + parable + body + philosopher + almanac in one card. Carry it.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Apothecary — A Remedy for What You Carry">
+  <meta property="og:description" content="Name a condition; the engine compounds a remedy from Scripture, protocol, mind practice, parable, body insight, philosopher, and almanac.">
+  <meta property="og:url" content="https://narrowhighway.com/apothecary.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/apothecary.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .ap-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .ap-intro em { color: var(--accent); font-style: italic; }
+    .ap-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ap-input-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .ap-input {
+      flex: 1; min-width: 260px;
+      padding: 12px 14px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      background: var(--bg-2, rgba(0,0,0,0.22));
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-sm, 6px);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .ap-input:focus { border-color: var(--accent); }
+    .ap-input::placeholder { color: var(--muted-2); font-style: italic; }
+    .ap-btn {
+      padding: 12px 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: var(--r-sm, 6px);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .ap-btn:hover { background: var(--accent-hi); }
+    .ap-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .ap-card {
+      max-width: 760px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 32px;
+      margin-bottom: 30px;
+    }
+    .ap-card-header {
+      display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ap-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .ap-condition {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 19px;
+      color: var(--text);
+      flex: 1;
+    }
+    .ap-axes {
+      display: flex; gap: 5px; flex-wrap: wrap;
+    }
+    .ap-axis-chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 11px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      letter-spacing: 0.06em;
+    }
+
+    /* Each ingredient block */
+    .ap-ingredient {
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .ap-ingredient:last-child { border-bottom: none; }
+    .ap-i-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .ap-i-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .ap-i.scripture   .ap-i-kind { color: var(--accent); }
+    .ap-i.proverb     .ap-i-kind { color: var(--accent); }
+    .ap-i.protocol    .ap-i-kind { color: #7fa8c0; }
+    .ap-i.training    .ap-i-kind { color: var(--pass); }
+    .ap-i.mind        .ap-i-kind { color: #b88ed6; }
+    .ap-i.parable     .ap-i-kind { color: var(--accent-hi); }
+    .ap-i.fieldkit    .ap-i-kind { color: #d9b884; }
+    .ap-i.body        .ap-i-kind { color: var(--pass); }
+    .ap-i.philosopher .ap-i-kind { color: #e3c498; }
+    .ap-i.father      .ap-i-kind { color: #c4a030; }
+    .ap-i.almanac     .ap-i-kind { color: #c4a030; }
+
+    /* Condition presets — chips above the input */
+    .ap-presets {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin: 0 0 14px;
+      max-width: 760px;
+    }
+    .ap-preset {
+      padding: 4px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--border-hi);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .ap-preset:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* "Your recent compounds" return panel */
+    .ap-recent {
+      max-width: 760px;
+      margin: 0 0 22px;
+      padding: 14px 16px;
+      background: rgba(217,168,114,0.05);
+      border: 1px dashed var(--border-hi);
+      border-radius: var(--r);
+    }
+    .ap-recent-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .ap-recent-list {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .ap-recent-item {
+      padding: 5px 12px;
+      border-radius: 13px;
+      border: 1px solid var(--border-hi);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      font-style: italic;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .ap-recent-item:hover { color: var(--accent); border-color: var(--accent); }
+    .ap-recent-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      font-style: normal;
+      margin-left: 6px;
+    }
+
+    /* Language picker */
+    .ap-lang-row {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin: 0 0 14px;
+      max-width: 760px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+    .ap-lang-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .ap-lang-select {
+      padding: 5px 10px;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-hi);
+      border-radius: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .ap-lang-select:focus { outline: none; border-color: var(--accent); }
+
+    /* Feedback row — "did this help?" */
+    .ap-feedback {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .ap-feedback-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .ap-feedback-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .ap-feedback-btn {
+      padding: 7px 13px;
+      border-radius: 14px;
+      border: 1px solid var(--border-hi);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .ap-feedback-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .ap-feedback-btn.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .ap-feedback-btn.helped.active     { background: var(--pass); border-color: var(--pass); }
+    .ap-feedback-btn.didnt_fit.active  { background: rgba(220,130,130,0.85); border-color: rgba(220,130,130,0.85); }
+    .ap-feedback-thanks {
+      margin-top: 8px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--muted-2);
+    }
+
+    /* MT-input notice — show "you typed X (translated to Y)" */
+    .ap-mt-input-notice {
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .ap-mt-input-notice b { color: var(--accent); font-weight: 600; }
+
+    /* Progressive disclosure — "show more" affordance */
+    .ap-more-btn {
+      display: block;
+      margin: 8px auto 0;
+      padding: 8px 18px;
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px dashed var(--border-hi);
+      border-radius: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .ap-more-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .ap-more-hidden { display: none; }
+
+    .ap-i-ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .ap-i-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 4px 0 8px;
+    }
+    .ap-i-text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+    .ap-i-extra {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.18);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .ap-i.mind .ap-i-extra { border-left-color: #b88ed6; }
+    .ap-i.parable .ap-i-extra { border-left-color: var(--accent-hi); font-style: italic; }
+    .ap-i.body .ap-i-extra { border-left-color: var(--pass); }
+
+    .ap-i-extra .ap-extra-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .ap-i-source {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .ap-print {
+      display: inline-flex; gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    .ap-print:hover { color: var(--accent); border-color: var(--accent); }
+
+    .ap-empty, .ap-status {
+      max-width: 720px;
+      padding: 24px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      text-align: center;
+    }
+    .ap-error {
+      color: var(--fail);
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+    }
+
+    @media print {
+      header.topbar, .lens-bar, .ap-input-row, .ap-print { display: none; }
+      .ap-card { border: 1px solid #888; max-width: 100%; }
+      body { background: white; color: black; }
+      .ap-i-text, .ap-i-extra, .ap-condition { color: black; }
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/apothecary.html",
+  "name": "Apothecary — A Remedy for What You Carry · Narrow Highway",
+  "description": "The Apothecary compounds a remedy from the substrate. Name a condition; the engine prepares Scripture + protocol + mind practice + parable + body + philosopher + almanac in one card. Carry it.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "MedicalCondition"
+  },
+  "keywords": "Christian remedies, scripture for affliction, family-safe protocols"
+}
+</script>
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Apothecary · a compound from the substrate</div>
+    <h1 data-i18n="page.apothecary.h1">A compound for what you carry.</h1>
+    <p class="ap-intro">
+      Name the condition. The engine compounds the remedy from across the substrate — a Scripture anchor, a protocol to walk, a mind practice, a parable, a body insight where it applies, a philosopher's note, an almanac confirmation. <em>The engine still eliminates; it does not invent.</em> Each ingredient is a packet already in the keeping. The compounding is the form. Carry it.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the compound tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <!-- Input + hot chips up top so visitors can act immediately, not after scrolling. -->
+  <div class="ap-input-row">
+    <input id="ap-input" class="ap-input" type="text"
+      placeholder='e.g. "I can'+"'"+'t forgive my brother", "marriage feels flat", "exhausted and bitter"'
+      maxlength="400">
+    <button id="ap-go" class="ap-btn">Compound</button>
+  </div>
+
+  <div id="ap-hot-presets" style="display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 22px;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;align-self:center;margin-right:4px;">common:</span>
+  </div>
+
+  <div id="ap-recent" class="ap-recent" style="display:none;">
+    <div class="ap-recent-label">Your recent compounds</div>
+    <div id="ap-recent-list" class="ap-recent-list"></div>
+  </div>
+
+  <div id="ap-result"></div>
+
+  <details style="margin-top:30px;border-top:1px solid var(--border);padding-top:20px;">
+    <summary style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;outline:none;">More conditions &amp; settings</summary>
+
+    <div id="ap-lang-row" class="ap-lang-row" style="display:none;margin-top:16px;">
+      <span class="ap-lang-label">Scripture language</span>
+      <select id="ap-lang-select" class="ap-lang-select" aria-label="Scripture language"></select>
+      <span style="color:var(--muted-2);font-style:italic;font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;">
+        Engine-authored text remains English for now; Scripture swaps to the parallel public-domain translation.
+      </span>
+    </div>
+
+    <div id="ap-presets" class="ap-presets" style="margin-top:16px;"></div>
+
+    <div class="lens-bar" style="margin-top:24px;">
+      <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a>
+      <a href="/daily.html">Today</a>
+      <a href="/apothecary.html" class="active">Apothecary</a>
+      <a href="/training.html">Training</a>
+      <a href="/parable.html">Parable</a>
+      <a href="/bibles.html">Bibles</a>
+      <a href="/places.html">Places</a>
+      <a href="/scribe.html">Scribe</a>
+      <a href="/almanac.html">Almanac</a>
+      <a href="/atlas.html">Atlas</a>
+      <a href="/encyclopedia.html">Encyclopedia</a>
+      <a href="/chronicle.html">Chronicle</a>
+      <a href="/canon.html">Canon</a>
+      <a href="/fieldkit.html">FieldKit</a>
+      <a href="/archetypes.html">Archetypes</a>
+      <a href="/walk.html">Shepherd</a>
+      <a href="/packets.html">Index</a>
+    </div>
+  </details>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const inputEl   = document.getElementById('ap-input');
+  const goBtn     = document.getElementById('ap-go');
+  const resultEl  = document.getElementById('ap-result');
+  const presetsEl = document.getElementById('ap-presets');
+  const recentEl  = document.getElementById('ap-recent');
+  const recentListEl = document.getElementById('ap-recent-list');
+  const langRowEl = document.getElementById('ap-lang-row');
+  const langSelEl = document.getElementById('ap-lang-select');
+
+  /* Scripture-language choice — persisted across all lenses. Defaults to
+     browser's preferred language if it matches a supported parallel
+     translation, otherwise English. */
+  const LANG_KEY = 'concordance_lang';
+  function getLang() {
+    try {
+      const stored = localStorage.getItem(LANG_KEY);
+      if (stored) return stored;
+    } catch (_) {}
+    return 'en';
+  }
+  function setLang(lang) {
+    try { localStorage.setItem(LANG_KEY, lang); } catch (_) {}
+  }
+  let currentLang = getLang();
+
+  /* Identity — mirror of /walk.html and /scribe.html. Same VISITOR_ID. */
+  const VISITOR_KEY = 'concordance_visitor_id';
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VISITOR_ID = getVisitorId();
+
+  function fmtAgo(epoch) {
+    if (!epoch) return '';
+    const sec = Math.max(0, Math.floor(Date.now()/1000 - epoch));
+    if (sec < 60)      return 'just now';
+    if (sec < 3600)    return Math.floor(sec/60) + 'm ago';
+    if (sec < 86400)   return Math.floor(sec/3600) + 'h ago';
+    if (sec < 604800)  return Math.floor(sec/86400) + 'd ago';
+    return Math.floor(sec/604800) + 'w ago';
+  }
+
+  function renderIngredient(ing, kindClass, kindLabel) {
+    if (!ing) return '';
+    const title = ing.title || ing.reference || ing.id || '';
+    const ref = ing.reference && ing.reference !== title ? ing.reference : '';
+    const text = ing.text || '';
+    const source = ing.source || '';
+
+    let extras = '';
+    if (ing.question) {
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">Question</span>${esc(ing.question)}</div>`;
+    }
+    if (ing.practice) {
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">Practice today</span>${esc(ing.practice)}</div>`;
+    }
+    if (ing.scripture && Array.isArray(ing.scripture) && ing.scripture.length) {
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">Scripture refs</span>${esc(ing.scripture.join(' · '))}</div>`;
+    }
+    if (ing.scripture_anchor) {
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">Scripture anchor</span>${esc(ing.scripture_anchor)}</div>`;
+    }
+    if (ing.falsifiable_check) {
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">Falsifiable check</span>${esc(ing.falsifiable_check)}</div>`;
+    }
+    // Training-specific
+    if (kindClass === 'training') {
+      const dur = ing.duration ? ` · ${ing.duration}` : '';
+      const cat = ing.category ? ing.category.charAt(0).toUpperCase() + ing.category.slice(1) : '';
+      if (cat || dur) {
+        extras += `<div class="ap-i-extra"><span class="ap-extra-label">Category${dur ? ' · duration' : ''}</span>${esc(cat)}${esc(dur)}</div>`;
+      }
+      if (ing.common_failure) {
+        extras += `<div class="ap-i-extra"><span class="ap-extra-label">Common failure</span>${esc(ing.common_failure)}</div>`;
+      }
+    }
+    // FieldKit-specific
+    if (kindClass === 'fieldkit') {
+      if (ing.prompt) {
+        extras += `<div class="ap-i-extra"><span class="ap-extra-label">Prompt</span>${esc(ing.prompt)}</div>`;
+      }
+      if (ing.practice_7day) {
+        extras += `<div class="ap-i-extra"><span class="ap-extra-label">7-day practice</span>${esc(ing.practice_7day)}</div>`;
+      }
+      if (ing.common_drift) {
+        extras += `<div class="ap-i-extra"><span class="ap-extra-label">Common drift</span>${esc(ing.common_drift)}</div>`;
+      }
+    }
+    if (Array.isArray(ing.steps) && ing.steps.length) {
+      const first = ing.steps[0] || {};
+      const stepLabel = first.scripture ? `Step 1 · ${esc(first.scripture)}`
+                      : first.phase     ? `Step 1 · ${esc(first.phase)}`
+                                        : 'Step 1';
+      extras += `<div class="ap-i-extra"><span class="ap-extra-label">${stepLabel}</span>${esc(first.do || first.title || '')}</div>`;
+      if (ing.steps.length > 1) {
+        const more = ing.permalink
+          ? `<a href="${esc(ing.permalink)}" style="color:var(--accent);">${ing.steps.length} steps total — open to walk the rest →</a>`
+          : `${ing.steps.length} steps total.`;
+        extras += `<div class="ap-i-source">${more}</div>`;
+      }
+    }
+
+    return `
+      <div class="ap-ingredient ap-i ${kindClass}" data-kind="${kindClass}">
+        <div class="ap-i-head">
+          <span class="ap-i-kind">${esc(kindLabel)}</span>
+          ${ref ? `<span class="ap-i-ref">${esc(ref)}</span>` : ''}
+        </div>
+        <div class="ap-i-title">${esc(title)}</div>
+        ${text ? `<div class="ap-i-text">${esc(text)}</div>` : ''}
+        ${extras}
+        ${source ? `<div class="ap-i-source">${esc(source)}</div>` : ''}
+      </div>`;
+  }
+
+  // Slots split into "main" (always shown) and "more" (collapse by default).
+  const MAIN_SLOTS = ['scripture', 'proverb', 'protocol', 'training', 'mind', 'parable'];
+  const MORE_SLOTS = ['fieldkit', 'body', 'philosopher', 'father', 'almanac'];
+  const SLOT_LABELS = {
+    scripture:   (k) => 'Scripture · ' + (k || 'Bible'),
+    proverb:     () => 'Proverb · the saying',
+    protocol:    () => 'Protocol · the sequence',
+    training:    () => 'Training · the practice',
+    mind:        () => 'Mind · the practice',
+    parable:     () => 'Parable · the story',
+    fieldkit:    () => 'FieldKit · the pattern',
+    body:        () => 'Body · the physiology',
+    philosopher: (k) => 'Philosopher · ' + (k || 'cross-tradition voice'),
+    father:      () => 'Early Church Father',
+    almanac:     () => 'Almanac · the verified observation',
+  };
+
+  function renderSlotBlock(c, slot) {
+    const ing = c[slot];
+    if (!ing) return '';
+    const labelFn = SLOT_LABELS[slot] || (() => slot);
+    return renderIngredient(ing, slot, labelFn(ing.kind));
+  }
+
+  function renderCompound(d) {
+    if (d.error) {
+      resultEl.innerHTML = `<div class="ap-empty ap-error">${esc(d.error)}</div>`;
+      return;
+    }
+    if (!d.compound) {
+      resultEl.innerHTML = '<div class="ap-empty">No compound found.</div>';
+      return;
+    }
+    const c = d.compound;
+    const axes = (d.shared_axes || []).map(a => `<span class="ap-axis-chip">${esc(a.replace(/_/g, ' '))}</span>`).join('');
+
+    const mainBlocks = MAIN_SLOTS.map(s => renderSlotBlock(c, s)).filter(Boolean).join('');
+    const moreBlocks = MORE_SLOTS.map(s => renderSlotBlock(c, s)).filter(Boolean).join('');
+    const hasMore = !!moreBlocks;
+
+    // MT-input notice: visitor typed in target lang, engine MT'd for retrieval
+    const mtNotice = d.mt_input
+      ? `<div class="ap-mt-input-notice">Translated for retrieval: <b>${esc(d.mt_input.original)}</b> → <b>${esc(d.mt_input.translated)}</b> (${esc(d.mt_input.provider || 'mt')})</div>`
+      : '';
+
+    // Feedback row — only present when we have a saved compound_id to bind to
+    const cid = d.compound_id || '';
+    const fbRow = cid ? `
+      <div class="ap-feedback" data-compound-id="${esc(cid)}">
+        <div class="ap-feedback-label">Did this help?</div>
+        <div class="ap-feedback-row">
+          <button class="ap-feedback-btn helped"     data-rating="helped">Helped</button>
+          <button class="ap-feedback-btn walked_it"  data-rating="walked_it">I walked it</button>
+          <button class="ap-feedback-btn saved"      data-rating="saved">Saved for later</button>
+          <button class="ap-feedback-btn didnt_fit"  data-rating="didnt_fit">Didn't fit</button>
+        </div>
+        <div class="ap-feedback-thanks" id="ap-feedback-thanks-${esc(cid)}" style="display:none;"></div>
+      </div>` : '';
+
+    resultEl.innerHTML = `
+      <article class="ap-card">
+        <div class="ap-card-header">
+          <div>
+            <div class="ap-label">For:</div>
+            <div class="ap-condition">${esc(d.condition)}</div>
+            ${mtNotice}
+          </div>
+          ${axes ? `<div class="ap-axes">${axes}</div>` : ''}
+        </div>
+        ${mainBlocks}
+        ${hasMore ? `<div id="ap-more" class="ap-more-hidden">${moreBlocks}</div>
+          <button id="ap-more-btn" class="ap-more-btn" type="button">Show more ingredients →</button>` : ''}
+        ${fbRow}
+        <button class="ap-print" onclick="window.print()">Print this compound</button>
+      </article>`;
+
+    if (hasMore) {
+      const btn = document.getElementById('ap-more-btn');
+      const more = document.getElementById('ap-more');
+      btn.addEventListener('click', () => {
+        const hidden = more.classList.contains('ap-more-hidden');
+        more.classList.toggle('ap-more-hidden', !hidden);
+        btn.textContent = hidden ? '← Hide extra ingredients' : 'Show more ingredients →';
+      });
+    }
+
+    // Wire feedback buttons
+    if (cid) {
+      const fbEl = resultEl.querySelector('.ap-feedback');
+      const thanksEl = document.getElementById('ap-feedback-thanks-' + cid);
+      const thanksMessages = {
+        helped:     'Glad it helped. The engine sees.',
+        walked_it:  'Walking is the proof. Recorded.',
+        saved:      'Saved. Return when you carry it again.',
+        didnt_fit:  'Noted. The engine learns from this too.',
+      };
+      // Show prior rating if any (deep-link or returning visit)
+      (async () => {
+        try {
+          const r = await fetch('/apothecary/feedback/compound?visitor_id=' + encodeURIComponent(VISITOR_ID) + '&compound_id=' + encodeURIComponent(cid));
+          if (!r.ok) return;
+          const f = (await r.json()).feedback;
+          if (f && f.rating) {
+            const btn = fbEl.querySelector(`.ap-feedback-btn[data-rating="${f.rating}"]`);
+            if (btn) btn.classList.add('active');
+          }
+        } catch (_) {}
+      })();
+      fbEl.querySelectorAll('.ap-feedback-btn').forEach(b => {
+        b.addEventListener('click', async () => {
+          const rating = b.dataset.rating;
+          // Optimistic UI
+          fbEl.querySelectorAll('.ap-feedback-btn').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+          thanksEl.textContent = thanksMessages[rating] || 'Thanks.';
+          thanksEl.style.display = '';
+          try {
+            await fetch('/apothecary/feedback', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                visitor_id:  VISITOR_ID,
+                compound_id: cid,
+                rating,
+                condition:   d.condition || '',
+              }),
+            });
+          } catch (_) { /* keep optimistic UI */ }
+        });
+      });
+    }
+  }
+
+  async function compound(condition) {
+    if (!condition || !condition.trim()) return;
+    const compoundingMsg = (window._i18n && _i18n.t('status.compounding', 'Compounding…')) || 'Compounding…';
+    resultEl.innerHTML = '<div class="ap-status">' + compoundingMsg + '</div>';
+    goBtn.disabled = true;
+    try {
+      const url = '/apothecary?condition=' + encodeURIComponent(condition.trim())
+                + '&visitor_id=' + encodeURIComponent(VISITOR_ID)
+                + '&lang=' + encodeURIComponent(currentLang);
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('engine returned ' + r.status);
+      const d = await r.json();
+      renderCompound(d);
+      renderWhatNext(condition.trim());
+      if (history.replaceState) {
+        history.replaceState({}, '', '/apothecary.html?q=' + encodeURIComponent(condition.trim()));
+      }
+      // Saved? Refresh the recent panel.
+      if (d.saved) { loadRecent(); }
+    } catch (err) {
+      resultEl.innerHTML = `<div class="ap-empty ap-error">Could not reach the engine: ${esc(err.message)}</div>`;
+    } finally {
+      goBtn.disabled = false;
+    }
+  }
+
+  // ── "What next?" — flow affordance after a compound completes ──
+  // The compound is a 7-ingredient card. The visitor's next move is
+  // rarely "compound another condition"; it's usually deeper engagement
+  // with one of the ingredients. These cards make the next step explicit.
+  function renderWhatNext(condition) {
+    const enc = encodeURIComponent(condition);
+    const html = `
+      <div class="what-next" style="max-width:760px;margin:24px 0 8px;padding:18px 22px;background:rgba(217,168,114,0.05);border:1px dashed var(--accent);border-radius:var(--r);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px;">What next?</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">
+          <a href="/walk.html?situation=${enc}" style="display:block;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;text-decoration:none;color:inherit;transition:border-color 0.12s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:3px;">Walk it</div>
+            <div style="color:var(--text);font-size:13.5px;font-weight:500;">Take this through the four gates with the Shepherd</div>
+          </a>
+          <a href="/scribe.html?prefill=${enc}" style="display:block;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--pass);border-radius:6px;text-decoration:none;color:inherit;transition:border-color 0.12s;" onmouseenter="this.style.borderColor='var(--pass)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--pass);text-transform:uppercase;margin-bottom:3px;">Write it</div>
+            <div style="color:var(--text);font-size:13.5px;font-weight:500;">Write a reflection the keeping will decide on</div>
+          </a>
+          <a href="/?q=${enc}" style="display:block;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid #7fa8c0;border-radius:6px;text-decoration:none;color:inherit;transition:border-color 0.12s;" onmouseenter="this.style.borderColor='#7fa8c0'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#7fa8c0;text-transform:uppercase;margin-bottom:3px;">Search wider</div>
+            <div style="color:var(--text);font-size:13.5px;font-weight:500;">Search the substrate across every lens</div>
+          </a>
+          <a href="/training.html" style="display:block;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid #b88ed6;border-radius:6px;text-decoration:none;color:inherit;transition:border-color 0.12s;" onmouseenter="this.style.borderColor='#b88ed6'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#b88ed6;text-transform:uppercase;margin-bottom:3px;">Practice it</div>
+            <div style="color:var(--text);font-size:13.5px;font-weight:500;">Walk a practical training sequence to build the discipline</div>
+          </a>
+        </div>
+      </div>
+    `;
+    // Append after the compound result rather than replacing it
+    const existing = document.querySelector('.what-next');
+    if (existing) existing.remove();
+    resultEl.insertAdjacentHTML('beforeend', html);
+  }
+
+  async function loadPresets() {
+    try {
+      const r = await fetch('/apothecary/conditions');
+      if (!r.ok) return;
+      const d = await r.json();
+      const list = d.conditions || [];
+
+      // ── Hot chips: 8 most-common conditions above the fold ──
+      const HOT = ["anxiety", "anger", "loneliness", "grief", "shame", "burnout", "marriage strain", "discouragement"];
+      const hotEl = document.getElementById('ap-hot-presets');
+      if (hotEl) {
+        // Keep the "common:" label that's already there; append chips after it.
+        for (const c of HOT) {
+          if (!list.includes(c)) continue;  // engine should know this preset
+          const btn = document.createElement('button');
+          btn.className = 'ap-preset';
+          btn.dataset.cond = c;
+          btn.textContent = c;
+          btn.addEventListener('click', () => {
+            inputEl.value = c;
+            compound(c);
+          });
+          hotEl.appendChild(btn);
+        }
+      }
+
+      presetsEl.innerHTML = list.map(c =>
+        `<button class="ap-preset" data-cond="${esc(c)}">${esc(c)}</button>`
+      ).join('');
+      presetsEl.querySelectorAll('.ap-preset').forEach(b => {
+        b.addEventListener('click', () => {
+          inputEl.value = b.dataset.cond;
+          compound(b.dataset.cond);
+        });
+      });
+    } catch (_) { /* no-op */ }
+  }
+
+  async function loadRecent() {
+    try {
+      const r = await fetch('/apothecary/mine?visitor_id=' + encodeURIComponent(VISITOR_ID) + '&limit=10');
+      if (!r.ok) return;
+      const d = await r.json();
+      const items = d.items || [];
+      if (!items.length) {
+        recentEl.style.display = 'none';
+        return;
+      }
+      recentListEl.innerHTML = items.map(it =>
+        `<button class="ap-recent-item" data-cond="${esc(it.condition)}">${esc(it.condition)}<span class="ap-recent-when">${esc(fmtAgo(it.saved_at))}</span></button>`
+      ).join('');
+      recentListEl.querySelectorAll('.ap-recent-item').forEach(b => {
+        b.addEventListener('click', () => {
+          inputEl.value = b.dataset.cond;
+          compound(b.dataset.cond);
+        });
+      });
+      recentEl.style.display = '';
+    } catch (_) { /* no-op */ }
+  }
+
+  async function loadLanguages() {
+    try {
+      const r = await fetch('/apothecary/languages');
+      if (!r.ok) return;
+      const d = await r.json();
+      const langs = d.languages || { en: 'World English Bible' };
+      const codes = Object.keys(langs);
+      // Only render the picker if there's more than one option — otherwise
+      // the toggle is noise.
+      if (codes.length < 2) {
+        langRowEl.style.display = 'none';
+        return;
+      }
+      // If browser prefers a supported language and the user hasn't chosen yet,
+      // suggest that one. Pure default; user can override.
+      if (!localStorage.getItem(LANG_KEY)) {
+        const nav = (navigator.language || 'en').split('-')[0].toLowerCase();
+        if (codes.includes(nav)) {
+          currentLang = nav;
+          setLang(nav);
+        }
+      }
+      // Display name pairs (code → "Code · Translation Label").
+      const niceNames = {
+        en: 'English',  es: 'Español', zh: '中文', ar: 'العربية',
+        fr: 'Français', pt: 'Português', ru: 'Русский',
+        hi: 'हिन्दी', sw: 'Kiswahili',
+        de: 'Deutsch',  ko: '한국어',  ja: '日本語',
+      };
+      langSelEl.innerHTML = codes.map(code => {
+        const name = niceNames[code] || code;
+        const label = langs[code];
+        const sel = code === currentLang ? ' selected' : '';
+        return `<option value="${code}"${sel}>${name} · ${label}</option>`;
+      }).join('');
+      langSelEl.addEventListener('change', () => {
+        currentLang = langSelEl.value;
+        setLang(currentLang);
+        // Re-compound for the visible condition, if any.
+        const q = inputEl.value.trim();
+        if (q) compound(q);
+      });
+      langRowEl.style.display = '';
+    } catch (_) { /* no-op */ }
+  }
+
+  goBtn.addEventListener('click', () => compound(inputEl.value));
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') compound(inputEl.value);
+  });
+
+  // Boot
+  loadLanguages();
+  loadPresets();
+  loadRecent();
+  (function () {
+    const sp = new URLSearchParams(location.search);
+    const q = (sp.get('q') || sp.get('condition') || '').trim();
+    if (q) {
+      inputEl.value = q;
+      compound(q);
+    } else {
+      // No query param — auto-compound today's condition so visitors see a live result.
+      const DAILY = [
+        'anxiety','grief','anger','shame','loneliness','burnout',
+        'fear','guilt','discouragement','envy','bitterness','despair',
+        'pride','lust','restlessness','doubt','marriage strain','exhaustion',
+        'resentment','unforgiveness'
+      ];
+      const today = DAILY[Math.floor(Date.now() / 86400000) % DAILY.length];
+      inputEl.value = today;
+      compound(today);
+    }
+  })();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

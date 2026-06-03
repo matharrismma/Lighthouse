@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bible Trivia — Free Online Family Bible Quiz · Narrow Highway</title>
+<meta name="description" content="Narrow Highway Bible Trivia — a family gameshow. Ten questions, beat the clock, land on the leaderboard. Free, family-safe, no sign-up.">
+<link rel="canonical" href="https://narrowhighway.com/bible-trivia.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Bible Trivia — Free Online Family Bible Quiz">
+<meta property="og:description" content="A family Bible-trivia gameshow. Ten questions, beat the clock, make the leaderboard.">
+<meta property="og:url" content="https://narrowhighway.com/bible-trivia.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bible Trivia · Narrow Highway">
+<meta name="twitter:description" content="A family Bible-trivia gameshow. Beat the clock, make the leaderboard.">
+<meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  :root { --navy:#1a3a52; --tan:#c9b48a; --cream:#fafaf6; --ink:#2a2a28;
+    --gold:#e0b94a; --good:#3f8f4f; --bad:#b4534a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:Georgia,'Times New Roman',serif; background:var(--navy);
+    color:var(--ink); line-height:1.5; min-height:100vh;
+    background-image:radial-gradient(circle at 50% 0%, #244a66 0%, #1a3a52 60%); }
+  .stage { max-width:680px; margin:0 auto; padding:1.5em 1.1em 3em; }
+  .marquee { text-align:center; padding:1.4em 0 0.6em; }
+  .marquee .kicker { font-family:'Courier New',monospace; font-size:.72em;
+    letter-spacing:.28em; text-transform:uppercase; color:var(--tan); }
+  .marquee h1 { color:var(--cream); font-weight:normal; font-size:2.3em;
+    letter-spacing:.02em; margin:.1em 0; text-shadow:0 2px 0 rgba(0,0,0,.3); }
+  .marquee h1 .accent { color:var(--gold); }
+  .bulbs { font-size:.9em; letter-spacing:.35em; color:var(--gold); }
+  .card { background:var(--cream); border:1px solid var(--tan); border-radius:10px;
+    padding:1.5em 1.4em; margin-top:1.2em; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+  .lead { font-size:1.05em; color:#4a4030; }
+  .host { font-style:italic; color:var(--navy); margin:.6em 0 1em; }
+  button { font-family:inherit; cursor:pointer; }
+  .btn-go { display:block; width:100%; background:var(--gold); color:var(--navy);
+    border:none; border-radius:7px; padding:.85em; font-size:1.15em; font-weight:bold;
+    margin-top:1em; transition:transform .08s, background .12s; }
+  .btn-go:hover { background:#eccb6a; }
+  .btn-go:active { transform:translateY(2px); }
+  .hud { display:flex; justify-content:space-between; align-items:center;
+    color:var(--cream); font-family:'Courier New',monospace; font-size:.9em;
+    letter-spacing:.06em; margin-top:1.2em; }
+  .hud .score b { color:var(--gold); font-size:1.15em; }
+  .timer-wrap { height:8px; background:rgba(255,255,255,.15); border-radius:4px;
+    overflow:hidden; margin-top:.5em; }
+  .timer-bar { height:100%; background:var(--gold); width:100%; transition:width 1s linear; }
+  .timer-bar.low { background:var(--bad); }
+  .q-num { font-family:'Courier New',monospace; font-size:.78em; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--tan); }
+  .q-text { font-size:1.32em; color:var(--navy); margin:.4em 0 1em; line-height:1.35; }
+  .opts { display:grid; gap:.6em; }
+  .opt { text-align:left; background:#fff; border:2px solid var(--tan); border-radius:7px;
+    padding:.8em 1em; font-size:1.04em; color:var(--ink); transition:all .1s; }
+  .opt:hover:not(:disabled) { border-color:var(--navy); background:#fffdf4; }
+  .opt:disabled { cursor:default; }
+  .opt.correct { border-color:var(--good); background:#e3f0e3; color:var(--good); font-weight:bold; }
+  .opt.wrong { border-color:var(--bad); background:#f4e0de; color:var(--bad); }
+  .opt .key { font-family:'Courier New',monospace; font-weight:bold; color:var(--tan);
+    margin-right:.6em; }
+  .verdict { text-align:center; margin-top:1em; font-size:1.1em; min-height:1.4em; font-weight:bold; }
+  .verdict.good { color:var(--good); }
+  .verdict.bad { color:var(--bad); }
+  .final-score { text-align:center; font-size:3.2em; color:var(--gold); font-weight:bold;
+    text-shadow:0 2px 0 rgba(0,0,0,.2); }
+  .final-msg { text-align:center; font-style:italic; color:var(--navy); margin:.3em 0 1.2em; }
+  .lb { margin-top:1em; }
+  .lb h3 { font-family:'Courier New',monospace; font-size:.8em; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--navy); border-bottom:1px solid var(--tan);
+    padding-bottom:.3em; margin-bottom:.4em; }
+  .lb-row { display:flex; justify-content:space-between; padding:.32em .2em;
+    font-size:.96em; border-bottom:1px dotted #d8ccac; }
+  .lb-row.you { background:#fff6da; font-weight:bold; border-radius:4px; }
+  .lb-row .rank { color:var(--tan); font-family:'Courier New',monospace; width:2.4em; }
+  .lb-row .nm { flex:1; }
+  .lb-row .sc { color:var(--navy); font-weight:bold; font-variant-numeric:tabular-nums; }
+  .name-row { display:flex; gap:.5em; margin:.8em 0; }
+  .name-row input { flex:1; padding:.7em .9em; border:2px solid var(--tan); border-radius:6px;
+    font-family:inherit; font-size:1em; }
+  .name-row button { background:var(--navy); color:var(--cream); border:none;
+    border-radius:6px; padding:0 1.2em; font-weight:bold; }
+  .foot { text-align:center; margin-top:1.6em; font-size:.85em; }
+  .foot a { color:var(--tan); text-decoration:none; }
+  .foot a:hover { color:var(--cream); }
+  .hidden { display:none; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/bible-trivia.html",
+  "name": "Bible Trivia — Free Online Family Bible Quiz · Narrow Highway",
+  "description": "Narrow Highway Bible Trivia — a family gameshow. Ten questions, beat the clock, land on the leaderboard. Free, family-safe, no sign-up.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "Quiz",
+  "educationalLevel": "all ages",
+  "learningResourceType": "Quiz",
+  "keywords": "Bible trivia, Bible quiz, family Bible game, free Bible quiz"
+}
+</script>
+</head>
+<body>
+<div class="stage">
+
+  <div class="marquee">
+    <div class="kicker">Narrow Highway presents</div>
+    <h1>Bible <span class="accent">Trivia</span></h1>
+    <div class="bulbs">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="card" id="screen-intro">
+    <p class="host">&ldquo;Welcome, friend! Ten questions stand between you and the
+       leaderboard. Answer fast &mdash; the clock pays a bonus. Ready?&rdquo;</p>
+    <p class="lead">Ten Bible questions, fifteen seconds each. A right answer is worth
+       100 points, plus a bonus for every second left on the clock. Family-safe,
+       no sign-up &mdash; just play.</p>
+    <button class="btn-go" onclick="startGame()">Start the show &rarr;</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="card hidden" id="screen-q">
+    <div class="q-num" id="qNum">Question 1 of 10</div>
+    <div class="q-text" id="qText">&hellip;</div>
+    <div class="opts" id="opts"></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <!-- END -->
+  <div class="card hidden" id="screen-end">
+    <div class="q-num" style="text-align:center">Final score</div>
+    <div class="final-score" id="finalScore">0</div>
+    <div class="final-msg" id="finalMsg"></div>
+    <div class="name-row" id="submitRow">
+      <input id="playerName" maxlength="24" placeholder="Your name for the leaderboard"
+             autocomplete="off">
+      <button onclick="submitScore()" id="submitBtn">Submit</button>
+    </div>
+    <div class="lb">
+      <h3>Leaderboard</h3>
+      <div id="lbBody"><div class="lb-row"><span class="nm">Loading&hellip;</span></div></div>
+    </div>
+    <button class="btn-go" onclick="startGame()">Play again &rarr;</button>
+  </div>
+
+  <div class="hud" id="hud" style="display:none">
+    <span class="score">Score <b id="scoreVal">0</b></span>
+    <span id="timerTxt">15s</span>
+  </div>
+  <div class="timer-wrap" id="timerWrap" style="display:none">
+    <div class="timer-bar" id="timerBar"></div>
+  </div>
+
+  <div class="foot">
+    <a href="/">&larr; Narrow Highway</a> &nbsp;&middot;&nbsp;
+    <a href="/games.html">more games</a>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ── Question bank ── factual, family-safe, well-known Bible content.
+const BANK = [
+  {q:"How many days and nights did it rain during the Flood?",o:["7","40","100","12"],a:1},
+  {q:"In what town was Jesus born?",o:["Nazareth","Jerusalem","Bethlehem","Capernaum"],a:2},
+  {q:"How many disciples did Jesus choose?",o:["7","10","12","40"],a:2},
+  {q:"Who was thrown into the den of lions?",o:["Daniel","Joseph","Elijah","Jonah"],a:0},
+  {q:"What did God create on the first day?",o:["The sun","Light","Animals","Water"],a:1},
+  {q:"Who led the Israelites out of Egypt?",o:["Aaron","Joshua","Moses","Abraham"],a:2},
+  {q:"What was Jesus' first recorded miracle?",o:["Healing a leper","Walking on water","Turning water into wine","Calming a storm"],a:2},
+  {q:"Who was swallowed by a great fish?",o:["Jonah","Job","Noah","Peter"],a:0},
+  {q:"How many books are in the Bible?",o:["12","27","66","100"],a:2},
+  {q:"Who betrayed Jesus for thirty pieces of silver?",o:["Peter","Judas","Thomas","Pilate"],a:1},
+  {q:"What is the first book of the Bible?",o:["Exodus","Genesis","Psalms","John"],a:1},
+  {q:"What is the last book of the Bible?",o:["Revelation","Acts","Malachi","Jude"],a:0},
+  {q:"Who killed the giant Goliath?",o:["Saul","Samson","David","Jonathan"],a:2},
+  {q:"What sea did the Israelites cross on dry ground?",o:["The Dead Sea","The Sea of Galilee","The Red Sea","The Mediterranean"],a:2},
+  {q:"What food did God provide Israel in the wilderness?",o:["Bread from a baker","Manna","Fish","Figs"],a:1},
+  {q:"How many people were saved on the ark?",o:["2","8","12","40"],a:1},
+  {q:"Who denied knowing Jesus three times?",o:["John","Peter","Andrew","Philip"],a:1},
+  {q:"Jesus fed five thousand people with five loaves and how many fish?",o:["Two","Five","Seven","Twelve"],a:0},
+  {q:"What garden did Adam and Eve live in?",o:["Gethsemane","Eden","Babylon","Canaan"],a:1},
+  {q:"Who was known as the wisest king of Israel?",o:["David","Solomon","Hezekiah","Josiah"],a:1},
+  {q:"What did Jacob give Joseph that stirred his brothers' envy?",o:["A ring","A coat of many colors","A sword","A flock of sheep"],a:1},
+  {q:"How many plagues did God send upon Egypt?",o:["3","7","10","12"],a:2},
+  {q:"Who baptized Jesus in the Jordan River?",o:["Peter","John the Baptist","Paul","Elijah"],a:1},
+  {q:"What is the shortest verse in the Bible?",o:["“God is love.”","“Pray always.”","“Jesus wept.”","“Rejoice.”"],a:2},
+  {q:"On which day did God rest from creation?",o:["The third","The fifth","The seventh","The first"],a:2},
+  {q:"What did the dove bring back to Noah?",o:["A fish","An olive leaf","A grape","Nothing"],a:1},
+  {q:"What gifts did the wise men bring the young Jesus?",o:["Bread, wine, and oil","Gold, frankincense, and myrrh","Silver, cloth, and spices","Lambs, doves, and grain"],a:1},
+  {q:"What did Moses see burning yet not consumed?",o:["A field","A bush","A scroll","A mountain"],a:1},
+  {q:"In which city did the walls fall after the people marched and shouted?",o:["Jericho","Nineveh","Babylon","Damascus"],a:0},
+  {q:"Who interpreted Pharaoh's dreams?",o:["Moses","Joseph","Daniel","Aaron"],a:1},
+  {q:"What tower did people build hoping to reach the heavens?",o:["The Tower of David","The Tower of Babel","The Tower of Siloam","The Tower of Zion"],a:1},
+  {q:"Which tax collector climbed a tree to see Jesus?",o:["Matthew","Zacchaeus","Nicodemus","Bartholomew"],a:1},
+  {q:"Who was the mother of Jesus?",o:["Martha","Mary","Elizabeth","Ruth"],a:1},
+  {q:"Which apostle doubted until he saw the risen Jesus?",o:["Thomas","James","Simon","Andrew"],a:0},
+  {q:"What sign did God give that He would never again flood the whole earth?",o:["A star","A rainbow","A dove","A new moon"],a:1},
+  {q:"What are the two greatest commandments Jesus named?",o:["Pray and fast","Give and forgive","Love God and love your neighbor","Work and rest"],a:2},
+  {q:"Who was the first man God created?",o:["Cain","Abel","Adam","Seth"],a:2},
+  {q:"How many days was Jesus in the tomb before He rose?",o:["One","Three","Seven","Forty"],a:1},
+  {q:"Which strong man's strength was in his uncut hair?",o:["Samson","Goliath","Gideon","Caleb"],a:0},
+  {q:"What did Jesus say He is — “the way, the truth, and the…”?",o:["Light","Life","Word","Vine"],a:1}
+];
+
+const ROUND = 10, PER_Q = 15;
+let deck=[], idx=0, score=0, timer=null, timeLeft=0, locked=false;
+const $ = id => document.getElementById(id);
+
+function show(screen){
+  ['intro','q','end'].forEach(s => $('screen-'+s).classList.toggle('hidden', s!==screen));
+  const playing = screen==='q';
+  $('hud').style.display = playing ? 'flex' : 'none';
+  $('timerWrap').style.display = playing ? 'block' : 'none';
+}
+
+function startGame(){
+  deck = BANK.slice().sort(()=>Math.random()-0.5).slice(0, ROUND);
+  idx=0; score=0; $('scoreVal').textContent='0';
+  show('q'); nextQuestion();
+}
+
+function nextQuestion(){
+  if (idx >= deck.length) return endGame();
+  locked=false;
+  const item = deck[idx];
+  $('qNum').textContent = `Question ${idx+1} of ${deck.length}`;
+  $('qText').textContent = item.q;
+  $('verdict').textContent=''; $('verdict').className='verdict';
+  const opts = $('opts'); opts.innerHTML='';
+  item.o.forEach((text,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML = `<span class="key">${'ABCD'[i]}</span>${text.replace(/[<>]/g,'')}`;
+    b.onclick = ()=>answer(i);
+    opts.appendChild(b);
+  });
+  startTimer();
+}
+
+function startTimer(){
+  timeLeft = PER_Q;
+  const bar=$('timerBar');
+  bar.style.transition='none'; bar.style.width='100%'; bar.classList.remove('low');
+  $('timerTxt').textContent = PER_Q+'s';
+  void bar.offsetWidth;
+  bar.style.transition=`width ${PER_Q}s linear`;
+  bar.style.width='0%';
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft--;
+    $('timerTxt').textContent = Math.max(0,timeLeft)+'s';
+    if (timeLeft<=5) bar.classList.add('low');
+    if (timeLeft<=0){ clearInterval(timer); answer(-1); }
+  },1000);
+}
+
+function answer(choice){
+  if (locked) return;
+  locked=true; clearInterval(timer);
+  const item=deck[idx];
+  const buttons=$('opts').querySelectorAll('.opt');
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if (i===item.a) b.classList.add('correct');
+    if (i===choice && choice!==item.a) b.classList.add('wrong');
+  });
+  const v=$('verdict');
+  if (choice===item.a){
+    const bonus=Math.max(0,timeLeft)*10, pts=100+bonus;
+    score+=pts; $('scoreVal').textContent=score;
+    v.className='verdict good';
+    v.textContent = bonus>0 ? `Correct!  +100  +${bonus} time bonus` : 'Correct!  +100';
+  } else {
+    v.className='verdict bad';
+    v.textContent = choice===-1 ? "Time's up!" : 'Not quite.';
+  }
+  idx++;
+  setTimeout(nextQuestion, 1900);
+}
+
+function endGame(){
+  show('end');
+  $('finalScore').textContent = score;
+  let msg;
+  if (score>=2000) msg="A scholar of the Scriptures! Outstanding.";
+  else if (score>=1200) msg="Well done — you know the Book.";
+  else if (score>=600) msg="A solid round. Keep reading.";
+  else msg="Every round is a chance to learn. Play again!";
+  $('finalMsg').textContent = msg;
+  $('submitRow').style.display='flex';
+  $('submitBtn').disabled=false; $('submitBtn').textContent='Submit';
+  loadLeaderboard();
+}
+
+function loadLeaderboard(yourName){
+  fetch('/trivia/leaderboard?limit=15',{cache:'no-store'})
+    .then(r=>r.ok?r.json():null)
+    .then(j=>{
+      const body=$('lbBody');
+      const rows=(j&&j.leaderboard)||[];
+      if(!rows.length){ body.innerHTML='<div class="lb-row"><span class="nm">Be the first on the board!</span></div>'; return; }
+      body.innerHTML = rows.map((r,i)=>{
+        const mine = yourName && r.name===yourName ? ' you' : '';
+        const nm=(r.name||'Anonymous').replace(/[<>]/g,'').slice(0,24);
+        return `<div class="lb-row${mine}"><span class="rank">${i+1}</span>`+
+               `<span class="nm">${nm}</span>`+
+               `<span class="sc">${(r.score||0).toLocaleString()}</span></div>`;
+      }).join('');
+    })
+    .catch(()=>{ $('lbBody').innerHTML='<div class="lb-row"><span class="nm">Leaderboard unavailable right now — your score still counts on screen.</span></div>'; });
+}
+
+function submitScore(){
+  const name=($('playerName').value||'').trim().slice(0,24) || 'Anonymous';
+  const btn=$('submitBtn');
+  btn.disabled=true; btn.textContent='…';
+  fetch('/trivia/score',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name, score:score})
+  })
+  .then(r=>{
+    if(!r.ok) throw new Error('engine');
+    btn.textContent='Posted!';
+    $('submitRow').style.display='none';
+    loadLeaderboard(name);
+  })
+  .catch(()=>{ btn.disabled=false; btn.textContent='Retry'; });
+}
+
+// keyboard: A-D to answer
+document.addEventListener('keydown',e=>{
+  if ($('screen-q').classList.contains('hidden')) return;
+  const k='abcd'.indexOf((e.key||'').toLowerCase());
+  if (k>=0 && !locked) answer(k);
+});
+show('intro');
+</script>
+</body>
+</html>

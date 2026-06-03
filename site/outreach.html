@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outreach operator dashboard — Narrow Highway</title>
+<meta name="description" content="Internal dashboard for partnership outreach. Operator-only.">
+<meta name="robots" content="noindex,nofollow">
+<style>
+  body { font-family: 'JetBrains Mono', 'Courier New', monospace; background: #0c1018; color: #c9b48a; padding: 1.5em; max-width: 1300px; margin: 0 auto; line-height: 1.5; font-size: 14px; }
+  h1 { color: #f4ecd5; font-family: Georgia, serif; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #f4ecd5; font-family: Georgia, serif; margin-top: 1.8em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  h3 { color: #f4ecd5; font-family: Georgia, serif; margin-top: 1.2em; font-size: 1.05em; }
+  a { color: #c9b48a; }
+  table { width: 100%; border-collapse: collapse; margin-top: 0.5em; }
+  th, td { padding: 0.5em 0.7em; text-align: left; border-bottom: 1px solid #2a2438; vertical-align: top; }
+  th { background: #16131f; color: #c9b48a; font-weight: 600; font-size: 0.9em; }
+  tr:nth-child(even) { background: #14111c; }
+  tr:hover { background: #1c1828; }
+  .nav { margin-bottom: 1em; font-size: 0.9em; }
+  .nav a { text-decoration: none; margin-right: 1em; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6em; margin-top: 0.4em; }
+  .tile { background: #16131f; border: 1px solid #2a2438; border-radius: 4px; padding: 0.6em 0.8em; }
+  .tile .label { font-size: 0.78em; color: #806010; letter-spacing: 0.08em; text-transform: uppercase; }
+  .tile .value { font-size: 1.4em; color: #f4ecd5; font-family: Georgia, serif; margin-top: 0.15em; }
+  .tile.signed { border-left: 3px solid #5c8a3a; }
+  .tile.discussion { border-left: 3px solid #c9a87c; }
+  .tile.contacted { border-left: 3px solid #7090b0; }
+  .tile.prospect { border-left: 3px solid #5a5a4a; }
+  .tile.declined { border-left: 3px solid #7a3030; }
+  .badge { display: inline-block; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.78em; font-weight: bold; letter-spacing: 0.02em; }
+  .badge.prospect { background: #2a2a3a; color: #c9b48a; }
+  .badge.contacted { background: #2a3a52; color: #b8d4f0; }
+  .badge.in-discussion { background: #5a4a20; color: #f4ecd5; }
+  .badge.signed { background: #1f5b1f; color: #d4ead4; }
+  .badge.declined { background: #5a2020; color: #f0d4d4; }
+  .badge.paused { background: #444; color: #ccc; }
+  .archetype { font-size: 0.78em; color: #806010; }
+  .ask { font-size: 0.88em; color: #d8d2c4; }
+  .why { font-size: 0.82em; color: #9a8a6a; font-style: italic; }
+  select, input, textarea, button { background: #14111c; color: #f4ecd5; border: 1px solid #2a2438; padding: 0.35em 0.6em; font-family: inherit; font-size: 0.9em; border-radius: 3px; }
+  button { background: #1a3a52; color: #f4ecd5; cursor: pointer; padding: 0.45em 1em; }
+  button:hover { background: #2a5570; }
+  .panel { background: #14111c; border: 1px solid #2a2438; border-radius: 4px; padding: 0.8em 1em; margin-top: 0.6em; }
+  .form-row { display: flex; gap: 0.4em; flex-wrap: wrap; align-items: center; margin: 0.4em 0; }
+  .form-row label { font-size: 0.85em; color: #c9b48a; min-width: 80px; }
+  textarea { width: 100%; min-height: 5em; box-sizing: border-box; }
+  .event { padding: 0.5em 0.7em; border-left: 3px solid #2a2438; margin-bottom: 0.3em; background: #14111c; font-size: 0.88em; }
+  .event .ts { color: #806010; font-size: 0.78em; }
+  .event .kind { color: #c9b48a; font-weight: bold; }
+  .event.email-sent { border-left-color: #7090b0; }
+  .event.email-reply { border-left-color: #c9a87c; }
+  .event.status-change { border-left-color: #5c8a3a; }
+  .event.call { border-left-color: #b09060; }
+  .template { background: #16131f; border-left: 3px solid #c9a87c; padding: 0.5em 0.8em; margin-bottom: 0.3em; }
+  .template code { color: #c9a87c; font-size: 0.85em; }
+  .muted { color: #806010; font-size: 0.85em; }
+  .pill { display: inline-block; padding: 0.1em 0.5em; background: #2a2438; color: #c9b48a; border-radius: 10px; font-size: 0.75em; margin-right: 0.3em; }
+  hr { border: none; border-top: 1px solid #2a2438; margin: 1.5em 0; }
+</style>
+</head>
+<body>
+
+<div class="nav"><a href="/">← Narrow Highway</a> · <a href="/channels/admin.html">Channel ops</a> · <a href="/wallet/analytics">Wallet analytics</a></div>
+
+<h1>Outreach operator dashboard</h1>
+<p class="muted">Internal — not served publicly. State of every partnership conversation. Templates in <code>outreach/</code>; master strategy in <code>PARTNER_OUTREACH.md</code>.</p>
+
+<h2>Summary</h2>
+<div id="tiles" class="tiles">
+  <div class="tile"><div class="label">Loading…</div></div>
+</div>
+
+<h2>Targets</h2>
+<div class="form-row">
+  <label>Filter status:</label>
+  <select id="filterStatus">
+    <option value="">all</option>
+    <option value="prospect">prospect</option>
+    <option value="contacted">contacted</option>
+    <option value="in-discussion">in-discussion</option>
+    <option value="signed">signed</option>
+    <option value="declined">declined</option>
+    <option value="paused">paused</option>
+  </select>
+  <label>Archetype:</label>
+  <select id="filterArchetype">
+    <option value="">all</option>
+    <option value="publisher">publisher</option>
+    <option value="curriculum">curriculum</option>
+    <option value="ministry">ministry</option>
+    <option value="performer">performer</option>
+    <option value="church">church</option>
+    <option value="other">other</option>
+  </select>
+  <button id="refreshTargets">Refresh</button>
+</div>
+
+<table id="targetsTable">
+  <thead>
+    <tr>
+      <th>Target</th>
+      <th>Type</th>
+      <th>Ask</th>
+      <th>Contact</th>
+      <th>Status</th>
+      <th>Updated</th>
+    </tr>
+  </thead>
+  <tbody id="targetsBody">
+    <tr><td colspan="6">Loading…</td></tr>
+  </tbody>
+</table>
+
+<h2>Log an event</h2>
+<div class="panel">
+  <div class="form-row">
+    <label>Target:</label>
+    <select id="evtSlug"><option value="">—</option></select>
+  </div>
+  <div class="form-row">
+    <label>Kind:</label>
+    <select id="evtKind">
+      <option value="email-sent">email-sent</option>
+      <option value="email-reply">email-reply</option>
+      <option value="call">call</option>
+      <option value="follow-up-due">follow-up-due</option>
+      <option value="note">note</option>
+    </select>
+    <label>Template:</label>
+    <select id="evtTemplate">
+      <option value="">(none)</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label>Body:</label>
+  </div>
+  <textarea id="evtBody" placeholder="What happened? Paste subject line / first paragraph / call note / reminder text."></textarea>
+  <div class="form-row" style="margin-top: 0.6em;">
+    <button id="logEventBtn">Append to log</button>
+    <span id="logStatus" class="muted"></span>
+  </div>
+</div>
+
+<h2>Add or update a target</h2>
+<div class="panel">
+  <div class="form-row">
+    <label>Name:</label>
+    <input id="tgtName" placeholder="Crossway Books" style="flex: 1;">
+    <label>Archetype:</label>
+    <select id="tgtArchetype">
+      <option value="publisher">publisher</option>
+      <option value="curriculum">curriculum</option>
+      <option value="ministry">ministry</option>
+      <option value="performer">performer</option>
+      <option value="church">church</option>
+      <option value="other">other</option>
+    </select>
+    <label>Tier:</label>
+    <select id="tgtTier">
+      <option value="1">1 (warmest)</option>
+      <option value="2">2</option>
+      <option value="3">3 (cold)</option>
+    </select>
+  </div>
+  <div class="form-row">
+    <label>Contact:</label>
+    <input id="tgtContact" placeholder="Jane Doe — marketing director" style="flex: 1;">
+    <label>Email:</label>
+    <input id="tgtEmail" placeholder="jane@target.org" style="flex: 1;">
+  </div>
+  <div class="form-row">
+    <label>Why this target:</label>
+    <input id="tgtWhy" placeholder="audience overlap, doctrinal fit, etc." style="flex: 1;">
+  </div>
+  <div class="form-row">
+    <label>The ask:</label>
+    <input id="tgtAsk" placeholder="sponsor X series for 60 days" style="flex: 1;">
+  </div>
+  <div class="form-row">
+    <label>Notes:</label>
+  </div>
+  <textarea id="tgtNotes" placeholder="Internal notes. Personalization seeds, prior conversations, names."></textarea>
+  <div class="form-row" style="margin-top: 0.6em;">
+    <button id="upsertTargetBtn">Save target</button>
+    <span id="tgtSaveStatus" class="muted"></span>
+  </div>
+</div>
+
+<h2>Letter templates</h2>
+<div id="templates"></div>
+
+<h2>Recent activity</h2>
+<div id="events"></div>
+
+<hr>
+<p class="muted">Standing rule: reach matters; alignment matters more. Walking away from a yes that costs the brand is a feature, not a failure.</p>
+
+<script>
+async function jget(u) {
+  const r = await fetch(u, { cache: 'no-store' });
+  return r.ok ? r.json() : null;
+}
+async function jpost(u, body) {
+  const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  return r.ok ? r.json() : { error: await r.text() };
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c])); }
+function shortTs(ts) {
+  if (!ts) return '';
+  try { return new Date(ts).toISOString().slice(0, 16).replace('T', ' '); }
+  catch (e) { return ts; }
+}
+
+async function refreshSummary() {
+  const s = await jget('/outreach/summary');
+  if (!s) { document.getElementById('tiles').innerHTML = '<div class="tile">no data</div>'; return; }
+  const order = ['prospect', 'contacted', 'in-discussion', 'signed', 'declined', 'paused'];
+  const html = [];
+  html.push(`<div class="tile"><div class="label">Total targets</div><div class="value">${s.total_targets}</div></div>`);
+  for (const k of order) {
+    if (!(k in (s.by_status || {}))) continue;
+    html.push(`<div class="tile ${k}"><div class="label">${k}</div><div class="value">${s.by_status[k]}</div></div>`);
+  }
+  document.getElementById('tiles').innerHTML = html.join('');
+}
+
+async function refreshTargets() {
+  const status = document.getElementById('filterStatus').value;
+  const archetype = document.getElementById('filterArchetype').value;
+  let url = '/outreach/targets?';
+  if (status) url += 'status=' + encodeURIComponent(status) + '&';
+  if (archetype) url += 'archetype=' + encodeURIComponent(archetype) + '&';
+  const j = await jget(url);
+  const tbody = document.getElementById('targetsBody');
+  if (!j || !j.targets || j.targets.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6">No targets match.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = j.targets.map(t => {
+    const contact = (t.contact_person || '') + (t.contact_email ? `<br><span class="muted">${esc(t.contact_email)}</span>` : '');
+    return `<tr>
+      <td><strong>${esc(t.name)}</strong><div class="why">${esc(t.why_this_target || '')}</div></td>
+      <td><span class="archetype">${esc(t.archetype)}</span><br><span class="muted">tier ${t.tier || '?'}</span></td>
+      <td><span class="ask">${esc(t.ask || '')}</span></td>
+      <td>${contact || '<span class="muted">—</span>'}</td>
+      <td>
+        <span class="badge ${esc(t.status)}">${esc(t.status)}</span><br>
+        <select class="statusPicker" data-slug="${esc(t.slug)}" style="margin-top:0.3em; font-size:0.8em;">
+          ${['prospect','contacted','in-discussion','signed','declined','paused'].map(s =>
+            `<option value="${s}"${t.status === s ? ' selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td><span class="muted">${shortTs(t.updated_at)}</span></td>
+    </tr>`;
+  }).join('');
+  // wire status pickers
+  for (const sel of document.querySelectorAll('.statusPicker')) {
+    sel.addEventListener('change', async (e) => {
+      const slug = sel.dataset.slug;
+      const status = sel.value;
+      const r = await jpost('/outreach/status', { slug, status });
+      if (r && r.status === 'ok') {
+        await refreshSummary();
+        await refreshTargets();
+        await refreshEvents();
+      } else {
+        alert('Status change failed: ' + JSON.stringify(r));
+      }
+    });
+  }
+  // populate event-slug dropdown
+  const sel = document.getElementById('evtSlug');
+  sel.innerHTML = '<option value="">—</option>' + j.targets.map(t =>
+    `<option value="${esc(t.slug)}">${esc(t.name)}</option>`).join('');
+}
+
+async function refreshTemplates() {
+  const j = await jget('/outreach/templates');
+  const c = document.getElementById('templates');
+  if (!j || !j.templates || j.templates.length === 0) {
+    c.innerHTML = '<p class="muted">No templates found in outreach/.</p>'; return;
+  }
+  c.innerHTML = j.templates.map(t =>
+    `<div class="template">
+      <code>${esc(t.file)}</code> &middot; ${esc(t.heading)}
+      <div class="muted" style="margin-top:0.2em;">${esc(t.use_when || '')}</div>
+    </div>`
+  ).join('');
+  // populate event-template dropdown
+  const sel = document.getElementById('evtTemplate');
+  sel.innerHTML = '<option value="">(none)</option>' + j.templates.map(t =>
+    `<option value="${esc(t.file)}">${esc(t.file)}</option>`).join('');
+}
+
+async function refreshEvents() {
+  const j = await jget('/outreach/log?limit=20');
+  const c = document.getElementById('events');
+  if (!j || !j.entries || j.entries.length === 0) {
+    c.innerHTML = '<p class="muted">No events logged yet.</p>'; return;
+  }
+  c.innerHTML = j.entries.map(e =>
+    `<div class="event ${esc(e.kind)}">
+      <span class="ts">${shortTs(e.ts)}</span> &middot;
+      <span class="kind">${esc(e.kind)}</span> &middot;
+      <span class="archetype">${esc(e.slug)}</span>
+      ${e.related_template ? `<span class="pill">${esc(e.related_template)}</span>` : ''}
+      <div style="margin-top:0.2em;">${esc(e.body || '')}</div>
+    </div>`
+  ).join('');
+}
+
+document.getElementById('refreshTargets').addEventListener('click', refreshTargets);
+document.getElementById('filterStatus').addEventListener('change', refreshTargets);
+document.getElementById('filterArchetype').addEventListener('change', refreshTargets);
+
+document.getElementById('logEventBtn').addEventListener('click', async () => {
+  const slug = document.getElementById('evtSlug').value;
+  const kind = document.getElementById('evtKind').value;
+  const body = document.getElementById('evtBody').value.trim();
+  const related_template = document.getElementById('evtTemplate').value || null;
+  if (!slug) { document.getElementById('logStatus').textContent = 'Pick a target.'; return; }
+  if (!body && kind !== 'note') { document.getElementById('logStatus').textContent = 'Body required.'; return; }
+  const r = await jpost('/outreach/log', { slug, kind, body, related_template });
+  if (r && r.status === 'logged') {
+    document.getElementById('logStatus').textContent = 'Logged.';
+    document.getElementById('evtBody').value = '';
+    await refreshSummary(); await refreshTargets(); await refreshEvents();
+  } else {
+    document.getElementById('logStatus').textContent = 'Failed: ' + JSON.stringify(r);
+  }
+});
+
+document.getElementById('upsertTargetBtn').addEventListener('click', async () => {
+  const name = document.getElementById('tgtName').value.trim();
+  const archetype = document.getElementById('tgtArchetype').value;
+  const tier = parseInt(document.getElementById('tgtTier').value, 10) || 1;
+  if (!name) { document.getElementById('tgtSaveStatus').textContent = 'Name required.'; return; }
+  const payload = {
+    name,
+    archetype,
+    tier,
+    contact_person: document.getElementById('tgtContact').value.trim() || null,
+    contact_email: document.getElementById('tgtEmail').value.trim() || null,
+    why_this_target: document.getElementById('tgtWhy').value.trim() || null,
+    ask: document.getElementById('tgtAsk').value.trim() || null,
+    notes: document.getElementById('tgtNotes').value.trim() || null,
+  };
+  const r = await jpost('/outreach/target', payload);
+  if (r && (r.status === 'created' || r.status === 'updated')) {
+    document.getElementById('tgtSaveStatus').textContent = r.status + ': ' + r.slug;
+    for (const id of ['tgtName','tgtContact','tgtEmail','tgtWhy','tgtAsk','tgtNotes']) {
+      document.getElementById(id).value = '';
+    }
+    await refreshSummary(); await refreshTargets(); await refreshEvents();
+  } else {
+    document.getElementById('tgtSaveStatus').textContent = 'Failed: ' + JSON.stringify(r);
+  }
+});
+
+(async function init() {
+  await refreshSummary();
+  await refreshTargets();
+  await refreshTemplates();
+  await refreshEvents();
+})();
+</script>
+
+</body>
+</html>

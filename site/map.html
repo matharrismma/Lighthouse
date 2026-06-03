@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.map.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Map · Narrow Highway</title>
+  <meta name="description" content="A live visual map of skills, protocols, paths, and the connections that route between domains.">
+  <link rel="canonical" href="https://narrowhighway.com/map.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The Map · Narrow Highway">
+  <meta property="og:description" content="A live visual map of skills, protocols, paths, and the connections that route between domains.">
+  <meta property="og:url" content="https://narrowhighway.com/map.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Map · Narrow Highway">
+  <meta name="twitter:description" content="A live visual map of skills, protocols, paths, and the connections that route between domains.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    :root{ --skill:#8b5d2e; --protocol:#3d6b8c; --path:#3f7a4d; --concept:#7a5c9e; }
+    body{margin:0}
+    .map-wrap{position:relative;width:100%;height:calc(100vh - 56px);overflow:hidden;background:radial-gradient(circle at 50% 40%, #fbf7ef 0%, #f2ead9 100%)}
+    #graph{display:block;width:100%;height:100%;cursor:grab}
+    #graph:active{cursor:grabbing}
+    .panel{position:absolute;top:14px;right:14px;width:330px;max-height:calc(100% - 28px);overflow-y:auto;background:rgba(255,255,255,.97);border:1px solid #e5d9c4;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.10);padding:1rem 1.1rem;font-size:.9rem;transition:transform .2s;z-index:5}
+    .panel.hidden{transform:translateX(360px)}
+    .panel h2{margin:.2rem 0 .1rem;font-size:1.05rem;color:#3a2f24}
+    .panel .ntype{display:inline-block;font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;padding:.1rem .5rem;border-radius:999px;color:#fff;margin-bottom:.5rem}
+    .panel ul{padding-left:1.1rem;margin:.4rem 0;line-height:1.55}
+    .panel .domain{color:#7a6a52;font-size:.8rem}
+    .panel .closex{float:right;cursor:pointer;color:#a08864;font-size:1.1rem;line-height:1}
+    .legend{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.94);border:1px solid #e5d9c4;border-radius:8px;padding:.7rem .9rem;font-size:.8rem;z-index:5}
+    .legend .row{display:flex;align-items:center;gap:.45rem;margin:.2rem 0}
+    .legend .dot{width:11px;height:11px;border-radius:50%}
+    .legend h3{margin:0 0 .4rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#a08864}
+    .titlebar{position:absolute;bottom:14px;left:14px;background:rgba(255,255,255,.9);border:1px solid #e5d9c4;border-radius:8px;padding:.5rem .85rem;font-size:.8rem;color:#5a4937;z-index:5}
+    .titlebar b{color:#3a2f24}
+    .hint{position:absolute;bottom:14px;right:14px;font-size:.72rem;color:#9c8770;z-index:5}
+  </style>
+</head>
+<body>
+
+<div class="map-wrap">
+  <canvas id="graph"></canvas>
+
+  <div class="legend">
+    <h3>The Map</h3>
+    <div class="row"><span class="dot" style="background:var(--skill)"></span> Skill</div>
+    <div class="row"><span class="dot" style="background:var(--protocol)"></span> Protocol</div>
+    <div class="row"><span class="dot" style="background:var(--path)"></span> Path</div>
+    <div class="row"><span class="dot" style="background:var(--concept)"></span> Connected concept</div>
+  </div>
+
+  <div class="panel hidden" id="panel">
+    <span class="closex" onclick="document.getElementById('panel').classList.add('hidden')">×</span>
+    <div id="panelBody"></div>
+  </div>
+
+  <div class="titlebar"><b>Protocols · Paths · Skills</b> — the routing of the substrate. Click any node.</div>
+  <div class="hint">drag to pan · scroll to zoom</div>
+</div>
+
+<script>
+const COLORS = { skill:'#8b5d2e', protocol:'#3d6b8c', path:'#3f7a4d', concept:'#7a5c9e' };
+const RADIUS = { skill:16, protocol:9, path:9, concept:7 };
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
+let W=0,H=0, DPR=window.devicePixelRatio||1;
+let nodes=[], edges=[], byId={}, fullMaps={};
+let view={x:0,y:0,scale:1}, drag=null, hover=null;
+
+function resize(){
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+
+async function load(){
+  resize();
+  let data;
+  try { data = await (await fetch('/skills/graph',{cache:'no-store'})).json(); }
+  catch(e){ data = {nodes:[],edges:[]}; }
+  nodes = data.nodes.map((n,i)=>({ ...n,
+    x: W/2 + Math.cos(i)*150*Math.random()*2 - 150,
+    y: H/2 + Math.sin(i)*150*Math.random()*2 - 150,
+    vx:0, vy:0 }));
+  byId = {}; nodes.forEach(n=>byId[n.id]=n);
+  edges = data.edges.filter(e=>byId[e.source]&&byId[e.target]);
+  // preload full skill maps for the detail panel
+  try {
+    const list = await (await fetch('/skills',{cache:'no-store'})).json();
+    for(const s of list.skills){
+      const m = await (await fetch('/skills/'+s.id,{cache:'no-store'})).json();
+      fullMaps[s.id]=m;
+    }
+  }catch(e){}
+  requestAnimationFrame(tick);
+}
+
+function tick(){
+  // force simulation
+  const REP=2600, SPRING=0.012, LEN=90, CENTER=0.012, DAMP=0.86;
+  for(let i=0;i<nodes.length;i++){
+    const a=nodes[i];
+    for(let j=i+1;j<nodes.length;j++){
+      const b=nodes[j];
+      let dx=a.x-b.x, dy=a.y-b.y, d2=dx*dx+dy*dy+0.01, d=Math.sqrt(d2);
+      const f=REP/d2;
+      const fx=f*dx/d, fy=f*dy/d;
+      a.vx+=fx; a.vy+=fy; b.vx-=fx; b.vy-=fy;
+    }
+    a.vx += (W/2 - a.x)*CENTER; a.vy += (H/2 - a.y)*CENTER;
+  }
+  for(const e of edges){
+    const a=byId[e.source], b=byId[e.target];
+    let dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)+0.01;
+    const target = (a.type==='skill'||b.type==='skill')?LEN:LEN*1.4;
+    const f=(d-target)*SPRING;
+    const fx=f*dx/d, fy=f*dy/d;
+    a.vx+=fx; a.vy+=fy; b.vx-=fx; b.vy-=fy;
+  }
+  for(const n of nodes){ if(n===drag)continue; n.vx*=DAMP; n.vy*=DAMP; n.x+=n.vx; n.y+=n.vy; }
+  draw();
+  requestAnimationFrame(tick);
+}
+
+function toScreen(n){ return { x:(n.x+view.x)*view.scale, y:(n.y+view.y)*view.scale }; }
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(view.x*view.scale, view.y*view.scale);
+  ctx.scale(view.scale, view.scale);
+  // edges
+  for(const e of edges){
+    const a=byId[e.source], b=byId[e.target];
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+    ctx.strokeStyle = e.kind==='cross_domain' ? 'rgba(122,92,158,.45)' : 'rgba(160,136,100,.30)';
+    ctx.lineWidth = (e.kind==='cross_domain'?1.6:1)/view.scale;
+    if(e.kind==='cross_domain'){ ctx.setLineDash([4,3]); } else { ctx.setLineDash([]); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // nodes
+  for(const n of nodes){
+    const r=RADIUS[n.type]||8;
+    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
+    ctx.fillStyle=COLORS[n.type]||'#888';
+    ctx.globalAlpha = (hover&&hover!==n && !isNeighbor(hover,n))?0.35:1;
+    ctx.fill();
+    if(n===hover){ ctx.lineWidth=2/view.scale; ctx.strokeStyle='#3a2f24'; ctx.stroke(); }
+    ctx.globalAlpha=1;
+    // label
+    if(view.scale>0.6 || n.type==='skill'){
+      ctx.fillStyle='#3a2f24';
+      ctx.font=`${(n.type==='skill'?13:10)/1}px Inter, sans-serif`;
+      ctx.textAlign='center';
+      ctx.fillText(n.label||'', n.x, n.y+r+11);
+    }
+  }
+  ctx.restore();
+}
+
+function isNeighbor(a,b){
+  return edges.some(e=>(e.source===a.id&&e.target===b.id)||(e.source===b.id&&e.target===a.id));
+}
+
+function nodeAt(mx,my){
+  const x=mx/view.scale - view.x, y=my/view.scale - view.y;
+  let best=null,bd=1e9;
+  for(const n of nodes){ const r=(RADIUS[n.type]||8)+4; const d=Math.hypot(n.x-x,n.y-y); if(d<r&&d<bd){bd=d;best=n;} }
+  return best;
+}
+
+// interaction
+canvas.addEventListener('mousedown',e=>{
+  const n=nodeAt(e.offsetX,e.offsetY);
+  if(n){ drag={node:n}; n.fx=true; } else { drag={pan:true, sx:e.offsetX, sy:e.offsetY, ox:view.x, oy:view.y}; }
+});
+canvas.addEventListener('mousemove',e=>{
+  if(drag&&drag.node){ drag.node.x=e.offsetX/view.scale-view.x; drag.node.y=e.offsetY/view.scale-view.y; drag.node.vx=drag.node.vy=0; }
+  else if(drag&&drag.pan){ view.x=drag.ox+(e.offsetX-drag.sx)/view.scale; view.y=drag.oy+(e.offsetY-drag.sy)/view.scale; }
+  else { hover=nodeAt(e.offsetX,e.offsetY); canvas.style.cursor=hover?'pointer':'grab'; }
+});
+canvas.addEventListener('mouseup',e=>{
+  if(drag&&drag.node){ const moved=false; openPanel(drag.node); }
+  drag=null;
+});
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const f=e.deltaY<0?1.12:0.89;
+  view.scale=Math.max(0.3,Math.min(3,view.scale*f));
+},{passive:false});
+
+function openPanel(n){
+  const p=document.getElementById('panel'), b=document.getElementById('panelBody');
+  let html=`<span class="ntype" style="background:${COLORS[n.type]}">${n.type}</span>`;
+  html+=`<h2>${n.label||n.id}</h2>`;
+  const map = fullMaps[n.skill] || Object.values(fullMaps).find(m=>m.id===n.id);
+  if(n.type==='skill' && map){
+    html+=`<p class="domain">${map.tagline||''}</p>`;
+    html+=`<p>${map.summary||''}</p>`;
+    html+=`<p class="domain">${map.protocols.length} protocols · ${map.paths.length} paths · ${map.cross_domain_connections.length} connections</p>`;
+  } else if(n.type==='protocol' && map){
+    const pr=(map.protocols||[]).find(x=>x.id===n.id);
+    if(pr){ html+='<ul>'+pr.rules.map(r=>`<li>${r}</li>`).join('')+'</ul>'; }
+  } else if(n.type==='path' && map){
+    const pa=(map.paths||[]).find(x=>x.id===n.id);
+    if(pa){ html+='<ol>'+pa.steps.map(s=>`<li>${s}</li>`).join('')+'</ol>'; }
+  } else if(n.type==='concept'){
+    html+=`<p class="domain">domain: ${n.domain||'—'}</p>`;
+    // find the principle that routes here
+    const e=edges.find(ed=>ed.target===n.id&&ed.kind==='cross_domain');
+    if(e&&e.principle){ html+=`<p>Routed from principle:</p><blockquote style="border-left:3px solid ${COLORS.concept};padding-left:.7rem;margin:.4rem 0;color:#5a4937">${e.principle}</blockquote>`; }
+  }
+  b.innerHTML=html;
+  p.classList.remove('hidden');
+}
+
+load();
+</script>
+
+</body>
+</html>

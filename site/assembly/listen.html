@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Reading &middot; Today &middot; Narrow Highway</title>
+<meta name="description" content="Today's reading — calendar-driven Scripture, rendered as audio and text every day. From the World English Bible (public domain). Same on this date next year.">
+<link rel="canonical" href="https://narrowhighway.com/assembly/listen.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Today's reading &middot; Narrow Highway">
+<meta property="og:description" content="Calendar-driven Scripture reading, audio and text, every day. Public domain.">
+<meta property="og:url" content="https://narrowhighway.com/assembly/listen.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto;
+    padding: 0 1.2em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.7; }
+  .masthead { text-align: center; padding: 2em 1em 1.2em;
+    border-bottom: 3px double #b8945a; margin-bottom: 1.4em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #b8945a;
+    margin-bottom: 0.5em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal;
+    font-size: 2.2em; color: #1a3a52; letter-spacing: 0.02em; margin: 0; }
+  .masthead .stamp { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; margin-top: 0.6em; }
+
+  .refs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin: 0.8em 0 1.4em; }
+  .ref-pill { display: inline-block; padding: 0.3em 0.9em; background: #1a3a52;
+    color: #f4ecd5; border-radius: 16px; font-family: 'Courier New', monospace;
+    font-size: 0.82em; letter-spacing: 0.04em; text-decoration: none; }
+  .ref-pill:hover { background: #2a5570; }
+
+  .player-frame { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1.4em 1.6em; margin: 1em 0 1.6em; box-shadow: 0 1px 0 #e8e0c0;
+    text-align: center; }
+  .player-frame audio { width: 100%; margin: 0.6em 0 0.4em; }
+  .player-frame .note { font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic; color: #6a5a3a; font-size: 0.92em; margin-top: 0.6em; }
+  .player-frame.no-audio { background: #fff5d4; border-left: 4px solid #b8945a; text-align: left; }
+  .player-frame.no-audio h3 { color: #1a3a52; margin-top: 0; }
+  .player-frame.no-audio code { background: #f3eedb; padding: 0.15em 0.4em;
+    border-radius: 3px; font-size: 0.92em; }
+
+  .reading { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1.4em 1.6em; margin: 1.4em 0; box-shadow: 0 1px 0 #e8e0c0; }
+  .reading h2 { color: #1a3a52; font-weight: normal; font-size: 1.4em;
+    margin: 0 0 0.6em; padding-bottom: 0.3em; border-bottom: 1px solid #d4c8a5; }
+  .reading .reading-text { white-space: pre-wrap; font-size: 1.02em;
+    color: #2a2a28; line-height: 1.65; }
+
+  .provenance { background: #fafaf6; border: 1px solid #d4c8a5;
+    border-radius: 4px; padding: 0.8em 1.1em; margin-top: 1.4em;
+    font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #6a5a3a; word-break: break-all; }
+  .provenance .lbl { color: #806010; text-transform: uppercase;
+    letter-spacing: 0.08em; font-size: 0.7em; }
+
+  .rhythm-note { text-align: center; font-family: 'Crimson Pro', Georgia, serif;
+    font-style: italic; color: #6a5a3a; font-size: 0.92em; margin: 1.4em 0;
+    padding-top: 0.8em; border-top: 1px dashed #d4c8a5; }
+
+  hr.sep { border: none; border-top: 1px solid #d4c8a5; margin: 2em auto; width: 60%; }
+  .colophon { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; letter-spacing: 0.04em; text-align: center; line-height: 1.6;
+    margin-top: 3em; padding-top: 1.4em; border-top: 1px solid #d4c8a5;
+    font-style: italic; }
+  .colophon a { color: #1a3a52; }
+
+  .loading { color: #6a5a3a; font-style: italic; padding: 1em; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="eyebrow">Narrow Highway &middot; The Assembly &middot; The Reading</div>
+  <h1>Today&rsquo;s reading</h1>
+  <div class="stamp" id="dateStamp">&mdash;</div>
+</div>
+
+<div class="refs" id="refs"></div>
+
+<div id="playerFrame" class="player-frame">
+  <div class="loading">Loading today&rsquo;s reading&hellip;</div>
+</div>
+
+<div class="reading" id="readingFrame" style="display:none;">
+  <h2>The text</h2>
+  <div class="reading-text" id="readingText"></div>
+</div>
+
+<div class="provenance" id="provenanceFrame" style="display:none;">
+  <div><span class="lbl">Translation</span> <span id="provTranslation"></span></div>
+  <div><span class="lbl">Text sha256</span> <span id="provTextHash"></span></div>
+  <div id="provAudioRow" style="display:none;"><span class="lbl">Audio sha256</span> <span id="provAudioHash"></span></div>
+  <div><span class="lbl">Rendered at</span> <span id="provRenderedAt"></span></div>
+</div>
+
+<p class="rhythm-note">
+  Same psalm on this date next year. Same chapter. The rhythm holds.
+  When the audio is available it auto-loads &mdash; otherwise the text is here
+  to read. The reference is the World English Bible (public domain); no AI is
+  paraphrasing it.
+</p>
+
+<hr class="sep">
+
+<p class="colophon">
+  Narrow Highway &middot; The reading &middot; Calendar-driven<br>
+  Reading rendered nightly by <code>tools/render_daily_reading.py</code><br>
+  See <a href="/assembly/today.html">today&rsquo;s full order</a> &middot;
+  <a href="/organic-design.html">how the engine actually works</a>
+</p>
+
+<script>
+(async function () {
+  const $ = (id) => document.getElementById(id);
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  let manifest = null;
+  let readingText = '';
+
+  try {
+    const r = await fetch('/assembly/audio/today/manifest.json', { cache: 'no-store' });
+    if (r.ok) manifest = await r.json();
+  } catch (_) {}
+
+  if (!manifest) {
+    $('playerFrame').className = 'player-frame no-audio';
+    $('playerFrame').innerHTML = '<h3>No reading rendered yet</h3>' +
+      '<p>The renderer has not run, or its output is not yet published. Run it from the operator machine:</p>' +
+      '<p><code>python tools/render_daily_reading.py --include-proverb</code></p>' +
+      '<p>The audio and text appear here as soon as <code>site/assembly/audio/today/manifest.json</code> exists.</p>';
+    return;
+  }
+
+  // Date + references
+  $('dateStamp').textContent = manifest.date || '';
+  const refs = manifest.references || {};
+  const refPills = [];
+  if (refs.psalm) refPills.push('<span class="ref-pill">' + esc(refs.psalm) + '</span>');
+  if (refs.proverb) refPills.push('<span class="ref-pill">' + esc(refs.proverb) + '</span>');
+  $('refs').innerHTML = refPills.join('');
+
+  // Audio block
+  const audio = manifest.audio || {};
+  const pf = $('playerFrame');
+  if (audio.status === 'rendered' && audio.file) {
+    pf.innerHTML =
+      '<audio controls preload="metadata" src="/assembly/audio/today/' + esc(audio.file) + '"></audio>' +
+      '<div class="note">Read by ' + esc(audio.voice || 'a local TTS voice') +
+      ' &middot; rendered locally, no API call. Voice is Piper TTS (open-source).</div>';
+  } else {
+    pf.className = 'player-frame no-audio';
+    pf.innerHTML =
+      '<h3>Audio coming soon</h3>' +
+      '<p>The text is below. Audio renders when Piper TTS (open-source, local) finishes its setup &mdash; install the voice model with:</p>' +
+      '<p><code>piper --download-voice en_US-lessac-medium</code></p>' +
+      '<p>then re-run <code>python tools/render_daily_reading.py</code>. No vendor API; no rate limit.</p>';
+  }
+
+  // Reading text
+  try {
+    const tr = await fetch('/assembly/audio/today/reading.txt', { cache: 'no-store' });
+    if (tr.ok) readingText = await tr.text();
+  } catch (_) {}
+
+  if (readingText) {
+    $('readingFrame').style.display = '';
+    $('readingText').textContent = readingText;
+  }
+
+  // Provenance
+  $('provenanceFrame').style.display = '';
+  $('provTranslation').textContent = manifest.translation || '';
+  $('provTextHash').textContent = 'sha256:' + (manifest.text && manifest.text.sha256 || '');
+  if (audio.status === 'rendered' && audio.sha256) {
+    $('provAudioRow').style.display = '';
+    $('provAudioHash').textContent = 'sha256:' + audio.sha256;
+  }
+  $('provRenderedAt').textContent = manifest.rendered_at || '';
+})();
+</script>
+
+</body>
+</html>

@@ -4,6 +4,7 @@
 
 User-agent: *
 Allow: /
+Disallow: /_archive/
 Disallow: /auth/
 Disallow: /journal/
 Disallow: /shelf/
@@ -55,16 +56,24 @@ User-agent: FacebookBot
 Allow: /
 
 # Public read-only surfaces an agent should know about
-# /llms.txt           — service description (start here)
-# /manifest           — OpenAI-compatible tool list (76 tools)
-# /docs               — OpenAPI schema
-# /benchmark          — accuracy results
-# /almanac            — curated wisdom + engine-discovered patterns
-# /atlas              — verifier × axis grid
-# /ledger             — permanent verification record
-# /ledger/verify      — chain integrity check
-# /identity           — Ed25519 instance public key
+# /llms.txt              — service description (start here)
+# /agents/daily.json     — daily heartbeat: substrate stats + recent decisions + endpoint catalog (start here for cold-crawl)
+# /manifest              — OpenAI-compatible tool list
+# /docs                  — OpenAPI schema
+# /benchmark             — accuracy results
+# /almanac               — curated wisdom + engine-discovered patterns
+# /atlas                 — verifier × axis grid (the four-gate chain)
+# /witness-gate/health   — Deut 19:15 enforcement summary
+# /witness-gate/card/{id}— per-card witness chain
+# /ledger                — permanent verification record
+# /ledger/verify         — chain integrity check
+# /identity              — Ed25519 instance public key + manifesto
+# /live.html             — 24/7 channel page
+# /channels/narrow-highway/mrss.xml      — channel MRSS feed
+# /channels/narrow-highway/epg.xml       — XMLTV EPG
+# /channels/narrow-highway/roku_feed.json — Roku Direct Publisher feed
+# /feed/walks.rss        — Atlas walks as RSS (subscribeable)
 # /.well-known/security.txt
 # /.well-known/agents.txt
 
-Sitemap: https://narrowhighway.com/sitemap.xml
+Sitemap: https://narrowhighway.com/sitemap_index.xml

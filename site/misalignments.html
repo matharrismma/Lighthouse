@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.misalignments.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Misalignments · Where the engine got it wrong · Concordance Engine</title>
+  <meta name="description" content="The engine's RED gate applied to itself. Every place a user flagged a verdict as wrong, surfaced for review. The keeping considers disagreement.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Misalignments · Where the engine got it wrong">
+  <meta property="og:description" content="The engine's RED gate applied to itself. Every disagreement flagged, surfaced for review.">
+  <meta property="og:url" content="https://narrowhighway.com/misalignments.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/misalignments.html">
+
+  <style>
+    .ms-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .ms-intro em { color: var(--accent); font-style: italic; }
+    .ms-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ms-tab-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin: 16px 0 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .ms-tab {
+      background: none; border: none;
+      padding: 8px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -7px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .ms-tab:hover { color: var(--accent); }
+    .ms-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .ms-list { display: flex; flex-direction: column; gap: 10px; }
+    .ms-card {
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      border-left: 4px solid var(--hold);
+      transition: border-color 0.15s;
+    }
+    .ms-card.archived  { border-left-color: var(--muted-2); }
+    .ms-card.promoted  { border-left-color: var(--pass); }
+    .ms-card.bug       { border-left-color: var(--fail); }
+
+    .ms-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .ms-target {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .ms-target a { color: var(--accent); }
+    .ms-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hi);
+    }
+    .ms-status.pending   { color: var(--hold); border-color: rgba(196,160,48,0.45); background: rgba(196,160,48,0.07); }
+    .ms-status.archived  { color: var(--muted); border-color: var(--border-hi); }
+    .ms-status.promoted  { color: var(--pass); border-color: rgba(111,196,124,0.45); background: rgba(111,196,124,0.07); }
+    .ms-status.bug       { color: var(--fail); border-color: rgba(201,108,108,0.45); background: rgba(201,108,108,0.07); }
+    .ms-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-left: auto;
+    }
+    .ms-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      font-style: italic;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .ms-reason {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      margin-bottom: 6px;
+    }
+    .ms-reason-label, .ms-expected-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2px;
+      margin-top: 6px;
+    }
+    .ms-expected {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      white-space: pre-wrap;
+    }
+    .ms-review-note {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.18);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .ms-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 24px;
+      text-align: center;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+            <a href="/daily.html" class="keep-on-mobile" data-i18n="nav.today">Today</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" class="keep-on-mobile" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/scribe.html" class="keep-on-mobile" data-i18n="nav.scribe">Scribe</a>
+            <a href="/bibles.html" data-i18n="nav.bibles">Bibles</a>
+            <a href="/almanac.html" class="keep-on-mobile" data-i18n="nav.almanac">Almanac</a>
+            <a href="/library.html" data-i18n="nav.library">Library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Almanac · Flagged view · disagreements</div>
+    <h1 data-i18n="page.misalignments.h1">Where readers say the engine got it wrong.</h1>
+    <div class="almanac-tabs" role="tablist" aria-label="Almanac views">
+      <a href="/almanac.html" class="alm-tab" role="tab">
+        <span class="alm-tab-label">Kept</span>
+        <span class="alm-tab-meta">every entry · with verdict</span>
+      </a>
+      <a href="/receipts.html" class="alm-tab" role="tab">
+        <span class="alm-tab-label">Signed</span>
+        <span class="alm-tab-meta">entries with operator-signed receipts</span>
+      </a>
+      <a href="/misalignments.html" class="alm-tab active" role="tab" aria-selected="true">
+        <span class="alm-tab-label">Flagged</span>
+        <span class="alm-tab-meta">where readers disagree</span>
+      </a>
+    </div>
+    <p class="ms-intro">
+      The Almanac's <b>Flagged</b> view &mdash; the engine's <em>RED gate</em> turned on the engine itself. Every place a reader flagged a verdict as wrong, with their stated reason and what they expected instead. The operator reads each flag and decides whether to correct, refine, or hold the entry. The crowd informs; the operator decides. Honest correction is part of keeping.
+    </p>
+  </div>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar">
+    <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a>
+    <a href="/parable.html">Parable</a>
+    <a href="/bibles.html">Bibles</a>
+    <a href="/places.html">Places</a>
+    <a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a>
+    <a href="/misalignments.html" class="active">Misalignments</a>
+    <a href="/almanac.html">Almanac</a>
+    <a href="/atlas.html">Atlas</a>
+    <a href="/encyclopedia.html">Encyclopedia</a>
+    <a href="/chronicle.html">Chronicle</a>
+    <a href="/canon.html">Canon</a>
+    <a href="/fieldkit.html">FieldKit</a>
+    <a href="/archetypes.html">Archetypes</a>
+    <a href="/walk.html">Shepherd</a>
+    <a href="/packets.html">Index</a>
+  </div>
+
+  <div id="ms-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:22px;"></div>
+  <div id="ms-content"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const VISITOR_KEY = 'concordance_visitor_id';
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VISITOR_ID = getVisitorId();
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      if (s < 86400*30) return Math.floor(s/86400) + 'd ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  function targetLink(kind, id) {
+    if (!id) return esc(id || '');
+    if (kind === 'almanac') return `<a href="/almanac.html?q=${encodeURIComponent(id)}">${esc(id)}</a>`;
+    if (kind === 'parable') return `<a href="/parable.html">${esc(id)}</a>`;
+    if (kind === 'walk_verdict' || kind === 'polymathic_verdict') return esc(id);
+    return esc(id);
+  }
+
+  function renderCard(d) {
+    const status = d.review_status || 'pending';
+    const kind = d.target_kind || 'other';
+    const note = (d.review_note || '').trim() ? `<div class="ms-review-note">Keeping's note: ${esc(d.review_note)}</div>` : '';
+    return `<div class="ms-card ${esc(status)}">
+      <div class="ms-head">
+        <span class="ms-target">${kind} · ${targetLink(kind, d.target_id)}</span>
+        <span class="ms-status ${esc(status)}">${esc(status)}</span>
+        <span class="ms-when">${esc(fmtWhen(d.logged_at_iso))}</span>
+      </div>
+      ${d.target_summary ? `<div class="ms-summary">${esc(d.target_summary)}</div>` : ''}
+      <div class="ms-reason-label">Why this is wrong</div>
+      <div class="ms-reason">${esc(d.reason || '')}</div>
+      ${d.expected ? `<div class="ms-expected-label">What should it say instead</div><div class="ms-expected">${esc(d.expected)}</div>` : ''}
+      ${note}
+    </div>`;
+  }
+
+  async function renderMine() {
+    const content = document.getElementById('ms-content');
+    content.innerHTML = '<div class="ms-empty">Loading your disagreements…</div>';
+    try {
+      const r = await fetch('/misalignments/mine?visitor_id=' + encodeURIComponent(VISITOR_ID));
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const tabs = renderTabs('mine');
+      if (!d.disagreements || !d.disagreements.length) {
+        content.innerHTML = tabs + `<div class="ms-empty">You haven't flagged any verdicts yet. Open an <a href="/almanac.html">Almanac entry</a> and click <em>I disagree</em> if you think one is wrong.</div>`;
+        wireTabs();
+        return;
+      }
+      content.innerHTML = tabs + `<div class="ms-list">${d.disagreements.map(renderCard).join('')}</div>`;
+      wireTabs();
+    } catch (err) {
+      content.innerHTML = `<div class="ms-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  async function renderRecent() {
+    const content = document.getElementById('ms-content');
+    content.innerHTML = '<div class="ms-empty">Loading the public feed…</div>';
+    try {
+      const r = await fetch('/misalignments/recent?limit=30');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const tabs = renderTabs('recent');
+      if (!d.disagreements || !d.disagreements.length) {
+        content.innerHTML = tabs + `<div class="ms-empty">No public disagreements yet. The engine has not been challenged from a real visitor.</div>`;
+        wireTabs();
+        return;
+      }
+      content.innerHTML = tabs + `<div class="ms-list">${d.disagreements.map(renderCard).join('')}</div>`;
+      wireTabs();
+    } catch (err) {
+      content.innerHTML = `<div class="ms-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderTabs(active) {
+    return `<div class="ms-tab-row">
+      <button class="ms-tab ${active==='mine'?'active':''}" data-tab="mine">Your disagreements</button>
+      <button class="ms-tab ${active==='recent'?'active':''}" data-tab="recent">Recent (public)</button>
+    </div>`;
+  }
+  function wireTabs() {
+    document.querySelectorAll('.ms-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        const next = t.dataset.tab;
+        if (next === 'mine') { history.replaceState({}, '', '/misalignments.html'); renderMine(); }
+        else if (next === 'recent') { history.replaceState({}, '', '/misalignments.html?view=recent'); renderRecent(); }
+      });
+    });
+  }
+
+  async function renderStats() {
+    const root = document.getElementById('ms-stats');
+    if (!root) return;
+    try {
+      const r = await fetch('/misalignments');
+      if (!r.ok) return;
+      const d = await r.json();
+      const stat = (label, value, color) => `
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;padding:12px 14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:${color};line-height:1.1;">${value}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;">${label}</div>
+        </div>`;
+      root.innerHTML =
+        stat('Total flagged',  d.total    || 0, 'var(--accent)') +
+        stat('Pending review', d.pending  || 0, 'var(--hold)')   +
+        stat('Reviewed',       d.archived || 0, 'var(--muted-2)') +
+        stat('Promoted',       d.promoted || 0, 'var(--pass)')   +
+        stat('Confirmed bug',  d.bugs     || 0, 'var(--fail)');
+    } catch (_) { /* engine offline — leave stats empty */ }
+  }
+
+  /* Boot — ?view=recent or default mine. ?id=<x> highlights one card. */
+  (function () {
+    renderStats();
+    const sp = new URLSearchParams(location.search);
+    const view = (sp.get('view') || '').trim();
+    if (view === 'recent') renderRecent();
+    else renderMine();
+  })();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-page-title="page.share.title">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -201,10 +201,18 @@
   <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
   <link rel="canonical" href="https://narrowhighway.com/share.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Capture — Concordance","description":"Receive shared text and capture as a seed.","url":"https://narrowhighway.com/share.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
 </head>
 <body>
   <div class="wordmark">narrow highway · capture</div>
-  <h1>received</h1>
+  <h1 data-i18n="page.share.h1">received</h1>
   <div class="sub">a share landed here. review it, then plant.</div>
 
   <div id="emptyMsg" class="empty" style="display:none;">
@@ -346,5 +354,6 @@
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   </script>
+  <script defer src="/nh-shepherd.js"></script>
 </body>
 </html>

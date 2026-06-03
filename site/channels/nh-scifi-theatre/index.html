@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sci-Fi Theatre — Narrow Highway · Channel 1</title>
+<meta name="description" content="Channel 1 — Narrow Highway Sci-Fi Theatre. 24/7 golden-age science fiction radio + animated adaptations, with pastoral closings. From narrowhighway.com.">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 0 auto; padding: 0 1em 2em; background: #0c1a2a; color: #f4ecd5; line-height: 1.5; }
+  nav.top { padding: 0.8em 0; font-size: 0.9em; }
+  nav.top a { color: #c9b48a; text-decoration: none; }
+  h1 { color: #f4ecd5; font-size: 2em; margin: 0.4em 0 0.1em; }
+  .ch-meta { font-size: 0.9em; color: #c9b48a; font-family: 'Courier New', monospace; letter-spacing: 0.1em; }
+  .tagline { font-style: italic; color: #c9b48a; margin: 0.2em 0 1em; }
+
+  .player-wrap { background: #000; border: 2px solid #c9b48a; border-radius: 4px; aspect-ratio: 16/9; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  video { width: 100%; height: 100%; display: block; background: #000; }
+  .player-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.6em 1em; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #f4ecd5; font-size: 0.9em; pointer-events: none; }
+  .player-overlay .label { color: #c9b48a; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.15em; }
+
+  .live-badge { display: inline-block; padding: 0.15em 0.6em; background: #c8392a; color: #fff; font-weight: bold; font-size: 0.8em; border-radius: 3px; margin-right: 0.5em; }
+  .live-badge::before { content: '● '; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 1.2em; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .card { background: #15273d; border: 1px solid #2a4865; border-radius: 4px; padding: 1em 1.2em; }
+  .card h2 { color: #c9b48a; margin: 0 0 0.4em; font-size: 1.1em; border-bottom: 1px solid #2a4865; padding-bottom: 0.3em; }
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  .schedule-table td { padding: 0.3em 0.4em; border-bottom: 1px solid #1f3550; }
+  .schedule-table td.time { color: #c9b48a; font-family: 'Courier New', monospace; width: 5em; }
+  .schedule-table tr.current { background: #1f3550; }
+
+  .embed-row { background: #1f3550; padding: 0.8em 1em; border-radius: 4px; font-size: 0.85em; margin-top: 1em; color: #c9b48a; }
+  .embed-row code { background: #0c1a2a; padding: 0.15em 0.4em; border-radius: 3px; color: #f4ecd5; }
+
+  .fallback-row { background: #15273d; border: 1px solid #2a4865; border-radius: 4px; padding: 1em 1.2em; margin-top: 1em; }
+  .fallback-row a { color: #c9b48a; }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a> · <a href="/channels.html">All Channels</a>
+</nav>
+
+<div class="ch-meta">CHANNEL 1 · NARROW HIGHWAY</div>
+<h1>Sci-Fi Theatre</h1>
+<p class="tagline">Golden-age science fiction, illustrated anew</p>
+
+<div class="row">
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2>The pilot is ready to watch</h2>
+    <p style="margin-top:0;">The animated adaptation of Ray Bradbury's <em>There Will Come Soft Rains</em> &mdash; using the original 1956 X Minus One radio audio &mdash; is on <a href="/pilots.html" style="color:#c9b48a; font-weight:bold;">/pilots.html</a>. Twenty-three minutes. Watch it there.</p>
+    <p>This page is a browse / landing surface for the Sci-Fi Theatre content pool. We are not currently running a continuous 24/7 live stream for this brand. When we do, this page will show the actual live player.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>About the pool</h2>
+    <p>Public-domain audio from the golden age of science-fiction radio &mdash; Dimension X, X Minus One, Mercury Theatre &mdash; with one animated adaptation (Bradbury's <em>Soft Rains</em>) so far. Original-broadcast audio is preserved as it aired.</p>
+    <p>Audience: 13+.</p>
+  </div>
+
+  <div class="card">
+    <h2>What's here right now</h2>
+    <ul style="margin: 0.4em 0 0 1.2em; padding: 0;">
+      <li>1 animated pilot (<em>Soft Rains</em>) at <a href="/pilots.html" style="color:#c9b48a;">/pilots.html</a></li>
+      <li>Dimension X episodes (public-domain audio)</li>
+      <li>X Minus One episodes (public-domain audio)</li>
+      <li>Selected Mercury Theatre and Quiet Please</li>
+    </ul>
+    <p style="font-size:0.88em; color:#c9b48a; margin-top:0.8em;">No live stream for this sub-channel yet. The pool above is real.</p>
+  </div>
+</div>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

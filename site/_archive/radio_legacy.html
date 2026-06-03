@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.radio.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, follow">
+  <title>Radio · A broadcast lens · Concordance Engine</title>
+  <meta name="description" content="The radio station. Six shows. Scripts written, voiced by ElevenLabs, replayable anytime. Tune in to what's on now, or pick something from the archive.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Radio · A broadcast lens">
+  <meta property="og:description" content="Six shows. Voiced by ElevenLabs from text scripts. Tune in or replay.">
+  <meta property="og:url" content="https://narrowhighway.com/radio.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/radio.html">
+
+  <style>
+    main.radio-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+    }
+    .rd-hero {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin: 6px 0 14px;
+    }
+    .rd-hero em { color: var(--accent); font-style: italic; }
+    .rd-hero b { color: var(--accent); }
+
+    /* The tuning dial / now-playing card */
+    .rd-dial {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .rd-dial::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: rd-sweep 6s linear infinite;
+    }
+    @keyframes rd-sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .rd-dial-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rd-dial-label::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pass);
+      box-shadow: 0 0 10px var(--pass);
+      animation: rd-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes rd-pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.2); }
+    }
+    .rd-dial-show {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .rd-dial-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 17px;
+      color: var(--accent-hi);
+      margin-bottom: 14px;
+    }
+    .rd-dial-meta {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .rd-dial-meta b { color: var(--accent); font-weight: 500; }
+    .rd-player {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .rd-player audio { flex: 1; min-width: 240px; max-width: 600px; }
+    .rd-no-audio {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 8px 0;
+    }
+    .rd-no-audio code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(0,0,0,0.3);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* Show grid */
+    .rd-shows {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .rd-show {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .rd-show:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .rd-show.active {
+      border-color: var(--accent);
+      background: rgba(217,168,114,0.06);
+    }
+    .rd-show .name {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .rd-show .host {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .rd-show .blurb {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    .rd-show .schedule {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .rd-show .stats {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted-2);
+      letter-spacing: 0.05em;
+    }
+    .rd-show .stats .live {
+      color: var(--pass);
+      font-weight: 600;
+    }
+
+    /* Episode list */
+    .rd-archive-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+      margin: 20px 0 14px;
+    }
+    .rd-archive-head h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0;
+    }
+    .rd-archive-head .sub {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    .rd-eps {
+      display: flex; flex-direction: column;
+      gap: 10px;
+    }
+    .rd-ep {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .rd-ep:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .rd-ep-head {
+      display: flex; gap: 12px; align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .rd-ep-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .rd-ep-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .rd-ep-audio-flag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .rd-ep-audio-flag.live  { background: rgba(111,196,124,0.18); color: var(--pass); }
+    .rd-ep-audio-flag.silent { background: rgba(110,104,120,0.18); color: var(--muted); }
+    .rd-ep-script-preview {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-dim);
+      max-height: 4.5em;
+      overflow: hidden;
+      position: relative;
+    }
+    .rd-ep-expanded .rd-ep-script-preview { max-height: none; }
+    .rd-ep-expanded .rd-ep-player { display: block; margin-top: 14px; }
+    .rd-ep-player { display: none; }
+    .rd-ep-player audio { width: 100%; }
+
+    .rd-empty {
+      padding: 40px 20px;
+      text-align: center;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/radio.html" class="active" style="color:var(--accent);">Radio</a>
+      <a href="/hearth.html">The Hearth</a>
+      <a href="/daily.html" data-i18n="nav.daily">Today</a>
+      <a href="/almanac.html" data-i18n="nav.almanac">Almanac</a>
+      <a href="/walk.html" data-i18n="nav.shepherd">Shepherd</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">A broadcast lens · voiced by the engine</div>
+    <h1 data-i18n="page.radio.h1">The radio.</h1>
+    <p class="rd-hero">
+      Six shows, slow time. Scripts written by the operator; voiced by ElevenLabs in <em>M.R. Harris</em>'s cloned voice.
+      <b>Tune in to what's on, or pick from the archive.</b> Episodes are MP3s once produced — replay forever, no extra cost. Old form. New twist.
+    </p>
+  </div>
+</div>
+
+<main class="radio-wrap">
+
+  <!-- ── NOW PLAYING DIAL ──────────────────────────────────── -->
+  <div class="rd-dial" id="rd-dial">
+    <div class="rd-dial-label">On air · most recent</div>
+    <div class="rd-dial-show" id="rd-dial-show">—</div>
+    <div class="rd-dial-title" id="rd-dial-title">—</div>
+    <div class="rd-dial-meta" id="rd-dial-meta"></div>
+    <div class="rd-player" id="rd-dial-player">
+      <div class="rd-no-audio">Loading…</div>
+    </div>
+  </div>
+
+  <!-- ── SHOW GRID ─────────────────────────────────────────── -->
+  <h2 style="font-family:'Crimson Pro',Georgia,serif;font-size:22px;font-weight:600;color:var(--text);margin:8px 0 12px;">The lineup</h2>
+  <div class="rd-shows" id="rd-shows"></div>
+
+  <!-- ── ARCHIVE ────────────────────────────────────────────── -->
+  <div class="rd-archive-head">
+    <h2 id="rd-archive-title">All episodes</h2>
+    <span class="sub" id="rd-archive-sub">Pick any. They were made to be replayed.</span>
+  </div>
+  <div class="rd-eps" id="rd-eps"></div>
+
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+    } catch (_) { return iso; }
+  }
+
+  let ALL_SHOWS = [];
+  let CURRENT_SHOW = (new URLSearchParams(location.search).get('show') || '').trim();
+
+  async function loadNowPlaying() {
+    try {
+      const r = await fetch('/radio/now-playing');
+      const d = await r.json();
+      const np = d.now_playing;
+      if (!np) {
+        document.getElementById('rd-dial-show').textContent = 'Off air';
+        document.getElementById('rd-dial-title').textContent = 'No episodes have aired yet';
+        document.getElementById('rd-dial-player').innerHTML =
+          '<div class="rd-no-audio">The station is quiet. Operator can write the first episode via the /radio/write API.</div>';
+        return;
+      }
+      const show = np.show; const ep = np.episode;
+      document.getElementById('rd-dial-show').textContent = show.name;
+      document.getElementById('rd-dial-title').textContent = ep.title || '(untitled)';
+      document.getElementById('rd-dial-meta').innerHTML =
+        `<span>Host · <b>${esc(show.host)}</b></span>` +
+        `<span>Aired · <b>${esc(fmtDate(ep.aired_at_iso))}</b></span>` +
+        `<span>Length · <b>${show.duration_min} min target</b></span>` +
+        `<span>Schedule · <b>${esc(show.schedule)}</b></span>`;
+      const player = document.getElementById('rd-dial-player');
+      if (ep.has_audio && ep.audio_url) {
+        player.innerHTML = `<audio controls preload="metadata" src="${esc(ep.audio_url)}"></audio>`;
+      } else {
+        player.innerHTML = `<div class="rd-no-audio">Audio not produced yet. Run <code>POST /radio/produce</code> with show=<code>${esc(show.slug)}</code>, ep_date=<code>${esc(ep.ep_date)}</code> to voice it.</div>`;
+      }
+    } catch (err) {
+      document.getElementById('rd-dial-player').innerHTML =
+        '<div class="rd-no-audio">Could not reach the radio: ' + esc(err.message) + '</div>';
+    }
+  }
+
+  async function loadShows() {
+    try {
+      const r = await fetch('/radio/shows');
+      const d = await r.json();
+      ALL_SHOWS = d.shows || [];
+      renderShows();
+      if (!CURRENT_SHOW && ALL_SHOWS.length) CURRENT_SHOW = ALL_SHOWS[0].slug;
+      loadEpisodes(CURRENT_SHOW);
+    } catch (err) {
+      document.getElementById('rd-shows').innerHTML =
+        `<div class="rd-empty">Could not load shows: ${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderShows() {
+    const root = document.getElementById('rd-shows');
+    root.innerHTML = ALL_SHOWS.map(s => `
+      <a class="rd-show ${s.slug === CURRENT_SHOW ? 'active' : ''}" data-slug="${esc(s.slug)}" href="#">
+        <div class="name">${esc(s.name)}</div>
+        <div class="host">${esc(s.host)}</div>
+        <div class="blurb">${esc(s.blurb)}</div>
+        <div class="schedule">${esc(s.schedule)} · ${s.duration_min} min</div>
+        <div class="stats">
+          ${s.episode_count} episode${s.episode_count === 1 ? '' : 's'}
+          ${s.has_audio ? ' · <span class="live">audio ready</span>' : ' · <span style="color:var(--muted-2);">scripts only</span>'}
+        </div>
+      </a>
+    `).join('');
+    root.querySelectorAll('.rd-show').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const slug = el.dataset.slug;
+        CURRENT_SHOW = slug;
+        const url = new URL(location);
+        url.searchParams.set('show', slug);
+        history.replaceState({}, '', url);
+        renderShows();
+        loadEpisodes(slug);
+        document.getElementById('rd-archive-title').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  }
+
+  async function loadEpisodes(slug) {
+    const root = document.getElementById('rd-eps');
+    root.innerHTML = '<div class="rd-empty">Pulling the tape…</div>';
+    const show = ALL_SHOWS.find(s => s.slug === slug);
+    if (show) {
+      document.getElementById('rd-archive-title').textContent = show.name + ' · archive';
+      document.getElementById('rd-archive-sub').textContent = show.blurb;
+    }
+    try {
+      const r = await fetch('/radio/episodes?show=' + encodeURIComponent(slug));
+      const d = await r.json();
+      const eps = d.episodes || [];
+      if (!eps.length) {
+        root.innerHTML = `<div class="rd-empty">
+          No episodes yet for <b>${esc(show ? show.name : slug)}</b>.<br>
+          The operator hasn't written one for this slot.
+        </div>`;
+        return;
+      }
+      root.innerHTML = eps.map(ep => `
+        <div class="rd-ep" data-show="${esc(slug)}" data-date="${esc(ep.ep_date)}">
+          <div class="rd-ep-head">
+            <span class="rd-ep-date">${esc(fmtDate(ep.aired_at_iso || ep.ep_date))}</span>
+            <span class="rd-ep-title">${esc(ep.title || '(untitled)')}</span>
+            <span class="rd-ep-audio-flag ${ep.has_audio ? 'live' : 'silent'}">${ep.has_audio ? '🎙 audio' : 'script only'}</span>
+          </div>
+          <div class="rd-ep-script-preview">${esc(ep.script || '')}</div>
+          <div class="rd-ep-player">
+            ${ep.has_audio
+              ? `<audio controls preload="metadata" src="${esc(ep.audio_url)}"></audio>`
+              : `<div class="rd-no-audio">Audio not produced. Operator: <code>POST /radio/produce { show:"${esc(slug)}", ep_date:"${esc(ep.ep_date)}" }</code></div>`}
+          </div>
+        </div>
+      `).join('');
+      // Click to expand
+      root.querySelectorAll('.rd-ep').forEach(el => {
+        el.addEventListener('click', (e) => {
+          // Don't toggle if user clicked the audio player
+          if (e.target.tagName === 'AUDIO' || e.target.closest('audio')) return;
+          el.classList.toggle('rd-ep-expanded');
+        });
+      });
+    } catch (err) {
+      root.innerHTML = `<div class="rd-empty">Could not load episodes: ${esc(err.message)}</div>`;
+    }
+  }
+
+  // Boot
+  loadNowPlaying();
+  loadShows();
+</script>
+
+</body>
+</html>

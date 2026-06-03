@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.seeds.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seeds · Questions that planted themselves · Concordance Engine</title>
+  <meta name="description" content="The seed garden. Every time a search came up empty, the engine crafted a seed from Apothecary + keyword search and stored it for next time. Browse every question someone asked that the keeping had to grow to answer.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Seeds · Questions that planted themselves">
+  <meta property="og:description" content="The seed garden — every search-miss the keeping grew to answer, kept for next time.">
+  <meta property="og:url" content="https://narrowhighway.com/seeds.html">
+  <link rel="canonical" href="https://narrowhighway.com/seeds.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    main.container.wide { max-width: 1040px; }
+
+    .sg-hero {
+      max-width: 68ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .sg-hero em { color: var(--accent); font-style: italic; }
+    .sg-hero b { color: var(--accent); }
+
+    .sg-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 18px 0 22px;
+    }
+    .sg-search {
+      flex: 1;
+      min-width: 240px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      outline: none;
+    }
+    .sg-search:focus { border-color: var(--accent); }
+    .sg-search::placeholder { color: var(--muted-2); font-style: italic; }
+    .sg-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding-right: 4px;
+    }
+
+    .sg-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
+    }
+    .sg-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid #b88ed6;
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: border-color 0.15s, transform 0.15s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+    }
+    .sg-card:hover {
+      border-color: var(--accent);
+      border-left-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .sg-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #b88ed6;
+      margin-bottom: 6px;
+    }
+    .sg-meta .when {
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: none;
+      font-style: italic;
+    }
+    .sg-query {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      color: var(--text);
+      line-height: 1.35;
+      margin: 0 0 8px;
+    }
+    .sg-summary {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--text-dim);
+      margin: 6px 0 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .sg-domains {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .sg-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      background: rgba(184, 142, 214, 0.12);
+      color: #b88ed6;
+      border-radius: 10px;
+      text-transform: lowercase;
+    }
+    .sg-related {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .sg-empty {
+      padding: 40px 20px;
+      text-align: center;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 60ch;
+      margin: 30px auto;
+    }
+    .sg-empty .glyph {
+      font-size: 32px;
+      color: #b88ed6;
+      opacity: 0.5;
+      display: block;
+      margin-bottom: 12px;
+      font-style: normal;
+    }
+
+    .sg-stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .sg-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid #b88ed6;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .sg-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: #b88ed6;
+      line-height: 1.1;
+    }
+    .sg-stat .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow" style="color:#b88ed6;">The seed garden</div>
+    <h1 data-i18n="page.seeds.h1">Questions that planted themselves.</h1>
+    <p class="sg-hero">
+      Every time a search came up <em>empty</em>, the engine crafted a <b>seed</b> — synthesizing Apothecary + keyword search into a reusable packet — and stored it for next time. <b>Search once, reference forever.</b> The keeping grows from every question.
+    </p>
+  </div>
+</div>
+
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="sg-stat-row" id="sg-stats"></div>
+
+  <div class="sg-controls">
+    <input id="sg-search" class="sg-search" type="search"
+      placeholder="Filter seeds — &ldquo;water&rdquo; · &ldquo;parable&rdquo; · &ldquo;forgive&rdquo;…"
+      aria-label="Filter seeds" />
+    <span class="sg-count" id="sg-count">—</span>
+  </div>
+
+  <div id="sg-content"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      if (s < 86400*30) return Math.floor(s/86400) + 'd ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  let ALL_SEEDS = [];
+
+  function renderStats() {
+    const root = document.getElementById('sg-stats');
+    if (!root) return;
+    const total = ALL_SEEDS.length;
+    const domains = new Set();
+    ALL_SEEDS.forEach(s => (s.domains || []).forEach(d => domains.add(d)));
+    const withRelated = ALL_SEEDS.filter(s => (s.related_count || 0) > 0).length;
+    const newest = ALL_SEEDS[0];
+    root.innerHTML = `
+      <div class="sg-stat"><div class="num">${total}</div><div class="lbl">Seeds planted</div></div>
+      <div class="sg-stat"><div class="num">${domains.size}</div><div class="lbl">Domains covered</div></div>
+      <div class="sg-stat"><div class="num">${withRelated}</div><div class="lbl">With related hits</div></div>
+      <div class="sg-stat"><div class="num">${newest ? fmtWhen(newest.seeded_at) : '—'}</div><div class="lbl">Most recent</div></div>`;
+  }
+
+  function renderCard(s) {
+    const domains = (s.domains || []).slice(0, 4).map(d =>
+      `<span class="sg-domain">${esc(d)}</span>`).join('');
+    return `<a class="sg-card" href="/?q=${encodeURIComponent(s.query || '')}">
+      <div class="sg-meta">
+        <span>Seed</span>
+        <span class="when">${esc(fmtWhen(s.seeded_at))}</span>
+      </div>
+      <div class="sg-query">${esc(s.query || s.title || '(no query)')}</div>
+      ${s.summary ? `<div class="sg-summary">${esc(s.summary.slice(0, 240))}</div>` : ''}
+      ${domains ? `<div class="sg-domains">${domains}</div>` : ''}
+      ${s.related_count ? `<div class="sg-related">${s.related_count} related hit${s.related_count === 1 ? '' : 's'} in the keeping →</div>` : ''}
+    </a>`;
+  }
+
+  function renderList(seeds) {
+    const root = document.getElementById('sg-content');
+    if (!seeds.length) {
+      root.innerHTML = `<div class="sg-empty">
+        <span class="glyph">✚</span>
+        No seeds match that filter. Try a different word, or clear the filter to see them all.
+      </div>`;
+      return;
+    }
+    root.innerHTML = `<div class="sg-list">${seeds.map(renderCard).join('')}</div>`;
+  }
+
+  function applyFilter() {
+    const q = (document.getElementById('sg-search').value || '').trim().toLowerCase();
+    const filtered = q
+      ? ALL_SEEDS.filter(s =>
+          (s.query || '').toLowerCase().includes(q) ||
+          (s.title || '').toLowerCase().includes(q) ||
+          (s.summary || '').toLowerCase().includes(q))
+      : ALL_SEEDS;
+    document.getElementById('sg-count').textContent =
+      `${filtered.length} of ${ALL_SEEDS.length}`;
+    renderList(filtered);
+  }
+
+  async function load() {
+    const content = document.getElementById('sg-content');
+    content.innerHTML = `<div class="sg-empty"><span class="glyph">✚</span>Loading the seed garden…</div>`;
+    try {
+      const r = await fetch('/seeds?limit=500');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      ALL_SEEDS = d.seeds || [];
+      if (!ALL_SEEDS.length) {
+        document.getElementById('sg-stats').innerHTML = '';
+        document.getElementById('sg-count').textContent = '0';
+        content.innerHTML = `<div class="sg-empty">
+          <span class="glyph">✚</span>
+          The garden is empty. The keeping has not yet been asked a question it didn't already know the answer to.
+          <br><br>Ask one — <a href="/" style="color:#b88ed6;">search the keeping</a>. If it comes up empty, the engine will plant a seed automatically.
+        </div>`;
+        return;
+      }
+      renderStats();
+      applyFilter();
+    } catch (err) {
+      content.innerHTML = `<div class="sg-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  document.getElementById('sg-search').addEventListener('input', applyFilter);
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

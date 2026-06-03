@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Tutor — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1em; background:#fff; border:1px solid #d4c8a5; border-radius:6px; padding:1em; margin-bottom:1em; }
+  .stat .label { font-size: 0.85em; color:#6a5a3a; }
+  .stat .val { font-size: 1.8em; font-weight: bold; color:#1a3a52; }
+  .target { background:#fff; border:1px solid #d4c8a5; border-radius:6px; padding:1.2em; font-family:'Courier New',monospace; font-size:1.15em; line-height:1.8; min-height:8em; margin-bottom:1em; }
+  .target .pending { color:#888; }
+  .target .correct { color:#1f5b1f; background:#d4ead4; }
+  .target .wrong { color:#fff; background:#b03020; }
+  .target .cursor { background:#c9b48a; }
+  #typing { width:100%; box-sizing:border-box; font:inherit; font-family:'Courier New',monospace; padding:0.6em 0.8em; border:1px solid #c9b48a; border-radius:4px; font-size:1.05em; }
+  .controls { display:flex; gap:0.6em; margin-top:0.6em; }
+  button { font:inherit; padding:0.5em 1em; background:#1a3a52; color:#fff; border:0; border-radius:4px; cursor:pointer; }
+  .source-pick { margin-bottom:0.8em; }
+  .source-pick button { background:#f0eada; color:#5c4a2a; border:1px solid #c9b48a; margin-right:0.3em; }
+  .source-pick button.active { background:#1a3a52; color:#fff; }
+</style>
+</head>
+<body>
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Typing Tutor</h1>
+<p style="color:#6a5a3a;font-style:italic">Type the passage. Track your speed.</p>
+
+<div class="source-pick">
+  Source:
+  <button onclick="setSrc(0)" class="active">Psalm 23</button>
+  <button onclick="setSrc(1)">Lord's Prayer</button>
+  <button onclick="setSrc(2)">Beatitudes</button>
+  <button onclick="setSrc(3)">Pangram drill</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="label">Words per minute</div><div class="val" id="wpm">0</div></div>
+  <div class="stat"><div class="label">Accuracy</div><div class="val" id="acc">100%</div></div>
+  <div class="stat"><div class="label">Time</div><div class="val" id="time">0s</div></div>
+</div>
+
+<div class="target" id="target"></div>
+<input id="typing" type="text" placeholder="Start typing here..." autocomplete="off" autofocus>
+<div class="controls">
+  <button onclick="reset()">Reset</button>
+  <button onclick="setSrc(currentSrc)">New passage</button>
+</div>
+
+<script>
+  const PASSAGES = [
+    [
+      "The Lord is my shepherd; I shall not want. He maketh me to lie down in green pastures.",
+      "He leadeth me beside the still waters. He restoreth my soul.",
+      "Yea, though I walk through the valley of the shadow of death, I will fear no evil; for thou art with me.",
+      "Surely goodness and mercy shall follow me all the days of my life, and I will dwell in the house of the Lord for ever."
+    ],
+    [
+      "Our Father, who art in heaven, hallowed be thy name.",
+      "Thy kingdom come, thy will be done, on earth as it is in heaven.",
+      "Give us this day our daily bread, and forgive us our trespasses as we forgive those who trespass against us.",
+      "Lead us not into temptation, but deliver us from evil."
+    ],
+    [
+      "Blessed are the poor in spirit, for theirs is the kingdom of heaven.",
+      "Blessed are they that mourn, for they shall be comforted.",
+      "Blessed are the meek, for they shall inherit the earth.",
+      "Blessed are they which do hunger and thirst after righteousness, for they shall be filled."
+    ],
+    [
+      "The quick brown fox jumps over the lazy dog.",
+      "Pack my box with five dozen liquor jugs.",
+      "Sphinx of black quartz, judge my vow.",
+      "How vexingly quick daft zebras jump."
+    ],
+  ];
+  let currentSrc = 0;
+  let target = "";
+  let startTime = null;
+  let typed = "";
+  let timer = null;
+
+  const $target = document.getElementById('target');
+  const $typing = document.getElementById('typing');
+
+  function setSrc(idx) {
+    currentSrc = idx;
+    document.querySelectorAll('.source-pick button').forEach((b, i) => b.classList.toggle('active', i === idx));
+    const lines = PASSAGES[idx];
+    target = lines[Math.floor(Math.random() * lines.length)];
+    reset();
+  }
+  function reset() {
+    typed = ""; startTime = null;
+    $typing.value = ""; $typing.disabled = false;
+    if (timer) { clearInterval(timer); timer = null; }
+    document.getElementById('wpm').textContent = '0';
+    document.getElementById('acc').textContent = '100%';
+    document.getElementById('time').textContent = '0s';
+    render();
+    $typing.focus();
+  }
+  function render() {
+    let html = '';
+    for (let i = 0; i < target.length; i++) {
+      const c = target[i];
+      if (i < typed.length) {
+        if (typed[i] === c) html += `<span class="correct">${escapeChar(c)}</span>`;
+        else html += `<span class="wrong">${escapeChar(c)}</span>`;
+      } else if (i === typed.length) {
+        html += `<span class="cursor">${escapeChar(c)}</span>`;
+      } else {
+        html += `<span class="pending">${escapeChar(c)}</span>`;
+      }
+    }
+    $target.innerHTML = html;
+  }
+  function escapeChar(c) { return c === ' ' ? '·' : c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c; }
+  function updateStats() {
+    if (!startTime) return;
+    const elapsed = (Date.now() - startTime) / 1000;
+    const correct = typed.split('').filter((c, i) => c === target[i]).length;
+    const acc = typed.length ? Math.round(100 * correct / typed.length) : 100;
+    const words = correct / 5;
+    const wpm = elapsed > 0 ? Math.round(words / (elapsed / 60)) : 0;
+    document.getElementById('wpm').textContent = wpm;
+    document.getElementById('acc').textContent = acc + '%';
+    document.getElementById('time').textContent = Math.round(elapsed) + 's';
+  }
+  $typing.addEventListener('input', e => {
+    typed = $typing.value;
+    if (!startTime && typed.length > 0) {
+      startTime = Date.now();
+      timer = setInterval(updateStats, 250);
+    }
+    render();
+    if (typed.length >= target.length) {
+      $typing.disabled = true;
+      updateStats();
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+  });
+  setSrc(0);
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

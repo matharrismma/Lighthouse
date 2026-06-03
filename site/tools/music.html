@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Maker — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 1000px; margin: 1em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  .controls { background:#fff; border:1px solid #d4c8a5; border-radius:6px; padding:0.8em 1em; margin-bottom:1em; display:flex; flex-wrap:wrap; gap:1em; align-items:center; }
+  .controls label { color:#5c4a2a; }
+  .controls select, .controls input[type=range] { font:inherit; }
+  .piano { background:#fff; border:1px solid #d4c8a5; border-radius:6px; padding:1em; }
+  .keys { display:flex; position:relative; height:200px; user-select:none; }
+  .key { flex:1; border:1px solid #5c4a2a; background:#fff; cursor:pointer; position:relative; display:flex; align-items:flex-end; justify-content:center; padding-bottom:0.4em; font-size:0.7em; color:#888; }
+  .key:hover { background:#f4ecd5; }
+  .key.active { background:#c9b48a; }
+  .key.black { position:absolute; top:0; width:5%; height:60%; background:#2a2a28; color:#fff; z-index:2; }
+  .key.black:hover { background:#444; }
+  .key.black.active { background:#5c4a2a; }
+  .hint { font-size:0.85em; color:#6a5a3a; margin-top:0.6em; font-style:italic; }
+  .preset { display:flex; gap:0.4em; flex-wrap:wrap; }
+  .preset button { font:inherit; padding:0.3em 0.7em; background:#f0eada; color:#5c4a2a; border:1px solid #c9b48a; border-radius:3px; cursor:pointer; }
+  .preset button:hover { background:#1a3a52; color:#fff; }
+</style>
+</head>
+<body>
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Music Maker</h1>
+
+<div class="controls">
+  <label>Sound: <select id="wave">
+    <option value="triangle">Piano-like (triangle)</option>
+    <option value="sine">Soft (sine)</option>
+    <option value="square">Organ (square)</option>
+    <option value="sawtooth">Bright (sawtooth)</option>
+  </select></label>
+  <label>Volume: <input type="range" id="vol" min="0" max="100" value="35"></label>
+  <span style="border-left:1px solid #c9b48a; padding-left:0.6em">Play a hymn:</span>
+  <div class="preset">
+    <button onclick="playMelody('amazing')">Amazing Grace</button>
+    <button onclick="playMelody('joyful')">Joyful, Joyful</button>
+    <button onclick="playMelody('holy')">Holy, Holy, Holy</button>
+    <button onclick="playMelody('vision')">Be Thou My Vision</button>
+    <button onclick="playMelody('great')">How Great Thou Art</button>
+    <button onclick="playMelody('fortress')">A Mighty Fortress</button>
+    <button onclick="playMelody('doxology')">Doxology (Old 100th)</button>
+    <button onclick="playMelody('foundation')">How Firm a Foundation</button>
+    <button onclick="playMelody('twinkle')">Twinkle Twinkle</button>
+    <button onclick="playMelody('happy')">Happy Birthday</button>
+  </div>
+</div>
+
+<div class="piano">
+  <div class="keys" id="keys"></div>
+  <p class="hint">Click keys or use keyboard: <code>A S D F G H J K</code> for white keys (C D E F G A B C), <code>W E T Y U</code> for black keys.</p>
+</div>
+
+<script>
+  const NOTES = [
+    {note:'C4', freq:261.63, key:'a', label:'C'},
+    {note:'C#4', freq:277.18, key:'w', black:true},
+    {note:'D4', freq:293.66, key:'s', label:'D'},
+    {note:'D#4', freq:311.13, key:'e', black:true},
+    {note:'E4', freq:329.63, key:'d', label:'E'},
+    {note:'F4', freq:349.23, key:'f', label:'F'},
+    {note:'F#4', freq:369.99, key:'t', black:true},
+    {note:'G4', freq:392.00, key:'g', label:'G'},
+    {note:'G#4', freq:415.30, key:'y', black:true},
+    {note:'A4', freq:440.00, key:'h', label:'A'},
+    {note:'A#4', freq:466.16, key:'u', black:true},
+    {note:'B4', freq:493.88, key:'j', label:'B'},
+    {note:'C5', freq:523.25, key:'k', label:'C'},
+  ];
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const keysEl = document.getElementById('keys');
+  // Build keyboard
+  const whiteCount = NOTES.filter(n => !n.black).length;
+  let whiteIdx = 0;
+  for (const n of NOTES) {
+    const div = document.createElement('div');
+    div.className = 'key' + (n.black ? ' black' : '');
+    div.dataset.note = n.note;
+    if (n.black) {
+      div.style.left = `calc(${(whiteIdx) / whiteCount * 100}% - 2.5%)`;
+      div.innerHTML = `<span style="font-size:0.6em">${n.key.toUpperCase()}</span>`;
+    } else {
+      div.innerHTML = `<div>${n.label}<br><small>${n.key.toUpperCase()}</small></div>`;
+      whiteIdx++;
+    }
+    div.onmousedown = () => play(n.freq, div);
+    div.ontouchstart = e => { e.preventDefault(); play(n.freq, div); };
+    keysEl.appendChild(div);
+  }
+  function play(freq, el, dur = 0.4) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = document.getElementById('wave').value;
+    osc.frequency.value = freq;
+    const vol = +document.getElementById('vol').value / 100;
+    const now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + dur);
+    if (el) { el.classList.add('active'); setTimeout(() => el.classList.remove('active'), Math.min(400, dur * 1000)); }
+  }
+  document.addEventListener('keydown', e => {
+    const n = NOTES.find(x => x.key === e.key.toLowerCase());
+    if (n) {
+      const el = keysEl.querySelector(`[data-note="${n.note}"]`);
+      if (el && !el.classList.contains('active')) play(n.freq, el);
+    }
+  });
+
+  // Pre-set melodies (note, duration in beats; 1 beat ≈ 600ms)
+  const MELODIES = {
+    // Amazing Grace — "A-maz-ing grace, how sweet the sound"
+    amazing: [['G4',0.5],['C5',1],['E4',0.5],['G4',0.5],['C5',1],['B4',0.5],['A4',0.5],['G4',1],['A4',0.5],['G4',1.5]],
+    // Joyful, Joyful, We Adore Thee (Ode to Joy)
+    joyful: [['E4',0.5],['E4',0.5],['F4',0.5],['G4',0.5],['G4',0.5],['F4',0.5],['E4',0.5],['D4',0.5],['C4',0.5],['C4',0.5],['D4',0.5],['E4',0.5],['E4',0.75],['D4',0.25],['D4',1]],
+    // Holy, Holy, Holy (Nicaea) — "Ho-ly, ho-ly, ho-ly! Lord God Al-migh-ty"
+    holy: [['D4',0.5],['D4',0.5],['F4',0.75],['F4',0.25],['F4',0.5],['A4',0.5],['A4',0.5],['A4',0.5],['G4',0.5],['F4',0.5],['E4',1],['D4',1]],
+    // Be Thou My Vision (Slane) — Irish folk tune
+    vision: [['D4',0.5],['E4',0.5],['F4',0.5],['G4',1],['A4',0.5],['G4',0.5],['F4',1],['E4',1],['D4',0.5],['E4',0.5],['F4',0.5],['G4',1],['A4',1],['F4',0.5],['D4',1]],
+    // How Great Thou Art — "O Lord my God, when I in awesome won-der"
+    great: [['G4',0.5],['G4',0.25],['G4',0.25],['A4',0.5],['G4',0.5],['G4',0.25],['G4',0.25],['B4',1],['C5',0.5],['B4',0.5],['A4',0.5],['G4',1.5]],
+    // A Mighty Fortress (Ein feste Burg) — Luther
+    fortress: [['C4',0.5],['C4',0.5],['G3',0.5],['C4',0.5],['F4',0.5],['E4',0.5],['D4',1],['C4',0.5],['B3',0.5],['C4',0.5],['D4',0.5],['E4',0.5],['D4',0.5],['C4',1]],
+    // Doxology (Old 100th) — "Praise God from whom all blessings flow"
+    doxology: [['C4',1],['C4',1],['D4',1],['E4',1],['F4',1],['E4',1],['D4',2],['C4',1],['C4',1],['B3',1],['C4',1],['D4',1],['C4',1],['B3',2]],
+    // How Firm a Foundation (Adeste Fidelis)
+    foundation: [['D4',0.5],['D4',0.5],['F4',0.5],['F4',0.5],['E4',0.5],['F4',0.5],['G4',1],['A4',0.5],['G4',0.5],['F4',0.5],['E4',0.5],['D4',1]],
+    // Twinkle Twinkle / ABC / Baa Baa Black Sheep
+    twinkle: [['C4',0.5],['C4',0.5],['G4',0.5],['G4',0.5],['A4',0.5],['A4',0.5],['G4',1],['F4',0.5],['F4',0.5],['E4',0.5],['E4',0.5],['D4',0.5],['D4',0.5],['C4',1]],
+    // Happy Birthday
+    happy: [['C4',0.5],['C4',0.25],['D4',0.75],['C4',0.75],['F4',0.75],['E4',1.5],['C4',0.5],['C4',0.25],['D4',0.75],['C4',0.75],['G4',0.75],['F4',1.5]],
+  };
+  async function playMelody(name) {
+    const seq = MELODIES[name];
+    for (const [note, dur] of seq) {
+      const n = NOTES.find(x => x.note === note);
+      if (n) {
+        const el = keysEl.querySelector(`[data-note="${note}"]`);
+        play(n.freq, el, dur * 0.95);
+        await new Promise(r => setTimeout(r, dur * 600));
+      }
+    }
+  }
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

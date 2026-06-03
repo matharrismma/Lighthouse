@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maps — Narrow Highway</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .controls { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.8em; margin-bottom: 0.8em; display: flex; flex-wrap: wrap; gap: 0.6em; align-items: center; }
+  .controls label { font-weight: bold; color: #5c4a2a; font-size: 0.92em; }
+  .controls select, .controls input { font: inherit; padding: 0.3em 0.5em; border: 1px solid #c9b48a; border-radius: 3px; background: #fff; }
+  .controls button { font: inherit; padding: 0.3em 0.8em; background: #1a3a52; color: #fff; border: 0; border-radius: 3px; cursor: pointer; }
+  #map { height: 70vh; width: 100%; border-radius: 6px; border: 1px solid #d4c8a5; }
+  .preset-btn { background: #f0eada !important; color: #5c4a2a !important; border: 1px solid #c9b48a !important; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Maps</h1>
+
+<div class="controls">
+  <label>Search:</label>
+  <input id="searchBox" type="text" placeholder="city, country, landmark…" size="30">
+  <button onclick="doSearch()">Find</button>
+  <span style="border-left: 1px solid #c9b48a; padding-left: 0.6em;">
+    <label>Jump to:</label>
+    <button class="preset-btn" onclick="jumpTo([31.7683, 35.2137], 11)">Jerusalem</button>
+    <button class="preset-btn" onclick="jumpTo([31.7054, 35.1031], 10)">Bethlehem</button>
+    <button class="preset-btn" onclick="jumpTo([32.7940, 35.5300], 10)">Sea of Galilee</button>
+    <button class="preset-btn" onclick="jumpTo([41.9028, 12.4964], 10)">Rome</button>
+    <button class="preset-btn" onclick="jumpTo([37.9755, 23.7348], 10)">Athens</button>
+    <button class="preset-btn" onclick="jumpTo([20, 0], 2)">World</button>
+  </span>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([31.7683, 35.2137], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // Biblical landmark markers
+  const landmarks = [
+    { name: 'Jerusalem', lat: 31.7683, lng: 35.2137 },
+    { name: 'Bethlehem', lat: 31.7054, lng: 35.2031 },
+    { name: 'Nazareth', lat: 32.7019, lng: 35.2978 },
+    { name: 'Sea of Galilee', lat: 32.8275, lng: 35.5900 },
+    { name: 'Capernaum', lat: 32.8806, lng: 35.5731 },
+    { name: 'Jordan River', lat: 32.3122, lng: 35.5719 },
+    { name: 'Damascus', lat: 33.5138, lng: 36.2765 },
+    { name: 'Antioch', lat: 36.2025, lng: 36.1606 },
+    { name: 'Ephesus', lat: 37.9417, lng: 27.3422 },
+    { name: 'Athens', lat: 37.9838, lng: 23.7275 },
+    { name: 'Corinth', lat: 37.9381, lng: 22.9325 },
+    { name: 'Rome', lat: 41.9028, lng: 12.4964 },
+    { name: 'Babylon (modern Hillah)', lat: 32.5396, lng: 44.4209 },
+    { name: 'Patmos', lat: 37.3094, lng: 26.5483 },
+  ];
+  landmarks.forEach(p => {
+    L.marker([p.lat, p.lng]).addTo(map).bindPopup(`<b>${p.name}</b>`);
+  });
+
+  function jumpTo(coords, zoom) {
+    map.setView(coords, zoom);
+  }
+
+  // Nominatim search (no API key needed; OSM's free geocoder)
+  async function doSearch() {
+    const q = document.getElementById('searchBox').value.trim();
+    if (!q) return;
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`);
+      const data = await r.json();
+      if (data.length === 0) { alert('Not found.'); return; }
+      const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+      map.setView([lat, lng], 12);
+      L.marker([lat, lng]).addTo(map).bindPopup(`<b>${q}</b>`).openPopup();
+    } catch (e) { alert('Search failed: ' + e.message); }
+  }
+  document.getElementById('searchBox').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

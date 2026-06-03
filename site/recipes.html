@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Old-Fashioned Family Recipes — Heritage Cookbook · Narrow Highway</title>
+<meta name="description" content="Family recipes — public-domain classics from Fannie Farmer, Mrs. Beeton, The White House Cook Book, and more, plus aligned user-submitted family favorites. Free; never extractive.">
+  <link rel="canonical" href="https://narrowhighway.com/recipes.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Old-Fashioned Family Recipes — Heritage Cookbook · Narrow Highway">
+  <meta property="og:description" content="Family recipes — public-domain classics from Fannie Farmer, Mrs. Beeton, The White House Cook Book, and more, plus aligned user-submitted family favorites. Free; never extractive.">
+  <meta property="og:url" content="https://narrowhighway.com/recipes.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Old-Fashioned Family Recipes — Heritage Cookbook · Narrow Highway">
+  <meta name="twitter:description" content="Family recipes — public-domain classics from Fannie Farmer, Mrs. Beeton, The White House Cook Book, and more, plus aligned user-submitted family favorites. Free; never extractive.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 1000px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.4em; align-items: center; margin: 0.5em 0; }
+  .filters strong { font-size: 0.88em; color: #6a5a3a; margin-right: 0.4em; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.3em 0.75em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .filter-btn:hover { background: #e5dcb9; }
+  .filter-btn.active:hover { background: #2a5570; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9em; margin-top: 0.8em; }
+  .card { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.1em; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); border-color: #1a3a52; }
+  .card .course { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.12em; text-transform: uppercase; }
+  .card h3 { margin: 0.2em 0 0.3em; color: #1a3a52; font-size: 1.1em; }
+  .card .source { font-size: 0.85em; color: #6a5a3a; font-style: italic; margin-bottom: 0.4em; }
+  .card .meta { font-size: 0.85em; color: #6a5a3a; }
+  .card .meta span { display: inline-block; margin-right: 0.8em; }
+  .card .fav { float: right; background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 0; color: #c9b48a; }
+  .card .fav.on { color: #c8392a; }
+
+  .recipe-view { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em 1.5em; margin-top: 0.6em; display: none; }
+  .recipe-view.shown { display: block; }
+  .recipe-view .back { font-size: 0.88em; color: #1a3a52; cursor: pointer; background: none; border: none; padding: 0 0 0.5em; }
+  .recipe-view h2 { color: #1a3a52; margin: 0; border: none; padding: 0; font-size: 1.6em; font-family: Georgia, serif; font-weight: normal; }
+  .recipe-view .src { color: #6a5a3a; font-style: italic; margin: 0.2em 0 1em; }
+  .recipe-view .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6em; margin-bottom: 1em; }
+  @media (max-width: 600px) { .recipe-view .row { grid-template-columns: 1fr; } }
+  .recipe-view .row > div { background: #f3eedb; padding: 0.45em 0.7em; border-radius: 3px; font-size: 0.9em; }
+  .recipe-view .row > div strong { display: block; font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.1em; text-transform: uppercase; color: #806010; }
+  .recipe-view h3 { color: #1a3a52; margin: 1.2em 0 0.4em; font-size: 1.05em; border-bottom: 1px solid #d4c8a5; padding-bottom: 0.2em; }
+  .recipe-view ul, .recipe-view ol { padding-left: 1.5em; margin: 0.3em 0 0.8em; }
+  .recipe-view li { margin: 0.3em 0; }
+  .recipe-view .family-note { background: #fff5d4; border-left: 4px solid #b8945a; padding: 0.7em 1em; margin-top: 1em; font-size: 0.95em; color: #5a4a30; font-style: italic; }
+  .recipe-view .pd-basis { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 3px; padding: 0.4em 0.8em; margin-top: 1em; font-size: 0.83em; color: #1f5b1f; }
+
+  .submit-cta { background: #1a3a52; color: #f4ecd5; padding: 1.3em 1.5em; border-radius: 6px; margin-top: 1.8em; text-align: center; }
+  .submit-cta h2 { color: #c9b48a; border: none; padding: 0; margin-top: 0; font-size: 1.2em; }
+  .submit-cta a { color: #c9b48a; font-weight: bold; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/recipes.html",
+  "name": "Old-Fashioned Family Recipes — Heritage Cookbook · Narrow Highway",
+  "description": "Family recipes — public-domain classics from Fannie Farmer, Mrs. Beeton, The White House Cook Book, and more, plus aligned user-submitted family favorites. Free; never extractive.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "Recipe"
+  },
+  "keywords": "public domain recipes, heritage cookbook, Fannie Farmer, Mrs Beeton, family recipes",
+  "inLanguage": "en"
+}
+</script>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a></nav>
+
+<h1>Family Table — Recipes</h1>
+
+<div class="intro">
+  <p>Heritage recipes from the public domain (Fannie Farmer 1896, Mrs. Beeton 1861, The White House Cook Book 1887, Marion Harland, Lydia Maria Child), plus aligned family recipes from our community. Save your favorites to your household — stored on your device, private to your family.</p>
+</div>
+
+<div id="recipeView" class="recipe-view"></div>
+
+<div id="listSection">
+
+<h2>Browse</h2>
+<div class="filters">
+  <strong>Course:</strong>
+  <button class="filter-btn course-btn active" data-course="all">All</button>
+  <button class="filter-btn course-btn" data-course="breakfast">Breakfast</button>
+  <button class="filter-btn course-btn" data-course="main">Main</button>
+  <button class="filter-btn course-btn" data-course="side">Side</button>
+  <button class="filter-btn course-btn" data-course="soup">Soup</button>
+  <button class="filter-btn course-btn" data-course="dessert">Dessert</button>
+  <button class="filter-btn course-btn" data-course="preserving">Preserving</button>
+</div>
+<div class="filters">
+  <strong>Show:</strong>
+  <button class="filter-btn fav-btn" data-fav="all">All recipes</button>
+  <button class="filter-btn fav-btn" data-fav="favorites">My favorites</button>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<div class="submit-cta">
+  <h2>Got a family recipe?</h2>
+  <p>If your family has a recipe worth keeping — pass it down through Narrow Highway. Operator-reviewed for alignment; aligned creators may earn from sponsor underwriting of the Recipes deck. Payment in crypto wallet only — no credit cards, no extraction.</p>
+  <p><a href="/submit-recipe.html"><strong>Submit your family recipe →</strong></a></p>
+</div>
+
+</div><!-- /listSection -->
+
+<script src="/nh-household.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('recipe_favorites');
+  let currentCourse = 'all';
+  let currentFav = 'all';
+  let recipes = [];
+
+  function favSet() {
+    return new Set((ns.get() || { favorites: [] }).favorites || []);
+  }
+  function toggleFav(slug) {
+    const cur = ns.get() || { favorites: [] };
+    const s = new Set(cur.favorites);
+    if (s.has(slug)) s.delete(slug); else s.add(slug);
+    cur.favorites = Array.from(s);
+    ns.set(cur);
+  }
+
+  function render() {
+    const $grid = document.getElementById('grid');
+    const favs = favSet();
+    let list = recipes.slice();
+    if (currentCourse !== 'all') list = list.filter(function (r) { return r.course === currentCourse; });
+    if (currentFav === 'favorites') list = list.filter(function (r) { return favs.has(r.slug); });
+    if (list.length === 0) {
+      $grid.innerHTML = '<div class="empty">No recipes match this filter.' +
+        (currentFav === 'favorites' ? ' Star a few from "All recipes" to populate your household favorites.' : '') +
+        '</div>';
+      return;
+    }
+    $grid.innerHTML = list.map(function (r) {
+      const isFav = favs.has(r.slug);
+      return '<div class="card" data-slug="' + r.slug + '">' +
+        '<button class="fav ' + (isFav ? 'on' : '') + '" data-fav-slug="' + r.slug + '" title="Save to household favorites">' + (isFav ? '★' : '☆') + '</button>' +
+        '<div class="course">' + (r.course || '').toUpperCase() + ' · ' + (r.era || 'classic').toUpperCase() + '</div>' +
+        '<h3>' + r.title + '</h3>' +
+        '<div class="source">' + r.source + '</div>' +
+        '<div class="meta">' +
+        '<span>⏱ ' + (r.time_text || '—') + '</span>' +
+        '<span>🍽 ' + (r.yield_text || '—') + '</span>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+    document.querySelectorAll('.fav[data-fav-slug]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleFav(b.dataset.favSlug);
+        render();
+      });
+    });
+    document.querySelectorAll('.card[data-slug]').forEach(function (c) {
+      c.addEventListener('click', function () {
+        const r = recipes.find(function (x) { return x.slug === c.dataset.slug; });
+        if (r) showRecipe(r);
+      });
+    });
+  }
+
+  function showRecipe(r) {
+    const v = document.getElementById('recipeView');
+    document.getElementById('listSection').style.display = 'none';
+    v.classList.add('shown');
+    const ingHtml = r.ingredients.map(function (i) { return '<li>' + escapeHtml(i) + '</li>'; }).join('');
+    const methodHtml = r.method.map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
+    const note = r.family_note ? '<div class="family-note">' + escapeHtml(r.family_note) + '</div>' : '';
+    const tags = (r.tags || []).map(function (t) { return '#' + t; }).join(' · ');
+    v.innerHTML =
+      '<button class="back" id="backBtn">← back to recipes</button>' +
+      '<h2>' + escapeHtml(r.title) + '</h2>' +
+      '<div class="src">' + escapeHtml(r.source) + '</div>' +
+      '<div class="row">' +
+      '<div><strong>Course</strong>' + escapeHtml(r.course) + '</div>' +
+      '<div><strong>Yield</strong>' + escapeHtml(r.yield_text || '') + '</div>' +
+      '<div><strong>Time</strong>' + escapeHtml(r.time_text || '') + '</div>' +
+      '</div>' +
+      '<h3>Ingredients</h3><ul>' + ingHtml + '</ul>' +
+      '<h3>Method</h3><ol>' + methodHtml + '</ol>' +
+      note +
+      (tags ? '<div style="margin-top:0.8em; color:#806010; font-size:0.85em;">' + tags + '</div>' : '') +
+      '<div class="pd-basis"><strong>Public-domain basis:</strong> ' + escapeHtml(r.source_pd_basis || 'Documented in catalog.') + '</div>';
+    document.getElementById('backBtn').addEventListener('click', function () {
+      v.classList.remove('shown');
+      document.getElementById('listSection').style.display = 'block';
+      window.scrollTo(0, 0);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[<>&"']/g, function (c) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  document.querySelectorAll('.course-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.course-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentCourse = b.dataset.course;
+      render();
+    });
+  });
+  document.querySelectorAll('.fav-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.fav-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentFav = b.dataset.fav;
+      render();
+    });
+  });
+  // Default-active state
+  document.querySelector('.fav-btn[data-fav="all"]').classList.add('active');
+
+  fetch('/content/recipes.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.recipes) {
+        document.getElementById('grid').innerHTML = '<div class="empty">Recipe catalog unavailable.</div>';
+        return;
+      }
+      recipes = j.recipes;
+      render();
+    })
+    .catch(function () {
+      document.getElementById('grid').innerHTML = '<div class="empty">Recipe catalog unavailable.</div>';
+    });
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

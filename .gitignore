@@ -16,6 +16,13 @@ github_token.txt
 *.token
 .env
 .env.*
+# API keys + OAuth client secrets sitting at repo root (found 2026-06, untracked)
+*API*.txt
+*api_key*
+client_secret_*.json
+*client_secret*.json
+*.credentials.json
+*-credentials.json
 # Session handoff docs — these tend to embed live API keys and
 # session-specific notes. Treat as local-only by default. If you need
 # to share one publicly, scrub it to a separate path first.

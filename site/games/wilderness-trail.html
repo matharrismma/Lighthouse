@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wilderness Trail · Narrow Highway</title>
+  <meta name="description" content="Wilderness Trail — lead your tribe from Egypt to the Promised Land. Manage water, manna, livestock, and faith. Navigate Marah, Sinai, Kadesh, and the Jordan. A scripture-anchored adventure inspired by Oregon Trail.">
+  <link rel="canonical" href="https://narrowhighway.com/games/wilderness-trail.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Wilderness Trail">
+  <meta property="og:description" content="Lead your tribe from Egypt to the Promised Land. Manage water, manna, livestock, and faith.">
+  <meta property="og:url" content="https://narrowhighway.com/games/wilderness-trail.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Game",
+    "name": "Wilderness Trail",
+    "description": "Lead your tribe of Israel from Egypt to the Promised Land through ten wilderness stations. Inspired by Oregon Trail.",
+    "url": "https://narrowhighway.com/games/wilderness-trail.html",
+    "playMode": "SinglePlayer",
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "audience": {"@type": "PeopleAudience", "audienceType": "Christian families, all ages 8+"},
+    "isPartOf": {"@id": "https://narrowhighway.com/#website"},
+    "publisher": {"@id": "https://narrowhighway.com/#org"}
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    :root {
+      --paper:       #f3e8c8;
+      --paper-2:     #e9dab2;
+      --rule:        #b5a274;
+      --rule-strong: #8a7548;
+      --ink:         #2a200f;
+      --ink-2:       #5a4830;
+      --red:         #9a3a26;
+      --brass:       #7c5c20;
+      --brass-hi:    #a87a2a;
+      --pass:        #4f7a3a;
+      --fade:        #8a7a55;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(255,250,220,.35), transparent 60%),
+        linear-gradient(180deg, #ede0b3 0%, #d9c896 100%);
+      color: var(--ink);
+      font-family: 'Cormorant Garamond', 'Crimson Pro', Georgia, serif;
+      line-height: 1.55;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wt-wrap { max-width: 760px; margin: 0 auto; padding: 26px 22px 60px; }
+
+    /* ── Title screen ─────────────────────────────────────── */
+    .title-screen { text-align: center; padding: 40px 20px; }
+    .title-screen h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-style: italic;
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      color: var(--ink);
+      letter-spacing: 0.01em;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    }
+    .title-screen .sub {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 17px;
+      margin-bottom: 30px;
+    }
+    .title-screen .verse {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      color: var(--brass);
+      font-size: 15px;
+      margin-bottom: 36px;
+      max-width: 44ch;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    .title-screen .verse .ref {
+      display: block;
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--rule-strong);
+    }
+
+    /* Big button used on title + game-over screens */
+    .big-btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--brass);
+      color: #fffdf6 !important;
+      border: 2px solid var(--brass);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .big-btn:hover { background: var(--brass-hi); border-color: var(--brass-hi); text-decoration: none; }
+    .big-btn:active { transform: translateY(1px); }
+    .big-btn.ghost { background: transparent; color: var(--brass) !important; border-color: var(--brass); }
+    .big-btn.ghost:hover { background: var(--brass); color: #fffdf6 !important; }
+
+    /* ── Tribe selection ──────────────────────────────────── */
+    .tribe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .tribe {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--rule-strong);
+      border-radius: 0 4px 4px 0;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-left-color .12s, background .12s;
+      text-align: left;
+    }
+    .tribe:hover { border-left-color: var(--red); background: #f8efd0; }
+    .tribe .nm {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-size: 1.25rem;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+    .tribe .blessing {
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--ink-2);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .tribe .traits {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .trait {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      background: rgba(124,92,32,.1);
+      color: var(--brass);
+      border-radius: 3px;
+    }
+
+    /* ── Game HUD ─────────────────────────────────────────── */
+    .hud {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 8px;
+    }
+    .hud .stat {
+      text-align: center;
+      padding: 2px 4px;
+    }
+    .hud .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .hud .v {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+    .hud .v.low { color: var(--red); }
+    .hud .v.high { color: var(--pass); }
+    /* Slim bar under each stat for visual weight */
+    .hud .bar {
+      height: 3px;
+      background: rgba(124,92,32,.18);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .hud .bar > i {
+      display: block;
+      height: 100%;
+      background: var(--brass);
+      transition: width .35s;
+    }
+    .hud .bar > i.low  { background: var(--red); }
+    .hud .bar > i.high { background: var(--pass); }
+
+    /* Location strip */
+    .loc-strip {
+      background: rgba(124,92,32,.10);
+      padding: 8px 14px;
+      border-radius: 3px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .loc-strip .l {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 15px;
+    }
+    .loc-strip .l strong { color: var(--ink); font-style: normal; font-weight: 500; }
+    .loc-strip .progress {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+
+    /* Scene */
+    .scene {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 22px 26px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(43,32,15,.08);
+    }
+    .scene h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-size: 1.7rem;
+      color: var(--ink);
+      letter-spacing: 0.005em;
+      margin-bottom: 4px;
+    }
+    .scene .ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 14px;
+    }
+    .scene .narration {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 17px;
+      color: var(--ink);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+    .scene .narration p + p { margin-top: 10px; }
+    .scene .narration em { color: var(--ink-2); }
+    .scene .verse {
+      border-left: 3px solid var(--brass);
+      padding: 6px 14px;
+      margin: 14px 0;
+      font-style: italic;
+      color: var(--ink-2);
+      background: rgba(255,255,255,.3);
+    }
+    .scene .verse .ref-inline {
+      display: block;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+
+    /* Choices */
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .choice {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      background: #fffdf6;
+      color: var(--ink);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: border-left-color .12s, background .12s, transform .1s;
+    }
+    .choice:hover { border-left-color: var(--red); background: #fdf7e1; }
+    .choice:active { transform: translateX(1px); }
+    .choice .hint {
+      display: block;
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--ink-2);
+      margin-top: 3px;
+    }
+    .choice .cost {
+      display: inline-block;
+      margin-left: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .choice:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .choice:disabled:hover { border-left-color: var(--brass); background: #fffdf6; }
+
+    /* Outcome / event message after a choice */
+    .outcome {
+      background: rgba(255,255,255,.4);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 15.5px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .outcome .delta {
+      display: inline-block;
+      margin-right: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .outcome .delta.gain { color: var(--pass); }
+    .outcome .delta.loss { color: var(--red); }
+
+    /* End screen */
+    .end-screen {
+      text-align: center;
+      padding: 30px 20px;
+    }
+    .end-screen h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      font-style: italic;
+      font-size: 2.4rem;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .end-screen h2.win  { color: var(--pass); }
+    .end-screen h2.loss { color: var(--red); }
+    .end-screen .epilogue {
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 17px;
+      max-width: 50ch;
+      margin: 0 auto 26px;
+      line-height: 1.65;
+    }
+    .end-screen .summary {
+      display: inline-block;
+      text-align: left;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 16px 22px;
+      margin-bottom: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .end-screen .summary .k { color: var(--brass); }
+
+    /* Small footer note */
+    .wt-footnote {
+      margin-top: 24px;
+      text-align: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--ink-2);
+    }
+    .wt-footnote a { color: var(--brass); }
+  </style>
+</head>
+
+<body class="nh-shell-cream" data-nh-toc="off">
+
+<main class="wt-wrap" id="wtApp"></main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// WILDERNESS TRAIL
+// ═══════════════════════════════════════════════════════════════════
+// Lead your tribe from Egypt to the Promised Land. Inspired by Oregon
+// Trail; built on Exodus, Numbers, and Deuteronomy.
+//
+// Resources you tend:
+//   people   — souls (representative count, in thousands)
+//   water    — skins, 0-100; depletes daily, refilled at oases
+//   manna    — days remaining; God renews each morning if obedient
+//   stock    — sheep + cattle for offerings and food
+//   gold     — talents (Egyptian spoil); spent in offerings
+//   faith    — 0-100; the load-bearing resource
+//
+// You win by crossing the Jordan with faith intact.
+// You lose if faith reaches 0, water reaches 0, or your people scatter.
+// ═══════════════════════════════════════════════════════════════════
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+const SK = 'nh_wt_save_v1';
+
+// ── Tribes ─────────────────────────────────────────────────────────
+// Twelve sons of Jacob (Joseph as one). Each tribe gets a starting
+// bias from Genesis 49 — Jacob's prophecy over each son. Mild bonuses;
+// the game balance lets any tribe win.
+const TRIBES = [
+  { id:'reuben',   name:'Reuben',   start:{people:46, water:60, manna:5, stock:38, gold:8,  faith:50},
+    blessing:'Unstable as water, you shall not have the pre-eminence.',
+    traits:['large household','prone to grumbling'] },
+  { id:'simeon',   name:'Simeon',   start:{people:59, water:60, manna:5, stock:35, gold:9,  faith:55},
+    blessing:'Instruments of cruelty are in their habitations.',
+    traits:['strong fighters','hot-tempered'] },
+  { id:'levi',     name:'Levi',     start:{people:22, water:65, manna:6, stock:20, gold:6,  faith:80},
+    blessing:'I will divide them in Jacob, and scatter them in Israel.',
+    traits:['priestly','high faith'] },
+  { id:'judah',    name:'Judah',    start:{people:74, water:60, manna:5, stock:40, gold:10, faith:65},
+    blessing:'The sceptre shall not depart from Judah.',
+    traits:['lion of the tribes','leadership'] },
+  { id:'dan',      name:'Dan',      start:{people:62, water:55, manna:5, stock:38, gold:8,  faith:50},
+    blessing:'Dan shall judge his people, as one of the tribes of Israel.',
+    traits:['serpent by the way','judgement'] },
+  { id:'naphtali', name:'Naphtali', start:{people:53, water:60, manna:5, stock:36, gold:8,  faith:55},
+    blessing:'A hind let loose: he giveth goodly words.',
+    traits:['swift messengers','poet voice'] },
+  { id:'gad',      name:'Gad',      start:{people:45, water:58, manna:5, stock:42, gold:8,  faith:55},
+    blessing:'A troop shall overcome him: but he shall overcome at the last.',
+    traits:['raiders','large flocks'] },
+  { id:'asher',    name:'Asher',    start:{people:41, water:62, manna:6, stock:40, gold:11, faith:55},
+    blessing:'Out of Asher his bread shall be fat, and he shall yield royal dainties.',
+    traits:['rich food','royal bread'] },
+  { id:'issachar', name:'Issachar', start:{people:54, water:60, manna:5, stock:44, gold:7,  faith:60},
+    blessing:'A strong ass couching down between two burdens.',
+    traits:['burden-bearers','strength'] },
+  { id:'zebulun',  name:'Zebulun',  start:{people:57, water:60, manna:5, stock:38, gold:9,  faith:55},
+    blessing:'Zebulun shall dwell at the haven of the sea.',
+    traits:['sea-traders','ships'] },
+  { id:'joseph',   name:'Joseph (Ephraim + Manasseh)',
+    start:{people:85, water:65, manna:7, stock:48, gold:14, faith:65},
+    blessing:'A fruitful bough by a well; the blessings of thy father have prevailed.',
+    traits:['double portion','fruitful'] },
+  { id:'benjamin', name:'Benjamin', start:{people:35, water:55, manna:5, stock:30, gold:7,  faith:60},
+    blessing:'Benjamin shall ravin as a wolf: in the morning he shall devour the prey.',
+    traits:['warrior wolves','beloved'] },
+];
+
+// ── Stations (the journey) ─────────────────────────────────────────
+// Each station carries a primary event + 2-4 choices. Some events are
+// scriptural and unavoidable; how you RESPOND is the choice.
+// Order matters — stations are visited in sequence.
+const STATIONS = [
+  {
+    id: 'red-sea',
+    name: 'The Red Sea',
+    ref: 'Exodus 14',
+    intro:
+      `<p>You are out of Egypt, but Pharaoh's chariots thunder behind you. The sea is in front. Your people press against you, crying out.</p>
+       <div class="verse"><em>"Stand still, and see the salvation of the LORD."</em><span class="ref-inline">Exodus 14:13</span></div>
+       <p>Moses lifts his rod. The sea is dividing. What is your tribe's posture as you cross?</p>`,
+    choices: [
+      {
+        text: 'Walk forward in silence, trusting the LORD.',
+        hint: 'The waters stand as walls on both sides.',
+        effect: { faith:+10 },
+        outcome:
+          `<p>Your people walk through on dry ground, eyes forward. When you reach the far shore, Miriam takes up her tambourine. Your faith is anchored to a witnessed miracle.</p>`,
+      },
+      {
+        text: 'Send your strongest ahead to scout the gap.',
+        hint: 'Caution before the crossing.',
+        effect: { faith:+3, people:-1 },
+        outcome:
+          `<p>A few of your scouts panic at the towering water and fall back into the sea before it closes. Most cross safely. You have a story to tell, but it is mixed with loss.</p>`,
+      },
+      {
+        text: 'Grumble — was it for this we left Egypt?',
+        hint: 'The grumbling of fear.',
+        effect: { faith:-15 },
+        outcome:
+          `<p>You cross with the others, but bitterness has already taken root in the tribe. The crossing is not remembered as a salvation but as a forced march.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'marah',
+    name: 'Marah — the bitter waters',
+    ref: 'Exodus 15:22–26',
+    intro:
+      `<p>Three days into the Wilderness of Shur. No water has been found. When at last you reach Marah, the spring is undrinkable — bitter as gall.</p>
+       <p>The people murmur against Moses. Your water skins are almost empty.</p>`,
+    choices: [
+      {
+        text: 'Wait. Watch Moses inquire of the LORD.',
+        hint: 'A tree is cast in; the water sweetens.',
+        effect: { water:+30, faith:+8 },
+        outcome:
+          `<p>The LORD shows Moses a tree; he casts it in, and the waters are made sweet. You refill your skins. The LORD has revealed himself as the One who heals.</p>`,
+      },
+      {
+        text: 'Demand action — go elsewhere immediately.',
+        hint: 'Press on without water.',
+        effect: { water:-15, people:-2, faith:-5 },
+        outcome:
+          `<p>You drive your tribe onward. Some collapse from thirst before you find the next oasis. You arrived at Elim eventually, but the cost is real.</p>`,
+      },
+      {
+        text: 'Dig wells beside the spring.',
+        hint: 'Sweat replaces faith.',
+        effect: { water:+12, faith:-3 },
+        outcome:
+          `<p>You find brackish water by digging, enough to survive. The miracle you might have witnessed at Marah is not yours to remember.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'elim',
+    name: 'Elim — twelve springs and seventy palms',
+    ref: 'Exodus 15:27',
+    intro:
+      `<p>You camp at Elim. Twelve springs, seventy palms — one for each tribe, one for each elder. The water is cold and clean. Your people rest.</p>
+       <p>You may stay a season to fully restore, or move on while strength returns.</p>`,
+    choices: [
+      {
+        text: 'Stay one full Sabbath cycle. Restore everything.',
+        hint: 'Rest is also obedience.',
+        effect: { water:+40, manna:+2, stock:+4, faith:+5 },
+        outcome:
+          `<p>Seven days at Elim. Your skins are full, your stock recovers, and the tribe remembers what rest is. You leave at full strength.</p>`,
+      },
+      {
+        text: 'Press on toward Sinai — the LORD has called.',
+        hint: 'Onward, but tired.',
+        effect: { water:+20, faith:+3 },
+        outcome:
+          `<p>You move on the next morning. Your skins are full, but the deep weariness in your bones is not yet gone.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'wilderness-of-sin',
+    name: 'Wilderness of Sin — manna and quail',
+    ref: 'Exodus 16',
+    intro:
+      `<p>You enter the Wilderness of Sin. Hunger settles in. The people remember the fleshpots of Egypt — and start to remember them fondly.</p>
+       <div class="verse"><em>"Would to God we had died by the hand of the LORD in the land of Egypt, when we sat by the flesh pots."</em><span class="ref-inline">Exodus 16:3</span></div>
+       <p>In the evening quail cover the camp. In the morning a fine flake-like thing lies on the ground. <em>Manna.</em> The LORD gives a daily ration. How does your tribe gather?</p>`,
+    choices: [
+      {
+        text: 'Gather an omer per person; double on the sixth day.',
+        hint: 'The Word is the measure.',
+        effect: { manna:+10, faith:+10 },
+        outcome:
+          `<p>You obey. The manna keeps. On the seventh day, none falls and none is needed. The rhythm of provision and rest is written into your tribe.</p>`,
+      },
+      {
+        text: 'Gather more than the omer. Hoard for tomorrow.',
+        hint: 'Trust your storehouse, not the LORD.',
+        effect: { manna:+3, faith:-12 },
+        outcome:
+          `<p>The hoarded portion stinks and breeds worms by morning. Some of your people are sickened. The lesson is bitter.</p>`,
+      },
+      {
+        text: 'Gather on the Sabbath — surely God provides.',
+        hint: 'Disobedience disguised as faith.',
+        effect: { manna:+5, faith:-8 },
+        outcome:
+          `<p>You find nothing. Moses is grieved. Your tribe learns that the seventh day is the LORD's, and gathered work on it is not faith but rebellion.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'rephidim',
+    name: 'Rephidim — water from the rock and the Amalekite ambush',
+    ref: 'Exodus 17',
+    intro:
+      `<p>At Rephidim, the springs are dry. The people quarrel with Moses, asking him if he brought them out to die of thirst. He cries out to the LORD.</p>
+       <p>The LORD says: strike the rock at Horeb. Water flows from stone.</p>
+       <p>Then Amalek comes against you — striking the weakest at the rear of the column. Moses tells Joshua to choose men and fight. Moses will hold the rod up on the hill.</p>`,
+    choices: [
+      {
+        text: 'Send your strongest with Joshua; hold up Moses’ hands.',
+        hint: 'Aaron and Hur stand with him.',
+        effect: { water:+25, faith:+12, stock:-5 },
+        outcome:
+          `<p>You fight all day. Whenever Moses' hands fall, Amalek prevails; whenever they are upheld, Israel prevails. Joshua discomfits Amalek with the edge of the sword. You learn the LORD is your banner — <em>YHWH Nissi</em>.</p>`,
+      },
+      {
+        text: 'Stay with your families. Let other tribes fight.',
+        hint: 'Cowardice or wisdom?',
+        effect: { water:+25, faith:-8, people:-3 },
+        outcome:
+          `<p>You guard your camp. Amalek strikes your stragglers as Joshua fights elsewhere. The water flows, but your courage is named and your shame remembered.</p>`,
+      },
+      {
+        text: 'Surrender to Amalek; sue for peace.',
+        hint: 'Egypt was easier.',
+        effect: { water:+15, faith:-30, people:-8, gold:-4 },
+        outcome:
+          `<p>Amalek does not make peace with Israel; the LORD has sworn war with Amalek from generation to generation. They plunder you and depart. Your tribe is bleeding.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'sinai',
+    name: 'Mount Sinai — the covenant',
+    ref: 'Exodus 19–32',
+    intro:
+      `<p>You arrive at Sinai. The mountain smokes. Thunder. The trumpet sounds louder and louder. Moses goes up alone.</p>
+       <p>Forty days he is gone. The people grow restless. Aaron, pressed by the multitude, makes a calf of gold from the rings of Egypt. The cry goes up: <em>These be thy gods, O Israel.</em></p>
+       <p>You are standing in the camp when Moses descends.</p>`,
+    choices: [
+      {
+        text: 'Stand with Moses and the Levites. Refuse the calf.',
+        hint: '"Who is on the LORD’s side? let him come unto me."',
+        effect: { faith:+20, gold:-3, people:-2 },
+        outcome:
+          `<p>You stand. The Levites pass through the camp with the sword. The calf is ground to powder and cast into the brook. You drink the bitter draught of judgment — but your faith is fortified against false images forever.</p>`,
+      },
+      {
+        text: 'Bring your rings to the calf. Aaron is high priest.',
+        hint: 'Surely a god you can see is safer.',
+        effect: { faith:-25, gold:-6, people:-5 },
+        outcome:
+          `<p>You dance before the calf. Then Moses comes. The judgment falls. Your tribe weeps for those lost and for the years of trust now to be rebuilt.</p>`,
+      },
+      {
+        text: 'Stay back. Watch. Take no part either way.',
+        hint: 'Neutrality is also a choice.',
+        effect: { faith:-8 },
+        outcome:
+          `<p>You see the judgment fall on those who bowed and the favor rest on those who stood. The middle way is named: you neither fell nor stood. The lesson cuts.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'taberah',
+    name: 'Taberah — the fire of murmuring',
+    ref: 'Numbers 11',
+    intro:
+      `<p>Camp at Taberah. The mixed multitude lusts for flesh. Your people, picking up the lament, weep: <em>"Who shall give us flesh to eat? We remember the cucumbers, and the melons, and the leeks, and the onions, and the garlick."</em></p>
+       <p>The anger of the LORD kindles. Fire burns the outskirts of the camp.</p>`,
+    choices: [
+      {
+        text: 'Cry to Moses. He intercedes; the fire stops.',
+        hint: 'Even now, repentance avails.',
+        effect: { faith:+8, people:-2 },
+        outcome:
+          `<p>Moses prays. The fire is quenched. The place is named Taberah — burning — that you may remember what murmuring kindles.</p>`,
+      },
+      {
+        text: 'Join the lament. Surely the LORD will give meat.',
+        hint: 'Test the LORD.',
+        effect: { faith:-15, stock:+8, people:-6 },
+        outcome:
+          `<p>Quail comes — but the meat is yet between your teeth when a great plague strikes those who hoarded most. The place is also called Kibroth Hattaavah — the graves of craving.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'kadesh',
+    name: 'Kadesh Barnea — the report of the spies',
+    ref: 'Numbers 13–14',
+    intro:
+      `<p>You stand at the doorstep of the Promised Land. Twelve spies are sent. Forty days they search. Ten return saying the land devours its inhabitants; the people are giants; we were as grasshoppers.</p>
+       <p>Caleb and Joshua tear their clothes: <em>"Let us go up at once, and possess it; for we are well able to overcome it."</em></p>
+       <p>The whole congregation lifts up their voice to stone them. Your tribe must choose: which report do you trust?</p>`,
+    choices: [
+      {
+        text: 'Follow Caleb and Joshua. The LORD is with us.',
+        hint: 'Faith against the majority.',
+        effect: { faith:+20, water:-5 },
+        outcome:
+          `<p>You stand. The cloud descends. The LORD declares: of those over twenty who refused to enter, only Caleb and Joshua will see the land — but your tribe is marked among the faithful, and your portion preserved.</p>`,
+      },
+      {
+        text: 'Follow the ten. The giants are too tall.',
+        hint: 'Sight over Word.',
+        effect: { faith:-25, water:-10 },
+        outcome:
+          `<p>The congregation weeps; the wilderness becomes your dwelling for forty years. A generation is appointed to die outside Canaan. Your tribe sits down to a long, slow journey.</p>`,
+      },
+      {
+        text: 'Send messengers to Moab to make alliances.',
+        hint: 'Treat with the nations instead.',
+        effect: { faith:-18, gold:-5, stock:-4 },
+        outcome:
+          `<p>Moab takes your gifts but does not love you. The LORD turns your way back into the wilderness. You will wander.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'serpents',
+    name: 'The bronze serpent',
+    ref: 'Numbers 21:4–9',
+    intro:
+      `<p>The way from Mount Hor is long and the soul of the people is much discouraged. They speak against God and against Moses: <em>"There is no bread, neither is there any water; and our soul loatheth this light bread."</em></p>
+       <p>Fiery serpents come among the people; many die. The people come to Moses, confessing. The LORD says: make a serpent of brass and set it on a pole; whoever looks shall live.</p>`,
+    choices: [
+      {
+        text: 'Tell every household: look at the bronze serpent.',
+        hint: 'Lifted up, that whoever believes might live.',
+        effect: { faith:+15, people:-2 },
+        outcome:
+          `<p>Those who look live. Your tribe is taught a sign that will be remembered a thousand years on, when another Son will be lifted up that all who look on Him might live.</p>
+           <div class="verse"><em>"As Moses lifted up the serpent in the wilderness, even so must the Son of man be lifted up."</em><span class="ref-inline">John 3:14</span></div>`,
+      },
+      {
+        text: 'Doctor the wounds with what you have.',
+        hint: 'Trust craft over sign.',
+        effect: { faith:-5, people:-5 },
+        outcome:
+          `<p>Some survive, more do not. The sign was given for the looking; you tried for the bandaging.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'moab',
+    name: 'Plains of Moab — Balaam’s blessing',
+    ref: 'Numbers 22–24',
+    intro:
+      `<p>You camp in the plains of Moab by the Jordan, opposite Jericho. Balak king of Moab, terrified of you, hires Balaam the seer to curse you.</p>
+       <p>Balaam goes up but cannot curse what the LORD has blessed. From his lips falls a prophecy: <em>"There shall come a Star out of Jacob, and a Sceptre shall rise out of Israel."</em></p>
+       <p>The blessing is real — but Balaam leaves behind a counsel to the Moabites: corrupt Israel through the daughters of Moab. The seduction comes.</p>`,
+    choices: [
+      {
+        text: 'Keep your tribe within the camp. Refuse Moabite worship.',
+        hint: 'Boundaries hold.',
+        effect: { faith:+15, gold:-2 },
+        outcome:
+          `<p>Your tribe holds. When the plague falls upon those who went after Baal-peor, your people are spared. The LORD blesses what He has set apart.</p>`,
+      },
+      {
+        text: 'Allow some mingling — for peace and trade.',
+        hint: 'A small compromise.',
+        effect: { faith:-12, people:-4, gold:+3 },
+        outcome:
+          `<p>Some of your tribe fall to Baal-peor. A plague follows. Phinehas stays the LORD's wrath, but your portion is diminished.</p>`,
+      },
+    ],
+  },
+
+  {
+    id: 'jordan',
+    name: 'The Jordan — the crossing',
+    ref: 'Joshua 3–4',
+    intro:
+      `<p>Moses has gone up Mount Nebo and been gathered to his people. Joshua leads now.</p>
+       <p>The Jordan is at flood stage, overflowing its banks at harvest. The ark of the covenant goes before you. The priests stop at the river's edge — and the waters from upstream stand in a heap.</p>
+       <div class="verse"><em>"This day will I begin to magnify thee in the sight of all Israel, that they may know that, as I was with Moses, so I will be with thee."</em><span class="ref-inline">Joshua 3:7</span></div>`,
+    choices: [
+      {
+        text: 'Cross with the ark on dry ground. Take twelve stones.',
+        hint: 'A memorial for your children’s children.',
+        effect: { faith:+20, water:+20 },
+        outcome:
+          `<p>You cross. You take a stone — one for your tribe — and set it up at Gilgal. You stand in Canaan. The wilderness is behind you. <strong>You are home.</strong></p>`,
+      },
+    ],
+  },
+];
+
+// ── Game state ─────────────────────────────────────────────────────
+let state = null;
+
+function newGame(tribeId) {
+  const t = TRIBES.find(t => t.id === tribeId);
+  state = {
+    tribe: t.id,
+    tribeName: t.name,
+    blessing: t.blessing,
+    stationIdx: 0,
+    started: Date.now(),
+    log: [],
+    miracles: 0,
+    rebellions: 0,
+    ...JSON.parse(JSON.stringify(t.start)),
+  };
+  save();
+  renderStation();
+}
+
+function save() { try { localStorage.setItem(SK, JSON.stringify(state)); } catch(_) {} }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SK) || 'null');
+    if (s && typeof s.stationIdx === 'number') return s;
+  } catch(_) {}
+  return null;
+}
+function wipe() { try { localStorage.removeItem(SK); } catch(_) {} }
+
+// ── Rendering ──────────────────────────────────────────────────────
+const app = $('wtApp');
+
+function renderTitle() {
+  app.innerHTML = `
+    <div class="title-screen">
+      <h1>Wilderness Trail</h1>
+      <div class="sub">Lead your tribe from Egypt to the Promised Land.</div>
+      <div class="verse">
+        "And the LORD went before them by day in a pillar of a cloud, to lead them the way; and by night in a pillar of fire, to give them light; to go by day and night."
+        <span class="ref">Exodus 13:21</span>
+      </div>
+      <a class="big-btn" href="#" id="btnStart">Start a new journey</a>
+      ${load() ? '<a class="big-btn ghost" href="#" id="btnResume" style="margin-left:10px;">Resume the journey</a>' : ''}
+      <p class="wt-footnote" style="margin-top:30px;">Inspired by <em>Oregon Trail</em>. Built on Exodus, Numbers, Deuteronomy, Joshua.
+        <br>Free, no ads, nothing tracked. <a href="/games.html">More family games →</a></p>
+    </div>
+  `;
+  $('btnStart').addEventListener('click', e => { e.preventDefault(); wipe(); renderTribePick(); });
+  const r = $('btnResume');
+  if (r) r.addEventListener('click', e => { e.preventDefault(); state = load(); if (state) renderStation(); else renderTribePick(); });
+}
+
+function renderTribePick() {
+  app.innerHTML = `
+    <div style="margin-bottom:20px;">
+      <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;font-style:italic;font-size:2.2rem;color:var(--ink);">Choose your tribe</h1>
+      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;color:var(--ink-2);font-size:16px;max-width:48ch;margin-top:6px;">
+        Each tribe carries Jacob's prophecy and the bones of Joseph. Their starting strength differs — but any of them may cross.
+      </p>
+    </div>
+    <div class="tribe-grid">
+      ${TRIBES.map(t => `
+        <div class="tribe" data-tid="${esc(t.id)}">
+          <div class="nm">${esc(t.name)}</div>
+          <div class="blessing">${esc(t.blessing)}</div>
+          <div class="traits">${t.traits.map(x => '<span class="trait">' + esc(x) + '</span>').join('')}</div>
+        </div>
+      `).join('')}
+    </div>
+    <p class="wt-footnote"><a href="#" id="backTitle">← Back</a></p>
+  `;
+  app.querySelectorAll('.tribe').forEach(el => el.addEventListener('click', () => newGame(el.dataset.tid)));
+  $('backTitle').addEventListener('click', e => { e.preventDefault(); renderTitle(); });
+}
+
+function statBar(v, max, label) {
+  const pct = clamp(Math.round(v / max * 100), 0, 100);
+  const cls = v / max < 0.25 ? 'low' : v / max > 0.7 ? 'high' : '';
+  return `
+    <div class="stat">
+      <div class="lbl">${label}</div>
+      <div class="v ${cls}">${v}</div>
+      <div class="bar"><i class="${cls}" style="width:${pct}%"></i></div>
+    </div>`;
+}
+
+function renderHUD() {
+  return `
+    <div class="hud">
+      ${statBar(state.people, 100, 'People')}
+      ${statBar(state.water,  100, 'Water')}
+      ${statBar(state.manna,  20,  'Manna')}
+      ${statBar(state.stock,  60,  'Stock')}
+      ${statBar(state.gold,   30,  'Gold')}
+      ${statBar(state.faith,  100, 'Faith')}
+    </div>
+  `;
+}
+
+function renderStation() {
+  const s = STATIONS[state.stationIdx];
+  if (!s) return renderEnd(true);
+  app.innerHTML = `
+    ${renderHUD()}
+    <div class="loc-strip">
+      <div class="l">Tribe: <strong>${esc(state.tribeName)}</strong></div>
+      <div class="progress">Station ${state.stationIdx + 1} of ${STATIONS.length}</div>
+    </div>
+    <div class="scene">
+      <h2>${esc(s.name)}</h2>
+      <div class="ref">${esc(s.ref)}</div>
+      <div class="narration">${s.intro}</div>
+      <div class="choices">
+        ${s.choices.map((c, i) => `
+          <button class="choice" data-i="${i}">
+            ${esc(c.text)}
+            <span class="hint">${esc(c.hint || '')}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  app.querySelectorAll('.choice').forEach(btn => {
+    btn.addEventListener('click', () => applyChoice(s, +btn.dataset.i));
+  });
+}
+
+function applyChoice(station, choiceIdx) {
+  const c = station.choices[choiceIdx];
+  const before = {...state};
+  // Apply effect
+  Object.entries(c.effect || {}).forEach(([k, v]) => {
+    if (typeof state[k] === 'number') {
+      state[k] = clamp(state[k] + v, 0, k === 'people' ? 200 : k === 'manna' ? 30 : k === 'stock' ? 80 : k === 'gold' ? 50 : 100);
+    }
+  });
+  // Tally miracles/rebellions for end summary
+  if (c.effect && (c.effect.faith || 0) >= 10) state.miracles++;
+  if (c.effect && (c.effect.faith || 0) <= -10) state.rebellions++;
+  state.log.push({ station: station.name, choice: c.text });
+
+  // Render outcome + advance button
+  const deltas = Object.entries(c.effect || {}).map(([k, v]) => {
+    const sign = v > 0 ? '+' : '';
+    return `<span class="delta ${v >= 0 ? 'gain' : 'loss'}">${k}: ${sign}${v}</span>`;
+  }).join('');
+
+  app.innerHTML = `
+    ${renderHUD()}
+    <div class="loc-strip">
+      <div class="l">${esc(station.name)} — your choice has been made.</div>
+      <div class="progress">Station ${state.stationIdx + 1} of ${STATIONS.length}</div>
+    </div>
+    <div class="scene">
+      <h2>${esc(station.name)}</h2>
+      <div class="ref">${esc(station.ref)}</div>
+      <div class="outcome">${deltas}${c.outcome}</div>
+      <div class="choices">
+        ${state.stationIdx + 1 < STATIONS.length
+          ? '<button class="choice" id="next">Onward — break camp →</button>'
+          : '<button class="choice" id="next">Step into Canaan →</button>'}
+      </div>
+    </div>
+  `;
+  $('next').addEventListener('click', () => {
+    state.stationIdx++;
+    save();
+    // Loss checks
+    if (state.faith <= 0)  return renderEnd(false, 'Faith fails');
+    if (state.water <= 0)  return renderEnd(false, 'Water runs out');
+    if (state.people <= 0) return renderEnd(false, 'Your tribe is scattered');
+    if (state.stationIdx >= STATIONS.length) return renderEnd(true);
+    renderStation();
+  });
+}
+
+function renderEnd(won, reason) {
+  wipe(); // clean up the save
+  const summary = `
+    <div class="summary">
+      <div><span class="k">Tribe:</span> ${esc(state.tribeName)}</div>
+      <div><span class="k">Stations passed:</span> ${state.stationIdx} / ${STATIONS.length}</div>
+      <div><span class="k">Final people:</span> ${state.people}</div>
+      <div><span class="k">Final water:</span> ${state.water}</div>
+      <div><span class="k">Final manna:</span> ${state.manna}</div>
+      <div><span class="k">Final stock:</span> ${state.stock}</div>
+      <div><span class="k">Final gold:</span> ${state.gold}</div>
+      <div><span class="k">Final faith:</span> ${state.faith}</div>
+      <div><span class="k">Miracles witnessed:</span> ${state.miracles}</div>
+      <div><span class="k">Times you grumbled:</span> ${state.rebellions}</div>
+    </div>
+  `;
+
+  const winEpilogue = `
+    <p>Your tribe stands at Gilgal, in the land of milk and honey. The stones of the Jordan are set up as a witness. Your children will ask, <em>"What mean ye by these stones?"</em> — and you will tell.</p>
+    <div class="verse" style="text-align:left;margin:20px auto;max-width:44ch;">
+      <em>"As for me and my house, we will serve the LORD."</em><span class="ref-inline">Joshua 24:15</span>
+    </div>
+  `;
+  const lossEpilogue = `
+    <p>Your tribe does not cross the Jordan in this generation. The wilderness keeps you — as it kept those whose faith failed. <em>${esc(reason || 'The journey is ended.')}</em></p>
+    <div class="verse" style="text-align:left;margin:20px auto;max-width:44ch;">
+      <em>"The LORD is longsuffering, and of great mercy, forgiving iniquity and transgression… Pardon, I beseech thee, the iniquity of this people according unto the greatness of thy mercy."</em><span class="ref-inline">Numbers 14:18–19</span>
+    </div>
+    <p style="margin-top:14px;">The journey may be walked again. The LORD's mercies are new every morning.</p>
+  `;
+
+  app.innerHTML = `
+    <div class="end-screen">
+      <h2 class="${won ? 'win' : 'loss'}">${won ? 'You enter the land.' : 'The wilderness holds you.'}</h2>
+      <div class="epilogue">${won ? winEpilogue : lossEpilogue}</div>
+      ${summary}
+      <div style="margin-top:24px;">
+        <a class="big-btn" href="#" id="again">Walk again</a>
+        <a class="big-btn ghost" href="/games.html" style="margin-left:10px;">More games</a>
+      </div>
+      <p class="wt-footnote">A Christian-family game from <a href="/">Narrow Highway</a>. Free, no ads.</p>
+    </div>
+  `;
+  $('again').addEventListener('click', e => { e.preventDefault(); renderTribePick(); });
+}
+
+// ── Boot ──────────────────────────────────────────────────────────
+if (load()) {
+  // There's a saved game — go straight to title with a Resume option
+  renderTitle();
+} else {
+  renderTitle();
+}
+</script>
+
+</body>
+</html>

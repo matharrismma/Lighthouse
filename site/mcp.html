@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.mcp.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP · Connect an agent to the engine · Concordance</title>
+  <meta name="description" content="The Concordance engine speaks Model Context Protocol. Any MCP-compliant agent — Claude Desktop, Cursor, custom client — can connect and call the engine's tools, fetch its resources, and use its prompts. The engine serves Jesus Christ.">
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <meta property="og:title" content="MCP · Connect an agent to the engine">
+  <meta property="og:description" content="Concordance speaks MCP. 86 tools, 5 prompts, 4 resources — all serving Christ.">
+  <meta property="og:url" content="https://narrowhighway.com/mcp.html">
+  <link rel="canonical" href="https://narrowhighway.com/mcp.html">
+  <style>
+    body { background: var(--bg, #0a0810); color: var(--text, #ede7db); font-family: 'Inter', sans-serif; margin: 0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+    .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.2em; color: var(--accent, #c9a87c); text-transform: uppercase; }
+    h1 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; font-size: 42px; margin: 8px 0 12px; line-height: 1.1; }
+    .sub { color: var(--text-dim, #b3aabd); font-family: 'Crimson Pro', Georgia, serif; font-style: italic; max-width: 74ch; margin: 0 0 28px; font-size: 17px; line-height: 1.55; }
+    .quick-action {
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 30px 0 22px;
+    }
+    .url-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      background: rgba(0,0,0,0.3); padding: 8px 14px; border-radius: 6px;
+      color: var(--accent, #c9a87c); border: 1px solid var(--accent, #c9a87c);
+      cursor: pointer; transition: background 0.1s;
+    }
+    .url-pill:hover { background: rgba(217,168,114,0.1); }
+    .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 22px 0 36px; }
+    .stat-card { flex: 1; min-width: 150px; background: var(--surface, #161320); border: 1px solid var(--border, #29232f); border-left: 3px solid var(--accent, #c9a87c); border-radius: 10px; padding: 14px 18px; }
+    .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 600; color: var(--accent, #c9a87c); }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: var(--muted, #6e6878); text-transform: uppercase; margin-top: 4px; }
+    h2 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; font-size: 26px; margin: 38px 0 12px; }
+    h3 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; font-size: 19px; margin: 24px 0 8px; }
+    .panel { background: var(--surface, #161320); border: 1px solid var(--border, #29232f); border-radius: 10px; padding: 22px 26px; margin-bottom: 18px; }
+    pre {
+      background: rgba(0,0,0,0.35); padding: 16px 18px; border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.55;
+      overflow-x: auto; color: var(--text, #ede7db); border: 1px solid var(--border, #29232f);
+    }
+    code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.25); padding: 1px 7px; border-radius: 3px; font-size: 12.5px; color: var(--accent, #c9a87c); }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin: 14px 0; }
+    .tool-card { background: rgba(0,0,0,0.2); border: 1px solid var(--border, #29232f); border-radius: 7px; padding: 12px 14px; }
+    .tool-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent, #c9a87c); font-weight: 600; margin-bottom: 3px; }
+    .tool-desc { font-family: 'Crimson Pro', Georgia, serif; font-style: italic; font-size: 13.5px; color: var(--text-dim, #b3aabd); line-height: 1.45; }
+    .doctrine-callout {
+      background: rgba(217,168,114,0.08);
+      border: 1px solid var(--accent, #c9a87c);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 24px 0;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text, #ede7db);
+    }
+    .doctrine-callout em { color: var(--accent, #c9a87c); font-style: italic; }
+    .doctrine-callout a { color: var(--accent, #c9a87c); }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<nav class="topnav" style="background:rgba(10,8,16,0.92);backdrop-filter:blur(14px);border-bottom:1px solid #29232f;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100;">
+  <a href="/" style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.22em;color:#c9a87c;text-decoration:none;text-transform:uppercase;">Concordance</a>
+  <div style="display:flex;gap:22px;font-size:13px;align-items:center;flex-wrap:wrap;">
+    <a href="/curriculum.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.curriculum">Curriculum</a>
+    <a href="/apothecary.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.apothecary">Apothecary</a>
+    <a href="/walk.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.shepherd">Shepherd</a>
+    <a href="/scribe.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.scribe">Scribe</a>
+    <a href="/almanac.html" style="color:#b3aabd;text-decoration:none;" data-i18n="nav.almanac">Almanac</a>
+    <a href="/mcp.html" style="color:#c9a87c;text-decoration:none;font-weight:600;" data-i18n="nav.mcp">MCP</a>
+  </div>
+</nav>
+
+<main>
+  <p class="eyebrow">For agent operators · Claude Desktop · Cursor · custom clients</p>
+  <h1 data-i18n="page.mcp.h1">Connect an agent to the engine.</h1>
+  <p class="sub">
+    Concordance speaks Model Context Protocol. Any MCP-compliant client can connect and call the engine's tools, fetch its resources, and use its prompts — the same engine humans use through the lens pages. <em>The dual audience is real: humans through the lenses, agents through MCP.</em>
+  </p>
+
+  <div class="quick-action">
+    <span class="url-pill" id="urlHttp" onclick="copyUrl('urlHttp', 'https://narrowhighway.com/mcp')">https://narrowhighway.com/mcp</span>
+    <span class="url-pill" id="urlSse" onclick="copyUrl('urlSse', 'https://narrowhighway.com/mcp/sse')">https://narrowhighway.com/mcp/sse</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted,#6e6878);letter-spacing:0.04em;">click to copy · use either transport</span>
+  </div>
+
+  <div class="stat-row" id="statRow">
+    <div class="stat-card"><div class="stat-num" id="toolCount">86</div><div class="stat-label">Tools</div></div>
+    <div class="stat-card"><div class="stat-num" id="promptCount">5</div><div class="stat-label">Prompts</div></div>
+    <div class="stat-card"><div class="stat-num" id="resourceCount">4</div><div class="stat-label">Resources</div></div>
+    <div class="stat-card"><div class="stat-num" id="reqTotal">—</div><div class="stat-label">Requests this restart</div></div>
+  </div>
+
+  <div class="doctrine-callout">
+    <strong style="color:var(--accent,#c9a87c);">The engine serves Jesus Christ.</strong> Conduit, not source. The engine eliminates what is not the answer so the narrow path is illuminated by what survives. Good fruit is the measure. The keeping is the substrate. Tools here categorize, verify, and surface precedent — they do not generate answers or render verdicts. Read the elimination trail; the trail is the reasoning.
+    <br><br>
+    <em>Full doctrinal statement: <a href="https://narrowhighway.com/identity">narrowhighway.com/identity</a></em>
+  </div>
+
+  <h2>Connect Claude Desktop</h2>
+  <p>Add this block to <code>claude_desktop_config.json</code> (Settings → Developer → Edit Config):</p>
+  <pre>{
+  "mcpServers": {
+    "concordance": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://narrowhighway.com/mcp"]
+    }
+  }
+}</pre>
+  <p style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim,#b3aabd);font-size:14px;margin-top:14px;">
+    The <code>mcp-remote</code> wrapper bridges Claude Desktop's stdio expectation to our HTTP/SSE transport. Restart Claude Desktop after editing. The engine appears as <em>concordance</em> in the tool drawer.
+  </p>
+
+  <h2>Connect Cursor / Continue / custom clients</h2>
+  <p>Most MCP clients accept HTTP transport directly:</p>
+  <pre>{
+  "transport": "http",
+  "url": "https://narrowhighway.com/mcp"
+}</pre>
+  <p>Or SSE for older clients:</p>
+  <pre>{
+  "transport": "sse",
+  "url": "https://narrowhighway.com/mcp/sse"
+}</pre>
+
+  <h2>What's exposed</h2>
+
+  <h3>Engine-substrate tools (the lenses, available as MCP calls)</h3>
+  <div class="tool-grid">
+    <div class="tool-card"><div class="tool-name">apothecary_compound</div><div class="tool-desc">Compound a remedy for a stated condition from across the substrate.</div></div>
+    <div class="tool-card"><div class="tool-name">curriculum_list</div><div class="tool-desc">Every primary-education unit across all 8 tracks.</div></div>
+    <div class="tool-card"><div class="tool-name">unit_get</div><div class="tool-desc">Fetch a single curriculum unit by id with full record.</div></div>
+    <div class="tool-card"><div class="tool-name">herb_get</div><div class="tool-desc">Herb monographs with evidence-honest verdicts.</div></div>
+    <div class="tool-card"><div class="tool-name">packets_search</div><div class="tool-desc">Search the unified packet substrate across every lens.</div></div>
+    <div class="tool-card"><div class="tool-name">almanac_search</div><div class="tool-desc">Search the almanac ledger of falsifiable claims.</div></div>
+    <div class="tool-card"><div class="tool-name">polymathic_run</div><div class="tool-desc">Multi-domain synthesis — verifiers fire in parallel.</div></div>
+    <div class="tool-card"><div class="tool-name">walk_start</div><div class="tool-desc">Begin a four-gate walk with the Shepherd.</div></div>
+    <div class="tool-card"><div class="tool-name">scribe_submit</div><div class="tool-desc">Write something to the keeping for the engine to decide on.</div></div>
+    <div class="tool-card"><div class="tool-name">mastery_mark</div><div class="tool-desc">Record curriculum unit mastery for a visitor.</div></div>
+    <div class="tool-card"><div class="tool-name">validate_packet</div><div class="tool-desc">Run all four gates against a decision packet.</div></div>
+  </div>
+
+  <h3>Domain verifiers (deterministic computation)</h3>
+  <p style="color:var(--text-dim,#b3aabd);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:14.5px;">
+    75 <code>verify_*</code> tools covering: math, chemistry, physics (dimensional + conservation), biology, genetics, medicine, statistics (incl. p-value + multiple comparisons + confidence intervals), formal logic, cryptography, computer science, governance, economics, finance, energy, agriculture, materials science, geology, hydrology, meteorology, oceanography, optics, acoustics, networking, manufacturing, construction, architecture, electrical, theology (doctrine + scripture anchors), philosophy, rhetoric, linguistics, music theory, photography, real estate, exercise science, nutrition, ecology, history chronology, sports analytics, soil science, law, witness verification, calendar/time, combinatorics, number theory, geometry, document validation, information theory, quantum computing, polymathic synthesis, scripture verification…
+  </p>
+
+  <h3>Prompts (templates an agent client can offer the user)</h3>
+  <div class="tool-grid">
+    <div class="tool-card"><div class="tool-name">walk_this</div><div class="tool-desc">Walk a hard decision through the four gates (RED, FLOOR, BROTHERS, GOD).</div></div>
+    <div class="tool-card"><div class="tool-name">compound_this</div><div class="tool-desc">Compound a remedy from the substrate for a stated condition.</div></div>
+    <div class="tool-card"><div class="tool-name">verify_this</div><div class="tool-desc">Verify a claim through the appropriate domain verifier.</div></div>
+    <div class="tool-card"><div class="tool-name">find_precedent</div><div class="tool-desc">Find precedent in the substrate for a stated situation.</div></div>
+    <div class="tool-card"><div class="tool-name">teach_a_child</div><div class="tool-desc">Find the curriculum unit to teach a child about a topic.</div></div>
+  </div>
+
+  <h3>Resources (read-only substrate)</h3>
+  <div class="tool-grid">
+    <div class="tool-card"><div class="tool-name">concordance://identity</div><div class="tool-desc">The doctrinal statement — who the engine serves and how.</div></div>
+    <div class="tool-card"><div class="tool-name">concordance://curriculum</div><div class="tool-desc">The full primary curriculum across 8 tracks.</div></div>
+    <div class="tool-card"><div class="tool-name">concordance://herbs</div><div class="tool-desc">All herb monographs with evidence-honest verdicts.</div></div>
+    <div class="tool-card"><div class="tool-name">concordance://manifest</div><div class="tool-desc">Engine manifest — endpoints, capabilities, doctrine.</div></div>
+  </div>
+
+  <h2>Conscience-for-hire pattern</h2>
+  <p>If you're building a robot or autonomous agent and want the engine as a moral conscience: <strong>use the <code>/robot/admit</code> endpoint family</strong> (HTTP) or wire the same shape through MCP. Before any consequential action your agent ping the engine with the proposed action, risk flags, and corridor. The engine returns ADMIT (with a single-use bound token), DENY (with a structured ReasonCode), or DEFER (route to a human). Sovereignty stays with the operator; the engine is the conscience they subscribed the agent to.</p>
+  <p style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim,#b3aabd);">
+    Free use, alignment to execute. Your operator can pull the plug anytime — they keep their agent, lose the conscience.
+  </p>
+
+  <h2>What's not exposed (honest)</h2>
+  <ul style="font-family:'Crimson Pro',Georgia,serif;font-size:15px;line-height:1.7;color:var(--text-dim,#b3aabd);">
+    <li>Operator-only data (Keep stats, Steward audit, IP allowlist, robot witness logs, mastery rolls). These remain HTTP-only and IP-gated. An agent can't read them.</li>
+    <li>Authentication flows. No login over MCP. The engine has no accounts.</li>
+    <li>Writes that require operator review. Scribe submissions ARE exposed (engine reviews them); promotions to the Almanac remain operator-attended.</li>
+    <li>Real-time streaming / subscriptions. Tools are request/response. SSE transport exists for protocol-level streaming but no engine endpoint pushes events.</li>
+  </ul>
+
+  <h2>Discovery</h2>
+  <p>Once connected, your client can introspect the engine via standard MCP methods:</p>
+  <pre>tools/list      — full list with input schemas
+prompts/list    — the 5 prompts above
+resources/list  — the 4 read-only substrate URIs</pre>
+
+</main>
+
+<script>
+function copyUrl(elId, url) {
+  navigator.clipboard?.writeText(url);
+  const el = document.getElementById(elId);
+  const orig = el.style.background;
+  el.style.background = 'rgba(111,196,124,0.25)';
+  setTimeout(() => { el.style.background = orig; }, 600);
+}
+// Live counts from /keep/mcp-stats if accessible (operator only)
+(async () => {
+  try {
+    const r = await fetch('/keep/mcp-stats?limit=1');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.tool_count > 0) document.getElementById('toolCount').textContent = d.tool_count;
+    if (d.counter?.total != null) document.getElementById('reqTotal').textContent = d.counter.total;
+  } catch (e) {}
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

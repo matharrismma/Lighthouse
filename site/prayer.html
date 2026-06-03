@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Board — Narrow Highway</title>
+<meta name="description" content="Household prayer requests and answered prayers. Private to your family. Stored on your device. The Lord is near.">
+  <link rel="canonical" href="https://narrowhighway.com/prayer.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Prayer Board — Narrow Highway">
+  <meta property="og:description" content="Household prayer requests and answered prayers. Private to your family. Stored on your device. The Lord is near.">
+  <meta property="og:url" content="https://narrowhighway.com/prayer.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Prayer Board — Narrow Highway">
+  <meta name="twitter:description" content="Household prayer requests and answered prayers. Private to your family. Stored on your device. The Lord is near.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; font-family: Georgia, serif; font-weight: normal; font-size: 2em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.1em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .privacy { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 4px; padding: 0.6em 1em; margin-top: 0.5em; font-size: 0.9em; color: #1f5b1f; }
+  .compose { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; }
+  .compose .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; margin-bottom: 0.5em; }
+  .compose textarea, .compose input, .compose select { width: 100%; padding: 0.5em 0.65em; border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28; font-family: inherit; font-size: 1em; box-sizing: border-box; }
+  .compose textarea { min-height: 4em; resize: vertical; }
+  button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.5em 1.2em; border-radius: 4px; font-family: inherit; font-size: 0.95em; cursor: pointer; }
+  button:hover { background: #2a5570; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; border: 1px solid #d4c8a5; padding: 0.3em 0.75em; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .filters { margin: 0.5em 0; }
+
+  .prayer { background: #fff; border: 1px solid #d4c8a5; border-left: 5px solid #c9b48a; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.6em; }
+  .prayer.answered { border-left-color: #5c8a3a; background: #f9fbef; }
+  .prayer.ongoing { border-left-color: #c9b48a; }
+  .prayer.urgent { border-left-color: #c8392a; }
+  .prayer .meta { font-size: 0.82em; color: #6a5a3a; font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
+  .prayer .tag { display: inline-block; padding: 0.05em 0.5em; border-radius: 2px; font-size: 0.75em; letter-spacing: 0.1em; text-transform: uppercase; margin-right: 0.4em; }
+  .prayer.ongoing .tag { background: #c9b48a; color: #1a3a52; }
+  .prayer.urgent .tag { background: #c8392a; color: #fff; }
+  .prayer.answered .tag { background: #1f5b1f; color: #fff; }
+  .prayer .body { margin: 0.3em 0; font-size: 1.02em; line-height: 1.5; }
+  .prayer .for { font-size: 0.9em; color: #6a5a3a; font-style: italic; }
+  .prayer .actions { margin-top: 0.4em; }
+  .prayer .actions button { background: none; border: 1px solid #c9b48a; color: #1a3a52; padding: 0.2em 0.6em; font-size: 0.82em; margin-right: 0.3em; border-radius: 2px; }
+  .prayer .actions button:hover { background: #1a3a52; color: #f4ecd5; }
+  .prayer .actions button.danger { color: #8b1f1f; border-color: #8b1f1f; }
+  .prayer .actions button.danger:hover { background: #8b1f1f; color: #fff; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+  .no-household { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a> · <a href="/common-book.html">Common Book</a></nav>
+
+<h1>Prayer Board</h1>
+
+<div class="intro">
+  <p>The household's prayer requests, kept here for the family to remember and return to. Mark requests as <em>ongoing</em>, <em>urgent</em>, or <em>answered</em>. When prayers are answered, they stay on the board as a quiet testimony.</p>
+  <div class="privacy"><strong>Private to your device.</strong> Prayer requests are stored locally. They aren't on our server.</div>
+</div>
+
+<div id="needHousehold" class="no-household" style="display:none;">
+  <strong>Set up your household first.</strong> The prayer board is family-private. <a href="/household.html"><strong>Create your household →</strong></a>
+</div>
+
+<div id="mainSection">
+
+<div class="compose">
+  <div class="row">
+    <div>
+      <label for="prayerFor" style="font-size:0.85em;color:#6a5a3a;">For (optional)</label>
+      <input type="text" id="prayerFor" placeholder="Aunt Margaret, our neighbors, the school year…" maxlength="60">
+    </div>
+    <div>
+      <label for="prayerStatus" style="font-size:0.85em;color:#6a5a3a;">Status</label>
+      <select id="prayerStatus">
+        <option value="ongoing">Ongoing</option>
+        <option value="urgent">Urgent</option>
+      </select>
+    </div>
+  </div>
+  <label for="prayerBody" style="font-size:0.85em;color:#6a5a3a;">The request</label>
+  <textarea id="prayerBody" placeholder="What are we praying for?"></textarea>
+  <button id="addBtn" style="margin-top:0.5em;">Add to the board</button>
+</div>
+
+<div class="filters">
+  <strong style="color:#6a5a3a;font-size:0.85em;">Show:</strong>
+  <button class="filter-btn active" data-filter="active">Active</button>
+  <button class="filter-btn" data-filter="urgent">Urgent only</button>
+  <button class="filter-btn" data-filter="answered">Answered</button>
+  <button class="filter-btn" data-filter="all">All</button>
+</div>
+
+<div id="prayerList"></div>
+
+</div><!-- /mainSection -->
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script src="/nh-scripture.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('prayer_board');
+  const $list = document.getElementById('prayerList');
+  const $needHh = document.getElementById('needHousehold');
+  const $main = document.getElementById('mainSection');
+  let currentFilter = 'active';
+
+  function load() { return ns.get() || { prayers: [] }; }
+  function save(state) { ns.set(state); }
+
+  function gate() {
+    const hh = NHHousehold.get();
+    const ready = hh && hh.members && hh.members.length > 0;
+    $needHh.style.display = ready ? 'none' : 'block';
+    $main.style.display = ready ? 'block' : 'none';
+    if (ready) render();
+  }
+
+  function render() {
+    const state = load();
+    let prayers = (state.prayers || []).slice().reverse();
+    if (currentFilter === 'active') prayers = prayers.filter(function (p) { return p.status !== 'answered'; });
+    else if (currentFilter === 'urgent') prayers = prayers.filter(function (p) { return p.status === 'urgent'; });
+    else if (currentFilter === 'answered') prayers = prayers.filter(function (p) { return p.status === 'answered'; });
+    if (prayers.length === 0) {
+      $list.innerHTML = '<div class="empty">No prayers in this filter. Add one above to begin.</div>';
+      return;
+    }
+    $list.innerHTML = '';
+    prayers.forEach(function (p) {
+      const idx = (state.prayers || []).indexOf(p);
+      const div = document.createElement('article');
+      div.className = 'prayer ' + (p.status || 'ongoing');
+      div.setAttribute('data-readable', '');
+      div.setAttribute('data-voice-label', 'Pray for ' + (p.for || ''));
+      const ts = new Date(p.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const answerLine = (p.status === 'answered' && p.answered_at)
+        ? '<div class="meta" style="color:#1f5b1f;">Answered ' + new Date(p.answered_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + (p.answer ? ' &mdash; ' + esc(p.answer) : '') + '</div>'
+        : '';
+      div.innerHTML =
+        '<div class="meta"><span class="tag">' + esc(p.status || 'ongoing') + '</span>' + esc(ts) + '</div>' +
+        (p.for ? '<div class="for">For: ' + esc(p.for) + '</div>' : '') +
+        '<div class="body">' + esc(p.body) + '</div>' +
+        answerLine +
+        '<div class="actions">' +
+        (p.status !== 'answered'
+          ? '<button data-action="mark-answered" data-idx="' + idx + '">✓ Mark answered</button>' +
+            (p.status === 'urgent'
+              ? '<button data-action="downgrade" data-idx="' + idx + '">↓ Make ongoing</button>'
+              : '<button data-action="urgent" data-idx="' + idx + '">↑ Mark urgent</button>')
+          : '<button data-action="unanswer" data-idx="' + idx + '">↩ Move back to ongoing</button>'
+        ) +
+        ' <button class="danger" data-action="delete" data-idx="' + idx + '">remove</button>' +
+        '</div>';
+      $list.appendChild(div);
+    });
+    $list.querySelectorAll('button[data-action]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        const idx = parseInt(b.dataset.idx, 10);
+        const act = b.dataset.action;
+        const s = load();
+        if (act === 'mark-answered') {
+          const ans = prompt('How was the prayer answered? (optional)');
+          s.prayers[idx].status = 'answered';
+          s.prayers[idx].answered_at = new Date().toISOString();
+          if (ans) s.prayers[idx].answer = ans;
+        } else if (act === 'urgent') {
+          s.prayers[idx].status = 'urgent';
+        } else if (act === 'downgrade') {
+          s.prayers[idx].status = 'ongoing';
+        } else if (act === 'unanswer') {
+          s.prayers[idx].status = 'ongoing';
+          delete s.prayers[idx].answered_at;
+          delete s.prayers[idx].answer;
+        } else if (act === 'delete') {
+          if (!confirm('Remove this prayer from the board?')) return;
+          s.prayers.splice(idx, 1);
+        }
+        save(s);
+        render();
+      });
+    });
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+  }
+
+  function esc(s) { return String(s || '').replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+
+  document.getElementById('addBtn').addEventListener('click', function () {
+    const body = document.getElementById('prayerBody').value.trim();
+    if (!body) return;
+    const s = load();
+    s.prayers = s.prayers || [];
+    s.prayers.push({
+      id: 'pr_' + Date.now().toString(36),
+      for: document.getElementById('prayerFor').value.trim(),
+      status: document.getElementById('prayerStatus').value,
+      body: body,
+      at: new Date().toISOString(),
+    });
+    save(s);
+    document.getElementById('prayerBody').value = '';
+    document.getElementById('prayerFor').value = '';
+    render();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentFilter = b.dataset.filter;
+      render();
+    });
+  });
+
+  NHHousehold.subscribe(gate);
+  gate();
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

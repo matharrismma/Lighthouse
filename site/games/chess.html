@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess · Narrow Highway</title>
+  <meta name="description" content="Free family chess — play against a computer at three levels, or hot-seat with a friend. Drag pieces, see legal moves, get move history. Public-domain rules, MIT-licensed engines, no ads.">
+  <link rel="canonical" href="https://narrowhighway.com/games/chess.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Chess · Narrow Highway">
+  <meta property="og:description" content="Play chess — solo against the bot or hot-seat with a friend. Free, no ads.">
+  <meta property="og:url" content="https://narrowhighway.com/games/chess.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Game",
+    "name": "Chess",
+    "description": "Free online chess. Play against the computer or hot-seat with a friend.",
+    "url": "https://narrowhighway.com/games/chess.html",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "isPartOf": {"@id": "https://narrowhighway.com/#website"},
+    "publisher": {"@id": "https://narrowhighway.com/#org"}
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <!-- Engines: chess.js (MIT) + chessboard.js (MIT). jQuery (MIT) is a hard dep of chessboard.js. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link  rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    :root {
+      --paper:       #faf6ec;
+      --rule:        #d4c8a5;
+      --rule-strong: #b9ac82;
+      --ink:         #1f1a14;
+      --ink-2:       #3a3328;
+      --brass:       #9b7c3c;
+      --brass-hi:    #c9a851;
+      --oxblood:     #7a3a32;
+      --pass:        #4f7a3a;
+      --highlight:   #c9a85188;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(255,255,255,.4), transparent 60%),
+        linear-gradient(180deg, #f5efdc 0%, #f0e8d0 100%);
+      color: var(--ink);
+      font-family: 'Crimson Pro', Georgia, serif;
+      line-height: 1.55;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--oxblood); }
+    .cwrap { max-width: 1100px; margin: 0 auto; padding: 22px 22px 40px; }
+
+    /* Greeting */
+    .greet { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+    .greet h1 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; font-size: clamp(1.5rem, 3vw, 1.9rem); color: var(--ink); letter-spacing: -0.005em; }
+    .greet .when { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) 320px;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* Board panel */
+    .board-panel {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-left: 5px solid var(--brass);
+      border-radius: 0 5px 5px 0;
+      padding: 18px 20px;
+      box-shadow: 0 1px 0 rgba(43,24,16,.04), 0 6px 18px rgba(43,24,16,.06);
+    }
+    .board-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .board-meta .who { color: var(--ink); }
+    .board-meta .who.turn-w::before { content: '○ '; color: var(--brass); }
+    .board-meta .who.turn-b::before { content: '● '; color: var(--ink); }
+    .board-meta .status { font-family: 'Crimson Pro', Georgia, serif; font-style: italic; letter-spacing: normal; text-transform: none; color: var(--ink-2); font-size: 14px; }
+
+    #board { width: 100%; max-width: 560px; margin: 0 auto; }
+    /* Override chessboardjs default colors with a parchment palette */
+    .board-panel .white-1e1d7 { background-color: #f1ead7 !important; color: var(--brass) !important; }
+    .board-panel .black-3c85d { background-color: #9b7c3c !important; color: #fffdf6 !important; }
+    .board-panel .highlight-square { box-shadow: inset 0 0 0 4px var(--highlight); }
+    .board-panel .highlight-target { box-shadow: inset 0 0 0 4px rgba(122,58,50,.4); }
+
+    /* Captured pieces row */
+    .captures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--rule);
+      font-size: 22px;
+      line-height: 1;
+      color: var(--ink-2);
+    }
+    .captures .side { display: flex; flex-wrap: wrap; gap: 2px; min-height: 30px; }
+    .captures .side .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; color: var(--brass); margin-right: 6px; align-self: center; }
+    .captures .pt { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--brass); align-self: center; margin-left: 4px; }
+
+    /* Side panel */
+    .side-panel {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 5px;
+      padding: 14px 16px;
+    }
+    .side-panel h2 { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); margin-bottom: 10px; }
+    .side-panel + .side-panel { margin-top: 10px; }
+
+    .row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .row .btn {
+      padding: 7px 13px;
+      background: #fffdf6;
+      color: var(--ink);
+      border: 1px solid var(--rule-strong);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: background .12s, border-color .12s, color .12s;
+    }
+    .row .btn:hover { background: #fdf9ea; border-color: var(--brass); }
+    .row .btn.on { background: var(--brass); color: #fff; border-color: var(--brass); }
+    .row .btn.danger:hover { background: var(--oxblood); color: #fff; border-color: var(--oxblood); }
+
+    /* Move history */
+    .moves {
+      max-height: 280px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .moves .mv {
+      display: inline-block;
+      padding: 1px 6px;
+      margin-right: 4px;
+      border-radius: 3px;
+    }
+    .moves .num { color: var(--brass); margin-right: 4px; }
+    .moves .last { background: var(--highlight); }
+    .moves .empty { color: var(--ink-2); font-style: italic; font-family: 'Crimson Pro', Georgia, serif; font-size: 13.5px; }
+
+    /* Modal-like overlay for game-over */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(43,24,16,.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .overlay.show { display: flex; }
+    .overlay .box {
+      background: var(--paper);
+      border: 2px solid var(--brass);
+      border-radius: 6px;
+      padding: 26px 32px;
+      max-width: 460px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(43,24,16,.4);
+    }
+    .overlay .box h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-style: italic;
+      font-size: 1.9rem;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .overlay .box .why {
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+    .overlay .box .row { justify-content: center; }
+    .overlay .box .row .btn { padding: 10px 18px; }
+
+    /* Footer note */
+    .footnote { margin-top: 22px; text-align: center; font-style: italic; color: var(--ink-2); font-size: 13.5px; max-width: 60ch; margin-left: auto; margin-right: auto; }
+    .footnote a { color: var(--brass); }
+  </style>
+</head>
+
+<body class="nh-shell-cream" data-nh-toc="off">
+
+<main class="cwrap">
+
+  <div class="greet">
+    <h1>Chess.</h1>
+    <span class="when">Free · open-source engines · no ads</span>
+  </div>
+
+  <div class="layout">
+
+    <!-- ─────────────────── Board ─────────────────── -->
+    <div class="board-panel">
+      <div class="board-meta">
+        <span class="who" id="turnIndicator">white to move</span>
+        <span class="status" id="status">Make a move — drag any white piece.</span>
+        <span id="moveCount">0 plies</span>
+      </div>
+      <div id="board"></div>
+      <div class="captures">
+        <div class="side"><span class="lbl">white captured</span><span id="capByW"></span><span class="pt" id="ptW">0</span></div>
+        <div class="side"><span class="lbl">black captured</span><span id="capByB"></span><span class="pt" id="ptB">0</span></div>
+      </div>
+    </div>
+
+    <!-- ─────────────────── Sidebar ─────────────────── -->
+    <aside>
+      <div class="side-panel">
+        <h2>Mode</h2>
+        <div class="row" id="modeRow">
+          <button class="btn" data-mode="solo"  id="m-solo">Vs. computer</button>
+          <button class="btn" data-mode="hotseat" id="m-hotseat">Hot-seat (2P)</button>
+        </div>
+        <h2 id="lvlH" style="margin-top:10px;">Computer level</h2>
+        <div class="row" id="lvlRow">
+          <button class="btn" data-lvl="1" id="l-1">Beginner</button>
+          <button class="btn" data-lvl="2" id="l-2">Steady</button>
+          <button class="btn" data-lvl="3" id="l-3">Sharp</button>
+        </div>
+        <h2 style="margin-top:10px;">Play as</h2>
+        <div class="row" id="sideRow">
+          <button class="btn" data-side="w" id="s-w">White</button>
+          <button class="btn" data-side="b" id="s-b">Black</button>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <h2>Controls</h2>
+        <div class="row">
+          <button class="btn" id="btnNew">New game</button>
+          <button class="btn" id="btnUndo">Undo</button>
+          <button class="btn" id="btnFlip">Flip board</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="btnFen" title="Copy FEN to clipboard">Copy FEN</button>
+          <button class="btn danger" id="btnResign">Resign</button>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <h2>Moves</h2>
+        <div class="moves" id="moves"><div class="empty">No moves yet.</div></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <p class="footnote">
+    Built on three open-source pieces: <strong>chess.js</strong> (move validation), <strong>chessboard.js</strong> (board UI), and a small in-page AI for the three computer levels. Game saves on this device only.
+    <br><a href="/games.html">More family games →</a>
+  </p>
+
+</main>
+
+<!-- Game-over overlay -->
+<div class="overlay" id="overlay">
+  <div class="box">
+    <h2 id="ovT">—</h2>
+    <p class="why" id="ovW">—</p>
+    <div class="row">
+      <button class="btn on" id="ovNew">New game</button>
+      <button class="btn" id="ovClose">Look at the board</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CHESS  — chess.js + chessboard.js + small in-page AI
+// ═══════════════════════════════════════════════════════════════════
+// Use byId for DOM lookups; let jQuery keep $ to itself (chessboard.js needs it).
+const byId = id => document.getElementById(id);
+
+// chess.js exposes `Chess` globally
+let game = new Chess();
+
+// Persisted prefs + save state
+const KEY = 'nh_chess_v1';
+function loadPrefs() {
+  try { return JSON.parse(localStorage.getItem(KEY) || 'null') || {}; } catch (_) { return {}; }
+}
+function savePrefs(p) { try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (_) {} }
+
+let prefs = Object.assign({
+  mode: 'solo',     // 'solo' | 'hotseat'
+  level: 2,         // 1 (random) | 2 (capture-pref) | 3 (minimax-2)
+  side: 'w',        // 'w' | 'b' — when solo
+  fen: null,        // saved board state
+  orientation: 'white',
+}, loadPrefs());
+
+// Restore game from FEN if we have one
+if (prefs.fen) {
+  try { game.load(prefs.fen); } catch (_) { game = new Chess(); prefs.fen = null; }
+}
+
+// ── Chessboard.js setup ────────────────────────────────────────────
+let board = null;
+const PIECE_THEME = 'https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/img/chesspieces/wikipedia/{piece}.png';
+
+function onDragStart(source, piece) {
+  if (game.game_over()) return false;
+  // Hot-seat: only the side to move may drag
+  if (prefs.mode === 'hotseat') {
+    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
+    return true;
+  }
+  // Solo: only the player's side may drag — and only on their turn
+  if (game.turn() !== prefs.side) return false;
+  if ((prefs.side === 'w' && piece.search(/^b/) !== -1) ||
+      (prefs.side === 'b' && piece.search(/^w/) !== -1)) return false;
+  return true;
+}
+
+function onDrop(source, target) {
+  // Always promote to queen (simplification)
+  const move = game.move({ from: source, to: target, promotion: 'q' });
+  if (move === null) return 'snapback';
+  highlightLast(move);
+  postMove();
+  // If solo and it's now the computer's turn, schedule a move
+  if (prefs.mode === 'solo' && !game.game_over() && game.turn() !== prefs.side) {
+    setTimeout(aiMove, 380);
+  }
+}
+
+function onSnapEnd() { board.position(game.fen()); }
+
+function highlightLast(m) {
+  byId('board').querySelectorAll('.square-55d63').forEach(sq => sq.style.background = '');
+  if (!m) return;
+  const sqFrom = byId('board').querySelector('.square-' + m.from);
+  const sqTo   = byId('board').querySelector('.square-' + m.to);
+  if (sqFrom) sqFrom.style.boxShadow = 'inset 0 0 0 4px var(--highlight)';
+  if (sqTo)   sqTo  .style.boxShadow = 'inset 0 0 0 4px rgba(122,58,50,.4)';
+}
+
+function postMove() {
+  prefs.fen = game.fen();
+  savePrefs(prefs);
+  renderMeta();
+  renderMoves();
+  renderCaptures();
+  if (game.game_over()) showGameOver();
+}
+
+// ── Side / sidebar buttons ─────────────────────────────────────────
+function paintButtons() {
+  document.querySelectorAll('#modeRow .btn').forEach(b => b.classList.toggle('on', b.dataset.mode === prefs.mode));
+  document.querySelectorAll('#lvlRow  .btn').forEach(b => b.classList.toggle('on', +b.dataset.lvl  === prefs.level));
+  document.querySelectorAll('#sideRow .btn').forEach(b => b.classList.toggle('on', b.dataset.side === prefs.side));
+  // Hide computer-level + side rows in hotseat
+  const showSolo = prefs.mode === 'solo';
+  byId('lvlH').style.display = showSolo ? '' : 'none';
+  byId('lvlRow').style.display = showSolo ? '' : 'none';
+  // Side selector visible in solo only
+  byId('sideRow').previousElementSibling.style.display = showSolo ? '' : 'none';
+  byId('sideRow').style.display = showSolo ? '' : 'none';
+}
+
+document.querySelectorAll('#modeRow .btn').forEach(b =>
+  b.addEventListener('click', () => { prefs.mode = b.dataset.mode; savePrefs(prefs); paintButtons(); maybeAi(); }));
+document.querySelectorAll('#lvlRow  .btn').forEach(b =>
+  b.addEventListener('click', () => { prefs.level = +b.dataset.lvl; savePrefs(prefs); paintButtons(); }));
+document.querySelectorAll('#sideRow .btn').forEach(b =>
+  b.addEventListener('click', () => {
+    prefs.side = b.dataset.side;
+    prefs.orientation = b.dataset.side === 'w' ? 'white' : 'black';
+    savePrefs(prefs); paintButtons();
+    if (board) board.orientation(prefs.orientation);
+    maybeAi();
+  }));
+
+byId('btnNew').addEventListener('click', newGame);
+byId('btnUndo').addEventListener('click', () => {
+  if (prefs.mode === 'solo') { game.undo(); game.undo(); } // undo the player's move AND the AI's reply
+  else game.undo();
+  postMove();
+  if (board) board.position(game.fen());
+});
+byId('btnFlip').addEventListener('click', () => {
+  prefs.orientation = prefs.orientation === 'white' ? 'black' : 'white';
+  savePrefs(prefs);
+  if (board) board.orientation(prefs.orientation);
+});
+byId('btnFen').addEventListener('click', () => {
+  navigator.clipboard.writeText(game.fen()).then(() => {
+    const b = byId('btnFen'); const o = b.textContent;
+    b.textContent = 'Copied'; setTimeout(() => b.textContent = o, 1200);
+  });
+});
+byId('btnResign').addEventListener('click', () => {
+  const won = game.turn() === 'w' ? 'Black' : 'White';
+  showOverlay(`${won} wins by resignation.`, 'The board is yours to study.');
+});
+byId('ovNew').addEventListener('click', () => { byId('overlay').classList.remove('show'); newGame(); });
+byId('ovClose').addEventListener('click', () => byId('overlay').classList.remove('show'));
+
+function newGame() {
+  game = new Chess();
+  prefs.fen = null;
+  savePrefs(prefs);
+  if (board) board.start();
+  byId('overlay').classList.remove('show');
+  postMove();
+  maybeAi();
+}
+
+function maybeAi() {
+  // If solo and it's the AI's turn (we play side opposite to game's start), make a move
+  if (prefs.mode === 'solo' && !game.game_over() && game.turn() !== prefs.side) {
+    setTimeout(aiMove, 420);
+  }
+}
+
+// ── Render bits ────────────────────────────────────────────────────
+function renderMeta() {
+  const t = game.turn();
+  const ti = byId('turnIndicator');
+  ti.textContent = (t === 'w' ? 'white' : 'black') + ' to move';
+  ti.className = 'who turn-' + t;
+  byId('moveCount').textContent = game.history().length + ' plies';
+  const st = byId('status');
+  if (game.in_checkmate()) st.textContent = 'Checkmate.';
+  else if (game.in_stalemate()) st.textContent = 'Stalemate.';
+  else if (game.in_draw()) st.textContent = 'Draw.';
+  else if (game.in_check()) st.textContent = 'Check.';
+  else if (prefs.mode === 'solo' && game.turn() !== prefs.side) st.textContent = 'The computer is thinking…';
+  else st.textContent = 'Make a move — drag any of your pieces.';
+}
+
+function renderMoves() {
+  const h = game.history();
+  if (!h.length) { byId('moves').innerHTML = '<div class="empty">No moves yet.</div>'; return; }
+  let s = '';
+  for (let i = 0; i < h.length; i += 2) {
+    const num = i / 2 + 1;
+    const white = h[i] || '';
+    const black = h[i + 1] || '';
+    const lastIdx = h.length - 1;
+    s += '<span class="num">' + num + '.</span>';
+    s += '<span class="mv' + (i === lastIdx ? ' last' : '') + '">' + white + '</span> ';
+    if (black) s += '<span class="mv' + (i + 1 === lastIdx ? ' last' : '') + '">' + black + '</span> ';
+  }
+  byId('moves').innerHTML = s;
+  byId('moves').scrollTop = byId('moves').scrollHeight;
+}
+
+const GLYPH = {p:'♟', r:'♜', n:'♞', b:'♝', q:'♛', k:'♚'};
+const VAL   = {p:1, n:3, b:3, r:5, q:9, k:0};
+function renderCaptures() {
+  // Walk the history; collect captures and accumulate point values
+  const tmp = new Chess();
+  const capByW = [], capByB = [];
+  for (const mv of game.history({verbose:true})) {
+    if (mv.captured) {
+      if (mv.color === 'w') capByW.push(mv.captured);
+      else                   capByB.push(mv.captured);
+    }
+    tmp.move({ from: mv.from, to: mv.to, promotion: mv.promotion });
+  }
+  byId('capByW').innerHTML = capByW.map(p => GLYPH[p]).join(' ');
+  byId('capByB').innerHTML = capByB.map(p => GLYPH[p]).join(' ');
+  const ptsW = capByW.reduce((a, p) => a + VAL[p], 0);
+  const ptsB = capByB.reduce((a, p) => a + VAL[p], 0);
+  const dW = ptsW - ptsB; const dB = ptsB - ptsW;
+  byId('ptW').textContent = dW > 0 ? '+' + dW : (dW < 0 ? '' + dW : '0');
+  byId('ptB').textContent = dB > 0 ? '+' + dB : (dB < 0 ? '' + dB : '0');
+}
+
+function showGameOver() {
+  let title, why;
+  if (game.in_checkmate()) {
+    const loser = game.turn();          // the side to move is mated
+    const winner = loser === 'w' ? 'Black' : 'White';
+    title = `${winner} wins by checkmate.`;
+    why = 'The king has no escape.';
+  } else if (game.in_stalemate()) {
+    title = 'Stalemate.';
+    why = 'No legal moves — but no check. The game is drawn.';
+  } else if (game.insufficient_material()) {
+    title = 'Draw — insufficient material.';
+    why = 'Neither side has the force to mate.';
+  } else if (game.in_threefold_repetition()) {
+    title = 'Draw — threefold repetition.';
+    why = 'The position has appeared three times.';
+  } else if (game.in_draw()) {
+    title = 'Draw.';
+    why = 'The game is over.';
+  }
+  if (title) showOverlay(title, why);
+}
+function showOverlay(t, w) { byId('ovT').textContent = t; byId('ovW').textContent = w; byId('overlay').classList.add('show'); }
+
+// ── AI ─────────────────────────────────────────────────────────────
+// Three levels, all in-page, no Web Worker:
+//   1. Random   — pick any legal move
+//   2. Steady   — prefer captures; otherwise random
+//   3. Sharp    — minimax depth 2 with simple material eval and capture preference
+const PIECE_VALUES = {p:100, n:320, b:330, r:500, q:900, k:20000};
+
+function evaluateBoard(g) {
+  // Positive = white better
+  let score = 0;
+  const board = g.board(); // 8x8 of {type,color} or null
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const sq = board[r][c];
+      if (!sq) continue;
+      const v = PIECE_VALUES[sq.type];
+      score += sq.color === 'w' ? v : -v;
+    }
+  }
+  return score;
+}
+
+function aiMove() {
+  if (game.game_over()) return;
+  let mv = null;
+  const moves = game.moves({verbose:true});
+  if (!moves.length) return;
+  if (prefs.level === 1) {
+    mv = moves[Math.floor(Math.random() * moves.length)];
+  } else if (prefs.level === 2) {
+    const captures = moves.filter(m => m.captured);
+    const pool = captures.length ? captures : moves;
+    mv = pool[Math.floor(Math.random() * pool.length)];
+  } else {
+    // Minimax depth 2 — pick best for the side to move
+    const side = game.turn();
+    mv = bestMoveMinimax(game, 2, side);
+    if (!mv) mv = moves[Math.floor(Math.random() * moves.length)];
+  }
+  game.move({ from: mv.from, to: mv.to, promotion: 'q' });
+  if (board) board.position(game.fen());
+  highlightLast(mv);
+  postMove();
+}
+
+function bestMoveMinimax(g, depth, sideToMaximize) {
+  // sideToMaximize is 'w' or 'b'. We want the move that maximizes
+  // the eval from that side's point of view.
+  let bestVal = -Infinity;
+  let best = null;
+  const moves = g.moves({verbose:true});
+  // Shuffle so tied moves vary
+  for (let i = moves.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [moves[i], moves[j]] = [moves[j], moves[i]];
+  }
+  for (const mv of moves) {
+    g.move({ from: mv.from, to: mv.to, promotion: 'q' });
+    const v = minimax(g, depth - 1, -Infinity, Infinity, false, sideToMaximize);
+    g.undo();
+    if (v > bestVal) { bestVal = v; best = mv; }
+  }
+  return best;
+}
+
+function minimax(g, depth, alpha, beta, isMaximizing, sideToMaximize) {
+  if (depth === 0 || g.game_over()) {
+    const raw = evaluateBoard(g);
+    return sideToMaximize === 'w' ? raw : -raw;
+  }
+  const moves = g.moves({verbose:true});
+  if (!moves.length) return isMaximizing ? -1e7 : 1e7;
+  if (isMaximizing) {
+    let best = -Infinity;
+    for (const mv of moves) {
+      g.move({ from: mv.from, to: mv.to, promotion: 'q' });
+      best = Math.max(best, minimax(g, depth - 1, alpha, beta, false, sideToMaximize));
+      g.undo();
+      alpha = Math.max(alpha, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (const mv of moves) {
+      g.move({ from: mv.from, to: mv.to, promotion: 'q' });
+      best = Math.min(best, minimax(g, depth - 1, alpha, beta, true, sideToMaximize));
+      g.undo();
+      beta = Math.min(beta, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────
+function boot() {
+  paintButtons();
+  board = Chessboard('board', {
+    draggable: true,
+    position: game.fen(),
+    pieceTheme: PIECE_THEME,
+    orientation: prefs.orientation,
+    onDragStart: onDragStart,
+    onDrop: onDrop,
+    onSnapEnd: onSnapEnd,
+  });
+  // Resize the board responsively
+  $(window).on('resize', () => board.resize());
+  postMove();
+  maybeAi();
+}
+
+// chessboard.js needs jQuery + Chess globals — wait for them to load
+function ready() {
+  if (typeof Chess === 'undefined' || typeof Chessboard === 'undefined' || typeof $ !== 'function') {
+    setTimeout(ready, 60); return;
+  }
+  boot();
+}
+ready();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphing Calculator — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .panel { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em; margin-bottom: 0.8em; }
+  .row { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.4em; }
+  .row label { font-family: 'Courier New', monospace; color: #5c8a3a; font-weight: bold; min-width: 3em; }
+  .row input[type=text] { flex: 1; font: inherit; font-family: 'Courier New', monospace; padding: 0.4em 0.6em; border: 1px solid #c9b48a; border-radius: 3px; }
+  .row input[type=color] { width: 32px; height: 32px; border: 0; cursor: pointer; padding: 0; }
+  button { font: inherit; padding: 0.4em 0.8em; background: #1a3a52; color: #fff; border: 0; border-radius: 3px; cursor: pointer; }
+  button.secondary { background: #f0eada; color: #5c4a2a; border: 1px solid #c9b48a; }
+  #canvas { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; display: block; width: 100%; height: 70vh; }
+  .help { color: #6a5a3a; font-size: 0.88em; margin-top: 0.4em; }
+  code { background: #f0eada; padding: 0.1em 0.3em; border-radius: 2px; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Graphing Calculator</h1>
+
+<div class="panel">
+  <div class="row">
+    <label for="f1">y₁ =</label>
+    <input id="f1" type="text" value="x*x" placeholder="e.g. sin(x), x*x, exp(-x)">
+    <input id="c1" type="color" value="#1a3a52">
+  </div>
+  <div class="row">
+    <label for="f2">y₂ =</label>
+    <input id="f2" type="text" value="" placeholder="optional">
+    <input id="c2" type="color" value="#b03020">
+  </div>
+  <div class="row">
+    <label for="f3">y₃ =</label>
+    <input id="f3" type="text" value="" placeholder="optional">
+    <input id="c3" type="color" value="#5c8a3a">
+  </div>
+  <div class="row" style="gap: 1.2em; margin-top: 0.6em;">
+    <label>x range:</label>
+    <input id="xmin" type="text" value="-10" size="4" style="flex: 0 0 5em">
+    <span>to</span>
+    <input id="xmax" type="text" value="10" size="4" style="flex: 0 0 5em">
+    <label style="margin-left: 1em">y range:</label>
+    <input id="ymin" type="text" value="-10" size="4" style="flex: 0 0 5em">
+    <span>to</span>
+    <input id="ymax" type="text" value="10" size="4" style="flex: 0 0 5em">
+    <button onclick="plot()">Plot</button>
+    <button class="secondary" onclick="resetView()">Reset</button>
+  </div>
+  <div class="help">
+    Functions: <code>sin cos tan asin acos atan log ln exp sqrt abs floor ceil round</code>.
+    Constants: <code>pi e</code>. Operators: <code>+ - * / ^ ( )</code>.
+    Example: <code>sin(x) + 0.3*sin(3*x)</code>
+  </div>
+</div>
+
+<canvas id="canvas" width="2000" height="1200"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Safe expression evaluator — pre-process function names then Function() with restricted scope
+  function makeFn(expr) {
+    const safe = expr
+      .replace(/\^/g, '**')
+      .replace(/\bln\(/g, 'Math.log(')
+      .replace(/\b(sin|cos|tan|asin|acos|atan|log10|log|exp|sqrt|abs|floor|ceil|round)\(/g, 'Math.$1(')
+      .replace(/\bpi\b/g, 'Math.PI')
+      .replace(/\be\b/g, 'Math.E');
+    if (!/^[\d+\-*/().\sx*Math.PIElogsincoatanqrbfloeiundabxp_]+$/i.test(safe)) {
+      throw new Error('Unsafe expression');
+    }
+    try {
+      return new Function('x', `"use strict"; return (${safe});`);
+    } catch (e) { throw new Error('Could not parse: ' + expr); }
+  }
+
+  function plot() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+
+    const xmin = parseFloat(document.getElementById('xmin').value);
+    const xmax = parseFloat(document.getElementById('xmax').value);
+    const ymin = parseFloat(document.getElementById('ymin').value);
+    const ymax = parseFloat(document.getElementById('ymax').value);
+    const x2px = x => ((x - xmin) / (xmax - xmin)) * w;
+    const y2px = y => h - ((y - ymin) / (ymax - ymin)) * h;
+
+    // Grid
+    ctx.strokeStyle = '#e8dcb8';
+    ctx.lineWidth = 1;
+    const xStep = Math.pow(10, Math.floor(Math.log10((xmax-xmin)/10)));
+    const yStep = Math.pow(10, Math.floor(Math.log10((ymax-ymin)/10)));
+    for (let x = Math.ceil(xmin/xStep)*xStep; x <= xmax; x += xStep) {
+      ctx.beginPath(); ctx.moveTo(x2px(x), 0); ctx.lineTo(x2px(x), h); ctx.stroke();
+    }
+    for (let y = Math.ceil(ymin/yStep)*yStep; y <= ymax; y += yStep) {
+      ctx.beginPath(); ctx.moveTo(0, y2px(y)); ctx.lineTo(w, y2px(y)); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#888'; ctx.lineWidth = 2;
+    if (ymin < 0 && ymax > 0) {
+      ctx.beginPath(); ctx.moveTo(0, y2px(0)); ctx.lineTo(w, y2px(0)); ctx.stroke();
+    }
+    if (xmin < 0 && xmax > 0) {
+      ctx.beginPath(); ctx.moveTo(x2px(0), 0); ctx.lineTo(x2px(0), h); ctx.stroke();
+    }
+
+    // Axis labels
+    ctx.fillStyle = '#666';
+    ctx.font = '20px Georgia';
+    for (let x = Math.ceil(xmin/xStep)*xStep; x <= xmax; x += xStep) {
+      if (Math.abs(x) > xStep/2) ctx.fillText(String(Math.round(x*100)/100), x2px(x)+2, y2px(0)+18);
+    }
+    for (let y = Math.ceil(ymin/yStep)*yStep; y <= ymax; y += yStep) {
+      if (Math.abs(y) > yStep/2) ctx.fillText(String(Math.round(y*100)/100), x2px(0)+4, y2px(y)-2);
+    }
+
+    // Plot functions
+    const fns = [
+      { expr: document.getElementById('f1').value, color: document.getElementById('c1').value },
+      { expr: document.getElementById('f2').value, color: document.getElementById('c2').value },
+      { expr: document.getElementById('f3').value, color: document.getElementById('c3').value },
+    ];
+    ctx.lineWidth = 3;
+    for (const { expr, color } of fns) {
+      if (!expr.trim()) continue;
+      let fn;
+      try { fn = makeFn(expr); } catch (e) { continue; }
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      let started = false, lastY = null;
+      for (let px = 0; px < w; px += 1) {
+        const x = xmin + (px/w) * (xmax-xmin);
+        let y;
+        try { y = fn(x); } catch (e) { y = NaN; }
+        if (!isFinite(y)) { started = false; continue; }
+        const py = y2px(y);
+        if (py < -h || py > 2*h) { started = false; continue; }
+        if (!started) { ctx.moveTo(px, py); started = true; }
+        else { ctx.lineTo(px, py); }
+      }
+      ctx.stroke();
+    }
+  }
+  function resetView() {
+    document.getElementById('xmin').value = '-10';
+    document.getElementById('xmax').value = '10';
+    document.getElementById('ymin').value = '-10';
+    document.getElementById('ymax').value = '10';
+    plot();
+  }
+  ['f1','f2','f3','xmin','xmax','ymin','ymax'].forEach(id =>
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') plot(); })
+  );
+  plot();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Center · Narrow Highway</title>
+  <meta name="description" content="The Media Center — all the audio, video, and books in one room. The channel, the radio dial, hymns, podcasts, kids' cartoons, Bible translations, public-domain libraries, and your local library card.">
+  <link rel="canonical" href="https://narrowhighway.com/media-center.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Media Center · Narrow Highway">
+  <meta property="og:description" content="All the audio, video, and books in one room. Free, public-domain, library-system linked.">
+  <meta property="og:url" content="https://narrowhighway.com/media-center.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Media Center · Narrow Highway",
+    "description": "All audio, video, and books in one room. Channel, radio, hymns, podcasts, Bibles, public-domain libraries.",
+    "url": "https://narrowhighway.com/media-center.html",
+    "isPartOf": {"@id": "https://narrowhighway.com/#website"},
+    "publisher": {"@id": "https://narrowhighway.com/#org"},
+    "about": [
+      {"@type": "BroadcastService"},
+      {"@type": "RadioBroadcastService"},
+      {"@type": "MusicComposition"},
+      {"@type": "Book"},
+      {"@type": "DigitalDocument"}
+    ],
+    "keywords": "Christian media, family-safe video, Christian radio, public-domain books, free audiobooks, public library, OverDrive, LibriVox, Project Gutenberg"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    :root {
+      --paper:       #faf6ec;
+      --rule:        #d4c8a5;
+      --rule-strong: #b9ac82;
+      --ink:         #1f1a14;
+      --ink-2:       #3a3328;
+      --brass:       #9b7c3c;
+      --brass-hi:    #c9a851;
+      --oxblood:     #7a3a32;
+      --pass:        #4f7a3a;
+      --blue:        #1a3a52;
+      --plum:        #5a3a52;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(255,255,255,.4), transparent 60%),
+        linear-gradient(180deg, #f5efdc 0%, #f0e8d0 100%);
+      color: var(--ink);
+      font-family: 'Crimson Pro', Georgia, serif;
+      line-height: 1.55;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--oxblood); text-decoration: underline; text-decoration-color: rgba(122,58,50,.4); text-underline-offset: 2px; }
+    a:hover { color: var(--brass); text-decoration-color: var(--brass); }
+    .mc-wrap { max-width: 1100px; margin: 0 auto; padding: 26px 22px 60px; }
+
+    /* Greeting */
+    .greeting { margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+    .greeting .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--brass); margin-bottom: 6px; }
+    .greeting h1 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.4rem); color: var(--ink); letter-spacing: -0.01em; margin-bottom: 4px; }
+    .greeting .tag { font-style: italic; color: var(--ink-2); font-size: 15.5px; max-width: 60ch; }
+
+    /* ── A section (Video / Audio / Books / Libraries) ─────── */
+    .section {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-radius: 5px;
+      padding: 22px 26px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 0 rgba(43,24,16,.04), 0 6px 18px rgba(43,24,16,.06);
+      border-left: 5px solid var(--brass);
+      border-radius: 0 5px 5px 0;
+    }
+    .section.video { border-left-color: var(--blue); }
+    .section.audio { border-left-color: var(--brass); }
+    .section.books { border-left-color: var(--plum); }
+    .section.libs  { border-left-color: var(--pass); }
+
+    .section-head {
+      display: flex; align-items: baseline; gap: 14px;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule); flex-wrap: wrap;
+    }
+    .section-head h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .section-head .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .section-head .note {
+      margin-left: auto;
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 13.5px;
+    }
+
+    /* Sub-heading inside a section */
+    .sub-h {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      margin: 14px 0 8px;
+    }
+
+    /* Tile grid */
+    .tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 8px;
+    }
+    .tile {
+      display: block;
+      padding: 11px 13px;
+      background: #fffdf6;
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-left-color .12s, background .12s, transform .12s;
+    }
+    .tile:hover {
+      border-left-color: var(--oxblood);
+      background: #fdf9ea;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .tile .nm {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .tile .d {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--ink-2);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .tile.ext .nm::after { content: ' ↗'; color: var(--brass); font-style: normal; }
+
+    /* Quick-pick pill (used in audio / radio sub-section) */
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: #fffdf6;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      color: var(--ink);
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color .12s, background .12s;
+    }
+    .pill:hover { border-color: var(--brass); background: #fdf9ea; text-decoration: none; }
+    .pill.playing { background: #ddf3df; border-color: var(--pass); color: var(--pass); }
+
+    /* On-air status block (video section) */
+    .onair {
+      background: rgba(26,58,82,.08);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .onair .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--rule-strong); flex: none; }
+    .onair.live .dot { background: var(--pass); box-shadow: 0 0 8px rgba(79,122,58,.5); animation: nhPulse 2s ease-in-out infinite; }
+    @keyframes nhPulse { 0%,100%{opacity:1;} 50%{opacity:.5;} }
+    .onair .nm { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; color: var(--ink); font-size: 15px; }
+    .onair .ct { font-style: italic; color: var(--ink-2); font-size: 13px; }
+    .onair .open {
+      margin-left: auto; padding: 6px 14px;
+      background: var(--blue); color: #fff !important;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .mc-footnote {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 13.5px;
+      max-width: 60ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body class="nh-shell-cream" data-nh-toc="off">
+
+<main class="mc-wrap">
+
+  <div class="greeting">
+    <div class="eyebrow">Media Center</div>
+    <h1>Everything to watch, hear, or read.</h1>
+    <p class="tag">All the audio, video, and books in one room. What we run, what we curate, and the doors to the great free libraries beyond us.</p>
+  </div>
+
+  <!-- ═══ VIDEO ═══ -->
+  <section class="section video" id="s-video">
+    <div class="section-head">
+      <span class="lbl">Video</span><h2>What's on the screen.</h2>
+      <span class="note">Free · family-safe · no ads</span>
+    </div>
+
+    <div class="onair" id="onair">
+      <span class="dot"></span>
+      <div>
+        <div class="nm" id="onairNm">Checking the channel…</div>
+        <div class="ct" id="onairCt">—</div>
+      </div>
+      <a class="open" href="/live.html" id="onairGo">Open the channel</a>
+    </div>
+
+    <div class="sub-h">Our channels</div>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile" href="/channels.html"><div class="nm">The Channel</div><div class="d">Narrow Highway 24/7 FAST channel.</div></a>
+      <a class="tile" href="/live.html"><div class="nm">Live now</div><div class="d">What's airing this minute.</div></a>
+      <a class="tile" href="/schedule.html"><div class="nm">Tonight's lineup</div><div class="d">The TV Guide for the week.</div></a>
+      <a class="tile" href="/kids.html"><div class="nm">Kids</div><div class="d">Public-domain cartoons + Bible stories.</div></a>
+      <a class="tile" href="/pilots.html"><div class="nm">Pilots</div><div class="d">Experimental shows in development.</div></a>
+      <a class="tile" href="/podcast-theatre.html"><div class="nm">Theatre podcast</div><div class="d">Old-radio drama brought back, with video.</div></a>
+      <a class="tile" href="/watch.html"><div class="nm">All TV</div><div class="d">The complete viewing index.</div></a>
+    </div>
+
+    <div class="sub-h">Public-domain &amp; library video</div>
+    <div class="tiles">
+      <a class="tile ext" href="https://archive.org/details/movies" target="_blank" rel="noopener"><div class="nm">Internet Archive Films</div><div class="d">Public-domain features and shorts, free download.</div></a>
+      <a class="tile ext" href="https://archive.org/details/prelinger" target="_blank" rel="noopener"><div class="nm">Prelinger Archives</div><div class="d">Ephemeral film: industry, education, advertising.</div></a>
+      <a class="tile ext" href="https://www.kanopy.com" target="_blank" rel="noopener"><div class="nm">Kanopy</div><div class="d">Films &amp; documentaries via your library card.</div></a>
+      <a class="tile ext" href="https://www.hoopladigital.com" target="_blank" rel="noopener"><div class="nm">Hoopla Video</div><div class="d">Stream library films, with a card.</div></a>
+    </div>
+  </section>
+
+  <!-- ═══ AUDIO ═══ -->
+  <section class="section audio" id="s-audio">
+    <div class="section-head">
+      <span class="lbl">Audio</span><h2>What plays in the room.</h2>
+      <span class="note">The player follows you site-wide</span>
+    </div>
+
+    <div class="sub-h">Radio — quick stations</div>
+    <div class="pills" id="radioPills"><span class="pill">Loading…</span></div>
+    <p style="font-style:italic;color:var(--ink-2);font-size:13px;margin-bottom:10px;">Click any station; it plays across every page until you stop it.</p>
+
+    <div class="sub-h">Our audio</div>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile" href="/radio.html"><div class="nm">Full radio dial</div><div class="d">17 SW · 11 AM · 42 FM stations · with a shortwave teacher.</div></a>
+      <a class="tile" href="/hymns.html"><div class="nm">Hymns</div><div class="d">Lyrics, history, melody. Centuries of song.</div></a>
+      <a class="tile" href="/podcast.html"><div class="nm">Podcast</div><div class="d">Subscribe on Apple, Spotify, or RSS.</div></a>
+      <a class="tile" href="/church-streams.html"><div class="nm">Church streams</div><div class="d">Live and recorded services from churches we trust.</div></a>
+      <a class="tile" href="/listen.html"><div class="nm">Audiobooks</div><div class="d">Narrated by ElevenLabs; M.R. Harris's novels and more.</div></a>
+    </div>
+
+    <div class="sub-h">Free audio libraries</div>
+    <div class="tiles">
+      <a class="tile ext" href="https://librivox.org" target="_blank" rel="noopener"><div class="nm">LibriVox</div><div class="d">17k+ public-domain audiobooks, free.</div></a>
+      <a class="tile ext" href="https://archive.org/details/audio" target="_blank" rel="noopener"><div class="nm">Internet Archive Audio</div><div class="d">PD music, old radio shows, sermons.</div></a>
+      <a class="tile ext" href="https://archive.org/details/oldtimeradio" target="_blank" rel="noopener"><div class="nm">Old Time Radio</div><div class="d">Golden-age radio drama: Lights Out, Suspense, X Minus One.</div></a>
+      <a class="tile ext" href="https://hymnary.org" target="_blank" rel="noopener"><div class="nm">Hymnary.org</div><div class="d">1.6M hymns indexed; lyrics, tune, history.</div></a>
+      <a class="tile ext" href="https://freemusicarchive.org" target="_blank" rel="noopener"><div class="nm">Free Music Archive</div><div class="d">CC-licensed music across genres.</div></a>
+      <a class="tile ext" href="https://musopen.org" target="_blank" rel="noopener"><div class="nm">Musopen</div><div class="d">Royalty-free classical recordings.</div></a>
+    </div>
+  </section>
+
+  <!-- ═══ BOOKS ═══ -->
+  <section class="section books" id="s-books">
+    <div class="section-head">
+      <span class="lbl">Books</span><h2>What sits on the shelf.</h2>
+      <span class="note">Most public-domain · all readable here or there</span>
+    </div>
+
+    <div class="sub-h">Our shelves</div>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile" href="/bibles.html"><div class="nm">Bibles in parallel</div><div class="d">Every PD translation, side-by-side. KJV, Geneva, Tyndale, ASV.</div></a>
+      <a class="tile" href="/library.html"><div class="nm">The Library</div><div class="d">Everything we've kept — books, films, music, magazines.</div></a>
+      <a class="tile" href="/reading-room.html"><div class="nm">Reading Room</div><div class="d">Sit and read full-text works from the library.</div></a>
+      <a class="tile" href="/reading.html"><div class="nm">Reading plans</div><div class="d">Walk through Scripture &amp; the classics on a holding rhythm.</div></a>
+      <a class="tile" href="/encyclopedia.html"><div class="nm">Encyclopedia</div><div class="d">A curated A–Z reference, weighed.</div></a>
+      <a class="tile" href="/almanac.html"><div class="nm">Almanac</div><div class="d">Verified claims, folk wisdom, traditional knowledge.</div></a>
+      <a class="tile" href="/works.html"><div class="nm">Works of M.R. Harris</div><div class="d">Dade, Molasses, Apokalypsis — the author's novels.</div></a>
+      <a class="tile" href="/places.html"><div class="nm">Bible places</div><div class="d">Geography of Scripture, every site indexed.</div></a>
+    </div>
+
+    <div class="sub-h">Public-domain &amp; CC book libraries</div>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile ext" href="https://www.gutenberg.org" target="_blank" rel="noopener"><div class="nm">Project Gutenberg</div><div class="d">70k+ public-domain books, free.</div></a>
+      <a class="tile ext" href="https://archive.org/details/books" target="_blank" rel="noopener"><div class="nm">Internet Archive Books</div><div class="d">Millions of digitised texts.</div></a>
+      <a class="tile ext" href="https://standardebooks.org" target="_blank" rel="noopener"><div class="nm">Standard Ebooks</div><div class="d">Curated, beautifully typeset PD books.</div></a>
+      <a class="tile ext" href="https://en.wikisource.org" target="_blank" rel="noopener"><div class="nm">Wikisource</div><div class="d">Source texts, transcribed and proofread.</div></a>
+      <a class="tile ext" href="https://www.hathitrust.org" target="_blank" rel="noopener"><div class="nm">HathiTrust</div><div class="d">17M volumes from major libraries.</div></a>
+      <a class="tile ext" href="https://openlibrary.org" target="_blank" rel="noopener"><div class="nm">Open Library</div><div class="d">A page for every book ever published.</div></a>
+      <a class="tile ext" href="https://ccel.org" target="_blank" rel="noopener"><div class="nm">Christian Classics (CCEL)</div><div class="d">Augustine, Calvin, Aquinas — full texts.</div></a>
+      <a class="tile ext" href="https://www.biblegateway.com" target="_blank" rel="noopener"><div class="nm">Bible Gateway</div><div class="d">200+ Bible versions in many languages.</div></a>
+      <a class="tile ext" href="https://biblehub.com" target="_blank" rel="noopener"><div class="nm">Bible Hub</div><div class="d">Interlinear, lexicons, commentaries.</div></a>
+    </div>
+  </section>
+
+  <!-- ═══ FREE LIBRARIES — public library systems ═══ -->
+  <section class="section libs" id="s-libs">
+    <div class="section-head">
+      <span class="lbl">Your library, with a card</span><h2>The other shelf — your local library.</h2>
+      <span class="note">Requires a library card · free at any local branch</span>
+    </div>
+    <p style="font-style:italic;color:var(--ink-2);font-size:14.5px;margin-bottom:14px;max-width:62ch;">
+      Most public libraries in the US, UK, Canada, Australia, and Ireland subscribe to one or more of these. Walk in, ask for a card, and you have free access to thousands of ebooks, audiobooks, and films.
+    </p>
+    <div class="tiles">
+      <a class="tile ext" href="https://www.worldcat.org" target="_blank" rel="noopener"><div class="nm">WorldCat — find your library</div><div class="d">Locate any book at any library worldwide.</div></a>
+      <a class="tile ext" href="https://libbyapp.com" target="_blank" rel="noopener"><div class="nm">Libby (by OverDrive)</div><div class="d">Borrow ebooks &amp; audiobooks from your library.</div></a>
+      <a class="tile ext" href="https://www.hoopladigital.com" target="_blank" rel="noopener"><div class="nm">Hoopla</div><div class="d">Stream library films, audiobooks, comics.</div></a>
+      <a class="tile ext" href="https://www.kanopy.com" target="_blank" rel="noopener"><div class="nm">Kanopy</div><div class="d">Films &amp; documentaries via your library.</div></a>
+      <a class="tile ext" href="https://www.cloudlibrary.com" target="_blank" rel="noopener"><div class="nm">cloudLibrary</div><div class="d">Library ebooks &amp; audiobooks.</div></a>
+      <a class="tile ext" href="https://digital.scholastic.com" target="_blank" rel="noopener"><div class="nm">Scholastic Digital</div><div class="d">Kids' books via your school library card.</div></a>
+    </div>
+  </section>
+
+  <p class="mc-footnote">
+    Everything on our shelves is here for free. The external links open in a new tab; we don't track what you click. If you find something missing — a great free library we haven't listed — <a href="/submit-content.html">tell us</a>.
+  </p>
+
+</main>
+
+<script>
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+
+// Radio quick-pick — same pattern as the workspace
+(async function () {
+  try {
+    const r = await fetch('/radio/stations.json', {cache:'no-store'});
+    const d = await r.json();
+    const picks = [];
+    (d.fm || []).slice(0, 5).forEach(s => picks.push({...s, kind:'fm'}));
+    (d.am || []).slice(0, 3).forEach(s => picks.push({...s, kind:'am'}));
+    (d.sw || []).slice(0, 2).forEach(s => picks.push({...s, kind:'sw'}));
+    const el = $('radioPills');
+    el.innerHTML = picks.map((s, i) => {
+      const ic = s.kind === 'fm' ? '🎵' : s.kind === 'am' ? '📻' : '📡';
+      return '<span class="pill" data-i="' + i + '" data-kind="' + s.kind + '">' + ic + ' ' + esc((s.name || '').slice(0,24)) + '</span>';
+    }).join('') +
+    '<a class="pill" href="/radio.html">🎚️ Full dial →</a>';
+    el.querySelectorAll('.pill[data-i]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const s = picks[+pill.dataset.i];
+        if (s.kind === 'sw' && s.url) { window.open(s.url, '_blank', 'noopener'); return; }
+        if (window.nhRadio && s.stream) {
+          window.nhRadio.play(s);
+          el.querySelectorAll('.pill.playing').forEach(x => x.classList.remove('playing'));
+          pill.classList.add('playing');
+        }
+      });
+    });
+  } catch (e) {
+    $('radioPills').innerHTML = '<a class="pill" href="/radio.html">🎚️ Open the dial →</a>';
+  }
+})();
+
+// On-air status
+(async function () {
+  try {
+    const r = await fetch('/channels/now.json', {cache:'no-store'});
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    const ch = (j.channels || [])[0];
+    if (ch && ch.now_playing) {
+      $('onair').classList.add('live');
+      $('onairNm').textContent = ch.now_playing.title || 'Now playing';
+      $('onairCt').textContent = (ch.now_playing.synopsis || '').slice(0, 140) || ch.title || 'Narrow Highway · 24/7';
+    } else {
+      $('onairNm').textContent = 'Between programs.';
+      $('onairCt').textContent = 'A bumper or scripture card is on screen — open the channel to see.';
+    }
+  } catch (e) {
+    $('onairNm').textContent = 'The channel is currently dark.';
+    $('onairCt').textContent = 'Streaming may be paused. Try Live or the schedule below.';
+    $('onairGo').textContent = 'Open the schedule';
+    $('onairGo').setAttribute('href', '/schedule.html');
+  }
+})();
+</script>
+
+</body>
+</html>

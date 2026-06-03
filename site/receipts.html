@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.receipts.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Receipts · What survived · Concordance Engine</title>
+  <meta name="description" content="Every Scribe submission that the keeping decided to promote. Each receipt is Ed25519-signed, offline-verifiable, and ties an intake item to its almanac entry. The audit trail of what survived.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Receipts · What survived">
+  <meta property="og:description" content="Every Scribe submission the keeping promoted, signed and verifiable. The audit trail of what survived.">
+  <meta property="og:url" content="https://narrowhighway.com/receipts.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/receipts.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .rc-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .rc-intro em { color: var(--accent); font-style: italic; }
+    .rc-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .rc-search-row {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin: 16px 0 22px;
+    }
+    .rc-search {
+      flex: 1; min-width: 240px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .rc-search:focus { border-color: var(--accent); }
+    .rc-search::placeholder { color: var(--muted-2); font-style: italic; }
+
+    .rc-list { display: flex; flex-direction: column; gap: 12px; }
+    .rc-card {
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      border-left: 4px solid var(--pass);
+      transition: border-color 0.15s;
+    }
+    .rc-card:hover { border-color: var(--border-hi); }
+    .rc-card.unsigned { border-left-color: var(--hold); }
+
+    .rc-head {
+      display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .rc-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .rc-title a { color: var(--accent); text-decoration: none; }
+    .rc-title a:hover { color: var(--accent-hi); }
+    .rc-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .rc-handle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .rc-handle::before { content: 'by '; color: var(--muted); }
+
+    .rc-link-row {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      margin-top: 6px; padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .rc-link-row a { color: var(--accent); }
+    .rc-link-row a:hover { color: var(--accent-hi); }
+
+    .rc-note {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.18);
+      border-radius: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .rc-sig {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(111,196,124,0.06);
+      border: 1px dashed rgba(111,196,124,0.3);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      line-height: 1.55;
+      color: var(--text-dim);
+    }
+    .rc-sig.unsigned {
+      background: rgba(196,160,48,0.06);
+      border-color: rgba(196,160,48,0.3);
+    }
+    .rc-sig-key {
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 10px;
+      margin-right: 6px;
+    }
+    .rc-sig-val { color: var(--text); word-break: break-all; }
+
+    .rc-empty {
+      max-width: 640px;
+      padding: 28px 24px;
+      background: var(--surface);
+      border: 1px dashed var(--border-hi);
+      border-radius: var(--r);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .rc-empty em { color: var(--accent); font-style: italic; }
+    .rc-empty b { color: var(--accent); }
+
+    .rc-stats {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin: 18px 0 24px;
+    }
+    .rc-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      min-width: 110px;
+      text-align: center;
+    }
+    .rc-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .rc-stat .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Almanac · Promoted view · what survived</div>
+    <h1 data-i18n="page.receipts.h1">What the keeping kept.</h1>
+    <div class="almanac-tabs" role="tablist" aria-label="Almanac views">
+      <a href="/almanac.html" class="alm-tab" role="tab">
+        <span class="alm-tab-label">Kept</span>
+        <span class="alm-tab-meta">every entry · with verdict</span>
+      </a>
+      <a href="/receipts.html" class="alm-tab active" role="tab" aria-selected="true">
+        <span class="alm-tab-label">Signed</span>
+        <span class="alm-tab-meta">entries with operator-signed receipts</span>
+      </a>
+      <a href="/misalignments.html" class="alm-tab" role="tab">
+        <span class="alm-tab-label">Flagged</span>
+        <span class="alm-tab-meta">where readers disagree</span>
+      </a>
+    </div>
+    <p class="rc-intro">
+      The Almanac's <b>Promoted</b> view — the audit trail of every Scribe submission the keeping decided was worth keeping, signed and tied to its almanac entry. Each receipt is <b>Ed25519-signed</b>, offline-verifiable against the engine's public key. The contributor's name (if they gave one) carries forward. The keeping is the substrate, and this is the proof.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the audit tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar">
+    <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a>
+    <a href="/parable.html">Parable</a>
+    <a href="/bibles.html">Bibles</a>
+    <a href="/places.html">Places</a>
+    <a href="/scribe.html">Scribe</a>
+    <a href="/receipts.html" class="active">Receipts</a>
+    <a href="/misalignments.html">Misalignments</a>
+    <a href="/almanac.html">Almanac</a>
+    <a href="/atlas.html">Atlas</a>
+    <a href="/encyclopedia.html">Encyclopedia</a>
+    <a href="/chronicle.html">Chronicle</a>
+    <a href="/canon.html">Canon</a>
+    <a href="/fieldkit.html">FieldKit</a>
+    <a href="/archetypes.html">Archetypes</a>
+    <a href="/walk.html">Shepherd</a>
+    <a href="/packets.html">Index</a>
+  </div>
+
+  <div id="rc-stats" class="rc-stats"></div>
+
+  <div class="rc-search-row">
+    <input id="rc-search" class="rc-search" type="search" placeholder="Filter by contributor handle, almanac entry, or note…" autocomplete="off">
+  </div>
+
+  <div id="rc-content"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
+      if (s < 60) return s + 's ago';
+      if (s < 3600) return Math.floor(s/60) + 'm ago';
+      if (s < 86400) return Math.floor(s/3600) + 'h ago';
+      if (s < 86400*30) return Math.floor(s/86400) + 'd ago';
+      return d.toISOString().slice(0,10);
+    } catch (_) { return iso; }
+  }
+
+  let RECEIPTS = [];
+
+  function renderStats() {
+    const total = RECEIPTS.length;
+    const signed = RECEIPTS.filter(r => !!r._sig && !r._sig_error).length;
+    const handles = new Set(RECEIPTS.map(r => (r.contributor_handle || '').trim()).filter(Boolean));
+    document.getElementById('rc-stats').innerHTML = `
+      <div class="rc-stat"><div class="num">${total}</div><div class="lbl">Promoted</div></div>
+      <div class="rc-stat"><div class="num">${signed}</div><div class="lbl">Signed</div></div>
+      <div class="rc-stat"><div class="num">${handles.size}</div><div class="lbl">Contributors</div></div>`;
+  }
+
+  function renderCard(r) {
+    const signed = !!r._sig && !r._sig_error;
+    const cls = signed ? '' : ' unsigned';
+    const note = (r.operator_note || '').trim()
+      ? `<div class="rc-note">${esc(r.operator_note)}</div>` : '';
+    const handle = (r.contributor_handle || '').trim()
+      ? `<span class="rc-handle">${esc(r.contributor_handle)}</span>` : '';
+    const title = (r.almanac_entry_title || '').trim() || r.almanac_entry_id || '(untitled almanac entry)';
+    const sigKey = signed
+      ? (r._instance_pubkey || '').slice(0, 40) + '…'
+      : (r._sig_error || 'unsigned');
+    const sigCls = signed ? '' : ' unsigned';
+    return `<div class="rc-card${cls}">
+      <div class="rc-head">
+        <div class="rc-title"><a href="/almanac.html?q=${encodeURIComponent(r.almanac_entry_id)}">${esc(title)}</a></div>
+        ${handle}
+        <span class="rc-when">${esc(fmtWhen(r.promoted_at_iso))}</span>
+      </div>
+      ${note}
+      <div class="rc-sig${sigCls}">
+        <div><span class="rc-sig-key">Receipt</span><span class="rc-sig-val">${esc(r.intake_id)}</span></div>
+        <div><span class="rc-sig-key">${signed ? 'Signed by' : 'Status'}</span><span class="rc-sig-val">${esc(sigKey)}</span></div>
+      </div>
+      <div class="rc-link-row">
+        <a href="/scribe.html?id=${encodeURIComponent(r.intake_id)}">Original writing →</a>
+        <a href="/almanac.html?q=${encodeURIComponent(r.almanac_entry_id)}">Almanac entry →</a>
+        <a href="/receipts/${encodeURIComponent(r.intake_id)}">Raw receipt JSON →</a>
+      </div>
+    </div>`;
+  }
+
+  function applyFilter() {
+    const q = (document.getElementById('rc-search').value || '').trim().toLowerCase();
+    let list = RECEIPTS;
+    if (q) {
+      list = RECEIPTS.filter(r => {
+        const hay = [
+          r.contributor_handle, r.almanac_entry_id, r.almanac_entry_title,
+          r.operator_note, r.intake_id
+        ].map(s => (s || '').toLowerCase()).join(' ');
+        return hay.includes(q);
+      });
+    }
+    const content = document.getElementById('rc-content');
+    if (!list.length) {
+      if (!RECEIPTS.length) {
+        content.innerHTML = `<div class="rc-empty">
+          The keeping has not yet promoted anything. When the operator takes a Scribe submission from <em>intake</em> to the <b>Almanac</b>, a signed receipt mints and surfaces here. Every promotion is an offline-verifiable proof — the contributor's handle, the linked almanac entry, the operator's note, and an Ed25519 signature against the engine's instance key.
+          <br><br>
+          If you've written something, you can see its current status on your <a href="/scribe.html" style="color:var(--accent);">Scribe lens</a>.
+        </div>`;
+      } else {
+        content.innerHTML = `<div class="rc-empty">No receipts match that filter.</div>`;
+      }
+      return;
+    }
+    content.innerHTML = `<div class="rc-list">${list.map(renderCard).join('')}</div>`;
+  }
+
+  async function load() {
+    const content = document.getElementById('rc-content');
+    content.innerHTML = '<div class="rc-empty">Loading…</div>';
+    try {
+      const r = await fetch('/receipts');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      RECEIPTS = (d.receipts || []).sort((a,b) => (b.promoted_at || 0) - (a.promoted_at || 0));
+      renderStats();
+      applyFilter();
+    } catch (err) {
+      content.innerHTML = `<div class="rc-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  document.getElementById('rc-search').addEventListener('input', applyFilter);
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

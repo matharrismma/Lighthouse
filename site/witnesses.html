@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Witness Roll &middot; Narrow Highway</title>
+<meta name="description" content="The public roll of named witnesses on Narrow Highway — a software role with a clear scope. Real display name, Ed25519 public key, discernments witnessed. Takes after the principle of Deut 19:15 without claiming the office of biblical witness.">
+<link rel="canonical" href="https://narrowhighway.com/witnesses.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Witness Roll &middot; Narrow Highway">
+<meta property="og:description" content="Named persons who sign discernments under their real names. A software role following the principle of Deut 19:15 — not a claim to biblical office.">
+<meta property="og:url" content="https://narrowhighway.com/witnesses.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto;
+    padding: 0 1.2em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.65; }
+  nav.top { font-size: 0.88em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.7em; }
+  nav.top a.here { color: #b8945a; font-style: italic; }
+  .masthead { text-align: center; padding: 2em 1em 1.2em;
+    border-bottom: 3px double #b8945a; margin-bottom: 1.4em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.5em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal;
+    font-size: 2.3em; color: #1a3a52; letter-spacing: 0.02em; margin: 0; }
+  .status { display: inline-block; margin-top: 0.6em; padding: 0.3em 0.9em;
+    background: #fff5d4; border: 1px solid #c9b48a; border-radius: 16px;
+    font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.05em; color: #806010; }
+  h2 { color: #1a3a52; font-weight: normal; font-size: 1.5em; letter-spacing: 0.01em;
+    margin-top: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d4c8a5; }
+  h3 { color: #1a3a52; font-weight: bold; font-size: 1.05em; letter-spacing: 0;
+    margin-top: 1.4em; margin-bottom: 0.4em; }
+  p { margin: 0.8em 0; }
+  ul { margin: 0.6em 0 0.6em 1.2em; padding-left: 0; }
+  ul li { margin: 0.35em 0; }
+  ol { margin: 0.6em 0 0.6em 1.4em; padding-left: 0; }
+  ol li { margin: 0.5em 0; }
+  blockquote.scripture { margin: 1em 0; padding: 0.9em 1.3em;
+    background: #fff; border-left: 4px solid #1a3a52; border-radius: 0 4px 4px 0;
+    font-style: italic; color: #1a3a52; }
+  blockquote.scripture .ref { font-family: 'Courier New', monospace;
+    font-size: 0.78em; color: #806010; letter-spacing: 0.04em;
+    font-style: normal; display: block; margin-top: 0.3em; }
+  .roll-frame { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1.2em 1.4em; margin: 1em 0; box-shadow: 0 1px 0 #e8e0c0; }
+  .roll-empty { text-align: center; padding: 1.6em 1em;
+    color: #6a5a3a; font-style: italic; }
+  .roll-empty strong { display: block; color: #1a3a52;
+    font-style: normal; font-size: 1.1em; margin-bottom: 0.4em; }
+  table.roll { width: 100%; border-collapse: collapse; margin: 0.4em 0; }
+  table.roll th, table.roll td { padding: 0.55em 0.7em;
+    border-bottom: 1px solid #d4c8a5; text-align: left; vertical-align: top; }
+  table.roll th { background: #f3eedb; color: #1a3a52;
+    font-family: Georgia, serif; font-weight: bold; font-size: 0.92em;
+    letter-spacing: 0.02em; }
+  table.roll td { font-size: 0.96em; }
+  table.roll td.name { font-weight: bold; color: #1a3a52; }
+  table.roll td.key { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #806010; word-break: break-all; max-width: 200px; }
+  table.roll td.count { font-family: 'Courier New', monospace; font-size: 0.88em;
+    color: #1a3a52; text-align: right; }
+  table.roll td.date { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; white-space: nowrap; }
+  table.roll td.status { font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.04em; text-transform: uppercase; }
+  table.roll td.status.active { color: #1f5b1f; }
+  table.roll td.status.standing { color: #1a3a52; }
+  table.roll td.status.removed { color: #8b1f1f; text-decoration: line-through; }
+  .join-frame { background: #fff5d4; border-left: 4px solid #b8945a;
+    padding: 1em 1.3em; margin: 1.4em 0; border-radius: 0 4px 4px 0; }
+  .join-frame h3 { margin-top: 0; }
+  .join-frame ol { margin: 0.6em 0 0 1.4em; }
+  .refuse { background: #f3eedb; border-left: 4px solid #b8945a;
+    padding: 0.9em 1.2em; margin: 1em 0; border-radius: 0 4px 4px 0; }
+  .refuse strong { color: #1a3a52; font-style: normal; }
+  hr.sep { border: none; border-top: 1px solid #d4c8a5; margin: 2em auto; width: 60%; }
+  .colophon { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; letter-spacing: 0.04em; text-align: center; line-height: 1.6;
+    margin-top: 3em; padding-top: 1.4em; border-top: 1px solid #d4c8a5; font-style: italic; }
+  .doorways { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1em 1.3em; margin-top: 1.8em; }
+  .doorways h3 { margin-top: 0; }
+  .doorways a { display: block; padding: 0.5em 0; color: #1a3a52; text-decoration: none;
+    border-bottom: 1px dashed #d4c8a5; }
+  .doorways a:last-child { border-bottom: 0; }
+  .doorways a:hover { color: #b8945a; }
+  .doorways a em { color: #806010; font-style: italic; font-family: Georgia, serif;
+    margin-left: 0.4em; }
+  .pull { background: #fff; border-left: 4px solid #1a3a52;
+    padding: 0.7em 1.2em; margin: 1.1em 0; border-radius: 0 4px 4px 0;
+    font-style: italic; color: #1a3a52; }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">&larr; Narrow Highway</a>
+  <a href="/guidance.html">Guidance</a>
+  <a href="/tradition.html">Tradition</a>
+  <a href="/assembly.html">Assembly</a>
+  <a href="/testimony.html">Testimony</a>
+  <a href="/witnesses.html" class="here">Witnesses</a>
+  <a href="/refuge.html">Refuge</a>
+</nav>
+
+<div class="masthead">
+  <div class="eyebrow">Narrow Highway &middot; The BROTHERS Gate &middot; Made Public</div>
+  <h1>The Witness Roll</h1>
+  <div class="status">Status: Roll open. Operator-reviewed entry.</div>
+</div>
+
+<h2>Why this page exists</h2>
+<p>The third of the four gates is <strong>BROTHERS</strong> &mdash; the
+two-witness rule from Deuteronomy 19:15. The engine refuses to admit a claim
+on a single voice. That refusal needs a body. This page is that body.</p>
+
+<blockquote class="scripture">
+&ldquo;One witness shall not rise up against a man for any iniquity, or for any
+sin, in any sin that he sinneth: at the mouth of two witnesses, or at the
+mouth of three witnesses, shall the matter be established.&rdquo;
+<span class="ref">Deuteronomy 19:15</span>
+</blockquote>
+
+<p>What follows is the public roll of named persons who have agreed to stand
+as witnesses for discernments produced by the engine. Each entry is signed
+with the witness&rsquo;s own Ed25519 public key. Bearing false witness on the
+roll is grounds for removal &mdash; recorded openly and dated. (We are
+following Deut 19:16&ndash;21 as a principle, not enforcing its sanctions; the
+proportionate consequence available to us is removal from the roll.)</p>
+
+<p style="background:#fff5d4; border-left:4px solid #b8945a; padding:0.7em 1em; margin-top:0.6em; border-radius:0 4px 4px 0; font-size:0.93em;">
+<strong>What this is not.</strong> Being on the Witness Roll does not make
+anyone a biblical witness in the Old Testament legal sense, a priest, an
+elder, or any other office. It is a software role with a clear scope: read
+the matter, sign or decline, stand behind your name. Anyone reading more
+into it than that is reading it wrong.</p>
+
+<h2>The roll</h2>
+
+<div class="roll-frame" id="rollFrame">
+  <div class="roll-empty">
+    <strong>The roll is being constituted.</strong>
+    Loading current witnesses&hellip;
+  </div>
+</div>
+
+<p style="font-size:0.92em; color:#6a5a3a; font-style:italic;">
+If the table above is empty, that is honest. A roll with zero names is a roll
+at zero, not a roll inflated with bots or aliases. The first names are
+being interviewed now.
+</p>
+
+<h2>What a witness does</h2>
+<ul>
+  <li><strong>Stands under a real name.</strong> Display name on the roll
+      matches a verified person. No pseudonyms.</li>
+  <li><strong>Holds their own key.</strong> Each witness controls their
+      Ed25519 private key locally. The site holds only the public key.
+      Compromise of a key requires re-issuance and an entry on the roll.</li>
+  <li><strong>Signs discernments brought to them.</strong> A discernment that
+      passes RED and FLOOR is sent to two or three witnesses on the roll. They
+      read the package and sign or decline. The signature is recorded on the
+      permanent <code>/d/&lt;slug&gt;</code> page; the decline is logged
+      privately to the operator.</li>
+  <li><strong>Bears the named consequence.</strong> A witness who is found to
+      have signed in bad faith (corruption, malice, or culpable negligence) is
+      removed from the roll, with the date and the reason published.
+      Deuteronomy 19:16&ndash;21 is the principle we take after &mdash; the
+      penalties prescribed there were for Israel&rsquo;s courts; here removal
+      from the roll is the proportionate consequence available to us.</li>
+  <li><strong>Is not a moderator or an editor.</strong> The witness does not
+      curate the site, does not vote on which discernments appear, does not
+      receive a salary, does not rank users. The witness reads the matter
+      brought to them and signs or declines.</li>
+</ul>
+
+<h2>How to join the roll</h2>
+
+<div class="join-frame">
+  <h3>Four steps. No fast track.</h3>
+  <ol>
+    <li><strong>Submit an application below</strong> (or email
+        <a href="mailto:witness@narrowhighway.com">witness@narrowhighway.com</a>
+        if you prefer). Your real name, a way to reach you, and a few lines
+        on who you are. The operator reads every application.</li>
+    <li><strong>Interview with the operator.</strong> A short conversation
+        &mdash; not a job interview, an honesty interview. The questions take
+        after Deuteronomy 19: do you understand what you would be standing
+        for? Can you decline cleanly when you would not sign? The operator
+        runs this conversation in the practical sense; we do not claim it as
+        an ecclesial office.</li>
+    <li><strong>Generate a key.</strong> Locally. The operator will share a
+        short guide; common wallets (Coinbase, Rainbow, Frame) and standalone
+        Ed25519 tools both work. The site receives only the public half.</li>
+    <li><strong>First signature.</strong> Once on the roll, a low-stakes
+        discernment is sent first &mdash; a familiar test of the signature
+        flow. After it clears, the witness is at full standing.</li>
+  </ol>
+  <p style="margin-top:0.7em; font-size:0.92em;">There is no fee to join the
+  roll, and no payment for serving on it. The witness&rsquo;s portion, if any
+  payment is involved at all, is the same statutory portion any witness in a
+  recovered Covenant Testimony matter receives under federal law &mdash;
+  paid out of recovery, by Act of Congress, never by the platform. See
+  <a href="/testimony.html">Testimony</a>.</p>
+</div>
+
+<form id="witnessForm" style="background:#fff; border:2px solid #1a3a52; border-radius:6px; padding:1.3em 1.4em; margin:1.2em 0; box-shadow:0 2px 12px rgba(26,58,82,0.08);">
+  <h3 style="margin-top:0; color:#1a3a52;">Apply to stand on the roll</h3>
+  <p style="font-size:0.93em; color:#5c4a2a; margin-bottom:1em;">Step 1 only. The operator reads each application and follows up by email within a few days.</p>
+
+  <label style="display:block; font-weight:bold; color:#1a3a52; margin-bottom:0.3em;">
+    Your real name <span style="font-weight:normal; color:#6a5a3a; font-size:0.9em; font-style:italic;">(this will be displayed on the public roll)</span>
+  </label>
+  <input type="text" id="wDisplayName" required maxlength="80"
+    style="width:100%; box-sizing:border-box; padding:0.55em 0.8em; border:1px solid #c9b48a; border-radius:4px; font-family:Georgia,serif; font-size:1em; background:#fafaf6;">
+
+  <label style="display:block; font-weight:bold; color:#1a3a52; margin-top:0.9em; margin-bottom:0.3em;">
+    Email <span style="font-weight:normal; color:#6a5a3a; font-size:0.9em; font-style:italic;">(kept private by the operator; never displayed)</span>
+  </label>
+  <input type="email" id="wContact" required maxlength="200"
+    style="width:100%; box-sizing:border-box; padding:0.55em 0.8em; border:1px solid #c9b48a; border-radius:4px; font-family:Georgia,serif; font-size:1em; background:#fafaf6;">
+
+  <label style="display:block; font-weight:bold; color:#1a3a52; margin-top:0.9em; margin-bottom:0.3em;">
+    Affiliation <span style="font-weight:normal; color:#6a5a3a; font-size:0.9em; font-style:italic;">(optional: church, role, denomination)</span>
+  </label>
+  <input type="text" id="wAffiliation" maxlength="180"
+    style="width:100%; box-sizing:border-box; padding:0.55em 0.8em; border:1px solid #c9b48a; border-radius:4px; font-family:Georgia,serif; font-size:1em; background:#fafaf6;">
+
+  <label style="display:block; font-weight:bold; color:#1a3a52; margin-top:0.9em; margin-bottom:0.3em;">
+    Why do you want to stand on the roll? <span style="font-weight:normal; color:#6a5a3a; font-size:0.9em; font-style:italic;">(a paragraph; what you would and would not sign)</span>
+  </label>
+  <textarea id="wReason" required maxlength="4000" rows="6"
+    style="width:100%; box-sizing:border-box; padding:0.55em 0.8em; border:1px solid #c9b48a; border-radius:4px; font-family:Georgia,serif; font-size:1em; background:#fafaf6; resize:vertical; line-height:1.5;"></textarea>
+
+  <div style="margin-top:1.1em; display:flex; gap:0.7em; align-items:center; flex-wrap:wrap;">
+    <button type="submit" id="wSubmit" style="background:#1a3a52; color:#f4ecd5; padding:0.7em 1.6em; border:none; border-radius:4px; font-family:Georgia,serif; font-size:1em; font-weight:bold; cursor:pointer;">Submit application &rarr;</button>
+    <span id="wStatus" style="font-family:'Courier New',monospace; font-size:0.88em; color:#6a5a3a;"></span>
+  </div>
+</form>
+<script>
+(function(){
+  var f = document.getElementById('witnessForm');
+  var btn = document.getElementById('wSubmit');
+  var status = document.getElementById('wStatus');
+  f.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var payload = {
+      display_name: document.getElementById('wDisplayName').value.trim(),
+      contact:      document.getElementById('wContact').value.trim(),
+      affiliation:  document.getElementById('wAffiliation').value.trim(),
+      reason:       document.getElementById('wReason').value.trim(),
+    };
+    if (payload.display_name.length < 2 || payload.reason.length < 30) {
+      status.style.color = '#8b1f1f';
+      status.textContent = 'Please fill in your name and a paragraph explaining why.';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    status.style.color = '#6a5a3a';
+    status.textContent = '';
+    try {
+      var r = await fetch('/api/witness/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) {
+        var detail = ''; try { detail = (await r.json()).detail || ''; } catch(_){}
+        throw new Error('engine returned ' + r.status + (detail?': '+detail:''));
+      }
+      var d = await r.json();
+      f.style.opacity = '0.5';
+      status.style.color = '#1f5b1f';
+      status.innerHTML = '<strong>Application received (' + (d.id||'') + ').</strong> '
+        + (d.message || 'The operator will reach out within a few days.');
+      btn.textContent = 'Submitted &check;';
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Submit application &rarr;';
+      status.style.color = '#8b1f1f';
+      status.textContent = 'Could not submit: ' + (err.message||String(err))
+        + '. You can also email witness@narrowhighway.com directly.';
+    }
+  });
+})();
+</script>
+
+<h2>What this refuses</h2>
+<div class="refuse">
+  <p><strong>Pseudonymous witness.</strong> A signature without a name is not
+  a witness. The roll requires a real display name and a verified identity
+  held by the operator (not displayed publicly beyond the display name itself).</p>
+  <p><strong>Bot-witnessing.</strong> No automated agent will ever appear on
+  the roll. The BROTHERS gate is human-to-human by design.</p>
+  <p><strong>Witness-for-pay.</strong> No one is paid to sign. The statutory
+  portion in a Covenant Testimony matter is paid <em>out of recovery, by Act
+  of Congress, to the witness in that matter</em>. Not a salary, not a
+  retainer, not paid by us.</p>
+  <p><strong>Inherited standing.</strong> Being well-known elsewhere does not
+  put you on the roll. The interview is the same for everyone.</p>
+  <p><strong>Silent removal.</strong> A witness removed from the roll is
+  removed in the open, with a date and a one-sentence reason, signed by the
+  operator.</p>
+</div>
+
+<div class="pull">
+  <p>&ldquo;A faithful witness will not lie: but a false witness will utter
+  lies.&rdquo; <span style="font-family:'Courier New',monospace;font-size:0.85em;color:#806010;">Proverbs 14:5</span></p>
+</div>
+
+<h2>For technical readers &mdash; the signature flow</h2>
+<p>Each signature on a discernment is a detached Ed25519 signature over a
+canonical JSON serialization of the discernment package. The public key, the
+signature, and the timestamp are stored alongside the discernment record and
+displayed on <code>/d/&lt;slug&gt;</code>. Verification is local and
+deterministic; no server-trust is required to verify a signature against the
+witness&rsquo;s published public key.</p>
+<p>Witness pubkeys served from <code>GET /witness/roll.json</code>. Per-witness
+attestations from <code>GET /witness/by/&lt;pubkey&gt;</code>. (Endpoints under
+construction.)</p>
+
+<h2>The doorways</h2>
+<div class="doorways">
+  <h3>The seven doors</h3>
+  <a href="/guidance.html"><strong>Guidance</strong><em>&mdash; the mechanism, the frame.</em></a>
+  <a href="/organic-design.html"><strong>Organic Design</strong><em>&mdash; what we are: OI, not AI. Pattern rules, not central control.</em></a>
+  <a href="/tradition.html"><strong>Tradition</strong><em>&mdash; the Levitical posture (theological).</em></a>
+  <a href="/assembly.html"><strong>Assembly</strong><em>&mdash; the body the BROTHERS gate requires.</em></a>
+  <a href="/testimony.html"><strong>Testimony</strong><em>&mdash; public alignment, named witnesses, four gates applied to public-record matters.</em></a>
+  <a href="/witnesses.html"><strong>Witnesses</strong><em>&mdash; the standing roll of named persons who sign discernments.</em></a>
+  <a href="/refuge.html"><strong>Refuge</strong><em>&mdash; intake. Heard before judged.</em></a>
+</div>
+
+<hr class="sep">
+
+<p class="colophon">
+  Narrow Highway / Lighthouse / Concordance Engine<br>
+  Provident Precision / Northwest Georgia Joint Development Authority<br>
+  narrowhighway.com &middot; matharrismma/Lighthouse<br>
+  Scripture quoted from the public-domain KJV.
+</p>
+
+<script>
+(function () {
+  var frame = document.getElementById('rollFrame');
+  if (!frame) return;
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
+  }
+  function shortKey(k) {
+    if (!k) return '';
+    var s = String(k);
+    return s.length > 20 ? s.slice(0, 10) + '…' + s.slice(-6) : s;
+  }
+  function fmtDate(d) {
+    if (!d) return '';
+    try {
+      var dt = new Date(d);
+      return dt.toISOString().slice(0, 10);
+    } catch (_) { return String(d).slice(0, 10); }
+  }
+  function renderEmpty(note) {
+    frame.innerHTML = '<div class="roll-empty">' +
+      '<strong>The roll is being constituted.</strong>' +
+      (note ? '<div style="margin-top:0.4em;">' + escapeHtml(note) + '</div>' : '') +
+      '<div style="margin-top:0.6em;">First names are being interviewed now. See &ldquo;How to join the roll&rdquo; below.</div>' +
+    '</div>';
+  }
+  function renderRoll(entries) {
+    if (!entries || !entries.length) { renderEmpty(); return; }
+    var rows = entries.map(function (e) {
+      var status = (e.status || 'active').toLowerCase();
+      var statusLabel = status === 'removed' ? 'Removed' :
+                        status === 'standing' ? 'Standing' : 'Active';
+      return '<tr>' +
+        '<td class="name">' + escapeHtml(e.display_name || e.name || '(unnamed)') + '</td>' +
+        '<td class="key" title="' + escapeHtml(e.pubkey || '') + '">' +
+            escapeHtml(shortKey(e.pubkey)) + '</td>' +
+        '<td class="count">' + (e.attestations != null ? e.attestations : '0') + '</td>' +
+        '<td class="date">' + escapeHtml(fmtDate(e.joined || e.entered)) + '</td>' +
+        '<td class="status ' + status + '">' + statusLabel + '</td>' +
+      '</tr>';
+    }).join('');
+    frame.innerHTML =
+      '<table class="roll"><thead><tr>' +
+        '<th>Witness</th>' +
+        '<th>Ed25519 public key</th>' +
+        '<th style="text-align:right;">Discernments witnessed</th>' +
+        '<th>Joined</th>' +
+        '<th>Status</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  fetch('/witness/roll.json', { headers: { 'Accept': 'application/json' } })
+    .then(function (r) {
+      if (!r.ok) throw new Error('roll endpoint not yet available (' + r.status + ')');
+      return r.json();
+    })
+    .then(function (data) {
+      var entries = (data && data.witnesses) || [];
+      renderRoll(entries);
+    })
+    .catch(function (e) {
+      renderEmpty('Roll endpoint not yet wired. The structure is here; the names go next.');
+    });
+})();
+</script>
+
+</body>
+</html>

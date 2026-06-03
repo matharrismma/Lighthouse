@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<title>Publish Dashboard — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 1em 0; background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; overflow: hidden; }
+  th, td { padding: 0.7em 1em; text-align: left; border-bottom: 1px solid #e8dcb8; }
+  th { background: #1a3a52; color: #f4ecd5; }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: #fafaf2; }
+  .status { display: inline-block; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.85em; font-weight: bold; }
+  .status.ready { background: #d4ead4; color: #1f5b1f; }
+  .status.waiting { background: #fff5d4; color: #806010; }
+  .status.blocked { background: #fee; color: #b03020; }
+  .status.live { background: #1a3a52; color: #fff; }
+  code { background: #f0eada; padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.92em; }
+  .quick-links { display: flex; flex-wrap: wrap; gap: 0.5em; margin: 1em 0; }
+  .quick-links a { background: #1a3a52; color: #fff; padding: 0.5em 1em; border-radius: 4px; text-decoration: none; font-size: 0.9em; }
+  .quick-links a.alt { background: #f0eada; color: #1a3a52; border: 1px solid #c9b48a; }
+  .file-list { font-family: 'Courier New', monospace; font-size: 0.88em; line-height: 1.7; background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.8em 1.2em; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a></nav>
+
+<h1>Publish Dashboard</h1>
+
+<p>Two pilots, fully assembled, ready to distribute. The publish packages contain everything pre-cut for each platform.</p>
+
+<h2>Soft Rains v4 — package contents</h2>
+<div class="file-list">
+📁 <code>data/publish/soft_rains_v4/</code><br>
+&nbsp;&nbsp;&nbsp;<code>video.mp4</code>              · 706 MB · 23:18 · 1920×1080<br>
+&nbsp;&nbsp;&nbsp;<code>audio_podcast.mp3</code>      · 32 MB · stereo · ID3 tagged<br>
+&nbsp;&nbsp;&nbsp;<code>thumbnail_youtube.png</code>  · 1920×1080 with wrapped title<br>
+&nbsp;&nbsp;&nbsp;<code>pinterest_pin.png</code>      · 1080×1920 vertical<br>
+&nbsp;&nbsp;&nbsp;<code>title.txt</code>              · YouTube title<br>
+&nbsp;&nbsp;&nbsp;<code>description.txt</code>        · YouTube/podcast description w/ deep-links<br>
+&nbsp;&nbsp;&nbsp;<code>tags.txt</code>               · 19 tags optimized for discovery<br>
+&nbsp;&nbsp;&nbsp;<code>social_posts.md</code>        · X / Threads / Bluesky / LinkedIn / Reddit (4 subs) / FB / HN / email<br>
+&nbsp;&nbsp;&nbsp;<code>instructions.md</code>        · platform-by-platform manual upload steps
+</div>
+
+<h2>Distribution status</h2>
+
+<table>
+  <tr><th>Channel</th><th>Status</th><th>Action / link</th></tr>
+  <tr>
+    <td><strong>narrowhighway.com</strong> homepage + /pilots.html</td>
+    <td><span class="status live">LIVE</span></td>
+    <td>Auto-swaps to YouTube embed when <code>site/youtube.json</code> exists</td>
+  </tr>
+  <tr>
+    <td><strong>YouTube</strong></td>
+    <td><span class="status waiting">OAuth pending</span></td>
+    <td>Run <code>tools/upload_to_youtube.py --pilot soft_rains_v4</code> once <code>client_secrets.json</code> is at <code>~/.config/narrowhighway/</code></td>
+  </tr>
+  <tr>
+    <td><strong>Theatre Podcast RSS</strong></td>
+    <td><span class="status ready">READY</span></td>
+    <td>Feed at <a href="/podcast-theatre.rss">/podcast-theatre.rss</a> · preview at <a href="/podcast-theatre.html">/podcast-theatre.html</a></td>
+  </tr>
+  <tr>
+    <td><strong>Apple Podcasts Connect</strong></td>
+    <td><span class="status waiting">Manual submission</span></td>
+    <td>Submit RSS URL at <a href="https://podcastsconnect.apple.com" target="_blank">podcastsconnect.apple.com</a> (~24-48 hr review)</td>
+  </tr>
+  <tr>
+    <td><strong>Spotify for Podcasters</strong></td>
+    <td><span class="status waiting">Manual submission</span></td>
+    <td>Submit RSS URL at <a href="https://podcasters.spotify.com" target="_blank">podcasters.spotify.com</a> (~few hours review)</td>
+  </tr>
+  <tr>
+    <td><strong>Amazon Music / Audible</strong></td>
+    <td><span class="status waiting">Manual submission</span></td>
+    <td>Submit at <a href="https://podcasters.amazon.com" target="_blank">podcasters.amazon.com</a></td>
+  </tr>
+  <tr>
+    <td><strong>iHeartRadio / Pocket Casts / Overcast</strong></td>
+    <td><span class="status waiting">Auto-indexed</span></td>
+    <td>Once Apple/Spotify list the feed, these aggregators pick it up automatically.</td>
+  </tr>
+  <tr>
+    <td><strong>Pinterest pin</strong></td>
+    <td><span class="status ready">Pin ready</span></td>
+    <td>Upload <code>data/publish/&lt;pilot&gt;/pinterest_pin.png</code> at <a href="https://pinterest.com/pin-builder" target="_blank">pinterest.com/pin-builder</a></td>
+  </tr>
+  <tr>
+    <td><strong>Internet Archive</strong></td>
+    <td><span class="status waiting">Optional permanent backup</span></td>
+    <td>Upload at <a href="https://archive.org/create" target="_blank">archive.org/create</a> — gives PD-friendly permanent hosting</td>
+  </tr>
+  <tr>
+    <td><strong>Twitter/X · Threads · Bluesky · LinkedIn · FB</strong></td>
+    <td><span class="status ready">Posts pre-written</span></td>
+    <td>Paste from <code>data/publish/&lt;pilot&gt;/social_posts.md</code></td>
+  </tr>
+  <tr>
+    <td><strong>Reddit (oldtimeradio, scifi, Christianity, animation)</strong></td>
+    <td><span class="status ready">Posts pre-written</span></td>
+    <td>Same file — section per subreddit</td>
+  </tr>
+  <tr>
+    <td><strong>Hacker News</strong></td>
+    <td><span class="status ready">Title pre-written</span></td>
+    <td>Submit only the title at <a href="https://news.ycombinator.com/submit" target="_blank">news.ycombinator.com/submit</a></td>
+  </tr>
+  <tr>
+    <td><strong>Email blast</strong></td>
+    <td><span class="status ready">Template ready</span></td>
+    <td>Subject + body in <code>social_posts.md</code> under "email_blast"</td>
+  </tr>
+</table>
+
+<h2>What I (Claude) can run for you right now</h2>
+
+<div class="quick-links">
+  <a href="javascript:void(0)" onclick="copy('python tools/upload_to_youtube.py --pilot soft_rains_v4')">📋 copy: upload Soft Rains to YouTube</a>
+  <a href="javascript:void(0)" onclick="copy('python tools/upload_to_youtube.py --pilot hundred_acre')">📋 copy: upload Pooh to YouTube</a>
+  <a href="javascript:void(0)" onclick="copy('python tools/build_pilots_podcast_rss.py')">📋 copy: rebuild podcast feed</a>
+</div>
+
+<h2>What I cannot run for you (you must do these once)</h2>
+
+<ol>
+  <li><strong>YouTube OAuth setup</strong> — Google requires the human channel-owner to approve. ~10 min at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → see <code>tools/upload_to_youtube.py</code> docstring for full steps.</li>
+  <li><strong>Apple Podcasts Connect submission</strong> — paste the RSS URL and confirm ownership via Apple ID. ~5 min, then 24-48 hr review.</li>
+  <li><strong>Spotify for Podcasters submission</strong> — same idea. ~5 min, faster review.</li>
+  <li><strong>Pinterest account</strong> — if you don't already have a business account, create one (~3 min).</li>
+  <li><strong>Internet Archive uploader account</strong> — optional, free, gives permanent PD-friendly hosting as backup.</li>
+</ol>
+
+<script>
+  function copy(text) {
+    navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text));
+  }
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

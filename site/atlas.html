@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.atlas.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas · The Concordance map · Concordance Engine</title>
+  <meta name="description" content="The spatial lens on the Concordance. Every packet placed at its intersection of axis and kind. A map of the engine's whole substrate — one click into any region.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Atlas · The Concordance map">
+  <meta property="og:description" content="The spatial lens on the Concordance. Every packet placed at its intersection of axis and kind.">
+  <meta property="og:url" content="https://narrowhighway.com/atlas.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/atlas.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .at-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .at-intro em { color: var(--accent); font-style: italic; }
+    .at-intro b { color: var(--accent); }
+
+    /* Lens chrome — appears on every lens page */
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Atlas grid */
+    .at-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin: 12px 0 22px;
+    }
+    .at-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      text-align: center;
+    }
+    .at-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .at-stat .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .at-section {
+      margin: 28px 0;
+    }
+    .at-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .at-section h2 .ct {
+      color: var(--muted-2);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      margin-left: 8px;
+    }
+
+    /* Cross-tab heatmap: axes × kinds */
+    .at-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .at-grid th, .at-grid td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .at-grid th {
+      background: var(--surface);
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .at-grid th.kind-label {
+      text-align: left;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      padding-left: 14px;
+      font-weight: 500;
+    }
+    .at-grid td.cell {
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .at-grid td.cell.lit { background: rgba(201,168,124,0.04); color: var(--text); }
+    .at-grid td.cell.high { background: rgba(201,168,124,0.12); color: var(--accent); }
+    .at-grid td.cell.peak { background: rgba(201,168,124,0.24); color: var(--accent-hi); }
+    .at-grid td.cell:hover {
+      border-color: var(--accent);
+      background: rgba(201,168,124,0.18);
+    }
+    .at-grid td.empty {
+      color: var(--muted-2);
+      font-size: 11px;
+    }
+    .at-grid td.total {
+      background: rgba(255,255,255,0.02);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Cross-tab: kinds × domains (sized list) */
+    .at-region {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+    }
+    .at-region a {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+    .at-region a:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+    .at-region a .ct {
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .at-region a .lbl { color: var(--text-dim); letter-spacing: 0.02em; }
+
+    .at-region.dense {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    .at-region.dense a { padding: 7px 11px; font-size: 11.5px; }
+
+    .at-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 18px;
+      text-align: center;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Atlas · a spatial lens</div>
+    <h1 data-i18n="page.atlas.h1">The Atlas.</h1>
+    <p class="at-intro">
+      One Concordance, many lenses. <b>The Atlas</b> is the spatial lens — every packet
+      placed at its intersection of <em>axis</em> and <em>kind</em>. Click any cell to walk
+      into that region of the engine's substrate. The Almanac sorts by wisdom; the Atlas
+      sorts by location on the structural map.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the atlas tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <!-- Lens chrome — every lens page surfaces the other lenses -->
+  <div class="lens-bar"><span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html" class="active">Atlas</a><a href="/encyclopedia.html">Encyclopedia</a><a href="/chronicle.html">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html">Shepherd</a><a href="/packets.html">Index</a></div>
+
+  <div id="at-stats" class="at-stats"></div>
+
+  <section class="at-section">
+    <h2>Axes × Kinds<span class="ct">where the packets live</span></h2>
+    <div id="at-heatmap"></div>
+  </section>
+
+  <section class="at-section">
+    <h2>By verifier domain<span class="ct">drill into a domain</span></h2>
+    <div id="at-domains" class="at-region dense"></div>
+  </section>
+
+  <section class="at-section">
+    <h2>By axis<span class="ct">drill into an axis</span></h2>
+    <div id="at-axes" class="at-region"></div>
+  </section>
+
+</main>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // Axis order — engine scaffold order so the heatmap reads consistently
+  const AXIS_ORDER = ['authority_trust','reasoning','encoding','metabolism','conservation_balance','physical_substance','time_sequence'];
+  const KIND_ORDER = ['almanac','protocol','archetype','fieldkit_card','sealed_poly','misalignment','build_queue','receipt'];
+
+  function renderStats(d) {
+    const stats = [
+      ['Total', d.total_packets],
+      ['Kinds', Object.keys(d.by_kind || {}).length],
+      ['Axes', Object.keys(d.by_axis || {}).length],
+      ['Domains', Object.keys(d.by_domain || {}).length],
+    ];
+    document.getElementById('at-stats').innerHTML = stats.map(([lbl, n]) =>
+      `<div class="at-stat"><div class="num">${esc(String(n ?? '—'))}</div><div class="lbl">${esc(lbl)}</div></div>`
+    ).join('');
+  }
+
+  async function loadAllPackets() {
+    // We need (kind, axis) cells. Pull all packets via /index/packets/by-axis/{a}
+    // and bucket them. Smaller than fetching the whole packet store.
+    const results = {};
+    for (const ax of AXIS_ORDER) {
+      try {
+        const r = await fetch(API + '/index/packets/by-axis/' + encodeURIComponent(ax), {cache: 'no-store'});
+        if (!r.ok) continue;
+        const d = await r.json();
+        results[ax] = d.packets || [];
+      } catch(_) { results[ax] = []; }
+    }
+    return results;
+  }
+
+  function buildHeatmap(byAxisPackets, summary) {
+    // Construct (kind, axis) count matrix
+    const matrix = {};
+    const kindsPresent = new Set();
+    for (const ax of AXIS_ORDER) {
+      const pkts = byAxisPackets[ax] || [];
+      for (const p of pkts) {
+        const kind = (p.kind || 'unknown').toLowerCase();
+        kindsPresent.add(kind);
+        matrix[kind] ||= {};
+        matrix[kind][ax] = (matrix[kind][ax] || 0) + 1;
+      }
+    }
+    const kinds = KIND_ORDER.filter(k => kindsPresent.has(k))
+      .concat([...kindsPresent].filter(k => !KIND_ORDER.includes(k)).sort());
+
+    // Find max for color scaling
+    let maxCount = 0;
+    for (const k of kinds) for (const ax of AXIS_ORDER) maxCount = Math.max(maxCount, matrix[k]?.[ax] || 0);
+
+    let html = '<table class="at-grid"><thead><tr><th class="kind-label">kind ↓ / axis →</th>';
+    for (const ax of AXIS_ORDER) html += `<th>${esc(ax.replace(/_/g,' '))}</th>`;
+    html += '<th>total</th></tr></thead><tbody>';
+
+    for (const k of kinds) {
+      html += `<tr><th class="kind-label">${esc(k.replace(/_/g,' '))}</th>`;
+      let rowTotal = 0;
+      for (const ax of AXIS_ORDER) {
+        const n = matrix[k]?.[ax] || 0;
+        rowTotal += n;
+        let cls = 'cell';
+        if (n === 0) cls += ' empty';
+        else if (n / maxCount > 0.5) cls += ' peak';
+        else if (n / maxCount > 0.2) cls += ' high';
+        else cls += ' lit';
+        if (n > 0) {
+          html += `<td class="${cls}"><a href="/packets.html?kind=${esc(k)}&axis=${esc(ax)}" style="color:inherit;text-decoration:none;display:block;">${n}</a></td>`;
+        } else {
+          html += `<td class="${cls}">—</td>`;
+        }
+      }
+      html += `<td class="total">${rowTotal}</td></tr>`;
+    }
+
+    // Column totals
+    html += '<tr><th class="kind-label">total</th>';
+    let grandTotal = 0;
+    for (const ax of AXIS_ORDER) {
+      const n = summary.by_axis?.[ax] || 0;
+      grandTotal += n;
+      html += `<td class="total">${n}</td>`;
+    }
+    html += `<td class="total">${grandTotal}</td>`;
+    html += '</tr></tbody></table>';
+    document.getElementById('at-heatmap').innerHTML = html;
+  }
+
+  function buildRegions(summary) {
+    // Domain list — every verifier domain packets touch
+    const domains = Object.entries(summary.by_domain || {})
+      .sort((a, b) => b[1] - a[1]);
+    document.getElementById('at-domains').innerHTML = domains.length
+      ? domains.map(([d, n]) =>
+          `<a href="/packets.html?domain=${esc(d)}"><span class="lbl">${esc(d.replace(/_/g,' '))}</span><span class="ct">${n}</span></a>`
+        ).join('')
+      : '<div class="at-empty">No domain-tagged packets yet.</div>';
+
+    // Axis list
+    const axes = Object.entries(summary.by_axis || {})
+      .sort((a, b) => b[1] - a[1]);
+    document.getElementById('at-axes').innerHTML = axes.length
+      ? axes.map(([a, n]) =>
+          `<a href="/packets.html?axis=${esc(a)}"><span class="lbl">${esc(a.replace(/_/g,' '))}</span><span class="ct">${n}</span></a>`
+        ).join('')
+      : '<div class="at-empty">No axis-tagged packets yet.</div>';
+  }
+
+  async function load() {
+    try {
+      const summary = await fetch(API + '/index/packets', {cache: 'no-store'}).then(r => r.json());
+      renderStats(summary);
+      buildRegions(summary);
+      const byAxis = await loadAllPackets();
+      buildHeatmap(byAxis, summary);
+    } catch (err) {
+      document.getElementById('at-heatmap').innerHTML = `<div class="at-empty">Atlas could not load (${esc(err.message || 'unknown')}). The engine may be offline.</div>`;
+    }
+  }
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

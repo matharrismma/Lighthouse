@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.hearth.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Hearth · Where everyone knows your name · Narrow Highway</title>
+  <meta name="description" content="A place to sit a while. Six rooms — Front, Prayer, Bible Study, Family, Health, Today. Append-only, walk-in, no accounts. Lore accumulates. Bring your name; we'll know it next time.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Hearth · Where everyone knows your name">
+  <meta property="og:description" content="Six rooms. Append-only. Walk-in. No accounts. Lore accumulates.">
+  <meta property="og:url" content="https://narrowhighway.com/hearth.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/hearth.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    main.hearth-wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 20px 18px 80px;
+    }
+    .hth-hero {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin: 6px 0 14px;
+    }
+    .hth-hero em { color: var(--accent); font-style: italic; }
+    .hth-hero b { color: var(--accent); }
+
+    /* Identity bar — your handle, your room, your presence */
+    .hth-me {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .hth-me-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .hth-me-handle {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .hth-me input {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border-hi);
+      border-radius: 5px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      width: 200px;
+    }
+    .hth-me input:focus { border-color: var(--accent); outline: none; }
+    .hth-me button {
+      background: var(--accent);
+      color: #0a0810;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 12px;
+      font: 600 12px inherit;
+      cursor: pointer;
+    }
+    .hth-me button:hover { background: var(--accent-hi); }
+    .hth-me .alt {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+    }
+
+    /* Layout: rooms sidebar | conversation | who's here */
+    .hth-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr 220px;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .hth-layout { grid-template-columns: 1fr; }
+      .hth-rooms, .hth-presence { order: 0; }
+    }
+
+    /* Room list (left) */
+    .hth-rooms {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      position: sticky; top: 70px;
+    }
+    .hth-rooms .room {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .hth-rooms .room:hover { background: rgba(255,255,255,0.04); }
+    .hth-rooms .room.active {
+      background: rgba(217,168,114,0.10);
+      border-left-color: var(--accent);
+    }
+    .hth-rooms .room .name {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .hth-rooms .room .blurb {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .hth-rooms .room .stats {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted-2);
+      margin-top: 4px;
+    }
+    .hth-rooms .room .stats .live {
+      color: var(--pass);
+      font-weight: 600;
+    }
+
+    /* Conversation (center) */
+    .hth-convo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      min-height: 60vh;
+      max-height: 80vh;
+    }
+    .hth-convo-head {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hth-convo-name {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .hth-convo-blurb {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      max-width: 60ch;
+    }
+    .hth-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 18px;
+    }
+    .hth-msg {
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.04);
+    }
+    .hth-msg:last-child { border-bottom: none; }
+    .hth-msg-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .hth-msg-handle {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 14.5px;
+    }
+    .hth-msg-handle.you { color: var(--pass); }
+    .hth-msg-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .hth-msg-body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.55;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .hth-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+    }
+    .hth-empty::before {
+      content: '✚';
+      display: block;
+      font-size: 28px;
+      color: var(--accent);
+      opacity: 0.4;
+      margin-bottom: 10px;
+      font-style: normal;
+    }
+
+    .hth-compose {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+    }
+    .hth-compose textarea {
+      flex: 1;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border-hi);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 60px;
+      resize: vertical;
+    }
+    .hth-compose textarea:focus { border-color: var(--accent); outline: none; }
+    .hth-compose button {
+      background: var(--accent);
+      color: #0a0810;
+      border: none;
+      border-radius: 6px;
+      padding: 0 22px;
+      font: 600 13px inherit;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .hth-compose button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .hth-compose button:hover:not(:disabled) { background: var(--accent-hi); }
+
+    /* Presence (right) */
+    .hth-presence {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      position: sticky; top: 70px;
+    }
+    .hth-presence h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+    .hth-presence .who {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .hth-presence .who::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pass);
+      box-shadow: 0 0 8px var(--pass);
+      flex-shrink: 0;
+    }
+    .hth-presence .who.you { color: var(--accent); font-weight: 600; }
+    .hth-presence .empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px 0;
+    }
+    .hth-presence .last-seen {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted-2);
+      margin-left: auto;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/hearth.html",
+  "name": "The Hearth · Where everyone knows your name · Narrow Highway",
+  "description": "A place to sit a while. Six rooms — Front, Prayer, Bible Study, Family, Health, Today. Append-only, walk-in, no accounts. Lore accumulates. Bring your name; we'll know it next time.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "WebApplication",
+  "applicationCategory": "Lifestyle",
+  "keywords": "Christian community, family Bible study, prayer rooms"
+}
+</script>
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">A place to sit a while</div>
+    <h1 data-i18n="page.hearth.h1">The Hearth.</h1>
+    <p class="hth-hero">
+      Six rooms. Walk in. <em>Bring your name; we'll know it next time.</em>
+      Nothing is deleted, so the conversation accretes. <b>Append-only.</b>
+      No accounts, no DMs, no "likes." Just people sitting around a fire.
+      Be kind. Be honest. <em>Two or three are gathered.</em>
+    </p>
+  </div>
+</div>
+
+<main class="hearth-wrap">
+
+  <!-- Identity bar -->
+  <div class="hth-me">
+    <span class="hth-me-label">You are</span>
+    <span class="hth-me-handle" id="hth-handle-display">—</span>
+    <input id="hth-handle-input" type="text" placeholder="change your name (2–32 chars)" maxlength="32" style="display:none;" />
+    <button id="hth-handle-edit" type="button">change name</button>
+    <button id="hth-handle-save" type="button" style="display:none;">save</button>
+    <button id="hth-handle-cancel" type="button" class="alt" style="display:none;">cancel</button>
+    <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.06em;">handles persist on this device · no signup</span>
+  </div>
+
+  <div class="hth-layout">
+
+    <!-- Rooms (left) -->
+    <aside class="hth-rooms" id="hth-rooms" aria-label="Rooms"></aside>
+
+    <!-- Conversation (center) -->
+    <section class="hth-convo">
+      <div class="hth-convo-head">
+        <div>
+          <div class="hth-convo-name" id="hth-convo-name">—</div>
+          <div class="hth-convo-blurb" id="hth-convo-blurb">—</div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--muted);">
+          <span id="hth-msg-count">0</span> messages · <span id="hth-presence-inline">0</span> here now
+        </div>
+      </div>
+      <div class="hth-msgs" id="hth-msgs"><div class="hth-empty">Settling in…</div></div>
+      <div class="hth-compose">
+        <textarea id="hth-body" placeholder="Say something kind. Ask something honest. Carry someone's name." rows="2"></textarea>
+        <button id="hth-send" type="button" disabled>Speak</button>
+      </div>
+    </section>
+
+    <!-- Presence (right) -->
+    <aside class="hth-presence" aria-label="Who's here">
+      <h3>Who's here · last 5 min</h3>
+      <div id="hth-presence-list">
+        <div class="empty">Quiet right now. Be the first to settle in.</div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtAgo(ms) {
+    const s = Math.max(1, Math.floor((Date.now() - ms) / 1000));
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s/60) + 'm';
+    if (s < 86400) return Math.floor(s/3600) + 'h';
+    return Math.floor(s/86400) + 'd';
+  }
+
+  // ── Visitor identity ─────────────────────────────────────────────
+  const VISITOR_KEY = 'concordance_visitor_id';
+  const HANDLE_KEY  = 'hearth_handle';
+
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(VISITOR_KEY);
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem(VISITOR_KEY, id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+
+  function getHandle() {
+    try {
+      let h = localStorage.getItem(HANDLE_KEY);
+      if (!h) {
+        // Auto-generate a friendly default
+        const adjs = ['wanderer','pilgrim','traveler','quiet','reader','keeper','listener','seeker'];
+        const adj = adjs[Math.floor(Math.random() * adjs.length)];
+        const suffix = getVisitorId().slice(0, 4);
+        h = adj + '_' + suffix;
+        localStorage.setItem(HANDLE_KEY, h);
+      }
+      return h;
+    } catch (_) { return 'guest'; }
+  }
+  function setHandle(h) {
+    try { localStorage.setItem(HANDLE_KEY, h); } catch (_) {}
+  }
+
+  const VID = getVisitorId();
+  let HANDLE = getHandle();
+  let CURRENT_ROOM = (new URLSearchParams(location.search).get('room') || 'front').toLowerCase();
+  let LAST_MSG_TS = 0;
+  let ROOMS = [];
+
+  document.getElementById('hth-handle-display').textContent = HANDLE;
+
+  // Handle editing
+  function startEditHandle() {
+    document.getElementById('hth-handle-display').style.display = 'none';
+    document.getElementById('hth-handle-edit').style.display = 'none';
+    const inp = document.getElementById('hth-handle-input');
+    inp.style.display = 'inline-block';
+    inp.value = HANDLE;
+    inp.focus();
+    inp.select();
+    document.getElementById('hth-handle-save').style.display = 'inline-block';
+    document.getElementById('hth-handle-cancel').style.display = 'inline-block';
+  }
+  function cancelEditHandle() {
+    document.getElementById('hth-handle-display').style.display = '';
+    document.getElementById('hth-handle-edit').style.display = '';
+    document.getElementById('hth-handle-input').style.display = 'none';
+    document.getElementById('hth-handle-save').style.display = 'none';
+    document.getElementById('hth-handle-cancel').style.display = 'none';
+  }
+  function saveHandle() {
+    const v = (document.getElementById('hth-handle-input').value || '').trim();
+    if (!/^[A-Za-z0-9_\-]{2,32}$/.test(v)) {
+      alert('Handles must be 2–32 chars: letters, digits, underscore, dash.');
+      return;
+    }
+    HANDLE = v;
+    setHandle(HANDLE);
+    document.getElementById('hth-handle-display').textContent = HANDLE;
+    cancelEditHandle();
+  }
+  document.getElementById('hth-handle-edit').addEventListener('click', startEditHandle);
+  document.getElementById('hth-handle-cancel').addEventListener('click', cancelEditHandle);
+  document.getElementById('hth-handle-save').addEventListener('click', saveHandle);
+  document.getElementById('hth-handle-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveHandle();
+    if (e.key === 'Escape') cancelEditHandle();
+  });
+
+  // ── Room list ────────────────────────────────────────────────────
+  async function loadRooms() {
+    try {
+      const r = await fetch('/hearth/rooms');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      ROOMS = d.rooms || [];
+      renderRoomList();
+      // If current room is invalid, fall back to front
+      if (!ROOMS.find(rm => rm.slug === CURRENT_ROOM)) {
+        CURRENT_ROOM = 'front';
+      }
+      switchRoom(CURRENT_ROOM);
+    } catch (err) {
+      document.getElementById('hth-rooms').innerHTML =
+        '<div class="empty">Could not load rooms: ' + esc(err.message) + '</div>';
+    }
+  }
+
+  function renderRoomList() {
+    const root = document.getElementById('hth-rooms');
+    root.innerHTML = ROOMS.map(rm => `
+      <div class="room ${rm.slug === CURRENT_ROOM ? 'active' : ''}" data-slug="${esc(rm.slug)}">
+        <div class="name">${esc(rm.name)}</div>
+        <div class="blurb">${esc(rm.blurb)}</div>
+        <div class="stats">
+          ${rm.message_count} message${rm.message_count === 1 ? '' : 's'}
+          ${rm.present_count > 0 ? ` · <span class="live">${rm.present_count} here</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+    root.querySelectorAll('.room').forEach(el => {
+      el.addEventListener('click', () => switchRoom(el.dataset.slug));
+    });
+  }
+
+  // ── Conversation ─────────────────────────────────────────────────
+  function switchRoom(slug) {
+    CURRENT_ROOM = slug;
+    LAST_MSG_TS = 0;
+    const url = new URL(location);
+    url.searchParams.set('room', slug);
+    history.replaceState({}, '', url);
+    const rm = ROOMS.find(r => r.slug === slug);
+    if (rm) {
+      document.getElementById('hth-convo-name').textContent = rm.name;
+      document.getElementById('hth-convo-blurb').textContent = rm.blurb;
+    }
+    renderRoomList();
+    document.getElementById('hth-msgs').innerHTML = '<div class="hth-empty">Settling in…</div>';
+    poll(true);
+  }
+
+  function renderMessages(msgs, append) {
+    const root = document.getElementById('hth-msgs');
+    if (!append && (!msgs || !msgs.length)) {
+      root.innerHTML = `<div class="hth-empty">
+        No one has spoken here yet. <em>Be the first.</em>
+      </div>`;
+      return;
+    }
+    if (!append) root.innerHTML = '';
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'hth-msg';
+      const isYou = m.visitor_id === VID;
+      div.innerHTML = `
+        <div class="hth-msg-head">
+          <span class="hth-msg-handle ${isYou ? 'you' : ''}">${esc(m.handle)}${isYou ? ' (you)' : ''}</span>
+          <span class="hth-msg-when">${fmtAgo(m.ts_ms)} ago</span>
+        </div>
+        <div class="hth-msg-body">${esc(m.body)}</div>
+      `;
+      root.appendChild(div);
+      if (m.ts_ms > LAST_MSG_TS) LAST_MSG_TS = m.ts_ms;
+    });
+    // Auto-scroll to latest if user was near the bottom
+    const nearBottom = (root.scrollHeight - root.scrollTop - root.clientHeight) < 80;
+    if (nearBottom) root.scrollTop = root.scrollHeight;
+  }
+
+  function renderPresence(list) {
+    const root = document.getElementById('hth-presence-list');
+    if (!list || !list.length) {
+      root.innerHTML = '<div class="empty">Quiet right now. Be the first to settle in.</div>';
+      document.getElementById('hth-presence-inline').textContent = '0';
+      return;
+    }
+    document.getElementById('hth-presence-inline').textContent = String(list.length);
+    root.innerHTML = list.map(p => {
+      const isYou = p.visitor_id === VID;
+      const ago = Math.max(1, Math.floor((Date.now()/1000 - p.ts_s) / 60));
+      return `<div class="who ${isYou ? 'you' : ''}">
+        <span>${esc(p.handle)}${isYou ? ' (you)' : ''}</span>
+        <span class="last-seen">${ago}m</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Polling ──────────────────────────────────────────────────────
+  let _polling = false;
+  async function poll(initial) {
+    if (_polling) return;
+    _polling = true;
+    try {
+      // Check in (also marks presence)
+      fetch('/hearth/checkin', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ room: CURRENT_ROOM, visitor_id: VID, handle: HANDLE }),
+      }).catch(() => {});
+
+      const url = '/hearth/recent?room=' + encodeURIComponent(CURRENT_ROOM)
+        + '&since_ms=' + (initial ? 0 : LAST_MSG_TS)
+        + '&limit=' + (initial ? 60 : 30);
+      const r = await fetch(url);
+      if (!r.ok) return;
+      const d = await r.json();
+      const msgs = d.messages || [];
+      renderMessages(msgs, !initial);
+      renderPresence(d.presence || []);
+      document.getElementById('hth-msg-count').textContent = String(
+        (parseInt(document.getElementById('hth-msg-count').textContent, 10) || 0) + msgs.length
+      );
+      if (initial) {
+        document.getElementById('hth-msg-count').textContent = String(msgs.length);
+      }
+    } catch (_) { /* swallow */ }
+    finally { _polling = false; }
+  }
+
+  // ── Compose ──────────────────────────────────────────────────────
+  const body = document.getElementById('hth-body');
+  const send = document.getElementById('hth-send');
+  body.addEventListener('input', () => {
+    send.disabled = body.value.trim().length < 1;
+  });
+  body.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      doSend();
+    }
+  });
+  send.addEventListener('click', doSend);
+
+  async function doSend() {
+    const text = body.value.trim();
+    if (!text) return;
+    send.disabled = true;
+    const origLabel = send.textContent;
+    send.textContent = 'Speaking…';
+    try {
+      const r = await fetch('/hearth/say', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          room: CURRENT_ROOM,
+          visitor_id: VID,
+          handle: HANDLE,
+          body: text,
+        }),
+      });
+      if (!r.ok) {
+        let detail = 'engine returned ' + r.status;
+        try { const j = await r.json(); detail = j.detail || detail; } catch(_){}
+        throw new Error(detail);
+      }
+      body.value = '';
+      poll(false);
+    } catch (err) {
+      alert('Could not send: ' + err.message);
+    } finally {
+      send.textContent = origLabel;
+      send.disabled = body.value.trim().length < 1;
+    }
+  }
+
+  // ── Boot ─────────────────────────────────────────────────────────
+  loadRooms();
+  setInterval(() => poll(false), 4000);
+  // Refresh room list (for presence counts) every 30s
+  setInterval(() => {
+    fetch('/hearth/rooms').then(r => r.json()).then(d => {
+      ROOMS = d.rooms || [];
+      renderRoomList();
+    }).catch(() => {});
+  }, 30000);
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

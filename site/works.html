@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.works.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Works · M.R. Harris · Concordance Engine</title>
+  <meta name="description" content="The complete works of Matt Harris (M.R. Harris): the Concordance Engine itself, four novels (Molasses, Root Access, Participant-Initiated Risk, Tell Me You Got That), audio serials (Apokalypsis, The Free State of Dade), sermons, and devotional reflections.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Works · M.R. Harris">
+  <meta property="og:description" content="The Concordance Engine, three novels, sermons, and devotional reflections. Same author, same architecture, told in different forms.">
+  <meta property="og:url" content="https://narrowhighway.com/works.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/works.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .wk-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .wk-intro em { color: var(--accent); font-style: italic; }
+    .wk-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .wk-section {
+      margin: 30px 0;
+    }
+    .wk-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wk-section h2 .ct { color: var(--accent); margin-left: 8px; }
+
+    .wk-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 760px) {
+      .wk-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .wk-card {
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .wk-card.novel       { border-left: 4px solid #b88ed6; }
+    .wk-card.sermon      { border-left: 4px solid #e3c498; }
+    .wk-card.devotional  { border-left: 4px solid #6fc47c; }
+    .wk-card.engine      { border-left: 4px solid var(--accent); }
+
+    .wk-card-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .wk-card.novel      .wk-card-kind { color: #b88ed6; }
+    .wk-card.sermon     .wk-card-kind { color: #e3c498; }
+    .wk-card.devotional .wk-card-kind { color: #6fc47c; }
+    .wk-card.engine     .wk-card-kind { color: var(--accent); }
+
+    .wk-card h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 4px;
+    }
+    .wk-card .wk-byline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .wk-card .wk-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+    .wk-card .wk-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+    }
+    .wk-card .wk-status.unpublished { color: var(--hold); border-color: rgba(196,160,48,0.45); background: rgba(196,160,48,0.07); }
+    .wk-card .wk-status.published   { color: var(--pass); border-color: rgba(111,196,124,0.45); background: rgba(111,196,124,0.07); }
+    .wk-card .wk-status.draft       { color: var(--accent); border-color: rgba(217,168,114,0.45); background: rgba(217,168,114,0.07); }
+
+    .wk-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .wk-list-item {
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm, 6px);
+      display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    }
+    .wk-list-item.devotional { border-left: 3px solid #6fc47c; }
+    .wk-list-item.sermon     { border-left: 3px solid #e3c498; }
+    .wk-list-item .wk-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      min-width: 90px;
+    }
+    .wk-list-item .wk-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      color: var(--text);
+      flex: 1;
+    }
+    .wk-list-item .wk-ref {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .wk-list-item a {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .wk-list-item a:hover { color: var(--accent-hi); }
+
+    .wk-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 18px 0;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Works · M.R. Harris</div>
+    <h1 data-i18n="page.works.h1">The complete works.</h1>
+    <p class="wk-intro">
+      The Concordance Engine is one form. <b>The novels</b> are another — the same architecture told in narrative. <b>The sermons and devotionals</b> are the same substrate spoken aloud. One author, four forms.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the author works tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar">
+    <span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a>
+    <a href="/daily.html">Today</a>
+    <a href="/apothecary.html">Apothecary</a>
+    <a href="/training.html">Training</a>
+    <a href="/parable.html">Parable</a>
+    <a href="/bibles.html">Bibles</a>
+    <a href="/places.html">Places</a>
+    <a href="/scribe.html">Scribe</a>
+    <a href="/almanac.html">Almanac</a>
+    <a href="/atlas.html">Atlas</a>
+    <a href="/encyclopedia.html">Encyclopedia</a>
+    <a href="/chronicle.html">Chronicle</a>
+    <a href="/canon.html">Canon</a>
+    <a href="/works.html" class="active">Works</a>
+    <a href="/packets.html">Index</a>
+  </div>
+
+  <section class="wk-section">
+    <h2>The Engine <span class="ct">live</span></h2>
+    <div class="wk-grid">
+      <div class="wk-card engine">
+        <div class="wk-card-kind">Software</div>
+        <h3>Concordance Engine</h3>
+        <div class="wk-byline">Public · narrowhighway.com</div>
+        <div class="wk-summary">A constraint-based decision architecture grounded in Scripture. Four gates, sixty-two verifier domains, one packet substrate viewed through many lenses. The novels are the narrative skin of this same architecture.</div>
+        <span class="wk-status published">live</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wk-section">
+    <h2>Serials <span class="ct">2</span></h2>
+    <div class="wk-grid">
+      <div class="wk-card novel" style="border-left-color: var(--accent);">
+        <div class="wk-card-kind" style="color: var(--accent);">Audio drama · 13 episodes · Season One complete</div>
+        <h3><a href="/dade.html" style="color:inherit;text-decoration:none;">The Free State of Dade</a></h3>
+        <div class="wk-byline">Multi-voice cast · 13 × ~30-min episodes · Three eras braided</div>
+        <div class="wk-summary"><em>Justified meets Letterkenny meets the Coen Brothers.</em> Sand Mountain. The code. The TVA. Three eras: 1934, 1921-1934 (Adams), and 2007 (Ezra the fighter). Full screenplay-format scripts; audio production operator-gated per episode. Season One title: <strong>The Making</strong>.</div>
+        <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/dade.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 12px;border-radius:14px;">Read the season →</a>
+        </div>
+        <span class="wk-status" style="background:rgba(196,160,48,0.14);color:var(--hold);border:1px solid var(--hold);margin-top:14px;">scripts complete · audio pending</span>
+      </div>
+
+      <div class="wk-card novel" style="border-left-color: var(--accent);">
+        <div class="wk-card-kind" style="color: var(--accent);">Audio serial · complete · on Spotify</div>
+        <h3><a href="/apokalypsis.html" style="color:inherit;text-decoration:none;">Apokalypsis</a></h3>
+        <div class="wk-byline">45 episodes · <em>The Revelation as John lived it</em></div>
+        <div class="wk-summary">An old man on a volcanic rock at the edge of the empire. Apokalypsis is the Greek title of the Book of Revelation — it means <em>unveiling</em>. This is the Revelation as the apostle John lived it on Patmos: the fishing, the missing of Peter, the prefect's sentence, the long silence before the voice. Audio on Spotify, full text on this site.</div>
+        <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/apokalypsis.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 12px;border-radius:14px;">Read along →</a>
+          <a href="https://open.spotify.com/show/0zWxTwkyiBEUjNmQwEG63Z" target="_blank" rel="noopener" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#1ED760;text-decoration:none;border:1px solid #1ED760;padding:4px 12px;border-radius:14px;">Listen on Spotify →</a>
+        </div>
+        <span class="wk-status" style="background:rgba(111,196,124,0.12);color:var(--pass);border:1px solid var(--pass);margin-top:14px;">published</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wk-section">
+    <h2>Novels <span class="ct">4</span></h2>
+    <div class="wk-grid">
+      <div class="wk-card novel" style="border-left-color: var(--accent);">
+        <div class="wk-card-kind" style="color: var(--accent);">Novel · finished · readable on this site</div>
+        <h3><a href="/molasses.html" style="color:inherit;text-decoration:none;">Molasses</a></h3>
+        <div class="wk-byline">A novel of the Great Molasses Flood, Boston, 1919 · 43,043 words · 4 parts</div>
+        <div class="wk-summary">January 15, 1919. The temperature has risen overnight from below freezing to above it. A two-million-gallon tank of molasses stands on Commercial Street in the North End of Boston. He is not on Commercial Street when it happens. He is in an office on the other side of the city, reading a set of plans for a water treatment facility in Dorchester — doing the ordinary work of a man who assesses structures and writes what he finds and goes on to the next structure. He hears the tank go. Then the proceeding, and what remains.</div>
+        <div style="margin-top:14px;">
+          <a href="/molasses.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--accent);text-decoration:none;border:1px solid var(--accent);padding:4px 12px;border-radius:14px;">Read the novel →</a>
+        </div>
+      </div>
+      <div class="wk-card novel">
+        <div class="wk-card-kind">Novel · in progress</div>
+        <h3>Root Access</h3>
+        <div class="wk-byline">144,000 words · 49 chapters + the 50th that cannot be written, only entered</div>
+        <div class="wk-summary">The narrative skin of the Concordance architecture. Joriel is the Architecture walking. Mercel is Peter. Elkan is John the Baptist. The seven root terms on the Sabbath chapters — Shalom, Emet, Logos, Selah, Abba, Ruach, Maranatha — are the Trinity running through the sabbath architecture. The same story, told in the language of code.</div>
+        <span class="wk-status draft">draft</span>
+      </div>
+      <div class="wk-card novel">
+        <div class="wk-card-kind">Novel · finished</div>
+        <h3>Participant-Initiated Risk</h3>
+        <div class="wk-byline">Set in the South Pacific · the producer's account</div>
+        <div class="wk-summary">An island, a reality production, an insurance rider on page thirty-one, four Starlink terminals no one authorized, a clause for behavioral alteration attributable to biological exposure, and a thumbs-up emoji at 11:51 PM. About the distance between knowing and doing — and what fills the gap.</div>
+        <span class="wk-status unpublished">unpublished</span>
+      </div>
+      <div class="wk-card novel">
+        <div class="wk-card-kind">Novel · finished</div>
+        <h3>Tell Me You Got That</h3>
+        <div class="wk-byline">An origin-story comedy of a reality crew</div>
+        <div class="wk-summary">Tiffany Renee Carrington-Wells stepped out of the SUV in white platform sandals that had no business on a gravel driveway. The first frame. The whole crew. About the cost of being filmed.</div>
+        <span class="wk-status unpublished">unpublished</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wk-section">
+    <h2>Sermons <span class="ct" id="wk-sermon-count">0</span></h2>
+    <div class="wk-list" id="wk-sermons"><div class="wk-empty">Loading…</div></div>
+  </section>
+
+  <section class="wk-section">
+    <h2>Devotional Reflections <span class="ct" id="wk-devo-count">0</span></h2>
+    <div class="wk-list" id="wk-devos"><div class="wk-empty">Loading…</div></div>
+  </section>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  async function loadKind(kind, sel, countSel) {
+    const list = document.getElementById(sel);
+    const count = document.getElementById(countSel);
+    try {
+      const r = await fetch('/index/packets/by-kind/' + kind + '?limit=200');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const items = d.packets || [];
+      count.textContent = items.length;
+      if (!items.length) {
+        list.innerHTML = '<div class="wk-empty">Nothing yet.</div>';
+        return;
+      }
+      // For devotionals, render with date; for sermons, render with primary scripture
+      if (kind === 'devotional') {
+        items.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+        list.innerHTML = items.map(it => {
+          const dateStr = it.id.match(/dev_(\d{4}-\d{2}-\d{2})/);
+          const date = dateStr ? dateStr[1] : '';
+          return `<div class="wk-list-item devotional">
+            <span class="wk-date">${esc(date)}</span>
+            <span class="wk-title">${esc(it.title)}</span>
+            <a href="/daily.html?devotional=${esc(it.id)}">view →</a>
+          </div>`;
+        }).join('');
+      } else if (kind === 'sermon') {
+        list.innerHTML = items.map(it => `<div class="wk-list-item sermon">
+          <span class="wk-title">${esc(it.title)}</span>
+          <a href="/daily.html?sermon=${esc(it.id)}">view →</a>
+        </div>`).join('');
+      }
+    } catch (err) {
+      list.innerHTML = '<div class="wk-empty">Could not load: ' + esc(err.message) + '</div>';
+    }
+  }
+
+  loadKind('sermon', 'wk-sermons', 'wk-sermon-count');
+  loadKind('devotional', 'wk-devos', 'wk-devo-count');
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.you.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You · Your place in the keeping · Concordance Engine</title>
+  <meta name="description" content="Your handle, your writings, your walks, your compounds, your messages — everything the keeping knows about you. No PII. Just a visitor ID and what you've chosen to leave.">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="canonical" href="https://narrowhighway.com/you.html">
+
+  <style>
+    main.you-wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+    }
+    .you-hero {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 28px 30px;
+      margin-bottom: 26px;
+      text-align: center;
+    }
+    .you-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .you-handle {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .you-vid {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .you-edit {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .you-edit input {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border-hi);
+      border-radius: 5px;
+      padding: 7px 11px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      width: 220px;
+    }
+    .you-edit button {
+      background: var(--accent);
+      color: #0a0810;
+      border: none;
+      border-radius: 5px;
+      padding: 7px 14px;
+      font: 600 12px inherit;
+      cursor: pointer;
+    }
+    .you-edit button.alt {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+    }
+
+    .you-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+    .you-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .you-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.05;
+    }
+    .you-stat .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .you-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+    }
+    .you-section h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 8px;
+    }
+    .you-section .sub {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--text-dim);
+      font-size: 14px;
+      margin: 0 0 14px;
+    }
+    .you-list {
+      display: flex; flex-direction: column;
+      gap: 6px;
+    }
+    .you-item {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 12px;
+      padding: 7px 10px;
+      background: rgba(0,0,0,0.16);
+      border-radius: 5px;
+      border-left: 2px solid var(--border-hi);
+      font-size: 13.5px;
+    }
+    .you-item .meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .you-item .what {
+      flex: 1;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .you-item a { color: var(--accent); text-decoration: none; }
+    .you-item a:hover { text-decoration: underline; }
+    .you-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 6px 0;
+    }
+    .you-privacy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 14px 18px;
+      background: rgba(0,0,0,0.18);
+      border-radius: 8px;
+      line-height: 1.65;
+      margin-top: 22px;
+    }
+    .you-privacy a { color: var(--accent); }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+      <a href="/hearth.html">The Hearth</a>
+      <a href="/radio.html">Radio</a>
+      <a href="/almanac.html" data-i18n="nav.almanac">Almanac</a>
+      <a href="/walk.html" data-i18n="nav.shepherd">Shepherd</a>
+      <a href="/scribe.html" data-i18n="nav.scribe">Scribe</a>
+    </nav>
+  </div>
+</header>
+
+<main class="you-wrap">
+
+  <div class="you-hero">
+    <div class="you-eyebrow">You · in the keeping</div>
+    <div class="you-handle" id="you-handle">—</div>
+    <div class="you-vid" id="you-vid">—</div>
+    <div class="you-edit" id="you-edit-row">
+      <input id="you-handle-input" placeholder="change your handle" maxlength="32" style="display:none;" />
+      <button id="you-edit-btn" type="button">change name</button>
+      <button id="you-save-btn" type="button" style="display:none;">save</button>
+      <button id="you-cancel-btn" type="button" class="alt" style="display:none;">cancel</button>
+    </div>
+  </div>
+
+  <div class="you-stats" id="you-stats"></div>
+
+  <div class="you-section">
+    <h2>Your Hearth presence</h2>
+    <p class="sub">Rooms you've spoken in. The handles you've used.</p>
+    <div class="you-list" id="you-hearth"></div>
+  </div>
+
+  <div class="you-section">
+    <h2>Your walks</h2>
+    <p class="sub">Situations you've taken through the Shepherd. The keeping remembers.</p>
+    <div class="you-list" id="you-walks"></div>
+  </div>
+
+  <div class="you-section">
+    <h2>Your writings</h2>
+    <p class="sub">What you've sent the Scribe.</p>
+    <div class="you-list" id="you-scribe"></div>
+  </div>
+
+  <div class="you-section">
+    <h2>Your compounds</h2>
+    <p class="sub">Conditions you've asked the Apothecary about.</p>
+    <div class="you-list" id="you-apo"></div>
+  </div>
+
+  <div class="you-section">
+    <h2>Your polymathic sessions</h2>
+    <p class="sub">Multi-domain situations you've thread through the engine.</p>
+    <div class="you-list" id="you-poly"></div>
+  </div>
+
+  <div class="you-privacy">
+    <strong style="color:var(--text-dim);text-transform:uppercase;letter-spacing:0.14em;font-size:9.5px;">Privacy</strong><br>
+    Your <code style="color:var(--accent);">visitor_id</code> is opaque — 12 hex chars, generated on this device, never associated with an email or real name. Your handle is whatever you typed. The keeping does not know your real name unless you typed it. All of this lives on your device's localStorage; clearing it makes you a new visitor.
+  </div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+    } catch (_) { return iso; }
+  }
+  function fmtAgoMs(ms) {
+    if (!ms) return '';
+    const s = Math.max(1, Math.floor((Date.now() - ms) / 1000));
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    if (s < 86400) return Math.floor(s/3600) + 'h ago';
+    return Math.floor(s/86400) + 'd ago';
+  }
+
+  function getOrInitVisitor() {
+    try {
+      let id = localStorage.getItem('concordance_visitor_id');
+      if (!id) {
+        const buf = new Uint8Array(12);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(buf);
+        } else {
+          for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+        }
+        id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
+        localStorage.setItem('concordance_visitor_id', id);
+      }
+      return id;
+    } catch (_) { return 'anonanonanon'; }
+  }
+  const VID = getOrInitVisitor();
+  let HANDLE = '';
+  try { HANDLE = localStorage.getItem('hearth_handle') || 'wanderer'; } catch (_) {}
+
+  document.getElementById('you-handle').textContent = HANDLE;
+  document.getElementById('you-vid').textContent = 'visitor · ' + VID;
+
+  // Handle editing
+  const display = document.getElementById('you-handle');
+  const input = document.getElementById('you-handle-input');
+  const editBtn = document.getElementById('you-edit-btn');
+  const saveBtn = document.getElementById('you-save-btn');
+  const cancelBtn = document.getElementById('you-cancel-btn');
+  editBtn.addEventListener('click', () => {
+    input.style.display = 'inline-block';
+    input.value = HANDLE;
+    input.focus(); input.select();
+    saveBtn.style.display = 'inline-block';
+    cancelBtn.style.display = 'inline-block';
+    editBtn.style.display = 'none';
+  });
+  cancelBtn.addEventListener('click', () => {
+    input.style.display = 'none';
+    saveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    editBtn.style.display = 'inline-block';
+  });
+  saveBtn.addEventListener('click', () => {
+    const v = (input.value || '').trim();
+    if (!/^[A-Za-z0-9_\-]{2,32}$/.test(v)) {
+      alert('Handles must be 2–32 chars: letters, digits, underscore, dash.');
+      return;
+    }
+    HANDLE = v;
+    try { localStorage.setItem('hearth_handle', HANDLE); } catch (_) {}
+    display.textContent = HANDLE;
+    cancelBtn.click();
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveBtn.click();
+    if (e.key === 'Escape') cancelBtn.click();
+  });
+
+  // ── Load everything the engine knows ────────────────────────────
+  async function probe(url) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (_) { return null; }
+  }
+
+  function renderEmpty(rootId, msg) {
+    document.getElementById(rootId).innerHTML =
+      '<div class="you-empty">' + esc(msg) + '</div>';
+  }
+
+  async function loadAll() {
+    // Hearth — scan rooms for messages with this visitor_id
+    const rooms = ['front','prayer','bible','family','health','today'];
+    let myHearthMsgs = [];
+    for (const rm of rooms) {
+      const d = await probe('/hearth/recent?room=' + rm + '&limit=500');
+      if (d && d.messages) {
+        myHearthMsgs.push(...d.messages.filter(m => m.visitor_id === VID));
+      }
+    }
+    myHearthMsgs.sort((a,b) => b.ts_ms - a.ts_ms);
+
+    // Walks (coach journal)
+    const walks = await probe('/coach/journal/mine?visitor_id=' + VID);
+
+    // Scribe writings
+    const scribe = await probe('/scribe/mine?visitor_id=' + VID);
+
+    // Apothecary compounds
+    const apo = await probe('/apothecary/mine?visitor_id=' + VID);
+
+    // Polymathic sessions
+    const polySessions = await probe('/polymathic/sessions?visitor_id=' + VID);
+    const polyRuns = await probe('/polymathic/mine?visitor_id=' + VID);
+
+    // Stats
+    const stats = [
+      ['hearth msgs',  myHearthMsgs.length],
+      ['walks',        (walks?.walks?.length || walks?.entries?.length || 0)],
+      ['writings',     (scribe?.writings?.length || scribe?.total || 0)],
+      ['compounds',    (apo?.compounds?.length || apo?.total || 0)],
+      ['poly runs',    (polyRuns?.total || polyRuns?.items?.length || 0)],
+      ['poly sessions',(polySessions?.sessions?.length || 0)],
+    ];
+    document.getElementById('you-stats').innerHTML = stats.map(([lbl, n]) =>
+      `<div class="you-stat"><div class="num">${n}</div><div class="lbl">${esc(lbl)}</div></div>`
+    ).join('');
+
+    // Hearth presence
+    if (myHearthMsgs.length) {
+      document.getElementById('you-hearth').innerHTML = myHearthMsgs.slice(0, 10).map(m => `
+        <div class="you-item">
+          <span class="what"><a href="/hearth.html?room=${esc(m.room)}">${esc(m.room.toUpperCase())}</a> · ${esc(m.body.slice(0, 100))}</span>
+          <span class="meta">${fmtAgoMs(m.ts_ms)}</span>
+        </div>
+      `).join('');
+    } else {
+      renderEmpty('you-hearth', 'You haven’t spoken in any Hearth room yet. Step in.');
+    }
+
+    // Walks
+    const walkList = walks?.walks || walks?.entries || [];
+    if (walkList.length) {
+      document.getElementById('you-walks').innerHTML = walkList.slice(0, 10).map(w => `
+        <div class="you-item">
+          <span class="what">${esc((w.situation || w.title || '').slice(0, 100))}</span>
+          <span class="meta">${fmtDate(w.logged_at_iso || w.saved_at_iso || w.created_at_iso)}</span>
+        </div>
+      `).join('');
+    } else {
+      renderEmpty('you-walks', 'You haven’t walked a situation yet. The Shepherd is at /walk.html.');
+    }
+
+    // Scribe
+    const scribeList = scribe?.writings || [];
+    if (scribeList.length) {
+      document.getElementById('you-scribe').innerHTML = scribeList.slice(0, 10).map(w => `
+        <div class="you-item">
+          <span class="what">${esc((w.text || w.title || '').slice(0, 100))}</span>
+          <span class="meta">${fmtDate(w.submitted_at_iso || w.received_at_iso)}</span>
+        </div>
+      `).join('');
+    } else {
+      renderEmpty('you-scribe', 'You haven’t written to the Scribe yet.');
+    }
+
+    // Apothecary
+    const apoList = apo?.compounds || [];
+    if (apoList.length) {
+      document.getElementById('you-apo').innerHTML = apoList.slice(0, 10).map(c => `
+        <div class="you-item">
+          <span class="what">${esc((c.condition || '').slice(0, 100))}</span>
+          <span class="meta">${fmtDate(c.saved_at_iso || c.created_at_iso)}</span>
+        </div>
+      `).join('');
+    } else {
+      renderEmpty('you-apo', 'You haven’t asked the Apothecary for a compound yet.');
+    }
+
+    // Polymathic sessions
+    const sessions = polySessions?.sessions || [];
+    if (sessions.length) {
+      document.getElementById('you-poly').innerHTML = sessions.slice(0, 10).map(s => `
+        <div class="you-item">
+          <span class="what">${esc(s.initial_situation || '(no initial situation)')} · ${s.turn_count} turn${s.turn_count === 1 ? '' : 's'}</span>
+          <span class="meta">${fmtAgoMs(s.last_activity_ms)}</span>
+        </div>
+      `).join('');
+    } else {
+      renderEmpty('you-poly', 'You haven’t opened a polymathic session yet.');
+    }
+  }
+  loadAll();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

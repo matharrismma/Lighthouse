@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<title>Audio Check — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.8em; }
+  .test { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.2em; margin: 1em 0; }
+  .test h3 { margin: 0 0 0.6em; color: #5c4a2a; }
+  .test .step { color: #444; margin-bottom: 0.4em; }
+  .test button { font: inherit; padding: 0.6em 1.4em; background: #1a3a52; color: #fff; border: 0; border-radius: 4px; cursor: pointer; margin-right: 0.5em; }
+  .test button:hover { background: #2b5275; }
+  .test button.big { font-size: 1.15em; padding: 0.8em 1.6em; }
+  .result { margin-top: 0.6em; padding: 0.6em 0.8em; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+  .result.ok { background: #d4ead4; color: #1f5b1f; }
+  .result.fail { background: #fee; color: #b03020; }
+  .result.info { background: #fff5d4; color: #806010; }
+  .checklist { background: #fff5d4; border: 2px solid #d4a04e; border-radius: 6px; padding: 1.2em; margin: 1.5em 0; }
+  .checklist ol { padding-left: 1.4em; }
+  .checklist li { margin-bottom: 0.6em; }
+  audio, video { display: block; width: 100%; margin-top: 0.5em; background: #000; border-radius: 4px; }
+  code { background: #f0eada; padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.9em; }
+  .nav { font-size: 0.9em; }
+  .nav a { color: #1a3a52; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<p class="nav"><a href="/">← Narrow Highway</a></p>
+
+<h1>Audio Check</h1>
+<p>Three quick tests. If <strong>any</strong> of them gives you sound, the browser/system is fine and the problem is in the video file. If <strong>none</strong> of them give you sound, the issue is browser- or system-level — see the checklist below.</p>
+
+<div class="test">
+  <h3>Test 1 — Generated tone (no file, no streaming)</h3>
+  <div class="step">Click the button. You should hear a 1-second 440 Hz beep.</div>
+  <button class="big" onclick="playTone()">▶ Play 440 Hz beep</button>
+  <div class="result info" id="result1">Awaiting click…</div>
+</div>
+
+<div class="test">
+  <h3>Test 2 — Inline audio element (HTML5 audio, base64-embedded)</h3>
+  <div class="step">Click play. You should hear a short ascending chime.</div>
+  <audio id="testAudio" controls preload="metadata"></audio>
+  <div class="result info" id="result2">Awaiting click…</div>
+</div>
+
+<div class="test">
+  <h3>Test 3 — Local pilot video (streamed via engine)</h3>
+  <div class="step">Click play, then make sure the speaker icon in the video controls is NOT muted (click it to toggle). You should hear narration.</div>
+  <video id="testVideo" controls preload="metadata"
+         src="/media/_pilots/soft_rains/final.mp4"
+         poster="/media/_hero_frames/scifi_01_automated_house_dawn.png"></video>
+  <div class="result info" id="result3">Awaiting click…</div>
+</div>
+
+<div class="checklist">
+  <h2 style="margin-top:0;">If none of the tests played sound, check this list:</h2>
+  <ol>
+    <li><strong>Browser tab mute.</strong> Right-click the browser tab itself → "Unmute site" or "Unmute tab". Chrome/Firefox can mute individual tabs and it sticks.</li>
+    <li><strong>Volume mixer (Windows).</strong> Right-click the speaker icon in the system tray → "Open Volume Mixer". Make sure your browser (Chrome/Edge/Firefox) is not muted there.</li>
+    <li><strong>Site sound permission (Chrome).</strong> Click the padlock icon in the address bar → Site Settings → Sound → set to "Allow" (some installs default to "Block").</li>
+    <li><strong>Output device.</strong> Click the speaker icon in the system tray. Make sure the correct device is selected (speakers vs Bluetooth headphones vs HDMI). If a Bluetooth headset paired but is off, Windows still routes there silently.</li>
+    <li><strong>Headphones / speakers.</strong> Are they actually plugged in and turned on?</li>
+    <li><strong>Master volume.</strong> Is the system volume above 0?</li>
+  </ol>
+  <p>After fixing any of the above, hit <strong>Reload (Ctrl+R)</strong> on this page and run the tests again.</p>
+</div>
+
+<script>
+  // Test 1: Web Audio API beep (no file involved)
+  function playTone() {
+    const $r = document.getElementById('result1');
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 440;
+      gain.gain.value = 0.18;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 1.0);
+      $r.className = 'result ok';
+      $r.textContent = `Tone played. ctx.state=${ctx.state}. If you heard nothing, audio is blocked at browser- or system-level (see checklist below).`;
+    } catch (e) {
+      $r.className = 'result fail';
+      $r.textContent = `FAIL: ${e.message}`;
+    }
+  }
+
+  // Test 2: load a small base64 WAV chime — works offline, no streaming
+  (function makeChime() {
+    // 3-tone ascending chime, mono, 8-bit unsigned PCM @ 8 kHz, ~1 sec
+    const sr = 8000;
+    const dur = 1.0;
+    const N = Math.round(sr * dur);
+    const data = new Uint8Array(N);
+    for (let i = 0; i < N; i++) {
+      const t = i / sr;
+      // 3 tones: 523 Hz, 659 Hz, 784 Hz (C5, E5, G5)
+      let freq = 523;
+      if (t > 0.33) freq = 659;
+      if (t > 0.66) freq = 784;
+      const sample = Math.sin(2 * Math.PI * freq * t) * 0.5 + 0.5;
+      data[i] = Math.round(sample * 255);
+    }
+    // Build a minimal WAV header
+    function u32(n) { return [n&0xff, (n>>8)&0xff, (n>>16)&0xff, (n>>24)&0xff]; }
+    function u16(n) { return [n&0xff, (n>>8)&0xff]; }
+    const dataSize = data.length;
+    const header = new Uint8Array([
+      ...[0x52,0x49,0x46,0x46], ...u32(36 + dataSize),
+      ...[0x57,0x41,0x56,0x45], ...[0x66,0x6d,0x74,0x20], ...u32(16),
+      ...u16(1), ...u16(1), ...u32(sr), ...u32(sr), ...u16(1), ...u16(8),
+      ...[0x64,0x61,0x74,0x61], ...u32(dataSize),
+    ]);
+    const wav = new Uint8Array(header.length + data.length);
+    wav.set(header, 0);
+    wav.set(data, header.length);
+    const blob = new Blob([wav], { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+    const a = document.getElementById('testAudio');
+    a.src = url;
+    a.addEventListener('play', () => {
+      const $r = document.getElementById('result2');
+      $r.className = 'result ok';
+      $r.textContent = `HTML5 audio playing. If you heard nothing, it is browser- or system-level mute. Bytes: ${wav.length}.`;
+    });
+    a.addEventListener('error', () => {
+      const $r = document.getElementById('result2');
+      $r.className = 'result fail';
+      $r.textContent = `FAIL: ${a.error ? a.error.message : 'audio element error'}`;
+    });
+  })();
+
+  // Test 3: video diagnostic
+  (function() {
+    const v = document.getElementById('testVideo');
+    const $r = document.getElementById('result3');
+    v.addEventListener('loadedmetadata', () => {
+      $r.className = 'result info';
+      $r.textContent = `Loaded. Duration=${v.duration.toFixed(1)}s. Channels=${v.audioTracks ? v.audioTracks.length : 'unknown'}. Press play and confirm the speaker icon in the controls is not muted.`;
+    });
+    v.addEventListener('volumechange', () => {
+      $r.className = v.muted ? 'result fail' : 'result ok';
+      $r.textContent = `Video element: muted=${v.muted}, volume=${v.volume.toFixed(2)}. ${v.muted ? 'CLICK the speaker icon in the controls to unmute.' : 'Should be audible now.'}`;
+    });
+    v.addEventListener('play', () => {
+      $r.className = 'result ok';
+      $r.textContent = `Playing. muted=${v.muted}, volume=${v.volume.toFixed(2)}, currentTime=${v.currentTime.toFixed(1)}s. If silent: 1) speaker icon in controls, 2) volume mixer, 3) tab mute.`;
+    });
+    v.addEventListener('error', () => {
+      $r.className = 'result fail';
+      const codeMap = {1:'ABORTED',2:'NETWORK',3:'DECODE',4:'SRC_NOT_SUPPORTED'};
+      const err = v.error;
+      $r.textContent = `FAIL: ${err ? codeMap[err.code] || err.code : 'unknown'}. URL: ${v.currentSrc || v.src}`;
+    });
+  })();
+</script>
+
+</body>
+</html>

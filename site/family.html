@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Family Life · Narrow Highway</title>
+  <meta name="description" content="The family-life desk — the apothecary, the heritage cookbook, the maker's workshop, the family calendar, the prayer board, the hearth. One input, all the rooms.">
+  <link rel="canonical" href="https://narrowhighway.com/family.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Family Life · Narrow Highway">
+  <meta property="og:description" content="Apothecary, recipes, maker, calendar, prayer, hearth — one desk, one input, all the family-life rooms.">
+  <meta property="og:url" content="https://narrowhighway.com/family.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Family Life · Narrow Highway",
+    "description": "The family-life desk — apothecary, recipes, maker, calendar, prayer, hearth in one place.",
+    "url": "https://narrowhighway.com/family.html",
+    "isPartOf": {"@id": "https://narrowhighway.com/#website"},
+    "publisher": {"@id": "https://narrowhighway.com/#org"},
+    "audience": {"@type": "PeopleAudience", "audienceType": "Christian families"},
+    "keywords": "Christian family, apothecary, heritage recipes, family calendar, prayer board, home economics"
+  }
+  </script>
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    /* Same palette as the desk — cream paper, ink, brass — so the
+       family-life surface feels like another drawer of the same desk,
+       not a separate site. */
+    :root {
+      --paper:       #faf6ec;
+      --paper-2:     #f1ead7;
+      --rule:        #d4c8a5;
+      --rule-strong: #b9ac82;
+      --wood:        #2b1810;
+      --ink:         #1f1a14;
+      --ink-2:       #3a3328;
+      --brass:       #9b7c3c;
+      --brass-hi:    #c9a851;
+      --oxblood:     #7a3a32;
+      --pass:        #4f7a3a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(255,255,255,.4), transparent 60%),
+        linear-gradient(180deg, #f5efdc 0%, #f0e8d0 100%);
+      color: var(--ink);
+      font-family: 'Crimson Pro', Georgia, serif;
+      line-height: 1.55;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--oxblood); text-decoration: underline; text-decoration-color: rgba(122,58,50,.4); text-underline-offset: 2px; }
+    a:hover { color: var(--brass); text-decoration-color: var(--brass); }
+
+    .fwrap { max-width: 960px; margin: 0 auto; padding: 26px 22px 60px; }
+
+    /* ── Greeting ─────────────────────────────────────────────── */
+    .greeting {
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .greeting .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 6px;
+    }
+    .greeting h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .greeting .tag {
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 15px;
+      max-width: 50ch;
+    }
+
+    /* ── Family airlock — same shape as the desk ─────────────── */
+    .airlock {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-left: 4px solid var(--brass);
+      border-radius: 4px;
+      padding: 18px 22px 16px;
+      margin-bottom: 22px;
+      box-shadow: 0 1px 0 rgba(43,24,16,.04), 0 8px 24px rgba(43,24,16,.06);
+    }
+    .airlock .ask {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .airlock .hint {
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 13.5px;
+      margin-bottom: 12px;
+      max-width: 56ch;
+    }
+    .airlock form { display: flex; gap: 8px; }
+    .airlock input {
+      flex: 1;
+      padding: 11px 14px;
+      background: #fffdf6;
+      color: var(--ink);
+      border: 1px solid var(--rule-strong);
+      border-radius: 4px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      outline: none;
+    }
+    .airlock input:focus { border-color: var(--brass); box-shadow: 0 0 0 3px rgba(155,124,60,.18); }
+    .airlock button {
+      padding: 0 18px;
+      background: var(--brass); color: #fff;
+      border: 1px solid var(--brass); border-radius: 4px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 600;
+    }
+    .airlock button:hover { background: var(--brass-hi); border-color: var(--brass-hi); }
+
+    .routing {
+      margin-top: 12px;
+      padding: 11px 14px;
+      background: #fdf9ea;
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      display: none;
+    }
+    .routing.show { display: block; }
+    .routing .hd { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--brass); margin-bottom: 4px; }
+    .routing .name { font-weight: 600; font-size: 1.05rem; color: var(--ink); }
+    .routing .why { font-style: italic; color: var(--ink-2); font-size: 13px; }
+    .routing .go { display: inline-block; margin-top: 8px; padding: 6px 14px; background: var(--brass); color: #fff !important; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+    .routing .go:hover { background: var(--brass-hi); text-decoration: none; }
+
+    /* ── The rooms — family destinations as ledger cards ────── */
+    .rooms-h {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 14px;
+    }
+    .rooms {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .room {
+      display: block;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-left-color .12s, background .12s, transform .15s;
+    }
+    .room:hover {
+      border-left-color: var(--oxblood);
+      background: #fdf9ea;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .room .icn {
+      font-size: 1.5em;
+      filter: sepia(.5) saturate(.7);
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .room .nm {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--ink);
+      vertical-align: middle;
+    }
+    .room .d {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--ink-2);
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    /* ── Today's draw panel ─────────────────────────────────── */
+    .today-card {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+    }
+    .today-card .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .today-card .lbl .src { color: var(--ink-2); font-style: italic; letter-spacing: normal; text-transform: none; font-family: 'Crimson Pro', Georgia, serif; }
+    .today-card h3 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .today-card p {
+      font-size: 15px;
+      color: var(--ink-2);
+      line-height: 1.55;
+      margin: 0;
+    }
+    .today-card .empty {
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 14px;
+    }
+    .today-card .more {
+      display: inline-block;
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--oxblood);
+    }
+
+    /* ── Footer note ─────────────────────────────────────────── */
+    .family-note {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      font-style: italic;
+      color: var(--ink-2);
+      font-size: 13.5px;
+      max-width: 56ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body class="nh-shell-cream" data-nh-toc="off">
+
+<main class="fwrap">
+
+  <div class="greeting">
+    <div class="eyebrow">Family Life</div>
+    <h1 id="fGreet">A drawer of the same desk.</h1>
+    <p class="tag">The apothecary, the heritage cookbook, the maker's workshop, the calendar, the prayer board, the hearth. Type a need at the top; or open a room directly.</p>
+  </div>
+
+  <!-- ── Family-scoped airlock ─────────────────────────────── -->
+  <section class="airlock">
+    <div class="ask">What does your family need?</div>
+    <div class="hint">A remedy, a recipe, a project, a prayer, a question — the shepherd will know which room.</div>
+    <form id="fAir" onsubmit="return fAirSubmit(event);">
+      <input id="fAirIn" type="text" placeholder="My son has a sore throat… &nbsp;or… a recipe for cornbread… &nbsp;or… pray for my father." autocomplete="off">
+      <button class="send" type="submit" id="fAirSend">Send &rarr;</button>
+    </form>
+    <div class="routing" id="fRouting"></div>
+  </section>
+
+  <!-- ── Today's draw ──────────────────────────────────────── -->
+  <section class="today-card" id="fToday">
+    <div class="lbl"><span>Today's draw</span><span class="src" id="fTodaySrc">—</span></div>
+    <h3 id="fTodayT">Loading…</h3>
+    <p id="fTodayB">A card surfaced from today's substrate.</p>
+  </section>
+
+  <!-- ── The rooms — all family-life destinations ──────────── -->
+  <div class="rooms-h">The rooms</div>
+  <div class="rooms">
+    <a class="room" href="/apothecary.html">
+      <div><span class="icn">⚗️</span><span class="nm">The Apothecary</span></div>
+      <div class="d">Name a condition; the engine prepares Scripture + protocol from public-domain materia medica.</div>
+    </a>
+    <a class="room" href="/recipes.html">
+      <div><span class="icn">🍞</span><span class="nm">Heritage Recipes</span></div>
+      <div class="d">Public-domain classics from Fannie Farmer, Mrs. Beeton, the White House Cook Book, and more.</div>
+    </a>
+    <a class="room" href="/maker.html">
+      <div><span class="icn">🔨</span><span class="nm">The Maker's Workshop</span></div>
+      <div class="d">Family projects pulled from the substrate — build, sew, garden, cook, fix, fly.</div>
+    </a>
+    <a class="room" href="/calendar.html">
+      <div><span class="icn">📅</span><span class="nm">Family Calendar</span></div>
+      <div class="d">A quiet calendar that stays on your device. The Lord's day at the top.</div>
+    </a>
+    <a class="room" href="/prayer.html">
+      <div><span class="icn">🙏</span><span class="nm">Prayer Board</span></div>
+      <div class="d">Household requests and answered prayers. Private to your family. Kept on this device.</div>
+    </a>
+    <a class="room" href="/hearth.html">
+      <div><span class="icn">🔥</span><span class="nm">The Hearth</span></div>
+      <div class="d">A place to sit a while. Six rooms — Front, Prayer, Bible Study, Family, Health, Today.</div>
+    </a>
+    <a class="room" href="/household.html">
+      <div><span class="icn">🏠</span><span class="nm">Household</span></div>
+      <div class="d">The shape of a Christian household — chores, callings, rhythm of the week.</div>
+    </a>
+    <a class="room" href="/games.html">
+      <div><span class="icn">♟️</span><span class="nm">Family Games</span></div>
+      <div class="d">Chess, Bible trivia, simple games. No ads, no in-app purchases. Built, not bought.</div>
+    </a>
+  </div>
+
+  <p class="family-note">
+    Everything here is free and family-safe. The journal on the Desk stays on your device. The prayer board stays on your device. The shepherd at the door routes — and remembers nothing but the count.
+  </p>
+
+</main>
+
+<script>
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+
+// ── Time-aware greeting ────────────────────────────────────────
+(function () {
+  const h = new Date().getHours();
+  const part = h < 5 ? 'late' : h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  const greetings = {
+    morning:   "Good morning. A drawer of the same desk.",
+    afternoon: "Good afternoon. A drawer of the same desk.",
+    evening:   "Good evening. A drawer of the same desk.",
+    late:      "Up late — the lamp is still on.",
+  };
+  $('fGreet').textContent = greetings[part];
+})();
+
+// ── The family airlock ────────────────────────────────────────
+async function fAirSubmit(ev) {
+  ev.preventDefault();
+  const txt = ($('fAirIn').value || '').trim();
+  if (!txt) return false;
+  const send = $('fAirSend');
+  send.disabled = true; send.textContent = '…';
+  const routeBox = $('fRouting');
+  routeBox.classList.remove('show');
+  try {
+    const r = await fetch('/airlock/classify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: txt}),
+    });
+    if (!r.ok) throw new Error('classify failed');
+    const j = await r.json();
+    routeBox.innerHTML =
+      '<div class="hd">The shepherd suggests</div>' +
+      '<div class="name">' + esc(j.destination_label || j.route || '—') + '</div>' +
+      '<div class="why"><em>' + esc(j.why || '') + '</em> &middot; confidence ' + Number(j.confidence || 0).toFixed(2) + '</div>' +
+      (j.url ? '<a class="go" href="' + esc(j.url) + '">Open ' + esc(j.destination_label || 'destination') + ' &rarr;</a>' : '');
+    routeBox.classList.add('show');
+  } catch (e) {
+    routeBox.innerHTML = '<div class="hd">The airlock is quiet</div><div class="why">Try opening a room below directly.</div>';
+    routeBox.classList.add('show');
+  } finally {
+    send.disabled = false; send.textContent = 'Send →';
+  }
+  return false;
+}
+
+// ── Today's draw — pull from the substrate ────────────────────
+(async function () {
+  try {
+    const r = await fetch('/daily-card');
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    const card = j && j.card;
+    if (!card) throw 0;
+    $('fTodayT').textContent = card.title || '(untitled)';
+    $('fTodayB').innerHTML =
+      (card.body ? esc(String(card.body).slice(0, 260)) + (card.body.length > 260 ? '…' : '') : '') +
+      (card.url ? ' <a class="more" href="' + esc(card.url) + '">Open the card →</a>' : '');
+    const src = card.source || {};
+    $('fTodaySrc').textContent = src.label || src.author || (j.date || '');
+  } catch (e) {
+    $('fTodayT').textContent = 'The substrate is quiet today.';
+    $('fTodayB').innerHTML = '<span class="empty">No daily card surfaced. Open a room and draw from there.</span>';
+    $('fTodaySrc').textContent = '';
+  }
+})();
+</script>
+
+</body>
+</html>

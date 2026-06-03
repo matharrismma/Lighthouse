@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Common Book — Narrow Highway</title>
+<meta name="description" content="A household-shared commonplace journal. Prayer, scripture, gratitude, family notes — written by anyone in your house, kept private to your house. Stored on your device.">
+  <link rel="canonical" href="https://narrowhighway.com/common-book.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The Common Book — Narrow Highway">
+  <meta property="og:description" content="A household-shared commonplace journal. Prayer, scripture, gratitude, family notes — written by anyone in your house, kept private to your house. Stored on your device.">
+  <meta property="og:url" content="https://narrowhighway.com/common-book.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Common Book — Narrow Highway">
+  <meta name="twitter:description" content="A household-shared commonplace journal. Prayer, scripture, gratitude, family notes — written by anyone in your house, kept private to your house. Stored on your device.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 800px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.1em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .privacy { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 4px; padding: 0.6em 1em; margin-top: 1em; font-size: 0.9em; color: #1f5b1f; }
+  .compose { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin: 1em 0; }
+  .compose select, .compose input, .compose textarea {
+    font-family: inherit; font-size: 1em; padding: 0.5em 0.65em;
+    border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28;
+  }
+  .compose .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; margin-bottom: 0.6em; }
+  .compose textarea { width: 100%; min-height: 5em; resize: vertical; box-sizing: border-box; }
+  .compose .submit-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5em; }
+  button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.5em 1.2em; border-radius: 4px; font-family: inherit; font-size: 0.95em; cursor: pointer; }
+  button:hover { background: #2a5570; }
+  button.secondary { background: #c9b48a; color: #1a3a52; }
+  .filters { font-size: 0.9em; margin: 0.5em 0; }
+  .filters button { background: #f3eedb; color: #1a3a52; padding: 0.3em 0.75em; margin-right: 0.3em; border: 1px solid #d4c8a5; font-size: 0.85em; }
+  .filters button.active { background: #1a3a52; color: #f4ecd5; }
+  .entries { margin-top: 1em; }
+  .entry { background: #fff; border-left: 4px solid #c9b48a; border-top: 1px solid #d4c8a5; border-right: 1px solid #d4c8a5; border-bottom: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.7em; }
+  .entry .meta { font-size: 0.83em; color: #6a5a3a; margin-bottom: 0.3em; font-family: 'Courier New', monospace; }
+  .entry .meta .kind { display: inline-block; padding: 0.05em 0.5em; border-radius: 2px; background: #1a3a52; color: #f4ecd5; font-size: 0.78em; letter-spacing: 0.05em; text-transform: uppercase; }
+  .entry .meta .kind.prayer    { background: #5e2a2a; }
+  .entry .meta .kind.scripture { background: #1f4a4d; }
+  .entry .meta .kind.gratitude { background: #806010; }
+  .entry .meta .kind.note      { background: #1a3a52; }
+  .entry .meta .kind.highlight { background: #5c8a3a; }
+  .entry .body { font-size: 1.02em; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .entry .remove-btn { float: right; background: none; border: none; color: #8b1f1f; font-size: 0.82em; cursor: pointer; padding: 0; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+  .no-household { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a></nav>
+
+<h1>The Common Book</h1>
+
+<div class="intro">
+  <p>A household-shared journal. Prayer, scripture observations, gratitude, family notes, daily highlights — written by anyone in the house, kept by everyone. <strong>The whole family adds to one book.</strong></p>
+</div>
+
+<div id="needHousehold" class="no-household" style="display:none;">
+  <strong>Set up your household first.</strong> The Common Book is family-shared and uses your household profile. <a href="/household.html"><strong>Create your household →</strong></a>
+</div>
+
+<div id="mainSection">
+
+<div class="privacy">
+  <strong>Stored on this device.</strong> Entries don't leave your device. They aren't on our server. Across-device sync is opt-in via wallet-signed sync (future).
+</div>
+
+<div class="compose">
+  <div class="row">
+    <div>
+      <label for="entryKind" style="font-size: 0.85em; color: #6a5a3a;">Kind</label>
+      <select id="entryKind" style="width: 100%;">
+        <option value="prayer">Prayer</option>
+        <option value="scripture">Scripture observation</option>
+        <option value="gratitude">Gratitude</option>
+        <option value="note">Family note</option>
+        <option value="highlight">Highlight of the day</option>
+      </select>
+    </div>
+    <div>
+      <label for="entryAuthor" style="font-size: 0.85em; color: #6a5a3a;">From</label>
+      <select id="entryAuthor" style="width: 100%;"></select>
+    </div>
+  </div>
+  <textarea id="entryBody" placeholder="Write your entry..."></textarea>
+  <div class="submit-row">
+    <span style="font-size: 0.85em; color: #6a5a3a;"><span id="charCount">0</span> characters</span>
+    <button id="addBtn">Add to the Common Book</button>
+  </div>
+</div>
+
+<h2>Entries</h2>
+<div class="filters">
+  Filter:
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="prayer">Prayer</button>
+  <button class="filter-btn" data-filter="scripture">Scripture</button>
+  <button class="filter-btn" data-filter="gratitude">Gratitude</button>
+  <button class="filter-btn" data-filter="note">Notes</button>
+  <button class="filter-btn" data-filter="highlight">Highlights</button>
+</div>
+<div id="entriesList" class="entries"></div>
+
+</div><!-- /mainSection -->
+
+<script src="/nh-household.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('common_book');
+  const kindEl   = document.getElementById('entryKind');
+  const authorEl = document.getElementById('entryAuthor');
+  const bodyEl   = document.getElementById('entryBody');
+  const addBtn   = document.getElementById('addBtn');
+  const listEl   = document.getElementById('entriesList');
+  const charEl   = document.getElementById('charCount');
+  const needHh   = document.getElementById('needHousehold');
+  const mainSec  = document.getElementById('mainSection');
+  let currentFilter = 'all';
+
+  function refreshHouseholdGate() {
+    const hh = NHHousehold.get();
+    const ready = hh && hh.members && hh.members.length > 0;
+    needHh.style.display = ready ? 'none' : 'block';
+    mainSec.style.display = ready ? 'block' : 'none';
+    if (ready) {
+      authorEl.innerHTML = hh.members.map(function (m) {
+        return '<option value="' + encodeURIComponent(m.name || '') + '">' + (m.name || '') + '</option>';
+      }).join('');
+      renderEntries();
+    }
+  }
+
+  function load() { return ns.get() || { entries: [] }; }
+  function save(state) { ns.set(state); }
+
+  function renderEntries() {
+    const state = load();
+    let entries = state.entries || [];
+    if (currentFilter !== 'all') entries = entries.filter(function (e) { return e.kind === currentFilter; });
+    if (entries.length === 0) {
+      listEl.innerHTML = '<div class="empty">No entries yet' + (currentFilter !== 'all' ? ' in this filter' : '') + '. Be the first to write.</div>';
+      return;
+    }
+    listEl.innerHTML = '';
+    entries.slice().reverse().forEach(function (e, idx) {
+      // idx is reverse-position; we need the original index for removal
+      const origIdx = (state.entries || []).indexOf(e);
+      const div = document.createElement('div');
+      div.className = 'entry';
+      const at = new Date(e.at).toLocaleString();
+      const safeBody = (e.body || '').replace(/[<>&]/g, function (c) { return c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&amp;'; });
+      div.innerHTML =
+        '<button class="remove-btn" title="Remove this entry">×</button>' +
+        '<div class="meta"><span class="kind ' + (e.kind || 'note') + '">' + (e.kind || 'note') + '</span> · ' +
+        (e.author || 'unknown') + ' · ' + at + '</div>' +
+        '<div class="body">' + safeBody + '</div>';
+      div.querySelector('.remove-btn').addEventListener('click', function () {
+        if (!confirm('Remove this entry from the Common Book?')) return;
+        const s = load();
+        s.entries.splice(origIdx, 1);
+        save(s);
+        renderEntries();
+      });
+      listEl.appendChild(div);
+    });
+  }
+
+  document.querySelectorAll('.filter-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentFilter = b.dataset.filter;
+      renderEntries();
+    });
+  });
+
+  bodyEl.addEventListener('input', function () { charEl.textContent = bodyEl.value.length; });
+
+  addBtn.addEventListener('click', function () {
+    const body = bodyEl.value.trim();
+    if (!body) { bodyEl.focus(); return; }
+    const state = load();
+    state.entries = state.entries || [];
+    state.entries.push({
+      id: 'e_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      kind: kindEl.value,
+      author: decodeURIComponent(authorEl.value || ''),
+      body: body,
+      at: new Date().toISOString(),
+    });
+    save(state);
+    bodyEl.value = '';
+    charEl.textContent = 0;
+    renderEntries();
+  });
+
+  NHHousehold.subscribe(refreshHouseholdGate);
+  refreshHouseholdGate();
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

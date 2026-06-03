@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.steward.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Steward — admit/deny audit · Concordance</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#0a0810; color:#ede7db; margin:0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    h1 { font-family: 'Crimson Pro', Georgia, serif; font-weight: 600; margin: 0 0 8px; }
+    .sub { color:#b3aabd; font-family: 'Crimson Pro', Georgia, serif; font-style: italic; margin: 0 0 28px; max-width: 70ch; }
+    .stat-row { display:flex; gap:14px; flex-wrap:wrap; margin: 22px 0 28px; }
+    .stat-card { flex:1; min-width:180px; background:#161320; border:1px solid #29232f; border-radius: 10px; padding: 14px 18px; }
+    .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 600; color:#c9a87c; }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; color:#6e6878; text-transform: uppercase; margin-top: 4px; }
+    .row { display:flex; align-items: baseline; gap: 14px; padding: 10px 14px; border-radius: 6px; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; transition: background 0.1s; background:#161320; border-left: 3px solid #29232f; }
+    .row:hover { background:#1d1828; }
+    .admit { border-left-color: #6fc47c; }
+    .deny  { border-left-color: #c96c6c; }
+    .when { color:#6e6878; min-width: 130px; }
+    .decision { font-weight: 700; min-width: 60px; }
+    .decision.admit { color: #6fc47c; }
+    .decision.deny  { color: #c96c6c; }
+    .reason { color: #c9a87c; min-width: 180px; }
+    .action { color: #ede7db; min-width: 150px; }
+    .notes { color: #b3aabd; flex: 1; font-style: italic; }
+    .visitor { color: #6e6878; font-size: 10.5px; }
+    .empty { background:#161320; padding: 40px; text-align: center; border-radius: 10px; border: 1px dashed #29232f; color:#6e6878; font-style: italic; }
+    .head-row { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.16em; color: #6e6878; text-transform: uppercase; padding: 6px 14px; }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+  <main>
+    <h1 data-i18n="page.steward.h1">Steward · admit/deny audit</h1>
+    <p class="sub">Every action gate the engine enforces. ADMIT and DENY both. The keeping is the substrate — refusals are kept too. Operator-only (IP gated). Refused visitors see 404, not 403.</p>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="totalCount">…</div><div class="stat-label">total events</div></div>
+      <div class="stat-card"><div class="stat-num" id="admitCount">…</div><div class="stat-label">admits</div></div>
+      <div class="stat-card"><div class="stat-num" id="denyCount">…</div><div class="stat-label">denies</div></div>
+      <div class="stat-card"><div class="stat-num" id="reasonCount">…</div><div class="stat-label">distinct reasons</div></div>
+    </div>
+
+    <div class="head-row" style="display:flex;gap:14px;">
+      <span style="min-width:130px;">When</span>
+      <span style="min-width:60px;">Decision</span>
+      <span style="min-width:180px;">Reason</span>
+      <span style="min-width:150px;">Action</span>
+      <span style="flex:1;">Notes / Visitor</span>
+    </div>
+
+    <div id="rows"><div class="empty">Loading audit trail…</div></div>
+  </main>
+
+  <script>
+  (async () => {
+    const rowsEl = document.getElementById('rows');
+    try {
+      const r = await fetch('/steward/audit?limit=500');
+      if (!r.ok) {
+        rowsEl.innerHTML = '<div class="empty">Not authorized — this is the operator audit. ' + (r.status === 404 ? 'If you should have access, your IP is not on the operator allowlist.' : 'HTTP ' + r.status) + '</div>';
+        document.getElementById('totalCount').textContent = '—';
+        document.getElementById('admitCount').textContent = '—';
+        document.getElementById('denyCount').textContent = '—';
+        document.getElementById('reasonCount').textContent = '—';
+        return;
+      }
+      const d = await r.json();
+      const packets = (d.packets || []).slice().reverse();
+      let admits = 0, denies = 0;
+      const reasons = new Set();
+      for (const p of packets) {
+        const pl = p.payload || {};
+        if (pl.decision === 'admit') admits++;
+        else if (pl.decision === 'deny') denies++;
+        if (pl.reason_code) reasons.add(pl.reason_code);
+      }
+      document.getElementById('totalCount').textContent = d.total;
+      document.getElementById('admitCount').textContent = admits;
+      document.getElementById('denyCount').textContent = denies;
+      document.getElementById('reasonCount').textContent = reasons.size;
+      if (!packets.length) {
+        rowsEl.innerHTML = '<div class="empty">No admit/deny events recorded yet. Every gate Steward enforces lands here.</div>';
+        return;
+      }
+      const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const fmtWhen = ms => {
+        const d = new Date(ms);
+        const now = Date.now();
+        const s = Math.max(1, Math.floor((now - ms)/1000));
+        if (s < 60) return s + 's ago';
+        if (s < 3600) return Math.floor(s/60) + 'm ago';
+        if (s < 86400) return Math.floor(s/3600) + 'h ago';
+        return d.toISOString().slice(0,16).replace('T',' ');
+      };
+      rowsEl.innerHTML = packets.map(p => {
+        const pl = p.payload || {};
+        const decision = pl.decision || '';
+        const reason = pl.reason_code || '';
+        const action = pl.action || '';
+        const notes = pl.notes || '';
+        const visitor = pl.visitor_id || '';
+        const when = fmtWhen(p.created_at_ms);
+        return `
+          <div class="row ${esc(decision)}">
+            <span class="when">${esc(when)}</span>
+            <span class="decision ${esc(decision)}">${esc(decision.toUpperCase())}</span>
+            <span class="reason">${esc(reason)}</span>
+            <span class="action">${esc(action)}</span>
+            <span class="notes">${esc(notes)} <span class="visitor">${esc(visitor.slice(0,12))}</span></span>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      rowsEl.innerHTML = '<div class="empty">Could not reach the audit endpoint: ' + e.message + '</div>';
+    }
+  })();
+  </script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

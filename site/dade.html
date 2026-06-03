@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.dade.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Free State of Dade · M.R. Harris</title>
+  <meta name="description" content="A multi-generational prestige drama set on Sand Mountain, Alabama and Dade County, Georgia — a plateau community ruled by an inherited Scots-Irish code that predates every American institution. Audio drama, multi-voice cast, by M.R. Harris.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="book">
+  <meta property="og:title" content="The Free State of Dade">
+  <meta property="og:description" content="A multi-generational prestige drama. Sand Mountain. The TVA. The code. Six shows from one mountain.">
+  <meta property="og:url" content="https://narrowhighway.com/dade.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/dade.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    main.dade-wrap { max-width: 980px; margin: 0 auto; padding: 24px 22px 80px; }
+    .dd-hero { text-align: center; margin: 0 0 32px; }
+    .dd-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .dd-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: clamp(38px, 6vw, 60px);
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 6px;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+    }
+    .dd-subtitle {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--accent-hi);
+      margin-bottom: 14px;
+    }
+    .dd-tagline {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text-dim);
+      max-width: 60ch;
+      margin: 0 auto 16px;
+    }
+
+    .dd-meta {
+      display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+    .dd-meta b { color: var(--accent); font-weight: 500; }
+
+    .dd-blurb {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+      margin: 0 auto 32px;
+      padding: 22px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+    }
+    .dd-blurb em { color: var(--accent); font-style: italic; }
+
+    /* Cast strip */
+    .dd-cast-head {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin: 24px 0 12px;
+    }
+    .dd-cast {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+    .dd-cast-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+    .dd-cast-name {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 15.5px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .dd-cast-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .dd-cast-desc {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Episode list */
+    .dd-eps-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      margin: 12px 0 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .dd-eps-head h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .dd-eps { display: flex; flex-direction: column; gap: 10px; }
+
+    .dd-ep {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .dd-ep:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .dd-ep-head {
+      display: flex; gap: 14px; align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .dd-ep-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      min-width: 56px;
+    }
+    .dd-ep-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .dd-ep-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 11px;
+    }
+    .dd-ep-status.script-only { background: rgba(110,104,120,0.18); color: var(--muted); }
+    .dd-ep-status.produced    { background: rgba(111,196,124,0.18); color: var(--pass); }
+    .dd-ep-stats {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted-2);
+      margin-top: 4px;
+    }
+    .dd-ep-stats b { color: var(--accent); }
+
+    .dd-ep-body {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .dd-ep.open .dd-ep-body { display: block; }
+    .dd-ep-script {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 14px 18px;
+      background: rgba(0,0,0,0.18);
+      border-radius: 6px;
+    }
+    .dd-ep-player {
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: rgba(111,196,124,0.06);
+      border: 1px dashed var(--pass);
+      border-radius: 6px;
+    }
+    .dd-ep-player audio { width: 100%; }
+    .dd-ep-noaudio {
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px dashed var(--border-hi);
+      border-radius: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .dd-ep-noaudio code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(0,0,0,0.25);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<main class="dade-wrap">
+
+  <div class="dd-hero">
+    <div class="dd-eyebrow">An audio drama by M.R. Harris</div>
+    <h1 class="dd-title" data-i18n="page.dade.h1">The Free State of Dade.</h1>
+    <div class="dd-subtitle">Season One · The Making</div>
+    <p class="dd-tagline">
+      A multi-generational prestige drama set on a plateau seventy miles long.<br>
+      <em>The mountain stays funny because the mountain doesn't know the difference between comedy and Tuesday.</em>
+    </p>
+    <div class="dd-meta" id="dd-meta">— episodes · — characters · — words</div>
+  </div>
+
+  <div class="dd-blurb">
+    Sand Mountain, Alabama. Dade County, Georgia. <em>Justified meets Letterkenny meets the Coen Brothers.</em>
+    A plateau ruled by an inherited Scots-Irish code that predates every American institution — and what happens
+    when the Tennessee Valley Authority decides the community's creek should become a reservoir. Three eras braided
+    through every episode: 1934 (the feud, the code, the TVA), 1921-1934 (Young Adams, the entrepreneur whose
+    brick will help build the dam that floods his own people's cemetery), and 2007 (Ezra, the fighter, who came
+    home from Japan to hang bags in his grandfather's empty dairy barn). 13 episodes. Multi-voice cast.
+    Audio drama format. The scripts are here in full.
+  </div>
+
+  <div class="dd-cast-head">Principal cast</div>
+  <div class="dd-cast" id="dd-cast"></div>
+
+  <div class="dd-eps-head">
+    <h2>Episodes · Season One</h2>
+    <span style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim);font-size:14px;">Click any episode to expand the script.</span>
+  </div>
+  <div class="dd-eps" id="dd-eps">
+    <div style="padding:40px;text-align:center;color:var(--muted);font-style:italic;">Loading the season…</div>
+  </div>
+
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  async function load() {
+    try {
+      const r = await fetch('/serial/dade');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const world = d.world;
+      const eps = d.episodes || [];
+
+      // Meta line
+      const totalChars = world.principal_characters ? world.principal_characters.length : 0;
+      document.getElementById('dd-meta').textContent =
+        `${eps.length} episodes · ${totalChars} principal characters · season 1 of 6`;
+
+      // Principal cast
+      const cast = world.principal_characters || [];
+      document.getElementById('dd-cast').innerHTML = cast.map(c => `
+        <div class="dd-cast-card">
+          <div class="dd-cast-name">${esc(c.name)}</div>
+          <div class="dd-cast-role">${esc(c.role)}</div>
+          <div class="dd-cast-desc">${esc(c.description)}</div>
+        </div>
+      `).join('');
+
+      // Episodes
+      if (!eps.length) {
+        document.getElementById('dd-eps').innerHTML =
+          '<div style="padding:30px;text-align:center;color:var(--muted);font-style:italic;">No episodes parsed yet.</div>';
+        return;
+      }
+      document.getElementById('dd-eps').innerHTML = eps.map(ep => `
+        <div class="dd-ep" data-ep="${ep.ep_num}">
+          <div class="dd-ep-head">
+            <span class="dd-ep-num">EP ${String(ep.ep_num).padStart(2, '0')}</span>
+            <span class="dd-ep-title">${esc(ep.title)}</span>
+            <span class="dd-ep-status ${ep.produced ? 'produced' : 'script-only'}">${ep.produced ? '🎙 audio' : 'script only'}</span>
+          </div>
+          <div class="dd-ep-stats" id="dd-stats-${ep.ep_num}">loading…</div>
+          <div class="dd-ep-body" id="dd-body-${ep.ep_num}">
+            <div style="text-align:center;color:var(--muted);padding:14px;">Loading script…</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.dd-ep').forEach(el => {
+        el.addEventListener('click', async (e) => {
+          if (e.target.tagName === 'AUDIO' || e.target.closest('audio')) return;
+          const epNum = el.dataset.ep;
+          const body = document.getElementById('dd-body-' + epNum);
+          if (el.classList.contains('open')) {
+            el.classList.remove('open');
+            return;
+          }
+          el.classList.add('open');
+          if (body.dataset.loaded) return;
+          try {
+            const r = await fetch('/serial/dade/episode/' + epNum);
+            if (!r.ok) throw new Error('http ' + r.status);
+            const data = await r.json();
+            const stats = data.stats || {};
+            document.getElementById('dd-stats-' + epNum).innerHTML =
+              `<span><b>${stats.segments}</b> segments</span>` +
+              `<span><b>${stats.dialogue_segments}</b> lines of dialogue</span>` +
+              `<span><b>${stats.unique_speakers}</b> speakers</span>`;
+            const playerHtml = data.produced && data.audio_url
+              ? `<div class="dd-ep-player">
+                   <audio controls preload="metadata" src="${esc(data.audio_url)}"></audio>
+                 </div>`
+              : `<div class="dd-ep-noaudio">
+                   Audio not produced yet. Operator: <code>POST /serial/dade/produce-multi/${epNum}</code> (uses the voice cast).
+                   Cost estimate: <code>GET /serial/dade/cost/${epNum}</code>
+                 </div>`;
+            body.innerHTML = playerHtml +
+              `<div class="dd-ep-script">${esc(data.script || '(no script)')}</div>`;
+            body.dataset.loaded = '1';
+          } catch (err) {
+            body.innerHTML = `<div style="color:var(--muted);padding:14px;">Could not load: ${esc(err.message)}</div>`;
+          }
+        });
+      });
+    } catch (err) {
+      document.getElementById('dd-eps').innerHTML =
+        `<div style="padding:30px;color:var(--muted);font-style:italic;">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

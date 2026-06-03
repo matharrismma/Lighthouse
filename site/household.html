@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Household — Narrow Highway</title>
+<meta name="description" content="Set up your household on Narrow Highway. Private by default. Stored on your device, not our server. Unlocks family calendar, reading plans, the Common Book, and more.">
+  <link rel="canonical" href="https://narrowhighway.com/household.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Household — Narrow Highway">
+  <meta property="og:description" content="Set up your household on Narrow Highway. Private by default. Stored on your device, not our server. Unlocks family calendar, reading plans, the Common Book, and more.">
+  <meta property="og:url" content="https://narrowhighway.com/household.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Household — Narrow Highway">
+  <meta name="twitter:description" content="Set up your household on Narrow Highway. Private by default. Stored on your device, not our server. Unlocks family calendar, reading plans, the Common Book, and more.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 720px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .form-row { margin: 0.8em 0; }
+  label { display: block; font-weight: bold; color: #1a3a52; margin-bottom: 0.3em; font-size: 0.92em; }
+  label .hint { font-weight: normal; color: #6a5a3a; font-style: italic; font-size: 0.88em; margin-left: 0.4em; }
+  input[type=text], input[type=number], select {
+    padding: 0.5em 0.7em; font-family: inherit; font-size: 1em;
+    border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28; min-width: 240px;
+  }
+  input.full { width: 100%; }
+  .members-table { width: 100%; border-collapse: collapse; margin-top: 0.5em; }
+  .members-table th, .members-table td { padding: 0.4em 0.6em; text-align: left; border-bottom: 1px solid #d4c8a5; }
+  .members-table th { background: #f3eedb; color: #1a3a52; font-size: 0.9em; }
+  .members-table tr.empty td { color: #6a5a3a; font-style: italic; }
+  .add-member-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.6em; align-items: end; margin-top: 0.5em; }
+  @media (max-width: 540px) { .add-member-row { grid-template-columns: 1fr 1fr; } }
+  .pref-row { display: grid; grid-template-columns: 1fr auto; gap: 0.6em; padding: 0.5em 0; border-bottom: 1px dashed #d4c8a5; align-items: center; }
+  .pref-row:last-child { border-bottom: none; }
+  .pref-label { font-weight: bold; color: #1a3a52; }
+  .pref-desc { font-size: 0.88em; color: #6a5a3a; }
+  button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.55em 1.2em; border-radius: 4px; font-family: inherit; font-size: 0.95em; cursor: pointer; }
+  button:hover { background: #2a5570; }
+  button.secondary { background: #c9b48a; color: #1a3a52; }
+  button.danger { background: #fff; color: #8b1f1f; border: 1px solid #8b1f1f; }
+  .what-this-unlocks { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-top: 1em; }
+  .what-this-unlocks ul { margin: 0.3em 0 0 1.2em; padding: 0; }
+  .what-this-unlocks li { margin: 0.2em 0; }
+  .privacy { background: #d4ead4; border: 1px solid #1f5b1f; border-radius: 4px; padding: 0.7em 1em; margin-top: 1em; font-size: 0.92em; color: #1f5b1f; }
+  .saved-flash { position: fixed; bottom: 1em; right: 1em; background: #1f5b1f; color: #fff; padding: 0.6em 1em; border-radius: 4px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .saved-flash.show { opacity: 1; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a></nav>
+
+<h1>Your household</h1>
+
+<div class="intro">
+  <p>Setting up your household unlocks family-aware tools: a shared journal (<em>The Common Book</em>), reading plans tracked across the family, a liturgical calendar that overlays your services + lessons + the channel, and more as we build them out.</p>
+</div>
+
+<div class="privacy">
+  <strong>Private by default.</strong> Your household profile is stored on this device only. We don't see it; we don't store it on our server. If you want it synced across devices later, that will be opt-in via wallet-signed sync — never an account on our server.
+</div>
+
+<h2>The basics</h2>
+<div class="form-row">
+  <label>Household name <span class="hint">e.g. "The Smith family" or just "Our household"</span></label>
+  <input type="text" id="hhName" class="full" maxlength="80" placeholder="Our household">
+</div>
+
+<h2>Members</h2>
+<p style="font-size: 0.9em; color: #6a5a3a;">First names only. Birth year is optional and used to set age-appropriate defaults for curriculum and kids-safe content gating.</p>
+<table class="members-table">
+  <thead><tr><th>Name</th><th>Role</th><th>Birth year</th><th></th></tr></thead>
+  <tbody id="membersBody"></tbody>
+</table>
+<div class="add-member-row">
+  <div class="form-row"><label>Name</label><input type="text" id="newName" class="full" maxlength="40" placeholder="Sarah"></div>
+  <div class="form-row"><label>Role</label><select id="newRole"><option value="parent">parent</option><option value="child">child</option><option value="member">member</option></select></div>
+  <div class="form-row"><label>Birth year <span class="hint">optional</span></label><input type="number" id="newYear" min="1900" max="2100" placeholder=""></div>
+  <button id="addMemberBtn">Add</button>
+</div>
+
+<h2>Preferences</h2>
+<div class="pref-row">
+  <div>
+    <div class="pref-label">Sabbath Mode</div>
+    <div class="pref-desc">On Sundays, the site shows a quieter view — hymns, scripture, sermons only. Channel rotates Sunday-aligned programming.</div>
+  </div>
+  <div><label style="font-weight:normal;"><input type="checkbox" id="prefSabbath"> Enable</label></div>
+</div>
+<div class="pref-row">
+  <div>
+    <div class="pref-label">Kids-safe defaults</div>
+    <div class="pref-desc">When browsing, default to family-with-kids defaults. Bedtime block, gentler content, no late-night mystery overnight.</div>
+  </div>
+  <div><label style="font-weight:normal;"><input type="checkbox" id="prefKidsSafe"> Enable</label></div>
+</div>
+<div class="pref-row">
+  <div>
+    <div class="pref-label">Default reading plan</div>
+    <div class="pref-desc">Which daily reading plan to suggest in <a href="/reading.html">Reading</a>.</div>
+  </div>
+  <div>
+    <select id="prefReadingPlan">
+      <option value="">(none)</option>
+      <option value="oneyear">One Year Bible</option>
+      <option value="chronological">Chronological Bible (1 year)</option>
+      <option value="90day">Bible in 90 days</option>
+      <option value="new_testament_90">New Testament in 90 days</option>
+      <option value="gospels_30day">The Four Gospels (30 days)</option>
+      <option value="psalms_proverbs">Psalms + Proverbs (monthly)</option>
+      <option value="codex_pilgrim">Pilgrim's Progress (40 days)</option>
+      <option value="codex_imitation">The Imitation of Christ (90 days)</option>
+    </select>
+  </div>
+</div>
+<div class="pref-row">
+  <div>
+    <div class="pref-label">Default curriculum age tier</div>
+    <div class="pref-desc">Helpful when your kids overlap age ranges. You can still browse all ages.</div>
+  </div>
+  <div>
+    <select id="prefAgeTier">
+      <option value="">(auto from members)</option>
+      <option value="k">K</option>
+      <option value="1-2">1–2</option>
+      <option value="3-5">3–5</option>
+      <option value="6-8">6–8</option>
+      <option value="9-12">9–12</option>
+    </select>
+  </div>
+</div>
+
+<div style="margin-top: 1.2em;">
+  <button id="saveBtn">Save household</button>
+  <button id="resetBtn" class="danger" style="margin-left: 0.5em;">Remove household</button>
+</div>
+
+<div class="what-this-unlocks">
+  <strong>Setting up your household unlocks:</strong>
+  <ul>
+    <li><a href="/common-book.html"><strong>The Common Book</strong></a> — household-shared journal (any member can add entries)</li>
+    <li><a href="/reading.html"><strong>Reading plans</strong></a> with per-household progress and streaks</li>
+    <li><a href="/calendar.html"><strong>Family Calendar</strong></a> overlaying liturgical days + your events + lessons + channel suggestions</li>
+    <li>Personalized homepage suggestions</li>
+    <li>Sabbath Mode that switches the site on Sundays</li>
+    <li>Future: family messaging (Letters), kids progress dashboard, household prayer board, age-aware curriculum suggestions</li>
+  </ul>
+</div>
+
+<div class="saved-flash" id="savedFlash">Saved.</div>
+
+<script src="/nh-household.js"></script>
+<script>
+(function () {
+  const nameEl   = document.getElementById('hhName');
+  const tbody    = document.getElementById('membersBody');
+  const newName  = document.getElementById('newName');
+  const newRole  = document.getElementById('newRole');
+  const newYear  = document.getElementById('newYear');
+  const prefSab  = document.getElementById('prefSabbath');
+  const prefKids = document.getElementById('prefKidsSafe');
+  const prefPlan = document.getElementById('prefReadingPlan');
+  const prefTier = document.getElementById('prefAgeTier');
+  const flash    = document.getElementById('savedFlash');
+
+  function showFlash(msg) {
+    flash.textContent = msg || 'Saved.';
+    flash.classList.add('show');
+    clearTimeout(showFlash._t);
+    showFlash._t = setTimeout(function () { flash.classList.remove('show'); }, 1500);
+  }
+
+  function renderMembers() {
+    const members = NHHousehold.members();
+    tbody.innerHTML = '';
+    if (members.length === 0) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">No members yet. Add one below.</td></tr>';
+      return;
+    }
+    members.forEach(function (m) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (m.name || '') + '</td>' +
+        '<td>' + (m.role || 'member') + '</td>' +
+        '<td>' + (m.birth_year || '—') + '</td>' +
+        '<td><button class="secondary" data-name="' + encodeURIComponent(m.name || '') + '">remove</button></td>';
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('button[data-name]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        NHHousehold.removeMember(decodeURIComponent(b.dataset.name));
+        renderMembers();
+        showFlash('Removed.');
+      });
+    });
+  }
+
+  function loadInto() {
+    const cur = NHHousehold.get();
+    if (!cur) return;
+    if (cur.name) nameEl.value = cur.name;
+    const p = cur.preferences || {};
+    prefSab.checked  = !!p.sabbath_mode;
+    prefKids.checked = !!p.kids_safe_mode;
+    prefPlan.value   = p.default_reading_plan || '';
+    prefTier.value   = p.default_age_tier || '';
+    renderMembers();
+  }
+
+  document.getElementById('addMemberBtn').addEventListener('click', function () {
+    const name = newName.value.trim();
+    if (!name) { newName.focus(); return; }
+    const m = { name: name, role: newRole.value };
+    const y = parseInt(newYear.value, 10);
+    if (y && y > 1900 && y < 2100) m.birth_year = y;
+    NHHousehold.addMember(m);
+    newName.value = ''; newYear.value = '';
+    renderMembers();
+    showFlash('Member added.');
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    NHHousehold.patch({
+      name: nameEl.value.trim() || 'Our household',
+      preferences: {
+        sabbath_mode: prefSab.checked,
+        kids_safe_mode: prefKids.checked,
+        default_reading_plan: prefPlan.value || null,
+        default_age_tier: prefTier.value || null,
+      },
+    });
+    showFlash('Household saved.');
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!confirm('Remove your household and clear local family data? This wipes The Common Book entries, reading-plan progress, and saved events on this device.')) return;
+    NHHousehold.clear();
+    nameEl.value = '';
+    prefSab.checked = false;
+    prefKids.checked = false;
+    prefPlan.value = '';
+    prefTier.value = '';
+    renderMembers();
+    showFlash('Removed.');
+  });
+
+  // Auto-create blank household on first load (so id() is stable)
+  if (!NHHousehold.get()) NHHousehold.create({});
+  loadInto();
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

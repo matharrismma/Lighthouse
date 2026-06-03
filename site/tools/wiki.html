@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wikipedia Search — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 860px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .search { display: flex; gap: 0.5em; margin-bottom: 1em; }
+  .search input { flex: 1; font: inherit; padding: 0.6em 0.8em; border: 1px solid #c9b48a; border-radius: 4px; }
+  .search button { font: inherit; padding: 0.6em 1.2em; background: #1a3a52; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+  .result { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em; margin-bottom: 0.8em; cursor: pointer; }
+  .result:hover { background: #f4ecd5; }
+  .result h3 { color: #1a3a52; margin: 0 0 0.3em; font-size: 1.15em; }
+  .result .extract { color: #444; font-size: 0.95em; }
+  .article { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.4em; }
+  .article h2 { color: #1a3a52; margin-top: 0; }
+  .article img { max-width: 280px; float: right; margin: 0 0 1em 1em; border-radius: 4px; }
+  .article p { margin: 0.6em 0; }
+  .article-link { display: inline-block; margin-top: 1em; color: #1a3a52; font-size: 0.9em; }
+  .err { color: #b03020; padding: 0.8em; background: #fee; border: 1px solid #b03020; border-radius: 4px; }
+  .notice { color: #806010; padding: 0.6em 0.8em; background: #fff5d4; border: 1px solid #d4a04e; border-radius: 4px; font-size: 0.9em; margin-bottom: 0.8em; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Wikipedia Search</h1>
+
+<p class="notice">Search reads from Wikipedia in real time. Articles outside our curation. Use with discernment.</p>
+
+<div class="search">
+  <input id="q" type="text" placeholder="search Wikipedia…" autofocus>
+  <button onclick="doSearch()">Search</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const $r = document.getElementById('result');
+  const $q = document.getElementById('q');
+
+  async function doSearch() {
+    const q = $q.value.trim();
+    if (!q) return;
+    $r.innerHTML = '<p>Searching…</p>';
+    try {
+      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srlimit=10&origin=*&srsearch=${encodeURIComponent(q)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const hits = data.query?.search || [];
+      if (!hits.length) { $r.innerHTML = `<div class="err">No results for <b>${q}</b>.</div>`; return; }
+      let html = '';
+      for (const h of hits) {
+        html += `<div class="result" onclick="openArticle('${h.title.replace(/'/g,"\\'")}')">`;
+        html += `<h3>${h.title}</h3>`;
+        html += `<div class="extract">${h.snippet}</div>`;
+        html += `</div>`;
+      }
+      $r.innerHTML = html;
+    } catch (e) {
+      $r.innerHTML = `<div class="err">Search failed: ${e.message}</div>`;
+    }
+  }
+
+  async function openArticle(title) {
+    $r.innerHTML = '<p>Loading…</p>';
+    try {
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Article not found');
+      const data = await res.json();
+      let html = `<div class="article">`;
+      if (data.thumbnail?.source) html += `<img src="${data.thumbnail.source}" alt="">`;
+      html += `<h2>${data.title}</h2>`;
+      if (data.description) html += `<p><em>${data.description}</em></p>`;
+      html += `<p>${data.extract_html || data.extract}</p>`;
+      if (data.content_urls?.desktop?.page) {
+        html += `<a class="article-link" href="${data.content_urls.desktop.page}" target="_blank" rel="noopener">Read full article on Wikipedia ↗</a>`;
+      }
+      html += `</div>`;
+      $r.innerHTML = html;
+    } catch (e) {
+      $r.innerHTML = `<div class="err">Could not load: ${e.message}</div>`;
+    }
+  }
+
+  $q.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

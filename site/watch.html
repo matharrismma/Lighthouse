@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TV · Narrow Highway</title>
+  <meta name="description" content="Public-domain TV. Westerns, comedies, mysteries, animation, vintage variety. All family-safe. Pick a show.">
+  <link rel="canonical" href="https://narrowhighway.com/watch.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="TV · Narrow Highway">
+  <meta property="og:description" content="Public-domain TV — westerns, comedies, mysteries, animation, vintage variety. All family-safe, all free.">
+  <meta property="og:url" content="https://narrowhighway.com/watch.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TV · Narrow Highway">
+  <meta name="twitter:description" content="Public-domain TV — westerns, comedies, mysteries, all family-safe.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#0a0810">
+  <script src="/nh-feedback.js" defer></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --r-lg: 18px; --maxw: 1280px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; line-height: 1.55; min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── TOP NAV ─────────────────────────────────── */
+    nav.topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,8,16,0.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 56px;
+    }
+    .wordmark {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 9px;
+    }
+    .wordmark-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px rgba(201,168,124,0.55);
+    }
+    .breadcrumbs {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .breadcrumbs a { color: var(--text-dim); }
+    .breadcrumbs a:hover { color: var(--accent); }
+    .breadcrumbs .crumb-sep { color: var(--muted-2); margin: 0 8px; }
+    @media (max-width: 600px) { .breadcrumbs { display: none; } }
+
+    /* ── DECK VIEW ────────────────────────────────────── */
+    .deck-hero {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 40px 24px 22px;
+    }
+    .deck-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 10px;
+    }
+    .deck-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+    .deck-sub {
+      color: var(--text-dim); font-size: 15px;
+      max-width: 60ch;
+    }
+
+    .category-row {
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 0 24px 26px;
+    }
+    .category-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .category-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .category-count { font-size: 12px; color: var(--muted); }
+
+    .show-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 1040px) { .show-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 720px)  { .show-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px)  { .show-grid { grid-template-columns: 1fr; } }
+
+    .show-card {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex; flex-direction: column;
+      text-align: left;
+      color: inherit;
+      min-height: 200px;
+    }
+    .show-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 0 1px var(--accent-soft);
+    }
+    /* Period-color thumbnail strip — emulates TV-Guide channel block */
+    .show-thumb {
+      height: 96px;
+      background:
+        linear-gradient(135deg, var(--c1, #4a3a55) 0%, var(--c2, #2a1f30) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 42px;
+      position: relative;
+      overflow: hidden;
+    }
+    .show-thumb::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .show-thumb::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    }
+    .show-body { padding: 12px 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .show-title {
+      font-size: 13.5px; font-weight: 600;
+      color: var(--text); line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .show-meta {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: auto;
+    }
+    .show-meta .badge {
+      padding: 2px 6px; border-radius: 3px;
+      background: var(--accent-soft); color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* ── PLAYER VIEW (classic-TV chrome) ──────────────────────── */
+    .player-wrap {
+      display: none;
+      max-width: var(--maxw); margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+    .player-wrap.active { display: block; }
+    .player-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 18px;
+      cursor: pointer; background: none; border: none; padding: 0;
+    }
+    .player-back:hover { color: var(--accent); }
+
+    .player-frame {
+      position: relative;
+      background: #000;
+      border-radius: var(--r);
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow:
+        0 0 0 1px var(--border-hi),
+        0 0 0 6px #1a1418,
+        0 0 0 7px var(--border-hi),
+        0 30px 80px rgba(0,0,0,0.7);
+    }
+    .player-frame video {
+      width: 100%; height: 100%;
+      display: block;
+      background: #000;
+    }
+    /* Subtle scanline overlay — soft, optional, never blocks interaction */
+    .player-frame.scanlines::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+      opacity: 0.35;
+      mix-blend-mode: multiply;
+    }
+
+    /* Channel banner — slides in on tune-in */
+    .channel-banner {
+      position: absolute;
+      top: 14px; left: 14px; right: 14px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, rgba(10,8,16,0.92) 0%, rgba(10,8,16,0.65) 100%);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      transform: translateX(-110%);
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+      max-width: 480px;
+    }
+    .channel-banner.show { transform: translateX(0); }
+    .channel-banner .ch-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.2em;
+      color: var(--accent);
+    }
+    .channel-banner .ch-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; font-weight: 600;
+      color: var(--text);
+      margin-top: 2px;
+    }
+    .channel-banner .ch-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Now / Next strip below the player */
+    .now-next {
+      display: flex; gap: 10px;
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; letter-spacing: 0.05em;
+    }
+    .now-next .nn-block { flex: 1; }
+    .now-next .nn-label {
+      font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 5px;
+    }
+    .now-next .nn-text { color: var(--text-dim); font-size: 12.5px; }
+    .now-next .nn-text strong { color: var(--text); font-weight: 600; }
+    .now-next .nn-sep { width: 1px; background: var(--border-hi); }
+
+    /* Player meta row */
+    .player-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .player-title {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.01em;
+      flex: 1;
+    }
+    .player-controls {
+      display: flex; gap: 8px;
+    }
+    .control-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: var(--text-dim);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .control-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .control-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+    .episode-list {
+      margin-top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 6px;
+      max-height: 320px; overflow-y: auto;
+    }
+    .episode-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+      color: var(--text-dim);
+    }
+    .episode-row:hover { background: var(--surface-2); color: var(--text); }
+    .episode-row.playing { background: var(--accent-soft); color: var(--accent); }
+    .episode-row .ep-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; letter-spacing: 0.1em;
+      color: var(--muted); min-width: 32px;
+    }
+    .episode-row .ep-title {
+      font-size: 13px; flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .episode-row .ep-size {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted);
+    }
+
+    .deck-hide { display: none !important; }
+
+    .loading {
+      text-align: center; padding: 80px 20px;
+      color: var(--muted); font-size: 14px;
+    }
+    .loading-spin {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 2px solid var(--border-hi);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+
+
+<!-- ────────────── DECK VIEW ────────────── -->
+<div id="deck-view">
+  <header class="deck-hero">
+    <div class="deck-eyebrow">📺 The TV Deck</div>
+    <h1 class="deck-title">Tune in. Watch something good.</h1>
+    <p class="deck-sub">
+      Westerns. Comedies. Detective shows. Variety. Sports. Animation. All public-domain,
+      all family-friendly, all on the substrate. Pick a show.
+    </p>
+  </header>
+
+  <div id="deck-content">
+    <div class="loading">
+      <div class="loading-spin"></div>
+      <div>Loading the deck…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────── PLAYER VIEW ────────────── -->
+<div id="player-view" class="player-wrap">
+  <button class="player-back" onclick="closePlayer()">← Back to the deck</button>
+
+  <div class="player-frame scanlines" id="player-frame">
+    <video id="player-video" controls preload="metadata" playsinline></video>
+    <div class="channel-banner" id="channel-banner">
+      <div class="ch-num" id="ch-num">CH 03 · NARROW HIGHWAY</div>
+      <div class="ch-title" id="ch-title">Now Playing</div>
+      <div class="ch-sub" id="ch-sub">Public Domain · Family Safe</div>
+    </div>
+  </div>
+
+  <div class="player-meta">
+    <h2 class="player-title" id="player-title">—</h2>
+    <div class="player-controls">
+      <div id="player-fb" style="margin-right: 8px;"></div>
+      <button class="control-btn active" id="scan-toggle" onclick="toggleScanlines()">SCANLINES</button>
+      <button class="control-btn" onclick="rebanner()">CH BANNER</button>
+    </div>
+  </div>
+
+  <div class="now-next">
+    <div class="nn-block">
+      <div class="nn-label">⏵ NOW</div>
+      <div class="nn-text" id="nn-now"><strong>—</strong></div>
+    </div>
+    <div class="nn-sep"></div>
+    <div class="nn-block">
+      <div class="nn-label">⏭ NEXT</div>
+      <div class="nn-text" id="nn-next"><strong>—</strong></div>
+    </div>
+  </div>
+
+  <div class="episode-list" id="episode-list"></div>
+</div>
+
+<script>
+  const CATEGORY_LABELS = {
+    pd_tv: 'TV',
+    western: 'WESTERNS',
+    animation: 'ANIMATION',
+    vegas: 'VARIETY · OLD VEGAS',
+    sports: 'SPORTS',
+    fishing: 'OUTDOORS',
+    theatre: 'THEATRE',
+  };
+  const CATEGORY_ORDER = ['pd_tv','western','animation','vegas','sports','fishing','theatre'];
+  const CATEGORY_THEMES = {
+    pd_tv:     { c1: '#3a2a4f', c2: '#1f1530', emoji: '📺' },
+    western:   { c1: '#4a3520', c2: '#2a1d10', emoji: '🤠' },
+    animation: { c1: '#3d4a25', c2: '#1f2810', emoji: '🎬' },
+    vegas:     { c1: '#4a2540', c2: '#2a1525', emoji: '✨' },
+    sports:    { c1: '#1f3a4a', c2: '#101d28', emoji: '⚾' },
+    fishing:   { c1: '#234a3a', c2: '#102820', emoji: '🎣' },
+    theatre:   { c1: '#4a3530', c2: '#281f1d', emoji: '🎭' },
+  };
+
+  let CATALOG = null;
+  let currentShow = null;
+  let currentEpIdx = 0;
+
+  async function loadCatalog() {
+    try {
+      const r = await fetch('/shows.json');
+      if (!r.ok) throw new Error('fetch failed');
+      CATALOG = await r.json();
+      renderDeck();
+    } catch (e) {
+      document.getElementById('deck-content').innerHTML =
+        '<div class="loading">Catalog not available yet. Downloads are still acquiring content.</div>';
+    }
+  }
+
+  function renderDeck() {
+    if (!CATALOG || !CATALOG.shows) return;
+    const byCat = {};
+    CATALOG.shows.forEach(s => {
+      const cat = s.category || 'pd_tv';
+      if (!byCat[cat]) byCat[cat] = [];
+      byCat[cat].push(s);
+    });
+
+    let html = '';
+    for (const cat of CATEGORY_ORDER) {
+      const shows = byCat[cat];
+      if (!shows || !shows.length) continue;
+      const theme = CATEGORY_THEMES[cat] || CATEGORY_THEMES.pd_tv;
+      html += '<section class="category-row">';
+      html += '<div class="category-head">';
+      html += '  <h2 class="category-title">' + (CATEGORY_LABELS[cat] || cat.toUpperCase()) + '</h2>';
+      html += '  <span class="category-count">' + shows.length + ' show' + (shows.length === 1 ? '' : 's') + ' · ' + shows.reduce((a,s) => a + s.episode_count, 0) + ' episodes</span>';
+      html += '</div>';
+      html += '<div class="show-grid">';
+      shows.forEach(s => {
+        html += '<a class="show-card" href="#" data-slug="' + encodeURIComponent(s.slug) + '" onclick="event.preventDefault(); openShow(\'' + encodeURIComponent(s.slug) + '\');">';
+        html += '  <div class="show-thumb" style="--c1: ' + theme.c1 + '; --c2: ' + theme.c2 + ';">' + theme.emoji + '</div>';
+        html += '  <div class="show-body">';
+        html += '    <div class="show-title">' + escapeHtml(s.title) + '</div>';
+        html += '    <div class="show-meta">';
+        html += '      <span class="badge">' + s.episode_count + 'ep</span>';
+        html += '      <span>' + Math.round(s.total_mb) + ' MB</span>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '</a>';
+      });
+      html += '</div></section>';
+    }
+    document.getElementById('deck-content').innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return (s || '').toString()
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;').replaceAll("'",'&#39;');
+  }
+
+  function openShow(slugEncoded) {
+    const slug = decodeURIComponent(slugEncoded);
+    const show = CATALOG.shows.find(s => s.slug === slug);
+    if (!show) return;
+    currentShow = show;
+    currentEpIdx = 0;
+
+    document.getElementById('deck-view').classList.add('deck-hide');
+    document.getElementById('player-view').classList.add('active');
+    document.title = show.title + ' · Narrow Highway';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+
+    // Build episode list
+    const epHtml = show.episodes.map((ep, i) =>
+      '<div class="episode-row' + (i === 0 ? ' playing' : '') + '" data-idx="' + i + '" onclick="playEpisode(' + i + ')">' +
+        '<span class="ep-num">EP ' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="ep-title">' + escapeHtml(ep.title || ep.filename) + '</span>' +
+        '<span class="ep-size">' + ep.size_mb + ' MB</span>' +
+      '</div>'
+    ).join('');
+    document.getElementById('episode-list').innerHTML = epHtml;
+
+    playEpisode(0);
+    history.pushState({ slug }, '', '/watch.html?show=' + encodeURIComponent(slug));
+  }
+
+  function playEpisode(idx) {
+    if (!currentShow || !currentShow.episodes[idx]) return;
+    currentEpIdx = idx;
+    const ep = currentShow.episodes[idx];
+    const v = document.getElementById('player-video');
+    // Prefer local URL (served via /media/{slug}/{file}); if no .web.mp4 sibling
+    // exists yet, the local URL points to the original (which may not demux).
+    // Fall back to IA URL on error.
+    const localSrc = ep.local_url;
+    const remoteSrc = ep.ia_url;
+    v.src = localSrc || remoteSrc;
+    v.onerror = function () {
+      if (v.src.startsWith('http') === false && remoteSrc) {
+        console.warn('local playback failed, falling back to IA URL');
+        v.src = remoteSrc;
+        v.load();
+      }
+    };
+    v.load();
+
+    document.getElementById('player-title').textContent = currentShow.title;
+    document.getElementById('ch-title').textContent = currentShow.title.slice(0, 50);
+    document.getElementById('ch-num').textContent = 'CH ' + String(idx + 3).padStart(2, '0') + ' · NARROW HIGHWAY';
+    document.getElementById('ch-sub').textContent = (ep.title || '').slice(0, 80);
+
+    // Re-mount feedback widget for the current show
+    const fbEl = document.getElementById('player-fb');
+    if (fbEl && window.NH && window.NH.Feedback) {
+      fbEl.innerHTML = '';
+      window.NH.Feedback.mount(fbEl, 'tv:' + currentShow.slug, { label: currentShow.title });
+    }
+
+    // Update episode row highlight
+    document.querySelectorAll('.episode-row').forEach(r => r.classList.remove('playing'));
+    const row = document.querySelector('.episode-row[data-idx="' + idx + '"]');
+    if (row) row.classList.add('playing');
+
+    // Now / Next
+    const nextEp = currentShow.episodes[idx + 1];
+    document.getElementById('nn-now').innerHTML = '<strong>' + escapeHtml(ep.title || ep.filename) + '</strong>';
+    document.getElementById('nn-next').innerHTML = nextEp
+      ? '<strong>' + escapeHtml(nextEp.title || nextEp.filename) + '</strong>'
+      : '<span style="color: var(--muted-2);">end of run</span>';
+
+    rebanner();
+  }
+
+  // Channel banner: slides in for 4 seconds on tune-in
+  let bannerTimer = null;
+  function rebanner() {
+    const banner = document.getElementById('channel-banner');
+    banner.classList.remove('show');
+    clearTimeout(bannerTimer);
+    setTimeout(() => banner.classList.add('show'), 80);
+    bannerTimer = setTimeout(() => banner.classList.remove('show'), 4200);
+  }
+
+  function toggleScanlines() {
+    const frame = document.getElementById('player-frame');
+    const btn = document.getElementById('scan-toggle');
+    frame.classList.toggle('scanlines');
+    btn.classList.toggle('active');
+  }
+
+  function closePlayer() {
+    document.getElementById('player-view').classList.remove('active');
+    document.getElementById('deck-view').classList.remove('deck-hide');
+    const v = document.getElementById('player-video');
+    v.pause();
+    v.removeAttribute('src');
+    v.load();
+    document.title = 'TV · Narrow Highway';
+    history.pushState({}, '', '/watch.html');
+  }
+
+  // Back-button handling
+  window.addEventListener('popstate', e => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('show');
+    if (slug && CATALOG) openShow(encodeURIComponent(slug));
+    else closePlayer();
+  });
+
+  // Auto-advance on episode end
+  document.getElementById('player-video').addEventListener('ended', () => {
+    const next = currentEpIdx + 1;
+    if (currentShow && currentShow.episodes[next]) playEpisode(next);
+  });
+
+  // Init
+  loadCatalog().then(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('show');
+    if (slug) openShow(encodeURIComponent(slug));
+  });
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

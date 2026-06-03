@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Workspace · Narrow Highway</title>
+  <meta name="description" content="The workspace — multiple desks stacked, each laid out for its primary task: airlock, today, watch &amp; listen, family life, learn, workshop, free libraries, take part. Everything at hand.">
+  <link rel="canonical" href="https://narrowhighway.com/workspace.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The Workspace · Narrow Highway">
+  <meta property="og:description" content="Multiple desks stacked. Watch, listen, work, learn, manage household — everything at hand.">
+  <meta property="og:url" content="https://narrowhighway.com/workspace.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    :root {
+      --paper:       #faf6ec;
+      --paper-2:     #f1ead7;
+      --rule:        #d4c8a5;
+      --rule-strong: #b9ac82;
+      --ink:         #1f1a14;
+      --ink-2:       #3a3328;
+      --brass:       #9b7c3c;
+      --brass-hi:    #c9a851;
+      --oxblood:     #7a3a32;
+      --pass:        #4f7a3a;
+      --blue:        #1a3a52;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(ellipse at top, rgba(255,255,255,.4), transparent 60%),
+        linear-gradient(180deg, #f5efdc 0%, #f0e8d0 100%);
+      color: var(--ink);
+      font-family: 'Crimson Pro', Georgia, serif;
+      line-height: 1.55;
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--oxblood); text-decoration: underline; text-decoration-color: rgba(122,58,50,.4); text-underline-offset: 2px; }
+    a:hover { color: var(--brass); text-decoration-color: var(--brass); }
+
+    .ws { max-width: 1100px; margin: 0 auto; padding: 22px 22px 60px; }
+
+    /* ── A desk ──────────────────────────────────────────────── */
+    .desk {
+      background: var(--paper);
+      border: 1px solid var(--rule-strong);
+      border-radius: 5px;
+      padding: 22px 26px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 0 rgba(43,24,16,.04), 0 6px 18px rgba(43,24,16,.06);
+      position: relative;
+    }
+    .desk + .desk { border-top-color: transparent; }
+    /* Brass left-border indicates the desk's primary subject */
+    .desk { border-left: 5px solid var(--brass); border-radius: 0 5px 5px 0; }
+    .desk.media   { border-left-color: var(--blue); }
+    .desk.family  { border-left-color: var(--oxblood); }
+    .desk.learn   { border-left-color: #6b5e2e; }
+    .desk.work    { border-left-color: var(--pass); }
+    .desk.libs    { border-left-color: #5a4a30; }
+    .desk.takep   { border-left-color: var(--brass-hi); }
+
+    .desk-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--rule);
+      flex-wrap: wrap;
+    }
+    .desk-head h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: 1.4rem;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .desk-head .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+    .desk-head .more {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--oxblood);
+    }
+
+    /* Two/three-column splits inside a desk */
+    .desk-grid {
+      display: grid;
+      gap: 14px;
+    }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 760px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Tool — a self-contained working surface inside a desk */
+    .tool {
+      background: #fffdf6;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 12px 14px;
+    }
+    .tool h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--brass);
+      margin-bottom: 8px;
+    }
+
+    /* Input row pattern */
+    .row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .row input, .row textarea {
+      flex: 1;
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--rule-strong);
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15px;
+      outline: none;
+    }
+    .row input:focus, .row textarea:focus { border-color: var(--brass); box-shadow: 0 0 0 2px rgba(155,124,60,.18); }
+    .row button {
+      padding: 0 14px;
+      background: var(--brass); color: #fff;
+      border: 1px solid var(--brass); border-radius: 4px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: .15em; text-transform: uppercase; font-weight: 600;
+    }
+    .row button:hover { background: var(--brass-hi); border-color: var(--brass-hi); }
+
+    /* List inside a tool */
+    .list {
+      max-height: 220px; overflow-y: auto;
+      font-size: 13.5px; line-height: 1.5;
+    }
+    .list .item {
+      padding: 6px 0; border-bottom: 1px dotted var(--rule);
+    }
+    .list .item:last-child { border-bottom: none; }
+    .list .empty { color: var(--ink-2); font-style: italic; padding: 6px 0; }
+    .list .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--brass); letter-spacing: .1em; }
+
+    /* Pill tiles — quick links / station buttons */
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: #fffdf6;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      color: var(--ink);
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color .12s, background .12s;
+    }
+    .pill:hover { border-color: var(--brass); background: #fdf9ea; text-decoration: none; }
+    .pill.playing { background: #ddf3df; border-color: var(--pass); color: var(--pass); }
+
+    /* Big tile row (for external libraries / take-part rooms) */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+    .tile {
+      display: block; padding: 10px 12px;
+      background: #fffdf6; border: 1px solid var(--rule); border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      text-decoration: none; color: var(--ink);
+      transition: border-left-color .12s, background .12s;
+    }
+    .tile:hover { border-left-color: var(--oxblood); background: #fdf9ea; text-decoration: none; }
+    .tile .n { font-weight: 600; font-size: 13.5px; }
+    .tile .d { font-style: italic; font-size: 11.5px; color: var(--ink-2); margin-top: 2px; line-height: 1.4; }
+    .tile.ext::after { content: ' ↗'; color: var(--brass); font-style: normal; }
+
+    /* Airlock — the very first desk, distinguished */
+    .desk.airlock { border-left-width: 6px; padding-top: 24px; }
+    .desk.airlock h2 { font-size: 1.65rem; }
+    .desk.airlock .row input {
+      font-size: 17px;
+      padding: 12px 16px;
+    }
+    .desk.airlock .row button { padding: 0 22px; font-size: 11px; }
+    .airlock-result {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fdf9ea;
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      display: none;
+    }
+    .airlock-result.show { display: block; }
+    .airlock-result .what { font-style: italic; color: var(--ink-2); font-size: 13px; margin-bottom: 6px; }
+    .airlock-result .where { font-weight: 600; color: var(--ink); }
+    .airlock-result .go {
+      display: inline-block; margin-top: 8px;
+      padding: 6px 14px;
+      background: var(--brass); color: #fff !important;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    /* Greeting strip at the very top */
+    .greet {
+      display: flex; align-items: baseline; gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .greet h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(1.5rem, 3vw, 1.9rem);
+      color: var(--ink);
+      letter-spacing: -0.005em;
+    }
+    .greet .when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--brass);
+    }
+  </style>
+</head>
+
+<body class="nh-shell-cream" data-nh-toc="off">
+
+<main class="ws">
+
+  <div class="greet">
+    <h1 id="wsGreet">Good evening.</h1>
+    <span class="when" id="wsWhen">—</span>
+  </div>
+
+  <!-- ═══ DESK 1 — THE AIRLOCK ═══ -->
+  <section class="desk airlock" id="d-airlock">
+    <div class="desk-head">
+      <div><span class="lbl">Airlock</span><h2>What's on your mind?</h2></div>
+    </div>
+    <form class="row" id="alForm" onsubmit="return alSubmit(event)">
+      <input id="alIn" type="text" autocomplete="off" placeholder="Type a thought, paste a verse, ask a question. The shepherd will know where to send it.">
+      <button type="submit">Send →</button>
+    </form>
+    <div class="airlock-result" id="alResult"></div>
+  </section>
+
+  <!-- ═══ DESK 2 — TODAY (Journal + Today's draw) ═══ -->
+  <section class="desk" id="d-today">
+    <div class="desk-head">
+      <div><span class="lbl">Today</span><h2>The day's draw, and your journal.</h2></div>
+      <a class="more" href="/today.html">Full day →</a>
+    </div>
+    <div class="desk-grid grid-2">
+      <div class="tool">
+        <h3>Today's draw</h3>
+        <div id="todayCard">
+          <div style="font-weight:600;font-size:1.05rem;" id="tdT">Loading…</div>
+          <div style="font-size:14px;color:var(--ink-2);margin-top:4px;" id="tdB">A card surfaced from today's substrate.</div>
+          <div style="margin-top:6px;" id="tdSrc"></div>
+        </div>
+      </div>
+      <div class="tool">
+        <h3>Journal · on this device</h3>
+        <div class="row">
+          <input id="jIn" type="text" placeholder="What's the thread today?">
+          <button type="button" onclick="jAdd()">Save</button>
+        </div>
+        <div class="list" id="jList"><div class="empty">Nothing kept yet today.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 3 — WATCH & LISTEN ═══ -->
+  <section class="desk media" id="d-media">
+    <div class="desk-head">
+      <div><span class="lbl">Watch &amp; Listen</span><h2>The channel, the dial, the playlists.</h2></div>
+      <a class="more" href="/media-center.html">Full media room →</a>
+    </div>
+    <div class="desk-grid grid-2">
+      <div class="tool">
+        <h3>Radio — pick a station</h3>
+        <div class="pills" id="radioPills"><span class="pill">Loading stations…</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--ink-2);font-style:italic;">Plays site-wide. The player follows you to every desk.</div>
+      </div>
+      <div class="tool">
+        <h3>On screen now</h3>
+        <div id="onAirNm" style="font-weight:600;font-size:1rem;">Checking the channel…</div>
+        <div id="onAirCt" style="font-size:13.5px;color:var(--ink-2);font-style:italic;margin-top:3px;">—</div>
+        <div style="margin-top:8px;">
+          <a class="pill" href="/live.html">📺 Live now</a>
+          <a class="pill" href="/schedule.html">📋 Lineup</a>
+          <a class="pill" href="/kids.html">🧸 Kids</a>
+          <a class="pill" href="/hymns.html">⛪ Hymns</a>
+          <a class="pill" href="/podcast-theatre.html">🎭 Theatre</a>
+          <a class="pill" href="/church-streams.html">⛪ Church streams</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 4 — FAMILY LIFE ═══ -->
+  <section class="desk family" id="d-family">
+    <div class="desk-head">
+      <div><span class="lbl">Family Life</span><h2>Household, hearth, and the apothecary.</h2></div>
+      <a class="more" href="/family.html">Full family room →</a>
+    </div>
+    <div class="desk-grid grid-3">
+      <div class="tool">
+        <h3>Apothecary — name a condition</h3>
+        <form class="row" onsubmit="apSubmit(event); return false;">
+          <input id="apIn" placeholder="sore throat, anxiety, grief…">
+          <button type="submit">Open</button>
+        </form>
+        <div style="font-size:12px;color:var(--ink-2);font-style:italic;">Scripture + protocol from public-domain materia medica.</div>
+      </div>
+      <div class="tool">
+        <h3>Prayer board · on this device</h3>
+        <div class="row">
+          <input id="prIn" placeholder="A name, a need, a thanks">
+          <button type="button" onclick="prAdd()">Add</button>
+        </div>
+        <div class="list" id="prList"><div class="empty">No prayers yet.</div></div>
+      </div>
+      <div class="tool">
+        <h3>This week's table</h3>
+        <div class="pills">
+          <a class="pill" href="/recipes.html">🍞 Recipes</a>
+          <a class="pill" href="/maker.html">🔨 Maker</a>
+          <a class="pill" href="/calendar.html">📅 Calendar</a>
+          <a class="pill" href="/hearth.html">🔥 Hearth</a>
+          <a class="pill" href="/household.html">🏠 Household</a>
+          <a class="pill" href="/games.html">♟️ Games</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 5 — LEARN ═══ -->
+  <section class="desk learn" id="d-learn">
+    <div class="desk-head">
+      <div><span class="lbl">Learn</span><h2>Scripture, the encyclopedia, the library.</h2></div>
+      <a class="more" href="/learn-deep.html">Full learn room →</a>
+    </div>
+    <div class="desk-grid grid-3">
+      <div class="tool">
+        <h3>Scripture — look up a verse</h3>
+        <form class="row" onsubmit="bsSubmit(event); return false;">
+          <input id="bsIn" placeholder="Romans 12:2 · or · grace">
+          <button type="submit">Open</button>
+        </form>
+        <div style="font-size:12px;color:var(--ink-2);font-style:italic;">Opens in parallel translations.</div>
+      </div>
+      <div class="tool">
+        <h3>Define a word</h3>
+        <form class="row" onsubmit="dxSubmit(event); return false;">
+          <input id="dxIn" placeholder="propitiation · selah · hesed">
+          <button type="submit">Define</button>
+        </form>
+        <div style="font-size:12px;color:var(--ink-2);font-style:italic;">Dictionary + biblical lexicon.</div>
+      </div>
+      <div class="tool">
+        <h3>Take a path</h3>
+        <div class="pills">
+          <a class="pill" href="/learn.html">🎓 Homeschool</a>
+          <a class="pill" href="/encyclopedia.html">🏛️ Encyclopedia</a>
+          <a class="pill" href="/reading.html">📑 Reading plans</a>
+          <a class="pill" href="/library.html">📚 Library</a>
+          <a class="pill" href="/places.html">🗺️ Bible places</a>
+          <a class="pill" href="/atlas.html">📜 Atlas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 6 — WORKSHOP / ENGINE ═══ -->
+  <section class="desk work" id="d-work">
+    <div class="desk-head">
+      <div><span class="lbl">Workshop</span><h2>Verify a claim. Walk the four gates.</h2></div>
+      <a class="more" href="/walks.html">Full workshop →</a>
+    </div>
+    <div class="desk-grid grid-2">
+      <div class="tool">
+        <h3>Verify a claim</h3>
+        <form class="row" onsubmit="vfSubmit(event); return false;">
+          <input id="vfIn" placeholder="Is John 3:16 in every Bible translation? · or · Did Calvin teach…">
+          <button type="submit">Walk</button>
+        </form>
+        <div id="vfResult" style="margin-top:8px;font-size:13.5px;color:var(--ink-2);"></div>
+      </div>
+      <div class="tool">
+        <h3>Other workshop tools</h3>
+        <div class="pills">
+          <a class="pill" href="/almanac.html">⚖️ Almanac</a>
+          <a class="pill" href="/verifiers.html">🔍 69 verifiers</a>
+          <a class="pill" href="/how-it-works.html">📐 How it works</a>
+          <a class="pill" href="/discern-teaching.html">📖 Discern a teaching</a>
+          <a class="pill" href="/benchmark.html">📊 Benchmark</a>
+          <a class="pill" href="/poly.html">🪡 Polymathic</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 7 — FREE LIBRARIES (external resources) ═══ -->
+  <section class="desk libs" id="d-libs">
+    <div class="desk-head">
+      <div><span class="lbl">Free Libraries</span><h2>Public-domain &amp; library systems.</h2></div>
+      <span class="lbl" style="color:var(--ink-2);">All free · most public-domain</span>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px;">Books (text)</h3>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile ext" href="https://www.gutenberg.org" target="_blank" rel="noopener"><div class="n">Project Gutenberg</div><div class="d">70k+ public-domain books, free.</div></a>
+      <a class="tile ext" href="https://archive.org/details/books" target="_blank" rel="noopener"><div class="n">Internet Archive Books</div><div class="d">Millions of digitised texts.</div></a>
+      <a class="tile ext" href="https://standardebooks.org" target="_blank" rel="noopener"><div class="n">Standard Ebooks</div><div class="d">Curated, beautifully typeset PD books.</div></a>
+      <a class="tile ext" href="https://en.wikisource.org" target="_blank" rel="noopener"><div class="n">Wikisource</div><div class="d">Source texts, transcribed and proofread.</div></a>
+      <a class="tile ext" href="https://www.hathitrust.org" target="_blank" rel="noopener"><div class="n">HathiTrust</div><div class="d">17M volumes from major libraries.</div></a>
+      <a class="tile ext" href="https://openlibrary.org" target="_blank" rel="noopener"><div class="n">Open Library</div><div class="d">A page for every book ever published.</div></a>
+      <a class="tile ext" href="https://ccel.org" target="_blank" rel="noopener"><div class="n">Christian Classics (CCEL)</div><div class="d">Calvin, Augustine, Aquinas — full texts.</div></a>
+      <a class="tile ext" href="https://hymnary.org" target="_blank" rel="noopener"><div class="n">Hymnary</div><div class="d">1.6M hymns indexed; lyrics, tune, history.</div></a>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px;">Audio &amp; video</h3>
+    <div class="tiles" style="margin-bottom:14px;">
+      <a class="tile ext" href="https://librivox.org" target="_blank" rel="noopener"><div class="n">LibriVox</div><div class="d">Free public-domain audiobooks, narrated.</div></a>
+      <a class="tile ext" href="https://archive.org/details/movies" target="_blank" rel="noopener"><div class="n">Internet Archive Films</div><div class="d">Public-domain movies and shorts.</div></a>
+      <a class="tile ext" href="https://archive.org/details/audio" target="_blank" rel="noopener"><div class="n">IA Audio</div><div class="d">PD music, old radio shows, sermons.</div></a>
+      <a class="tile ext" href="https://freemusicarchive.org" target="_blank" rel="noopener"><div class="n">Free Music Archive</div><div class="d">CC-licensed music, all genres.</div></a>
+    </div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px;">Your local library, with a card</h3>
+    <div class="tiles">
+      <a class="tile ext" href="https://www.worldcat.org" target="_blank" rel="noopener"><div class="n">WorldCat — find your library</div><div class="d">Locate any book at any library in the world.</div></a>
+      <a class="tile ext" href="https://www.overdrive.com/apps/libby" target="_blank" rel="noopener"><div class="n">Libby (by OverDrive)</div><div class="d">Borrow ebooks &amp; audiobooks from your library.</div></a>
+      <a class="tile ext" href="https://www.hoopladigital.com" target="_blank" rel="noopener"><div class="n">Hoopla</div><div class="d">Stream library films, audio, comics.</div></a>
+      <a class="tile ext" href="https://www.kanopy.com" target="_blank" rel="noopener"><div class="n">Kanopy</div><div class="d">Films and documentaries via your library.</div></a>
+    </div>
+  </section>
+
+  <!-- ═══ DESK 8 — TAKE PART ═══ -->
+  <section class="desk takep" id="d-takep">
+    <div class="desk-head">
+      <div><span class="lbl">Take Part</span><h2>Bring something to the well.</h2></div>
+      <a class="more" href="/take-part.html">Full take-part room →</a>
+    </div>
+    <div class="tiles">
+      <a class="tile" href="/submit-recipe.html"><div class="n">🍞 Submit a recipe</div><div class="d">Add to the heritage cookbook.</div></a>
+      <a class="tile" href="/submit-curriculum.html"><div class="n">📝 Submit a lesson</div><div class="d">Add to the homeschool curriculum.</div></a>
+      <a class="tile" href="/submit-content.html"><div class="n">📨 Submit content</div><div class="d">A story, a song, a testimony.</div></a>
+      <a class="tile" href="/pitch.html"><div class="n">🎬 Pitch a show</div><div class="d">A series idea for the channel.</div></a>
+      <a class="tile" href="/witness.html"><div class="n">🕯️ Become a witness</div><div class="d">Attest. Sign. Sealed and added to the roll.</div></a>
+      <a class="tile" href="/support.html"><div class="n">🤝 Support the work</div><div class="d">Covenant tiers — free use, earned funding.</div></a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+
+// ── Greeting ─────────────────────────────────────────────────
+(function () {
+  const now = new Date();
+  const h = now.getHours();
+  const part = h < 5 ? 'late' : h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+  $('wsGreet').textContent = part === 'late' ? 'Up late.' : 'Good ' + part + '.';
+  $('wsWhen').textContent = now.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+})();
+
+// ── Airlock (Desk 1) ─────────────────────────────────────────
+async function alSubmit(ev) {
+  ev.preventDefault();
+  const txt = ($('alIn').value || '').trim();
+  if (!txt) return false;
+  const box = $('alResult'); box.classList.remove('show');
+  try {
+    const r = await fetch('/airlock/classify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: txt}),
+    });
+    const j = await r.json();
+    box.innerHTML =
+      '<div class="what">' + esc(j.why || 'Routed') + '</div>' +
+      '<div class="where">' + esc(j.destination_label || j.route) + '</div>' +
+      (j.url ? '<a class="go" href="' + esc(j.url) + '">Open →</a>' : '');
+    box.classList.add('show');
+  } catch (e) {
+    box.innerHTML = '<div class="what">The airlock is quiet — try one of the desks below.</div>';
+    box.classList.add('show');
+  }
+  return false;
+}
+$('alIn').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('alForm').requestSubmit(); });
+
+// ── Today's draw ─────────────────────────────────────────────
+(async function () {
+  try {
+    const r = await fetch('/daily-card');
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    const c = j && j.card;
+    if (!c) throw 0;
+    $('tdT').textContent = c.title || '(untitled)';
+    $('tdB').textContent = c.body ? String(c.body).slice(0, 220) + (c.body.length > 220 ? '…' : '') : '';
+    const src = c.source || {};
+    $('tdSrc').innerHTML = '<span class="meta">' + esc(src.label || src.author || (j.date || '')) + '</span>' +
+      (c.url ? ' · <a href="' + esc(c.url) + '" style="font-size:12px;">Open →</a>' : '');
+  } catch (e) {
+    $('tdT').textContent = 'The substrate is quiet today.';
+    $('tdB').textContent = 'No daily card surfaced. Type into the airlock above.';
+  }
+})();
+
+// ── Journal (local, today's entries) ─────────────────────────
+const JK = 'nh_ws_journal_v1';
+function jLoad() { try { return JSON.parse(localStorage.getItem(JK) || '[]'); } catch(_) { return []; } }
+function jSave(a) { try { localStorage.setItem(JK, JSON.stringify(a.slice(0, 100))); } catch(_) {} }
+function jRender() {
+  const a = jLoad();
+  const el = $('jList');
+  if (!a.length) { el.innerHTML = '<div class="empty">Nothing kept yet today.</div>'; return; }
+  el.innerHTML = a.map(e => {
+    const when = new Date(e.ts).toLocaleTimeString(undefined, {hour:'numeric',minute:'2-digit'});
+    return '<div class="item"><span class="meta">' + esc(when) + '</span> · ' + esc(e.q) +
+      ' <span style="float:right;cursor:pointer;color:var(--rule-strong);" onclick="jDel(' + e.ts + ')">✕</span></div>';
+  }).join('');
+}
+function jAdd() {
+  const v = ($('jIn').value || '').trim();
+  if (!v) return;
+  const a = jLoad(); a.unshift({ts: Date.now(), q: v}); jSave(a); $('jIn').value = ''; jRender();
+}
+function jDel(ts) { jSave(jLoad().filter(e => e.ts !== ts)); jRender(); }
+window.jDel = jDel;
+jRender();
+
+// ── Radio quick-pick (Desk 3) ────────────────────────────────
+(async function () {
+  try {
+    const r = await fetch('/radio/stations.json', {cache:'no-store'});
+    const data = await r.json();
+    const picks = [];
+    // 4 FM curated picks + 4 AM/News + 2 SW links (open in new tab)
+    const fm = data.fm || [], am = data.am || [], sw = data.sw || [];
+    const pick = (arr, n) => arr.slice(0, n);
+    pick(fm, 4).forEach(s => picks.push({...s, kind:'fm'}));
+    pick(am, 3).forEach(s => picks.push({...s, kind:'am'}));
+    pick(sw, 2).forEach(s => picks.push({...s, kind:'sw'}));
+    const el = $('radioPills');
+    el.innerHTML = picks.map((s, i) => {
+      const label = (s.name || 'Station').slice(0, 24);
+      return '<span class="pill" data-i="' + i + '" data-kind="' + s.kind + '">' +
+        (s.kind === 'fm' ? '🎵' : s.kind === 'am' ? '📻' : '📡') + ' ' + esc(label) + '</span>';
+    }).join('') +
+    '<a class="pill" href="/radio.html">🎚️ Full dial →</a>';
+    el.querySelectorAll('.pill[data-i]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const s = picks[+pill.dataset.i];
+        if (s.kind === 'sw' && s.url) { window.open(s.url, '_blank', 'noopener'); return; }
+        if (window.nhRadio && s.stream) {
+          window.nhRadio.play(s);
+          el.querySelectorAll('.pill.playing').forEach(x => x.classList.remove('playing'));
+          pill.classList.add('playing');
+        }
+      });
+    });
+  } catch (e) {
+    $('radioPills').innerHTML = '<a class="pill" href="/radio.html">🎚️ Open the dial →</a>';
+  }
+})();
+
+// On-air status
+(async function () {
+  try {
+    const r = await fetch('/channels/now.json', {cache:'no-store'});
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    const ch = (j.channels || [])[0];
+    if (ch && ch.now_playing) {
+      $('onAirNm').textContent = ch.now_playing.title || 'Now playing';
+      $('onAirCt').textContent = (ch.now_playing.synopsis || '').slice(0, 140) || ch.title || 'Narrow Highway';
+    } else {
+      $('onAirNm').textContent = 'Between programs.';
+      $('onAirCt').textContent = 'A bumper or scripture card is on screen.';
+    }
+  } catch (e) {
+    $('onAirNm').textContent = 'The channel is currently dark.';
+    $('onAirCt').textContent = 'The supervisor will bring it back. The rooms below are still open.';
+  }
+})();
+
+// ── Apothecary (Desk 4) ──────────────────────────────────────
+function apSubmit(ev) {
+  ev.preventDefault();
+  const v = ($('apIn').value || '').trim();
+  if (!v) return;
+  // Open the apothecary with the condition as a query parameter
+  location.href = '/apothecary.html?condition=' + encodeURIComponent(v);
+}
+
+// Prayer board (local)
+const PK = 'nh_ws_prayer_v1';
+function prLoad() { try { return JSON.parse(localStorage.getItem(PK) || '[]'); } catch(_) { return []; } }
+function prSave(a) { try { localStorage.setItem(PK, JSON.stringify(a.slice(0, 100))); } catch(_) {} }
+function prRender() {
+  const a = prLoad();
+  const el = $('prList');
+  if (!a.length) { el.innerHTML = '<div class="empty">No prayers yet.</div>'; return; }
+  el.innerHTML = a.map(e => {
+    const when = new Date(e.ts).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+    return '<div class="item"><span class="meta">' + esc(when) + '</span> · ' + esc(e.q) +
+      ' <span style="float:right;cursor:pointer;color:var(--rule-strong);" onclick="prDel(' + e.ts + ')">✕</span></div>';
+  }).join('');
+}
+function prAdd() {
+  const v = ($('prIn').value || '').trim();
+  if (!v) return;
+  const a = prLoad(); a.unshift({ts: Date.now(), q: v}); prSave(a); $('prIn').value = ''; prRender();
+}
+function prDel(ts) { prSave(prLoad().filter(e => e.ts !== ts)); prRender(); }
+window.prDel = prDel;
+prRender();
+
+// ── Scripture & dictionary (Desk 5) ──────────────────────────
+function bsSubmit(ev) {
+  ev.preventDefault();
+  const v = ($('bsIn').value || '').trim();
+  if (!v) return;
+  location.href = '/bibles.html?q=' + encodeURIComponent(v);
+}
+function dxSubmit(ev) {
+  ev.preventDefault();
+  const v = ($('dxIn').value || '').trim();
+  if (!v) return;
+  location.href = '/tools/dictionary.html?q=' + encodeURIComponent(v);
+}
+
+// ── Verify a claim (Desk 6) ──────────────────────────────────
+async function vfSubmit(ev) {
+  ev.preventDefault();
+  const q = ($('vfIn').value || '').trim();
+  if (!q) return;
+  const el = $('vfResult');
+  el.innerHTML = '<em>Walking the four gates…</em>';
+  try {
+    const r = await fetch('/cards/walk', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: q, k: 5, asked_by: 'home'}),
+    });
+    const d = await r.json();
+    const steps = (d && d.steps) || [];
+    if (!steps.length) {
+      el.innerHTML = '<em>No steps surfaced. Open the workshop to walk it in full.</em> · <a href="/walks.html?q=' + encodeURIComponent(q) + '">Open →</a>';
+      return;
+    }
+    el.innerHTML = steps.slice(0, 3).map(s => {
+      const src = (s.source && (s.source.label || s.source.author)) || s.shelf || '';
+      return '<div style="padding:4px 0;border-bottom:1px dotted var(--rule);"><strong>' + esc(s.title || '(untitled)') + '</strong> <span class="meta" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--brass);">' + esc(src) + '</span></div>';
+    }).join('') +
+    '<a href="/walks.html?q=' + encodeURIComponent(q) + '" style="display:inline-block;margin-top:6px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--oxblood);">See the full walk →</a>';
+  } catch (e) {
+    el.innerHTML = '<em>Engine quiet — open the workshop to walk it in full.</em> · <a href="/walks.html?q=' + encodeURIComponent(q) + '">Open →</a>';
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hundred Acre Theatre — Narrow Highway · Channel 2</title>
+<meta name="description" content="Channel 2 — Narrow Highway Hundred Acre Theatre. 24/7 family storytime — Pooh, Beatrix Potter, Velveteen Rabbit, Andersen, Blue Fairy Book. Bedtime-friendly after 7pm.">
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 0 auto; padding: 0 1em 2em; background: #2a1f13; color: #f4ecd5; line-height: 1.5; }
+  nav.top { padding: 0.8em 0; font-size: 0.9em; }
+  nav.top a { color: #c9b48a; text-decoration: none; }
+  h1 { color: #f4ecd5; font-size: 2em; margin: 0.4em 0 0.1em; }
+  .ch-meta { font-size: 0.9em; color: #c9b48a; font-family: 'Courier New', monospace; letter-spacing: 0.1em; }
+  .tagline { font-style: italic; color: #c9b48a; margin: 0.2em 0 1em; }
+  .player-wrap { background: #000; border: 2px solid #c9b48a; border-radius: 4px; aspect-ratio: 16/9; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+  video { width: 100%; height: 100%; display: block; background: #000; }
+  .player-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.6em 1em; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #f4ecd5; font-size: 0.9em; pointer-events: none; }
+  .player-overlay .label { color: #c9b48a; font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.15em; }
+  .live-badge { display: inline-block; padding: 0.15em 0.6em; background: #a85a30; color: #fff; font-weight: bold; font-size: 0.8em; border-radius: 3px; margin-right: 0.5em; }
+  .live-badge::before { content: '● '; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; margin-top: 1.2em; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .card { background: #3d2c1d; border: 1px solid #5c432c; border-radius: 4px; padding: 1em 1.2em; }
+  .card h2 { color: #c9b48a; margin: 0 0 0.4em; font-size: 1.1em; border-bottom: 1px solid #5c432c; padding-bottom: 0.3em; }
+  .schedule-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  .schedule-table td { padding: 0.3em 0.4em; border-bottom: 1px solid #4d3826; }
+  .schedule-table td.time { color: #c9b48a; font-family: 'Courier New', monospace; width: 5em; }
+  .embed-row { background: #4d3826; padding: 0.8em 1em; border-radius: 4px; font-size: 0.85em; margin-top: 1em; color: #c9b48a; }
+  .embed-row code { background: #2a1f13; padding: 0.15em 0.4em; border-radius: 3px; color: #f4ecd5; }
+  .fallback-row { background: #3d2c1d; border: 1px solid #5c432c; border-radius: 4px; padding: 1em 1.2em; margin-top: 1em; }
+  .fallback-row a { color: #c9b48a; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/channels.html">All Channels</a></nav>
+
+<div class="ch-meta">CHANNEL 2 · NARROW HIGHWAY</div>
+<h1>Hundred Acre Theatre</h1>
+<p class="tagline">A.A. Milne, Beatrix Potter, classic family stories · 24/7 · Bedtime-friendly after 7pm</p>
+
+<div class="row">
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2>The pilot is ready to watch</h2>
+    <p style="margin-top:0;">The animated Pooh pilot &mdash; A.A. Milne 1926, Chapter 1, illustrated as Mr. Shepard first drew it &mdash; is on <a href="/pilots.html" style="color:#c9b48a; font-weight:bold;">/pilots.html</a>. Eighteen minutes. Watch it there.</p>
+    <p>This page is a browse / landing surface for the Hundred Acre content pool. We are not currently running a continuous 24/7 live stream for this brand. When we do, this page will show the actual live player.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="card">
+    <h2>About the pool</h2>
+    <p>Pooh, Peter Rabbit, Andersen, the Blue Fairy Book, the Velveteen Rabbit &mdash; read by the LibriVox community from the public-domain editions. Family-safe by design.</p>
+    <p>52 readings on disk, plus the animated pilot. The recordings are sourced from LibriVox; the animation is original.</p>
+  </div>
+
+  <div class="card">
+    <h2>What's here right now</h2>
+    <ul style="margin: 0.4em 0 0 1.2em; padding: 0;">
+      <li>1 animated pilot (Pooh, Ch. 1) at <a href="/pilots.html" style="color:#c9b48a;">/pilots.html</a></li>
+      <li>11 Winnie-the-Pooh chapter readings (LibriVox)</li>
+      <li>19 Beatrix Potter stories (LibriVox)</li>
+      <li>Andersen Fairy Tales, Blue Fairy Book, Velveteen Rabbit</li>
+    </ul>
+    <p style="font-size:0.88em; color:#c9b48a; margin-top:0.8em;">No live stream for this sub-channel yet. The pool above is real.</p>
+  </div>
+</div>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

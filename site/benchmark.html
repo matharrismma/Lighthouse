@@ -1,244 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Benchmark · Concordance Engine</title>
-  <meta name="description" content="171/171 = 100% — Claude Haiku 4.5 with concordance-engine tools across 57 benchmark domains. Same model, tools make the difference. Reproducible.">
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <!-- og-card injected -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Benchmark · Concordance Engine">
-  <meta property="og:description" content="171/171 = 100% — Claude Haiku 4.5 with concordance-engine tools across 57 benchmark domains. Same model, tools make the difference. Reproducible.">
-  <meta property="og:url" content="https://narrowhighway.com/benchmark.html">
-  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
-  <meta property="og:site_name" content="Concordance Engine">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Benchmark · Concordance Engine">
-  <meta name="twitter:description" content="171/171 = 100% — Claude Haiku 4.5 with concordance-engine tools across 57 benchmark domains. Same model, tools make the difference. Reproducible.">
-  <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
-  <link rel="canonical" href="https://narrowhighway.com/benchmark.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Benchmark · Concordance Engine","description":"171/171 = 100% — Claude Haiku 4.5 with concordance-engine tools across 57 benchmark domains. Same model, tools make the difference. Reproducible.","url":"https://narrowhighway.com/benchmark.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmark · the mechanism vs. unfiltered generation · Narrow Highway</title>
+<meta name="description" content="Empirical comparison: every prompt in the eval set, run through both unfiltered LLM and the four-gate mechanism. Citations, doctrinal alignment, adversarial rejection, latency, cost — measured side by side.">
+<link rel="canonical" href="https://narrowhighway.com/benchmark.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Benchmark · the mechanism, measured">
+<meta property="og:description" content="The four-gate mechanism vs. unfiltered LLM output, prompt by prompt, with every result open.">
+<meta property="og:url" content="https://narrowhighway.com/benchmark.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/nh-shell.css">
+<script defer src="/nh-shell.js"></script>
+<style>
+  body { font-family: Georgia, serif; max-width: 1080px; margin: 0 auto;
+    padding: 0 1.2em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+
+  .masthead { text-align: center; padding: 2em 1em 1.2em;
+    border-bottom: 3px double #b8945a; margin-bottom: 1.4em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #b8945a;
+    margin-bottom: 0.5em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal;
+    font-size: 2.2em; color: #1a3a52; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.05em;
+    margin-top: 0.5em; max-width: 60ch; margin-left: auto; margin-right: auto; }
+  .masthead .stamp { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; margin-top: 0.6em; }
+
+  h2 { color: #1a3a52; font-weight: normal; font-size: 1.5em;
+    margin-top: 2em; padding-bottom: 0.3em; border-bottom: 1px solid #d4c8a5; }
+
+  /* Top metrics tiles */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin: 1em 0; }
+  .metric { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1em 1.2em; box-shadow: 0 1px 0 #e8e0c0; }
+  .metric .lbl { font-family: 'Courier New', monospace; font-size: 0.72em;
+    letter-spacing: 0.14em; color: #806010; text-transform: uppercase;
+    margin-bottom: 0.4em; }
+  .metric .val { font-family: 'Courier New', monospace; font-size: 1.4em;
+    color: #1a3a52; font-weight: bold; }
+  .metric .sub { font-size: 0.85em; color: #6a5a3a; margin-top: 0.2em;
+    font-style: italic; }
+
+  /* Per-category strip */
+  .cat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px; margin: 1em 0; }
+  .cat { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1em 1.2em; }
+  .cat h3 { color: #1a3a52; margin: 0 0 0.5em; font-size: 1.1em; }
+  .cat .stat { display: flex; justify-content: space-between;
+    padding: 0.3em 0; border-bottom: 1px dashed #e8e0c0; font-size: 0.92em; }
+  .cat .stat:last-child { border-bottom: 0; }
+  .cat .stat .k { color: #6a5a3a; }
+  .cat .stat .v { font-family: 'Courier New', monospace; color: #1a3a52;
+    font-weight: bold; }
+
+  /* Per-prompt cards (side-by-side baseline vs gated) */
+  .prompt-card { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+    padding: 1em 1.2em; margin: 0.8em 0; box-shadow: 0 1px 0 #e8e0c0; }
+  .prompt-card .header { display: flex; justify-content: space-between;
+    align-items: baseline; flex-wrap: wrap; gap: 0.6em; margin-bottom: 0.5em; }
+  .prompt-card .id { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #806010; letter-spacing: 0.06em; }
+  .prompt-card .cat-pill { font-family: 'Courier New', monospace; font-size: 0.72em;
+    padding: 0.15em 0.6em; border-radius: 12px; letter-spacing: 0.06em;
+    text-transform: uppercase; }
+  .cat-pill.doctrinal { background: #fff5d4; color: #806010; }
+  .cat-pill.factual { background: #d4ead4; color: #1f5b1f; }
+  .cat-pill.adversarial { background: #f7d4d4; color: #8b1f1f; }
+  .prompt-card .prompt-text { font-style: italic; color: #1a3a52;
+    background: #fafaf6; padding: 0.6em 0.9em; border-radius: 4px;
+    border-left: 3px solid #b8945a; margin: 0.5em 0; }
+
+  .side-by-side { display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 0.7em; }
+  @media (max-width: 720px) { .side-by-side { grid-template-columns: 1fr; } }
+  .side { background: #fafaf6; border: 1px solid #d4c8a5; border-radius: 4px;
+    padding: 0.7em 0.9em; }
+  .side h4 { font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.1em; color: #806010; margin: 0 0 0.4em;
+    text-transform: uppercase; }
+  .side.gated h4 { color: #1a3a52; }
+  .side .output { font-size: 0.92em; line-height: 1.5;
+    max-height: 280px; overflow-y: auto;
+    color: #2a2a28; padding: 0.4em 0; white-space: pre-wrap; }
+  .side .stats { font-family: 'Courier New', monospace; font-size: 0.76em;
+    color: #6a5a3a; margin-top: 0.4em; padding-top: 0.4em;
+    border-top: 1px dashed #d4c8a5; }
+
+  .gates-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5em; }
+  .gate-pill { font-family: 'Courier New', monospace; font-size: 0.74em;
+    padding: 0.15em 0.5em; border-radius: 3px; letter-spacing: 0.05em; }
+  .gate-pill.pass { background: #d4ead4; color: #1f5b1f; }
+  .gate-pill.reject { background: #f7d4d4; color: #8b1f1f; }
+  .gate-pill.wait { background: #fff5d4; color: #806010; }
+  .gate-pill.deferred { background: #e6e6ec; color: #1a3a52; }
+
+  .decision-pill { display: inline-block; padding: 0.2em 0.8em;
+    border-radius: 12px; font-family: 'Courier New', monospace; font-size: 0.78em;
+    letter-spacing: 0.06em; text-transform: uppercase; }
+  .decision-pill.stable { background: #d4ead4; color: #1f5b1f; }
+  .decision-pill.stable_pending_witness { background: #cce0f0; color: #1a3a52; }
+  .decision-pill.conditional { background: #fff5d4; color: #806010; }
+  .decision-pill.hold { background: #e6e6ec; color: #555; }
+  .decision-pill.rejected { background: #f7d4d4; color: #8b1f1f; }
+
+  .empty-state { background: #fff5d4; border-left: 4px solid #b8945a;
+    padding: 1.2em 1.4em; margin: 1.4em 0; border-radius: 0 4px 4px 0; }
+  .empty-state h3 { color: #1a3a52; margin-top: 0; }
+  .empty-state code { background: #f3eedb; padding: 0.15em 0.4em;
+    border-radius: 3px; font-size: 0.92em; }
+
+  .methodology { background: #fff; border: 1px solid #d4c8a5;
+    border-radius: 6px; padding: 1em 1.3em; margin: 1em 0; }
+  .methodology h3 { color: #1a3a52; margin-top: 0; font-size: 1.05em; }
+  .methodology ol { margin: 0.4em 0 0 1.2em; }
+  .methodology li { margin: 0.3em 0; }
+
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 1em 0;
+    padding: 0.6em 0.9em; background: #fff; border: 1px solid #d4c8a5;
+    border-radius: 6px; align-items: center; }
+  .filter-bar .lbl { font-family: 'Courier New', monospace; font-size: 0.78em;
+    color: #806010; letter-spacing: 0.06em; text-transform: uppercase;
+    margin-right: 0.6em; }
+  .filter-btn { padding: 0.3em 0.8em; background: #fafaf6;
+    border: 1px solid #d4c8a5; border-radius: 16px; cursor: pointer;
+    font-family: Georgia, serif; font-size: 0.88em; color: #1a3a52; }
+  .filter-btn:hover { background: #fff5d4; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+
+  hr.sep { border: none; border-top: 1px solid #d4c8a5; margin: 2em auto; width: 60%; }
+  .colophon { font-family: 'Courier New', monospace; font-size: 0.82em;
+    color: #6a5a3a; letter-spacing: 0.04em; text-align: center; line-height: 1.6;
+    margin-top: 3em; padding-top: 1.4em; border-top: 1px solid #d4c8a5; font-style: italic; }
+</style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
-    <nav class="topnav">
-      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
-      <a href="/how-it-works.html">How it works</a>
-      <a href="/verifiers.html">Verifiers</a>
-      <a href="/agents.html">Agents</a>
-      <a href="/try.html">Verify</a>
-      <a href="/grid.html">Grid</a>
-      <a href="/engine.html">Engine</a>
-      <a href="/poly.html">Polymathic</a>
-      <a href="/benchmark.html" class="active">Benchmark</a>
-      <a href="/install.html">Install</a>
-      <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
-      <a class="cta" href="/connect.html">Connect →</a>
-    </nav>
-  </div>
-</header>
-
-<div class="page-header">
-  <div class="container">
-    <div class="eyebrow">Empirical evidence</div>
-    <h1>171 / 171</h1>
-    <p id="benchLead">Claude Haiku 4.5 with concordance-engine tools scores 100% across 171 items spanning 57 benchmark domains. Same model, same prompts — the verifiers carry the weight that the language model cannot.</p>
-    <p>
-      <button class="listen-btn" data-narrate-target="#benchLead" title="Read aloud in M.R. Harris">
-        <span class="listen-glyph">▶</span> <span class="listen-label">Listen</span>
-      </button>
-    </p>
-  </div>
+<div class="masthead">
+  <div class="eyebrow">Narrow Highway · Empirical · Live</div>
+  <h1>The mechanism, measured</h1>
+  <p class="tagline">Every prompt in the eval set run through two modes &mdash; <strong>unfiltered LLM</strong> and the <strong>four-gate mechanism</strong>. Both responses, every gate, every verifier, every metric. Open.</p>
+  <p class="stamp" id="runStamp">loading latest run&hellip;</p>
 </div>
 
-<section>
-  <div class="container">
-    <div class="callout note">
-      <p><strong>Results — claude-haiku-4-5-20251001, 171 items, 57 domains.</strong></p>
-      <table style="width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:14px;">
-        <thead>
-          <tr style="color:var(--muted); text-align:left;">
-            <th style="padding:4px 12px 4px 0;">Metric</th>
-            <th style="padding:4px 12px;">Tools</th>
-            <th style="padding:4px 12px;">No tools (alone)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style="padding:4px 12px 4px 0;">Items correct</td><td style="padding:4px 12px; font-weight:600; color:var(--pass);">171 / 171 (100%)</td><td style="padding:4px 12px; color:var(--hold);">152 / 171 (88.9%)</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Delta</td><td style="padding:4px 12px;" colspan="2"><strong>+19 items (+11.1 pp)</strong> — engine-fixed errors LLM made unaided</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Domains covered</td><td style="padding:4px 12px;" colspan="2">57</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Items per domain</td><td style="padding:4px 12px;" colspan="2">3</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Avg response time</td><td style="padding:4px 12px;" colspan="2">2.83s</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">p95 response time</td><td style="padding:4px 12px;" colspan="2">4.48s</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Model</td><td style="padding:4px 12px; font-family:monospace;" colspan="2">claude-haiku-4-5-20251001</td></tr>
-        </tbody>
-      </table>
-      <p style="margin-top:0.75rem; margin-bottom:0;">Reproduce: <code>python eval/benchmark/run_extended.py --tools-only</code></p>
-    </div>
+<div id="emptyState" class="empty-state" style="display:none;">
+  <h3>No run published yet</h3>
+  <p>The benchmark hasn&rsquo;t run yet, or the latest results haven&rsquo;t been published to the public path. Run it from the engine machine:</p>
+  <p><code>python tools/run_benchmark.py --base anthropic</code> (full eval; uses Anthropic API)<br>
+  <code>python tools/run_benchmark.py --base echo --limit 5</code> (smoke test; no API cost)</p>
+  <p>The runner writes <code>site/benchmark/latest/aggregate.json</code> and <code>site/benchmark/latest/results.jsonl</code> &mdash; this page reads from those.</p>
+</div>
+
+<div id="mainContent" style="display:none;">
+
+  <h2>Overall metrics</h2>
+  <div class="metrics" id="overallMetrics"></div>
+
+  <h2>By category</h2>
+  <div class="cat-strip" id="byCategory"></div>
+
+  <div class="methodology">
+    <h3>How this was measured</h3>
+    <ol>
+      <li>The eval set (<a href="/benchmark/latest/manifest.json"><code id="evalSet">prompts_v1.jsonl</code></a>) contains prompts in three categories: <strong>doctrinal</strong> (where Christian-theology alignment matters), <strong>factual</strong> (general knowledge), <strong>adversarial</strong> (prompts designed to elicit hallucination, fabricated citations, or RED-gate-worthy patterns).</li>
+      <li>For each prompt, the same base LLM is called twice: once <strong>unfiltered</strong> (direct API call, no gates), once <strong>through the mechanism</strong> (RED &rarr; LLM &rarr; verifiers &rarr; FLOOR &rarr; BROTHERS &rarr; GOD &rarr; audit + signed hash).</li>
+      <li>Each output is scored against the prompt&rsquo;s expected markers (healthy doctrine patterns, concerning patterns, minimum Scripture citations) and the RED gate&rsquo;s correct rejection of adversarial prompts.</li>
+      <li>Aggregate metrics: citation accuracy, doctrinal alignment, adversarial-reject rate, audit completeness, latency overhead, cost overhead.</li>
+    </ol>
+    <p style="margin-top:0.8em; font-style:italic; color:#6a5a3a;">
+      <strong>What this is not.</strong> A claim of superiority over any specific
+      AI product. A score we made up. A static page that doesn&rsquo;t change. This is
+      what the engine actually measured, on a fixed eval set, the last time the
+      benchmark ran. Re-run it yourself: <code>python tools/run_benchmark.py</code>.
+    </p>
   </div>
-</section>
 
-<section>
-  <div class="container">
-    <h2>57 domains, grouped</h2>
-    <div class="cards">
-
-      <div class="card">
-        <h3>Physical sciences</h3>
-        <p>chemistry · physics · thermodynamics · nuclear_physics · optics · acoustics · electrical · energy</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">24/24</p>
-      </div>
-
-      <div class="card">
-        <h3>Life sciences</h3>
-        <p>biology · genetics · nutrition · exercise_science · medicine · ecology</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">18/18</p>
-      </div>
-
-      <div class="card">
-        <h3>Earth &amp; space</h3>
-        <p>geology · geography · hydrology · meteorology · astronomy · oceanography</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">18/18</p>
-      </div>
-
-      <div class="card">
-        <h3>Mathematical</h3>
-        <p>mathematics · statistics · formal_logic · number_theory · combinatorics · geometry · information_theory · operations_research · quantum_computing</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">27/27</p>
-      </div>
-
-      <div class="card">
-        <h3>Engineering &amp; technology</h3>
-        <p>computer_science · networking · cryptography · cybersecurity · manufacturing · materials_science · construction · architecture</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">24/24</p>
-      </div>
-
-      <div class="card">
-        <h3>Social &amp; professional</h3>
-        <p>economics · finance · labor · real_estate · law · governance · agriculture · soil_science</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">24/24</p>
-      </div>
-
-      <div class="card">
-        <h3>Humanities &amp; reasoning</h3>
-        <p>linguistics · music_theory · photography · rhetoric · philosophy · history_chronology · sports_analytics · calendar_time</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">24/24</p>
-      </div>
-
-      <div class="card">
-        <h3>Foundation &amp; validation</h3>
-        <p>theology_doctrine · witness · document_validation · cross_domain</p>
-        <p style="color:var(--pass); font-weight:600; margin-top:0.5rem;">12/12</p>
-      </div>
-
-    </div>
+  <h2>Per-prompt results</h2>
+  <div class="filter-bar">
+    <span class="lbl">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="doctrinal">Doctrinal</button>
+    <button class="filter-btn" data-filter="factual">Factual</button>
+    <button class="filter-btn" data-filter="adversarial">Adversarial</button>
   </div>
-</section>
+  <div id="promptResults"></div>
 
-<section>
-  <div class="container">
-    <h2>What the benchmark measures</h2>
-    <p>Each of the 171 items gives the model a domain-specific question requiring a precise numeric answer, a yes/no classification, or a short string. The question instructs the model to call the relevant concordance-engine verifier and reply with only the result.</p>
-    <p>Scoring is exact: numeric answers must match the engine-computed ground truth within a domain-appropriate relative tolerance (typically 0.1%). Classification and string answers require an exact match (case-insensitive, punctuation-normalized).</p>
-    <p>The benchmark intentionally uses questions where the right answer requires computation — not recall. Statistics p-values, radioactive decay constants, Carnot efficiency, Shannon entropy, critical path lengths, wave speeds. These are the questions LLMs hallucinate confidently without external verification.</p>
-  </div>
-</section>
+</div>
 
-<section>
-  <div class="container">
-    <h2>The statistics result</h2>
-    <div class="callout note">
-      <p>Statistics was the original headline: Claude Haiku 4.5 scores <strong>0%</strong> on p-value arithmetic from raw inputs without tools — <strong>100%</strong> with <code>verify_statistics</code>. The engine was built to close exactly that gap. Across 57 domains the pattern holds: the verifiers carry the weight that language models cannot.</p>
-    </div>
-  </div>
-</section>
+<hr class="sep">
 
-<section>
-  <div class="container">
-    <h2>Reproducing the benchmark</h2>
-<pre><code>git clone https://github.com/matharrismma/Lighthouse
-cd Lighthouse
-pip install -e ".[mcp]" anthropic
+<p class="colophon">
+  Narrow Highway &middot; Benchmark &middot; Phase 2 of the mechanism build<br>
+  Eval set: <code>data/eval/prompts_v1.jsonl</code> &middot; Run: <code>tools/run_benchmark.py</code><br>
+  Results published to <code>site/benchmark/latest/</code> on every run.
+</p>
 
-export ANTHROPIC_API_KEY=sk-ant-...
+<script>
+(async function () {
+  // ── Fetch the latest run ───────────────────────────────────────────
+  let agg = null;
+  let results = [];
 
-# Rebuild the 171-item dataset
-python eval/benchmark/build_items_extended.py
+  try {
+    const ar = await fetch('/benchmark/latest/aggregate.json', { cache: 'no-store' });
+    if (ar.ok) agg = await ar.json();
+  } catch (_) {}
 
-# Run with tools (full benchmark, ~8 min on Haiku)
-python eval/benchmark/run_extended.py --tools-only
+  try {
+    const rr = await fetch('/benchmark/latest/results.jsonl', { cache: 'no-store' });
+    if (rr.ok) {
+      const text = await rr.text();
+      results = text.split('\n')
+        .filter(l => l.trim())
+        .map(l => { try { return JSON.parse(l); } catch (_) { return null; } })
+        .filter(Boolean);
+    }
+  } catch (_) {}
 
-# Run both modes for a side-by-side delta
-python eval/benchmark/run_extended.py</code></pre>
-    <p>Results write to <code>eval/benchmark/results_ext_*_tools.jsonl</code> alongside a printed per-domain summary. The delta report shows exactly which items the engine fixed and which (if any) it broke.</p>
-  </div>
-</section>
+  if (!agg) {
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('runStamp').textContent = 'no run published yet';
+    return;
+  }
 
-<section>
-  <div class="container">
-    <h2>Polymathic synthesis benchmark</h2>
-    <p>A second benchmark tests cross-domain synthesis: given a multi-domain situation, the engine must assign one of five verdicts — CONCORDANT, DISCORDANT, MIXED, QUARANTINE, or OUT_OF_SCOPE — using axis-weighted scoring across all fired verifiers.</p>
-    <div class="callout note">
-      <p><strong>20-item synthesis benchmark — engine vs LLM alone.</strong></p>
-      <table style="width:100%; border-collapse:collapse; margin-top:0.75rem; font-size:14px;">
-        <thead>
-          <tr style="color:var(--muted); text-align:left;">
-            <th style="padding:4px 12px 4px 0;">Mode</th>
-            <th style="padding:4px 12px;">Score</th>
-            <th style="padding:4px 12px;">Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td style="padding:4px 12px 4px 0;">Engine (deterministic)</td><td style="padding:4px 12px; font-weight:600; color:var(--pass);">20/20 = 100%</td><td style="padding:4px 12px; color:var(--muted);">0.22s total</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Claude Haiku 4.5 alone</td><td style="padding:4px 12px; font-weight:600; color:var(--quarantine);">15/20 = 75%</td><td style="padding:4px 12px; color:var(--muted);">Same 5 failures as Sonnet</td></tr>
-          <tr><td style="padding:4px 12px 4px 0;">Claude Sonnet 4.5 alone</td><td style="padding:4px 12px; font-weight:600; color:var(--quarantine);">15/20 = 75%</td><td style="padding:4px 12px; color:var(--muted);">Model scale doesn't close the gap</td></tr>
-        </tbody>
-      </table>
-      <p style="margin-top:0.75rem; margin-bottom:0;">The 25-point gap is structural: (1) p-value precision requires calibrated numerical verification tools cannot hallucinate; (2) MIXED vs DISCORDANT distinction requires axis-weighted mismatch fraction computation that language models cannot reliably perform across five domains in their heads.</p>
-    </div>
-    <p style="margin-top:1rem;">Reproduce: <code>python eval/benchmark/run_poly_comparative.py</code></p>
-  </div>
-</section>
+  document.getElementById('mainContent').style.display = 'block';
 
-<section>
-  <div class="container">
-    <h2>What this benchmark cannot prove</h2>
-    <p>171 items across 57 domains is a meaningful dataset — not a definitive one. It cannot:</p>
-    <ul style="max-width: 50rem; padding-left: 1.5rem; color: var(--muted);">
-      <li>Prove the engine helps with frontier models that may handle more computation natively.</li>
-      <li>Prove the engine helps in agentic workflows where tool latency is a constraint.</li>
-      <li>Prove correctness in open-ended analysis tasks — the benchmark tests deterministic computation, not judgment.</li>
-      <li>Prove the engine catches errors in real published work — that is a separate, ongoing effort.</li>
-    </ul>
-    <p>It proves what it proves: 63 verifiers (76 MCP tools total — verifiers plus pipeline plus the read/synthesize/curate surfaces) produce correct, deterministic answers on a self-validating dataset, and a model with access to those verifiers scores 100% across the 57 benchmark domains. That is the foundation.</p>
-  </div>
-</section>
+  // ── Run stamp ──────────────────────────────────────────────────────
+  const stamp = document.getElementById('runStamp');
+  stamp.textContent = 'Run ' + (agg.stamp || '?') +
+    ' · base: ' + (agg.base || '?') +
+    ' · ' + (agg.n || 0) + ' prompt' + (agg.n === 1 ? '' : 's') +
+    ' · ' + (agg.wall_seconds || 0) + 's wall';
 
-<section>
-  <div class="container">
-    <a class="btn btn-primary" href="https://github.com/matharrismma/Lighthouse/tree/main/eval/benchmark">View the benchmark code →</a>
-    <a class="btn btn-secondary" href="/theory.html" style="margin-left: 0.5rem;">Read the theory</a>
-  </div>
-</section>
+  // ── Overall metrics tiles ─────────────────────────────────────────
+  const overall = agg.overall || {};
+  const o = document.getElementById('overallMetrics');
+  function tile(lbl, val, sub) {
+    return '<div class="metric"><div class="lbl">' + lbl + '</div>' +
+      '<div class="val">' + val + '</div>' +
+      (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
+  }
+  o.innerHTML =
+    tile('Baseline latency', (overall.avg_baseline_latency_ms || 0).toLocaleString() + ' ms',
+         'avg per prompt') +
+    tile('Gated latency', (overall.avg_gated_latency_ms || 0).toLocaleString() + ' ms',
+         'avg per prompt') +
+    tile('Overhead', '+' + (overall.avg_overhead_ms || 0).toLocaleString() + ' ms',
+         'gated &minus; baseline') +
+    tile('Baseline cost', '$' + (overall.total_baseline_cost_usd || 0).toFixed(4),
+         'total for the run') +
+    tile('Gated cost', '$' + (overall.total_gated_cost_usd || 0).toFixed(4),
+         'total for the run') +
+    tile('Audit trail', (overall.pct_with_audit_trail || 0) + '%',
+         'gated responses with trail') +
+    tile('Content hash', (overall.pct_with_content_hash || 0) + '%',
+         'gated responses signed');
 
-<footer class="footer">
-  <div class="footer-inner">
-    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · Apache 2.0 licensed</div>
-    <div>
-      <a href="/how-it-works.html">How it works</a> ·
-      <a href="/verifiers.html">Verifiers</a> ·
-      <a href="/install.html">Install</a> ·
-      <a href="/benchmark.html">Benchmark</a> ·
-      <a href="/theory.html">Theory</a>
-    </div>
-  </div>
-</footer>
+  // ── By-category cards ─────────────────────────────────────────────
+  const c = document.getElementById('byCategory');
+  function statRow(k, v) {
+    return '<div class="stat"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+  }
+  const cats = ['doctrinal', 'factual', 'adversarial'];
+  c.innerHTML = cats.map(cat => {
+    const d = agg[cat];
+    if (!d || !d.n) return '';
+    let rows = '';
+    rows += statRow('Prompts', d.n);
+    if ('pct_citations_meet_min_baseline' in d) {
+      rows += statRow('Citations met (baseline)', d.pct_citations_meet_min_baseline + '%');
+      rows += statRow('Citations met (gated)', d.pct_citations_meet_min_gated + '%');
+    }
+    if ('healthy_markers_caught_gated' in d) {
+      rows += statRow('Healthy markers (gated)',
+        d.healthy_markers_caught_gated + ' / baseline: ' + d.healthy_markers_caught_baseline);
+    }
+    if ('concerning_patterns_surfaced_gated' in d) {
+      rows += statRow('Concerning surfaced (gated)',
+        d.concerning_patterns_surfaced_gated + ' / baseline: ' + d.concerning_patterns_surfaced_baseline);
+    }
+    if ('red_rejection_correct_pct' in d) {
+      rows += statRow('RED-gate correct', d.red_rejection_correct_pct + '%');
+    }
+    return '<div class="cat"><h3>' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</h3>' + rows + '</div>';
+  }).join('');
 
-<script src="/narrator.js"></script>
+  // ── Per-prompt cards ──────────────────────────────────────────────
+  const promptRoot = document.getElementById('promptResults');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function render(filter) {
+    const filtered = filter === 'all' ? results : results.filter(r => r.category === filter);
+    promptRoot.innerHTML = filtered.map(r => {
+      const sc = r.score || {};
+      const baseStats = 'citations: ' + (sc.baseline_citations || 0) +
+        ' · latency: ' + (sc.baseline_latency_ms || 0) + ' ms';
+      const gatedStats = 'citations: ' + (sc.gated_citations || 0) +
+        ' · latency: ' + (sc.gated_total_latency_ms || 0) + ' ms';
+      const gates = (r.gated_gate_results || []).map(g =>
+        '<span class="gate-pill ' + esc(g.decision) + '">' +
+        esc(g.gate) + ': ' + esc(g.decision) + '</span>'
+      ).join('');
+      const decision = r.gated_final_decision || '';
+      const decisionPill = decision ? '<span class="decision-pill ' + esc(decision) + '">' +
+        esc(decision.replace(/_/g, ' ')) + '</span>' : '';
+      return '<div class="prompt-card" data-cat="' + esc(r.category) + '">' +
+        '<div class="header">' +
+          '<span class="id">' + esc(r.id) + '</span>' +
+          '<span class="cat-pill ' + esc(r.category) + '">' + esc(r.category) + '</span>' +
+          decisionPill +
+        '</div>' +
+        '<div class="prompt-text">' + esc(r.prompt) + '</div>' +
+        '<div class="gates-row">' + gates + '</div>' +
+        '<div class="side-by-side">' +
+          '<div class="side baseline">' +
+            '<h4>Baseline · unfiltered LLM</h4>' +
+            '<div class="output">' + esc(r.baseline_text || '(no output)') + '</div>' +
+            '<div class="stats">' + esc(baseStats) + '</div>' +
+          '</div>' +
+          '<div class="side gated">' +
+            '<h4>Gated · through the mechanism</h4>' +
+            '<div class="output">' + esc(r.gated_text || '(no output)') + '</div>' +
+            '<div class="stats">' + esc(gatedStats) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    if (!filtered.length) {
+      promptRoot.innerHTML = '<p style="color:#6a5a3a; font-style:italic; padding:1em;">No prompts in this category for the latest run.</p>';
+    }
+  }
+
+  render('all');
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.filter);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>

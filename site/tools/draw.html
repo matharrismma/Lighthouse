@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drawing Pad — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 1100px; margin: 1em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  .toolbar { background:#fff; border:1px solid #d4c8a5; border-radius:6px; padding:0.6em; margin-bottom:0.5em; display:flex; flex-wrap:wrap; gap:0.5em; align-items:center; }
+  .toolbar label { color:#5c4a2a; font-size:0.92em; }
+  .toolbar input[type=color] { width:36px; height:32px; border:0; padding:0; cursor:pointer; }
+  .toolbar input[type=range] { width:140px; }
+  .toolbar button { font:inherit; padding:0.4em 0.8em; background:#1a3a52; color:#fff; border:0; border-radius:3px; cursor:pointer; }
+  .toolbar button.tool { background:#f0eada; color:#5c4a2a; border:1px solid #c9b48a; }
+  .toolbar button.tool.active { background:#1a3a52; color:#fff; }
+  .palette { display:flex; gap:3px; }
+  .swatch { width:24px; height:24px; border:1px solid #999; cursor:pointer; border-radius:3px; }
+  #canvas { background:#fff; border:2px solid #c9b48a; border-radius:4px; display:block; touch-action:none; cursor:crosshair; }
+</style>
+</head>
+<body>
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Drawing Pad</h1>
+
+<div class="toolbar">
+  <button class="tool active" data-tool="pen" onclick="setTool('pen')">✏️ Pen</button>
+  <button class="tool" data-tool="eraser" onclick="setTool('eraser')">🧽 Eraser</button>
+  <button class="tool" data-tool="line" onclick="setTool('line')">📏 Line</button>
+  <button class="tool" data-tool="rect" onclick="setTool('rect')">▭ Rect</button>
+  <button class="tool" data-tool="circle" onclick="setTool('circle')">○ Circle</button>
+  <span style="border-left:1px solid #c9b48a; padding-left:0.5em">
+    <label>Size:</label> <input type="range" min="1" max="60" value="4" id="size" oninput="updateSize()">
+    <span id="sizeVal">4</span>px
+  </span>
+  <span style="border-left:1px solid #c9b48a; padding-left:0.5em">
+    <label>Color:</label> <input type="color" value="#1a3a52" id="color">
+  </span>
+  <div class="palette">
+    <div class="swatch" style="background:#000" onclick="setColor('#000000')"></div>
+    <div class="swatch" style="background:#b03020" onclick="setColor('#b03020')"></div>
+    <div class="swatch" style="background:#1a3a52" onclick="setColor('#1a3a52')"></div>
+    <div class="swatch" style="background:#5c8a3a" onclick="setColor('#5c8a3a')"></div>
+    <div class="swatch" style="background:#d4a04e" onclick="setColor('#d4a04e')"></div>
+    <div class="swatch" style="background:#8a3aa8" onclick="setColor('#8a3aa8')"></div>
+  </div>
+  <button onclick="undo()">↶ Undo</button>
+  <button onclick="clearCanvas()" style="background:#b03020">Clear</button>
+  <button onclick="download()">💾 Save PNG</button>
+</div>
+
+<canvas id="canvas" width="1024" height="640"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  let tool = 'pen', drawing = false, lastX = 0, lastY = 0, startX = 0, startY = 0;
+  let snapshot = null;
+  const history = [];
+
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll('button[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+  }
+  function setColor(c) { document.getElementById('color').value = c; }
+  function updateSize() { document.getElementById('sizeVal').textContent = document.getElementById('size').value; }
+  function pushHistory() {
+    if (history.length >= 30) history.shift();
+    history.push(canvas.toDataURL());
+  }
+  function undo() {
+    if (history.length < 2) { clearCanvas(); return; }
+    history.pop();
+    const img = new Image();
+    img.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); };
+    img.src = history[history.length - 1];
+  }
+  function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); pushHistory(); }
+  function download() {
+    const a = document.createElement('a');
+    a.download = 'drawing.png';
+    a.href = canvas.toDataURL();
+    a.click();
+  }
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX ?? e.touches?.[0]?.clientX) - rect.left) * (canvas.width / rect.width);
+    const y = ((e.clientY ?? e.touches?.[0]?.clientY) - rect.top) * (canvas.height / rect.height);
+    return [x, y];
+  }
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    [startX, startY] = [lastX, lastY] = getPos(e);
+    if (tool === 'line' || tool === 'rect' || tool === 'circle') {
+      snapshot = ctx.getImageData(0,0,canvas.width,canvas.height);
+    }
+  }
+  function move(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const [x, y] = getPos(e);
+    ctx.strokeStyle = document.getElementById('color').value;
+    ctx.lineWidth = +document.getElementById('size').value;
+    if (tool === 'pen') {
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.stroke();
+    } else if (tool === 'eraser') {
+      ctx.save(); ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.lineWidth *= 2; ctx.stroke();
+      ctx.restore();
+    } else if (tool === 'line') {
+      ctx.putImageData(snapshot, 0, 0);
+      ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(x, y); ctx.stroke();
+    } else if (tool === 'rect') {
+      ctx.putImageData(snapshot, 0, 0);
+      ctx.strokeRect(startX, startY, x - startX, y - startY);
+    } else if (tool === 'circle') {
+      ctx.putImageData(snapshot, 0, 0);
+      const r = Math.hypot(x - startX, y - startY);
+      ctx.beginPath(); ctx.arc(startX, startY, r, 0, Math.PI * 2); ctx.stroke();
+    }
+    [lastX, lastY] = [x, y];
+  }
+  function stop() {
+    if (drawing) { drawing = false; pushHistory(); }
+  }
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', stop);
+  canvas.addEventListener('mouseleave', stop);
+  canvas.addEventListener('touchstart', start);
+  canvas.addEventListener('touchmove', move);
+  canvas.addEventListener('touchend', stop);
+  pushHistory();
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

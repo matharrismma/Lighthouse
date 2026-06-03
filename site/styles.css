@@ -541,3 +541,81 @@ section:last-of-type { border-bottom: none; }
   color: #1a1208 !important;
   border-color: var(--accent) !important;
 }
+
+/* ── Almanac trio tabs — Kept / Promoted / Flagged ───────────────
+   Shared by almanac.html, receipts.html, misalignments.html so the
+   three feel like one lens with three views. */
+.almanac-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 6px 0 22px;
+}
+.alm-tab {
+  display: inline-flex; flex-direction: column;
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border-hi);
+  background: var(--surface);
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: inherit;
+  transition: all 0.15s;
+  min-width: 150px;
+}
+.alm-tab .alm-tab-label {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.alm-tab .alm-tab-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.alm-tab:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+.alm-tab.active {
+  background: rgba(217,168,114,0.12);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+.alm-tab.active .alm-tab-meta { color: var(--accent); }
+
+/* ── "A tool the Shepherd uses" strip ─────────────────────────────
+   Sits at the top of every lens page to reinforce the OS-and-tools
+   metaphor: the Shepherd is the OS; this lens is one of the tools
+   he reaches into when you ask him a question. */
+.tool-strip {
+  max-width: 1080px; margin: 12px auto 0;
+  padding: 9px 18px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.tool-strip-label {
+  color: var(--muted);
+}
+.tool-strip-label b {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+.tool-strip-link {
+  margin-left: auto;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent);
+  padding-bottom: 1px;
+  letter-spacing: 0.12em;
+}
+.tool-strip-link:hover { color: var(--accent-hi); }

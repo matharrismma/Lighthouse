@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.encyclopedia.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Encyclopedia — A Curated A–Z Reference · Narrow Highway</title>
+  <meta name="description" content="The reference lens on the Concordance. Every packet — almanac entries, archetypes, protocols, FieldKit cards, sealed records — addressable A–Z by title.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Encyclopedia — A Curated A–Z Reference">
+  <meta property="og:description" content="Every packet across every substrate, addressable by title from A to Z.">
+  <meta property="og:url" content="https://narrowhighway.com/encyclopedia.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/encyclopedia.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .ec-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .ec-intro em { color: var(--accent); font-style: italic; }
+    .ec-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ec-search {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.2s;
+      margin-bottom: 16px;
+    }
+    .ec-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,168,124,0.08);
+    }
+
+    .ec-letters {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin: 0 0 24px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      position: sticky;
+      top: 60px;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+    .ec-letters a {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.12s;
+    }
+    .ec-letters a:hover { color: var(--accent); background: rgba(201,168,124,0.06); }
+    .ec-letters a.has-entries {
+      color: var(--text-dim);
+      background: rgba(201,168,124,0.03);
+    }
+    .ec-letters a.has-entries:hover {
+      color: var(--accent);
+      background: rgba(201,168,124,0.14);
+    }
+    .ec-letters a.empty {
+      color: var(--muted-2);
+      opacity: 0.4;
+    }
+
+    .ec-section {
+      margin: 26px 0 32px;
+      scroll-margin-top: 130px;
+    }
+    .ec-letter-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 12px;
+    }
+    .ec-letter-header .ct {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 10px;
+    }
+
+    .ec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 8px;
+    }
+    .ec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.12s;
+      display: flex; flex-direction: column;
+      gap: 4px;
+    }
+    .ec-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .ec-card.k-almanac        { border-left-color: var(--accent); }
+    .ec-card.k-sealed_poly    { border-left-color: var(--pass); }
+    .ec-card.k-fieldkit_card  { border-left-color: #e3c498; }
+    .ec-card.k-protocol       { border-left-color: #7fa8c0; }
+    .ec-card.k-archetype      { border-left-color: #b88ed6; }
+    .ec-card.k-misalignment   { border-left-color: var(--hold); }
+    .ec-card.k-build_queue    { border-left-color: var(--muted-2); }
+    .ec-card.k-receipt        { border-left-color: var(--pass); }
+    .ec-card .ec-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .ec-card .ec-meta {
+      display: flex; gap: 6px; align-items: baseline;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .ec-card .ec-meta .kind { text-transform: uppercase; letter-spacing: 0.12em; }
+    .ec-card.k-almanac        .ec-meta .kind { color: var(--accent); }
+    .ec-card.k-sealed_poly    .ec-meta .kind { color: var(--pass); }
+    .ec-card.k-fieldkit_card  .ec-meta .kind { color: #e3c498; }
+    .ec-card.k-protocol       .ec-meta .kind { color: #7fa8c0; }
+    .ec-card.k-archetype      .ec-meta .kind { color: #b88ed6; }
+    .ec-card.k-misalignment   .ec-meta .kind { color: var(--hold); }
+    .ec-card.k-receipt        .ec-meta .kind { color: var(--pass); }
+    .ec-card .ec-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height: 1.45;
+      margin-top: 2px;
+      max-height: 2.9em;
+      overflow: hidden;
+    }
+
+    .ec-stats-row {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+    .ec-stats-row b { color: var(--accent); font-weight: 600; }
+
+    .ec-empty {
+      color: var(--muted-2);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14.5px;
+      padding: 20px 0;
+      text-align: center;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/encyclopedia.html",
+  "name": "Encyclopedia — A Curated A–Z Reference · Narrow Highway",
+  "description": "The reference lens on the Concordance. Every packet — almanac entries, archetypes, protocols, FieldKit cards, sealed records — addressable A–Z by title.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "DefinedTermSet"
+  },
+  "keywords": "Christian encyclopedia, Easton's Bible Dictionary, public domain reference"
+}
+</script>
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Encyclopedia · a reference lens</div>
+    <h1 data-i18n="page.encyclopedia.h1">The Encyclopedia.</h1>
+    <p class="ec-intro">
+      One Concordance, many lenses. <b>The Encyclopedia</b> is the reference lens —
+      every packet across every substrate, addressable <em>A to Z by title</em>.
+      Almanac entries, archetypes, protocols, FieldKit cards, sealed precedents —
+      same body of knowledge, indexed for look-up.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the A&ndash;Z tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar"><span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html">Atlas</a><a href="/encyclopedia.html" class="active">Encyclopedia</a><a href="/chronicle.html">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html">Shepherd</a><a href="/packets.html">Index</a></div>
+
+  <input type="text" id="ec-search" class="ec-search" placeholder="Search every packet by title…" autocomplete="off">
+
+  <div id="ec-stats" class="ec-stats-row"></div>
+
+  <div id="ec-letters" class="ec-letters"></div>
+
+  <div id="ec-content">
+    <div class="ec-empty">Loading the encyclopedia…</div>
+  </div>
+
+</main>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // Only show public-readable kinds by default; misalignment & build_queue are operator
+  const PUBLIC_KINDS = 'almanac,protocol,archetype,fieldkit_card,sealed_poly,receipt';
+
+  const ALPHABET = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  let ALL_PACKETS = [];
+  let CURRENT_FILTER = '';
+
+  function firstLetter(title) {
+    if (!title) return '#';
+    const t = title.trim().replace(/^["'"'"]+/, '');
+    const c = (t[0] || '#').toUpperCase();
+    return /[A-Z]/.test(c) ? c : '#';
+  }
+
+  function renderLetters(buckets) {
+    const links = ALPHABET.map(L => {
+      const n = (buckets[L] || []).length;
+      const cls = n > 0 ? 'has-entries' : 'empty';
+      const href = n > 0 ? `#letter-${L}` : '#';
+      return `<a href="${href}" class="${cls}" title="${n} entries">${L}</a>`;
+    });
+    // # bucket
+    const numN = (buckets['#'] || []).length;
+    links.push(`<a href="${numN > 0 ? '#letter-other' : '#'}" class="${numN > 0 ? 'has-entries' : 'empty'}" title="${numN} other entries">#</a>`);
+    document.getElementById('ec-letters').innerHTML = links.join('');
+  }
+
+  function renderContent(buckets) {
+    let html = '';
+    const allLetters = [...ALPHABET, '#'];
+    for (const L of allLetters) {
+      const items = buckets[L] || [];
+      if (!items.length) continue;
+      const slug = L === '#' ? 'other' : L;
+      html += `<section class="ec-section" id="letter-${slug}">`;
+      html += `<h2 class="ec-letter-header">${esc(L)}<span class="ct">${items.length} entr${items.length === 1 ? 'y' : 'ies'}</span></h2>`;
+      html += '<div class="ec-grid">';
+      for (const p of items) {
+        const kind = (p.kind || '').toLowerCase();
+        const summary = p.summary ? `<div class="ec-summary">${esc(p.summary)}</div>` : '';
+        const verdict = p.verdict ? `· <span style="color:var(--text-dim)">${esc(p.verdict)}</span>` : '';
+        html += `
+          <a class="ec-card k-${esc(kind)}" href="${esc(p.permalink || '#')}">
+            <div class="ec-title">${esc(p.title || p.id || '(untitled)')}</div>
+            <div class="ec-meta"><span class="kind">${esc(kind.replace(/_/g,' '))}</span> ${verdict}</div>
+            ${summary}
+          </a>`;
+      }
+      html += '</div></section>';
+    }
+    document.getElementById('ec-content').innerHTML = html || '<div class="ec-empty">No matches.</div>';
+  }
+
+  function filterAndRender() {
+    const q = CURRENT_FILTER.trim().toLowerCase();
+    const matched = q
+      ? ALL_PACKETS.filter(p =>
+          (p.title || '').toLowerCase().includes(q) ||
+          (p.id || '').toLowerCase().includes(q) ||
+          (p.summary || '').toLowerCase().includes(q))
+      : ALL_PACKETS;
+
+    const buckets = {};
+    for (const p of matched) {
+      const L = firstLetter(p.title || p.id);
+      buckets[L] ||= [];
+      buckets[L].push(p);
+    }
+    // Sort each bucket alphabetically
+    for (const L of Object.keys(buckets)) {
+      buckets[L].sort((a, b) => (a.title || a.id || '').toLowerCase().localeCompare((b.title || b.id || '').toLowerCase()));
+    }
+
+    renderLetters(buckets);
+    renderContent(buckets);
+
+    // Stats
+    const kindCounts = {};
+    for (const p of matched) {
+      kindCounts[p.kind] = (kindCounts[p.kind] || 0) + 1;
+    }
+    const kindLine = Object.entries(kindCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, n]) => `${esc(k.replace(/_/g,' '))} <b>${n}</b>`)
+      .join('  ·  ');
+    document.getElementById('ec-stats').innerHTML =
+      `<span><b>${matched.length}</b> entries${q ? ` matching "${esc(CURRENT_FILTER)}"` : ''}</span>${kindLine ? `<span>${kindLine}</span>` : ''}`;
+  }
+
+  async function load() {
+    try {
+      const r = await fetch(API + '/index/packets/list?kinds=' + encodeURIComponent(PUBLIC_KINDS), {cache: 'no-store'});
+      if (!r.ok) throw new Error('engine ' + r.status);
+      const d = await r.json();
+      ALL_PACKETS = d.packets || [];
+      filterAndRender();
+    } catch (err) {
+      document.getElementById('ec-content').innerHTML = `<div class="ec-empty">Engine is offline (${esc(err.message)}). Try again when /health returns.</div>`;
+    }
+  }
+
+  // Search wiring with mild debounce
+  let searchTimer = null;
+  document.getElementById('ec-search').addEventListener('input', (e) => {
+    CURRENT_FILTER = e.target.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(filterAndRender, 120);
+  });
+
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

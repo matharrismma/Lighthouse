@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.packets.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Packets · The keeping, indexed · Concordance Engine</title>
+  <meta name="description" content="Every packet across every substrate — almanac entries, sealed polymathic records, protocols, archetypes, FieldKit cards, misalignments, receipts — retrievable by domain or by axis. The wisdom is at the intersections.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Packets · The keeping, indexed">
+  <meta property="og:description" content="Every packet across every substrate, retrievable by domain or axis. The wisdom is at the intersections.">
+  <meta property="og:url" content="https://narrowhighway.com/packets.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/packets.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .pk-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .pk-intro em { color: var(--accent); font-style: italic; }
+
+    .pk-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 20px 0 28px;
+    }
+    .pk-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .pk-stat .num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+    .pk-stat .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Cross-lens search */
+    .pk-search-row {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin: 0 0 18px;
+    }
+    .pk-search {
+      flex: 1; min-width: 260px;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.4;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .pk-search:focus { border-color: var(--accent); }
+    .pk-search::placeholder { color: var(--muted-2); font-style: italic; }
+    .pk-search-clear {
+      background: none; border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .pk-search-clear:hover { color: var(--accent); border-color: var(--accent); }
+    .pk-search-hint {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      font-size: 12.5px;
+      width: 100%;
+    }
+    .pk-card .score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+    .pk-card .score b { color: var(--accent); }
+
+    .pk-tabs {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+    }
+    .pk-tab {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.12s;
+    }
+    .pk-tab:hover { color: var(--text); }
+    .pk-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .pk-selector {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin: 14px 0 22px;
+    }
+    .pk-chip {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .pk-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .pk-chip.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .pk-chip .ct {
+      color: var(--muted);
+      margin-left: 6px;
+      font-size: 10px;
+    }
+    .pk-chip.active .ct { color: rgba(26,18,8,0.6); }
+
+    .pk-results-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 18px 0 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .pk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .pk-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: var(--r);
+      padding: 14px 16px 12px;
+      transition: border-color 0.12s, transform 0.12s;
+      text-decoration: none;
+      color: inherit;
+      display: flex; flex-direction: column;
+      gap: 8px;
+    }
+    .pk-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .pk-card .kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .pk-card .kind.almanac        { color: var(--accent); }
+    .pk-card .kind.sealed_poly    { color: var(--pass); }
+    .pk-card .kind.fieldkit_card  { color: #e3c498; }
+    .pk-card .kind.protocol       { color: #7fa8c0; }
+    .pk-card .kind.archetype      { color: #b88ed6; }
+    .pk-card .kind.misalignment   { color: var(--hold); }
+    .pk-card .kind.build_queue    { color: var(--muted-2); }
+    .pk-card .kind.receipt        { color: var(--pass); }
+    .pk-card.kind-almanac        { border-left-color: var(--accent); }
+    .pk-card.kind-sealed_poly    { border-left-color: var(--pass); }
+    .pk-card.kind-fieldkit_card  { border-left-color: #e3c498; }
+    .pk-card.kind-protocol       { border-left-color: #7fa8c0; }
+    .pk-card.kind-archetype      { border-left-color: #b88ed6; }
+    .pk-card.kind-misalignment   { border-left-color: var(--hold); }
+    .pk-card.kind-build_queue    { border-left-color: var(--muted-2); }
+    .pk-card.kind-receipt        { border-left-color: var(--pass); }
+    .pk-card .title {
+      font-family: 'Inter', sans-serif;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .pk-card .summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .pk-card .verdict {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hi);
+      align-self: flex-start;
+    }
+    .pk-card .verdict.CONFIRMED, .pk-card .verdict.CONCORDANT { color: var(--pass); border-color: rgba(111,196,124,0.35); background: rgba(111,196,124,0.06); }
+    .pk-card .verdict.MISMATCH, .pk-card .verdict.DISCORDANT  { color: var(--fail); border-color: rgba(201,108,108,0.35); background: rgba(201,108,108,0.06); }
+    .pk-card .verdict.MIXED, .pk-card .verdict.PENDING        { color: var(--hold); border-color: rgba(196,160,48,0.35); background: rgba(196,160,48,0.06); }
+    .pk-card .verdict.OBSOLETE                                 { color: var(--muted); border-color: var(--border); }
+    .pk-card .axes {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin-top: 2px;
+    }
+    .pk-card .ax {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      color: var(--muted);
+      padding: 2px 7px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+    .pk-card .doms {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .pk-card .dm {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      color: var(--accent);
+      padding: 2px 7px;
+      border-radius: 9px;
+      background: rgba(217,168,114,0.06);
+      border: 1px solid rgba(217,168,114,0.2);
+    }
+    .pk-empty {
+      color: var(--muted-2);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 14.5px;
+      padding: 20px 0;
+    }
+  
+    /* Lens chrome — every lens page surfaces the other lenses */
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      max-width: var(--maxw, 1080px);
+      margin-left: auto; margin-right: auto;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+</style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+<div class="lens-bar" style="margin: 0 auto; max-width: 1080px; margin-top: 14px;"><span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html">Atlas</a><a href="/encyclopedia.html">Encyclopedia</a><a href="/chronicle.html">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html">Shepherd</a><a href="/packets.html" class="active">Index</a></div>
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The keeping, indexed</div>
+    <h1 data-i18n="page.packets.h1">Packets.</h1>
+    <p class="pk-intro">
+      Every packet across every substrate — <em>almanac</em> entries, <em>sealed polymathic</em>
+      records, <em>Scripture protocols</em>, <em>archetypes</em>, <em>FieldKit</em> cards,
+      <em>misalignments</em>, <em>build queue</em>, <em>receipts</em> — retrievable by
+      verifier domain or by axis. The wisdom is at the intersections; this is how
+      you walk them.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the packet index</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div id="pk-stats" class="pk-stats"></div>
+
+  <div class="pk-search-row">
+    <input id="pk-search" class="pk-search" type="search"
+      placeholder="Search across every packet — try 'forgive', 'witness', 'six sigma', 'wait'…"
+      autocomplete="off" spellcheck="false">
+    <button id="pk-search-clear" class="pk-search-clear" type="button" style="display:none;">Clear</button>
+    <div class="pk-search-hint">One field across every lens. Cards link to the lens that holds the packet.</div>
+  </div>
+
+  <div class="pk-tabs" id="pk-tabs">
+    <button class="pk-tab active" data-tab="kind">By kind</button>
+    <button class="pk-tab" data-tab="axis">By axis</button>
+    <button class="pk-tab" data-tab="domain">By domain</button>
+  </div>
+
+  <div id="pk-selector" class="pk-selector"></div>
+  <div id="pk-header" class="pk-results-header"></div>
+  <div id="pk-results" class="pk-grid">
+    <div class="pk-empty">Loading…</div>
+  </div>
+
+</main>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  let SUMMARY = null;
+  let ACTIVE_TAB = 'kind';
+  let ACTIVE_KEY = null;
+
+  function renderStats(d) {
+    const stats = [
+      ['Total', d.total_packets],
+      ['Kinds', Object.keys(d.by_kind || {}).length],
+      ['Axes touched', Object.keys(d.by_axis || {}).length],
+      ['Domains touched', Object.keys(d.by_domain || {}).length],
+    ];
+    $('pk-stats').innerHTML = stats.map(([lbl, n]) =>
+      `<div class="pk-stat"><div class="num">${esc(String(n ?? '—'))}</div><div class="lbl">${esc(lbl)}</div></div>`
+    ).join('');
+  }
+
+  function renderSelector(tab) {
+    if (!SUMMARY) return;
+    let entries = [];
+    if (tab === 'kind')   entries = Object.entries(SUMMARY.by_kind || {});
+    if (tab === 'axis')   entries = Object.entries(SUMMARY.by_axis || {});
+    if (tab === 'domain') entries = Object.entries(SUMMARY.by_domain || {});
+    if (!entries.length) {
+      $('pk-selector').innerHTML = '<div class="pk-empty">Nothing yet.</div>';
+      return;
+    }
+    $('pk-selector').innerHTML = entries.map(([k, n]) =>
+      `<button class="pk-chip" data-key="${esc(k)}">${esc(k.replace(/_/g, ' '))} <span class="ct">${esc(String(n))}</span></button>`
+    ).join('');
+    $('pk-selector').querySelectorAll('.pk-chip').forEach(c => {
+      c.addEventListener('click', () => { ACTIVE_KEY = c.dataset.key; renderActive(); });
+    });
+    if (!ACTIVE_KEY && entries.length) ACTIVE_KEY = entries[0][0];
+  }
+
+  function renderCard(p) {
+    const kind = (p.kind || 'unknown').toLowerCase();
+    const verdict = p.verdict ? `<span class="verdict ${esc(p.verdict)}">${esc(p.verdict)}</span>` : '';
+    const axes = (p.axes || []).map(a => `<span class="ax">${esc(a.replace(/_/g,' '))}</span>`).join('');
+    const doms = (p.domains || []).map(d => `<span class="dm">${esc(d)}</span>`).join('');
+    const summary = p.summary ? `<div class="summary">${esc(p.summary)}</div>` : '';
+    return `
+      <a class="pk-card kind-${esc(kind)}" href="${esc(p.permalink || '#')}">
+        <span class="kind ${esc(kind)}">${esc(kind.replace(/_/g,' '))}</span>
+        <div class="title">${esc(p.title || p.id || '(untitled)')}</div>
+        ${summary}
+        ${verdict}
+        ${doms ? `<div class="doms">${doms}</div>` : ''}
+        ${axes ? `<div class="axes">${axes}</div>` : ''}
+      </a>`;
+  }
+
+  async function renderActive() {
+    document.querySelectorAll('#pk-selector .pk-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.key === ACTIVE_KEY);
+    });
+    if (!ACTIVE_KEY) return;
+    const tabLabel = {kind:'kind', axis:'axis', domain:'domain'}[ACTIVE_TAB];
+    $('pk-header').textContent = `${tabLabel}: ${ACTIVE_KEY.replace(/_/g, ' ')}`;
+    $('pk-results').innerHTML = '<div class="pk-empty">Loading…</div>';
+    let url;
+    if (ACTIVE_TAB === 'kind')   url = '/index/packets/by-kind/'   + encodeURIComponent(ACTIVE_KEY);
+    if (ACTIVE_TAB === 'axis')   url = '/index/packets/by-axis/'   + encodeURIComponent(ACTIVE_KEY);
+    if (ACTIVE_TAB === 'domain') url = '/index/packets/by-domain/' + encodeURIComponent(ACTIVE_KEY);
+    try {
+      const r = await fetch(API + url, {cache: 'no-store'});
+      if (!r.ok) throw new Error('engine ' + r.status);
+      const d = await r.json();
+      const packets = d.packets || [];
+      if (!packets.length) {
+        $('pk-results').innerHTML = '<div class="pk-empty">No packets here yet.</div>';
+        return;
+      }
+      $('pk-header').textContent = `${tabLabel}: ${ACTIVE_KEY.replace(/_/g,' ')} · ${packets.length} packet${packets.length===1?'':'s'}`;
+      $('pk-results').innerHTML = packets.map(renderCard).join('');
+    } catch (err) {
+      $('pk-results').innerHTML = `<div class="pk-empty">Lookup failed: ${esc(err.message)}</div>`;
+    }
+  }
+
+  // Tab clicks
+  document.querySelectorAll('.pk-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.pk-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      ACTIVE_TAB = t.dataset.tab;
+      ACTIVE_KEY = null;
+      renderSelector(ACTIVE_TAB);
+      renderActive();
+    });
+  });
+
+  /* ── Cross-lens search ── */
+  let SEARCH_MODE = false;
+  let SEARCH_TIMER = null;
+
+  function renderSearchCard(p) {
+    const kind = (p.kind || 'unknown').toLowerCase();
+    const verdict = p.verdict ? `<span class="verdict ${esc(p.verdict)}">${esc(p.verdict)}</span>` : '';
+    const axes = (p.axes || []).map(a => `<span class="ax">${esc(a.replace(/_/g,' '))}</span>`).join('');
+    const doms = (p.domains || []).map(d => `<span class="dm">${esc(d)}</span>`).join('');
+    const summary = p.summary ? `<div class="summary">${esc(p.summary)}</div>` : '';
+    const score = (p.score != null)
+      ? `<div class="score"><b>${esc(String(p.score))}</b> · ${esc((p.match_in || []).join(', '))}</div>` : '';
+    return `
+      <a class="pk-card kind-${esc(kind)}" href="${esc(p.permalink || '#')}">
+        <span class="kind ${esc(kind)}">${esc(kind.replace(/_/g,' '))}</span>
+        <div class="title">${esc(p.title || p.id || '(untitled)')}</div>
+        ${summary}
+        ${verdict}
+        ${doms ? `<div class="doms">${doms}</div>` : ''}
+        ${axes ? `<div class="axes">${axes}</div>` : ''}
+        ${score}
+      </a>`;
+  }
+
+  async function runSearch(q) {
+    if (!q || !q.trim()) {
+      exitSearchMode();
+      return;
+    }
+    SEARCH_MODE = true;
+    $('pk-tabs').style.display = 'none';
+    $('pk-selector').style.display = 'none';
+    $('pk-header').textContent = `Searching for "${q.trim()}"…`;
+    $('pk-results').innerHTML = '<div class="pk-empty">Searching…</div>';
+    $('pk-search-clear').style.display = 'inline-block';
+    try {
+      const r = await fetch(API + '/index/packets/search?q=' + encodeURIComponent(q.trim()) + '&limit=80', {cache:'no-store'});
+      if (!r.ok) throw new Error('engine ' + r.status);
+      const d = await r.json();
+      const packets = d.packets || [];
+      if (!packets.length) {
+        $('pk-header').textContent = `0 results for "${q.trim()}"`;
+        $('pk-results').innerHTML = '<div class="pk-empty">Nothing in the substrate matched that. Try a broader term, a single keyword, or a domain name.</div>';
+        return;
+      }
+      $('pk-header').textContent = `${packets.length} result${packets.length===1?'':'s'} for "${q.trim()}"`;
+      $('pk-results').innerHTML = packets.map(renderSearchCard).join('');
+    } catch (err) {
+      $('pk-results').innerHTML = `<div class="pk-empty">Search failed: ${esc(err.message)}</div>`;
+    }
+  }
+
+  function exitSearchMode() {
+    SEARCH_MODE = false;
+    $('pk-tabs').style.display = '';
+    $('pk-selector').style.display = '';
+    $('pk-search').value = '';
+    $('pk-search-clear').style.display = 'none';
+    if (history.replaceState) history.replaceState({}, '', location.pathname);
+    if (!ACTIVE_KEY) ACTIVE_KEY = null;
+    renderSelector(ACTIVE_TAB);
+    renderActive();
+  }
+
+  $('pk-search').addEventListener('input', (e) => {
+    if (SEARCH_TIMER) clearTimeout(SEARCH_TIMER);
+    SEARCH_TIMER = setTimeout(() => {
+      const q = e.target.value;
+      if (q && q.trim()) {
+        if (history.replaceState) history.replaceState({}, '', location.pathname + '?q=' + encodeURIComponent(q.trim()));
+      }
+      runSearch(q);
+    }, 250);
+  });
+  $('pk-search').addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') exitSearchMode();
+  });
+  $('pk-search-clear').addEventListener('click', exitSearchMode);
+
+  // Read ?q=X (search) or ?axis=X / ?domain=X / ?kind=X from URL on load
+  function readURLState() {
+    const params = new URLSearchParams(location.search);
+    const q = (params.get('q') || '').trim();
+    if (q) {
+      $('pk-search').value = q;
+      return { mode: 'search', q };
+    }
+    for (const k of ['kind', 'axis', 'domain']) {
+      if (params.has(k)) {
+        ACTIVE_TAB = k;
+        ACTIVE_KEY = params.get(k);
+        document.querySelectorAll('.pk-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === k));
+        return { mode: 'tabs' };
+      }
+    }
+    return { mode: 'tabs' };
+  }
+
+  async function load() {
+    try {
+      const r = await fetch(API + '/index/packets', {cache: 'no-store'});
+      if (!r.ok) throw new Error('engine ' + r.status);
+      SUMMARY = await r.json();
+      renderStats(SUMMARY);
+      const state = readURLState();
+      if (state && state.mode === 'search') {
+        runSearch(state.q);
+      } else {
+        renderSelector(ACTIVE_TAB);
+        renderActive();
+      }
+    } catch (err) {
+      $('pk-results').innerHTML = `<div class="pk-empty">Engine is offline. Try again when /health returns.</div>`;
+    }
+  }
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

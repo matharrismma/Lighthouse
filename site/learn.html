@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learn · Narrow Highway</title>
+  <meta name="description" content="Homeschool on the Narrow Highway. Visible learning pathways from the basics of phonics upward — taught along the way with parable, mnemonic, and Scripture.">
+  <link rel="canonical" href="https://narrowhighway.com/learn.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Learn · Narrow Highway">
+  <meta property="og:description" content="Homeschool on the Narrow Highway. Visible learning pathways from the basics of phonics upward — taught along the way with parable, mnemonic, and Scripture.">
+  <meta property="og:url" content="https://narrowhighway.com/learn.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Learn · Narrow Highway">
+  <meta name="twitter:description" content="Homeschool on the Narrow Highway. Visible learning pathways from the basics of phonics upward — taught along the way with parable, mnemonic, and Scripture.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    .ln-wrap{max-width:1000px;margin:0 auto;padding:0 1rem 3rem;}
+    /* Cornerstone hero */
+    .ln-hero{background:linear-gradient(160deg,#fbf4e8 0%,#f2ead9 100%);border:1px solid #e5d9c4;border-radius:14px;padding:1.6rem 1.5rem;margin:1.4rem 0;}
+    .ln-hero h1{font-size:1.9rem;color:#3a2f24;margin:.1rem 0 .4rem;}
+    .ln-verse{font-style:italic;color:#6e5d49;line-height:1.6;max-width:680px;margin:.2rem 0 .5rem;}
+    .ln-verse cite{display:block;font-style:normal;font-size:.82rem;color:#a08864;margin-top:.25rem;letter-spacing:.03em;}
+    .ln-lead{color:#5a4937;line-height:1.55;max-width:680px;margin:.6rem 0 0;}
+    .ln-glyph-row{font-size:1.5rem;letter-spacing:.35rem;margin:.7rem 0 0;}
+
+    .ln-stage{margin:2rem 0 .5rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:#a08864;border-bottom:1px solid #ece1cc;padding-bottom:.3rem;}
+    .ln-decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.85rem;margin:.8rem 0;}
+    .ln-deck{background:#fff;border:1px solid #e5d9c4;border-radius:11px;padding:.9rem 1rem;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s;position:relative;}
+    .ln-deck:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.07);border-color:#c9a87c;}
+    .ln-deck .dg{font-size:1.7rem;}
+    .ln-deck h3{margin:.35rem 0 .15rem;font-size:1.08rem;color:#3a2f24;}
+    .ln-deck .dmeta{font-size:.78rem;color:#9b8e78;}
+    .ln-deck .dmnem{font-size:.82rem;color:#7a6a52;margin-top:.4rem;line-height:1.4;font-style:italic;}
+    .ln-deck .start{position:absolute;top:.7rem;right:.7rem;background:#3f7a4d;color:#fff;font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;padding:.12rem .45rem;border-radius:999px;}
+    .ln-deck .prog{height:5px;border-radius:999px;background:#ece1cc;margin-top:.55rem;overflow:hidden;}
+    .ln-deck .prog i{display:block;height:100%;background:#3f7a4d;width:0;transition:width .4s;}
+
+    /* Pathway (the visible sequence) */
+    .ln-path{margin:1.4rem 0;background:#fff;border:1px solid #e5d9c4;border-radius:12px;padding:1.1rem 1.2rem;display:none;}
+    .ln-path.open{display:block;}
+    .ln-path-head{display:flex;align-items:flex-start;gap:.8rem;}
+    .ln-path-head .pg{font-size:2rem;line-height:1;}
+    .ln-path-head h2{margin:.1rem 0 .1rem;font-size:1.35rem;color:#3a2f24;}
+    .ln-path-head .psub{color:#9b8e78;font-size:.85rem;}
+    .ln-path-close{margin-left:auto;cursor:pointer;color:#a08864;font-size:1.3rem;line-height:1;background:none;border:none;}
+    .ln-parable{background:rgba(201,168,124,.10);border-left:3px solid #c9a87c;border-radius:0 8px 8px 0;padding:.7rem .9rem;margin:.8rem 0 1rem;}
+    .ln-parable .pm{font-weight:600;color:#5a4937;font-size:.92rem;}
+    .ln-parable .pt{color:#5a4937;line-height:1.55;font-size:.9rem;margin:.35rem 0 .25rem;}
+    .ln-parable cite{font-style:normal;font-size:.78rem;color:#a08864;}
+
+    .ln-trail{position:relative;margin:.4rem 0 0;padding-left:1.4rem;}
+    .ln-trail:before{content:"";position:absolute;left:.42rem;top:.4rem;bottom:.4rem;width:2px;background:#e5d9c4;}
+    .ln-step{position:relative;margin:0 0 .55rem;}
+    .ln-step .dot{position:absolute;left:-1.18rem;top:.55rem;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid #c9a87c;}
+    .ln-step.done .dot{background:#3f7a4d;border-color:#3f7a4d;}
+    .ln-step.locked{opacity:.55;}
+    .ln-node{background:#faf6ee;border:1px solid #ece1cc;border-radius:9px;padding:.6rem .8rem;cursor:pointer;}
+    .ln-node:hover{border-color:#c9a87c;}
+    .ln-node .nt{font-weight:600;color:#3a2f24;font-size:.97rem;}
+    .ln-node .nseq{color:#b3a489;font-size:.78rem;margin-right:.4rem;}
+    .ln-node .nrule{color:#6e5d49;font-size:.85rem;line-height:1.5;margin:.3rem 0 0;display:none;}
+    .ln-step.expanded .nrule{display:block;}
+    .ln-node .nex{display:none;margin:.5rem 0 0;}
+    .ln-step.expanded .nex{display:block;}
+    .ln-ex{display:inline-block;background:#fff;border:1px solid #e5d9c4;border-radius:6px;padding:.12rem .5rem;margin:.15rem .25rem .15rem 0;font-size:.82rem;color:#5a4937;}
+    .ln-check{background:#fff7ef;border:1px dashed #d9a872;border-radius:7px;padding:.5rem .7rem;margin:.55rem 0 0;font-size:.86rem;color:#5a4937;}
+    .ln-check .cq{font-weight:600;}
+    .ln-check .ca{margin-top:.3rem;color:#3f7a4d;}
+    .ln-acts{margin:.55rem 0 0;display:flex;gap:.5rem;flex-wrap:wrap;}
+    .ln-btn{font-size:.8rem;border:1px solid #c9a87c;background:#fff;color:#8b5d2e;border-radius:7px;padding:.3rem .7rem;cursor:pointer;}
+    .ln-btn.done{background:#3f7a4d;color:#fff;border-color:#3f7a4d;}
+    .ln-lock{font-size:.78rem;color:#b3a489;align-self:center;}
+
+    /* Along the way — teaching cards (flip) */
+    .ln-teach{margin:2.4rem 0 0;}
+    .ln-teach h2{font-size:1.25rem;color:#3a2f24;margin:.2rem 0;}
+    .ln-teach p.sub{color:#6e5d49;margin:.2rem 0 .9rem;}
+    .ln-tcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.85rem;}
+    .ln-tcard{background:#fff;border:1px solid #e5d9c4;border-radius:11px;padding:.95rem 1rem;cursor:pointer;min-height:120px;}
+    .ln-tcard:hover{border-color:#c9a87c;}
+    .ln-tcard .tg{font-size:1.6rem;}
+    .ln-tcard h4{margin:.3rem 0 .15rem;font-size:1.02rem;color:#3a2f24;}
+    .ln-tcard .tmn{font-size:.85rem;color:#8b5d2e;font-style:italic;line-height:1.4;}
+    .ln-tcard .tpar{font-size:.86rem;color:#5a4937;line-height:1.55;margin:.5rem 0 0;display:none;}
+    .ln-tcard cite{display:block;font-size:.76rem;color:#a08864;margin-top:.35rem;font-style:normal;}
+    .ln-tcard.flip .tpar{display:block;}
+    .ln-tcard.flip .tmn{display:none;}
+    .ln-note{color:#9b8e78;font-size:.82rem;margin-top:1.4rem;line-height:1.5;}
+  </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/learn.html",
+  "name": "Learn · Narrow Highway",
+  "description": "Homeschool on the Narrow Highway. Visible learning pathways from the basics of phonics upward — taught along the way with parable, mnemonic, and Scripture.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "EducationalOccupationalProgram"
+  },
+  "audience": {
+    "@type": "PeopleAudience",
+    "audienceType": "homeschool families"
+  },
+  "keywords": "homeschool curriculum, Christian education, phonics, reading, math, science"
+}
+</script>
+</head>
+<body>
+
+<div class="ln-wrap">
+
+  <section class="ln-hero">
+    <h1>Learn — the whole road home</h1>
+    <p class="ln-verse" id="cornerstone">…</p>
+    <p class="ln-lead">A complete, sequenced path you can homeschool from — beginning at the basics of phonics and climbing upward. Every subject is a <strong>visible pathway</strong>: one step rests on the one before it, and we teach along the way with parable, mnemonic, and Scripture so the lesson sticks.</p>
+    <div class="ln-glyph-row" id="glyphRow"></div>
+  </section>
+
+  <div id="stages"><p style="color:#9b8e78">Opening the schoolhouse…</p></div>
+
+  <section class="ln-path" id="pathView">
+    <div class="ln-path-head">
+      <span class="pg" id="pathGlyph">📚</span>
+      <div>
+        <h2 id="pathTitle"></h2>
+        <div class="psub" id="pathSub"></div>
+      </div>
+      <button class="ln-path-close" onclick="closePath()" title="Close">×</button>
+    </div>
+    <div id="pathParable"></div>
+    <div class="ln-trail" id="pathTrail"></div>
+  </section>
+
+  <section class="ln-teach" id="teachSection">
+    <h2>Along the way</h2>
+    <p class="sub">The hard things made simple — a parable and a memory-hook for each. Tap a card to turn it over.</p>
+    <div class="ln-tcards" id="teachCards"></div>
+  </section>
+
+  <p class="ln-note">Progress is kept privately on this device only — no name, no account. The pathway gently unlocks the next step once the one before it is marked worked-through, but nothing is ever locked away: a parent can open any unit at any time.</p>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+// ── learner id (per-device, no PII) ──
+function learnerId(){
+  if(window.NHHousehold && NHHousehold.id) { try{ return NHHousehold.id(); }catch(e){} }
+  let v = localStorage.getItem('nh_learner');
+  if(!v){ v = 'L'+Math.random().toString(36).slice(2,10); localStorage.setItem('nh_learner', v); }
+  return v;
+}
+const LEARNER = learnerId();
+
+// ── track display config ──
+const STAGES = [
+  { label:'Foundations · the basics', tracks:['phonics','reading','writing','math'] },
+  { label:'Knowledge · the world', tracks:['science','social_studies'] },
+  { label:'Faith · hidden in the heart', tracks:['bible_curriculum'] },
+  { label:'Life · ready for work', tracks:['workready'] },
+];
+const TRACK_META = {
+  phonics:         {name:'Phonics',        glyph:'🔤', age:'Ages 4–7',  start:true},
+  reading:         {name:'Reading',        glyph:'📖', age:'Ages 5–9'},
+  writing:         {name:'Writing',        glyph:'✒️', age:'Ages 6–10'},
+  math:            {name:'Math',           glyph:'🔢', age:'Ages 5–11'},
+  science:         {name:'Science',        glyph:'🔬', age:'Ages 7–12'},
+  social_studies:  {name:'History & Place',glyph:'🗺️', age:'Ages 7–12'},
+  bible_curriculum:{name:'Bible',          glyph:'📜', age:'All ages'},
+  workready:       {name:'Work-Ready',     glyph:'🛠️', age:'Ages 13+'},
+};
+
+let CURR = {}, TEACH = {entries:[], index:{}}, MASTERY = {};
+
+async function boot(){
+  // cornerstone + page parable
+  try{
+    const lp = await (await fetch('/teaching/learning_pathways',{cache:'no-store'})).json();
+    if(lp && lp.parable){
+      $('cornerstone').innerHTML = esc(lp.parable.text.split('.')[0]) + '. <cite>'+esc(lp.parable.ref)+'</cite>';
+    }
+  }catch(e){ $('cornerstone').textContent = 'Teach them diligently unto thy children… when thou walkest by the way. — Deuteronomy 6:7'; }
+
+  // load curriculum + teaching + mastery in parallel
+  const [curr, teach, mast] = await Promise.all([
+    fetch('/curriculum',{cache:'no-store'}).then(r=>r.json()).catch(()=>({tracks:{},totals:{}})),
+    fetch('/teaching',{cache:'no-store'}).then(r=>r.json()).catch(()=>({entries:[],index:{}})),
+    fetch('/mastery/visitor?visitor_id='+encodeURIComponent(LEARNER),{cache:'no-store'}).then(r=>r.json()).catch(()=>({current:{}})),
+  ]);
+  CURR = curr.tracks||{}; TEACH = teach; MASTERY = (mast&&mast.current)||{};
+  renderStages(curr.totals||{});
+  renderGlyphs();
+  renderTeach();
+}
+
+function renderGlyphs(){
+  $('glyphRow').textContent = STAGES.flatMap(s=>s.tracks).map(t=>(TRACK_META[t]||{}).glyph||'').join(' ');
+}
+
+function trackParableKey(track){
+  // teaching entries reference 'track:<subtrack>' for phonics, or the
+  // subject key directly for others. Try subject key first.
+  if(TEACH.index['track:'+track]) return TEACH.index['track:'+track];
+  // phonics subtracks
+  if(track==='phonics' && TEACH.index['track:phonics_letter_sounds']) return TEACH.index['track:phonics_letter_sounds'];
+  return track; // teaching/<key> falls back gracefully
+}
+
+function renderStages(totals){
+  let html='';
+  for(const stage of STAGES){
+    const decks = stage.tracks.filter(t=>(CURR[t]||[]).length || totals[t]);
+    if(!decks.length) continue;
+    html += '<div class="ln-stage">'+esc(stage.label)+'</div><div class="ln-decks">';
+    for(const t of decks){
+      const m = TRACK_META[t]||{name:t,glyph:'📘',age:''};
+      const units = CURR[t]||[];
+      const done = units.filter(u=>MASTERY[u.id]==='mastered').length;
+      const pct = units.length ? Math.round(done/units.length*100) : 0;
+      const tk = trackParableKey(t);
+      const te = TEACH.entries.find(e=>e.key===tk);
+      html += '<div class="ln-deck" onclick="openPath(\''+t+'\')">'
+        + (m.start?'<span class="start">Start here</span>':'')
+        + '<div class="dg">'+(m.glyph||'')+'</div>'
+        + '<h3>'+esc(m.name)+'</h3>'
+        + '<div class="dmeta">'+esc(m.age)+' · '+units.length+' lessons'+(done?' · '+done+' done':'')+'</div>'
+        + (te?'<div class="dmnem">“'+esc(te.mnemonic)+'”</div>':'')
+        + '<div class="prog"><i style="width:'+pct+'%"></i></div>'
+        + '</div>';
+    }
+    html += '</div>';
+  }
+  $('stages').innerHTML = html || '<p style="color:#9b8e78">No lessons loaded yet.</p>';
+}
+
+function unlocked(unit){
+  const pre = unit.prerequisites||[];
+  if(!pre.length) return true;
+  return pre.every(p=>MASTERY[p]==='mastered');
+}
+
+function openPath(track){
+  const m = TRACK_META[track]||{name:track,glyph:'📘'};
+  let units = (CURR[track]||[]).slice();
+  units.sort((a,b)=>(a.track||'').localeCompare(b.track||'')||((a.unit_seq||0)-(b.unit_seq||0)));
+  $('pathGlyph').textContent = m.glyph||'📘';
+  $('pathTitle').textContent = m.name;
+  $('pathSub').textContent = (m.age?m.age+' · ':'')+units.length+' lessons, in order';
+
+  // track parable
+  const tk = trackParableKey(track);
+  const te = TEACH.entries.find(e=>e.key===tk);
+  $('pathParable').innerHTML = te ? (
+    '<div class="ln-parable"><div class="pm">'+(te.glyph||'')+' '+esc(te.mnemonic)+'</div>'
+    + '<div class="pt">'+esc(te.parable.text)+'</div>'
+    + '<cite>'+esc(te.parable.ref)+'</cite></div>'
+  ) : '';
+
+  // trail
+  let html='';
+  units.forEach((u,i)=>{
+    const done = MASTERY[u.id]==='mastered';
+    const open = unlocked(u);
+    const cls = 'ln-step'+(done?' done':'')+(!open&&!done?' locked':'');
+    html += '<div class="'+cls+'" id="step_'+esc(u.id)+'"><div class="dot"></div>'
+      + '<div class="ln-node" onclick="toggleStep(\''+esc(u.id)+'\')">'
+      + '<div class="nt"><span class="nseq">'+(i+1)+'.</span>'+esc(u.title||u.id)+'</div>'
+      + '<div class="nrule">'+esc(u.rule||u.summary||'')+'</div>'
+      + '<div class="nex">'
+      + ((u.examples||[]).slice(0,8).map(x=>'<span class="ln-ex">'+esc(x)+'</span>').join(''))
+      + (u.check?('<div class="ln-check"><span class="cq">Check:</span> '+esc(u.check.prompt||'')
+          + (u.check.answer?'<div class="ca">→ '+esc(u.check.answer)+'</div>':'')+'</div>'):'')
+      + '<div class="ln-acts">'
+      + (open
+          ? '<button class="ln-btn'+(done?' done':'')+'" onclick="event.stopPropagation();mark(\''+esc(u.id)+'\','+(!done)+')">'+(done?'✓ Worked through':'Mark worked-through')+'</button>'
+          : '<span class="ln-lock">🔒 finish the step before this one to unlock</span>')
+      + '</div>'
+      + '</div></div></div>';
+  });
+  $('pathTrail').innerHTML = html;
+  $('pathView').classList.add('open');
+  $('pathView').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function toggleStep(id){ const el=$('step_'+id); if(el) el.classList.toggle('expanded'); }
+function closePath(){ $('pathView').classList.remove('open'); }
+
+async function mark(unitId, on){
+  const state = on ? 'mastered' : 'reset';
+  if(on) MASTERY[unitId]='mastered'; else delete MASTERY[unitId];
+  // re-render the open path + decks to reflect unlocks/progress
+  const openTrack = Object.keys(CURR).find(t=>(CURR[t]||[]).some(u=>u.id===unitId));
+  try{
+    await fetch('/mastery/mark',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({visitor_id:LEARNER, unit_id:unitId, state:state, note:'learn.html'})});
+  }catch(e){}
+  renderStages({});
+  if(openTrack) openPath(openTrack);
+}
+
+function renderTeach(){
+  const cards = (TEACH.entries||[]).filter(e=>e.parable);
+  $('teachCards').innerHTML = cards.map((e,i)=>
+    '<div class="ln-tcard" onclick="this.classList.toggle(\'flip\')">'
+    + '<div class="tg">'+(e.glyph||'')+'</div>'
+    + '<h4>'+esc(e.title||e.key)+'</h4>'
+    + '<div class="tmn">“'+esc(e.mnemonic||'')+'”</div>'
+    + '<div class="tpar">'+esc(e.parable.text)+'<cite>'+esc(e.parable.ref||'')+'</cite></div>'
+    + '</div>'
+  ).join('');
+}
+
+boot();
+</script>
+
+</body>
+</html>

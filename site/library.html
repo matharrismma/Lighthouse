@@ -1,460 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-page-title="page.library.title">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Library · Concordance Engine</title>
-  <meta name="description" content="The body of work the engine emerges from. Kings of Appalachia (trilogy), The Dancing Plague, and Apokalypsis — the same author thinking the same way in different forms. The engine's voice was trained on these books.">
+  <title>The Library · Narrow Highway</title>
+  <meta name="description" content="The reference shelf of the Concordance. Six lenses for looking something up — Bibles, Places, Encyclopedia, Canon, Archetypes, Field Kit. One keeping; many ways in.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Library · Narrow Highway">
+  <meta property="og:description" content="Six lenses for looking something up. Bibles, Places, Encyclopedia, Canon, Archetypes, Field Kit. The reference shelf.">
+  <meta property="og:url" content="https://narrowhighway.com/library.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/library.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
   <style>
     .lib-preface {
       max-width: 64ch;
       font-family: 'Crimson Pro', Georgia, serif;
       font-size: 17px;
-      font-style: italic;
       line-height: 1.7;
       color: var(--text);
-      margin: 6px 0 18px;
+      margin: 6px 0 24px;
     }
-    .lib-voice-note {
-      max-width: 64ch;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: 2px solid var(--accent);
-      border-radius: 0 var(--r-sm) var(--r-sm) 0;
-      padding: 14px 18px;
-      margin: 12px 0 28px;
-      font-size: 14.5px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-    .lib-voice-note strong { color: var(--accent); }
+    .lib-preface em { color: var(--accent); font-style: italic; }
+    .lib-preface b { color: var(--text); }
 
-    .lib-shelf {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      margin-top: 16px;
-    }
-
-    .lib-work {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left-width: 3px;
-      border-left-color: var(--accent-dim);
-      border-radius: var(--r);
-      padding: 28px 32px;
-    }
-
-    .lib-work-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    .lib-work-meta .role {
-      color: var(--accent);
-      font-weight: 600;
-      letter-spacing: 0.18em;
-    }
-    .lib-work-meta .year {
-      color: var(--muted-2);
-    }
-    .lib-work-meta .role-engine {
-      background: rgba(201, 168, 124, 0.10);
-      color: var(--accent);
-      border: 1px solid rgba(201, 168, 124, 0.25);
-      padding: 2px 9px; border-radius: 3px;
-      letter-spacing: 0.14em;
-      font-size: 10px;
-    }
-
-    .lib-work-title {
-      font-size: clamp(22px, 3vw, 32px);
-      font-weight: 600;
-      line-height: 1.18;
-      letter-spacing: -0.015em;
-      color: var(--text);
-      margin: 0 0 6px 0;
-    }
-    .lib-work-subtitle {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 16px;
-      color: var(--accent);
-      margin: 0 0 16px 0;
-    }
-
-    .lib-work-frame {
-      max-width: 64ch;
-      font-size: 15px;
-      line-height: 1.65;
-      color: var(--text-dim);
-      margin: 0 0 18px 0;
-    }
-    .lib-work-frame strong { color: var(--text); }
-
-    .lib-opening {
-      max-width: 64ch;
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 16px;
-      line-height: 1.72;
-      color: var(--text);
-      margin: 0 0 18px 0;
-      padding: 16px 22px;
-      background: rgba(201, 168, 124, 0.04);
-      border-left: 2px solid var(--accent-dim);
-      border-radius: 0 var(--r-sm) var(--r-sm) 0;
-    }
-    .lib-opening-label {
-      display: block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent-dim);
-      margin-bottom: 8px;
-      font-style: normal;
-    }
-
-    .lib-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
+    .lib-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
       margin-top: 8px;
     }
-    .lib-actions a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      transition: color 0.15s;
+    @media (min-width: 720px) {
+      .lib-grid { grid-template-columns: 1fr 1fr; }
     }
-    .lib-actions a:hover { color: var(--accent); }
-    .lib-actions a.primary { color: var(--accent); }
-    .lib-actions .where-todo {
-      font-size: 11px;
-      color: var(--muted-2);
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.04em;
+    @media (min-width: 1080px) {
+      .lib-grid { grid-template-columns: 1fr 1fr 1fr; }
     }
 
-    /* Engine-tied works (Keeping, Dancing Plague, Apokalypsis) get a sharper highlight */
-    .lib-work.engine-tied {
-      border-left-color: var(--accent);
-    }
-
-    /* Trilogy grouping */
-    .lib-trilogy {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+    .lib-card {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
       border-radius: var(--r);
-      padding: 22px 26px;
+      padding: 22px 24px 20px;
+      display: flex; flex-direction: column;
+      transition: border-color 0.15s, transform 0.15s;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
     }
-    .lib-trilogy-title {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.005em;
+    .lib-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .lib-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--accent);
+      opacity: 0.55;
+      border-radius: var(--r) 0 0 var(--r);
+    }
+    .lib-card-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
       color: var(--accent);
-      margin: 0 0 4px 0;
+      margin-bottom: 8px;
     }
-    .lib-trilogy-sub {
+    .lib-card h2 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 4px;
+      line-height: 1.2;
+    }
+    .lib-card .lib-sub {
       font-family: 'Crimson Pro', Georgia, serif;
       font-style: italic;
-      font-size: 15px;
-      color: var(--muted);
-      margin: 0 0 18px 0;
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
     }
-    .lib-trilogy .lib-work {
-      background: var(--surface);
-      border-radius: var(--r-sm);
-      padding: 22px 24px;
+    .lib-card .lib-desc {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      flex: 1;
       margin-bottom: 14px;
     }
-    .lib-trilogy .lib-work:last-child { margin-bottom: 0; }
-    .lib-trilogy .lib-work-title { font-size: clamp(18px, 2.4vw, 24px); }
+    .lib-card .lib-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 10px; flex-wrap: wrap;
+    }
+    .lib-card .lib-meta .lib-count { color: var(--accent); font-weight: 600; }
+    .lib-card .lib-arrow {
+      color: var(--accent);
+      font-size: 13.5px;
+    }
   </style>
-  <!-- og-card injected -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="The Library · Concordance Engine">
-  <meta property="og:description" content="The body of work the engine emerges from. Kings of Appalachia (trilogy), The Dancing Plague, and Apokalypsis — the same author thinking the same way in different forms. The engine">
-  <meta property="og:url" content="https://narrowhighway.com/library.html">
-  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
-  <meta property="og:site_name" content="Concordance Engine">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="The Library · Concordance Engine">
-  <meta name="twitter:description" content="The body of work the engine emerges from. Kings of Appalachia (trilogy), The Dancing Plague, and Apokalypsis — the same author thinking the same way in different forms. The engine">
-  <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
-  <link rel="canonical" href="https://narrowhighway.com/library.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Collection","name":"The Library · Concordance Engine","description":"The body of work the engine emerges from. Kings of Appalachia (trilogy), The Dancing Plague, and Apokalypsis — the same author thinking the same way in different forms. The engine","url":"https://narrowhighway.com/library.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
-    <nav class="topnav">
-      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
-      <a href="/how-it-works.html">How it works</a>
-      <a href="/verifiers.html">Verifiers</a>
-      <a href="/agents.html">Agents</a>
-      <a href="/grid.html">Grid</a>
-      <a href="/engine.html">Engine</a>
-      <a href="/poly.html">Polymathic</a>
-      <a href="/almanac.html">Almanac</a>
-      <a href="/library.html" class="active">Library</a>
-      <a href="/dashboard.html">Activity</a>
-      <a href="/benchmark.html">Benchmark</a>
-      <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
-      <a class="cta" href="/connect.html">Connect →</a>
-    </nav>
-  </div>
-</header>
+
 
 <div class="page-header">
-  <div class="container">
-    <div class="eyebrow">The Library</div>
-    <h1>The body of work the engine emerges from.</h1>
-    <p class="lib-preface" id="libPreface">
-      Five works to date. A trilogy. A standalone novel about what alignment looks like
-      from the wrong side of it. And a memoir of the man who saw the Apokalypsis and
-      lived to write it down. Same author, same way of thinking — different forms.
+  <div class="container wide">
+    <div class="eyebrow">The Library · the reference shelf</div>
+    <h1 data-i18n="page.library.h1">Six ways to look something up.</h1>
+    <p class="lib-preface">
+      The keeping is one book. <em>The Library</em> is the part you reach for when you already know what you're looking for &mdash; a verse, a place from Scripture, a definition, a canon, a pattern, a practical card. Each shelf is a different view of the same keeping. <b>Pick the one that fits what you carry.</b>
     </p>
-    <p>
-      <button class="listen-btn" data-narrate-target="#libPreface" title="Read aloud in M.R. Harris">
-        <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the preface</span>
-      </button>
-    </p>
-
-    <div class="lib-voice-note">
-      <strong>The engine's voice was trained on these books.</strong> Every Listen button
-      on this site — homepage, almanac, polymathic results, every page — reads in the
-      M.R. Harris voice that ElevenLabs trained from the Apokalypsis voice script.
-      The voice you hear is the voice the books would have, if read aloud. That's the
-      through-line: the fiction, the engine, the almanac, the audio — one author,
-      one frame of mind, in different shapes.
-    </div>
   </div>
 </div>
 
-<section>
-  <div class="container">
-    <div class="lib-shelf">
+<main class="container wide" style="padding-bottom:80px;">
 
-      <!-- ── Apokalypsis ────────────────────────────── -->
-      <article class="lib-work engine-tied">
-        <div class="lib-work-meta">
-          <span class="role">Apokalypsis</span>
-          <span class="role-engine">The voice corpus</span>
-          <span class="year">2026</span>
-          <span style="color:var(--muted)">novel · 45 chapters · 12-episode audio companion</span>
-        </div>
-        <h2 class="lib-work-title">Apokalypsis</h2>
-        <p class="lib-work-subtitle">The unveiling, told by the man who lived it.</p>
-        <p class="lib-work-frame" id="apokalypsisFrame">
-          <strong>The book whose voice is the engine's.</strong> A first-person memoir of the
-          Apokalypsis — Revelation, but written from inside the docket, the cell, the cave,
-          and the boat. The audio companion (twelve episodes; <em>The Exile · The Fire ·
-          The Throne · The Horsemen · The Silence · The Trumpets · The Witnesses · The Beasts
-          · The Harvest · The Fall · The Rider · The Face</em>) is what trained the M.R. Harris
-          voice that now reads the Almanac, the polymathic results, and every page on this site.
-          When the engine speaks, it is reading in this book's register.
-        </p>
-        <div class="lib-opening">
-          <span class="lib-opening-label">From the opening · Prologue — The Sentence</span>
-          The prefect's name was Marcus Loreius Nerva and he was a practical man.
-          I knew this before I stood before him. I knew it from the churches, from the
-          people who had lived inside the administrative machinery of the province long
-          enough to know which officials were cruel and which were efficient and what
-          the difference was in practice. Marcus Loreius Nerva was efficient. He moved
-          cases quickly. He did not enjoy the ceremonies of judgment the way some of
-          his predecessors had enjoyed them. He wanted the docket clear.
-          I was on the docket.
-        </div>
-        <div class="lib-actions">
-          <button class="listen-btn" data-narrate-target="#apokalypsisFrame" title="Read aloud">
-            <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the framing</span>
-          </button>
-          <span class="where-todo">// Where-to-read links land here once the book ships</span>
-        </div>
-      </article>
+  <div class="lib-grid">
 
-      <!-- ── The Dancing Plague ─────────────────────── -->
-      <article class="lib-work engine-tied">
-        <div class="lib-work-meta">
-          <span class="role">The Dancing Plague</span>
-          <span class="role-engine">The anti-engine</span>
-          <span class="year">2026</span>
-          <span style="color:var(--muted)">novel · standalone · nine parts</span>
-        </div>
-        <h2 class="lib-work-title">The Dancing Plague</h2>
-        <p class="lib-work-subtitle">Alliance behaviors that map one-to-one to the engine's gate refusals.</p>
-        <p class="lib-work-frame" id="plagueFrame">
-          <strong>The narrative form of what the engine refuses.</strong> Nine parts —
-          <em>The Song · The Stage · The Other Cities · The Mothers · The Data · The Body
-          Count · The Children · The Stage Burns · The Hill</em> — that map directly onto
-          the engine's gate-refusal patterns. RED rejects coercion; FLOOR rejects structural
-          incompleteness; WAY rejects coercion-in-the-path; BROTHERS quarantines until
-          witness; GOD waits. <em>The Dancing Plague</em> is what happens when those refusals
-          fail at scale. The engine is the proposal; the Plague is the warning.
-        </p>
-        <div class="lib-opening">
-          <span class="lib-opening-label">From the opening · Part One — The Song</span>
-          Marcus Voss had spent twelve years in sports medicine at Vanderbilt Medical Center,
-          which meant he had spent twelve years being correct about things that didn't matter.
-          He taped ankles. He cleared concussions. He signed off on the fitness of men whose
-          bodies were, by any reasonable actuarial standard, not fit, so that those bodies
-          could go back onto a field where other bodies would attempt to destroy them in
-          front of sixty-nine thousand people who had paid to watch. He was very good at
-          this. He was also, by the time the dancing started, bored out of his mind.
-        </div>
-        <div class="lib-actions">
-          <button class="listen-btn" data-narrate-target="#plagueFrame" title="Read aloud">
-            <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the framing</span>
-          </button>
-          <a href="/how-it-works.html#gates">Cross-reference: gate refusals →</a>
-          <span class="where-todo">// Where-to-read links land here once the book ships</span>
-        </div>
-      </article>
-
-      <!-- ── Kings of Appalachia trilogy ────────────── -->
-      <div class="lib-trilogy">
-        <h2 class="lib-trilogy-title">Kings of Appalachia</h2>
-        <p class="lib-trilogy-sub">A trilogy. Three books. Three modes of the same posture: the line, the door, the keeping.</p>
-
-        <article class="lib-work">
-          <div class="lib-work-meta">
-            <span class="role">Book One</span>
-            <span class="year">2026</span>
-            <span style="color:var(--muted)">novel · Appalachian fiction</span>
-          </div>
-          <h3 class="lib-work-title">The Line</h3>
-          <p class="lib-work-subtitle">When you can see the shape of it but cannot read it.</p>
-          <p class="lib-work-frame" id="lineFrame">
-            <strong>The book that names the threshold.</strong> Harlan Vance, March morning,
-            barn apartment, dog in the yard. The name is gone — not gone forever, gone the way
-            things had started going. The line is what you draw when the shape is still legible
-            and you still can. The engine's <em>narrow way</em> is the same posture, in
-            computational form: drawn before the moment when it would have to be.
-          </p>
-          <div class="lib-opening">
-            <span class="lib-opening-label">From the opening · Chapter One</span>
-            The notebook started because of the dog. Not because of the water, not because
-            of anything that came after — because one March morning Harlan Vance stood in the
-            doorway of the barn apartment and could not remember the dog's name. He stood
-            there looking at the animal sitting in the yard looking back at him, a good
-            shepherd mix with one ear that didn't fully commit to upright, and the name was
-            gone. Not gone forever. Gone the way things had started going. You could see the
-            shape of it. You could not read it.
-          </div>
-          <div class="lib-actions">
-            <button class="listen-btn" data-narrate-target="#lineFrame" title="Read aloud">
-              <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the framing</span>
-            </button>
-            <span class="where-todo">// Where-to-read links land here once the book ships</span>
-          </div>
-        </article>
-
-        <article class="lib-work">
-          <div class="lib-work-meta">
-            <span class="role">Book Two</span>
-            <span class="year">2026</span>
-            <span style="color:var(--muted)">novel · Appalachian fiction</span>
-          </div>
-          <h3 class="lib-work-title">The Door</h3>
-          <p class="lib-work-subtitle">Even if the cave still works.</p>
-          <p class="lib-work-frame" id="doorFrame">
-            <strong>The book that names the threshold itself.</strong> Cade Wilson and Ellis,
-            rope spread across the lap, the water below catching first light, a fray sanded
-            with a stone. The door is the moment of crossing — what fits, what doesn't, and
-            what gets repaired before either side. The engine's <code>/connect</code> page
-            calls this <em>five doors in</em>. There are more than five. They all share the
-            same shape.
-          </p>
-          <div class="lib-opening">
-            <span class="lib-opening-label">From the opening · Chapter One — The Door</span>
-            I woke before dawn and found Ellis sitting outside with the rope from his uncle's
-            barn spread across his lap. He was sanding a fray with a piece of stone.
-            "Yeah," he said. "But it fixes the rope." Ellis tested the repaired section.
-            "The rope might not fix that," I said. The water below us caught the first light.
-            "We can't go back with this," Ellis said finally. "Even if the cave still works."
-            We sat quietly for a while. "Rope needs fixing," Ellis said. I am Cade Wilson. I
-            write things down.
-          </div>
-          <div class="lib-actions">
-            <button class="listen-btn" data-narrate-target="#doorFrame" title="Read aloud">
-              <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the framing</span>
-            </button>
-            <a href="/connect.html">Cross-reference: five doors in →</a>
-            <span class="where-todo">// Where-to-read links land here once the book ships</span>
-          </div>
-        </article>
-
-        <article class="lib-work engine-tied">
-          <div class="lib-work-meta">
-            <span class="role">Book Three</span>
-            <span class="role-engine">Canonical doctrine</span>
-            <span class="year">2026</span>
-            <span style="color:var(--muted)">novel · Appalachian fiction</span>
-          </div>
-          <h3 class="lib-work-title">The Keeping</h3>
-          <p class="lib-work-subtitle">What runs whether or not anyone is watching.</p>
-          <p class="lib-work-frame" id="keepingFrame">
-            <strong>The book that names the engine's foundation.</strong> The engine's
-            canonical doctrine — <em>the keeping is the substrate</em> — comes from this
-            book. It is not a reference. It is the same idea told twice: once as a story
-            of a place and the people in it, once as a computational structure that holds
-            knowledge whether or not anyone is reading it. The Almanac, the workers, the
-            audit chain: all of it is keeping, in the sense the book names.
-          </p>
-          <div class="lib-opening">
-            <span class="lib-opening-label">From the opening · Prologue</span>
-            …and we're following several developing stories this hour. First to the coast,
-            where the National Park Service has confirmed what many feared: Plymouth Rock is
-            now permanently submerged. The rising Atlantic, which has advanced nearly four
-            hundred meters inland at the Plymouth site over the past eighteen months, covered
-            the monument's protective enclosure sometime overnight Thursday.
-          </div>
-          <div class="lib-actions">
-            <button class="listen-btn" data-narrate-target="#keepingFrame" title="Read aloud">
-              <span class="listen-glyph">▶</span> <span class="listen-label">Listen to the framing</span>
-            </button>
-            <a href="/agents.html#identity">Cross-reference: the keeping is the substrate →</a>
-            <span class="where-todo">// Where-to-read links land here once the book ships</span>
-          </div>
-        </article>
+    <a class="lib-card" href="/bibles.html">
+      <div class="lib-card-kind">Scripture</div>
+      <h2>Bibles</h2>
+      <div class="lib-sub">22 public-domain translations</div>
+      <div class="lib-desc">
+        Look up any verse and read it in 22 languages side by side &mdash; English, Spanish, Chinese, French, Korean, Portuguese, Japanese, German, Arabic, Russian, Persian, Vietnamese, Italian, Burmese, Ukrainian, Dutch, Romanian, Haitian Creole, Hebrew, Latin, Hindi, Swahili.
       </div>
+      <div class="lib-meta"><span><b class="lib-count">22</b> translations &middot; 66 books each</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
 
-    </div>
+    <a class="lib-card" href="/places.html">
+      <div class="lib-card-kind">Geography</div>
+      <h2>Places</h2>
+      <div class="lib-sub">Easton's Bible Dictionary, 1897</div>
+      <div class="lib-desc">
+        Every place named in Scripture. 920 places, each linking to the verses where the place appears, with the verses visible in all 22 languages of the Bibles shelf. The geography substrate of the keeping.
+      </div>
+      <div class="lib-meta"><span><b class="lib-count">920</b> places &middot; A&ndash;Z search</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
 
-    <p style="margin-top:42px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.04em">
-      // More titles in the queue. The library grows the way the Almanac grows: one work,
-      one frame, one voice at a time.
-    </p>
+    <a class="lib-card" href="/encyclopedia.html">
+      <div class="lib-card-kind">Reference</div>
+      <h2>Encyclopedia</h2>
+      <div class="lib-sub">A&ndash;Z of every entry the engine holds</div>
+      <div class="lib-desc">
+        The flat alphabetical index of everything the engine has worked through &mdash; sayings, protocols, almanac entries, archetypes, places, devotional pieces, training cards. One search box; one ledger.
+      </div>
+      <div class="lib-meta"><span>A&ndash;Z search &middot; deep link</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
+
+    <a class="lib-card" href="/canon.html">
+      <div class="lib-card-kind">Canon</div>
+      <h2>Canon</h2>
+      <div class="lib-sub">The canonical sequence</div>
+      <div class="lib-desc">
+        Scripture in canonical order &mdash; the books in the shape they're meant to be read. The canon view of the same keeping the Bibles shelf reads verse by verse.
+      </div>
+      <div class="lib-meta"><span>66 books &middot; canonical order</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
+
+    <a class="lib-card" href="/archetypes.html">
+      <div class="lib-card-kind">Patterns</div>
+      <h2>Archetypes</h2>
+      <div class="lib-sub">108 patterns the Shepherd recognises</div>
+      <div class="lib-desc">
+        The Shepherd's pattern recognition vocabulary &mdash; every archetype a situation can resemble. Yielder, betrayer, persecuted-prophet, restorer, hardened-heart, and 100+ more. Each card carries its markers, its Scripture, and the intersections where it meets other archetypes.
+      </div>
+      <div class="lib-meta"><span><b class="lib-count">108</b> archetypes &middot; intersection links</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
+
+    <a class="lib-card" href="/fieldkit.html">
+      <div class="lib-card-kind">Practical</div>
+      <h2>Field Kit</h2>
+      <div class="lib-sub">13 cards · wisdom in the field</div>
+      <div class="lib-desc">
+        The hand-sized condensation. Thirteen cards covering the practical disciplines the engine surfaces most often &mdash; named, walkable, finishable. The Field Kit is what you carry into a situation when you don't have time to read a treatise.
+      </div>
+      <div class="lib-meta"><span><b class="lib-count">13</b> cards &middot; quick-reference</span><span class="lib-arrow">open &rarr;</span></div>
+    </a>
+
   </div>
-</section>
 
-<footer class="footer">
-  <div class="footer-inner">
-    <div>© 2026 · <a href="https://github.com/matharrismma/Lighthouse">Concordance Engine</a> · Apache 2.0 licensed</div>
-    <div>
-      <a href="/how-it-works.html">How it works</a> ·
-      <a href="/almanac.html">Almanac</a> ·
-      <a href="/library.html">Library</a> ·
-      <a href="/benchmark.html">Benchmark</a> ·
-      <a href="/theory.html">Theory</a>
-    </div>
+  <p style="margin-top:30px;text-align:center;font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:15px;color:var(--muted-2);">
+    Looking for what's <em>kept</em> rather than what's referenced? &nbsp;<a href="/almanac.html" style="color:var(--accent);">The Almanac &rarr;</a>
+  </p>
+
+</main>
+
+<footer style="border-top:1px solid var(--border);padding:32px 24px 28px;margin-top:50px;">
+  <div style="max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);">
+    <span>Narrow Highway &middot; one keeping, many lenses</span>
+    <span><a href="/" style="color:var(--text-dim);text-decoration:none;">home &rarr;</a> &nbsp; <a href="/agents.html" style="color:var(--text-dim);text-decoration:none;">api &rarr;</a></span>
   </div>
 </footer>
 
-<script src="/narrator.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
 </body>
 </html>

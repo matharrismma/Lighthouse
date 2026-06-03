@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.fieldkit.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Field Kit · 13 cards · Concordance Engine</title>
+  <meta name="description" content="The Lighthouse Field Kit v1 — thirteen protocol cards built on the Sermon on the Mount. Source, Floor, Spice, Drift, Practice, Prompt. Cards are protocols you walk, not insights you collect.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Field Kit · 13 cards · Concordance Engine">
+  <meta property="og:description" content="The Lighthouse Field Kit v1 — thirteen protocol cards built on the Sermon on the Mount.">
+  <meta property="og:url" content="https://narrowhighway.com/fieldkit.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/fieldkit/fronts_LH_Poker_Front_00.png">
+  <meta property="og:site_name" content="Concordance Engine">
+  <link rel="canonical" href="https://narrowhighway.com/fieldkit.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Field Kit · Concordance Engine","description":"The Lighthouse Field Kit v1. Thirteen protocol cards built on the Sermon on the Mount. Source, Floor, Spice, Drift, Practice, Prompt per card. Cards are protocols you walk.","url":"https://narrowhighway.com/fieldkit.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+
+  <style>
+    .fk-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .fk-intro em { color: var(--accent); font-style: italic; }
+    .fk-legend {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      margin: 14px 0 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .fk-legend .pip {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    .pip.s { background: #2c79b8; }
+    .pip.f { background: #c9a87c; }
+    .pip.sp { background: #c96c6c; }
+
+    .fk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 22px;
+      margin-bottom: 60px;
+    }
+    .fk-card {
+      background: linear-gradient(180deg, #0f1a2e 0%, #0a0810 100%);
+      border: 1px solid #2a3650;
+      border-radius: 14px;
+      padding: 0;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color 0.18s, transform 0.18s;
+    }
+    .fk-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .fk-card-front {
+      display: block;
+      width: 100%;
+      aspect-ratio: 5 / 7;
+      object-fit: cover;
+      background: #0a0810;
+    }
+    .fk-card-body {
+      padding: 16px 18px 18px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .fk-card-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 8px;
+    }
+    .fk-card-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+    }
+    .fk-card-rarity {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 11px;
+      border: 1px solid var(--border-hi);
+    }
+    .fk-card-rarity.common    { color: #b3aabd; border-color: #4e4858; }
+    .fk-card-rarity.rare      { color: #7fa8c0; border-color: #4a6a82; }
+    .fk-card-rarity.epic      { color: #b88ed6; border-color: #6a4a8a; }
+    .fk-card-rarity.legendary { color: #e3c498; border-color: #8a6a32; background: rgba(201,168,124,0.08); }
+    .fk-card-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: -0.005em;
+    }
+    .fk-card-scr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-dim, #b89c70);
+      letter-spacing: 0.04em;
+    }
+    .fk-card-scr em {
+      color: var(--muted);
+      font-style: italic;
+      margin-left: 6px;
+      font-family: 'Crimson Pro', Georgia, serif;
+    }
+    .fk-row {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .fk-row .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding-top: 2px;
+    }
+    .fk-row.source .label { color: #5a9ad1; }
+    .fk-row.floor .label  { color: #6fc47c; }
+    .fk-row.spice .label  { color: var(--hold); }
+    .fk-row.drift .label  { color: #c96c6c; }
+    .fk-row.practice .label { color: var(--muted); }
+    .fk-row.prompt .label   { color: var(--accent); }
+    .fk-row .text {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .fk-row.prompt .text { color: var(--accent); font-style: italic; }
+    .fk-card-foot {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 4px; padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .fk-card-foot .axchip,
+    .fk-card-foot .protochip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.04em;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(201,168,124,0.06);
+      border: 1px solid rgba(201,168,124,0.25);
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .fk-card-foot .axchip:hover {
+      background: rgba(201,168,124,0.18);
+      color: var(--accent-hi);
+    }
+    .fk-card-foot .protochip {
+      background: rgba(127,168,192,0.06);
+      border-color: rgba(127,168,192,0.25);
+      color: #7fa8c0;
+    }
+    .fk-card-foot .protochip a { color: inherit; text-decoration: none; }
+    .fk-card-foot .protochip a:hover { text-decoration: underline; }
+
+    .fk-meta {
+      margin: 36px auto 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .fk-meta a { color: var(--accent); }
+    .fk-empty {
+      color: var(--muted-2);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      font-size: 15px;
+    }
+  
+    /* Lens chrome — every lens page surfaces the other lenses */
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      max-width: var(--maxw, 1080px);
+      margin-left: auto; margin-right: auto;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+</style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+<div class="lens-bar" style="margin: 0 auto; max-width: 1080px; margin-top: 14px;"><span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html">Atlas</a><a href="/encyclopedia.html">Encyclopedia</a><a href="/chronicle.html">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html" class="active">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html">Shepherd</a><a href="/packets.html">Index</a></div>
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Field Kit · v1 · 13 cards</div>
+    <h1 data-i18n="page.fieldkit.h1">The Lighthouse Field Kit.</h1>
+    <p class="fk-intro">
+      Thirteen cards built on the Sermon on the Mount (Matthew 5–7). Each card carries six things:
+      <em>Source</em> (the rule), <em>Floor</em> (the non-negotiable), <em>Spice</em> (the optional helps),
+      <em>Common Drift</em> (the predictable failure), <em>7-Day Practice</em> (the drill), and
+      <em>Prompt</em> (the question to bring to a walk). Cards are protocols you walk, not insights you collect.
+    </p>
+    <div class="fk-legend">
+      <span><span class="pip s"></span>Source</span>
+      <span><span class="pip f"></span>Floor</span>
+      <span><span class="pip sp"></span>Spice</span>
+      <span>· activation: 2 of 3 agree — text / fruit / sky · otherwise wait</span>
+    </div>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the practical tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+  <div id="fk-grid" class="fk-grid">
+    <div class="fk-empty">Loading the deck…</div>
+  </div>
+
+  <p class="fk-meta">
+    Source for each card: the Sermon on the Mount · <a href="/canon.html">read the canon →</a>
+    <span style="color:var(--muted-2);margin:0 6px;">·</span>
+    Walk a card through the engine: <a href="/walk.html">/walk.html</a>
+    <span style="color:var(--muted-2);margin:0 6px;">·</span>
+    The math behind it: <a href="/almanac.html">/almanac.html</a>
+  </p>
+</main>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function renderCard(c) {
+    // Each axis chip is a portal: clicking jumps to /packets.html?axis=X
+    // so the visitor can see every packet that touches the same axis —
+    // intersections walkable as the visitor's first instinct.
+    const axesHtml = (c.axes || []).map(a =>
+      `<a class="axchip" href="/packets.html?axis=${esc(a)}" title="every packet touching ${esc(a.replace(/_/g,' '))}">${esc(a.replace(/_/g, ' '))} →</a>`
+    ).join('');
+    const protosHtml = (c.related_protocols || []).map(p =>
+      `<span class="protochip"><a href="/walk.html?protocol=${esc(p)}">${esc(p)}</a></span>`
+    ).join('');
+    const rarity = (c.rarity || 'common').toLowerCase();
+    return `
+      <article class="fk-card" id="${esc(c.id)}">
+        <img class="fk-card-front" src="${esc(c.front_image || '')}" alt="${esc(c.title)} card front" loading="lazy">
+        <div class="fk-card-body">
+          <div class="fk-card-head">
+            <span class="fk-card-num">${esc(c.id)} · #${esc(String(c.number).padStart(2,'0'))}</span>
+            <span class="fk-card-rarity ${rarity}">${esc(rarity)}</span>
+          </div>
+          <h2 class="fk-card-title">${esc(c.title)}</h2>
+          <p class="fk-card-scr">${esc(c.scripture)}<em>${esc(c.scripture_label || '')}</em></p>
+          <div class="fk-row source"><span class="label">SRC</span><span class="text">${esc(c.source)}</span></div>
+          <div class="fk-row floor"><span class="label">FLR</span><span class="text">${esc(c.floor)}</span></div>
+          <div class="fk-row spice"><span class="label">SPC</span><span class="text">${esc(c.spice)}</span></div>
+          <div class="fk-row drift"><span class="label">DRT</span><span class="text">${esc(c.common_drift)}</span></div>
+          <div class="fk-row practice"><span class="label">7D</span><span class="text">${esc(c.practice_7day)}</span></div>
+          <div class="fk-row prompt"><span class="label">?</span><span class="text">${esc(c.prompt)}</span></div>
+          <div class="fk-card-foot">${axesHtml}${protosHtml}</div>
+        </div>
+      </article>`;
+  }
+
+  async function load() {
+    try {
+      const r = await fetch(API + '/fieldkit', { cache: 'no-store' });
+      if (!r.ok) throw new Error('engine ' + r.status);
+      const data = await r.json();
+      const cards = data.cards || [];
+      const grid = document.getElementById('fk-grid');
+      if (!cards.length) {
+        grid.innerHTML = '<div class="fk-empty">No cards yet.</div>';
+        return;
+      }
+      grid.innerHTML = cards.map(renderCard).join('');
+      if (location.hash) {
+        const target = document.querySelector(location.hash);
+        if (target) target.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+    } catch (err) {
+      document.getElementById('fk-grid').innerHTML =
+        '<div class="fk-empty">Engine is offline. The deck images are at <code>/img/fieldkit/</code> if you want to browse the raw cards.</div>';
+    }
+  }
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

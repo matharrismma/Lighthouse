@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<title>Pilot Hero Frames + Motion Tests — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; line-height: 1.6; color: #2a2a28; background: #fafaf6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; }
+  h2 { color: #1a3a52; margin-top: 2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  h3 { color: #5c4a2a; margin-top: 1.4em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; padding: 1.2em; border-radius: 6px; margin-bottom: 1.2em; }
+  .brand-line { font-size: 1.3em; font-style: italic; color: #5c4a2a; text-align: center; padding: 0.5em 0; }
+  .frame { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em; margin: 1em 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .frame .meta { color: #6a5a3a; font-size: 0.92em; margin-bottom: 0.4em; }
+  .frame .tag { display: inline-block; color: #fff; padding: 0.15em 0.6em; border-radius: 3px; font-size: 0.85em; margin-right: 0.5em; }
+  .frame .tag.pooh { background: #5c432c; }
+  .frame .tag.scifi { background: #1B4D8C; }
+  .frame .tag.motion { background: #9a6010; }
+  .frame img, .frame video { width: 100%; height: auto; border: 1px solid #ccc; display: block; margin: 0.5em 0; background: #f0eada; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .verdict { display: inline-block; padding: 0.15em 0.5em; border-radius: 3px; font-size: 0.85em; font-weight: bold; }
+  .verdict.hit { background: #d4ead4; color: #1f5b1f; }
+  .verdict.ok { background: #fff5d4; color: #806010; }
+  .footer { font-size: 0.88em; color: #888; margin-top: 2em; padding-top: 1em; border-top: 1px solid #e0d4b0; }
+  code { background: #f0eada; padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<h1>Pilot Hero Frames + Motion Tests</h1>
+
+<div class="intro">
+  <div class="brand-line">Classic. Nostalgic. New.</div>
+  <p><strong>15 hero frames + 2 motion-test clips</strong> rendered via Runway. The sci-fi style is locked. The animation pipeline is validated. Total spend so far: <strong>~190 credits / 9,810 remaining</strong> of the 10,000 monthly cap.</p>
+  <p>Pilots to be assembled from this substrate:</p>
+  <ul>
+    <li><strong>Sci-Fi Theatre Pilot:</strong> "There Will Come Soft Rains" (Bradbury, X Minus One 1955) — 12 frames covering 22 scenes, ~22 min target</li>
+    <li><strong>Hundred Acre Theatre Pilot:</strong> "In Which We Are Introduced to Winnie-the-Pooh" (Milne 1926) — 3 frames covering 15 scenes, ~24 min target</li>
+  </ul>
+</div>
+
+<h2>Motion test clips — animation pipeline validated</h2>
+<p>Both clips: 5-second image-to-video via Runway <code>gen3a_turbo</code> at 25 credits each. <strong>Aesthetic preserved through animation</strong> — halftone, inked outlines, watercolor texture all survive.</p>
+
+<div class="grid">
+  <div class="frame">
+    <div><span class="tag motion">MOTION</span> <strong>scifi_03_house_aflame</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">5 sec · flames flicker, smoke curls, rain streaks added, slow push-in</div>
+    <video controls preload="metadata" src="/media/_motion_tests/scifi_03_house_aflame_motion.mp4"></video>
+  </div>
+  <div class="frame">
+    <div><span class="tag motion">MOTION</span> <strong>pooh_02_treetop_bee</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">5 sec · oak leaves stir, bee hovers, bear blinks, soft camera drift</div>
+    <video controls preload="metadata" src="/media/_motion_tests/pooh_02_treetop_bee_motion.mp4"></video>
+  </div>
+</div>
+
+<h2>Sci-Fi Theatre — 12 hero frames (style LOCKED)</h2>
+<p>The recipe that lands every time: <em>"1950s pulp magazine cover painted in gouache + halftone screentone + inked outlines + saturated cyan/cadmium palette."</em></p>
+
+<div class="grid">
+  <div class="frame">
+    <div><span class="tag scifi">01</span> <strong>Automated house at dawn</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 1 · opening establishing shot</div>
+    <img src="/media/_hero_frames/scifi_01_automated_house_dawn.png" alt="01">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">02</span> <strong>Robotic cleaning mice</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 6 · the mice keep cleaning regardless</div>
+    <img src="/media/_hero_frames/scifi_02_robotic_mice.png" alt="02">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">03</span> <strong>House aflame</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scenes 18-20 · the fire</div>
+    <img src="/media/_hero_frames/scifi_03_house_aflame.png" alt="03">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">04</span> <strong>Family shadows on the wall</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 3 · the silhouettes burned into the paint</div>
+    <img src="/media/_hero_frames/scifi_softrains_04_family_shadows.png" alt="04">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">05</span> <strong>The dog at the door</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 4 · the only living thing returns home</div>
+    <img src="/media/_hero_frames/scifi_softrains_05_dog_at_door.png" alt="05">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">07</span> <strong>Breakfast table set, chairs empty</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 7 · the routine continues</div>
+    <img src="/media/_hero_frames/scifi_softrains_07_breakfast_table.png" alt="07">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">08</span> <strong>Backyard sprinkler, tricycle</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 8 · the yard waits</div>
+    <img src="/media/_hero_frames/scifi_softrains_08_backyard_sprinkler.png" alt="08">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">09</span> <strong>Nursery walls come alive</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 9 · murals of animals where the children should be</div>
+    <img src="/media/_hero_frames/scifi_softrains_09_nursery_animals.png" alt="09">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">12</span> <strong>The Teasdale poem in the empty parlor</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 11-12 · the hi-fi reads to an empty chair</div>
+    <img src="/media/_hero_frames/scifi_softrains_12_teasdale_poem_card.png" alt="12">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">13</span> <strong>The storm rises</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 13 · the wind comes for the house</div>
+    <img src="/media/_hero_frames/scifi_softrains_13_storm_winds.png" alt="13">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">14</span> <strong>The oak falls</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 14 · the tree comes down</div>
+    <img src="/media/_hero_frames/scifi_softrains_14_falling_oak.png" alt="14">
+  </div>
+  <div class="frame">
+    <div><span class="tag scifi">21</span> <strong>Dawn over the ashes</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Soft Rains Scene 21 · the aftermath, the chimney still standing</div>
+    <img src="/media/_hero_frames/scifi_softrains_21_dawn_ashes.png" alt="21">
+  </div>
+</div>
+
+<h2>Hundred Acre Theatre — 3 hero frames</h2>
+<p>Vintage Edwardian English children's-book aesthetic. Family-safe and warm. Slight aesthetic miss vs Shepard's exact line-quality (Runway's moderation makes that hard to push harder without trademark trigger). My recommendation: lock these for pilot v1; iterate to style-reference Shepard for v2 if audience responds.</p>
+
+<div class="grid">
+  <div class="frame">
+    <div><span class="tag pooh">01</span> <strong>The bear at the oak clearing</strong> <span class="verdict ok">PASS</span></div>
+    <div class="meta">Chapter 1 Scenes 5-6 · "that buzzing-noise means something"</div>
+    <img src="/media/_hero_frames/pooh_01_oak_clearing.png" alt="P01">
+  </div>
+  <div class="frame">
+    <div><span class="tag pooh">02</span> <strong>The bear, the branch, the bee</strong> <span class="verdict hit">HIT</span></div>
+    <div class="meta">Chapter 1 Scene 11 · skeptical bee on the bear's nose</div>
+    <img src="/media/_hero_frames/pooh_02_treetop_bee.png" alt="P02">
+  </div>
+  <div class="frame">
+    <div><span class="tag pooh">03</span> <strong>Cottage parlor at evening</strong> <span class="verdict ok">PASS</span></div>
+    <div class="meta">Chapter 1 Scenes 3, 8, 14 · the bedtime-story framing</div>
+    <img src="/media/_hero_frames/pooh_03_parlor_bedtime.png" alt="P03">
+  </div>
+</div>
+
+<h2>Operator decisions pending</h2>
+<ol>
+  <li><strong>Lock all 15 frames</strong>, or re-prompt any?</li>
+  <li><strong>Approve voices</strong> from <a href="/auditions.html">/auditions.html</a>?</li>
+  <li><strong>Christopher Robin</strong> — son, library voice, or IVC clone?</li>
+</ol>
+<p>Once these three land, both pilots ship through the validated pipeline. Estimated remaining cost: ~800 credits for full animation of both pilots, plus ElevenLabs voice rendering (~$10).</p>
+
+<div class="footer">
+  15 hero frames via Runway <code>gen4_image</code> · 2 motion clips via <code>gen3a_turbo</code> · ~190 credits spent · 9,810 remaining<br>
+  Updated 2026-05-17 · frames at <code>D:/library_files/_hero_frames/</code> · motion at <code>D:/library_files/_motion_tests/</code>
+</div>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

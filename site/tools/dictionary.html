@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictionary — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; line-height: 1.6; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.4em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .search { display: flex; gap: 0.5em; margin-bottom: 1em; }
+  .search input { flex: 1; font: inherit; padding: 0.6em 0.8em; border: 1px solid #c9b48a; border-radius: 4px; }
+  .search button { font: inherit; padding: 0.6em 1.2em; background: #1a3a52; color: #fff; border: 0; border-radius: 4px; cursor: pointer; }
+  .result { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.2em; margin-bottom: 1em; }
+  .word { font-size: 1.8em; color: #1a3a52; font-weight: bold; }
+  .phonetic { color: #6a5a3a; font-style: italic; margin-left: 0.4em; font-size: 0.9em; }
+  .pos { color: #5c8a3a; font-weight: bold; margin-top: 0.6em; font-size: 0.95em; }
+  .def { margin: 0.3em 0 0.3em 1em; }
+  .example { color: #6a5a3a; font-style: italic; margin-left: 1em; font-size: 0.92em; }
+  .syn { font-size: 0.9em; color: #6a5a3a; margin-left: 1em; }
+  .audio-btn { cursor: pointer; background: none; border: 0; color: #1a3a52; font-size: 1.1em; }
+  .err { color: #b03020; padding: 0.8em; background: #fee; border: 1px solid #b03020; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Dictionary</h1>
+
+<div class="search">
+  <input id="word" type="text" placeholder="type a word and press Enter…" autofocus>
+  <button onclick="doSearch()">Look up</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const $r = document.getElementById('result');
+  const $w = document.getElementById('word');
+
+  async function doSearch() {
+    const w = $w.value.trim().toLowerCase();
+    if (!w) return;
+    $r.innerHTML = '<p>Looking up…</p>';
+    try {
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(w)}`);
+      if (!res.ok) {
+        $r.innerHTML = `<div class="err">No entry found for <b>${w}</b>.</div>`;
+        return;
+      }
+      const data = await res.json();
+      let html = '';
+      for (const entry of data) {
+        html += `<div class="result">`;
+        html += `<div><span class="word">${entry.word}</span>`;
+        const phonetic = entry.phonetics?.find(p => p.text)?.text || entry.phonetic || '';
+        if (phonetic) html += ` <span class="phonetic">${phonetic}</span>`;
+        const audio = entry.phonetics?.find(p => p.audio)?.audio;
+        if (audio) html += ` <button class="audio-btn" onclick="new Audio('${audio}').play()" title="Pronounce">🔊</button>`;
+        html += `</div>`;
+        for (const m of entry.meanings || []) {
+          html += `<div class="pos">${m.partOfSpeech}</div>`;
+          for (const d of m.definitions || []) {
+            html += `<div class="def">• ${d.definition}</div>`;
+            if (d.example) html += `<div class="example">"${d.example}"</div>`;
+          }
+          if (m.synonyms && m.synonyms.length) {
+            html += `<div class="syn"><b>Synonyms:</b> ${m.synonyms.slice(0,8).join(', ')}</div>`;
+          }
+        }
+        html += `</div>`;
+      }
+      $r.innerHTML = html;
+    } catch (e) {
+      $r.innerHTML = `<div class="err">Lookup failed: ${e.message}</div>`;
+    }
+  }
+  $w.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

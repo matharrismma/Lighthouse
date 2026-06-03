@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters — Narrow Highway</title>
+<meta name="description" content="A modern take on email. Family-internal first; federated later. Wallet-signed identity, no spam, no tracking. Stored on your device.">
+  <link rel="canonical" href="https://narrowhighway.com/letters.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Letters — Narrow Highway">
+  <meta property="og:description" content="A modern take on email. Family-internal first; federated later. Wallet-signed identity, no spam, no tracking. Stored on your device.">
+  <meta property="og:url" content="https://narrowhighway.com/letters.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Letters — Narrow Highway">
+  <meta name="twitter:description" content="A modern take on email. Family-internal first; federated later. Wallet-signed identity, no spam, no tracking. Stored on your device.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; font-family: Georgia, serif; font-weight: normal; font-size: 2em; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.1em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .preview-banner { background: #fff5d4; border: 1px solid #c4a030; border-radius: 4px; padding: 0.8em 1em; color: #806010; margin-top: 0.6em; font-size: 0.92em; }
+  .design { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; }
+  .design h3 { color: #1a3a52; font-family: Georgia, serif; margin-top: 0.5em; font-size: 1.05em; }
+  .design ul { margin: 0.4em 0 0.6em 1.3em; }
+
+  .compose { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-top: 0.8em; }
+  .compose .row { display: grid; grid-template-columns: 1fr 2fr; gap: 0.5em; margin-bottom: 0.5em; }
+  .compose label { font-size: 0.85em; color: #6a5a3a; align-self: center; }
+  .compose input, .compose select, .compose textarea { width: 100%; padding: 0.5em 0.65em; border: 1px solid #c9b48a; border-radius: 4px; background: #fff; color: #2a2a28; font-family: inherit; font-size: 1em; box-sizing: border-box; }
+  .compose textarea { min-height: 6em; resize: vertical; }
+  .compose .actions { margin-top: 0.6em; }
+  button { background: #1a3a52; color: #f4ecd5; border: none; padding: 0.5em 1.2em; border-radius: 4px; font-family: inherit; font-size: 0.95em; cursor: pointer; }
+  button:hover { background: #2a5570; }
+  button:disabled { background: #888; cursor: not-allowed; }
+
+  .threads { margin-top: 0.6em; }
+  .thread { background: #fff; border: 1px solid #d4c8a5; border-left: 4px solid #b8945a; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.5em; cursor: pointer; }
+  .thread:hover { background: #fff8e7; }
+  .thread .from { font-family: 'Courier New', monospace; font-size: 0.82em; color: #806010; }
+  .thread .subject { color: #1a3a52; font-weight: bold; margin: 0.15em 0; }
+  .thread .preview { color: #5a4a30; font-size: 0.92em; }
+  .thread .ts { font-size: 0.78em; color: #6a5a3a; float: right; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+  .no-household { background: #fff5d4; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/household.html">Household</a></nav>
+
+<h1>Letters</h1>
+
+<div class="intro">
+  <p>A different take on email. <strong>Family-internal first, federated later</strong>. Identity is a wallet address; messages are signed by the sender. No bulk send, no marketing campaigns, no tracking pixels, no auto-delivery. Short threads — long discussions belong in the <a href="/common-book.html">Common Book</a>.</p>
+  <div class="preview-banner">
+    <strong>Preview only.</strong> This is a working family-internal letters drawer — household members on this device can leave each other notes. The federated, wallet-signed version that talks to other Narrow Highway households is Phase 2.
+  </div>
+</div>
+
+<div id="needHousehold" class="no-household" style="display:none;">
+  <strong>Set up your household first.</strong> Letters require a household with members. <a href="/household.html"><strong>Create your household →</strong></a>
+</div>
+
+<div id="mainSection">
+
+<h2>Write a letter</h2>
+<div class="compose">
+  <div class="row">
+    <label>From</label>
+    <select id="fromMember"></select>
+  </div>
+  <div class="row">
+    <label>To</label>
+    <select id="toMember"></select>
+  </div>
+  <div class="row">
+    <label>Subject</label>
+    <input type="text" id="subject" maxlength="120" placeholder="A short line about what this is">
+  </div>
+  <textarea id="body" placeholder="What did you want to say?"></textarea>
+  <div class="actions">
+    <button id="sendBtn">Leave on the table</button>
+  </div>
+</div>
+
+<h2>The drawer</h2>
+<div id="threads" class="threads"></div>
+
+<h2>The standing design</h2>
+<div class="design">
+  <h3>Identity is a wallet</h3>
+  <p>In Phase 2, each member of a Narrow Highway household holds a self-custodial wallet. Their wallet address is their identity. Every letter is signed by the sender; recipients can verify it came from who it claims.</p>
+  <h3>No bulk send</h3>
+  <p>Letters are always intentional, addressed to a specific recipient or small group. The system refuses to send a single letter to many recipients. No mass mail, no campaigns, no algorithms.</p>
+  <h3>Short threads</h3>
+  <p>Long discussions don't belong here. They belong in the <a href="/common-book.html">Common Book</a> or the <a href="/walk.html">Walk</a>. Letters are for quick notes.</p>
+  <h3>No tracking</h3>
+  <p>No read receipts that leak across servers. No images that phone home. No links rewritten for tracking. What you send is what they see; how they read it is theirs.</p>
+  <h3>Spam economics broken (Phase 3)</h3>
+  <p>Inbound from non-contacts pays a tiny crypto fee, refunded if you reply. Spammers stop sending the moment it costs them something real per message.</p>
+</div>
+
+</div><!-- /mainSection -->
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script src="/nh-scripture.js"></script>
+<script>
+(function () {
+  const ns = NHHousehold.namespace('letters');
+  const $from = document.getElementById('fromMember');
+  const $to = document.getElementById('toMember');
+  const $subject = document.getElementById('subject');
+  const $body = document.getElementById('body');
+  const $threads = document.getElementById('threads');
+  const $needHh = document.getElementById('needHousehold');
+  const $main = document.getElementById('mainSection');
+
+  function gate() {
+    const hh = NHHousehold.get();
+    const ready = hh && hh.members && hh.members.length >= 2;
+    $needHh.style.display = ready ? 'none' : 'block';
+    $main.style.display = ready ? 'block' : 'none';
+    if (ready) {
+      const opts = hh.members.map(function (m) {
+        return '<option value="' + encodeURIComponent(m.name) + '">' + m.name + '</option>';
+      }).join('');
+      $from.innerHTML = opts;
+      $to.innerHTML = opts;
+      if (hh.members.length >= 2) $to.value = encodeURIComponent(hh.members[1].name);
+      render();
+    } else if (hh && hh.members && hh.members.length === 1) {
+      $needHh.style.display = 'block';
+      $needHh.innerHTML = '<strong>Letters need at least two household members.</strong> <a href="/household.html">Add a second member →</a>';
+      $main.style.display = 'none';
+    }
+  }
+
+  function load() { return ns.get() || { letters: [] }; }
+  function save(s) { ns.set(s); }
+
+  function render() {
+    const state = load();
+    const letters = (state.letters || []).slice().reverse();
+    if (letters.length === 0) {
+      $threads.innerHTML = '<div class="empty">No letters yet. Write the first one above.</div>';
+      return;
+    }
+    $threads.innerHTML = '';
+    letters.forEach(function (l, idx) {
+      const origIdx = (state.letters || []).indexOf(l);
+      const div = document.createElement('article');
+      div.className = 'thread';
+      div.setAttribute('data-readable', '');
+      const ts = new Date(l.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      div.innerHTML =
+        '<div class="ts">' + esc(ts) + '</div>' +
+        '<div class="from">' + esc(decodeURIComponent(l.from || '')) + ' → ' + esc(decodeURIComponent(l.to || '')) + '</div>' +
+        '<div class="subject">' + esc(l.subject) + '</div>' +
+        '<div class="preview">' + esc(l.body) + '</div>';
+      div.addEventListener('click', function () {
+        if (!confirm('Remove this letter from the drawer? (Local only.)')) return;
+        const s = load();
+        s.letters.splice(origIdx, 1);
+        save(s);
+        render();
+      });
+      $threads.appendChild(div);
+    });
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+  }
+
+  function esc(s) { return String(s || '').replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+
+  document.getElementById('sendBtn').addEventListener('click', function () {
+    const subj = $subject.value.trim();
+    const body = $body.value.trim();
+    if (!subj && !body) return;
+    if ($from.value === $to.value) { alert('Pick different sender and recipient.'); return; }
+    const s = load();
+    s.letters = s.letters || [];
+    s.letters.push({
+      id: 'l_' + Date.now().toString(36),
+      from: $from.value, to: $to.value,
+      subject: subj || '(no subject)',
+      body: body,
+      at: new Date().toISOString(),
+    });
+    save(s);
+    $subject.value = ''; $body.value = '';
+    render();
+  });
+
+  NHHousehold.subscribe(gate);
+  gate();
+})();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

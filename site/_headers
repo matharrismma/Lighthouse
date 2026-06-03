@@ -6,3 +6,28 @@
 
 /styles.css
   Cache-Control: public, max-age=86400
+
+/mac/START_FINETUNE.command
+  Content-Type: application/x-sh; charset=utf-8
+  Content-Disposition: attachment; filename="START_FINETUNE.command"
+  Cache-Control: public, max-age=300
+
+/mac/install.sh
+  Content-Type: application/x-sh; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/mac/corpus.jsonl
+  Content-Type: application/x-ndjson; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/mac/finetune_mlx.py
+  Content-Type: text/x-python; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/mac/START_FINETUNE.md
+  Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=300
+
+/mac/README.md
+  Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=300

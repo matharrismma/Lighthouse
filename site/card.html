@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card — Narrow Highway</title>
+<meta name="description" content="A single card from the library. Content, source, connections — all on one index card.">
+  <link rel="canonical" href="https://narrowhighway.com/card.html">
+<style>
+  body { font-family: Georgia, serif; max-width: 760px; margin: 0 auto; padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+  .empty, .loading { background: #fff; border: 1px dashed #c9b48a; padding: 2em; border-radius: 6px; text-align: center; color: #6a5a3a; margin-top: 2em; }
+
+  /* The card itself — physical index card */
+  .card {
+    background: #fffef7;
+    border: 1px solid #d4c8a5;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 #e8e0c0, 0 4px 12px rgba(60, 40, 0, 0.06), 0 12px 24px rgba(60, 40, 0, 0.03);
+    margin: 1.5em 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  /* The red ruling line at the top, like a real index card */
+  .card::before {
+    content: "";
+    display: block;
+    height: 1.7em;
+    background: linear-gradient(to bottom, transparent calc(100% - 2px), #c66 calc(100% - 2px), #c66 calc(100% - 1px), transparent 100%);
+    background-size: 100% 1.7em;
+    border-bottom: 1px solid #d4c8a5;
+  }
+  /* The blue rule lines */
+  .card .face {
+    padding: 0.8em 1.4em 1.4em;
+    background:
+      repeating-linear-gradient(
+        transparent 0 1.6em,
+        #d4dcef 1.6em calc(1.6em + 1px)
+      );
+    background-position: 0 0.4em;
+    min-height: 14em;
+  }
+
+  .card .eyebrow {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #806010;
+    margin-bottom: 0.2em;
+  }
+  .card h1 {
+    margin: 0 0 0.4em;
+    color: #1a3a52;
+    font-size: 1.55em;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+  .card .body {
+    font-size: 1.02em;
+    color: #2a2a28;
+    white-space: pre-wrap;
+    margin-bottom: 1.1em;
+  }
+  .card .meta {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em;
+    color: #6a5a3a;
+    margin-top: 0.6em;
+    padding-top: 0.5em;
+    border-top: 1px dashed #d4c8a5;
+  }
+  .card .meta .row { display: flex; gap: 0.4em; align-items: baseline; margin: 0.15em 0; }
+  .card .meta .label { color: #806010; min-width: 4.5em; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card .meta a { color: #1a3a52; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.12em 0.55em;
+    border-radius: 9px;
+    background: #f3eedb;
+    color: #1a3a52;
+    font-size: 0.78em;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.04em;
+    margin: 0.15em 0.2em 0.15em 0;
+    border: 1px solid #d4c8a5;
+  }
+  .pill.tier-scripture { background: #fff5d4; border-color: #b8945a; }
+  .pill.tier-creed, .pill.tier-catechism { background: #ede4ce; }
+  .pill.tier-matt { background: #e8eaf0; border-color: #8090a8; }
+  .pill.shelf { background: #fff; }
+  .pill.kind { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .pill.lifecycle { background: #5c8a3a; color: #fff; border-color: #5c8a3a; }
+  .pill.lifecycle.quarantine { background: #c66; }
+  .pill.lifecycle.archived { background: #888; }
+  .pill.volatility-permanent { background: #f0e7c8; }
+  .pill.volatility-current { background: #ffe0e0; }
+
+  /* The back of the card: connections */
+  .back {
+    background: #f5f0e0;
+    border-top: 2px dashed #c9b48a;
+    padding: 1em 1.4em 1.2em;
+  }
+  .back h2 {
+    font-size: 0.85em;
+    color: #806010;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 0.6em;
+  }
+  .conn {
+    background: #fffef7;
+    border: 1px solid #d4c8a5;
+    border-left: 4px solid #c9b48a;
+    padding: 0.5em 0.8em;
+    margin-bottom: 0.35em;
+    border-radius: 3px;
+    font-size: 0.95em;
+  }
+  .conn.proof_text { border-left-color: #b8945a; }
+  .conn.fulfills, .conn.cites { border-left-color: #5c8a3a; }
+  .conn.contradicts, .conn.counterexample { border-left-color: #c66; }
+  .conn.illuminates { border-left-color: #7090b0; }
+  .conn a { color: #1a3a52; text-decoration: none; font-weight: bold; }
+  .conn .rel {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78em;
+    color: #806010;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 0.4em;
+  }
+  .conn .arrow { color: #806010; margin: 0 0.3em; }
+  .conn .inbound-marker { font-size: 0.7em; color: #6a5a3a; font-style: italic; margin-left: 0.4em; }
+
+  /* Actions row */
+  .actions { margin-top: 1em; display: flex; gap: 0.5em; flex-wrap: wrap; }
+  .actions button {
+    background: #1a3a52; color: #f4ecd5; border: 1px solid #1a3a52;
+    padding: 0.5em 1em; font-family: inherit; font-size: 0.88em; border-radius: 3px; cursor: pointer;
+  }
+  .actions button:hover { background: #2a5570; }
+  .actions button.secondary { background: #fff; color: #1a3a52; }
+  .actions button.secondary:hover { background: #f3eedb; }
+  .actions .status { font-size: 0.85em; color: #6a5a3a; align-self: center; padding-left: 0.5em; }
+
+  .principle {
+    margin-top: 2em; padding: 0.8em 1em;
+    background: #f3eedb; border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0;
+    font-size: 0.88em; color: #5a4a30; font-style: italic;
+  }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top">
+  <a href="/">← Narrow Highway</a>
+  <a href="/walks.html">Walk the cards</a>
+  <a href="/codex.html">The Codex</a>
+</nav>
+
+<div id="root">
+  <div class="loading">Loading card…</div>
+</div>
+
+<script src="/nh-household.js"></script>
+<script src="/nh-sabbath.js"></script>
+<script src="/nh-voice.js"></script>
+<script>
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const cardId = params.get('id');
+  const root = document.getElementById('root');
+
+  if (!cardId) {
+    root.innerHTML = '<div class="empty"><p>No card id specified.</p><p style="margin-top:0.5em;"><a href="/walk.html">Walk the cards</a> to find one, or browse the <a href="/codex.html">Codex</a>.</p></div>';
+    return;
+  }
+
+  // Fetch the card + its connections in parallel
+  const [cardR, connR] = await Promise.all([
+    fetch('/cards/' + encodeURIComponent(cardId), { cache: 'no-store' }).then(r => r.ok ? r.json() : null),
+    fetch('/cards/' + encodeURIComponent(cardId) + '/connections', { cache: 'no-store' }).then(r => r.ok ? r.json() : { outgoing: [], inbound: [] }),
+  ]);
+
+  if (!cardR) {
+    root.innerHTML = '<div class="empty">No card with id <code>' + esc(cardId) + '</code>.</div>';
+    return;
+  }
+
+  // Inject SEO + structured-data metadata for crawlers (Google, AI agents).
+  // This runs after the fetch so each card.html?id=X URL becomes a distinct
+  // crawlable record with proper title, description, Open Graph, and
+  // schema.org Article JSON-LD.
+  try { injectMeta(cardR); } catch (e) { /* defensive */ }
+
+  render(cardR, connR);
+
+  function injectMeta(c) {
+    const src = c.source || {};
+    const title = (c.title || 'Card').slice(0, 200);
+    const desc = ((c.body || '').slice(0, 240)).replace(/\s+/g, ' ').trim();
+    const canonicalUrl = 'https://narrowhighway.com/card.html?id=' + encodeURIComponent(c.id || '');
+
+    document.title = title + ' — Narrow Highway';
+
+    const setMeta = (sel, attr, value) => {
+      let el = document.querySelector(sel);
+      if (!el) {
+        el = document.createElement('meta');
+        const parts = sel.match(/\[([^=]+)="([^"]+)"\]/);
+        if (parts) el.setAttribute(parts[1], parts[2]);
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, value);
+    };
+
+    setMeta('meta[name="description"]',           'content', desc || ('A card from Narrow Highway: ' + title));
+    setMeta('meta[property="og:title"]',          'content', title);
+    setMeta('meta[property="og:description"]',    'content', desc);
+    setMeta('meta[property="og:url"]',            'content', canonicalUrl);
+    setMeta('meta[property="og:type"]',           'content', 'article');
+    setMeta('meta[property="og:site_name"]',      'content', 'Narrow Highway');
+    setMeta('meta[property="og:image"]',          'content', 'https://narrowhighway.com/img/og_card.png');
+    setMeta('meta[name="twitter:card"]',          'content', 'summary_large_image');
+    setMeta('meta[name="twitter:title"]',         'content', title);
+    setMeta('meta[name="twitter:description"]',   'content', desc);
+    setMeta('meta[name="twitter:image"]',         'content', 'https://narrowhighway.com/img/og_card.png');
+
+    // Canonical link
+    let canon = document.querySelector('link[rel="canonical"]');
+    if (!canon) {
+      canon = document.createElement('link');
+      canon.setAttribute('rel', 'canonical');
+      document.head.appendChild(canon);
+    }
+    canon.setAttribute('href', canonicalUrl);
+
+    // schema.org Article JSON-LD — what Google Knowledge Graph + AI crawlers parse
+    const witnesses = Array.isArray(c.witnesses) ? c.witnesses : [];
+    const citations = witnesses.slice(0, 6).map(w => ({
+      '@type': 'CreativeWork',
+      'name':  (w.label || w.ref || '').slice(0, 200),
+      'url':   w.url || undefined,
+    }));
+    const ld = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      'headline': title,
+      'description': desc,
+      'mainEntityOfPage': canonicalUrl,
+      'url': canonicalUrl,
+      'inLanguage': 'en',
+      'isAccessibleForFree': true,
+      'datePublished': c.created_at || undefined,
+      'dateModified':  c.updated_at || c.created_at || undefined,
+      'author': {
+        '@type': 'Organization',
+        'name': c.author || 'Narrow Highway',
+        'url': 'https://narrowhighway.com',
+      },
+      'publisher': {
+        '@type': 'Organization',
+        'name': 'Narrow Highway',
+        'url': 'https://narrowhighway.com',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://narrowhighway.com/img/channel-narrow-highway.png',
+        },
+      },
+      'isPartOf': {
+        '@type': 'CreativeWorkSeries',
+        'name': 'Narrow Highway Concordance',
+        'url': 'https://narrowhighway.com/codex.html',
+      },
+      'citation': citations.length ? citations : undefined,
+    };
+    // Strip undefined leaves so JSON-LD stays clean
+    const clean = JSON.parse(JSON.stringify(ld));
+    let ldScript = document.getElementById('card-jsonld');
+    if (!ldScript) {
+      ldScript = document.createElement('script');
+      ldScript.id = 'card-jsonld';
+      ldScript.type = 'application/ld+json';
+      document.head.appendChild(ldScript);
+    }
+    ldScript.textContent = JSON.stringify(clean);
+  }
+
+  function render(c, conn) {
+    const src = c.source || {};
+    const tier = src.authority_tier || '';
+    const lifecycle = c.lifecycle_stage || '';
+    const volatility = c.volatility || '';
+
+    // Pre-fetch titles for connection targets so the back of the card is readable
+    const allTargets = [
+      ...(conn.outgoing || []).map(o => o.to_card_id),
+      ...(conn.inbound  || []).map(i => i.from_card_id),
+    ];
+    const uniqueTargets = Array.from(new Set(allTargets));
+    const titleByCardId = {};
+
+    Promise.all(uniqueTargets.map(tid =>
+      fetch('/cards/' + encodeURIComponent(tid), { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) titleByCardId[tid] = d.title || tid; })
+        .catch(() => {})
+    )).then(() => paint(c, conn, src, tier, lifecycle, volatility, titleByCardId));
+  }
+
+  function paint(c, conn, src, tier, lifecycle, volatility, titleByCardId) {
+    const outgoing = (conn.outgoing || []).map(o =>
+      '<div class="conn ' + esc(o.relationship) + '">' +
+        '<span class="rel">' + esc(o.relationship) + '</span>' +
+        '<span class="arrow">→</span>' +
+        '<a href="/card.html?id=' + esc(o.to_card_id) + '">' + esc(titleByCardId[o.to_card_id] || o.to_card_id) + '</a>' +
+      '</div>'
+    ).join('');
+
+    const inbound = (conn.inbound || []).map(i =>
+      '<div class="conn ' + esc(i.relationship) + '">' +
+        '<span class="rel">' + esc(i.relationship) + '</span>' +
+        '<span class="arrow">←</span>' +
+        '<a href="/card.html?id=' + esc(i.from_card_id) + '">' + esc(i.from_title || titleByCardId[i.from_card_id] || i.from_card_id) + '</a>' +
+        '<span class="inbound-marker">inbound</span>' +
+      '</div>'
+    ).join('');
+
+    const connectionsBlock = (outgoing || inbound) ?
+      '<div class="back">' +
+        (outgoing ? '<h2>Outgoing connections</h2>' + outgoing : '') +
+        (inbound  ? '<h2 style="margin-top:1em;">Inbound — cited by</h2>' + inbound : '') +
+      '</div>' :
+      '<div class="back"><h2>Back of card</h2><div style="font-size:0.9em; color:#6a5a3a; font-style:italic;">No connections drawn yet. The first family to walk this card and pull another one alongside it can author the connection.</div></div>';
+
+    const srcLink = src.url ?
+      '<a href="' + esc(src.url) + '">' + esc(src.label || src.url) + '</a>' :
+      esc(src.label || '');
+
+    root.innerHTML =
+      '<div class="card" data-readable data-voice-label="' + esc(c.title || '') + '">' +
+        '<div class="face">' +
+          '<div class="eyebrow">' +
+            '<span class="pill kind">' + esc(c.kind || 'note') + '</span> ' +
+            (c.shelf ? '<span class="pill shelf">' + esc(c.shelf) + (c.box ? ' / ' + esc(c.box) : '') + '</span> ' : '') +
+            (lifecycle ? '<span class="pill lifecycle ' + esc(lifecycle) + '">' + esc(lifecycle) + '</span> ' : '') +
+            (volatility ? '<span class="pill volatility-' + esc(volatility) + '">' + esc(volatility) + '</span> ' : '') +
+            (tier ? '<span class="pill tier-' + esc(tier) + '">' + esc(tier.replace(/_/g, ' ')) + '</span>' : '') +
+          '</div>' +
+          '<h1>' + esc(c.title || '(untitled)') + '</h1>' +
+          (c.body ? '<div class="body">' + esc(c.body) + '</div>' : '') +
+          '<div class="meta">' +
+            (srcLink ? '<div class="row"><span class="label">Source</span><span>' + srcLink + (src.ref ? ' &middot; ' + esc(src.ref) : '') + '</span></div>' : '') +
+            (c.author ? '<div class="row"><span class="label">Author</span><span>' + esc(c.author) + '</span></div>' : '') +
+            (c.created_at ? '<div class="row"><span class="label">Filed</span><span>' + esc(c.created_at.slice(0,10)) + '</span></div>' : '') +
+            ((c.bands && c.bands.length) ? '<div class="row"><span class="label">Bands</span><span>' + c.bands.map(b => '<span class="pill">' + esc(b) + '</span>').join('') + '</span></div>' : '') +
+            '<div class="row"><span class="label">ID</span><span style="word-break:break-all;">' + esc(c.id) + '</span></div>' +
+          '</div>' +
+          '<div class="actions">' +
+            '<button id="paperclipBtn" class="secondary" title="Add this card to your household stack">📎 Paperclip</button>' +
+            '<button id="helpfulBtn" class="secondary" title="Mark this card helpful">👍 Helpful</button>' +
+            '<button id="notHelpfulBtn" class="secondary" title="Mark this card not helpful">👎 Not helpful</button>' +
+            '<button id="flagBtn" class="secondary" title="Flag for operator review">🚩 Flag</button>' +
+            '<button id="copyIdBtn" class="secondary" title="Copy the card id">Copy id</button>' +
+            (src.url ? '<button class="secondary" onclick="window.location.href=\'' + esc(src.url) + '\'">Go to source</button>' : '') +
+            '<span class="status" id="actionStatus"></span>' +
+          '</div>' +
+        '</div>' +
+        connectionsBlock +
+      '</div>' +
+      '<p class="principle">Index cards teach by being read together. Pull this one\'s connections. The walk between them is the lesson.</p>' +
+      '<div id="balanceNotes" style="margin-top:1.2em;"></div>';
+
+    // Wire interactions
+    document.getElementById('paperclipBtn').addEventListener('click', async () => {
+      try {
+        let hhId;
+        const hh = (window.NHHousehold && NHHousehold.get && NHHousehold.get()) || {};
+        hhId = hh.id;
+        if (!hhId && window.NHHousehold && NHHousehold.create) {
+          NHHousehold.create({ name: 'My household' });
+          hhId = NHHousehold.id();
+        }
+        if (!hhId) hhId = 'anon_' + Math.random().toString(36).slice(2,10);
+        const resp = await fetch('/stacks/' + encodeURIComponent(hhId) + '/paperclip', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({card_id: c.id}),
+        });
+        const j = await resp.json();
+        const $s = document.getElementById('actionStatus');
+        if (j.status === 'paperclipped') $s.innerHTML = 'Paperclipped to your stack. <a href="/stack.html">View stack</a>';
+        else if (j.status === 'already_on_stack') $s.textContent = 'Already on your stack.';
+        else $s.textContent = j.detail || 'Could not paperclip.';
+      } catch (e) {
+        document.getElementById('actionStatus').textContent = 'Stack unavailable; try again.';
+      }
+    });
+    document.getElementById('copyIdBtn').addEventListener('click', () => {
+      try {
+        navigator.clipboard.writeText(c.id);
+        document.getElementById('actionStatus').textContent = 'Card id copied.';
+      } catch (e) {
+        document.getElementById('actionStatus').textContent = c.id;
+      }
+    });
+
+    function getVoter() {
+      try {
+        const hh = (window.NHHousehold && NHHousehold.get && NHHousehold.get()) || {};
+        return hh.id || 'anon';
+      } catch (e) { return 'anon'; }
+    }
+
+    document.getElementById('helpfulBtn').addEventListener('click', async () => {
+      const r = await fetch('/cards/' + encodeURIComponent(c.id) + '/helpful', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({voter: getVoter()}),
+      }).then(r => r.json());
+      document.getElementById('actionStatus').textContent = 'Helpful (total: ' + (r.helpful_count || '?') + ')';
+    });
+
+    document.getElementById('notHelpfulBtn').addEventListener('click', async () => {
+      const reason = prompt('Why not helpful? (optional)') || '';
+      const r = await fetch('/cards/' + encodeURIComponent(c.id) + '/not-helpful', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({voter: getVoter(), reason}),
+      }).then(r => r.json());
+      document.getElementById('actionStatus').textContent = 'Noted (' + (r.not_helpful_count || '?') + ').';
+    });
+
+    document.getElementById('flagBtn').addEventListener('click', async () => {
+      const reason = prompt('Reason for flagging this card (min 5 chars):') || '';
+      if (reason.trim().length < 5) {
+        document.getElementById('actionStatus').textContent = 'Flag needs a reason (min 5 chars).';
+        return;
+      }
+      const r = await fetch('/cards/' + encodeURIComponent(c.id) + '/flag', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({voter: getVoter(), reason}),
+      }).then(r => r.json());
+      document.getElementById('actionStatus').textContent = 'Flagged (total: ' + (r.flagged_count || '?') + '). Operator will review.';
+    });
+
+    // Rescan for voice readers on the newly-rendered content
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+
+    // Load balance notes (community notes that crossed the bridge threshold)
+    fetch('/notes/by_card/' + encodeURIComponent(c.id) + '/balance', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(b => {
+        const $b = document.getElementById('balanceNotes');
+        if (!$b) return;
+        let html = '';
+        if (b && b.balance_notes && b.balance_notes.length > 0) {
+          html += '<details open><summary style="cursor:pointer; font-family: \'Courier New\', monospace; font-size:0.85em; letter-spacing:0.1em; text-transform:uppercase; color:#806010;">Balance &#9660; (' + b.count + ' note' + (b.count===1?'':'s') + ' from across traditions)</summary>' +
+            b.balance_notes.map(n =>
+              '<div style="background:#fff; border:1px solid #d4c8a5; border-left:4px solid #5c8a3a; padding:0.7em 1em; margin-top:0.5em; border-radius:0 3px 3px 0;">' +
+                '<div style="font-size:0.78em; color:#806010; font-family: \'Courier New\', monospace; letter-spacing:0.06em;">By ' + esc(n.author) + ' &middot; agreed-with by: ' + (n.traditions_agreeing||[]).map(esc).join(', ') + ' &middot; bridge ' + (n.bridge_score||0) + '</div>' +
+                '<div style="margin-top:0.3em; color:#2a2a28;">' + esc(n.body) + '</div>' +
+              '</div>'
+            ).join('') +
+          '</details>';
+        }
+        // Author-a-note form (always present, collapsed)
+        html += '<details style="margin-top:0.8em;"><summary style="cursor:pointer; font-family: \'Courier New\', monospace; font-size:0.85em; letter-spacing:0.1em; text-transform:uppercase; color:#806010;">+ Add a community note</summary>' +
+          '<div style="background:#fffef7; border:1px solid #d4c8a5; padding:0.8em 1em; margin-top:0.5em; border-radius:3px;">' +
+            '<p style="margin:0 0 0.4em; font-size:0.88em; color:#6a5a3a; font-style:italic;">Notes annotate the card without overwriting it. A note only surfaces as Balance when raters from two or more different traditions both find it helpful — popularity within one tradition never beats bridging.</p>' +
+            '<label style="font-family:\'Courier New\', monospace; font-size:0.75em; color:#806010; letter-spacing:0.08em;">YOUR TRADITION (optional)</label>' +
+            '<select id="noteTradition" style="display:block; width:100%; padding:0.4em 0.6em; margin-bottom:0.5em; border:1px solid #d4c8a5; border-radius:3px; background:#fff;">' +
+              '<option value="">— not specified —</option>' +
+              '<option value="reformed_baptist">Reformed Baptist (1689)</option>' +
+              '<option value="presbyterian">Presbyterian (PCA/OPC/WCF)</option>' +
+              '<option value="lutheran">Lutheran (LCMS/WELS)</option>' +
+              '<option value="anglican">Anglican</option>' +
+              '<option value="catholic">Catholic</option>' +
+              '<option value="orthodox">Eastern Orthodox</option>' +
+              '<option value="methodist">Methodist / Wesleyan</option>' +
+              '<option value="pentecostal">Pentecostal / Charismatic</option>' +
+              '<option value="anabaptist">Anabaptist</option>' +
+              '<option value="non_denominational">Non-denominational</option>' +
+              '<option value="reformed_other">Other Reformed</option>' +
+            '</select>' +
+            '<label style="font-family:\'Courier New\', monospace; font-size:0.75em; color:#806010; letter-spacing:0.08em;">YOUR NOTE</label>' +
+            '<textarea id="noteBody" placeholder="Context, correction, counterpoint. Keep it terse. Cite a source if you can." style="display:block; width:100%; min-height:5em; padding:0.5em 0.7em; border:1px solid #d4c8a5; border-radius:3px; font-family:Georgia, serif; font-size:0.95em; background:#fff;"></textarea>' +
+            '<label style="font-family:\'Courier New\', monospace; font-size:0.75em; color:#806010; letter-spacing:0.08em; margin-top:0.4em; display:block;">SOURCE LABEL (optional)</label>' +
+            '<input id="noteSource" placeholder="e.g. WLC Q176, Calvin Institutes 3.21.5" style="display:block; width:100%; padding:0.4em 0.6em; border:1px solid #d4c8a5; border-radius:3px; background:#fff;">' +
+            '<div style="margin-top:0.6em; display:flex; gap:0.5em; align-items:center;">' +
+              '<button id="submitNote" style="background:#1a3a52; color:#f4ecd5; border:none; padding:0.5em 1.2em; border-radius:3px; cursor:pointer;">Submit note</button>' +
+              '<span id="noteStatus" style="font-size:0.85em; color:#6a5a3a; font-style:italic;"></span>' +
+            '</div>' +
+          '</div>' +
+        '</details>';
+        $b.innerHTML = html;
+        const $btn = document.getElementById('submitNote');
+        if ($btn) {
+          $btn.addEventListener('click', async () => {
+            const body = (document.getElementById('noteBody').value || '').trim();
+            const tradition = document.getElementById('noteTradition').value;
+            const source = (document.getElementById('noteSource').value || '').trim();
+            if (body.length < 10) {
+              document.getElementById('noteStatus').textContent = 'Note too short (min 10 chars).';
+              return;
+            }
+            let hhId;
+            try {
+              hhId = (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'anon';
+            } catch (e) { hhId = 'anon'; }
+            const payload = {
+              card_id: c.id,
+              body, tradition,
+              source_label: source || null,
+              author: 'household_' + hhId,
+            };
+            try {
+              const r = await fetch('/notes', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(payload),
+              });
+              const j = await r.json();
+              if (j.status === 'authored') {
+                document.getElementById('noteStatus').textContent = 'Filed. Note will surface once raters from at least 2 traditions agree.';
+                document.getElementById('noteBody').value = '';
+              } else {
+                document.getElementById('noteStatus').textContent = 'Failed: ' + JSON.stringify(j);
+              }
+            } catch (e) {
+              document.getElementById('noteStatus').textContent = 'Failed: ' + e.message;
+            }
+          });
+        }
+      })
+      .catch(() => {});
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+})();
+</script>
+
+<script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

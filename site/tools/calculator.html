@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator — Narrow Highway</title>
+<style>
+  body { font-family: Georgia, serif; max-width: 460px; margin: 1.5em auto; padding: 0 1em; background: #fafaf6; color: #2a2a28; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; margin: 0 0 0.6em; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .calc { background: #fff; border: 1px solid #d4c8a5; border-radius: 8px; padding: 1em; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .display { background: #f4ecd5; border: 1px solid #c9b48a; border-radius: 4px; padding: 0.6em 0.8em; min-height: 2.6em; font-family: 'Courier New', monospace; font-size: 1.4em; text-align: right; word-break: break-all; margin-bottom: 0.6em; color: #2a2a28; }
+  .display .history { color: #888; font-size: 0.7em; min-height: 1em; }
+  .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4em; }
+  button { padding: 1em; font-size: 1.1em; font-family: Georgia, serif; background: #f0eada; border: 1px solid #c9b48a; border-radius: 4px; cursor: pointer; color: #2a2a28; }
+  button:hover { background: #e6dcb8; }
+  button.op { background: #1a3a52; color: #fff; border-color: #1a3a52; }
+  button.op:hover { background: #2b5275; }
+  button.clear { background: #b03020; color: #fff; border-color: #b03020; }
+  button.eq { background: #5c8a3a; color: #fff; border-color: #5c8a3a; grid-column: span 1; }
+  button.wide { grid-column: span 2; }
+  .sci-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4em; margin-bottom: 0.4em; }
+  .sci-row button { padding: 0.5em; font-size: 0.9em; background: #d6e0ea; border-color: #1a3a52; color: #1a3a52; }
+</style>
+</head>
+<body>
+
+<nav class="top"><a href="/tools.html">← Tools</a> · <a href="/">Narrow Highway</a></nav>
+<h1>Calculator</h1>
+
+<div class="calc">
+  <div class="display">
+    <div class="history" id="history">&nbsp;</div>
+    <div id="display">0</div>
+  </div>
+  <div class="sci-row">
+    <button onclick="sci('sqrt')">√</button>
+    <button onclick="sci('sin')">sin</button>
+    <button onclick="sci('cos')">cos</button>
+    <button onclick="sci('tan')">tan</button>
+    <button onclick="sci('log')">log</button>
+  </div>
+  <div class="sci-row">
+    <button onclick="sci('sq')">x²</button>
+    <button onclick="sci('pow')">xʸ</button>
+    <button onclick="sci('inv')">1/x</button>
+    <button onclick="sci('pi')">π</button>
+    <button onclick="sci('e')">e</button>
+  </div>
+  <div class="keys">
+    <button class="clear" onclick="clearAll()">AC</button>
+    <button onclick="back()">⌫</button>
+    <button onclick="op('%')">%</button>
+    <button class="op" onclick="op('/')">÷</button>
+
+    <button onclick="num('7')">7</button>
+    <button onclick="num('8')">8</button>
+    <button onclick="num('9')">9</button>
+    <button class="op" onclick="op('*')">×</button>
+
+    <button onclick="num('4')">4</button>
+    <button onclick="num('5')">5</button>
+    <button onclick="num('6')">6</button>
+    <button class="op" onclick="op('-')">−</button>
+
+    <button onclick="num('1')">1</button>
+    <button onclick="num('2')">2</button>
+    <button onclick="num('3')">3</button>
+    <button class="op" onclick="op('+')">+</button>
+
+    <button class="wide" onclick="num('0')">0</button>
+    <button onclick="num('.')">.</button>
+    <button class="eq" onclick="equals()">=</button>
+  </div>
+</div>
+
+<script>
+  let expr = '0';
+  const $disp = document.getElementById('display');
+  const $hist = document.getElementById('history');
+  function render() { $disp.textContent = expr || '0'; }
+
+  function num(n) {
+    if (expr === '0' && n !== '.') expr = '';
+    expr += n;
+    render();
+  }
+  function op(o) {
+    if (/[+\-*/%]$/.test(expr)) expr = expr.slice(0, -1);
+    expr += o;
+    render();
+  }
+  function clearAll() { expr = '0'; $hist.innerHTML = '&nbsp;'; render(); }
+  function back() { expr = expr.slice(0, -1) || '0'; render(); }
+  function sci(f) {
+    try {
+      let v = parseFloat(expr);
+      if (isNaN(v)) v = 0;
+      let r;
+      switch (f) {
+        case 'sqrt': r = Math.sqrt(v); break;
+        case 'sin':  r = Math.sin(v * Math.PI / 180); break;
+        case 'cos':  r = Math.cos(v * Math.PI / 180); break;
+        case 'tan':  r = Math.tan(v * Math.PI / 180); break;
+        case 'log':  r = Math.log10(v); break;
+        case 'sq':   r = v * v; break;
+        case 'pow':  expr += '**'; render(); return;
+        case 'inv':  r = 1 / v; break;
+        case 'pi':   expr = (expr === '0' ? '' : expr) + Math.PI; render(); return;
+        case 'e':    expr = (expr === '0' ? '' : expr) + Math.E; render(); return;
+      }
+      $hist.textContent = `${f}(${v}) =`;
+      expr = String(r);
+      render();
+    } catch (e) { expr = 'err'; render(); }
+  }
+  function equals() {
+    try {
+      // Safe evaluator — only digits, operators, parens, dots
+      if (!/^[\d+\-*/().% ]+(\*\*[\d.]+)?$/.test(expr.replace(/\s/g,''))) throw 0;
+      // Map % to /100 in evaluation
+      const cleaned = expr.replace(/%/g, '/100');
+      const r = Function(`"use strict"; return (${cleaned});`)();
+      $hist.textContent = expr + ' =';
+      expr = String(r);
+      render();
+    } catch (e) { expr = 'err'; render(); }
+  }
+  // Keyboard support
+  document.addEventListener('keydown', e => {
+    if (/[\d.+\-*/%]/.test(e.key)) { num(e.key); e.preventDefault(); }
+    else if (e.key === 'Enter' || e.key === '=') { equals(); e.preventDefault(); }
+    else if (e.key === 'Backspace') { back(); e.preventDefault(); }
+    else if (e.key === 'Escape') { clearAll(); e.preventDefault(); }
+  });
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

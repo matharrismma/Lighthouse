@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.chronicle.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chronicle · The Concordance over time · Concordance Engine</title>
+  <meta name="description" content="The temporal lens on the Concordance. Every packet — almanac entries, sealed records, protocols, receipts, archetypes — placed on a scroll in time order. What the engine has worked through, when.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Chronicle · The Concordance over time">
+  <meta property="og:description" content="Every packet in the engine's substrate, placed on a scroll in time order.">
+  <meta property="og:url" content="https://narrowhighway.com/chronicle.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/chronicle.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    .cr-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .cr-intro em { color: var(--accent); font-style: italic; }
+    .cr-intro b { color: var(--accent); }
+
+    .lens-bar {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+    }
+    .lens-bar .lens-label {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .lens-bar a {
+      padding: 4px 11px;
+      border-radius: 14px;
+      color: var(--text-dim);
+      border: 1px solid var(--border-hi);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: all 0.12s;
+    }
+    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
+    .lens-bar a.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Chronicle filter chips */
+    .cr-controls {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      margin: 14px 0 22px;
+    }
+    .cr-filter {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.12s;
+      letter-spacing: 0.04em;
+    }
+    .cr-filter:hover { border-color: var(--accent); color: var(--accent); }
+    .cr-filter.active {
+      background: var(--accent);
+      color: #1a1208;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+    .cr-controls .cr-order {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .cr-controls .cr-order a {
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+
+    /* Timeline */
+    .cr-timeline {
+      position: relative;
+      padding-left: 28px;
+      margin: 12px 0 60px;
+    }
+    .cr-timeline::before {
+      content: '';
+      position: absolute;
+      left: 9px; top: 4px; bottom: 4px;
+      width: 1px;
+      background: linear-gradient(180deg, transparent 0, var(--border-hi) 30px, var(--border-hi) calc(100% - 30px), transparent 100%);
+    }
+
+    .cr-day {
+      position: relative;
+      margin-bottom: 22px;
+    }
+    .cr-day-header {
+      position: sticky;
+      top: 56px;
+      z-index: 30;
+      background: var(--bg, #0a0810);
+      padding: 8px 0 8px;
+      margin-left: -28px;
+      padding-left: 28px;
+      margin-bottom: 8px;
+    }
+    .cr-day-header .date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .cr-day-header .ct {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      margin-left: 10px;
+    }
+
+    .cr-event {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: 8px;
+      padding: 10px 14px 10px 14px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: all 0.12s;
+    }
+    .cr-event::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 16px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--border-hi);
+      border: 2px solid var(--bg, #0a0810);
+    }
+    .cr-event:hover { border-color: var(--accent); transform: translateX(2px); }
+
+    .cr-event.k-almanac        { border-left-color: var(--accent); }
+    .cr-event.k-sealed_poly    { border-left-color: var(--pass); }
+    .cr-event.k-fieldkit_card  { border-left-color: #e3c498; }
+    .cr-event.k-protocol       { border-left-color: #7fa8c0; }
+    .cr-event.k-archetype      { border-left-color: #b88ed6; }
+    .cr-event.k-misalignment   { border-left-color: var(--hold); }
+    .cr-event.k-build_queue    { border-left-color: var(--muted-2); }
+    .cr-event.k-receipt        { border-left-color: var(--pass); }
+    .cr-event.k-almanac::before        { background: var(--accent); }
+    .cr-event.k-sealed_poly::before    { background: var(--pass); }
+    .cr-event.k-fieldkit_card::before  { background: #e3c498; }
+    .cr-event.k-protocol::before       { background: #7fa8c0; }
+    .cr-event.k-archetype::before      { background: #b88ed6; }
+    .cr-event.k-misalignment::before   { background: var(--hold); }
+    .cr-event.k-receipt::before        { background: var(--pass); }
+
+    .cr-event-head {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .cr-event-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .cr-event-kind {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .cr-event.k-almanac        .cr-event-kind { color: var(--accent); }
+    .cr-event.k-sealed_poly    .cr-event-kind { color: var(--pass); }
+    .cr-event.k-fieldkit_card  .cr-event-kind { color: #e3c498; }
+    .cr-event.k-protocol       .cr-event-kind { color: #7fa8c0; }
+    .cr-event.k-archetype      .cr-event-kind { color: #b88ed6; }
+    .cr-event.k-misalignment   .cr-event-kind { color: var(--hold); }
+    .cr-event.k-receipt        .cr-event-kind { color: var(--pass); }
+    .cr-event-verdict {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 1px 7px;
+      border-radius: 9px;
+      border: 1px solid var(--border-hi);
+    }
+    .cr-event-verdict.CONFIRMED, .cr-event-verdict.CONCORDANT { color: var(--pass); border-color: rgba(111,196,124,0.35); background: rgba(111,196,124,0.06); }
+    .cr-event-verdict.MISMATCH, .cr-event-verdict.DISCORDANT { color: var(--fail); border-color: rgba(201,108,108,0.35); background: rgba(201,108,108,0.06); }
+    .cr-event-verdict.MIXED { color: var(--hold); border-color: rgba(196,160,48,0.35); background: rgba(196,160,48,0.06); }
+    .cr-event-verdict.OBSOLETE { color: var(--muted); border-color: var(--border); }
+    .cr-event-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+      margin: 2px 0;
+    }
+    .cr-event-summary {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      max-height: 2.9em;
+      overflow: hidden;
+    }
+    .cr-empty {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      padding: 24px;
+      text-align: center;
+    }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">The Chronicle · a temporal lens</div>
+    <h1 data-i18n="page.chronicle.h1">The Chronicle.</h1>
+    <p class="cr-intro">
+      One Concordance, many lenses. <b>The Chronicle</b> is the temporal lens —
+      every packet placed on a scroll in <em>time order</em>. What the engine has
+      worked through, when. Sealed records, almanac promotions, misalignments,
+      receipts, archetypes — same substrate, sorted by when it happened.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the chronicle tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+
+  <div class="lens-bar"><span class="lens-label">Lenses</span>
+    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html">Atlas</a><a href="/encyclopedia.html">Encyclopedia</a><a href="/chronicle.html" class="active">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html">Shepherd</a><a href="/packets.html">Index</a></div>
+
+  <div class="cr-controls">
+    <button class="cr-filter active" data-kind="">all</button>
+    <button class="cr-filter" data-kind="almanac">almanac</button>
+    <button class="cr-filter" data-kind="protocol">protocol</button>
+    <button class="cr-filter" data-kind="archetype">archetype</button>
+    <button class="cr-filter" data-kind="fieldkit_card">fieldkit</button>
+    <button class="cr-filter" data-kind="sealed_poly">sealed</button>
+    <button class="cr-filter" data-kind="receipt">receipts</button>
+    <span class="cr-order">order: <a id="cr-order-toggle">newest first</a></span>
+  </div>
+
+  <div id="cr-timeline" class="cr-timeline">
+    <div class="cr-empty">Loading the chronicle…</div>
+  </div>
+
+</main>
+
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000' : '';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  let ACTIVE_KIND = '';
+  let ACTIVE_ORDER = 'newest_first';
+
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+  }
+  function fmtTime(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts * 1000);
+    return d.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+  }
+  function dayKey(ts) {
+    if (!ts) return 'unknown';
+    const d = new Date(ts * 1000);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function render(packets) {
+    if (!packets.length) {
+      document.getElementById('cr-timeline').innerHTML = '<div class="cr-empty">No events in this view yet.</div>';
+      return;
+    }
+    // Group by day
+    const days = {};
+    for (const p of packets) {
+      const k = dayKey(p.timestamp);
+      days[k] ||= [];
+      days[k].push(p);
+    }
+    const orderedDays = Object.keys(days).sort((a,b) => ACTIVE_ORDER === 'newest_first' ? b.localeCompare(a) : a.localeCompare(b));
+
+    let html = '';
+    for (const day of orderedDays) {
+      const items = days[day];
+      const niceDate = day === 'unknown' ? 'date unknown' : fmtDate(items[0].timestamp);
+      html += `<section class="cr-day">
+        <div class="cr-day-header"><span class="date">${esc(niceDate)}</span><span class="ct">${items.length} event${items.length === 1 ? '' : 's'}</span></div>`;
+      for (const p of items) {
+        const kind = (p.kind || '').toLowerCase();
+        const verdict = p.verdict ? `<span class="cr-event-verdict ${esc(p.verdict)}">${esc(p.verdict)}</span>` : '';
+        const summary = p.summary ? `<div class="cr-event-summary">${esc(p.summary)}</div>` : '';
+        html += `
+          <a class="cr-event k-${esc(kind)}" href="${esc(p.permalink || '#')}">
+            <div class="cr-event-head">
+              <span class="cr-event-time">${esc(fmtTime(p.timestamp))}</span>
+              <span class="cr-event-kind">${esc(kind.replace(/_/g,' '))}</span>
+              ${verdict}
+            </div>
+            <div class="cr-event-title">${esc(p.title || p.id || '(untitled)')}</div>
+            ${summary}
+          </a>`;
+      }
+      html += '</section>';
+    }
+    document.getElementById('cr-timeline').innerHTML = html;
+  }
+
+  async function load() {
+    try {
+      const params = new URLSearchParams({order: ACTIVE_ORDER, limit: '1000'});
+      if (ACTIVE_KIND) params.set('kinds', ACTIVE_KIND);
+      const r = await fetch(API + '/index/packets/chronological?' + params.toString(), {cache: 'no-store'});
+      if (!r.ok) throw new Error('engine ' + r.status);
+      const d = await r.json();
+      render(d.packets || []);
+    } catch (err) {
+      document.getElementById('cr-timeline').innerHTML = `<div class="cr-empty">Chronicle could not load (${esc(err.message)}). Engine may be offline.</div>`;
+    }
+  }
+
+  // Filter buttons
+  document.querySelectorAll('.cr-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cr-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ACTIVE_KIND = btn.dataset.kind;
+      load();
+    });
+  });
+
+  // Order toggle
+  document.getElementById('cr-order-toggle').addEventListener('click', () => {
+    ACTIVE_ORDER = ACTIVE_ORDER === 'newest_first' ? 'oldest_first' : 'newest_first';
+    document.getElementById('cr-order-toggle').textContent = ACTIVE_ORDER === 'newest_first' ? 'newest first' : 'oldest first';
+    load();
+  });
+
+  load();
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

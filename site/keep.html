@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.keep.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Keep · Narrow Highway operator view</title>
+  <meta name="description" content="Operator view — engine pulse, items needing attention, today's work, traffic, deeper surfaces.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+    .keep-wrap { max-width: 1280px; margin: 0 auto; padding: 26px 22px 80px; }
+
+    /* ── Header ───────────────────────────────────────────── */
+    .keep-header { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 20px; }
+    .keep-header h1 { font-family: 'Crimson Pro', Georgia, serif; font-size: 30px; font-weight: 600;
+      margin: 0; color: var(--text); }
+    .keep-header .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.20em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+    .keep-header .meta { margin-left: auto; font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted); display: flex; gap: 14px; align-items: center; }
+    .refresh-btn { background: var(--accent); color: #1a1208; border: none; border-radius: 6px;
+      padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      letter-spacing: 0.10em; text-transform: uppercase; font-weight: 600; cursor: pointer; }
+    .refresh-btn:hover { background: var(--accent-hi); }
+
+    /* ── Section frames ────────────────────────────────────── */
+    .section { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 20px 22px; margin-bottom: 16px; }
+    .section h2 { font-family: 'Crimson Pro', Georgia, serif; font-size: 22px; font-weight: 600;
+      margin: 0 0 6px; color: var(--text); display: flex; align-items: baseline; gap: 12px; }
+    .section h2 .ct { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.10em; color: var(--accent); font-weight: 600; }
+    .section .sub { font-family: 'Crimson Pro', Georgia, serif; font-style: italic;
+      font-size: 13px; color: var(--text-dim); margin: 0 0 14px; }
+
+    /* ── Pulse cards ────────────────────────────────────────── */
+    .pulse-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px; margin: 10px 0 16px; }
+    .pulse-card { background: var(--bg-2, #0f0d11); border: 1px solid var(--border);
+      border-radius: 6px; padding: 11px 13px; }
+    .pc-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .pc-val { font-size: 1.8em; font-weight: 600; color: var(--text); line-height: 1.05;
+      font-variant-numeric: tabular-nums; }
+    .pc-val.down { color: var(--fail); }
+    .pc-val.alive { color: var(--pass); }
+    .pc-sub { font-size: 11px; color: var(--muted); margin-top: 4px;
+      font-family: 'Crimson Pro', Georgia, serif; font-style: italic; }
+
+    /* ── Needs-attention strip ─────────────────────────────── */
+    .attn-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px; margin-top: 6px; }
+    .attn-card { background: var(--bg-2, #0f0d11); border: 1px solid var(--border);
+      border-left: 3px solid var(--muted-2); border-radius: 6px; padding: 11px 13px;
+      display: flex; flex-direction: column; gap: 4px; }
+    .attn-card.hot { border-left-color: var(--fail); }
+    .attn-card.warm { border-left-color: var(--hold); }
+    .attn-card.cool { border-left-color: var(--pass); }
+    .attn-num { font-size: 1.7em; font-weight: 600; line-height: 1.05;
+      font-variant-numeric: tabular-nums; color: var(--text); }
+    .attn-card.hot .attn-num { color: var(--fail); }
+    .attn-card.warm .attn-num { color: var(--hold); }
+    .attn-card.cool .attn-num { color: var(--pass); }
+    .attn-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--muted); }
+    .attn-lnk { font-size: 11px; color: var(--accent); text-decoration: none; margin-top: auto; }
+    .attn-lnk:hover { text-decoration: underline; }
+    .attn-allclear { padding: 14px 16px; background: rgba(111,196,124,0.05);
+      border: 1px dashed rgba(111,196,124,0.3); border-radius: 6px; color: var(--pass);
+      font-family: 'Crimson Pro', Georgia, serif; font-style: italic; font-size: 14px; }
+
+    /* ── 2-column lists ─────────────────────────────────────── */
+    .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px; }
+    @media (max-width: 820px) { .twocol { grid-template-columns: 1fr; } }
+    .pulse-list-h { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .pulse-list { background: var(--bg-2, #0f0d11); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 0; min-height: 60px; }
+    .pulse-list a, .pulse-list .row { display: block; padding: 7px 13px; border-bottom: 1px solid var(--border);
+      color: var(--text); text-decoration: none; font-size: 13px; line-height: 1.35; }
+    .pulse-list a:last-child, .pulse-list .row:last-child { border-bottom: 0; }
+    .pulse-list a:hover { background: rgba(201,168,124,0.06); }
+    .pulse-list .pl-meta { display: flex; gap: 12px; font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.04em; }
+    .pulse-list .pl-status { padding: 14px; color: var(--muted); font-size: 12px; font-style: italic; }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    table.feed { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.feed th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+      padding: 6px 8px; border-bottom: 1px solid var(--border); }
+    table.feed td { padding: 8px; border-bottom: 1px dashed var(--border); vertical-align: top; }
+    table.feed tr:hover td { background: rgba(217,168,114,0.04); }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+    .when { color: var(--muted); white-space: nowrap; }
+    .status { font-style: italic; color: var(--muted); padding: 12px 0; font-size: 12.5px; }
+    .status.err { color: var(--fail); }
+
+    /* ── Breakdown ─────────────────────────────────────────── */
+    .breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 8px; }
+    .breakdown .bgroup h3 { font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    .breakdown .row { display: flex; justify-content: space-between; align-items: baseline;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 3px 0; }
+    .breakdown .row .k { color: var(--text-dim); }
+    .breakdown .row .v { color: var(--accent); font-weight: 600; }
+
+    /* ── Operator tools row ─────────────────────────────────── */
+    .tool-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px; margin-top: 4px; }
+    .tool-row a { display: block; padding: 11px 13px; background: var(--bg-2, #0f0d11);
+      border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px;
+      text-decoration: none; color: inherit; }
+    .tool-row a .tn { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .tool-row a .tt { font-size: 13.5px; color: var(--text); }
+    .tool-row a .ts { font-family: 'Crimson Pro', Georgia, serif; font-style: italic;
+      font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .tool-row a:hover { background: rgba(201,168,124,0.07); }
+
+    /* ── Disclosure ──────────────────────────────────────────── */
+    details.archive { background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 0; margin-bottom: 16px; }
+    details.archive > summary { padding: 14px 22px; cursor: pointer; font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px; font-weight: 600; color: var(--text); list-style: none; }
+    details.archive > summary::-webkit-details-marker { display: none; }
+    details.archive > summary::before { content: "▸ "; color: var(--accent); margin-right: 6px; }
+    details.archive[open] > summary::before { content: "▾ "; }
+    details.archive > summary .ct { font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--muted); margin-left: 10px; font-weight: 400; }
+    details.archive .archive-body { padding: 0 22px 18px; }
+    details.archive .archive-body .section { background: var(--bg-2, #0f0d11); padding: 14px 16px;
+      margin-bottom: 10px; }
+    details.archive .archive-body .section h2 { font-size: 16px; margin-bottom: 4px; }
+    details.archive .archive-body .section .sub { font-size: 12px; margin-bottom: 10px; }
+
+    /* ── Future-surfaces / TODO list ────────────────────────── */
+    .future-list { list-style: none; padding: 0; margin: 0; display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+    .future-list li { padding: 9px 12px; background: var(--bg-2, #0f0d11); border: 1px dashed var(--border);
+      border-radius: 5px; font-size: 12.5px; color: var(--text-dim); }
+    .future-list li .fp { font-family: 'JetBrains Mono', monospace; color: var(--muted);
+      font-size: 10.5px; letter-spacing: 0.04em; }
+
+    .verdict-CONFIRMED, .verdict-CONCORDANT { color: var(--pass); font-weight: 600; }
+    .verdict-MIXED { color: var(--hold); font-weight: 600; }
+    .verdict-MISMATCH, .verdict-DISCORDANT { color: var(--fail); font-weight: 600; }
+    .verdict-OBSOLETE { color: var(--muted); font-weight: 600; }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<div class="keep-wrap">
+
+  <div class="keep-header">
+    <div>
+      <div class="eyebrow">Operator view · URL-only, not linked from any lens</div>
+      <h1 data-i18n="page.keep.h1">The Keep</h1>
+    </div>
+    <div class="meta">
+      <span id="lastUpdated">—</span>
+      <button class="refresh-btn" id="refreshBtn" type="button">Refresh</button>
+    </div>
+  </div>
+
+  <!-- ── PULSE ───────────────────────────────────────────────── -->
+  <div class="section" style="border-left:3px solid var(--pass);
+       background: linear-gradient(180deg, rgba(111,196,124,0.05), rgba(0,0,0,0));">
+    <h2>Pulse <span class="ct" id="ct-pulse">refreshes every 30s</span></h2>
+    <p class="sub">Engine, channel, today, substrate. Reads from the same six endpoints that drive everything.</p>
+
+    <div class="pulse-grid">
+      <div class="pulse-card">
+        <div class="pc-lbl">Engine</div>
+        <div class="pc-val" id="p-engine-state">checking&hellip;</div>
+        <div class="pc-sub" id="p-engine-meta">&mdash;</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Live channel</div>
+        <div class="pc-val" id="p-channel-state">&mdash;</div>
+        <div class="pc-sub" id="p-channel-meta">&mdash;</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Visits today</div>
+        <div class="pc-val" id="p-visits-today">&mdash;</div>
+        <div class="pc-sub" id="p-visits-meta">human · agent · scanner</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Discernments today</div>
+        <div class="pc-val" id="p-disc-today">&mdash;</div>
+        <div class="pc-sub" id="p-disc-meta">all-time &mdash;</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Substrate</div>
+        <div class="pc-val" id="p-cards">&mdash;</div>
+        <div class="pc-sub" id="p-cards-meta">cards across all shelves</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Seeds awaiting</div>
+        <div class="pc-val" id="p-seeds">&mdash;</div>
+        <div class="pc-sub" id="p-seeds-meta">open questions in the garden</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ENGINE INSIGHTS ─────────────────────────────────────── -->
+  <div class="section" style="border-left:3px solid var(--accent,#d9a872);
+       background: linear-gradient(180deg, rgba(217,168,114,0.06), rgba(0,0,0,0));">
+    <h2>Engine insights <span class="ct" id="ct-insights">live</span></h2>
+    <p class="sub">Spend against your $500 cap, the AI agents discovering the engine (the mission), and what the autonomous gather is producing.</p>
+    <div class="pulse-grid">
+      <div class="pulse-card">
+        <div class="pc-lbl">Spend this month</div>
+        <div class="pc-val" id="i-spend">&mdash;</div>
+        <div class="pc-sub" id="i-spend-meta">of $500 cap</div>
+        <div style="height:5px;background:rgba(0,0,0,0.12);border-radius:3px;margin-top:7px;overflow:hidden;">
+          <div id="i-spend-bar" style="height:100%;width:0%;background:var(--pass,#6fc47c);transition:width .4s;"></div>
+        </div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">AI agents today</div>
+        <div class="pc-val" id="i-ai">&mdash;</div>
+        <div class="pc-sub" id="i-ai-meta">agents finding the engine</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Connections pending</div>
+        <div class="pc-val" id="i-conn">&mdash;</div>
+        <div class="pc-sub" id="i-conn-meta">cross-domain links to review</div>
+      </div>
+      <div class="pulse-card">
+        <div class="pc-lbl">Training corpus</div>
+        <div class="pc-val" id="i-corpus">&mdash;</div>
+        <div class="pc-sub" id="i-corpus-meta">gate-passing pairs</div>
+      </div>
+    </div>
+    <div id="i-ai-list" class="sub" style="margin-top:11px;line-height:1.9;"></div>
+  </div>
+  <script>
+  (function(){
+    function $i(id){return document.getElementById(id);}
+    async function loadInsights(){
+      try{
+        const r = await fetch('/keep/insights',{cache:'no-store'});
+        if(!r.ok) return;
+        const d = await r.json();
+        // spend
+        if(d.spend && !d.spend.error){
+          $i('i-spend').textContent = '$'+(d.spend.spent_usd||0).toFixed(2);
+          $i('i-spend-meta').textContent = 'of $'+d.spend.cap_usd+' cap · $'+d.spend.remaining_usd+' left';
+          const pct = Math.min(100, d.spend.pct||0);
+          const bar = $i('i-spend-bar');
+          bar.style.width = pct+'%';
+          bar.style.background = pct>85 ? 'var(--fail,#e06c5e)' : pct>50 ? 'var(--hold,#e0b84e)' : 'var(--pass,#6fc47c)';
+        }
+        // ai agents
+        if(d.ai_agents && !d.ai_agents.error){
+          $i('i-ai').textContent = d.ai_agents.total_today||0;
+          const by = d.ai_agents.by_agent||{};
+          const names = Object.keys(by);
+          $i('i-ai-meta').textContent = names.length ? names.length+' distinct agents' : 'none yet today';
+          $i('i-ai-list').innerHTML = names.length
+            ? '<strong>Agents discovering the engine:</strong> ' + names.map(n=>
+                '<span style="display:inline-block;background:rgba(122,92,158,0.14);color:#5a4937;border-radius:999px;padding:2px 9px;margin:2px 3px;font-size:.85em;">'+n+' · '+by[n]+'</span>').join('')
+            : '';
+        }
+        // gather
+        if(d.gather){
+          $i('i-conn').textContent = (d.gather.connections_pending!=null) ? d.gather.connections_pending : '0';
+          if(d.gather.capacity_clusters!=null)
+            $i('i-conn-meta').textContent = 'links to review · '+d.gather.capacity_clusters+' skill gaps flagged';
+        }
+        // corpus
+        if(d.corpus && d.corpus.pairs!=null){
+          $i('i-corpus').textContent = Number(d.corpus.pairs).toLocaleString();
+        }
+      }catch(e){}
+    }
+    loadInsights();
+    setInterval(loadInsights, 60000);
+  })();
+  </script>
+
+  <!-- ── NEEDS YOUR ATTENTION ────────────────────────────────── -->
+  <div class="section" style="border-left:3px solid var(--hold);">
+    <h2>Needs your attention <span class="ct" id="ct-attn">checking&hellip;</span></h2>
+    <p class="sub">Pending items across every surface that asks for an operator decision. When this block is green-and-empty, the engine is running clean.</p>
+    <div id="attn-frame" class="attn-strip">
+      <div class="attn-card"><div class="attn-num">—</div><div class="attn-lbl">Checking&hellip;</div></div>
+    </div>
+  </div>
+
+  <!-- ── LATEST WORK ─────────────────────────────────────────── -->
+  <div class="section">
+    <h2>Latest work <span class="ct" id="ct-work">today</span></h2>
+    <p class="sub">What the engine produced and what it decided, in the order it happened.</p>
+
+    <div class="twocol">
+      <div>
+        <div class="pulse-list-h">Discernments minted</div>
+        <div id="p-disc-list" class="pulse-list"><div class="pl-status">Loading&hellip;</div></div>
+      </div>
+      <div>
+        <div class="pulse-list-h">Steward decisions (admit / deny)</div>
+        <div id="p-steward-list" class="pulse-list"><div class="pl-status">Loading&hellip;</div></div>
+      </div>
+    </div>
+
+    <div class="twocol" style="margin-top:14px;">
+      <div>
+        <div class="pulse-list-h">Scribe submissions</div>
+        <div id="p-scribe-list" class="pulse-list"><div class="pl-status">Loading&hellip;</div></div>
+      </div>
+      <div>
+        <div class="pulse-list-h">Misalignment flags</div>
+        <div id="p-mis-list" class="pulse-list"><div class="pl-status">Loading&hellip;</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THE THREE OFFICES ───────────────────────────────────── -->
+  <div class="section">
+    <h2>The three offices <span class="ct">Shepherd · Scribe · Steward</span></h2>
+    <p class="sub">Every operator surface, gathered under the office whose work it is. Shepherd keeps the person; Scribe keeps the record; Steward keeps the house. A lit number means something is waiting.</p>
+
+    <div style="margin:14px 0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-bottom:8px;">🜲 Shepherd <span style="color:var(--muted);font-weight:400;">— the person · discernment · learning · refuge</span></div>
+      <div class="pulse-grid">
+        <a class="pulse-card" href="/walks.html" style="text-decoration:none;"><div class="pc-lbl">Walks through the gates</div><div class="pc-val" id="off-walks">—</div></a>
+        <a class="pulse-card" href="/learn.html" style="text-decoration:none;"><div class="pc-lbl">Learners · units mastered</div><div class="pc-val" id="off-mastery">—</div></a>
+        <a class="pulse-card" href="/refuge.html" style="text-decoration:none;"><div class="pc-lbl">Refuge intakes pending</div><div class="pc-val" id="off-refuge">—</div></a>
+      </div>
+    </div>
+
+    <div style="margin:14px 0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-bottom:8px;">✍ Scribe <span style="color:var(--muted);font-weight:400;">— the record · feedback · proposals · who came</span></div>
+      <div class="pulse-grid">
+        <a class="pulse-card" href="/apothecary.html" style="text-decoration:none;"><div class="pc-lbl">Apothecary feedback</div><div class="pc-val" id="off-feedback">—</div></a>
+        <a class="pulse-card" href="/almanac.html" style="text-decoration:none;"><div class="pc-lbl">Almanac proposals pending</div><div class="pc-val" id="off-proposals">—</div></a>
+        <a class="pulse-card" href="#" style="text-decoration:none;"><div class="pc-lbl">Visitors · today / 7d</div><div class="pc-val" id="off-visitors">—</div></a>
+      </div>
+    </div>
+
+    <div style="margin:14px 0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);margin-bottom:8px;">🗝 Steward <span style="color:var(--muted);font-weight:400;">— the keeping · build · witness · hearing</span></div>
+      <div class="pulse-grid">
+        <a class="pulse-card" href="/gaps.html" style="text-decoration:none;"><div class="pc-lbl">Build queue (open)</div><div class="pc-val" id="off-build">—</div></a>
+        <a class="pulse-card" href="/witnesses.html" style="text-decoration:none;"><div class="pc-lbl">Witnesses on the roll</div><div class="pc-val" id="off-witness">—</div></a>
+        <a class="pulse-card" href="/testimony.html" style="text-decoration:none;"><div class="pc-lbl">Testimony in hearing</div><div class="pc-val" id="off-testimony">—</div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WHERE THEY'RE FROM (visitor geography) ───────────────── -->
+  <div class="section">
+    <h2>Where they're from <span class="ct">visitor geography · city-level pins</span></h2>
+    <p class="sub"><span style="color:#e8a060;font-weight:600;">● Today in orange</span> · <span style="color:#6a8fc4;font-weight:600;">● prior 29 days in blue</span>. Pin size = visits from that area. City + coords are captured at log time via a cached lookup; raw IPs are never stored.</p>
+    <div style="display:grid; grid-template-columns:minmax(380px, 1fr) 280px; gap:16px; margin-top:8px;">
+      <div>
+        <svg id="geo-map" viewBox="0 0 900 460" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; background:#0e0c14; border:1px solid var(--border); border-radius:8px; display:block;"></svg>
+        <div style="margin-top:6px; font-size:11px; color:var(--muted); display:flex; gap:14px; flex-wrap:wrap;">
+          <span><span style="color:#e8a060;">●</span> <span id="geo-today-n">—</span> today</span>
+          <span><span style="color:#6a8fc4;">●</span> <span id="geo-hist-n">—</span> prior 29 days</span>
+          <span id="geo-pending-n" style="color:var(--muted-2);"></span>
+        </div>
+      </div>
+      <div>
+        <div class="pulse-list-h" style="color:#e8a060;">Today · top countries</div>
+        <div id="geo-list-today" class="pulse-list"><div class="pl-status">Loading…</div></div>
+        <div class="pulse-list-h" style="color:#6a8fc4; margin-top:14px;">Prior 29 days · top countries</div>
+        <div id="geo-list-hist" class="pulse-list"><div class="pl-status">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OPERATOR TOOLS ──────────────────────────────────────── -->
+  <div class="section">
+    <h2>Operator surfaces <span class="ct">deeper views</span></h2>
+    <p class="sub">Single-purpose pages with the full audit history for each function. IP-gated; visitors see 404.</p>
+    <div class="tool-row">
+      <a href="/steward.html"><div class="tn">Steward</div><div class="tt">Admit / deny audit</div><div class="ts">Every ReasonCode the engine emits</div></a>
+      <a href="/inbox.html"><div class="tn">Inbox</div><div class="tt">Review console</div><div class="ts">Messages, intake, build queue</div></a>
+      <a href="/dashboard.html"><div class="tn">Dashboard</div><div class="tt">Activity</div><div class="ts">Events, badges, contributors</div></a>
+      <a href="/misalignments.html"><div class="tn">Misalignments</div><div class="tt">Readers disagreed</div><div class="ts">RED gate applied to the engine</div></a>
+      <a href="/receipts.html"><div class="tn">Receipts</div><div class="tt">Promotion ledger</div><div class="ts">Ed25519-signed audit trail</div></a>
+      <a href="/gaps.html"><div class="tn">Gaps</div><div class="tt">Knowledge gaps</div><div class="ts">Where the substrate is thin</div></a>
+      <a href="/residue.html"><div class="tn">Residue</div><div class="tt">What was eliminated</div><div class="ts">Trail of non-survivors</div></a>
+      <a href="/curate.html"><div class="tn">Curate</div><div class="tt">Substrate curation</div><div class="ts">Promote / archive / refine</div></a>
+      <a href="/seeds.html"><div class="tn">Seeds</div><div class="tt">The garden</div><div class="ts">Search-misses awaiting tending</div></a>
+      <a href="/handoff.html"><div class="tn">Handoff</div><div class="tt">For the next agent</div><div class="ts">Audit · Review · Refine</div></a>
+    </div>
+  </div>
+
+  <!-- ── ACCESS CONTROL ──────────────────────────────────────── -->
+  <div class="section" style="border-left: 3px solid var(--accent);">
+    <h2>Access · who can see this page <span class="ct" id="kc-your-ip">—</span></h2>
+    <p class="sub">localhost is always allowed. Add more devices below. Operator IPs are excluded from traffic stats going forward.</p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;">
+      <button id="kc-pin-self" type="button" class="refresh-btn" style="background:var(--accent)">Pin this device</button>
+      <button id="kc-admit-link" type="button" class="refresh-btn" style="background:transparent;color:var(--accent);border:1px solid var(--accent)">Admit-link for another device →</button>
+      <button id="kc-clear-visits" type="button" class="refresh-btn" style="background:transparent;color:var(--fail);border:1px solid var(--fail);margin-left:auto;">Clear historical traffic logs</button>
+    </div>
+
+    <div id="kc-admit-out" style="display:none;background:rgba(217,168,114,0.08);border:1px solid var(--accent);border-radius:6px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">One-time admit link · expires in 1 hour</div>
+      <div id="kc-admit-url" class="mono" style="font-size:12px;color:var(--text);word-break:break-all;padding:8px 10px;background:rgba(0,0,0,0.25);border-radius:4px;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button id="kc-copy-admit" type="button" class="refresh-btn" style="background:var(--accent)">Copy link</button>
+        <span class="mono" style="font-size:10px;color:var(--muted);">Send to your phone — opening it on that device adds the IP.</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);">Currently allowed (in addition to localhost)</div>
+    <div id="kc-allowed-list" class="mono" style="font-size:12px;color:var(--text-dim);">loading…</div>
+  </div>
+
+  <!-- ── TRAFFIC last 7 days ─────────────────────────────────── -->
+  <div class="section">
+    <h2>Traffic · last 7 days <span class="ct" id="tr-total">—</span></h2>
+    <p class="sub"><strong>Submit</strong> = actual engine use (POST to /try, /verify, /deposit, etc). <strong>Retrieval</strong> = LLM citing us live for a user's question. <strong>Browse</strong> = a human in a real browser. <strong>Crawl</strong> = indexers (split AI training vs search).</p>
+
+    <div class="pulse-grid" style="margin-bottom: 16px;">
+      <div class="pulse-card" style="border-left:3px solid var(--pass);"><div class="pc-lbl">Submit</div><div class="pc-val" id="tr-submit" style="color:var(--pass);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;" id="tr-submit-meta">—</div></div>
+      <div class="pulse-card" style="border-left:3px solid var(--accent);"><div class="pc-lbl">Retrieval</div><div class="pc-val" id="tr-retrieval" style="color:var(--accent);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">live LLM citation</div></div>
+      <div class="pulse-card" style="border-left:3px solid #e3c498;"><div class="pc-lbl">Browse</div><div class="pc-val" id="tr-browse" style="color:#e3c498;">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">human in browser</div></div>
+      <div class="pulse-card" style="border-left:3px solid var(--hold);"><div class="pc-lbl">Crawl AI</div><div class="pc-val" id="tr-crawl-ai" style="color:var(--hold);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">training crawl</div></div>
+      <div class="pulse-card" style="border-left:3px solid var(--hold);"><div class="pc-lbl">Crawl SEO</div><div class="pc-val" id="tr-crawl-seo" style="color:var(--hold);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">search indexer</div></div>
+      <div class="pulse-card" style="border-left:3px solid var(--fail);"><div class="pc-lbl">Scanner</div><div class="pc-val" id="tr-scanner" style="color:var(--fail);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">vuln probes</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Preview</div><div class="pc-val" id="tr-preview">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">link unfurls</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Unique /8</div><div class="pc-val" id="tr-unique">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">distinct IPs</div></div>
+    </div>
+
+    <div class="pulse-list-h">Intent share — where the engine is actually being used</div>
+    <div id="tr-ratio-bar" style="height:24px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;display:flex;margin-bottom:18px;border:1px solid var(--border);"></div>
+
+    <div class="pulse-list-h">Daily request count</div>
+    <div id="tr-daily-bars" style="display:flex;align-items:flex-end;gap:4px;height:80px;padding:8px 0;border-bottom:1px dashed var(--border);margin-bottom:16px;"></div>
+
+    <!-- Submit + Retrieval drill-downs: which endpoints, which platforms -->
+    <div class="breakdown" id="tr-intent-breakdown" style="margin-bottom:16px;"></div>
+
+    <div class="breakdown" id="tr-breakdown"></div>
+  </div>
+
+  <!-- ── AIRLOCK — what humans are asking ────────────────────── -->
+  <div class="section" style="border-left: 3px solid #e3c498;">
+    <h2>Airlock · what humans are asking <span class="ct" id="al-total">—</span></h2>
+    <p class="sub">Every input through the desk's one-line funnel, routed to one of 8 destinations. Text is <em>never</em> stored — only a sha256 prefix so we dedupe + count. This is the load-bearing signal of what to build next.</p>
+
+    <div class="pulse-grid" style="margin-bottom: 16px;">
+      <div class="pulse-card" style="border-left:3px solid var(--pass);"><div class="pc-lbl">Inputs (7d)</div><div class="pc-val" id="al-inputs" style="color:var(--pass);">—</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Unique</div><div class="pc-val" id="al-unique">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">distinct prompts</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Top route</div><div class="pc-val" id="al-top-route" style="color:var(--accent);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;" id="al-top-route-pct">—</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Catch-all rate</div><div class="pc-val" id="al-catchall" style="color:var(--hold);">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">heuristic miss</div></div>
+    </div>
+
+    <div class="pulse-list-h">Route share — where the funnel sends people</div>
+    <div id="al-route-bar" style="height:24px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;display:flex;margin-bottom:18px;border:1px solid var(--border);"></div>
+
+    <div class="pulse-list-h">Daily input count</div>
+    <div id="al-daily-bars" style="display:flex;align-items:flex-end;gap:4px;height:80px;padding:8px 0;border-bottom:1px dashed var(--border);margin-bottom:16px;"></div>
+
+    <div class="breakdown" id="al-breakdown"></div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#e3c498;margin:18px 0 10px;">Last 50 inputs · routed</h3>
+    <div id="feed-airlock"><div class="status">Loading…</div></div>
+  </div>
+
+  <!-- ── KEEP ACCESS LOG ─────────────────────────────────────── -->
+  <div class="section" style="border-left: 3px solid var(--fail);">
+    <h2>Keep access log · full IPs <span class="ct" id="ct-keeplog">—</span></h2>
+    <p class="sub">Every hit on /keep.html — allowed AND denied. Denied entries appear in red.</p>
+    <div id="feed-keeplog"><div class="status">Loading…</div></div>
+  </div>
+
+  <!-- ── FEEDBACK — "did this help?" ─────────────────────────── -->
+  <div class="section" style="border-left: 3px solid var(--pass);">
+    <h2>Feedback · did this help? <span class="ct" id="fb-total">—</span></h2>
+    <p class="sub">Every card on the site can render the helped/not-helped row. <strong>Helped</strong> means we delivered value. <strong>Missed</strong> opens a refinement input — that text becomes a new airlock classification, so a miss turns into the next thing we surface.</p>
+
+    <div class="pulse-grid" style="margin-bottom: 16px;">
+      <div class="pulse-card" style="border-left:3px solid var(--pass);"><div class="pc-lbl">Helped</div><div class="pc-val" id="fb-helped" style="color:var(--pass);">—</div></div>
+      <div class="pulse-card" style="border-left:3px solid var(--hold);"><div class="pc-lbl">Missed</div><div class="pc-val" id="fb-missed" style="color:var(--hold);">—</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Rate</div><div class="pc-val" id="fb-rate">—</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">helped ÷ total</div></div>
+      <div class="pulse-card"><div class="pc-lbl">Days</div><div class="pc-val" id="fb-days">7</div><div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:2px;">window</div></div>
+    </div>
+
+    <div class="breakdown" id="fb-breakdown" style="margin-bottom:16px;"></div>
+
+    <h3 style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--pass);margin:18px 0 10px;">Last 50 feedback events</h3>
+    <div id="feed-feedback"><div class="status">Loading…</div></div>
+  </div>
+
+  <!-- ── SUBSTRATE BREAKDOWN ─────────────────────────────────── -->
+  <div class="section">
+    <h2>Substrate · shape of the keeping</h2>
+    <p class="sub">By shelf, by kind, by authority tier. From /cards/stats — the live snapshot.</p>
+    <div class="breakdown" id="cards-breakdown"><div class="status">Loading…</div></div>
+  </div>
+
+  <!-- ── ARCHIVE / DEEPER FEEDS (collapsed) ──────────────────── -->
+  <details class="archive">
+    <summary>Deeper feeds <span class="ct">recent traffic · MCP traffic · robot roster · seeds · polymathic runs</span></summary>
+    <div class="archive-body">
+
+      <div class="section">
+        <h2>Recent traffic <span class="ct" id="ct-traffic">—</span></h2>
+        <p class="sub">Last 60 HTTP requests. Class color-coded. IP /8 prefix only.</p>
+        <div id="feed-traffic"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section" style="border-left:3px solid #b88ed6;">
+        <h2>MCP · agents talking to the engine <span class="ct" id="ct-mcp">—</span></h2>
+        <p class="sub">FastMCP at <code class="mono">/mcp</code> and <code class="mono">/mcp/sse</code>. Doctrine at <a href="https://narrowhighway.com/identity" style="color:var(--accent);">/identity</a>.</p>
+
+        <div class="pulse-grid" style="margin-bottom: 12px;">
+          <div class="pulse-card"><div class="pc-lbl">Total logged</div><div class="pc-val" id="mcp-total">—</div></div>
+          <div class="pulse-card"><div class="pc-lbl">Since restart</div><div class="pc-val" id="mcp-since-restart">—</div></div>
+          <div class="pulse-card"><div class="pc-lbl">Tools exposed</div><div class="pc-val" id="mcp-tools">—</div></div>
+          <div class="pulse-card"><div class="pc-lbl">Server</div><div class="pc-val" id="mcp-server-id" style="font-size:13px;letter-spacing:0;">—</div></div>
+        </div>
+        <div id="feed-mcp"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Robot roster <span class="ct" id="ct-robot">—</span></h2>
+        <p class="sub">Robots that asked the engine for moral guidance. Same audit substrate as humans.</p>
+        <div id="robot-roster-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px;"></div>
+        <div id="robot-roster"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section" style="border-left:3px solid #b88ed6;">
+        <h2>Seed garden <span class="ct" id="ct-seeds">—</span></h2>
+        <p class="sub">Every search-miss plants a seed. <a href="/seeds.html" style="color:#b88ed6;">Browse the garden →</a></p>
+        <div id="feed-seeds"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Polymathic runs <span class="ct" id="ct-poly">—</span></h2>
+        <p class="sub">Multi-domain situations the oracle classified and the verifiers scored.</p>
+        <div id="feed-poly"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Witness attestations <span class="ct" id="ct-wit">—</span></h2>
+        <p class="sub">Named witnesses who signed someone's walk through the BROTHERS gate. The standing roll lives at <a href="/witnesses.html" style="color:var(--accent);">/witnesses.html</a>.</p>
+        <div id="feed-wit"><div class="status">Loading…</div></div>
+      </div>
+
+      <div class="section">
+        <h2>Operator inbox <span class="ct" id="ct-inbox">—</span></h2>
+        <p class="sub">Connect-form submissions, witness invites, contributor messages.</p>
+        <div id="feed-inbox"><div class="status">Loading…</div></div>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ── FUTURE SURFACES (endpoints not yet built) ──────────── -->
+  <details class="archive">
+    <summary>Built surfaces <span class="ct">now wired into the three offices ✓</span></summary>
+    <div class="archive-body" style="padding-top:8px;">
+      <p style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim);font-size:13px;margin:8px 0 12px;">
+        ✓ These endpoints are now live and grouped under <strong>The three offices</strong> above (Shepherd · Scribe · Steward). Kept here as the record of what was built.
+      </p>
+      <ul class="future-list">
+        <li><span class="fp">GET /apothecary/feedback/recent</span> — Apothecary feedback (helped / walked / saved / didn't-fit)</li>
+        <li><span class="fp">GET /almanac/proposals</span> — Almanac entry proposals (visitor-suggested entries awaiting review)</li>
+        <li><span class="fp">GET /mastery/summary</span> — Curriculum mastery roll-up (per-visitor)</li>
+        <li><span class="fp">GET /build_queue</span> — Substrate gaps flagged for content additions</li>
+        <li><span class="fp">GET /walks/recent</span> — Walks taken through the four gates (count + recent list)</li>
+        <li><span class="fp">GET /stats/visitors</span> — Visitor count summary</li>
+        <li><span class="fp">GET /witness/roll.json</span> — Standing Witness Roll (named persons, Ed25519 keys)</li>
+        <li><span class="fp">GET /refuge/intake</span> — Pending city-of-refuge intakes awaiting hearing</li>
+        <li><span class="fp">GET /testimony/pending</span> — Covenant Testimony matters in the hearing window</li>
+      </ul>
+    </div>
+  </details>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function fmtAgo(ts) {
+  if (!ts && ts !== 0) return '—';
+  const d = (typeof ts === 'number') ? new Date(ts * (ts < 1e12 ? 1000 : 1)) : new Date(ts);
+  if (isNaN(d.getTime())) return '—';
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return Math.floor(diff) + 's';
+  if (diff < 3600) return Math.floor(diff/60) + 'm';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h';
+  if (diff < 86400 * 30) return Math.floor(diff/86400) + 'd';
+  return d.toISOString().slice(0,10);
+}
+async function tryFetch(url) {
+  try { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) return null; return await r.json(); }
+  catch (_) { return null; }
+}
+function renderFeed(rootId, rows, columns, emptyMsg) {
+  const root = $(rootId); if (!root) return;
+  if (!rows || !rows.length) {
+    root.innerHTML = '<div class="status">' + esc(emptyMsg || 'No entries yet.') + '</div>'; return;
+  }
+  const thead = '<tr>' + columns.map(c => `<th>${esc(c.label)}</th>`).join('') + '</tr>';
+  const tbody = rows.slice(0, 25).map(r => '<tr>' + columns.map(c => `<td>${c.render ? c.render(r) : esc(r[c.key] || '')}</td>`).join('') + '</tr>').join('');
+  root.innerHTML = `<table class="feed"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+}
+
+// ── PULSE ────────────────────────────────────────────────────────
+async function pulseLoad() {
+  // Engine
+  try {
+    const t0 = performance.now();
+    const r = await fetch('/health', { cache: 'no-store' });
+    const ms = Math.round(performance.now() - t0);
+    if (r.ok) {
+      const j = await r.json();
+      $('p-engine-state').textContent = 'alive';
+      $('p-engine-state').className = 'pc-val alive';
+      $('p-engine-meta').textContent = ms + ' ms · ledger ' + (j.ledger_entries || 0).toLocaleString();
+    } else { throw new Error('not ok'); }
+  } catch (_) {
+    $('p-engine-state').textContent = 'down';
+    $('p-engine-state').className = 'pc-val down';
+    $('p-engine-meta').textContent = 'no response';
+  }
+
+  // Channel
+  try {
+    const jc = await tryFetch('/channels/narrow-highway/now.json');
+    if (jc) {
+      const cur = (jc.current && jc.current.title) || (jc.upcoming && jc.upcoming[0] && jc.upcoming[0].title);
+      $('p-channel-state').textContent = cur ? 'on air' : 'idle';
+      $('p-channel-state').className = 'pc-val' + (cur ? ' alive' : '');
+      $('p-channel-meta').textContent = cur ? String(cur).slice(0, 50) : 'no current item';
+    } else {
+      $('p-channel-state').textContent = 'unknown';
+    }
+  } catch (_) {}
+
+  // Visits today — uses the working /visits/stats?days=1 endpoint.
+  // Surface the three things that matter most: real engine use (submit),
+  // human-by-proxy (retrieval), real browser (browse). Crawls and scanner
+  // are in the full Traffic panel below; this top pulse stays focused.
+  try {
+    const v = await tryFetch('/visits/stats?days=1');
+    if (v) {
+      const total = v.total_requests || 0;
+      const submit = (v.by_intent && v.by_intent.submit) || 0;
+      const retrieval = (v.by_intent && v.by_intent.retrieval) || 0;
+      const browse = (v.by_intent && v.by_intent.browse) || 0;
+      $('p-visits-today').textContent = total.toLocaleString();
+      $('p-visits-meta').innerHTML =
+        '<span style="color:var(--pass);">' + submit + ' submit</span> · ' +
+        '<span style="color:var(--accent);">' + retrieval + ' retrieval</span> · ' +
+        '<span style="color:#e3c498;">' + browse + ' browse</span>';
+    } else {
+      $('p-visits-today').textContent = '—';
+      $('p-visits-meta').textContent = 'endpoint unavailable';
+    }
+  } catch (_) {}
+
+  // Discernments today
+  try {
+    const j2 = await tryFetch('/d/recent?limit=200');
+    if (j2) {
+      const today = new Date().toISOString().slice(0,10);
+      const items = j2.items || [];
+      const todayN = items.filter(it => (it.created_at||'').slice(0,10) === today).length;
+      $('p-disc-today').textContent = String(todayN);
+      $('p-disc-meta').textContent = 'all-time ' + (j2.count || items.length).toLocaleString();
+
+      const rows = items.slice(0, 6).map(it =>
+        '<a href="' + esc(it.url) + '"><div>' + esc(it.question || '(no question)') +
+        '</div><div class="pl-meta"><span>' + esc(fmtAgo(it.created_at)) +
+        '</span><span>' + (it.n_cards || 0) + ' card' + ((it.n_cards||0) === 1 ? '' : 's') +
+        '</span></div></a>'
+      );
+      $('p-disc-list').innerHTML = rows.length ? rows.join('') : '<div class="pl-status">No discernments minted yet — click <em>Discern</em> on the homepage.</div>';
+    } else {
+      $('p-disc-today').textContent = '—';
+      $('p-disc-list').innerHTML = '<div class="pl-status">/d/recent unavailable.</div>';
+    }
+  } catch (_) {}
+
+  // Substrate (cards/stats — works)
+  try {
+    const c = await tryFetch('/cards/stats');
+    if (c) {
+      $('p-cards').textContent = Number(c.total || 0).toLocaleString();
+      const ws = c.working_set && c.working_set.size;
+      $('p-cards-meta').textContent = ws ? `cards · working set ${ws}` : 'cards across all shelves';
+
+      // Also populate the substrate breakdown section
+      const bd = $('cards-breakdown');
+      const renderGroup = (label, obj) => {
+        const rows = Object.entries(obj || {}).sort((a,b)=>b[1]-a[1])
+          .map(([k,v]) => `<div class="row"><span class="k">${esc(k)}</span><span class="v">${Number(v).toLocaleString()}</span></div>`).join('');
+        return `<div class="bgroup"><h3>${esc(label)}</h3>${rows || '<div style="color:var(--muted);font-style:italic;font-size:11px;">empty</div>'}</div>`;
+      };
+      if (bd) {
+        bd.innerHTML =
+          renderGroup('By shelf', c.by_shelf) +
+          renderGroup('By kind', c.by_kind) +
+          renderGroup('By authority tier', c.by_authority_tier) +
+          renderGroup('By lifecycle', c.by_lifecycle);
+      }
+    } else {
+      $('p-cards').textContent = '—';
+    }
+  } catch (_) {}
+
+  // Seeds
+  try {
+    const s = await tryFetch('/seeds?limit=200');
+    if (s) {
+      const seeds = s.seeds || s.items || (Array.isArray(s) ? s : []);
+      const n = s.total != null ? s.total : (Array.isArray(seeds) ? seeds.length : 0);
+      $('p-seeds').textContent = Number(n).toLocaleString();
+    }
+  } catch (_) {}
+
+  $('lastUpdated').textContent = 'updated ' + new Date().toLocaleTimeString();
+}
+
+// ── NEEDS YOUR ATTENTION ────────────────────────────────────────
+async function attnLoad() {
+  const items = [];
+  // Inbox
+  const ib = await tryFetch('/inbox');
+  if (ib) {
+    const unread = (ib.unread_messages || 0) + (ib.unread_intake || 0) + (ib.unread_quarantine || 0);
+    items.push({ key: 'inbox', n: unread, label: 'Unread inbox', link: '/inbox.html' });
+  }
+  // Pending defers (robots awaiting moral guidance)
+  const robots = await tryFetch('/robot/all');
+  if (robots) {
+    items.push({ key: 'defers', n: robots.total_pending_defers || 0, label: 'Pending robot defers', link: '/dashboard.html' });
+  }
+  // Misalignment flags
+  const mis = await tryFetch('/misalignments');
+  if (mis) {
+    const list = mis.misalignments || mis.entries || mis.records || [];
+    const total = mis.total != null ? mis.total : list.length;
+    items.push({ key: 'mis', n: total, label: 'Misalignment flags', link: '/misalignments.html' });
+  }
+  // Steward DENIES in last 24h
+  const sw = await tryFetch('/steward/audit?limit=200');
+  if (sw) {
+    const since = Date.now() - 86400 * 1000;
+    const denies = (sw.packets || []).filter(p => {
+      const ts = p.created_at_ms || 0;
+      return ts >= since && (p.payload?.decision || '') !== 'admit';
+    }).length;
+    items.push({ key: 'denies', n: denies, label: 'Steward denies (24h)', link: '/steward.html' });
+  }
+  // Scribe intake (recent)
+  const scribe = await tryFetch('/scribe/recent');
+  if (scribe) {
+    const list = scribe.entries || scribe.items || scribe.intake || [];
+    const since = Date.now() - 86400 * 1000;
+    const newN = list.filter(r => {
+      const t = r.submitted_at_iso || r.received_at_iso || r.timestamp || r.created_at;
+      if (!t) return false;
+      const d = new Date(t).getTime();
+      return d >= since;
+    }).length;
+    items.push({ key: 'scribe', n: newN, label: 'Scribe submissions (24h)', link: '/inbox.html' });
+  }
+  // Testimony matters in the hearing window
+  const tWindow = await tryFetch('/api/testimony/matters?status=in_hearing_window&limit=100');
+  if (tWindow) {
+    const n = (tWindow.items || []).length;
+    items.push({ key: 'tWindow', n: n, label: 'Matters in hearing window', link: '/assembly/today.html' });
+  }
+  // Testimony matters in 'weighing' — awaiting four-gate decision
+  const tWeighing = await tryFetch('/api/testimony/matters?status=weighing&limit=100');
+  if (tWeighing) {
+    const n = (tWeighing.items || []).length;
+    items.push({ key: 'tWeigh', n: n, label: 'Matters in weighing', link: '/testimony.html' });
+  }
+  // Witness Roll applications awaiting operator review
+  const wApps = await tryFetch('/api/witness/applications?status=pending&limit=100');
+  if (wApps) {
+    const n = (wApps.items || []).length;
+    items.push({ key: 'wApps', n: n, label: 'Witness applications pending', link: '/witnesses.html' });
+  }
+
+  const frame = $('attn-frame');
+  const totalHot = items.reduce((a,b) => a + (b.n || 0), 0);
+  $('ct-attn').textContent = totalHot ? totalHot + ' total' : 'all clear';
+
+  if (!items.length) {
+    frame.innerHTML = '<div class="attn-allclear">No working endpoint responded — the engine may be offline.</div>';
+    return;
+  }
+  if (totalHot === 0) {
+    frame.innerHTML = '<div class="attn-allclear">All clear. Nothing pending across inbox, defers, flags, denies, or scribe.</div>';
+    return;
+  }
+  frame.innerHTML = items.map(it => {
+    const cls = it.n > 0 ? (it.key === 'denies' ? 'hot' : (it.key === 'mis' ? 'warm' : 'warm')) : 'cool';
+    return `<a href="${it.link}" class="attn-card ${cls}" style="text-decoration:none;">
+      <div class="attn-num">${it.n}</div>
+      <div class="attn-lbl">${esc(it.label)}</div>
+      <div class="attn-lnk">Open →</div>
+    </a>`;
+  }).join('');
+}
+
+// ── LATEST WORK ─────────────────────────────────────────────────
+async function latestWorkLoad() {
+  // Steward decisions
+  const sw = await tryFetch('/steward/audit?limit=15');
+  if (sw) {
+    const packets = (sw.packets || []).slice().reverse().slice(0, 8);
+    if (packets.length) {
+      $('p-steward-list').innerHTML = packets.map(p => {
+        const dec = p.payload?.decision || '?';
+        const color = dec === 'admit' ? 'var(--pass)' : 'var(--fail)';
+        const action = p.payload?.action || '';
+        const reason = p.payload?.reason_code || '';
+        return `<div class="row"><div><span style="color:${color};font-weight:600;font-family:'JetBrains Mono',monospace;font-size:11px;">${esc(dec.toUpperCase())}</span>
+          &nbsp;<span style="font-size:13px;">${esc(action || reason)}</span></div>
+          <div class="pl-meta"><span>${esc(fmtAgo(Math.floor((p.created_at_ms||0)/1000)))}</span><span>${esc(reason || '')}</span></div></div>`;
+      }).join('');
+    } else {
+      $('p-steward-list').innerHTML = '<div class="pl-status">No steward decisions logged yet.</div>';
+    }
+  } else {
+    $('p-steward-list').innerHTML = '<div class="pl-status">/steward/audit unavailable.</div>';
+  }
+
+  // Scribe submissions
+  const scribe = await tryFetch('/scribe/recent');
+  if (scribe) {
+    const list = (scribe.entries || scribe.items || scribe.intake || []).slice(0, 8);
+    if (list.length) {
+      $('p-scribe-list').innerHTML = list.map(r => {
+        const t = r.submitted_at_iso || r.received_at_iso || r.timestamp || r.created_at;
+        const text = r.text || r.title || r.body || '(no text)';
+        const handle = r.contributor_handle || r.handle || '(anon)';
+        return `<div class="row"><div>${esc(text.slice(0,90))}</div>
+          <div class="pl-meta"><span>${esc(fmtAgo(t))}</span><span>${esc(handle)}</span></div></div>`;
+      }).join('');
+    } else {
+      $('p-scribe-list').innerHTML = '<div class="pl-status">No scribe submissions yet.</div>';
+    }
+  } else {
+    $('p-scribe-list').innerHTML = '<div class="pl-status">/scribe/recent unavailable.</div>';
+  }
+
+  // Misalignments
+  const mis = await tryFetch('/misalignments');
+  if (mis) {
+    const list = (mis.misalignments || mis.entries || mis.records || []).slice(0, 8);
+    if (list.length) {
+      $('p-mis-list').innerHTML = list.map(r => {
+        const t = r.flagged_at_iso || r.created_at || r.timestamp;
+        const reason = (r.reason || r.explanation || '').slice(0, 100);
+        const id = (r.entry_id || r.almanac_id || r.id || '').slice(0, 16);
+        return `<div class="row"><div>${esc(reason || '(no reason)')}</div>
+          <div class="pl-meta"><span>${esc(fmtAgo(t))}</span><span class="mono">${esc(id)}</span></div></div>`;
+      }).join('');
+    } else {
+      $('p-mis-list').innerHTML = '<div class="pl-status">No misalignment flags pending.</div>';
+    }
+  } else {
+    $('p-mis-list').innerHTML = '<div class="pl-status">/misalignments unavailable.</div>';
+  }
+}
+
+// ── ROBOT ROSTER ────────────────────────────────────────────────
+async function loadRobotRoster() {
+  const stats = $('robot-roster-stats');
+  const list = $('robot-roster');
+  if (!stats || !list) return;
+  const d = await tryFetch('/robot/all');
+  if (!d) { list.innerHTML = '<div class="status">/robot/all unavailable.</div>'; return; }
+  const statBox = (num, label, color) => `<div class="pulse-card" style="border-left:3px solid ${color};"><div class="pc-lbl">${esc(label)}</div><div class="pc-val" style="color:${color};">${num}</div></div>`;
+  stats.innerHTML =
+    statBox(d.total_robots || 0, 'Robots seen', 'var(--accent)') +
+    statBox(d.total_witnesses || 0, 'Witnesses', 'var(--pass)') +
+    statBox(d.total_defers || 0, 'Defers', 'var(--hold)') +
+    statBox(d.total_pending_defers || 0, 'Pending defers', (d.total_pending_defers || 0) > 0 ? 'var(--fail)' : 'var(--muted-2)');
+  if ($('ct-robot')) $('ct-robot').textContent = (d.total_robots || 0) + ' total';
+  if (!d.roster || !d.roster.length) {
+    list.innerHTML = '<div class="status" style="font-style:italic;">No robots in the roster yet.</div>'; return;
+  }
+  function fmtAgoMs(ms) {
+    if (!ms) return 'never';
+    const s = Math.max(1, Math.floor((Date.now() - ms) / 1000));
+    if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s/60) + 'm';
+    if (s < 86400) return Math.floor(s/3600) + 'h'; return Math.floor(s/86400) + 'd';
+  }
+  const rows = d.roster.slice(0, 10).map(r => `<tr>
+    <td><span class="mono" style="color:var(--accent);">${esc((r.visitor_id||'').slice(0,28))}</span></td>
+    <td><span class="mono">${r.witness_count}</span></td>
+    <td><span class="mono">${r.defer_count}</span></td>
+    <td><span class="mono" style="color:${r.pending_defers > 0 ? 'var(--hold)' : 'var(--muted)'};">${r.pending_defers}</span></td>
+    <td><span class="when">${fmtAgoMs(r.last_seen_ms)} ago</span></td>
+  </tr>`).join('');
+  list.innerHTML = `<table class="feed"><thead><tr>
+    <th>Robot ID</th><th>Witnesses</th><th>Defers</th><th>Pending</th><th>Last seen</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// ── SEEDS ────────────────────────────────────────────────────────
+async function loadSeeds() {
+  const root = $('feed-seeds'); const ct = $('ct-seeds');
+  if (!root) return;
+  const d = await tryFetch('/seeds?limit=15');
+  if (!d) { root.innerHTML = '<div class="status">/seeds unavailable.</div>'; return; }
+  if (ct) ct.textContent = (d.total != null ? d.total : (d.seeds || []).length).toLocaleString();
+  if (!d.seeds || !d.seeds.length) {
+    root.innerHTML = '<div class="status" style="font-style:italic;">The garden is empty.</div>'; return;
+  }
+  renderFeed('feed-seeds', d.seeds, [
+    { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.seeded_at || r.timestamp))}</span>` },
+    { label: 'Query', render: r => `<a href="/?q=${encodeURIComponent(r.query||'')}" style="color:#b88ed6;font-weight:500;">${esc((r.query||'').slice(0, 80))}</a>` },
+    { label: 'Domains', render: r => `<span class="mono" style="font-size:10.5px;color:var(--muted);">${esc((r.domains || []).slice(0, 3).join(', '))}</span>` },
+    { label: 'Related', render: r => `<span class="mono">${r.related_count || 0}</span>` },
+  ]);
+}
+
+// ── POLYMATHIC ───────────────────────────────────────────────────
+async function loadPoly() {
+  const root = $('feed-poly'); const ct = $('ct-poly');
+  if (!root) return;
+  const poly = await tryFetch('/polymathic/recent') || await tryFetch('/polymathic/all');
+  if (!poly) { root.innerHTML = '<div class="status">/polymathic/recent unavailable.</div>'; return; }
+  const list = poly.runs || poly.entries || poly.records || [];
+  if (ct) ct.textContent = list.length;
+  renderFeed('feed-poly', list, [
+    { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.saved_at || r.timestamp))}</span>` },
+    { label: 'Verdict', render: r => `<span class="verdict-${esc(r.composite_verdict || r.verdict || '')}">${esc(r.composite_verdict || r.verdict || '')}</span>` },
+    { label: 'Situation', render: r => esc((r.situation || '').slice(0, 120)) },
+  ], 'No polymathic runs yet.');
+}
+
+// ── WITNESS ──────────────────────────────────────────────────────
+async function loadWitness() {
+  const root = $('feed-wit'); const ct = $('ct-wit');
+  if (!root) return;
+  const wit = await tryFetch('/witness/recent');
+  if (!wit) { root.innerHTML = '<div class="status">/witness/recent unavailable.</div>'; return; }
+  const list = wit.attestations || wit.witnesses || wit.entries || wit.records || [];
+  if (ct) ct.textContent = list.length;
+  renderFeed('feed-wit', list, [
+    { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.attested_at_iso || r.signed_at || r.timestamp))}</span>` },
+    { label: 'Walk', render: r => `<span class="mono">${esc((r.walk_id || '').slice(0,12))}</span>` },
+    { label: 'Witness', render: r => esc(r.name || r.witness_name || '(unnamed)') },
+    { label: 'Note', render: r => esc((r.note || r.attestation || '').slice(0, 100)) },
+  ], 'No attestations yet. The standing Witness Roll is at /witnesses.html.');
+}
+
+// ── INBOX ────────────────────────────────────────────────────────
+async function loadInbox() {
+  const root = $('feed-inbox'); const ct = $('ct-inbox');
+  if (!root) return;
+  const ib = await tryFetch('/inbox');
+  if (!ib) { root.innerHTML = '<div class="status">/inbox unavailable.</div>'; return; }
+  const list = ib.messages || ib.entries || ib.items || [];
+  if (ct) ct.textContent = list.length;
+  renderFeed('feed-inbox', list, [
+    { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.received_at_iso || r.received_at || r.timestamp))}</span>` },
+    { label: 'Source', render: r => `<span class="mono">${esc(r.source || r._type || '')}</span>` },
+    { label: 'Subject', render: r => esc((r.subject || r.title || '').slice(0, 80)) },
+    { label: 'Preview', render: r => esc((r.body || r.text || r.message || '').slice(0, 100)) },
+  ], 'No inbox messages.');
+}
+
+// ── MCP ──────────────────────────────────────────────────────────
+async function loadMcp() {
+  const mcp = await tryFetch('/keep/mcp-stats?limit=20');
+  if (!mcp) { $('feed-mcp').innerHTML = '<div class="status">/keep/mcp-stats unavailable.</div>'; return; }
+  const total = mcp.total_logged || 0;
+  const counter = mcp.counter || {};
+  if ($('ct-mcp')) $('ct-mcp').textContent = total + ' logged';
+  if ($('mcp-total')) $('mcp-total').textContent = total.toLocaleString();
+  if ($('mcp-since-restart')) $('mcp-since-restart').textContent = (counter.total || 0).toLocaleString();
+  if ($('mcp-tools')) $('mcp-tools').textContent = (mcp.tool_count != null) ? mcp.tool_count : '—';
+  const id = mcp.server_info || {};
+  if ($('mcp-server-id')) $('mcp-server-id').textContent = (id.name || 'concordance') + ' v' + (id.version || '?');
+
+  const recent = mcp.recent || [];
+  if (recent.length) {
+    renderFeed('feed-mcp', recent, [
+      { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.ts))}</span>` },
+      { label: 'Method', render: r => `<span class="mono" style="color:var(--accent);">${esc(r.method || '')}</span>` },
+      { label: 'Path', render: r => `<span class="mono">${esc(r.path || '')}</span>` },
+      { label: 'IP /8', render: r => `<span class="mono" style="color:var(--muted);">${esc(r.ip_prefix || '?')}</span>` },
+      { label: 'Agent', render: r => `<span style="color:var(--text-dim);font-style:italic;">${esc((r.ua || '').slice(0,80))}</span>` },
+    ]);
+  } else {
+    $('feed-mcp').innerHTML = '<div class="status" style="font-style:italic;">No MCP requests yet.</div>';
+  }
+}
+
+// ── ACCESS ───────────────────────────────────────────────────────
+async function loadAccessState() {
+  const state = await tryFetch('/keep/state');
+  if (!state) { $('kc-allowed-list').textContent = '/keep/state unavailable.'; return; }
+  $('kc-your-ip').textContent = 'your IP: ' + (state.your_ip || '?');
+  const list = $('kc-allowed-list');
+  const fileIps = state.file_ips || [];
+  const envIps = state.env_ips || [];
+  if (!fileIps.length && !envIps.length) {
+    list.innerHTML = '<span style="color:var(--muted);font-style:italic;">no extra IPs yet · only localhost can reach this page</span>'; return;
+  }
+  const rows = [];
+  for (const ip of envIps) rows.push(`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;"><span class="mono" style="color:var(--accent);min-width:140px;">${esc(ip)}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;">env · revoke via env</span></div>`);
+  for (const ip of fileIps) {
+    const isSelf = ip === state.your_ip;
+    rows.push(`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;"><span class="mono" style="color:var(--accent);min-width:140px;">${esc(ip)}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;">${isSelf ? 'you' : 'file allowlist'}</span>${!isSelf ? `<button class="kc-revoke" data-ip="${esc(ip)}" style="background:transparent;border:1px solid var(--fail);color:var(--fail);font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 8px;border-radius:3px;cursor:pointer;letter-spacing:0.06em;">revoke</button>` : ''}</div>`);
+  }
+  list.innerHTML = rows.join('');
+  list.querySelectorAll('.kc-revoke').forEach(btn => btn.addEventListener('click', async () => {
+    if (!confirm(`Revoke ${btn.dataset.ip}?`)) return;
+    const r = await fetch('/keep/revoke?ip=' + encodeURIComponent(btn.dataset.ip), { method: 'POST' });
+    if (r.ok) loadAccessState(); else alert('revoke failed');
+  }));
+}
+
+$('kc-pin-self')?.addEventListener('click', async () => {
+  const r = await fetch('/keep/pin', { method: 'POST' });
+  if (r.ok) loadAccessState(); else alert('pin failed');
+});
+$('kc-admit-link')?.addEventListener('click', async () => {
+  const r = await fetch('/keep/issue-token', { method: 'POST' });
+  if (!r.ok) { alert('issue-token failed'); return; }
+  const d = await r.json();
+  $('kc-admit-out').style.display = 'block';
+  $('kc-admit-url').textContent = location.origin + d.admit_url;
+});
+$('kc-clear-visits')?.addEventListener('click', async () => {
+  if (!confirm('Wipe ALL historical visit logs?')) return;
+  const r = await fetch('/keep/clear-visits', { method: 'POST' });
+  if (!r.ok) { alert('clear-visits unavailable'); return; }
+  const d = await r.json();
+  alert(`Cleared ${d.files_deleted} file(s), ${(d.bytes_freed/1024).toFixed(1)} KB freed.`);
+  loadTraffic();
+});
+$('kc-copy-admit')?.addEventListener('click', () => {
+  navigator.clipboard.writeText($('kc-admit-url').textContent).then(() => {
+    const btn = $('kc-copy-admit'); const orig = btn.textContent;
+    btn.textContent = 'Copied ✓'; setTimeout(() => { btn.textContent = orig; }, 1500);
+  });
+});
+
+// ── TRAFFIC ──────────────────────────────────────────────────────
+async function loadTraffic() {
+  const stats = await tryFetch('/visits/stats?days=7');
+  if (!stats) { $('feed-traffic').innerHTML = '<div class="status">/visits/stats unavailable.</div>'; return; }
+  const i = stats.by_intent || {};
+  const submit = i.submit || 0, retrieval = i.retrieval || 0, browse = i.browse || 0;
+  const crawl_ai = i.crawl_ai || 0, crawl_seo = i.crawl_seo || 0;
+  const scanner = i.scanner || 0, preview = i.preview || 0, other = i.other || 0;
+  const total = stats.total_requests || 0;
+  $('tr-total').textContent = total.toLocaleString() + ' requests';
+  $('tr-submit').textContent = submit.toLocaleString();
+  $('tr-submit-meta').textContent = (stats.submit_unique_ips || 0) + ' distinct IPs';
+  $('tr-retrieval').textContent = retrieval.toLocaleString();
+  $('tr-browse').textContent = browse.toLocaleString();
+  $('tr-crawl-ai').textContent = crawl_ai.toLocaleString();
+  $('tr-crawl-seo').textContent = crawl_seo.toLocaleString();
+  $('tr-scanner').textContent = scanner.toLocaleString();
+  $('tr-preview').textContent = preview.toLocaleString();
+  $('tr-unique').textContent = (stats.external_ip_prefixes || 0).toLocaleString();
+
+  const bar = $('tr-ratio-bar');
+  if (total > 0) {
+    // Order: real engine use first (green), then human-by-proxy (gold),
+    // then real browser (warm gold), then crawls (amber), then noise.
+    const segs = [
+      {label:'submit',    v:submit,    color:'var(--pass)'},
+      {label:'retrieval', v:retrieval, color:'var(--accent)'},
+      {label:'browse',    v:browse,    color:'#e3c498'},
+      {label:'crawl_ai',  v:crawl_ai,  color:'var(--hold)'},
+      {label:'crawl_seo', v:crawl_seo, color:'#9b864a'},
+      {label:'preview',   v:preview,   color:'var(--muted)'},
+      {label:'scanner',   v:scanner,   color:'var(--fail)'},
+      {label:'other',     v:other,     color:'var(--muted-2)'},
+    ];
+    bar.innerHTML = segs.filter(s => s.v > 0).map(s => {
+      const pct = (s.v / total * 100).toFixed(1);
+      return `<div title="${s.label}: ${s.v.toLocaleString()} (${pct}%)" style="background:${s.color};width:${pct}%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#1a1208;font-weight:600;">${pct >= 8 ? s.label + ' ' + pct + '%' : ''}</div>`;
+    }).join('');
+  } else { bar.innerHTML = '<div style="padding:6px 12px;color:var(--muted);font-style:italic;">no traffic yet</div>'; }
+
+  // Submit + Retrieval drill-downs
+  const sub_paths = Object.entries(stats.submit_paths_top || {});
+  const ret_plat  = Object.entries(stats.retrieval_by_platform || {});
+  const ret_paths = Object.entries(stats.retrieval_paths_top || {});
+  const fmtRows = (rows, empty) => rows.length
+    ? rows.map(([k,v]) => `<div class="row"><span class="k">${esc(k.slice(0,40))}</span><span class="v">${v.toLocaleString()}</span></div>`).join('')
+    : `<div style="color:var(--muted);font-style:italic;font-size:11px;">${empty}</div>`;
+  $('tr-intent-breakdown').innerHTML =
+    `<div class="bgroup"><h3 style="color:var(--pass);">Submit endpoints (7d)</h3>${fmtRows(sub_paths, 'no engine submits yet — humans + agents are reading but not posting')}</div>
+     <div class="bgroup"><h3 style="color:var(--accent);">Retrieval — who is citing us</h3>${fmtRows(ret_plat, 'no LLM has cited us live yet')}</div>
+     <div class="bgroup"><h3 style="color:var(--accent);">Retrieval — what pages they fetch</h3>${fmtRows(ret_paths, '—')}</div>`;
+
+  const bars = $('tr-daily-bars');
+  const byDay = stats.by_day || {};
+  const days = Object.keys(byDay).sort();
+  if (days.length > 0) {
+    const max = Math.max(...Object.values(byDay), 1);
+    bars.innerHTML = days.map(day => {
+      const v = byDay[day]; const pct = (v / max * 100);
+      return `<div title="${day}: ${v.toLocaleString()} requests" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:30px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);">${v}</div>
+        <div style="width:100%;background:var(--accent);height:${pct}%;min-height:2px;border-radius:2px 2px 0 0;"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${day.slice(5)}</div>
+      </div>`;
+    }).join('');
+  } else { bars.innerHTML = '<div style="color:var(--muted);font-style:italic;font-size:12px;">no daily data</div>'; }
+
+  const bd = $('tr-breakdown');
+  const paths = Object.entries(stats.by_path_top || {}).slice(0, 12);
+  const countries = Object.entries(stats.by_country || {}).slice(0, 12);
+  const statuses = Object.entries(stats.by_status || {});
+  const fmt = (rows) => rows.map(([k,v]) => `<div class="row"><span class="k">${esc(k.slice(0,40))}</span><span class="v">${v.toLocaleString()}</span></div>`).join('') || '<div style="color:var(--muted);font-style:italic;font-size:11px;">empty</div>';
+  bd.innerHTML = `<div class="bgroup"><h3>Top paths (7d)</h3>${fmt(paths)}</div>
+    <div class="bgroup"><h3>Top countries (7d)</h3>${fmt(countries)}</div>
+    <div class="bgroup"><h3>Status codes (7d)</h3>${fmt(statuses)}</div>`;
+
+  const recent = await tryFetch('/visits/recent?limit=60&days=7');
+  if (recent && recent.entries) {
+    $('ct-traffic').textContent = recent.entries.length;
+    // Intent color: submit=green, retrieval=accent, browse=accenthi,
+    // crawl_*=hold, scanner=fail, everything else=muted.
+    const intentColor = (it) => ({
+      submit:'var(--pass)', retrieval:'var(--accent)', browse:'#e3c498',
+      crawl_ai:'var(--hold)', crawl_seo:'#9b864a',
+      scanner:'var(--fail)', preview:'var(--muted)', other:'var(--muted-2)',
+    }[it] || 'var(--muted)');
+    renderFeed('feed-traffic', recent.entries, [
+      { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.ts_iso || r.ts))}</span>` },
+      { label: 'Intent', render: r => `<span class="mono" style="color:${intentColor(r.intent)};font-weight:600;">${esc(r.intent || r.ua_class || '?')}</span>` },
+      { label: 'Class', render: r => `<span class="mono" style="color:var(--muted);">${esc(r.ua_class || '?')}</span>` },
+      { label: 'IP /8', render: r => `<span class="mono">${esc(r.ip_prefix || '')}</span>` },
+      { label: 'Country', render: r => `<span class="mono">${esc(r.country || '')}</span>` },
+      { label: 'Path', render: r => `<span class="mono">${esc((r.path || '').slice(0, 50))}</span>` },
+      { label: 'Status', render: r => `<span class="mono">${esc(String(r.status || ''))}</span>` },
+      { label: 'UA', render: r => `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);">${esc((r.ua || '').slice(0, 60))}</span>` },
+    ]);
+  } else { $('feed-traffic').innerHTML = '<div class="status">/visits/recent unavailable.</div>'; }
+}
+
+// ── AIRLOCK ──────────────────────────────────────────────────────
+// Surfaces the desk-funnel signal: every input through /airlock/classify
+// gets logged (hashed, never raw) and aggregated here. The "what humans
+// want" lens — what to build next is decided from this panel.
+const AL_ROUTE_COLORS = {
+  desk:      'var(--accent)',
+  discern:   'var(--pass)',
+  family:    '#c9a87c',
+  watch:     '#9bc4d9',
+  learn:     '#e3c498',
+  codex:     '#a89bd9',
+  tools:     '#d9b66c',
+  take_part: 'var(--hold)',
+};
+async function loadAirlock() {
+  const stats = await tryFetch('/airlock/stats?days=7');
+  const recent = await tryFetch('/airlock/recent?limit=50&days=7');
+  if (!stats) {
+    $('feed-airlock').innerHTML = '<div class="status">/airlock/stats unavailable — engine may need restart after deploy.</div>';
+    return;
+  }
+  const total = stats.total_inputs || 0;
+  const uniq  = stats.unique_inputs || 0;
+  const by    = stats.by_route || {};
+  $('al-total').textContent = total.toLocaleString() + ' inputs · ' + (stats.days || 7) + 'd';
+  $('al-inputs').textContent = total.toLocaleString();
+  $('al-unique').textContent = uniq.toLocaleString();
+
+  // Top route + catch-all (low-confidence "engine" route — heuristic miss)
+  const entries = Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  if (entries.length > 0) {
+    const [topName, topN] = entries[0];
+    $('al-top-route').textContent = topName;
+    $('al-top-route-pct').textContent = total ? (topN/total*100).toFixed(0) + '% of inputs' : '—';
+  } else {
+    $('al-top-route').textContent = '—';
+    $('al-top-route-pct').textContent = 'no inputs yet';
+  }
+  // Catch-all rate = inputs where route resolves to discern at confidence < 0.5
+  // (we approximate from avg_confidence_by_route since we don't track per-row here)
+  const confs = stats.avg_confidence_by_route || {};
+  const discernConf = confs.discern;
+  if (typeof discernConf === 'number') {
+    $('al-catchall').textContent = (discernConf < 0.5 ? 'high' : 'low');
+  } else {
+    $('al-catchall').textContent = '—';
+  }
+
+  // Route share bar
+  const bar = $('al-route-bar');
+  if (total > 0) {
+    bar.innerHTML = entries.map(([k, v]) => {
+      const pct = (v / total * 100).toFixed(1);
+      const color = AL_ROUTE_COLORS[k] || 'var(--muted)';
+      return `<div title="${k}: ${v.toLocaleString()} (${pct}%)" style="background:${color};width:${pct}%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#1a1208;font-weight:600;">${pct >= 8 ? k + ' ' + pct + '%' : ''}</div>`;
+    }).join('');
+  } else {
+    bar.innerHTML = '<div style="padding:6px 12px;color:var(--muted);font-style:italic;">no airlock inputs yet — once a visitor types into the desk, they appear here</div>';
+  }
+
+  // Daily bars
+  const bars = $('al-daily-bars');
+  const byDay = stats.by_day || {};
+  const days = Object.keys(byDay).sort();
+  if (days.length > 0) {
+    const max = Math.max(...Object.values(byDay), 1);
+    bars.innerHTML = days.map(day => {
+      const v = byDay[day]; const pct = (v / max * 100);
+      return `<div title="${day}: ${v.toLocaleString()} inputs" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:30px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#e3c498;">${v}</div>
+        <div style="width:100%;background:#e3c498;height:${pct}%;min-height:2px;border-radius:2px 2px 0 0;"></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);">${day.slice(5)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    bars.innerHTML = '<div style="color:var(--muted);font-style:italic;font-size:12px;">no daily data yet</div>';
+  }
+
+  // Per-route + per-tool + avg confidence breakdowns
+  const fmt = (rows, empty) => rows.length
+    ? rows.map(([k,v]) => `<div class="row"><span class="k">${esc(k)}</span><span class="v">${(typeof v === 'number' ? v.toLocaleString() : v)}</span></div>`).join('')
+    : `<div style="color:var(--muted);font-style:italic;font-size:11px;">${empty}</div>`;
+  const byTool = Object.entries(stats.by_tool || {}).sort((a,b)=>b[1]-a[1]);
+  const confRows = Object.entries(confs).map(([k,v]) => [k, v.toFixed(2)]).sort();
+  $('al-breakdown').innerHTML =
+    `<div class="bgroup"><h3 style="color:#e3c498;">Routes (7d)</h3>${fmt(entries, 'no routes yet')}</div>
+     <div class="bgroup"><h3 style="color:#e3c498;">Tools chosen</h3>${fmt(byTool, 'no tool picks yet')}</div>
+     <div class="bgroup"><h3 style="color:#e3c498;">Avg confidence per route</h3>${fmt(confRows, 'no confidence data')}</div>`;
+
+  // Last 50 inputs
+  if (recent && recent.entries) {
+    if (!recent.entries.length) {
+      $('feed-airlock').innerHTML = '<div class="status">No inputs yet. When someone types into the airlock at /desk, they show here.</div>';
+    } else {
+      const routeColor = (r) => AL_ROUTE_COLORS[r] || 'var(--muted)';
+      renderFeed('feed-airlock', recent.entries, [
+        { label: 'When',  render: r => `<span class="when">${esc(fmtAgo(r.ts_iso || r.ts))}</span>` },
+        { label: 'Route', render: r => `<span class="mono" style="color:${routeColor(r.route)};font-weight:600;">${esc(r.route || '?')}</span>` },
+        { label: 'Tool',  render: r => `<span class="mono" style="color:var(--muted);">${esc(r.tool || '—')}</span>` },
+        { label: 'Conf',  render: r => `<span class="mono">${(r.confidence||0).toFixed(2)}</span>` },
+        { label: 'Len',   render: r => `<span class="mono" style="color:var(--muted);">${r.text_len||0}c</span>` },
+        { label: 'Hash',  render: r => `<span class="mono" style="color:var(--muted-2);font-size:10px;">${esc((r.text_hash || '').slice(0,10))}</span>` },
+        { label: 'IP /8', render: r => `<span class="mono">${esc(r.ip_prefix || '')}</span>` },
+        { label: 'UA',    render: r => `<span class="mono" style="color:var(--muted);">${esc(r.ua_class || '?')}</span>` },
+      ]);
+    }
+  } else {
+    $('feed-airlock').innerHTML = '<div class="status">/airlock/recent unavailable.</div>';
+  }
+}
+
+// ── FEEDBACK ─────────────────────────────────────────────────────
+// Closes the loop opened by the nhFeedback widget. Every "did this help?"
+// vote shows up here so the operator can see which surfaces deliver value
+// and which need work. Refinement-driven airlock inputs are tagged
+// via=feedback_refinement so they're also visible in the airlock log.
+async function loadFeedback() {
+  const stats  = await tryFetch('/feedback/stats?days=7');
+  const recent = await tryFetch('/feedback/recent?limit=50&days=7');
+  if (!stats) {
+    $('feed-feedback').innerHTML = '<div class="status">/feedback/stats unavailable — engine may need restart after deploy.</div>';
+    return;
+  }
+  const t = stats.total || {helped: 0, missed: 0};
+  const total = (t.helped || 0) + (t.missed || 0);
+  $('fb-total').textContent = total.toLocaleString() + ' votes · ' + (stats.days || 7) + 'd';
+  $('fb-helped').textContent = (t.helped || 0).toLocaleString();
+  $('fb-missed').textContent = (t.missed || 0).toLocaleString();
+  $('fb-rate').textContent = total ? (stats.rate * 100).toFixed(0) + '%' : '—';
+  $('fb-days').textContent = stats.days || 7;
+
+  // Per-topic + per-surface breakdowns
+  const fmtRows = (obj, empty) => {
+    const rows = Object.entries(obj || {}).sort((a,b)=>(b[1].helped + b[1].missed) - (a[1].helped + a[1].missed));
+    if (!rows.length) return `<div style="color:var(--muted);font-style:italic;font-size:11px;">${empty}</div>`;
+    return rows.map(([k, v]) => {
+      const n = (v.helped || 0) + (v.missed || 0);
+      const pct = (v.rate * 100).toFixed(0);
+      const color = v.rate >= 0.7 ? 'var(--pass)' : v.rate >= 0.4 ? 'var(--hold)' : 'var(--fail)';
+      return `<div class="row"><span class="k">${esc(k.slice(0,32))}</span><span class="v"><span style="color:${color};font-weight:600;">${pct}%</span> &middot; ${n} vote${n===1?'':'s'}</span></div>`;
+    }).join('');
+  };
+  $('fb-breakdown').innerHTML =
+    `<div class="bgroup"><h3 style="color:var(--pass);">By topic</h3>${fmtRows(stats.by_topic, 'no topic data yet')}</div>
+     <div class="bgroup"><h3 style="color:var(--pass);">By surface</h3>${fmtRows(stats.by_surface, 'no surface data yet')}</div>`;
+
+  // Last 50 feedback events
+  if (recent && recent.entries) {
+    if (!recent.entries.length) {
+      $('feed-feedback').innerHTML = '<div class="status">No feedback yet. Once a card renders the nhFeedback widget and a visitor votes, they show here.</div>';
+    } else {
+      renderFeed('feed-feedback', recent.entries, [
+        { label: 'When',    render: r => `<span class="when">${esc(fmtAgo(r.ts_iso || r.ts))}</span>` },
+        { label: 'Outcome', render: r => `<span class="mono" style="color:${r.helped ? 'var(--pass)' : 'var(--hold)'};font-weight:600;">${r.helped ? 'helped' : 'missed'}</span>` },
+        { label: 'Topic',   render: r => `<span class="mono">${esc(r.topic || '—')}</span>` },
+        { label: 'Surface', render: r => `<span class="mono" style="color:var(--muted);">${esc((r.surface || '').slice(0, 32))}</span>` },
+        { label: 'Card',    render: r => `<span class="mono" style="color:var(--muted);">${esc((r.card_id || '').slice(0, 24))}</span>` },
+        { label: 'Refine',  render: r => r.refinement_len ? `<span class="mono" style="color:var(--accent);">${r.refinement_len}c</span>` : '<span style="color:var(--muted-2);">—</span>' },
+        { label: 'IP /8',   render: r => `<span class="mono">${esc(r.ip_prefix || '')}</span>` },
+      ]);
+    }
+  } else {
+    $('feed-feedback').innerHTML = '<div class="status">/feedback/recent unavailable.</div>';
+  }
+}
+
+async function loadKeepLog() {
+  const log = await tryFetch('/keep/access-log?limit=200');
+  if (!log || !log.entries) { $('feed-keeplog').innerHTML = '<div class="status">/keep/access-log unavailable.</div>'; return; }
+  $('ct-keeplog').textContent = log.entries.length;
+  if (!log.entries.length) { $('feed-keeplog').innerHTML = '<div class="status">No /keep.html access events yet.</div>'; return; }
+  renderFeed('feed-keeplog', log.entries, [
+    { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.ts_iso))}</span>` },
+    { label: 'IP', render: r => `<span class="mono" style="color:${r.allowed ? 'var(--pass)' : 'var(--fail)'};font-weight:600;">${esc(r.ip || '?')}</span>` },
+    { label: 'Result', render: r => `<span class="mono" style="color:${r.allowed ? 'var(--pass)' : 'var(--fail)'};">${r.allowed ? 'ALLOWED' : 'DENIED'}</span>` },
+    { label: 'Path', render: r => `<span class="mono">${esc(r.path || '')}</span>` },
+    { label: 'UA', render: r => `<span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);">${esc((r.ua || '').slice(0, 70))}</span>` },
+  ]);
+}
+
+// ── THE THREE OFFICES ───────────────────────────────────────────
+// One small loader fills every office tile. A lit (alive) number means
+// something is waiting for the operator in that office.
+async function officesLoad() {
+  const setN = (id, n) => { const el = $(id); if (el) { el.textContent = (n||0).toLocaleString(); el.className = 'pc-val' + ((n||0) > 0 ? ' alive' : ''); } };
+  const setTxt = (id, t) => { const el = $(id); if (el) el.textContent = t; };
+
+  // Shepherd — the person
+  const w = await tryFetch('/walks/recent?limit=1');
+  if (w) setTxt('off-walks', (w.total||0).toLocaleString());
+  const m = await tryFetch('/mastery/summary');
+  if (m) setTxt('off-mastery', (m.learners||0) + ' · ' + (m.units_mastered||0));
+  const rf = await tryFetch('/refuge/intake');
+  setN('off-refuge', rf ? rf.pending : 0);
+
+  // Scribe — the record
+  const fb = await tryFetch('/apothecary/feedback/recent?limit=1');
+  if (fb) setTxt('off-feedback', (fb.total||0).toLocaleString());
+  const pr = await tryFetch('/almanac/proposals');
+  setN('off-proposals', pr ? pr.pending : 0);
+  const sv = await tryFetch('/stats/visitors');
+  if (sv) setTxt('off-visitors', (sv.today||0) + ' · ' + (sv.last_7_days||0));
+
+  // Steward — the keeping
+  const bq = await tryFetch('/build_queue');
+  setN('off-build', bq ? bq.open : 0);
+  const wr = await tryFetch('/witness/roll.json');
+  if (wr) { const arr = Array.isArray(wr) ? wr : (wr.witnesses || wr.roll || wr.entries || []); setTxt('off-witness', (arr.length||0).toLocaleString()); }
+  const tp = await tryFetch('/testimony/pending');
+  setN('off-testimony', tp ? tp.pending : 0);
+}
+
+// ── Wire it up ──────────────────────────────────────────────────
+function loadAll() {
+  pulseLoad();
+  attnLoad();
+  latestWorkLoad();
+  officesLoad();
+  loadAccessState();
+  loadTraffic();
+  loadAirlock();
+  loadFeedback();
+  loadKeepLog();
+}
+function loadArchive() {
+  loadRobotRoster();
+  loadSeeds();
+  loadPoly();
+  loadWitness();
+  loadInbox();
+  loadMcp();
+}
+$('refreshBtn').addEventListener('click', () => { loadAll(); loadArchive(); });
+
+// Lazy-load the archive when first opened
+let archiveLoaded = false;
+document.querySelector('details.archive')?.addEventListener('toggle', (e) => {
+  if (e.target.open && !archiveLoaded) { archiveLoaded = true; loadArchive(); }
+});
+
+loadAll();
+setInterval(() => { pulseLoad(); attnLoad(); }, 30000);
+</script>
+
+<!-- ── World map for visitor geography (d3 + topojson via CDN) ─── -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+// world-atlas topojson uses ISO 3166-1 NUMERIC ids (M49). ip-api returns ALPHA-2.
+// This mapping bridges them for the major countries (covers ~98% of typical traffic).
+const NUM_TO_A2 = {"004":"AF","008":"AL","012":"DZ","024":"AO","028":"AG","031":"AZ","032":"AR","036":"AU","040":"AT","044":"BS","048":"BH","050":"BD","051":"AM","052":"BB","056":"BE","064":"BT","068":"BO","070":"BA","072":"BW","076":"BR","084":"BZ","096":"BN","100":"BG","104":"MM","108":"BI","112":"BY","116":"KH","120":"CM","124":"CA","132":"CV","140":"CF","144":"LK","148":"TD","152":"CL","156":"CN","158":"TW","170":"CO","174":"KM","178":"CG","180":"CD","188":"CR","191":"HR","192":"CU","196":"CY","203":"CZ","204":"BJ","208":"DK","214":"DO","218":"EC","222":"SV","226":"GQ","231":"ET","232":"ER","233":"EE","242":"FJ","246":"FI","250":"FR","262":"DJ","266":"GA","268":"GE","270":"GM","275":"PS","276":"DE","288":"GH","300":"GR","320":"GT","324":"GN","328":"GY","332":"HT","340":"HN","344":"HK","348":"HU","352":"IS","356":"IN","360":"ID","364":"IR","368":"IQ","372":"IE","376":"IL","380":"IT","384":"CI","388":"JM","392":"JP","398":"KZ","400":"JO","404":"KE","408":"KP","410":"KR","414":"KW","417":"KG","418":"LA","422":"LB","426":"LS","428":"LV","430":"LR","434":"LY","438":"LI","440":"LT","442":"LU","450":"MG","454":"MW","458":"MY","462":"MV","466":"ML","470":"MT","478":"MR","480":"MU","484":"MX","492":"MC","496":"MN","498":"MD","499":"ME","504":"MA","508":"MZ","512":"OM","516":"NA","524":"NP","528":"NL","540":"NC","548":"VU","554":"NZ","558":"NI","562":"NE","566":"NG","578":"NO","586":"PK","591":"PA","598":"PG","600":"PY","604":"PE","608":"PH","616":"PL","620":"PT","624":"GW","626":"TL","630":"PR","634":"QA","642":"RO","643":"RU","646":"RW","682":"SA","686":"SN","688":"RS","690":"SC","694":"SL","702":"SG","703":"SK","704":"VN","705":"SI","706":"SO","710":"ZA","716":"ZW","724":"ES","728":"SS","729":"SD","748":"SZ","752":"SE","756":"CH","760":"SY","762":"TJ","764":"TH","768":"TG","776":"TO","780":"TT","784":"AE","788":"TN","792":"TR","795":"TM","800":"UG","804":"UA","807":"MK","818":"EG","826":"GB","834":"TZ","840":"US","854":"BF","858":"UY","860":"UZ","862":"VE","882":"WS","887":"YE","894":"ZM"};
+const COUNTRY_NAMES = {US:"United States",GB:"United Kingdom",CA:"Canada",DE:"Germany",FR:"France",AU:"Australia",BR:"Brazil",IN:"India",CN:"China",JP:"Japan",RU:"Russia",MX:"Mexico",IT:"Italy",ES:"Spain",NL:"Netherlands",SE:"Sweden",NO:"Norway",PL:"Poland",ZA:"South Africa",KE:"Kenya",NG:"Nigeria",KR:"South Korea",ID:"Indonesia",PH:"Philippines",VN:"Vietnam",SG:"Singapore",IE:"Ireland",CH:"Switzerland",AT:"Austria",BE:"Belgium",DK:"Denmark",FI:"Finland",PT:"Portugal",GR:"Greece",HU:"Hungary",CZ:"Czechia",RO:"Romania",NZ:"New Zealand",AR:"Argentina",CL:"Chile",CO:"Colombia",PE:"Peru",TR:"Turkey",IL:"Israel",SA:"Saudi Arabia",AE:"UAE",IR:"Iran",EG:"Egypt",MA:"Morocco",PK:"Pakistan",BD:"Bangladesh",MY:"Malaysia",TH:"Thailand",TW:"Taiwan",HK:"Hong Kong",UA:"Ukraine",RS:"Serbia",BG:"Bulgaria",HR:"Croatia",SK:"Slovakia",SI:"Slovenia",EE:"Estonia",LV:"Latvia",LT:"Lithuania",LOCAL:"(local)","??":"(unknown)"};
+const FLAGS = {US:"🇺🇸",GB:"🇬🇧",CA:"🇨🇦",DE:"🇩🇪",FR:"🇫🇷",AU:"🇦🇺",BR:"🇧🇷",IN:"🇮🇳",CN:"🇨🇳",JP:"🇯🇵",RU:"🇷🇺",MX:"🇲🇽",IT:"🇮🇹",ES:"🇪🇸",NL:"🇳🇱",SE:"🇸🇪",NO:"🇳🇴",PL:"🇵🇱",ZA:"🇿🇦",KE:"🇰🇪",NG:"🇳🇬",KR:"🇰🇷",ID:"🇮🇩",PH:"🇵🇭",VN:"🇻🇳",SG:"🇸🇬",IE:"🇮🇪",CH:"🇨🇭",AT:"🇦🇹",BE:"🇧🇪",DK:"🇩🇰",FI:"🇫🇮",PT:"🇵🇹",GR:"🇬🇷",HU:"🇭🇺",CZ:"🇨🇿",RO:"🇷🇴",NZ:"🇳🇿",AR:"🇦🇷",CL:"🇨🇱",CO:"🇨🇴",PE:"🇵🇪",TR:"🇹🇷",IL:"🇮🇱",SA:"🇸🇦",AE:"🇦🇪",IR:"🇮🇷",EG:"🇪🇬",MA:"🇲🇦",PK:"🇵🇰",BD:"🇧🇩",MY:"🇲🇾",TH:"🇹🇭",TW:"🇹🇼",HK:"🇭🇰",UA:"🇺🇦",LOCAL:"🏠","??":"❓"};
+
+async function geoLoad() {
+  const svg = document.getElementById('geo-map');
+  const todayList = document.getElementById('geo-list-today');
+  const histList = document.getElementById('geo-list-hist');
+  const todayN = document.getElementById('geo-today-n');
+  const histN = document.getElementById('geo-hist-n');
+  const pendingN = document.getElementById('geo-pending-n');
+  if (!svg || !todayList || !histList) return;
+  const escx = s => String(s||'').replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]);
+
+  const [geo, topo] = await Promise.all([
+    fetch('/keep/geo?days=30', {cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null),
+    fetch('/maps/world-110m.json').then(r=>r.ok?r.json():null).catch(()=>null),
+  ]);
+  if (!geo) { todayList.innerHTML = '<div class="pl-status">/keep/geo unavailable.</div>'; histList.innerHTML = ''; return; }
+
+  if (todayN) todayN.textContent = (geo.today_visits || 0).toLocaleString();
+  if (histN) histN.textContent = (geo.historical_visits || 0).toLocaleString();
+  if (pendingN && geo.pending_lookup) pendingN.textContent = '· ' + geo.pending_lookup.toLocaleString() + ' awaiting lookup';
+
+  function renderList(el, counts, color) {
+    const entries = Object.entries(counts).filter(([k])=>k!=="LOCAL"&&k!=="??").sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const maxL = Math.max(1, ...entries.map(([,v])=>v));
+    if (entries.length) {
+      el.innerHTML = entries.map(([cc,n])=>{
+        const w = Math.max(4, Math.round(n/maxL*100));
+        const name = escx(COUNTRY_NAMES[cc] || cc);
+        const flag = FLAGS[cc] || '🌐';
+        return '<div class="row"><div>'+flag+' '+name+'</div>'
+             +'<div class="pl-meta"><span style="display:inline-block;width:'+w+'px;height:5px;background:'+color+';border-radius:2px;margin-right:6px;vertical-align:middle;"></span>'+n.toLocaleString()+'</div></div>';
+      }).join('');
+    } else {
+      el.innerHTML = '<div class="pl-status" style="font-style:italic;">No traffic yet.</div>';
+    }
+  }
+  renderList(todayList, geo.by_country_today || {}, '#e8a060');
+  renderList(histList, geo.by_country_historical || {}, '#6a8fc4');
+
+  if (!topo || typeof d3 === 'undefined' || typeof topojson === 'undefined') return;  // list-only fallback
+
+  const countriesFeat = topojson.feature(topo, topo.objects.countries);
+  const W=900, H=460;
+  const proj = d3.geoNaturalEarth1().fitSize([W, H], countriesFeat);
+  const path = d3.geoPath(proj);
+  const sel = d3.select(svg);
+  sel.selectAll('*').remove();
+
+  // Land: subtle dark fill + thin border, so the pins pop.
+  sel.append('g').selectAll('path').data(countriesFeat.features).enter().append('path')
+    .attr('d', path)
+    .attr('fill', '#1a141d')
+    .attr('stroke', '#29232f').attr('stroke-width', 0.4);
+
+  // Pins: blue (historical) layer first, orange (today) on top so live traffic reads.
+  const pHist = geo.points_historical || [];
+  const pToday = geo.points_today || [];
+  const maxCount = Math.max(1, ...pHist.map(p=>p.count), ...pToday.map(p=>p.count));
+  const rScale = d3.scaleSqrt().domain([1, maxCount]).range([2.5, 13]);
+
+  function plot(points, color) {
+    sel.append('g').selectAll('circle').data(points).enter().append('circle')
+      .attr('cx', d => proj([d.lon, d.lat])[0])
+      .attr('cy', d => proj([d.lon, d.lat])[1])
+      .attr('r', d => rScale(d.count))
+      .attr('fill', color).attr('fill-opacity', 0.55)
+      .attr('stroke', color).attr('stroke-width', 0.6).attr('stroke-opacity', 0.95)
+      .append('title').text(d => (d.city || '?') + (d.cc ? (', ' + d.cc) : '') + ': ' + d.count.toLocaleString() + ' visits');
+  }
+  plot(pHist, '#6a8fc4');   // blue underneath
+  plot(pToday, '#e8a060');  // orange on top — live "now"
+}
+
+// Defer until the rest of the keep panels render — geo lookups can be slow on first uncached call.
+setTimeout(geoLoad, 800);
+</script>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

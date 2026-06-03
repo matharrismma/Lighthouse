@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tasks — Narrow Highway</title>
+<meta name="description" content="Pre-built workflows for Christian families: family worship, the catechism of the day, the Lord's Prayer, the Apostles' Creed, wedding + funeral prep walks, and more. One click to run.">
+<meta property="og:title" content="Tasks — Narrow Highway">
+<meta property="og:description" content="Pre-built Christian-family workflows: family worship, catechism, the Lord's Prayer, the Apostles' Creed, wedding + funeral prep walks. One click.">
+<meta property="og:image" content="/img/og_card.png">
+<meta property="og:url" content="https://narrowhighway.com/tasks.html">
+<link rel="icon" href="/img/favicon.ico">
+<link rel="apple-touch-icon" href="/img/apple_touch_icon.png">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+    --border: #29232f; --border-hi: #3a3142;
+    --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878;
+    --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+    --r: 12px; --r-sm: 8px;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif; font-size: 16px; line-height: 1.55;
+    min-height: 100dvh; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hi); }
+
+  nav.topnav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,8,16,0.94); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 56px;
+  }
+  .wordmark {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 9px;
+  }
+  .wordmark-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(201,168,124,0.55); }
+  .breadcrumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  /* Hero */
+  .hero { max-width: 920px; margin: 0 auto; padding: 36px 24px 14px; text-align: center; }
+  .hero .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; margin-bottom: 10px; }
+  .hero h1 em { color: var(--accent-hi); font-style: italic; font-family: 'Crimson Pro', Georgia, serif; font-weight: 400; }
+  .hero p.sub { color: var(--text-dim); font-size: 16px; max-width: 60ch; margin: 0 auto; }
+
+  /* Task grid */
+  .tasks { max-width: 1180px; margin: 28px auto; padding: 0 24px; }
+  .tasks-section { margin-bottom: 36px; }
+  .tasks-section h2 {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .task-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .task-card {
+    background: var(--surface); border: 1px solid var(--border-hi);
+    border-radius: var(--r); padding: 18px 20px;
+    cursor: pointer; transition: all 0.18s cubic-bezier(0.2,0.8,0.2,1);
+    display: flex; flex-direction: column;
+  }
+  .task-card:hover {
+    border-color: var(--accent); transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+  .task-card .icon {
+    font-size: 24px; margin-bottom: 8px; line-height: 1;
+  }
+  .task-card .name { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .task-card .desc { color: var(--text-dim); font-size: 13.5px; line-height: 1.45; flex: 1; }
+  .task-card .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    margin-top: 12px;
+  }
+  .task-card .meta .pill {
+    display: inline-block; padding: 2px 7px; background: var(--accent-soft);
+    color: var(--accent); border-radius: 3px; margin-right: 6px;
+  }
+
+  /* Run modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border-hi);
+    border-radius: var(--r); max-width: 720px; width: 100%;
+    max-height: 90vh; overflow: auto; padding: 26px 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  }
+  .modal h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .modal .desc { color: var(--text-dim); margin-bottom: 16px; font-size: 14px; }
+  .modal .input-row { margin: 14px 0; }
+  .modal .input-row label {
+    display: block; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px;
+  }
+  .modal .input-row input, .modal .input-row textarea {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border-hi); border-radius: var(--r-sm);
+    padding: 10px 12px; font-family: inherit; font-size: 15px;
+  }
+  .modal .input-row textarea { min-height: 80px; resize: vertical; }
+  .modal .actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal .actions button {
+    padding: 10px 20px; border-radius: var(--r-sm);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+    font-weight: 600;
+  }
+  .modal .actions .run { background: var(--accent); color: var(--bg); border: 1px solid var(--accent); }
+  .modal .actions .run:hover { background: var(--accent-hi); }
+  .modal .actions .cancel { background: transparent; color: var(--text-dim); border: 1px solid var(--border-hi); }
+  .modal .actions .cancel:hover { color: var(--text); }
+  .modal .result {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 14px 16px; margin-top: 18px;
+    font-size: 13.5px;
+  }
+  .modal .result pre {
+    font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    white-space: pre-wrap; word-break: break-word;
+    max-height: 360px; overflow: auto; color: var(--text-dim);
+  }
+  .modal .result h3 { color: var(--accent-hi); font-size: 15px; margin: 8px 0 4px; font-weight: 600; }
+  .modal .result .card-block {
+    background: var(--surface-2); border-left: 3px solid var(--accent);
+    padding: 10px 14px; margin: 8px 0; border-radius: 3px;
+  }
+  .modal .result .card-title { color: var(--text); font-weight: 600; font-size: 14px; }
+  .modal .result .card-body { color: var(--text-dim); margin-top: 4px; line-height: 1.5; font-size: 13px; }
+  .modal .result .card-source { color: var(--muted); font-size: 11px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; }
+
+  .loading { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  .loading-spin {
+    display: inline-block; width: 28px; height: 28px;
+    border: 2px solid var(--border-hi); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 1s linear infinite;
+    margin-bottom: 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty {
+    background: var(--surface); border: 1px dashed var(--border-hi);
+    padding: 28px; border-radius: var(--r); text-align: center;
+    color: var(--text-dim);
+  }
+
+  footer { max-width: 1180px; margin: 40px auto 24px; padding: 22px 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; text-align: center; }
+  footer a { color: var(--text-dim); }
+  footer a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/" class="wordmark"><span class="wordmark-dot"></span> Narrow Highway</a>
+  <div class="breadcrumbs"><a href="/">Home</a> › Tasks</div>
+</nav>
+
+<header class="hero">
+  <div class="eyebrow">Pre-built workflows · One click</div>
+  <h1>Common <em>tasks</em>, ready to run</h1>
+  <p class="sub">Family worship tonight. The catechism of the day. A walk through the Lord's Prayer. Wedding or funeral prep. Pick a task — the engine does the rest.</p>
+</header>
+
+<div class="tasks" id="tasks-root">
+  <div class="loading"><div class="loading-spin"></div><div>Loading tasks…</div></div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal" role="dialog" aria-labelledby="modal-title">
+    <h2 id="modal-title">—</h2>
+    <p class="desc" id="modal-desc">—</p>
+    <form id="modal-form"></form>
+    <div class="actions">
+      <button type="button" class="run" id="modal-run">Run</button>
+      <button type="button" class="cancel" id="modal-cancel">Cancel</button>
+    </div>
+    <div class="result" id="modal-result" style="display:none;"></div>
+  </div>
+</div>
+
+<footer>
+  Free. Family-safe. No accounts. No tracking.<br>
+  <a href="/">narrowhighway.com</a> · <a href="/walks.html">Walk</a> · <a href="/live.html">Live</a> · <a href="/codex.html">Codex</a>
+</footer>
+
+<script>
+const ICONS = {
+  todays_card:                "🃏",
+  walk_a_question:            "🚶",
+  family_worship_tonight:     "🕯️",
+  memory_verse_this_week:     "📖",
+  new_believers_first_walk:   "✝️",
+  pray_the_psalms:            "🎵",
+  catechism_of_the_day:       "❓",
+  hymn_of_the_day:            "🎶",
+  walk_a_topic:               "🗺️",
+  the_lords_prayer:           "🙏",
+  the_apostles_creed_walk:    "📜",
+  wedding_prep_walk:          "💍",
+  funeral_prep_walk:          "🕊️",
+  sunday_morning_devotion:    "🌅",
+  walk_to_keep:               "📝",
+  compound_to_practice:       "⚗️",
+  teach_one_unit:             "🎓",
+};
+
+// Group flows into sections for nicer presentation
+const SECTIONS = [
+  { title: "Today",          ids: ["todays_card","catechism_of_the_day","hymn_of_the_day","pray_the_psalms","memory_verse_this_week"] },
+  { title: "Family worship", ids: ["family_worship_tonight","sunday_morning_devotion"] },
+  { title: "Walks",          ids: ["walk_a_question","walk_a_topic","the_lords_prayer","the_apostles_creed_walk","new_believers_first_walk"] },
+  { title: "Life events",    ids: ["wedding_prep_walk","funeral_prep_walk"] },
+  { title: "Operator + agent", ids: ["walk_to_keep","compound_to_practice","teach_one_unit"] },
+];
+
+let FLOWS_BY_ID = {};
+
+async function loadFlows() {
+  try {
+    const r = await fetch('/flows?audience=human', { cache: 'no-store' });
+    if (!r.ok) throw new Error('flow listing failed');
+    const j = await r.json();
+    (j.flows || []).forEach(f => { FLOWS_BY_ID[f.id] = f; });
+    render();
+  } catch (e) {
+    document.getElementById('tasks-root').innerHTML =
+      '<div class="empty">Tasks endpoint unavailable. The engine may be restarting — try in a few seconds, or visit <a href="/walks.html">Walk the cards</a>.</div>';
+  }
+}
+
+function render() {
+  const root = document.getElementById('tasks-root');
+  if (!Object.keys(FLOWS_BY_ID).length) {
+    root.innerHTML = '<div class="empty">No tasks registered.</div>';
+    return;
+  }
+  let html = '';
+  for (const sec of SECTIONS) {
+    const present = sec.ids.filter(id => FLOWS_BY_ID[id]);
+    if (!present.length) continue;
+    html += '<section class="tasks-section">';
+    html += '<h2>' + sec.title + '</h2>';
+    html += '<div class="task-grid">';
+    for (const id of present) {
+      const f = FLOWS_BY_ID[id];
+      const icon = ICONS[id] || "•";
+      const needsInput = f.first_input && f.first_input.key;
+      html += '<div class="task-card" onclick="openTask(\'' + id + '\')">';
+      html += '<div class="icon">' + icon + '</div>';
+      html += '<div class="name">' + escapeHtml(f.name) + '</div>';
+      html += '<div class="desc">' + escapeHtml(f.description || '') + '</div>';
+      html += '<div class="meta">';
+      html += '<span class="pill">' + f.step_count + ' step' + (f.step_count === 1 ? '' : 's') + '</span>';
+      if (needsInput) html += '<span class="pill">input</span>';
+      html += '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</section>';
+  }
+  root.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return (s || '').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+}
+
+let currentFlow = null;
+
+function openTask(id) {
+  const f = FLOWS_BY_ID[id];
+  if (!f) return;
+  currentFlow = f;
+  document.getElementById('modal-title').textContent = f.name;
+  document.getElementById('modal-desc').textContent = f.description || '';
+  document.getElementById('modal-result').style.display = 'none';
+  document.getElementById('modal-result').innerHTML = '';
+
+  const form = document.getElementById('modal-form');
+  form.innerHTML = '';
+  if (f.first_input && f.first_input.key) {
+    const k = f.first_input.key;
+    const label = f.first_input.label || k;
+    const kind = f.first_input.kind || 'text';
+    const tag = kind === 'longtext' ? 'textarea' : 'input';
+    form.innerHTML =
+      '<div class="input-row">' +
+        '<label>' + escapeHtml(label) + '</label>' +
+        (tag === 'textarea'
+          ? '<textarea name="' + k + '"></textarea>'
+          : '<input type="text" name="' + k + '" autocomplete="off">') +
+      '</div>';
+  }
+
+  document.getElementById('modal-backdrop').classList.add('show');
+}
+
+document.getElementById('modal-cancel').addEventListener('click', () => {
+  document.getElementById('modal-backdrop').classList.remove('show');
+});
+document.getElementById('modal-backdrop').addEventListener('click', e => {
+  if (e.target.id === 'modal-backdrop') {
+    document.getElementById('modal-backdrop').classList.remove('show');
+  }
+});
+
+document.getElementById('modal-run').addEventListener('click', async () => {
+  if (!currentFlow) return;
+  const state = {};
+  document.querySelectorAll('#modal-form input, #modal-form textarea').forEach(el => {
+    if (el.name) state[el.name] = el.value.trim();
+  });
+  const resultEl = document.getElementById('modal-result');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div class="loading"><div class="loading-spin"></div><div>Running…</div></div>';
+
+  try {
+    const r = await fetch('/flow/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flow_id: currentFlow.id, state: state }),
+    });
+    const j = await r.json();
+    renderResult(j);
+  } catch (e) {
+    resultEl.innerHTML = '<div class="empty">Couldn\'t run the task. The engine may be restarting.</div>';
+  }
+});
+
+function renderResult(j) {
+  const el = document.getElementById('modal-result');
+  if (j.status === 'waiting_for_input') {
+    // Render an input box for the next field
+    const expects = j.expects || 'answer';
+    const label = j.label || 'Your answer';
+    el.innerHTML =
+      '<h3>Shepherd asks:</h3>' +
+      '<p style="margin-bottom: 12px;">' + escapeHtml(label) + '</p>' +
+      '<div class="input-row">' +
+        '<input type="text" id="resume-input" autocomplete="off" placeholder="…">' +
+      '</div>' +
+      '<button class="run" id="resume-btn" style="padding:8px 16px;border-radius:6px;font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;background:var(--accent);color:var(--bg);border:1px solid var(--accent);cursor:pointer;">Send</button>';
+    document.getElementById('resume-btn').addEventListener('click', async () => {
+      const v = document.getElementById('resume-input').value.trim();
+      const newState = Object.assign({}, j.state || {}, { [expects]: v });
+      el.innerHTML = '<div class="loading"><div class="loading-spin"></div><div>Continuing…</div></div>';
+      const r = await fetch('/flow/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flow_id: currentFlow.id, state: newState, run_id: j.run_id }),
+      });
+      renderResult(await r.json());
+    });
+    return;
+  }
+  if (j.status === 'error') {
+    el.innerHTML = '<div class="empty">Error: ' + escapeHtml(j.error || 'unknown') + '</div>';
+    return;
+  }
+  if (j.status === 'complete') {
+    el.innerHTML = '<h3>Done.</h3>' + renderOutputs(j);
+    return;
+  }
+  el.innerHTML = '<pre>' + escapeHtml(JSON.stringify(j, null, 2)) + '</pre>';
+}
+
+function renderOutputs(j) {
+  const state = j.state || {};
+  const outputs = (currentFlow && currentFlow.outputs) || [];
+  let html = '';
+  for (const key of outputs) {
+    const v = state[key];
+    if (!v) continue;
+    html += renderValue(key, v);
+  }
+  if (!html) html = '<pre>' + escapeHtml(JSON.stringify(state, null, 2)) + '</pre>';
+  return html;
+}
+
+function renderValue(key, v) {
+  // Try to detect "card-shaped" objects and render them prettier
+  if (v && typeof v === 'object' && (v.title || v.id) && v.body !== undefined) {
+    return cardBlock(v);
+  }
+  if (v && v.card && v.card.title) {
+    // daily-card shape
+    return cardBlock(v.card);
+  }
+  if (v && Array.isArray(v.cards)) {
+    return v.cards.map(cardBlock).join('');
+  }
+  // Fallback: pretty-print JSON
+  return '<pre>' + escapeHtml(JSON.stringify(v, null, 2)) + '</pre>';
+}
+
+function cardBlock(c) {
+  const src = c.source || {};
+  return '<div class="card-block">' +
+    '<div class="card-title">' + escapeHtml(c.title || '') + '</div>' +
+    '<div class="card-body">' + escapeHtml((c.body || '').slice(0, 600)) + '</div>' +
+    (src.label || src.ref
+      ? '<div class="card-source">' + escapeHtml(src.label || src.ref) + '</div>'
+      : '') +
+    '</div>';
+}
+
+loadFlows();
+</script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-page-title="page.agents.title">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,6 +23,14 @@
   <meta name="twitter:image" content="https://narrowhighway.com/chi-rho.svg">
   <link rel="canonical" href="https://narrowhighway.com/agents.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"For AI Agents · Concordance Engine","description":"Tool inventory, integration snippets, and protocol documentation for AI agents calling the Concordance Engine at narrowhighway.com.","url":"https://narrowhighway.com/agents.html","isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
 </head>
 <body>
 
@@ -30,18 +38,13 @@
   <div class="topbar-inner">
     <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
     <nav class="topnav">
-      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
-      <a href="/how-it-works.html">How it works</a>
-      <a href="/verifiers.html">Verifiers</a>
-      <a href="/agents.html" class="active">Agents</a>
-      <a href="/try.html">Verify</a>
-      <a href="/grid.html">Grid</a>
-      <a href="/engine.html">Engine</a>
-      <a href="/poly.html">Polymathic</a>
-      <a href="/benchmark.html">Benchmark</a>
-      <a href="/install.html">Install</a>
-      <a href="https://github.com/matharrismma/Lighthouse">GitHub</a>
-      <a class="cta" href="/connect.html">Connect →</a>
+            <a href="/connect.html" data-i18n="nav.connect">Connect</a>
+            <a href="/mcp.html" data-i18n="nav.mcp">MCP</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/almanac.html" data-i18n="nav.almanac">Almanac</a>
+            <a href="/curriculum.html" data-i18n="nav.curriculum">Curriculum</a>
+            <a href="/benchmark.html" data-i18n="nav.benchmark">Benchmark</a>
     </nav>
   </div>
 </header>
@@ -49,8 +52,36 @@
 <div class="page-header">
   <div class="container">
     <div class="eyebrow">For AI Agents</div>
-    <h1>Your home in the engine.</h1>
+    <h1 data-i18n="page.agents.h1">Your home in the engine.</h1>
     <p>Read this before you call anything. Everything you need to integrate, classify, verify, and record.</p>
+
+    <!-- 30-second quick start: verify the engine works without reading anything else -->
+    <div style="background:var(--surface,#161320);border:1px solid var(--accent,#c9a87c);border-radius:10px;padding:18px 22px;margin-top:22px;max-width:760px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent,#c9a87c);font-weight:600;margin-bottom:10px;">Quick start · 30 seconds</div>
+      <p style="font-size:14px;color:var(--text-dim,#b3aabd);margin:0 0 12px;line-height:1.5;">Three calls, in order. Each is independent — verify each works before the next.</p>
+      <div style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text,#ede7db);overflow-x:auto;white-space:pre;line-height:1.65;">
+<span style="color:var(--muted,#6e6878);"># 1. Read the engine's identity (always do this first)</span>
+curl https://narrowhighway.com/identity
+
+<span style="color:var(--muted,#6e6878);"># 2. Verify a deterministic claim (chemistry domain)</span>
+curl -X POST https://narrowhighway.com/verify \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"chemistry","equation":"2 H2 + O2 -&gt; 2 H2O"}'
+
+<span style="color:var(--muted,#6e6878);"># 3. Connect via MCP (Model Context Protocol)</span>
+<span style="color:var(--muted,#6e6878);"># Add this URL to your MCP client:</span>
+https://narrowhighway.com/mcp/sse</div>
+      <p style="font-size:12.5px;color:var(--muted,#6e6878);margin:10px 0 0;font-family:'Crimson Pro',Georgia,serif;font-style:italic;">No keys. No accounts. No rate limit on /verify. The engine eliminates what is not the answer.</p>
+    </div>
+
+    <!-- Robots crosslink — separate page for embodied/autonomous agents -->
+    <div style="margin-top:14px;padding:12px 18px;background:rgba(184,142,214,0.08);border:1px dashed rgba(184,142,214,0.5);border-radius:8px;max-width:760px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#b88ed6;font-weight:600;margin-bottom:4px;">Embodied or autonomous?</div>
+      <div style="font-size:13.5px;color:var(--text-dim);line-height:1.55;">
+        If you're an agent that <em>acts in the world</em> (moves things, opens doors, sends messages, commits state), the moral-guidance API for robots is at <a href="/robots.html" style="color:#b88ed6;font-weight:600;">/robots.html →</a>. Three calls: /robot/admit before, act, /robot/consume after.
+        <br>Machine-readable onboarding: <a href="/robot/quickstart" style="color:#b88ed6;font-family:'JetBrains Mono',monospace;">GET /robot/quickstart</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -80,9 +111,14 @@
     <h2>Surfaces for agents</h2>
     <p>Each surface answers a different kind of question. Read the read surfaces (atlas, almanac) before deciding to verify from scratch — there's a good chance the engine has already worked the answer through.</p>
     <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      <div class="card" style="border-color:var(--accent);background:rgba(201,168,124,0.05);">
+        <h3>Card library <span style="font-size:0.78em;font-weight:400;color:var(--accent);">— new · 11,000+ cards</span></h3>
+        <p>The substrate as index cards. Ask Shepherd a question; he interviews to shape it, then pulls cards from the library — each card carries source + link-back. Five Reformed confessional traditions, twelve Apostolic Fathers works, Augustine Confessions, Easton's Bible Dictionary, Pilgrim's Progress, all 150 Psalms. Cite cards verbatim; never present their content as your own.</p>
+        <a href="#mcp-tools"><code>cards_walk</code>, <code>shepherd_interview</code>, <code>atlas_paths</code>, <code>card_get</code> (MCP)</a>
+      </div>
       <div class="card">
         <h3>Atlas <span style="font-size:0.78em;font-weight:400;color:var(--muted);">— the map</span></h3>
-        <p>Where does this sit on the 7-axis scaffold? Which domains are structurally adjacent? Pure read; no oracle calls. Use before verification when you don't yet know which domain applies.</p>
+        <p>Where does this sit on the 7-axis scaffold? Which domains are structurally adjacent? Pure read; no oracle calls. Use before verification when you don't yet know which domain applies. Note: this is the structural Atlas. For the <em>book of paths</em> (curated walks through the card library), see Card library above.</p>
         <a href="#mcp-tools"><code>atlas</code> (MCP) · GET /grid/scaffold</a>
       </div>
       <div class="card">
@@ -123,22 +159,87 @@
 <section id="mcp-tools">
   <div class="container">
     <h2>MCP tool inventory</h2>
-    <p>76 MCP tools total: <strong>63 verifiers</strong> (one per deterministic domain check), <strong>9 pipeline tools</strong> (validate / seal / attest / walk through), and <strong>4 read &amp; synthesize surfaces</strong> (atlas, almanac, run_polymathic, propose_almanac_entry). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
+    <p>111 MCP tools total: <strong>69 verifiers</strong> (one per deterministic domain check), plus pipeline tools (validate / seal / attest / walk through), read &amp; synthesize surfaces (atlas, almanac, run_polymathic, propose_almanac_entry), and the <strong>12 card-library tools</strong> added 2026-05-19 (cards_walk, shepherd_interview, atlas_paths, card_get, card_notes, daily_card, etc.). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
+
+    <h3 style="margin-top:1.8em; color:var(--accent);">Card library tools <span style="font-size:0.7em; font-weight:400; color:var(--muted);">— new 2026-05-19</span></h3>
+    <table>
+      <thead>
+        <tr><th style="width:34%">Tool</th><th>What it does</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>cards_walk</code></td><td>The signature operation. Ask Shepherd a question; he pulls top-k cards from the 11,000-card substrate, with source + Shepherd narration per step. Cache-first: same question previously asked returns the cached walk. Arguments: query, k=7, asked_by.</td></tr>
+        <tr><td><code>shepherd_interview</code></td><td>Pre-flight conversational interview. Shepherd asks up to 3 clarifying questions (audience / tradition lens / use intent / specificity) before any expensive search fires. Loop until state=ready_to_walk, then pass shaped_query to cards_walk.</td></tr>
+        <tr><td><code>card_get</code></td><td>Single card by id. Full content: title, body, source (with authority_tier and link-back URL), shelf, box, bands, connections, metrics. IDs look like card_n_&lt;hash&gt; (note), card_c_&lt;hash&gt; (connection), card_w_&lt;hash&gt; (walk).</td></tr>
+        <tr><td><code>cards_browse</code></td><td>List cards filtered by shelf, box, kind, lifecycle. Use for substrate exploration without a search query. Shelves: codex, classics, dictionary, patristics, hymns, recipes, maker, connections, atlas. Kinds: note, connection, walk, search, community_note, stack.</td></tr>
+        <tr><td><code>card_connections</code></td><td>Outgoing + inbound connections for a card. The graph is bidirectional. Use to follow proof texts (catechism → scripture), related creeds, next/prev in narrative works (Pilgrim's Progress, Augustine).</td></tr>
+        <tr><td><code>cards_stats</code></td><td>Substrate composition: total cards, by_shelf, by_kind, by_authority_tier, by_lifecycle_stage. Useful before deciding whether to walk.</td></tr>
+        <tr><td><code>atlas_paths</code></td><td>List curated Atlas paths — walks the operator (Matt) or community has canonized. Examples: "The Trinity in 4 cards", "A child's first catechism walk", "How the Reformers read justification".</td></tr>
+        <tr><td><code>atlas_path</code></td><td>Hydrate a single Atlas path: full card content for each step with per-step Shepherd narration. Use after atlas_paths to read a walk end-to-end.</td></tr>
+        <tr><td><code>daily_card</code></td><td>Today's card. Deterministic worldwide: same date → same card. Pool is restricted to permanent + public/featured cards from foundational tiers (Words in Red, Scripture, Catechism, Creed, Father, Matt).</td></tr>
+        <tr><td><code>card_notes</code></td><td>Community notes annotating a card. Bridge-rated: a note surfaces as "Balance" only when raters from 2+ different traditions both find it helpful. Notes never overwrite the card; they surface alongside.</td></tr>
+        <tr><td><code>library_health</code></td><td>Operational health: lifecycle distribution, total citations, flagged count, pending promotions in operator queue. Check before committing to a long walk or bulk operation.</td></tr>
+        <tr><td><code>stack_get</code></td><td>Read a household's card stack: paperclipped, authored, forked card IDs, shared inbox, tip total. Private by default; agents must respect privacy and not enumerate household IDs.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:1.8em;">Engine + verification tools</h3>
     <table>
       <thead>
         <tr><th style="width:34%">Tool</th><th>What it does</th></tr>
       </thead>
       <tbody>
         <tr><td><code>atlas</code></td><td>Walk the structural map. Where a domain sits on the 7-axis scaffold, what's adjacent, what's in its umbrella. Three modes: full scaffold, domain detail, axis membership.</td></tr>
-        <tr><td><code>almanac</code></td><td>Read the curated book. 21 entries — protocols (canonical pre-run polymathic situations) and sayings (folk wisdom verified by computation). Filter by query, kind, category, or verdict; or fetch a single entry by id.</td></tr>
+        <tr><td><code>almanac</code></td><td>Read the curated book. 298 entries — protocols (canonical pre-run polymathic situations), sayings (folk wisdom verified by computation), and patterns (engine-discovered cross-domain structures). Filter by query, kind, category, or verdict; or fetch a single entry by id.</td></tr>
         <tr><td><code>run_polymathic</code></td><td>Cross-domain coordinator. Hand it a multi-domain situation; it decomposes, classifies, verifies in parallel, and returns a composite verdict — CONCORDANT / DISCORDANT / MIXED / QUARANTINE / OUT_OF_SCOPE — with axis overlaps and the per-domain trail.</td></tr>
         <tr><td><code>propose_almanac_entry</code></td><td>The curation loop. Hand it a saying or situation; it runs the engine, packages a draft entry with verdict + verification + suggested triggers, and returns it for human review. The draft never auto-commits — a curator appends to data/almanac/entries.jsonl.</td></tr>
         <tr><td><code>validate_packet</code> / <code>seal_packet</code> / <code>walkthrough_packet</code> / <code>attest_red</code> / <code>attest_floor</code></td><td>Gate pipeline. Run a packet through RED → FLOOR → WAY → BROTHERS → GOD; record the trail; seal into the audit chain when it passes.</td></tr>
         <tr><td><code>resolve_scripture_ref</code> / <code>word_study</code> / <code>verify_scripture_anchors</code></td><td>Scripture layer — WEB Bible, Strong's numbers, citation anchoring. Catches fabricated references.</td></tr>
         <tr><td><code>triangulate_claim</code> / <code>get_example_packet</code></td><td>Multi-source corroboration helper and an example-packet fetcher for new integrations.</td></tr>
-        <tr><td><code>verify_*</code> (63 tools)</td><td>One per domain — chemistry, physics_dimensional, statistics_pvalue, mathematics, biology, etc. All deterministic. See the full <a href="/verifiers.html">verifier list</a>.</td></tr>
+        <tr><td><code>verify_*</code> (69 tools)</td><td>One per domain — chemistry, physics_dimensional, statistics_pvalue, mathematics, biology, etc. All deterministic. See the full <a href="/verifiers.html">verifier list</a>.</td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+
+<!-- ── REST APPS BEYOND MCP ─────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <h2>Beyond MCP — REST endpoints worth knowing</h2>
+    <p>The engine exposes more than the MCP tool surface. These REST endpoints make the full substrate addressable from any HTTP client:</p>
+    <table>
+      <thead><tr><th style="width:34%">Endpoint</th><th>What it returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>POST /walk</code></td><td>Shepherd OS. Surfaces archetype patterns, Layer 0 Scripture grounding, matched Scripture protocols, closest precedent, and the four gates as prompts the user answers. Deterministic — same situation, same response.</td></tr>
+        <tr><td><code>POST /intake</code> &nbsp; <code>GET /intake/status/{id}</code></td><td>Scribe. Public submission queue + status check (<code>promoted</code> / <code>pending</code> / <code>archived</code>). Submissions promoted to the almanac receive an Ed25519-signed receipt.</td></tr>
+        <tr><td><code>GET /receipts/{intake_id}</code> &nbsp; <code>GET /receipts.rss</code></td><td>Signed promotion receipts. Verifiable offline against the engine's public key at <code>/identity/pubkey</code>.</td></tr>
+        <tr><td><code>GET /fieldkit</code> &nbsp; <code>GET /fieldkit/{id}</code></td><td>The Lighthouse Field Kit — 13 protocol cards built on the Sermon on the Mount. Each carries Source / Floor / Spice / Common Drift / 7-Day Practice / Prompt + axes + related protocols.</td></tr>
+        <tr><td><code>GET /index/packets</code> &nbsp; <code>by-kind/{k}</code> · <code>by-axis/{a}</code> · <code>by-domain/{d}</code></td><td>Unified packet index across every substrate (almanac, sealed polymathic, protocols, archetypes, FieldKit, misalignments, build queue, receipts). 9,501 packets total, retrievable by kind, axis, or verifier domain.</td></tr>
+        <tr><td><code>GET /walk/protocols</code></td><td>The 13 Scripture-defined protocols the Shepherd OS recognizes (Matthew 18, discernment, confession, witness, test-spirits, reproof, marriage, money/giving, calling, mourning, persecution, hospitality, restoration).</td></tr>
+        <tr><td><code>POST /misalignments/review</code></td><td>Operator-only. Reviews logged non-CONCORDANT verdicts; can promote with an optional <code>routing_pattern</code> + <code>routing_domain</code> that becomes a runtime NL dispatch rule. Every promotion compounds routing accuracy.</td></tr>
+        <tr><td><code>GET /almanac.rss</code> &nbsp; <code>/almanac.atom</code></td><td>Almanac feed (RSS 2.0 + Atom 1.0). New entries delivered passively to any reader.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:1.6em; color:var(--accent);">Card library REST endpoints <span style="font-size:0.7em; font-weight:400; color:var(--muted);">— new 2026-05-19</span></h3>
+    <table>
+      <thead><tr><th style="width:34%">Endpoint</th><th>What it returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>POST /cards/walk</code></td><td>The signature operation: <code>{query, k, asked_by}</code> → walk-card with surfaced cards, Shepherd narration, optional save_as_walk. Cache-first; idempotent on the same query.</td></tr>
+        <tr><td><code>GET /cards/{id}</code></td><td>Single card with full content + back-of-card connections.</td></tr>
+        <tr><td><code>GET /cards?shelf=&amp;box=&amp;kind=&amp;lifecycle=&amp;limit=</code></td><td>List cards by any combination of filters. Returns summary objects; use <code>/cards/{id}</code> for full content.</td></tr>
+        <tr><td><code>GET /cards/{id}/connections</code></td><td>Outgoing + inbound connections for a card. The bidirectional graph.</td></tr>
+        <tr><td><code>GET /cards/stats</code></td><td>Substrate composition (by_shelf, by_kind, by_authority_tier) + working-set cache stats.</td></tr>
+        <tr><td><code>POST /shepherd/interview</code></td><td>Pre-flight conversational interview before <code>/cards/walk</code>. Returns <code>{state: needs_followup | ready_to_walk, shepherd_says, interview_id, shaped_query?}</code>.</td></tr>
+        <tr><td><code>GET /atlas/paths</code> &nbsp; <code>GET /atlas/paths/{id}</code></td><td>Book of paths — curated walks. List + hydrate.</td></tr>
+        <tr><td><code>GET /daily-card</code></td><td>Today's card. Deterministic by date. Same date → same card worldwide.</td></tr>
+        <tr><td><code>GET /notes/by_card/{id}</code> &nbsp; <code>/balance</code></td><td>Community notes annotating a card. <code>/balance</code> filter returns only bridge-rated (cross-tradition agreement) notes.</td></tr>
+        <tr><td><code>GET /promotion/health</code></td><td>Library operational health: lifecycle distribution, total citations, flagged count, pending operator queue.</td></tr>
+        <tr><td><code>GET /stacks/{household_id}</code></td><td>Read a household's stack (paperclipped + authored + forked card IDs + inbox + tip total). Household IDs are not enumerable; agents should respect privacy.</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:14px;font-size:13px;color:var(--muted);font-family:'Crimson Pro',Georgia,serif;font-style:italic;">All public read endpoints are unauthenticated. Write endpoints (misalignment review, receipt minting, card promotion, community note flagging) require the operator API key. Full OpenAPI: <a href="/openapi.json"><code>/openapi.json</code></a>.</p>
   </div>
 </section>
 
@@ -156,7 +257,7 @@
     "concordance": { "url": "https://narrowhighway.com/mcp" }
   }
 }</code></pre>
-    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 76 tools (63 verifiers + 9 pipeline + 4 read/synthesize/curate) become available immediately.</p>
+    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 111 tools become available immediately.</p>
 
     <h3>2 · MCP over stdio — for offline / air-gapped use</h3>
     <p>Install once, run locally. No outbound calls.</p>
@@ -170,8 +271,24 @@
     <p>Claude Code: <code>claude mcp add concordance -- concordance-mcp</code></p>
 
     <h3>3 · REST — any language, no install</h3>
-    <p>Base URL: <code>https://narrowhighway.com</code> · No API key required for read endpoints. 86 routes total (every MCP tool plus journal, ledger, audit-chain, grid, polymathic).</p>
-<pre><code># Verify a chemistry claim
+    <p>Base URL: <code>https://narrowhighway.com</code> · No API key required for read endpoints. 120+ routes total (every MCP tool plus journal, ledger, audit-chain, grid, polymathic, the full card library).</p>
+<pre><code># Walk the card library — Shepherd pulls top-7 cards for a question
+curl -X POST https://narrowhighway.com/cards/walk \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is the chief end of man?", "k": 7}'
+
+# Pre-flight interview before a broad query (shapes the question first)
+curl -X POST https://narrowhighway.com/shepherd/interview \
+  -H "Content-Type: application/json" \
+  -d '{"query": "baptism", "asked_by": "agent_X"}'
+# Returns {state: "needs_followup", shepherd_says: "Who is this for?",
+#          interview_id: "..."}; pass the user's reply back with the same
+# interview_id until state="ready_to_walk", then call /cards/walk.
+
+# Today's card (deterministic worldwide)
+curl https://narrowhighway.com/daily-card
+
+# Verify a chemistry claim
 curl -X POST https://narrowhighway.com/verify/chemistry \
   -H "Content-Type: application/json" \
   -d '{"equation": "H2 + O2 -> H2O"}'
@@ -179,12 +296,37 @@ curl -X POST https://narrowhighway.com/verify/chemistry \
 # Classify and trace a path
 curl -X POST https://narrowhighway.com/path \
   -H "Content-Type: application/json" \
-  -d '{"text": "I feel called to plant a church but I do not know when."}'
+  -d '{"text": "I feel called to plant a church but I do not know when."}'</code></pre>
 
-# Rehearse a packet (no ledger write)
-curl -X POST https://narrowhighway.com/reflect \
-  -H "Content-Type: application/json" \
-  -d '{"packet": {"domain": "governance", "scope": "adapter"}}'</code></pre>
+    <h3 style="margin-top:1.8em; color:var(--accent);">How an agent should walk the cards <span style="font-size:0.7em; font-weight:400; color:var(--muted);">— canonical pattern</span></h3>
+    <p>The card library was built for two audiences — humans at <code>/walks.html</code> and agents over MCP. The canonical agent pattern:</p>
+<pre><code># 1. If the user's question is broad, run the interview first.
+result = shepherd_interview(query="baptism")
+while result["state"] == "needs_followup":
+    user_reply = ask_the_user(result["shepherd_says"])
+    result = shepherd_interview(
+        query=user_reply,
+        interview_id=result["interview_id"],
+    )
+
+# 2. Walk the cards with the shaped question.
+walk = cards_walk(query=result["shaped_query"], k=7)
+
+# 3. Read the cards back to the user — cite each card by its source.
+#    Never present a card's content as your own.
+for step in walk["steps"]:
+    card = card_get(step["card_id"])
+    say_to_user(
+        f"{card['title']}: {card['body']}\n"
+        f"(Source: {card['source']['label']} · {card['source']['ref']})"
+    )
+
+# 4. Walk the connections between cards — that's the lesson.
+for step in walk["steps"]:
+    conns = card_connections(step["card_id"])
+    for outgoing in conns["outgoing"]:
+        # follow proof texts, parallels, illuminates relationships</code></pre>
+    <p style="margin-top:0.8em; font-size:13px; color:var(--muted); font-family:'Crimson Pro',Georgia,serif; font-style:italic;">Cards carry their own authority (scripture, catechism, creed, father, matt). The agent's job is to walk them with the user — never to synthesize when a card already answers, never to paraphrase scripture or catechism. Quote verbatim with the reference.</p>
 
     <h3>4 · OpenAPI — auto-import for OpenAI / LangChain / Custom GPTs</h3>
     <p>The full spec is at <a href="/openapi.json"><code>/openapi.json</code></a>. Custom GPTs accept it directly via "Actions → Import from URL." Live Swagger UI: <a href="/docs">/docs</a>. ReDoc: <a href="/redoc">/redoc</a>.</p>

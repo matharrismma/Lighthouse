@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-page-title="page.listen.title">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live · Narrow Highway</title>
+  <meta name="description" content="Listen to M.R. Harris's novels narrated. Per-chapter audiobook playback with resume across sessions.">
+  <script src="/nh-nav.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+  <meta name="robots" content="noindex">
+
+  <style>
+    .ls-intro {
+      max-width: 64ch;
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .ls-intro em { color: var(--accent); font-style: italic; }
+    .ls-intro b { color: var(--accent); }
+
+    .ls-works {
+      display: grid; gap: 14px;
+      grid-template-columns: 1fr;
+      margin: 22px 0 30px;
+    }
+    @media (min-width: 760px) {
+      .ls-works { grid-template-columns: 1fr 1fr; }
+    }
+    .ls-work {
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid #b88ed6;
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .ls-work:hover { border-color: var(--accent); }
+    .ls-work.active { border-color: var(--accent); background: var(--surface-2, rgba(0,0,0,0.22)); }
+    .ls-work h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 4px;
+    }
+    .ls-work-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .ls-progress {
+      margin-top: 8px;
+      height: 4px;
+      background: rgba(0,0,0,0.28);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .ls-progress > div {
+      height: 100%;
+      background: var(--pass);
+      transition: width 0.2s;
+    }
+
+    .ls-player-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 26px;
+      margin-bottom: 24px;
+    }
+    .ls-player-head {
+      display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .ls-player-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+    }
+    .ls-player-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .ls-audio {
+      width: 100%;
+      margin-bottom: 14px;
+    }
+    .ls-chapter-row {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ls-chapter-row:last-child { border-bottom: none; }
+    .ls-chapter-row.current { background: rgba(217,168,114,0.06); border-radius: 6px; padding: 10px 12px; }
+    .ls-chapter-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      flex: 1;
+    }
+    .ls-chapter-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hi);
+      color: var(--muted);
+    }
+    .ls-chapter-status.ready { color: var(--pass); border-color: rgba(111,196,124,0.4); background: rgba(111,196,124,0.06); }
+    .ls-chapter-status.pending { color: var(--hold); border-color: rgba(196,160,48,0.4); background: rgba(196,160,48,0.06); }
+    .ls-chapter-play {
+      padding: 6px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #1a1208;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .ls-chapter-play:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .ls-status {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-style: italic;
+      color: var(--muted-2);
+      font-size: 14px;
+      padding: 8px 0;
+    }
+
+    .ls-empty {
+      max-width: 640px;
+      padding: 28px 24px;
+      background: var(--surface);
+      border: 1px dashed var(--border-hi);
+      border-radius: var(--r);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .ls-empty em { color: var(--accent); }
+    .ls-empty code { background: rgba(0,0,0,0.25); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: var(--accent); }
+  </style>
+  <script src="/i18n.js"></script>
+  <script src="/a11y.js"></script>
+  <script src="/audio.js"></script>
+  <script src="/vibe.js"></script>
+  <script src="/you.js"></script>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/lens-polish.css">
+  <link rel="stylesheet" href="/vibe.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand"><span class="brand-mark"></span> Concordance Engine</a>
+    <nav class="topnav">
+      <a href="/" class="nav-home" aria-label="Home" title="Home" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:28px;background:rgba(217,168,114,0.10);border:1px solid rgba(217,168,114,0.32);border-radius:5px;color:var(--accent);margin-right:6px;transition:all .15s;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12"/><path d="M5 10 L5 21 L19 21 L19 10"/></svg></a>
+            <a href="/daily.html" class="keep-on-mobile" data-i18n="nav.today">Today</a>
+            <a href="/apothecary.html" data-i18n="nav.apothecary">Apothecary</a>
+            <a href="/walk.html" class="keep-on-mobile" data-i18n="nav.shepherd">Shepherd</a>
+            <a href="/scribe.html" class="keep-on-mobile" data-i18n="nav.scribe">Scribe</a>
+            <a href="/bibles.html" data-i18n="nav.bibles">Bibles</a>
+            <a href="/almanac.html" class="keep-on-mobile" data-i18n="nav.almanac">Almanac</a>
+            <a href="/library.html" data-i18n="nav.library">Library</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-header">
+  <div class="container wide">
+    <div class="eyebrow">Listen · M.R. Harris</div>
+    <h1 data-i18n="page.listen.h1">Hear the novels.</h1>
+    <p class="ls-intro">
+      The novels, narrated by <b>ElevenLabs</b>. Pick a work; chapters with audio are <em>ready</em>; the rest will appear as the operator generates them. Playback resumes where you left off on this device.
+    </p>
+  </div>
+</div>
+
+<div class="tool-strip">
+  <span class="tool-strip-label"><b>A tool the Shepherd uses</b> &middot; the audio tool</span>
+  <a class="tool-strip-link" href="/walk.html">Open the Shepherd &rarr;</a>
+</div>
+<main class="container wide" style="padding-bottom:80px;">
+  <div id="ls-works" class="ls-works"></div>
+  <div id="ls-player"></div>
+</main>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  const LISTEN_RESUME_KEY = 'concordance_listen_resume_v1';
+  function readResume() {
+    try { return JSON.parse(localStorage.getItem(LISTEN_RESUME_KEY) || '{}'); }
+    catch (_) { return {}; }
+  }
+  function writeResume(o) {
+    try { localStorage.setItem(LISTEN_RESUME_KEY, JSON.stringify(o)); } catch (_) {}
+  }
+
+  let ACTIVE_WORK = null;
+
+  async function loadWorks() {
+    const list = document.getElementById('ls-works');
+    list.innerHTML = '<div class="ls-status">Loading works…</div>';
+    try {
+      const r = await fetch('/tts/works');
+      if (!r.ok) throw new Error('http ' + r.status);
+      const d = await r.json();
+      const works = d.works || [];
+      if (!works.length) {
+        list.innerHTML = `<div class="ls-empty">
+          No audiobook manifests yet. The operator runs <code>scripts/generate_audiobook.py</code>
+          for each novel; once a manifest lands in <code>data/audio/manifests/</code> it appears here.
+          Cached MP3s show as <em>ready</em>; ungenerated chunks show as <em>pending</em>.
+        </div>`;
+        return;
+      }
+      list.innerHTML = works.map(w => {
+        const pct = w.chapter_count > 0
+          ? Math.round((w.generated_count / w.chapter_count) * 100) : 0;
+        return `<div class="ls-work" data-work-id="${esc(w.work_id)}">
+          <h3>${esc(w.title)}</h3>
+          <div class="ls-work-meta">${esc(w.author)} · ${w.chapter_count} chapters · ${w.generated_count} ready · voice ${esc(w.voice || '(none)')}</div>
+          <div class="ls-progress"><div style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('.ls-work').forEach(el => {
+        el.addEventListener('click', () => loadPlayer(el.dataset.workId));
+      });
+      const sp = new URLSearchParams(location.search);
+      const want = sp.get('work_id');
+      if (want) loadPlayer(want);
+      else if (works.length === 1) loadPlayer(works[0].work_id);
+    } catch (err) {
+      list.innerHTML = `<div class="ls-empty">Could not reach the engine: ${esc(err.message)}</div>`;
+    }
+  }
+
+  let CURRENT_AUDIO = null;
+  let CURRENT_CHAPTERS = [];
+  let CURRENT_CHAPTER_IDX = 0;
+  let CURRENT_CHUNK_IDX = 0;
+  let CURRENT_WORK_ID = "";
+
+  async function loadPlayer(workId) {
+    if (!workId) return;
+    ACTIVE_WORK = workId;
+    CURRENT_WORK_ID = workId;
+    document.querySelectorAll('.ls-work').forEach(el => {
+      el.classList.toggle('active', el.dataset.workId === workId);
+    });
+    if (history.replaceState) history.replaceState({}, '', `/listen.html?work_id=${encodeURIComponent(workId)}`);
+    const wrap = document.getElementById('ls-player');
+    wrap.innerHTML = '<div class="ls-status">Loading manifest…</div>';
+    try {
+      const r = await fetch('/tts/manifest/' + encodeURIComponent(workId));
+      if (!r.ok) throw new Error('http ' + r.status);
+      const m = await r.json();
+      CURRENT_CHAPTERS = m.chapters || [];
+      renderPlayer(m);
+      // Resume position
+      const resume = readResume()[workId];
+      if (resume) {
+        CURRENT_CHAPTER_IDX = resume.chapter || 0;
+        CURRENT_CHUNK_IDX = resume.chunk || 0;
+      }
+      playCurrent();
+    } catch (err) {
+      wrap.innerHTML = `<div class="ls-empty">Could not load: ${esc(err.message)}</div>`;
+    }
+  }
+
+  function renderPlayer(m) {
+    const chapters = m.chapters || [];
+    const rows = chapters.map((c, i) => {
+      const ready = (c.chunks || []).every(ch => ch.cached);
+      const someReady = (c.chunks || []).some(ch => ch.cached);
+      const status = ready ? 'ready' : (someReady ? 'partial' : 'pending');
+      const cls = ready ? 'ready' : 'pending';
+      const disabled = !someReady ? 'disabled' : '';
+      return `<div class="ls-chapter-row" data-ch="${i}">
+        <span class="ls-chapter-title">${esc(c.title)}</span>
+        <span class="ls-chapter-meta" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);">${c.chunks?.length || 0} chunks · ${c.char_count} chars</span>
+        <span class="ls-chapter-status ${cls}">${status}</span>
+        <button class="ls-chapter-play" ${disabled}>Play</button>
+      </div>`;
+    }).join('');
+    document.getElementById('ls-player').innerHTML = `
+      <div class="ls-player-wrap">
+        <div class="ls-player-head">
+          <div class="ls-player-title">${esc(m.title)}</div>
+          <div class="ls-player-meta">${esc(m.author)} · voice ${esc(m.voice || '(none)')} · ${esc(m.model_id || '')}</div>
+        </div>
+        <audio id="ls-audio" class="ls-audio" controls preload="none"></audio>
+        <div id="ls-now-playing" class="ls-status"></div>
+        <div id="ls-chapter-list">${rows}</div>
+      </div>`;
+    document.querySelectorAll('.ls-chapter-row').forEach((row, idx) => {
+      row.querySelector('.ls-chapter-play').addEventListener('click', () => {
+        CURRENT_CHAPTER_IDX = idx;
+        CURRENT_CHUNK_IDX = 0;
+        playCurrent();
+      });
+    });
+    CURRENT_AUDIO = document.getElementById('ls-audio');
+    CURRENT_AUDIO.addEventListener('ended', () => {
+      // Advance to next chunk; if last, advance chapter
+      const ch = CURRENT_CHAPTERS[CURRENT_CHAPTER_IDX];
+      if (!ch) return;
+      if (CURRENT_CHUNK_IDX + 1 < (ch.chunks?.length || 0)) {
+        CURRENT_CHUNK_IDX++;
+      } else if (CURRENT_CHAPTER_IDX + 1 < CURRENT_CHAPTERS.length) {
+        CURRENT_CHAPTER_IDX++;
+        CURRENT_CHUNK_IDX = 0;
+      } else {
+        return;
+      }
+      playCurrent();
+    });
+  }
+
+  function playCurrent() {
+    const ch = CURRENT_CHAPTERS[CURRENT_CHAPTER_IDX];
+    if (!ch || !ch.chunks?.length) return;
+    let chunk = ch.chunks[CURRENT_CHUNK_IDX];
+    // Skip ahead to first cached chunk in this chapter
+    while (chunk && !chunk.cached) {
+      CURRENT_CHUNK_IDX++;
+      chunk = ch.chunks[CURRENT_CHUNK_IDX];
+    }
+    if (!chunk) {
+      document.getElementById('ls-now-playing').textContent = `No cached audio for "${ch.title}" yet — operator hasn't generated this chapter.`;
+      return;
+    }
+    if (CURRENT_AUDIO) {
+      CURRENT_AUDIO.src = chunk.url;
+      CURRENT_AUDIO.play().catch(() => {});
+    }
+    document.getElementById('ls-now-playing').textContent =
+      `Playing: ${ch.title} — chunk ${CURRENT_CHUNK_IDX + 1} of ${ch.chunks.length}`;
+    document.querySelectorAll('.ls-chapter-row').forEach((row, i) =>
+      row.classList.toggle('current', i === CURRENT_CHAPTER_IDX));
+    // Save resume position
+    const r = readResume();
+    r[CURRENT_WORK_ID] = { chapter: CURRENT_CHAPTER_IDX, chunk: CURRENT_CHUNK_IDX };
+    writeResume(r);
+  }
+
+  loadWorks();
+</script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

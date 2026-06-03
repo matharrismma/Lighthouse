@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Windows operator · Narrow Highway</title>
+  <meta name="description" content="Operator runbook for the Windows engine box. Receive Mac adapters, register models, benchmark, maintain the engine.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    .win-card{max-width:820px;margin:1.5rem auto;background:#fff;border:1px solid #e5d9c4;border-radius:8px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+    .win-card h1{margin-top:0;font-size:1.6rem;color:#3a2f24}
+    .win-card h2{font-size:1.05rem;color:#5a4937;margin-top:1.8rem;border-bottom:1px solid #ede4d2;padding-bottom:.3rem}
+    .win-card h3{font-size:.95rem;color:#5a4937;margin:1.2rem 0 .4rem}
+    .win-card pre{background:#1c1a17;color:#e8d9b8;padding:.9rem 1.1rem;border-radius:5px;font-size:.85rem;overflow-x:auto;line-height:1.55;position:relative}
+    .win-card pre code{color:inherit;background:none;padding:0}
+    .win-card pre.ps::before{content:"PowerShell";position:absolute;top:.4rem;right:.6rem;font-size:.65rem;color:#9c8770;text-transform:uppercase;letter-spacing:.06em}
+    .win-card pre.bash::before{content:"bash";position:absolute;top:.4rem;right:.6rem;font-size:.65rem;color:#9c8770;text-transform:uppercase;letter-spacing:.06em}
+    .win-card .note{background:#fff5d4;border-left:4px solid #b8945a;padding:.7em 1em;margin:1em 0;border-radius:0 4px 4px 0;font-size:.92em;color:#5a4630}
+    .win-card .danger{background:#ffe8d4;border-left:4px solid #c75d2e;padding:.7em 1em;margin:1em 0;border-radius:0 4px 4px 0;font-size:.92em;color:#5a2e1a}
+    .win-card ol{padding-left:1.4rem;line-height:1.7}
+    .win-card kbd{background:#f4ecd9;border:1px solid #d4c499;border-bottom-width:2px;border-radius:3px;padding:1px 5px;font-family:ui-monospace,monospace;font-size:.85em}
+    .win-card .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#a08864;margin-bottom:.4rem}
+    .health{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-size:.75rem;font-weight:600;letter-spacing:.04em}
+    .health.unknown{background:#ede4d2;color:#7a6a52}
+    .health.up{background:#cfe9d3;color:#225a2e}
+    .health.down{background:#f5c6c6;color:#7a1d1d}
+    .health.slow{background:#fff1c2;color:#7a5b1a}
+    #healthLine{font-size:.85em;color:#6e5d49;margin-top:.4rem}
+    .toc{background:#fbf6ec;border:1px solid #ede4d2;padding:1rem 1.2rem;border-radius:6px;font-size:.92rem;line-height:1.8}
+    .toc a{color:#5a4937}
+  </style>
+</head>
+<body>
+
+<div class="win-card">
+  <div class="eyebrow">Windows operator · operator-only</div>
+  <h1>The engine box — Windows runbook</h1>
+  <p style="color:#6e5d49">This is the symmetric page to <a href="/mac/">narrowhighway.com/mac</a>. The Mac fine-tunes; this box runs the engine, holds the substrate, and registers + benchmarks the adapters the Mac ships back. Read this in any browser, from anywhere — the commands stay on the Windows box.</p>
+
+  <div class="note">
+    <strong>Architecture.</strong> Windows is the body. The engine, the cards, the substrate, the gates, the audit trail, the cloudflared tunnel — all live here. The Mac is one organ (the LoRA trainer). See <a href="/organic-design.html">Organic Design</a>.
+  </div>
+
+  <h2>Live status</h2>
+  <p>Read from the engine itself. Refresh this page to re-probe.</p>
+  <p>
+    <span id="healthBadge" class="health unknown">probing…</span>
+    <span id="healthLine"></span>
+  </p>
+
+  <div class="toc">
+    <strong>Jump to:</strong>
+    <a href="#receive">Receive an adapter from the Mac</a> ·
+    <a href="#register">Register the model</a> ·
+    <a href="#benchmark">Benchmark</a> ·
+    <a href="#restart">Restart the engine</a> ·
+    <a href="#watchdog">Watchdog &amp; backup</a> ·
+    <a href="#patches">Pending Mac patches</a>
+  </div>
+
+  <h2 id="receive">1. Receive an adapter from the Mac</h2>
+  <p style="color:#6e5d49">The Mac sends with <code>tailscale file cp adapter.tgz harrismotors:</code>. On Windows, fetch from the Tailscale inbox and extract into the canonical <code>data/models/mlx/</code> tree.</p>
+<pre class="ps"><code>cd "$env:USERPROFILE\OneDrive\Documents\Claude\Projects\Lighthouse"
+mkdir -Force data\models\mlx | Out-Null
+
+# Pull whatever's in the Tailscale inbox into a staging dir
+$staging = "data\inbox\mac"
+mkdir -Force $staging | Out-Null
+tailscale file get $staging
+Get-ChildItem $staging
+
+# Extract — replace <RUN_ID> with the run_id the Mac printed
+$RUN_ID = "mlx-Mistral-7B-Instruct--20260527-171852"
+$dest   = "data\models\mlx\$RUN_ID"
+mkdir -Force $dest | Out-Null
+tar -xzf "$staging\adapter.tgz" -C $dest
+Get-ChildItem $dest\adapters | Format-Table Name, Length</code></pre>
+
+  <h2 id="register">2. Register the model</h2>
+  <p style="color:#6e5d49">Adds the adapter to <code>data/models/registry.json</code> with provenance (base, corpus SHA, run id, backend).</p>
+<pre class="ps"><code>cd "$env:USERPROFILE\OneDrive\Documents\Claude\Projects\Lighthouse"
+$RUN_ID = "mlx-Mistral-7B-Instruct--20260527-171852"
+$CORPUS = "data\training_corpus\corpus-gated-generation-20260526-103857.jsonl"
+
+python tools/model_registry.py register `
+    --base mlx-community/Mistral-7B-Instruct-v0.3-4bit `
+    --adapter "data/models/mlx/$RUN_ID/adapters" `
+    --backend mlx `
+    --corpus $CORPUS `
+    --run $RUN_ID</code></pre>
+
+  <h2 id="benchmark">3. Benchmark against the Anthropic baseline</h2>
+  <p style="color:#6e5d49">Runs the same eval set the Anthropic baseline ran on (<code>data/eval/prompts_v1.jsonl</code>). Publishes a new aggregate to <code>site/benchmark/latest/aggregate.json</code>, which the public benchmark page picks up.</p>
+<pre class="ps"><code>cd "$env:USERPROFILE\OneDrive\Documents\Claude\Projects\Lighthouse"
+$RUN_ID = "mlx-Mistral-7B-Instruct--20260527-171852"
+
+python tools/run_benchmark.py --base "local:$RUN_ID"</code></pre>
+  <p style="color:#6e5d49">When it finishes, <a href="/benchmark.html">narrowhighway.com/benchmark</a> shows the sovereign adapter alongside the Anthropic baseline.</p>
+
+  <h2 id="restart">4. Restart the engine</h2>
+  <p style="color:#6e5d49">If <code>/health</code> hangs or <a href="/keep.html">/keep</a> shows red, kick it. Watchdog auto-recovers after 3 missed health checks (~90 sec), but you can preempt.</p>
+<pre class="ps"><code># Quick path — run as Administrator
+& "$env:USERPROFILE\OneDrive\Desktop\Restart_Concordance_Server.ps1"</code></pre>
+  <p style="color:#6e5d49">Or from Explorer: Desktop → right-click <code>Restart_Concordance_Server.ps1</code> → <strong>Run with PowerShell</strong>.</p>
+
+  <h2 id="watchdog">5. Watchdog &amp; backup</h2>
+  <h3>Watchdog (auto-restart on hang)</h3>
+<pre class="ps"><code># Run in its own PowerShell window — leave open
+cd "$env:USERPROFILE\OneDrive\Documents\Claude\Projects\Lighthouse"
+python tools\engine_watchdog.py</code></pre>
+  <p style="color:#6e5d49">Polls <code>/health</code> every 30 sec. Three consecutive failures triggers the restart script. 5-minute cooldown to prevent restart storms.</p>
+
+  <h3>Substrate backup (nightly tarball)</h3>
+<pre class="ps"><code>cd "$env:USERPROFILE\OneDrive\Documents\Claude\Projects\Lighthouse"
+python tools\substrate_backup.py</code></pre>
+  <p style="color:#6e5d49">Writes to <code>~/Backups/narrowhighway/</code>. Schedule via Task Scheduler if you want it automatic.</p>
+
+  <h2 id="patches">6. Pending Mac patches</h2>
+  <p style="color:#6e5d49">The Mac-side Claude found four small drifts when running against real-world mlx-lm 0.31+ and macOS Python 3.9.6. When the Mac sends these files via <code>tailscale file cp</code>, drop them into the canonical sources:</p>
+  <ol>
+    <li><code>tools/finetune_mlx.py</code> — current code uses <code>--lora-rank</code>/<code>--lora-alpha</code> flags that mlx-lm 0.31+ moved to a YAML config block. The Mac's patched copy has the working form.</li>
+    <li><code>mac/START_FINETUNE.md</code> — every <code>python3</code> should be <code>python3.10</code>. Mac's system Python is 3.9.6 which doesn't satisfy mlx-lm.</li>
+    <li><code>site/mac/install.sh</code> — same <code>python3</code> → <code>python3.10</code> swap; document <code>--batch-size 2</code> default (28-pair corpus can't sustain batch=4 in validation).</li>
+    <li><code>mac/push-adapter.sh</code> — prefer brew's <code>tailscale</code> CLI over the GUI's bundled one (GUI sandbox blocks <code>file cp</code> for arbitrary paths).</li>
+  </ol>
+  <p style="color:#6e5d49">Receive them with: <code>tailscale file get data/inbox/mac</code> — then diff and apply to the four canonical files. Push the updates to <code>site/mac/</code> so the next operator running the bootstrap gets the working copies.</p>
+
+  <h2>Reference</h2>
+  <ul style="line-height:1.8">
+    <li><a href="/mac/">narrowhighway.com/mac</a> — sister page for the Mac side</li>
+    <li><a href="/organic-design.html">Organic Design</a> — what we are (not AI)</li>
+    <li><a href="/keep.html">/keep</a> — operator dashboard (pulse, needs-attention, traffic)</li>
+    <li><a href="/benchmark.html">/benchmark</a> — public benchmark page (where new runs land)</li>
+    <li><code>docs/STANDALONE_MODEL.md</code> in the repo — full Phase-1–7 trajectory</li>
+  </ul>
+
+  <p style="color:#6e5d49;font-size:.85em;margin-top:2rem;border-top:1px solid #ede4d2;padding-top:1rem">
+    This page is <code>noindex</code> — operator-only. The Mac and Windows pages are the two operating surfaces for the body; the public site is everything else.
+  </p>
+</div>
+
+<script>
+(async function probeHealth(){
+  const badge = document.getElementById('healthBadge');
+  const line  = document.getElementById('healthLine');
+  const start = performance.now();
+  try {
+    const ctl = new AbortController();
+    const t   = setTimeout(() => ctl.abort(), 10000);
+    const r   = await fetch('/health', { signal: ctl.signal, cache:'no-store' });
+    clearTimeout(t);
+    const ms  = Math.round(performance.now() - start);
+    if (!r.ok) {
+      badge.className = 'health down'; badge.textContent = 'down (' + r.status + ')';
+      line.textContent = '/health returned ' + r.status + ' in ' + ms + ' ms';
+      return;
+    }
+    const j = await r.json();
+    if (j.status === 'ok' && j.engine_available && (j.snapshot_ready || ms < 1500)) {
+      badge.className = 'health up'; badge.textContent = 'up';
+      line.textContent = '/health 200 in ' + ms + ' ms · ledger=' + (j.ledger_entries||0) + ' · snapshot ' + (j.snapshot_ready ? 'ready' : 'warming');
+    } else if (j.status === 'ok' && !j.snapshot_ready) {
+      badge.className = 'health slow'; badge.textContent = 'warming';
+      line.textContent = '/health 200 in ' + ms + ' ms · snapshot warming (~30 sec after restart)';
+    } else if (ms > 2000) {
+      badge.className = 'health slow'; badge.textContent = 'slow';
+      line.textContent = '/health 200 but in ' + ms + ' ms — investigate or restart';
+    } else {
+      badge.className = 'health up'; badge.textContent = 'up';
+      line.textContent = '/health 200 in ' + ms + ' ms';
+    }
+  } catch (e) {
+    badge.className = 'health down'; badge.textContent = 'down';
+    line.textContent = 'engine did not respond — restart via section 4 below';
+  }
+})();
+</script>
+
+</body>
+</html>

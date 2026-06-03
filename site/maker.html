@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maker — Family Projects from the Workshop, Garden, Kitchen, Field</title>
+<meta name="description" content="Curated family projects pulled from the public-domain substrate. Build, sew, garden, cook, fix, fly — practical skills passed down from the Boys' Life and Popular Mechanics era.">
+  <link rel="canonical" href="https://narrowhighway.com/maker.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Maker — Family Projects from the Workshop, Garden, Kitchen, Field">
+  <meta property="og:description" content="Curated family projects pulled from the public-domain substrate. Build, sew, garden, cook, fix, fly — practical skills passed down from the Boys' Life and Popular Mechanics era.">
+  <meta property="og:url" content="https://narrowhighway.com/maker.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Maker — Family Projects from the Workshop, Garden, Kitchen, Field">
+  <meta name="twitter:description" content="Curated family projects pulled from the public-domain substrate. Build, sew, garden, cook, fix, fly — practical skills passed down from the Boys' Life and Popular Mechanics era.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+<style>
+  body { font-family: Georgia, serif; max-width: 1000px; margin: 1.5em auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; margin-bottom: 0.4em; } nav.top a { color: #1a3a52; text-decoration: none; }
+  h1 { color: #1a3a52; border-bottom: 2px solid #c9b48a; padding-bottom: 0.3em; font-family: Georgia, serif; font-weight: normal; font-size: 2em; }
+  h2 { color: #1a3a52; margin-top: 1.6em; font-size: 1.1em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.4em; align-items: center; margin: 0.5em 0; }
+  .filters strong { font-size: 0.88em; color: #6a5a3a; margin-right: 0.4em; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.3em 0.75em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
+  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .filter-btn:hover { background: #e5dcb9; }
+  .filter-btn.active:hover { background: #2a5570; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.9em; margin-top: 0.6em; }
+  .card { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.1em; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); border-color: #1a3a52; }
+  .card .cat { font-family: 'Courier New', monospace; font-size: 0.72em; color: #806010; letter-spacing: 0.12em; text-transform: uppercase; }
+  .card h3 { margin: 0.2em 0 0.3em; color: #1a3a52; font-size: 1.1em; font-family: Georgia, serif; font-weight: bold; }
+  .card .meta { font-size: 0.85em; color: #6a5a3a; }
+  .card .meta span { display: inline-block; margin-right: 0.8em; }
+  .card .summary { font-size: 0.9em; color: #5a4a30; margin-top: 0.3em; }
+
+  .project-view { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1.3em 1.5em; margin-top: 0.6em; display: none; }
+  .project-view.shown { display: block; }
+  .project-view .back { font-size: 0.88em; color: #1a3a52; cursor: pointer; background: none; border: none; padding: 0 0 0.5em; }
+  .project-view h2 { color: #1a3a52; margin: 0; border: none; padding: 0; font-size: 1.6em; font-family: Georgia, serif; font-weight: normal; }
+  .project-view .src { color: #6a5a3a; font-style: italic; margin: 0.2em 0 0.6em; }
+  .project-view .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6em; margin: 0.8em 0 1em; }
+  @media (max-width: 600px) { .project-view .row { grid-template-columns: 1fr; } }
+  .project-view .row > div { background: #f3eedb; padding: 0.5em 0.8em; border-radius: 3px; font-size: 0.9em; }
+  .project-view .row > div strong { display: block; font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.1em; text-transform: uppercase; color: #806010; }
+  .project-view h3 { color: #1a3a52; margin: 1.2em 0 0.4em; font-size: 1.05em; border-bottom: 1px solid #d4c8a5; padding-bottom: 0.2em; }
+  .project-view ul { padding-left: 1.5em; margin: 0.3em 0; }
+  .project-view li { margin: 0.3em 0; }
+  .project-view .family-note { background: #fff5d4; border-left: 4px solid #b8945a; padding: 0.7em 1em; margin-top: 1em; font-size: 0.95em; color: #5a4a30; font-style: italic; }
+  .project-view .source-link { background: #d4ead4; border-left: 4px solid #1f5b1f; padding: 0.5em 0.9em; margin-top: 1em; font-size: 0.88em; color: #1f5b1f; }
+  .project-view .source-link a { color: #1f5b1f; font-weight: bold; }
+
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.3em; text-align: center; color: #6a5a3a; }
+  .submit-cta { background: #1a3a52; color: #f4ecd5; padding: 1.2em 1.4em; border-radius: 6px; margin-top: 1.8em; }
+  .submit-cta h2 { color: #c9b48a; border: none; padding: 0; margin-top: 0; font-size: 1.15em; }
+  .submit-cta a { color: #c9b48a; font-weight: bold; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a></nav>
+
+<h1>Maker — family projects</h1>
+
+<div class="intro">
+  <p>Build a crystal radio. Carve a willow whistle. Tie a bowline. Plant radishes. Bake a loaf. Fix a faucet. The practical skills generations of American families taught their children — pulled from the public-domain substrate (<em>Boys' Life</em>, <em>Popular Mechanics</em>, <em>Popular Science</em>, the old cookbooks, the scoutcraft manuals) and curated into projects you can do this Saturday.</p>
+</div>
+
+<div id="projectView" class="project-view"></div>
+
+<div id="listSection">
+
+<div class="filters">
+  <strong>Category:</strong>
+  <button class="filter-btn cat-btn active" data-cat="all">All</button>
+  <button class="filter-btn cat-btn" data-cat="electronics">Electronics</button>
+  <button class="filter-btn cat-btn" data-cat="woodworking">Woodworking</button>
+  <button class="filter-btn cat-btn" data-cat="kitchen">Kitchen</button>
+  <button class="filter-btn cat-btn" data-cat="sewing">Sewing</button>
+  <button class="filter-btn cat-btn" data-cat="gardening">Gardening</button>
+  <button class="filter-btn cat-btn" data-cat="outdoor">Outdoor</button>
+  <button class="filter-btn cat-btn" data-cat="nature">Nature study</button>
+  <button class="filter-btn cat-btn" data-cat="skills">Skills</button>
+  <button class="filter-btn cat-btn" data-cat="plumbing">Home repair</button>
+  <button class="filter-btn cat-btn" data-cat="spiritual">Spiritual</button>
+</div>
+<div class="filters">
+  <strong>Difficulty:</strong>
+  <button class="filter-btn diff-btn active" data-diff="all">Any</button>
+  <button class="filter-btn diff-btn" data-diff="beginner">Beginner</button>
+  <button class="filter-btn diff-btn" data-diff="intermediate">Intermediate</button>
+  <button class="filter-btn diff-btn" data-diff="advanced">Advanced</button>
+</div>
+
+<div id="grid" class="grid"></div>
+
+<div class="submit-cta">
+  <h2>Got a project worth passing down?</h2>
+  <p>If your family has a how-to worth keeping — a project, a recipe, a skill, a tradition — submit it. Operator-reviewed for alignment. As revenue allows, contributors earn from sponsor underwriting (paid in crypto wallet, never extractive). <a href="/submit-content.html"><strong>Submit a project →</strong></a></p>
+</div>
+
+</div><!-- /listSection -->
+
+<script>
+(function () {
+  let currentCat = 'all';
+  let currentDiff = 'all';
+  let projects = [];
+
+  function render() {
+    const $grid = document.getElementById('grid');
+    let list = projects.slice();
+    if (currentCat !== 'all') list = list.filter(function (p) { return p.category === currentCat; });
+    if (currentDiff !== 'all') list = list.filter(function (p) { return p.difficulty === currentDiff; });
+    if (list.length === 0) {
+      $grid.innerHTML = '<div class="empty">No projects match this filter.</div>';
+      return;
+    }
+    $grid.innerHTML = list.map(function (p) {
+      return '<div class="card" data-slug="' + p.slug + '">' +
+        '<div class="cat">' + (p.category || '').toUpperCase() + ' · ' + (p.difficulty || '').toUpperCase() + '</div>' +
+        '<h3>' + esc(p.title) + '</h3>' +
+        '<div class="meta"><span>👥 ages ' + esc(p.ages || '') + '</span><span>⏱ ' + esc(p.time || '') + '</span></div>' +
+        '<div class="summary">' + esc(p.summary || '') + '</div>' +
+        '</div>';
+    }).join('');
+    document.querySelectorAll('.card[data-slug]').forEach(function (c) {
+      c.addEventListener('click', function () {
+        const p = projects.find(function (x) { return x.slug === c.dataset.slug; });
+        if (p) showProject(p);
+      });
+    });
+  }
+
+  function showProject(p) {
+    const v = document.getElementById('projectView');
+    document.getElementById('listSection').style.display = 'none';
+    v.classList.add('shown');
+    const mat = (p.materials || []).map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('');
+    const note = p.family_note ? '<div class="family-note">' + esc(p.family_note) + '</div>' : '';
+    const srcUrl = p.source_url || '#';
+    v.innerHTML =
+      '<button class="back" id="backBtn">← back to projects</button>' +
+      '<h2>' + esc(p.title) + '</h2>' +
+      '<div class="src">' + esc(p.category || '') + ' · ' + esc(p.difficulty || '') + '</div>' +
+      '<div class="row">' +
+      '<div><strong>Ages</strong>' + esc(p.ages || '') + '</div>' +
+      '<div><strong>Time</strong>' + esc(p.time || '') + '</div>' +
+      '<div><strong>Difficulty</strong>' + esc(p.difficulty || '') + '</div>' +
+      '</div>' +
+      '<p>' + esc(p.summary || '') + '</p>' +
+      (mat ? '<h3>What you need</h3><ul>' + mat + '</ul>' : '') +
+      note +
+      '<div class="source-link"><strong>Primary source:</strong> ' + esc(p.primary_source || '') +
+      (p.source_url ? ' · <a href="' + esc(srcUrl) + '">browse the source →</a>' : '') +
+      '</div>';
+    document.getElementById('backBtn').addEventListener('click', function () {
+      v.classList.remove('shown');
+      document.getElementById('listSection').style.display = 'block';
+      window.scrollTo(0, 0);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/[<>&"']/g, function (c) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  document.querySelectorAll('.cat-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.cat-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentCat = b.dataset.cat;
+      render();
+    });
+  });
+  document.querySelectorAll('.diff-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.diff-btn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      currentDiff = b.dataset.diff;
+      render();
+    });
+  });
+
+  fetch('/content/projects.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.projects) { document.getElementById('grid').innerHTML = '<div class="empty">Catalog unavailable.</div>'; return; }
+      projects = j.projects;
+      render();
+    })
+    .catch(function () { document.getElementById('grid').innerHTML = '<div class="empty">Catalog unavailable.</div>'; });
+})();
+</script>
+
+  <script defer src="/nh-household.js"></script>
+  <script defer src="/nh-sabbath.js"></script>
+  <script defer src="/nh-voice.js"></script>
+  <script defer src="/nh-scripture.js"></script>
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>

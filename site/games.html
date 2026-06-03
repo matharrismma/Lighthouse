@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Family Games — Chess, Bible Trivia &amp; More · Narrow Highway</title>
+  <meta name="description" content="Chess. Card games. The Wilderness Game (Oregon Trail meets the Israelites in the Wilderness). Arcade classics. All public-domain rules, all built from open-source engines, all free.">
+  <link rel="canonical" href="https://narrowhighway.com/games.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Free Family Games — Chess, Bible Trivia &amp;amp; More · Narrow Highway">
+  <meta property="og:description" content="Chess. Card games. The Wilderness Game (Oregon Trail meets the Israelites in the Wilderness). Arcade classics. All public-domain rules, all built from open-source engines, all free.">
+  <meta property="og:url" content="https://narrowhighway.com/games.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Family Games — Chess, Bible Trivia &amp;amp; More · Narrow Highway">
+  <meta name="twitter:description" content="Chess. Card games. The Wilderness Game (Oregon Trail meets the Israelites in the Wilderness). Arcade classics. All public-domain rules, all built from open-source engines, all free.">
+  <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="theme-color" content="#0a0810">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0810; --bg-2: #0f0d11; --surface: #161320; --surface-2: #1d1828;
+      --border: #29232f; --border-hi: #3a3142;
+      --text: #ede7db; --text-dim: #b3aabd; --muted: #6e6878; --muted-2: #4e4858;
+      --accent: #c9a87c; --accent-hi: #e3c498; --accent-soft: rgba(201,168,124,0.12);
+      --pass: #6fc47c; --hold: #c4a030; --fail: #c96c6c;
+      --r: 12px; --r-sm: 8px; --r-lg: 18px; --maxw: 1280px;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.55; min-height: 100dvh; -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+
+    nav.topnav { position: sticky; top: 0; z-index: 100; background: rgba(10,8,16,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 56px; }
+    .wordmark { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; gap: 9px; }
+    .wordmark-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px rgba(201,168,124,0.55); }
+    .breadcrumbs { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .breadcrumbs a { color: var(--text-dim); }
+    .breadcrumbs a:hover { color: var(--accent); }
+    .breadcrumbs .crumb-sep { color: var(--muted-2); margin: 0 8px; }
+    @media (max-width: 600px) { .breadcrumbs { display: none; } }
+
+    .deck-hero { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 22px; }
+    .deck-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .deck-title { font-size: clamp(28px, 4vw, 42px); font-weight: 700; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .deck-title em { font-family: 'Crimson Pro', serif; font-style: italic; color: var(--accent); }
+    .deck-sub { color: var(--text-dim); font-size: 15px; max-width: 60ch; }
+
+    .category-row { max-width: var(--maxw); margin: 0 auto; padding: 0 24px 26px; }
+    .category-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+    .category-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+    .category-count { font-size: 12px; color: var(--muted); }
+
+    .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    @media (max-width: 1040px) { .game-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 720px)  { .game-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px)  { .game-grid { grid-template-columns: 1fr; } }
+
+    .game-card { background: var(--surface); border: 1px solid var(--border-hi); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; color: inherit; transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); min-height: 240px; position: relative; }
+    .game-card.playable { cursor: pointer; }
+    .game-card.playable:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 0 1px var(--accent-soft); }
+    .game-card.coming-soon { opacity: 0.65; }
+    .game-card.coming-soon::after { content: 'COMING SOON'; position: absolute; top: 14px; right: 14px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; padding: 3px 8px; background: rgba(201,168,124,0.15); color: var(--accent); border-radius: 3px; }
+
+    .game-cover { height: 130px; background: linear-gradient(135deg, var(--c1, #3a2a4f) 0%, var(--c2, #1a121f) 100%); display: flex; align-items: center; justify-content: center; font-size: 56px; position: relative; overflow: hidden; }
+    .game-cover::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg, rgba(201,168,124,0.05) 0px, rgba(201,168,124,0.05) 1px, transparent 1px, transparent 6px); }
+    .game-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .game-title { font-size: 14.5px; font-weight: 700; color: var(--text); letter-spacing: 0.01em; }
+    .game-tagline { font-family: 'Crimson Pro', serif; font-style: italic; font-size: 13px; color: var(--accent); margin-top: 2px; }
+    .game-blurb { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-top: 6px; }
+    .game-meta { display: flex; flex-wrap: wrap; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); margin-top: auto; padding-top: 10px; }
+    .game-meta .badge { padding: 2px 6px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .build-note { max-width: var(--maxw); margin: 0 auto; padding: 8px 24px 40px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; line-height: 1.7; }
+    .build-note strong { color: var(--text-dim); }
+  </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "url": "https://narrowhighway.com/games.html",
+  "name": "Free Family Games — Chess, Bible Trivia &amp; More · Narrow Highway",
+  "description": "Chess. Card games. The Wilderness Game (Oregon Trail meets the Israelites in the Wilderness). Arcade classics. All public-domain rules, all built from open-source engines, all free.",
+  "isPartOf": {
+    "@type": "WebSite",
+    "@id": "https://narrowhighway.com/#website"
+  },
+  "publisher": {
+    "@id": "https://narrowhighway.com/#org"
+  },
+  "@type": "CollectionPage",
+  "about": {
+    "@type": "Game"
+  },
+  "keywords": "free family games, chess, Bible trivia, Christian games"
+}
+</script>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/" class="wordmark"><span class="wordmark-dot"></span> Narrow Highway</a>
+  <div class="breadcrumbs">
+    <a href="/">Home</a><span class="crumb-sep">›</span><span>Games</span>
+  </div>
+</nav>
+
+<header class="deck-hero">
+  <div class="deck-eyebrow">♟️ The Games Deck</div>
+  <h1 class="deck-title">Pull up a chair. <em>Play something good.</em></h1>
+  <p class="deck-sub">
+    Classics first. Chess. Card games. Then the signature: the Wilderness Game —
+    Oregon Trail meets the Israelites in the Wilderness. Then arcade. All built from open-source
+    engines and public-domain rules. All free, all multiplayer, all family-safe.
+  </p>
+</header>
+
+<section class="category-row">
+  <div class="category-head">
+    <h2 class="category-title">CLASSICS</h2>
+    <span class="category-count">build, don't acquire</span>
+  </div>
+  <div class="game-grid">
+
+    <div class="game-card playable" onclick="location.href='/bible-trivia.html'">
+      <div class="game-cover" style="--c1:#2c4a63; --c2:#16304a;">📖</div>
+      <div class="game-body">
+        <div class="game-title">Bible Trivia</div>
+        <div class="game-tagline">a family gameshow</div>
+        <div class="game-blurb">Ten questions, fifteen seconds each, with a time bonus for speed. Beat the clock and land on the leaderboard.</div>
+        <div class="game-meta"><span class="badge">PLAY</span><span>live now</span></div>
+      </div>
+    </div>
+
+    <div class="game-card playable" onclick="location.href='/games/chess.html'">
+      <div class="game-cover" style="--c1:#3a2a4f; --c2:#1f1530;">♟</div>
+      <div class="game-body">
+        <div class="game-title">Chess</div>
+        <div class="game-tagline">vs. computer · vs. a friend</div>
+        <div class="game-blurb">Drag pieces, see captures, undo, copy FEN. Three computer levels (Beginner / Steady / Sharp) or hot-seat 2P. Built on chess.js + chessboard.js — open source, no ads.</div>
+        <div class="game-meta"><span class="badge">PLAY</span><span>1 or 2 players</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#254a35; --c2:#10281d;">⚫</div>
+      <div class="game-body">
+        <div class="game-title">Checkers</div>
+        <div class="game-tagline">American + International</div>
+        <div class="game-blurb">PD rules. Simple board. AI opponents at three skill levels.</div>
+        <div class="game-meta"><span class="badge">2P</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#4a3520; --c2:#281d10;">🎴</div>
+      <div class="game-body">
+        <div class="game-title">Cribbage</div>
+        <div class="game-tagline">peg the board</div>
+        <div class="game-blurb">Folk rules, PD by age. Match a friend or play the bot.</div>
+        <div class="game-meta"><span class="badge">2P</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#3a253a; --c2:#1d101d;">🃏</div>
+      <div class="game-body">
+        <div class="game-title">Hearts · Spades · Euchre</div>
+        <div class="game-tagline">trick-taking classics</div>
+        <div class="game-blurb">Four-player card games. Bot partners or invite three friends with a share link.</div>
+        <div class="game-meta"><span class="badge">4P</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="category-row">
+  <div class="category-head">
+    <h2 class="category-title">SIGNATURES</h2>
+    <span class="category-count">substrate-driven</span>
+  </div>
+  <div class="game-grid">
+
+    <div class="game-card playable" onclick="location.href='/games/wilderness-trail.html'">
+      <div class="game-cover" style="--c1:#4a3525; --c2:#28200f;">🏜</div>
+      <div class="game-body">
+        <div class="game-title">Wilderness Trail</div>
+        <div class="game-tagline">Oregon Trail meets Exodus</div>
+        <div class="game-blurb">Choose your tribe. Cross from Egypt to the Promised Land through Marah, Sinai, Kadesh, the bronze serpent, the plains of Moab, the Jordan. Manage water, manna, livestock, gold &mdash; and faith.</div>
+        <div class="game-meta"><span class="badge">PLAY</span><span>~15 min playthrough</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#234a3a; --c2:#102820;">✝️</div>
+      <div class="game-body">
+        <div class="game-title">Scripture Memory</div>
+        <div class="game-tagline">words in red, in order</div>
+        <div class="game-blurb">Engine-substrate flashcards from the Sermon on the Mount and beyond. Build a streak.</div>
+        <div class="game-meta"><span class="badge">SOLO</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#2a3a4f; --c2:#101d28;">🔎</div>
+      <div class="game-body">
+        <div class="game-title">Easton's Trivia</div>
+        <div class="game-tagline">who said this? where is this?</div>
+        <div class="game-blurb">Pulled directly from Easton's Bible Dictionary substrate. 3,000+ persons and places.</div>
+        <div class="game-meta"><span class="badge">SOLO</span><span>SUBSTRATE</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#4a2540; --c2:#2a1525;">🦊</div>
+      <div class="game-body">
+        <div class="game-title">Pilgrim's Path</div>
+        <div class="game-tagline">virtues ↑ vices ↓</div>
+        <div class="game-blurb">Snakes-and-Ladders reskinned for the long pilgrimage. Top is the Promised Land.</div>
+        <div class="game-meta"><span class="badge">SOLO</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="category-row">
+  <div class="category-head">
+    <h2 class="category-title">ARCADE</h2>
+    <span class="category-count">build · don't acquire</span>
+  </div>
+  <div class="game-grid">
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#1f3a4a; --c2:#101d28;">🎮</div>
+      <div class="game-body">
+        <div class="game-title">Paddle</div>
+        <div class="game-tagline">the original</div>
+        <div class="game-blurb">Two paddles. One ball. The quintessential 1972 mechanic.</div>
+        <div class="game-meta"><span class="badge">1P/2P</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#4a3f25; --c2:#28200f;">🧱</div>
+      <div class="game-body">
+        <div class="game-title">Brick</div>
+        <div class="game-tagline">knock 'em all down</div>
+        <div class="game-blurb">The 1976 mechanic. Paddle + ball + a wall.</div>
+        <div class="game-meta"><span class="badge">1P</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#254a35; --c2:#10281d;">🐍</div>
+      <div class="game-body">
+        <div class="game-title">Snake</div>
+        <div class="game-tagline">grow without eating yourself</div>
+        <div class="game-blurb">Forty-year-old mechanic, still good.</div>
+        <div class="game-meta"><span class="badge">1P</span></div>
+      </div>
+    </div>
+
+    <div class="game-card coming-soon">
+      <div class="game-cover" style="--c1:#3a2a4f; --c2:#1f1530;">🟪</div>
+      <div class="game-body">
+        <div class="game-title">Stack</div>
+        <div class="game-tagline">rotating descent</div>
+        <div class="game-blurb">The Pajitnov mechanic. Seven shapes. Gravity.</div>
+        <div class="game-meta"><span class="badge">1P</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="build-note">
+  <strong>Build, don't acquire.</strong>
+  Video games don't enter public domain the way film and radio do — but the rules of classic games are open.
+  Every game here is built from open-source engines (chess.js, stockfish.js, Phaser, PixiJS) under generic names, with original code and art.
+  Multiplayer rooms via websockets. Anonymous identity via visitor_id. No accounts. Free to play. Engagement is the alignment.
+</div>
+
+  <script defer src="/nh-shepherd.js"></script>
+</body>
+</html>
