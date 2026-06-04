@@ -1887,7 +1887,18 @@ def _airlock_route(text: str) -> dict:
                 "url": "/tools/maps.html",
                 "why": "map lookup"}
 
-    # Submit / contact / pitch / support
+    # Message the operator directly — route straight to the contact page,
+    # not the take-part hub. Someone trying to reach a person should land
+    # on the form, not a menu.
+    if any(k in t for k in ("contact ", "message you", "message matt", "reach you",
+                            "reach matt", "get in touch", "email you", "talk to you",
+                            "talk to someone", "speak to", "how do i reach",
+                            "report a", "report an", "complaint", "feedback for")):
+        return {"route": "take_part", "tool": "contact", "confidence": 0.85,
+                "url": "/contact.html",
+                "why": "leave the operator a message"}
+
+    # Submit / pitch / support
     if any(k in t for k in ("submit ", "send you", "pitch ", "i want to share",
                             "donate", "support you")):
         return {"route": "take_part", "tool": "", "confidence": 0.7,
@@ -2280,6 +2291,42 @@ import hashlib as _hashlib_qi
 
 def _short_hash(text: str) -> str:
     return _hashlib_qi.sha256(text.encode("utf-8")).hexdigest()[:10]
+
+
+def _notify_operator(title: str, body: str, *, kind: str = "message") -> None:
+    """Best-effort push to the operator's own notification channel.
+
+    Reads NOTIFY_WEBHOOK_URL from the environment — a Discord, Slack, or
+    generic incoming-webhook URL. The payload carries both 'content'
+    (Discord) and 'text' (Slack) keys so a single configured URL works
+    for either service. To turn on phone notifications, the operator
+    creates a webhook (Discord: Server Settings → Integrations → Webhooks,
+    ~30 seconds, free) and sets NOTIFY_WEBHOOK_URL in the server .env.
+
+    This is an operator-to-SELF alert about the operator's own inbox — not
+    a message sent on a visitor's behalf — so it fires automatically. The
+    durable record in the inbox is always written regardless; if no webhook
+    is configured this is a silent no-op. Never raises: a notification
+    failure must never break the request that triggered it.
+    """
+    url = os.environ.get("NOTIFY_WEBHOOK_URL", "").strip()
+    if not url:
+        return
+    try:
+        import urllib.request as _ureq
+        payload = json.dumps({
+            "content": f"📬 **{title}**\n{body}",   # Discord uses 'content'
+            "text":    f"📬 *{title}*\n{body}",      # Slack uses 'text'
+        }).encode("utf-8")
+        req = _ureq.Request(
+            url, data=payload,
+            headers={"Content-Type": "application/json",
+                     "User-Agent": "NarrowHighway-Notify/1"},
+            method="POST",
+        )
+        _ureq.urlopen(req, timeout=6)
+    except Exception:
+        pass  # notification is a nicety, never a dependency
 
 
 def _load_state() -> Dict[str, Any]:
@@ -3064,6 +3111,19 @@ def contact_submit(request: Request, req: _ContactSubmit):
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"could not persist: {exc}")
+
+    # Ping the operator wherever they are — phone push if a webhook is set.
+    # Best-effort; the durable inbox record above is the source of truth.
+    _notify_operator(
+        "New message · Narrow Highway",
+        ((record["subject"] or "(no subject)") + "\n"
+         + "from: " + (record["name"] or "anonymous")
+         + (" <" + record["email"] + ">" if record["email"] else "")
+         + (" · " + record["country"] if record["country"] else "") + "\n\n"
+         + msg[:480] + ("…" if len(msg) > 480 else "")
+         + "\n\nRead + reply → https://narrowhighway.com/inbox.html"),
+        kind="message",
+    )
     return {"ok": True, "id": record["id"], "message": "Kept. Thank you for the note."}
 
 

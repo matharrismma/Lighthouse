@@ -978,9 +978,19 @@ async function loadInbox() {
   if (ct) ct.textContent = list.length;
   renderFeed('feed-inbox', list, [
     { label: 'When', render: r => `<span class="when">${esc(fmtAgo(r.received_at_iso || r.received_at || r.timestamp))}</span>` },
-    { label: 'Source', render: r => `<span class="mono">${esc(r.source || r._type || '')}</span>` },
-    { label: 'Subject', render: r => esc((r.subject || r.title || '').slice(0, 80)) },
+    { label: 'From', render: r => `<span class="mono">${esc((r.name || r.source || r._type || 'anonymous').slice(0,28))}</span>` },
+    { label: 'Subject', render: r => esc((r.subject || r.title || '').slice(0, 70)) },
     { label: 'Preview', render: r => esc((r.body || r.text || r.message || '').slice(0, 100)) },
+    { label: 'Reply', render: r => {
+        // Draft-only: opens the operator's mail client prefilled. Never auto-sends.
+        const email = (r.email || '').trim();
+        if (!email) return '<span style="color:var(--muted-2);">no email</span>';
+        const subj = encodeURIComponent('Re: ' + (r.subject || 'your note to Narrow Highway'));
+        const greet = r.name ? ('Hi ' + r.name + ',') : 'Hi,';
+        const orig = (r.message || r.body || r.text || '').slice(0, 600).split('\n').map(l => '> ' + l).join('\n');
+        const body = encodeURIComponent(greet + '\n\nThank you for writing.\n\n\n— Matt\nNarrow Highway\n\n' + orig);
+        return `<a href="mailto:${esc(email)}?subject=${subj}&body=${body}" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--accent);">✉ Draft reply</a>`;
+      } },
   ], 'No inbox messages.');
 }
 
