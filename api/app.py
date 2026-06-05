@@ -2047,6 +2047,45 @@ def airlock_stats(request: Request, days: int = 7):
     }
 
 
+# -- THE FLOOR — one thing every tool stands on --------------------------
+# The integration spine. Any tool's output can be put on the WHOLE floor at
+# once (Canon + gates + verifier + Calibre + nested-control + ledger) instead
+# of one shard. See api/floor.py. This endpoint exposes it directly so the
+# integration is demonstrable, and any front-end tool can call it.
+
+class _FloorStandIn(BaseModel):
+    text: str = ""
+    domain: Optional[str] = None
+    kind: str = "claim"
+    triad: Optional[Dict[str, float]] = None      # {spirit, mind, body} in [0,1]
+    load: Optional[float] = None                   # in [0,1]
+    capacity: Optional[float] = None               # in [0,1]
+    vice_signals: Optional[Dict[str, float]] = None
+
+
+@app.get("/floor", tags=["floor"])
+def floor_pieces():
+    """What the whole floor is — every piece a tool stands on, at a glance."""
+    from api import floor as _floor
+    return _floor.floor_summary()
+
+
+@app.post("/floor/stand", tags=["floor"])
+def floor_stand(req: _FloorStandIn):
+    """Put any claim / tool output on the WHOLE floor and return its standing:
+    Canon anchor, the four gates, the domain verifier, Calibre (health/beauty/
+    shadow/vice), the nested-control layer, and the ledger offer. Public —
+    this IS the engine's coherent answer surface."""
+    text = (req.text or "").strip()[:4000]
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    from api import floor as _floor
+    return _floor.stand_on_floor(
+        text, domain=req.domain, kind=req.kind, triad=req.triad,
+        load=req.load, capacity=req.capacity, vice_signals=req.vice_signals,
+    )
+
+
 # -- Per-card "did this help?" feedback ----------------------------------
 # Any result card on the site can render the nhFeedback widget (from
 # nh-shell.js). Two outcomes:
