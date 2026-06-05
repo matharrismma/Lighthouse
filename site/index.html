@@ -175,27 +175,47 @@ async function nhDraw(ev){
   var q=(document.getElementById('nhQ').value||'').trim(); if(!q) return false;
   var box=document.getElementById('drawResult');
   box.style.display='block';
-  box.innerHTML='<div style="font-style:italic;color:var(--muted);padding:8px 0;">The shepherd is listening…</div>';
+  box.innerHTML='<div style="font-style:italic;color:var(--muted);padding:8px 0;">Weighing it on the floor…</div>';
   nhJournal(q);
 
-  var routing=null;
+  // One engine: stand what was brought on the whole floor. The floor reads
+  // the lens, runs the gates, points at the wall, and shows where it goes.
+  var s=null;
   try{
-    var r=await fetch('/airlock/classify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:q})});
-    routing=await r.json();
+    var r=await fetch('/floor/stand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:q})});
+    s=await r.json();
   }catch(e){}
 
-  // Discernment → run the four gates inline (or fall through if airlock is down).
-  if(!routing || routing.route==='discern'){ return nhRunWalk(q, box); }
+  // Engine unreachable (e.g. mid-deploy) → fall back to the four-gate walk.
+  if(!s || !s.gates){ return nhRunWalk(q, box); }
 
-  // Every other route → the shepherd points to the right room.
-  box.innerHTML=
-    '<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">The shepherd suggests</div>'+
-      '<div style="font-size:1.1rem;color:#f4ecd5;">'+nhEsc(routing.destination_label||routing.route)+'</div>'+
-      '<div style="font-style:italic;color:var(--dim);font-size:14px;margin-top:3px;">'+nhEsc(routing.why||'')+'</div>'+
-      (routing.url?'<a href="'+nhEsc(routing.url)+'" style="display:inline-block;margin-top:10px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open '+nhEsc(routing.destination_label||'the room')+' &rarr;</a>':'')+
-      ' <a href="/workspace.html" style="display:inline-block;margin-top:10px;margin-left:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Or open the Workspace</a>'+
-    '</div>';
+  // A hard gate refused it (coercion, domination) → show the floor saying no.
+  if(s.gates.admitted===false){
+    var w=(s.gates.verdicts&&s.gates.verdicts[0])||{};
+    box.innerHTML='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid #d97c7c;border-radius:0 8px 8px 0;padding:14px 18px;">'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#d97c7c;margin-bottom:5px;">Did not pass the floor</div>'+
+      '<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(w.why||'a gate rejected it')+'</div></div>';
+    return false;
+  }
+
+  // Discernment → run the four gates inline (the Well's signature).
+  if(s.lens && s.lens.name==='discern'){ return nhRunWalk(q, box); }
+
+  // Otherwise → show it standing on the floor, and the room it turned out to be.
+  var lens=s.lens||{}, route=s.route||{}, nc=s.nested_control||null, ver=s.verifier||{};
+  var html='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Stood on the floor &middot; '+nhEsc(lens.label||'weighed')+'</div>';
+  html+='<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(route.why||lens.frame||'')+'</div>';
+  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--pass);margin-top:8px;letter-spacing:.08em;">RED ✓ &nbsp; FLOOR ✓ &nbsp;<span style="color:var(--muted);">&middot; BROTHERS / GOD pending</span></div>';
+  if(ver.applies){ html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);margin-top:3px;">wall &middot; '+nhEsc(ver.applies)+'</div>'; }
+  if(nc && nc.primary_layer){
+    html+='<div style="margin-top:9px;color:var(--accenthi);font-size:13px;">Control layer &middot; '+nhEsc(nc.primary_layer)+'</div>';
+    if(nc.referral_note){ html+='<div style="font-style:italic;color:var(--muted);font-size:11.5px;margin-top:3px;">'+nhEsc(nc.referral_note)+'</div>'; }
+  }
+  if(route.url){ html+='<a href="'+nhEsc(route.url)+'" style="display:inline-block;margin-top:12px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open '+nhEsc(lens.label||'the room')+' &rarr;</a>'; }
+  html+=' <a href="/workspace.html" style="display:inline-block;margin-top:12px;margin-left:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Workspace</a>';
+  html+='</div>';
+  box.innerHTML=html;
   return false;
 }
 
