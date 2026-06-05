@@ -1783,139 +1783,15 @@ def _airlock_text_hash(text: str) -> str:
 
 
 def _airlock_route(text: str) -> dict:
-    """Classify an airlock input into one of 8 destinations.
-
-    Heuristic-first router — we'll graduate to a trained classifier
-    after the airlock log gives us real input examples. The order
-    matters: more specific patterns first, broad catch-alls last.
-    Returns {route, tool, url, confidence, why}.
+    """Classify an airlock input. Delegates to the ONE classifier in
+    api/floor.py — the airlock and the floor share a single brain now, not
+    two copies of the same rules. Returns {route, tool, url, confidence, why}.
     """
-    import re as _re_al
-    t = (text or "").lower().strip()
-    if not t:
-        return {"route": "desk", "tool": "", "confidence": 0.0,
-                "url": _AIRLOCK_DESTINATIONS["desk"]["url"],
-                "why": "nothing to route — opening the desk"}
-
-    # Pasted URL → discern (verify the page at that URL)
-    if _re_al.match(r"^https?://", t):
-        return {"route": "discern", "tool": "verify-url", "confidence": 0.9,
-                "url": "/try.html",
-                "why": "a URL — verify the claim it makes"}
-
-    # Verify-shaped queries (fact-check, is-it-true, etc.)
-    verify_starts = ("is it true", "is that true", "did ", "really", "fact check",
-                     "fact-check", "verify ", "is this real", "true or false")
-    if any(t.startswith(p) or p in t[:40] for p in verify_starts):
-        return {"route": "discern", "tool": "verify", "confidence": 0.85,
-                "url": "/try.html",
-                "why": "a verifiable claim"}
-
-    # Scripture lookup — book + chapter pattern, or "what does the bible say"
-    scripture_books = ("genesis","exodus","leviticus","numbers","deuteronomy","joshua",
-                       "judges","ruth","samuel","kings","chronicles","ezra","nehemiah",
-                       "esther","job","psalm","psalms","proverbs","ecclesiastes","isaiah",
-                       "jeremiah","ezekiel","daniel","hosea","amos","jonah","micah",
-                       "nahum","habakkuk","zephaniah","haggai","zechariah","malachi",
-                       "matthew","mark","luke","john","acts","romans","corinthians",
-                       "galatians","ephesians","philippians","colossians","thessalonians",
-                       "timothy","titus","philemon","hebrews","james","peter","jude",
-                       "revelation")
-    has_scripture = (any(b in t for b in scripture_books)
-                     or "bible says" in t or "scripture" in t
-                     or "verse about" in t or "what does the bible" in t)
-    if has_scripture:
-        return {"route": "learn", "tool": "bibles", "confidence": 0.85,
-                "url": "/bibles.html",
-                "why": "scripture lookup"}
-
-    # Remedy / health
-    if any(k in t for k in ("remedy", "cure ", "ache", "sore", "cough", "cold ",
-                            "fever", "rash", "headache", "anxiety", "grief",
-                            "anointing", "balm", "tonic", "herb")):
-        return {"route": "family", "tool": "apothecary", "confidence": 0.8,
-                "url": "/apothecary.html",
-                "why": "remedy from the apothecary"}
-
-    # Recipe / cooking
-    if any(k in t for k in ("recipe for", "how to cook", "how to bake",
-                            "cookbook", "make bread", "make a pie")):
-        return {"route": "family", "tool": "recipes", "confidence": 0.85,
-                "url": "/recipes.html",
-                "why": "recipe from the heritage cookbook"}
-
-    # Prayer
-    if t.startswith("pray ") or "pray for" in t or "prayer request" in t:
-        return {"route": "family", "tool": "prayer", "confidence": 0.85,
-                "url": "/prayer.html",
-                "why": "prayer board"}
-
-    # Hymn
-    if "hymn" in t or "psalter" in t or "praise song" in t:
-        return {"route": "watch", "tool": "hymns", "confidence": 0.85,
-                "url": "/hymns.html",
-                "why": "hymn lookup"}
-
-    # Audio / play / listen
-    if any(k in t for k in ("listen to", "play radio", "shortwave", "podcast",
-                            "tune in", "broadcast", "radio")):
-        return {"route": "watch", "tool": "radio", "confidence": 0.75,
-                "url": "/radio.html",
-                "why": "audio surface"}
-
-    # Watch / video / kids
-    if any(k in t for k in ("watch ", "show me", "cartoon", "video about")):
-        return {"route": "watch", "tool": "channels", "confidence": 0.75,
-                "url": "/channels.html",
-                "why": "video surface"}
-
-    # Definition / lookup
-    if t.startswith("define ") or "what does " in t and " mean" in t:
-        return {"route": "tools", "tool": "dictionary", "confidence": 0.85,
-                "url": "/tools/dictionary.html",
-                "why": "word definition"}
-
-    # Calculation
-    if _re_al.search(r"[\d\.\s]+[\+\-\*\/×÷=][\d\.\s]+", t):
-        return {"route": "tools", "tool": "calculator", "confidence": 0.85,
-                "url": "/tools/calculator.html",
-                "why": "calculation"}
-
-    # Map / location
-    if "map of" in t or "where is" in t or "location of" in t:
-        return {"route": "tools", "tool": "maps", "confidence": 0.75,
-                "url": "/tools/maps.html",
-                "why": "map lookup"}
-
-    # Message the operator directly — route straight to the contact page,
-    # not the take-part hub. Someone trying to reach a person should land
-    # on the form, not a menu.
-    if any(k in t for k in ("contact ", "message you", "message matt", "reach you",
-                            "reach matt", "get in touch", "email you", "talk to you",
-                            "talk to someone", "speak to", "how do i reach",
-                            "report a", "report an", "complaint", "feedback for")):
-        return {"route": "take_part", "tool": "contact", "confidence": 0.85,
-                "url": "/contact.html",
-                "why": "leave the operator a message"}
-
-    # Submit / pitch / support
-    if any(k in t for k in ("submit ", "send you", "pitch ", "i want to share",
-                            "donate", "support you")):
-        return {"route": "take_part", "tool": "", "confidence": 0.7,
-                "url": "/support.html",
-                "why": "take part"}
-
-    # How-to / learn / curriculum
-    if t.startswith("how do i ") or t.startswith("teach me ") or "lesson on" in t:
-        return {"route": "learn", "tool": "", "confidence": 0.7,
-                "url": "/learn.html",
-                "why": "learn / how-to"}
-
-    # Default — send to the engine. It's the safe catch-all: the four-gate
-    # walker will handle anything the heuristics didn't recognize.
-    return {"route": "discern", "tool": "engine", "confidence": 0.3,
-            "url": "/walks.html",
-            "why": "unrouted — sending to the engine"}
+    from api import floor as _floor
+    r = _floor.classify(text)
+    return {"route": r.get("route", "discern"), "tool": r.get("tool", ""),
+            "confidence": r.get("confidence", 0.3), "url": r.get("url", "/walks.html"),
+            "why": r.get("why", ""), "lens": r.get("lens")}
 
 
 class _AirlockClassifyIn(BaseModel):

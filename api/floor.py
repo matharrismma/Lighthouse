@@ -36,30 +36,100 @@ LENSES: Dict[str, Dict[str, Any]] = {
     "reckon":     {"label": "Reckon",    "domain": "math",      "frame": "a calculation pressed against the math wall"},
 }
 
-# Keyword signals that tell the floor which lens you brought. Order = priority.
-_LENS_SIGNALS = [
-    ("apothecary", ("remedy", "ache", "pain", "sick", "fatigue", "anxiety", "sleep",
-                    "fever", "cough", "inflammation", "diabetes", "blood sugar", "disease",
-                    "symptom", "cure", "heal", "tired", "stress", "depress")),
-    ("scripture",  ("verse", "scripture", "bible says", "what does the bible", "psalm",
-                    "proverb", "gospel", "chapter", "romans", "genesis", "john ", "matthew")),
-    ("reckon",     ("calculate", "how much", "how many", "percent", "+", "*", "÷", "square root")),
-    ("household",  ("recipe", "cook", "bake", "clean", "budget", "chore", "garden", "fix ", "mend")),
-    ("discern",    ("is it true", "is this true", "did ", "really", "fact check", "verify",
-                    "sound doctrine", "is this teaching", "aligned with", "heresy")),
-]
+_SCRIPTURE_BOOKS = (
+    "genesis", "exodus", "leviticus", "numbers", "deuteronomy", "joshua", "judges",
+    "ruth", "samuel", "kings", "chronicles", "ezra", "nehemiah", "esther", "job",
+    "psalm", "psalms", "proverbs", "ecclesiastes", "isaiah", "jeremiah", "ezekiel",
+    "daniel", "hosea", "amos", "jonah", "micah", "nahum", "habakkuk", "zephaniah",
+    "haggai", "zechariah", "malachi", "matthew", "mark", "luke", "john", "acts",
+    "romans", "corinthians", "galatians", "ephesians", "philippians", "colossians",
+    "thessalonians", "timothy", "titus", "philemon", "hebrews", "james", "peter",
+    "jude", "revelation",
+)
+
+
+def classify(text: str) -> Dict[str, Any]:
+    """The one brain. Read what was brought and return everything the engine
+    needs: the lens (how the floor frames it for judgment, or None for pure
+    navigation), the domain, and the route/url/tool (where it goes). The
+    airlock and the floor both call this — there is one classifier now, not two.
+
+    Returns: {lens, domain, route, tool, url, confidence, why}
+    Lens is None for navigation-only intents (radio, contact, a recipe) — the
+    floor doesn't render a verdict on 'play the radio'; it just opens the room.
+    """
+    import re as _re
+    t = (text or "").lower().strip()
+
+    def R(lens, domain, route, tool, url, conf, why):
+        return {"lens": lens, "domain": domain, "route": route, "tool": tool,
+                "url": url, "confidence": conf, "why": why}
+
+    if not t:
+        return R(None, None, "desk", "", "/workspace.html", 0.0, "nothing brought — opening the workspace")
+
+    # Pasted URL → discern (verify the page)
+    if _re.match(r"^https?://", t):
+        return R("discern", None, "discern", "verify-url", "/try.html", 0.9, "a URL — verify the claim it makes")
+    # Verify-shaped claim → discern
+    if any(t.startswith(p) or p in t[:40] for p in
+           ("is it true", "is that true", "did ", "really", "fact check", "fact-check",
+            "verify ", "is this real", "true or false", "is this teaching", "sound doctrine", "aligned with")):
+        return R("discern", None, "discern", "verify", "/try.html", 0.85, "a verifiable claim")
+    # Scripture → scripture lens
+    if (any(b in t for b in _SCRIPTURE_BOOKS) or "bible says" in t or "scripture" in t
+            or "verse about" in t or "what does the bible" in t):
+        return R("scripture", "scripture", "learn", "bibles", "/bibles.html", 0.85, "scripture lookup")
+    # Health / body → apothecary lens (the floor stands it on nested control)
+    if any(k in t for k in ("remedy", "cure ", "ache", "sore", "cough", "cold ", "fever",
+                            "rash", "headache", "anxiety", "grief", "anointing", "balm",
+                            "tonic", "herb", "fatigue", "diabetes", "blood sugar", "inflammation",
+                            "sick", "symptom", "heal", "tired", "stress", "sleep", "depress")):
+        return R("apothecary", "health", "family", "apothecary", "/apothecary.html", 0.8, "a body, read as nested control systems")
+    # Calculation → reckon lens (the math wall verifies it)
+    if _re.search(r"[\d\.\s]+[\+\-\*\/×÷=][\d\.\s]+", t) or any(
+            k in t for k in ("calculate", "what is ", "percent of", "how much is")):
+        return R("reckon", "math", "tools", "calculator", "/tools/calculator.html", 0.8, "a calculation pressed against the math wall")
+    # Recipe → navigation (household)
+    if any(k in t for k in ("recipe for", "how to cook", "how to bake", "cookbook", "make bread", "make a pie")):
+        return R(None, None, "family", "recipes", "/recipes.html", 0.85, "recipe from the heritage cookbook")
+    # Prayer
+    if t.startswith("pray ") or "pray for" in t or "prayer request" in t:
+        return R(None, None, "family", "prayer", "/prayer.html", 0.85, "prayer board")
+    # Hymn
+    if "hymn" in t or "psalter" in t or "praise song" in t:
+        return R(None, None, "watch", "hymns", "/hymns.html", 0.85, "hymn lookup")
+    # Audio / radio
+    if any(k in t for k in ("listen to", "play radio", "shortwave", "podcast", "tune in", "broadcast", "radio")):
+        return R(None, None, "watch", "radio", "/radio.html", 0.75, "audio surface")
+    # Watch / video
+    if any(k in t for k in ("watch ", "show me", "cartoon", "video about")):
+        return R(None, None, "watch", "channels", "/channels.html", 0.75, "video surface")
+    # Definition
+    if t.startswith("define ") or ("what does " in t and " mean" in t):
+        return R(None, "linguistics", "tools", "dictionary", "/tools/dictionary.html", 0.85, "word definition")
+    # Map / location
+    if "map of" in t or "where is" in t or "location of" in t:
+        return R(None, None, "tools", "maps", "/tools/maps.html", 0.75, "map lookup")
+    # Contact the operator
+    if any(k in t for k in ("contact ", "message you", "message matt", "reach you", "reach matt",
+                            "get in touch", "email you", "talk to you", "talk to someone", "speak to",
+                            "how do i reach", "report a", "report an", "complaint", "feedback for")):
+        return R(None, None, "take_part", "contact", "/contact.html", 0.85, "leave the operator a message")
+    # Submit / support
+    if any(k in t for k in ("submit ", "send you", "pitch ", "i want to share", "donate", "support you")):
+        return R(None, None, "take_part", "", "/support.html", 0.7, "take part")
+    # How-to / learn
+    if t.startswith("how do i ") or t.startswith("teach me ") or "lesson on" in t:
+        return R(None, None, "learn", "", "/learn.html", 0.7, "learn / how-to")
+    # Default → weigh it as a claim
+    return R("discern", None, "discern", "engine", "/walks.html", 0.3, "unrouted — weighed as a claim")
 
 
 def detect_lens(text: str) -> str:
-    """Which lens did you bring? The floor reads it from the input. This is the
-    same recognition the airlock does — the classifier and the floor are one
-    motion: figure out what was brought, then stand it on the foundation.
-    Falls to 'discern' — weigh it as a claim — when nothing else signals."""
-    t = (text or "").lower()
-    for lens, signals in _LENS_SIGNALS:
-        if any(s in t for s in signals):
-            return lens
-    return "discern"
+    """Which lens the floor brings to bear. Delegates to the one classifier;
+    falls to 'discern' (weigh it as a claim) when the input is navigation-only."""
+    return classify(text).get("lens") or "discern"
 
 
 # ── The four gates, as the canon defines them ──────────────────────────────
@@ -164,17 +234,22 @@ def stand_on_floor(
       load/capacity in [0,1]                        → Calibre shadow + nested overload
       vice_signals = {source, channel, desire}      → Calibre vice index
     """
-    # Read what was brought — the floor selects its own lens.
+    # Read what was brought — the one brain selects lens, domain, and route.
+    routing = classify(text)
     if lens is None:
-        lens = detect_lens(text)
+        lens = routing.get("lens") or "discern"
     lens_cfg = LENSES.get(lens, LENSES["discern"])
     if domain is None:
-        domain = lens_cfg.get("domain")
+        domain = routing.get("domain") or lens_cfg.get("domain")
 
     standing: Dict[str, Any] = {
         "input_kind": kind,
         "lens": {"name": lens, "label": lens_cfg["label"], "frame": lens_cfg["frame"]},
         "domain": domain,
+        # The route is part of the standing: where this goes, from the same
+        # brain. One call now answers both 'what is it' and 'where does it go'.
+        "route": {"to": routing.get("route"), "url": routing.get("url"),
+                  "tool": routing.get("tool"), "why": routing.get("why")},
         "canon": _canon_anchor(text, domain),
         "gates": _run_gates(text),
     }
