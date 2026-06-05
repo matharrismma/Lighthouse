@@ -2055,6 +2055,7 @@ def airlock_stats(request: Request, days: int = 7):
 
 class _FloorStandIn(BaseModel):
     text: str = ""
+    lens: Optional[str] = None                     # auto-detected if omitted
     domain: Optional[str] = None
     kind: str = "claim"
     triad: Optional[Dict[str, float]] = None      # {spirit, mind, body} in [0,1]
@@ -2081,7 +2082,7 @@ def floor_stand(req: _FloorStandIn):
         raise HTTPException(status_code=400, detail="text is required")
     from api import floor as _floor
     return _floor.stand_on_floor(
-        text, domain=req.domain, kind=req.kind, triad=req.triad,
+        text, lens=req.lens, domain=req.domain, kind=req.kind, triad=req.triad,
         load=req.load, capacity=req.capacity, vice_signals=req.vice_signals,
     )
 

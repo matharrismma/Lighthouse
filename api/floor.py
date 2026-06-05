@@ -21,6 +21,47 @@ connected to one shard — it is standing on the whole floor, and it can show it
 from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
+# ── The lenses (the "rooms", as views of the one floor) ────────────────────
+# A lens is not a separate tool. It is the one operation — stand_on_floor —
+# wearing a face: a framing for what was brought, and a hint about which walls
+# should light up. Apothecary is the floor with a health lens; Discern is the
+# floor with a claim lens. The engine detects the lens from what you bring, so
+# you never pick a tool — you bring something, and the floor tells you what it is.
+LENSES: Dict[str, Dict[str, Any]] = {
+    "discern":    {"label": "Discern",   "domain": None,        "frame": "a claim to weigh against the floor"},
+    "apothecary": {"label": "Apothecary","domain": "health",    "frame": "a body, read as nested control systems"},
+    "scripture":  {"label": "Scripture", "domain": "scripture", "frame": "the Word, looked at directly"},
+    "household":  {"label": "Household",  "domain": None,        "frame": "a practical need of the home"},
+    "almanac":    {"label": "Almanac",   "domain": None,        "frame": "an observation to confirm against record"},
+    "reckon":     {"label": "Reckon",    "domain": "math",      "frame": "a calculation pressed against the math wall"},
+}
+
+# Keyword signals that tell the floor which lens you brought. Order = priority.
+_LENS_SIGNALS = [
+    ("apothecary", ("remedy", "ache", "pain", "sick", "fatigue", "anxiety", "sleep",
+                    "fever", "cough", "inflammation", "diabetes", "blood sugar", "disease",
+                    "symptom", "cure", "heal", "tired", "stress", "depress")),
+    ("scripture",  ("verse", "scripture", "bible says", "what does the bible", "psalm",
+                    "proverb", "gospel", "chapter", "romans", "genesis", "john ", "matthew")),
+    ("reckon",     ("calculate", "how much", "how many", "percent", "+", "*", "÷", "square root")),
+    ("household",  ("recipe", "cook", "bake", "clean", "budget", "chore", "garden", "fix ", "mend")),
+    ("discern",    ("is it true", "is this true", "did ", "really", "fact check", "verify",
+                    "sound doctrine", "is this teaching", "aligned with", "heresy")),
+]
+
+
+def detect_lens(text: str) -> str:
+    """Which lens did you bring? The floor reads it from the input. This is the
+    same recognition the airlock does — the classifier and the floor are one
+    motion: figure out what was brought, then stand it on the foundation.
+    Falls to 'discern' — weigh it as a claim — when nothing else signals."""
+    t = (text or "").lower()
+    for lens, signals in _LENS_SIGNALS:
+        if any(s in t for s in signals):
+            return lens
+    return "discern"
+
+
 # ── The four gates, as the canon defines them ──────────────────────────────
 GATES = [
     {"gate": "RED",      "asks": "Aligned with the words of Jesus? (truth)"},
@@ -102,6 +143,7 @@ _HEALTH_HINT = ("health", "medicine", "nutrition", "disease", "symptom", "remedy
 def stand_on_floor(
     text: str,
     *,
+    lens: Optional[str] = None,
     domain: Optional[str] = None,
     kind: str = "claim",
     triad: Optional[Dict[str, float]] = None,
@@ -109,15 +151,29 @@ def stand_on_floor(
     capacity: Optional[float] = None,
     vice_signals: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
-    """Put any tool's output on the whole floor. Returns its full standing.
+    """The one engine. Bring anything; it stands on the whole floor.
 
-    Optional signals deepen the standing where the tool can supply them:
+    You don't pick a tool. If `lens` and `domain` aren't given, the floor reads
+    what you brought and applies the lens itself (apothecary, discern, scripture,
+    …) — the airlock and the floor are one motion. Returns the full standing:
+    Canon · gates · verifier · Calibre · nested-control · ledger, framed by the
+    lens it detected.
+
+    Optional signals deepen the standing where they can be supplied:
       triad        = {spirit, mind, body} in [0,1] → Calibre health + beauty
       load/capacity in [0,1]                        → Calibre shadow + nested overload
       vice_signals = {source, channel, desire}      → Calibre vice index
     """
+    # Read what was brought — the floor selects its own lens.
+    if lens is None:
+        lens = detect_lens(text)
+    lens_cfg = LENSES.get(lens, LENSES["discern"])
+    if domain is None:
+        domain = lens_cfg.get("domain")
+
     standing: Dict[str, Any] = {
         "input_kind": kind,
+        "lens": {"name": lens, "label": lens_cfg["label"], "frame": lens_cfg["frame"]},
         "domain": domain,
         "canon": _canon_anchor(text, domain),
         "gates": _run_gates(text),
@@ -178,4 +234,13 @@ def floor_summary() -> Dict[str, Any]:
             {"name": "Ledger", "what": "append-only proof — witness over time"},
         ],
         "rule": "Every tool stands on all of it. No tool is connected to one shard.",
+        "lenses": {
+            name: {"label": cfg["label"], "frame": cfg["frame"]}
+            for name, cfg in LENSES.items()
+        },
+        "lenses_note": (
+            "The 'rooms' are not separate tools. Each is the one operation "
+            "wearing a lens. You bring something; the floor reads which lens "
+            "it is and stands it on the foundation. One engine, many views."
+        ),
     }
