@@ -244,17 +244,6 @@ function nhChip(text){ var el=document.getElementById('nhQ'); if(el){ el.value=t
     else chips.classList.remove('faded');
   });
 })();
-
-// Today's draw — the card of the day.
-fetch('/daily-card').then(function(r){return r.ok?r.json():null;}).then(function(j){
-  var t=document.getElementById('nhToday'); if(!t) return;
-  if(!j||!j.card){ t.querySelector('h3').textContent='Walk the cards'; t.href='/walks.html'; return; }
-  var c=j.card, s=c.source||{}; t.href=c.url||'/today.html';
-  t.innerHTML='<div class="l">📜 Today\'s draw'+(j.date?' · '+j.date:'')+'</div>'+
-    '<h3>'+String(c.title||'').replace(/[<>&"]/g,'')+'</h3>'+
-    (c.body?'<div class="b">'+String(c.body).slice(0,160).replace(/[<>&"]/g,'')+(c.body.length>160?'…':'')+'</div>':'')+
-    (s.label?'<div class="b" style="color:var(--muted);margin-top:6px;">'+String(s.label).replace(/[<>&"]/g,'')+'</div>':'');
-}).catch(function(){});
 </script>
 
 </body>
