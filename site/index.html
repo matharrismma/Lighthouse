@@ -189,8 +189,18 @@ async function nhDraw(ev){
   // Discernment → run the four gates inline (the Well's signature).
   if(s.lens && s.lens.name==='discern'){ return nhRunWalk(q, box); }
 
-  // Otherwise → show it standing on the floor, and the room it turned out to be.
   var lens=s.lens||{}, route=s.route||{}, nc=s.nested_control||null, ver=s.verifier||{};
+
+  // Navigation → just point to the room. No gates/wall noise for "play chess".
+  if(lens.name==='navigate'){
+    box.innerHTML='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">'+
+      '<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(route.why||'opening the room')+'</div>'+
+      (route.url?'<a href="'+nhEsc(route.url)+'" style="display:inline-block;margin-top:10px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open &rarr;</a>':'')+
+      '</div>';
+    return false;
+  }
+
+  // A judgment lens (apothecary / scripture / reckon) → show it standing on the floor.
   var html='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">';
   html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Stood on the floor &middot; '+nhEsc(lens.label||'weighed')+'</div>';
   html+='<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(route.why||lens.frame||'')+'</div>';

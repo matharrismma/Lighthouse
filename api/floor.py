@@ -34,6 +34,10 @@ LENSES: Dict[str, Dict[str, Any]] = {
     "household":  {"label": "Household",  "domain": None,        "frame": "a practical need of the home"},
     "almanac":    {"label": "Almanac",   "domain": None,        "frame": "an observation to confirm against record"},
     "reckon":     {"label": "Reckon",    "domain": "math",      "frame": "a calculation pressed against the math wall"},
+    # Navigation, not judgment — the floor doesn't render a verdict on "play
+    # chess" or "the calendar"; it just opens the room. Kept distinct from
+    # 'discern' so the front door routes these instead of running the gates.
+    "navigate":   {"label": "Open",      "domain": None,        "frame": "opening the room"},
 }
 
 _SCRIPTURE_BOOKS = (
@@ -297,7 +301,9 @@ def stand_on_floor(
     # Read what was brought — the one brain selects lens, domain, and route.
     routing = classify(text)
     if lens is None:
-        lens = routing.get("lens") or "discern"
+        # Preserve the distinction: a real judgment lens, else 'navigate'
+        # (a room to open) — never silently collapse navigation into 'discern'.
+        lens = routing.get("lens") or "navigate"
     lens_cfg = LENSES.get(lens, LENSES["discern"])
     if domain is None:
         domain = routing.get("domain") or lens_cfg.get("domain")
