@@ -354,6 +354,27 @@ def stand_on_floor(
         except Exception as exc:
             standing["nested_control"] = {"error": str(exc)[:120]}
 
+    # 7. CHOICES — the correct next options, sized for intuition to narrow by.
+    # "We know the answers; we just need the correct choices." Retrieval is
+    # choosing, not generating: where there's genuine ambiguity, surface a
+    # small set of the right choices and let the intuition pick; where it's
+    # already narrow, offer none. The whole space is never rendered — only the
+    # current slice. First populated instance: a body's matched control layers,
+    # each carrying its own protocol, so picking narrows from symptom to system
+    # in place (no round-trip — the detail rides along).
+    nc = standing.get("nested_control") or {}
+    layers = nc.get("matched_layers") or []
+    if len(layers) > 1:
+        standing["choices"] = {
+            "prompt": "Which system feels closest?",
+            "options": [
+                {"label": L.get("name"),
+                 "why": (L.get("phenotypes") or [""])[0],
+                 "detail": (L.get("interventions") or [])[:5]}
+                for L in layers[:4]
+            ],
+        }
+
     # 6. LEDGER — offered, not forced (the canon: we record, we don't coerce)
     standing["ledger"] = {
         "recordable": standing["gates"]["admitted"],

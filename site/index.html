@@ -210,11 +210,36 @@ async function nhDraw(ev){
     html+='<div style="margin-top:9px;color:var(--accenthi);font-size:13px;">Control layer &middot; '+nhEsc(nc.primary_layer)+'</div>';
     if(nc.referral_note){ html+='<div style="font-style:italic;color:var(--muted);font-size:11.5px;margin-top:3px;">'+nhEsc(nc.referral_note)+'</div>'; }
   }
+  // Choices — the correct next options, sized for intuition. Pick one and its
+  // protocol opens in place (the detail rode along — no round-trip). The space
+  // narrows from the symptom to the system without rendering the whole tree.
+  if(s.choices && s.choices.options && s.choices.options.length){
+    html+='<div style="margin-top:13px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">'+nhEsc(s.choices.prompt||'Narrow it')+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;">';
+    s.choices.options.forEach(function(o,i){
+      html+='<button type="button" onclick="nhPick(\'nhc'+i+'\')" style="cursor:pointer;background:#1d1828;border:1px solid var(--border);color:var(--dim);font-family:\'Crimson Pro\',Georgia,serif;font-size:13.5px;padding:6px 13px;border-radius:7px;">'+nhEsc(o.label||'')+'</button>';
+    });
+    html+='</div>';
+    s.choices.options.forEach(function(o,i){
+      html+='<div id="nhc'+i+'" class="nh-cd" style="display:none;margin-top:8px;padding:9px 13px;background:#15111c;border-left:2px solid var(--accenthi);border-radius:0 7px 7px 0;">';
+      if(o.why) html+='<div style="font-style:italic;color:var(--muted);font-size:12px;margin-bottom:6px;">often shows as: '+nhEsc(o.why)+'</div>';
+      (o.detail||[]).forEach(function(d){ html+='<div style="color:var(--dim);font-size:13px;line-height:1.5;">&middot; '+nhEsc(d)+'</div>'; });
+      html+='</div>';
+    });
+  }
   if(route.url){ html+='<a href="'+nhEsc(route.url)+'" style="display:inline-block;margin-top:12px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open '+nhEsc(lens.label||'the room')+' &rarr;</a>'; }
   html+=' <a href="/workspace.html" style="display:inline-block;margin-top:12px;margin-left:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Workspace</a>';
   html+='</div>';
   box.innerHTML=html;
   return false;
+}
+
+// Pick a choice — open its detail in place, close the others. The narrowing:
+// the right amount of information surfaces only for the choice intuition made.
+function nhPick(id){
+  var box=document.getElementById('drawResult'); if(!box) return;
+  box.querySelectorAll('.nh-cd').forEach(function(d){ d.style.display='none'; });
+  var el=document.getElementById(id); if(el) el.style.display='block';
 }
 
 // The four-gate walk, inline. (Same logic the Well always had.)
