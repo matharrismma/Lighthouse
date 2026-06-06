@@ -141,3 +141,31 @@ none needed to "make it easy to do business, with trust."
 - **M3:** feedback wired to listings; per-region moderators; expiry/fading.
 
 *Free. No cut. Trust is the only currency.*
+
+## Implemented (v1 — 2026-06-06)
+
+Built and verified end-to-end (floor gate, two-witness auto-publish, seller
+badges, operator/moderator queue):
+
+- **Backend:** `api/market.py` (router mounted in `app.py`). Endpoints under
+  `/market/*` exactly as specced. Floor-gated at submit via
+  `floor.stand_on_floor(text, domain="commerce", kind="listing")` — verified
+  that coercive language trips RED and is rejected.
+- **Store refinement:** a listing is NOT written into `data/cards/` after all —
+  it lives in its own `data/market/listings/` + `data/market/sellers/`, keeping
+  the card *shape and lifecycle* but staying entirely out of the knowledge
+  substrate / walks / retrieval. Cleaner and safer than `kind="listing"` in the
+  shared card pool; same conceptual model.
+- **Trust:** listing witness gate (≥2 independent vouches → auto-`active`,
+  self-vouch and duplicate-vouch blocked); seller badge
+  `new → known → trusted → vouched` (+ `caution` on upheld flags), assembled
+  from real signals, never a number.
+- **Frontend:** `site/marketplace.html` — a deck (All · Goods · Services ·
+  Local), search + region filter, listing detail with seller badge + vouches +
+  opt-in contact, a submit form, and seller profiles. Wired into the shell nav
+  ("Market") and the family-life footer.
+- **Free:** no billing, tiers, payments, or escrow anywhere. Trust is the only
+  currency.
+
+Deferred (per scope): uploads (URLs for now), per-region moderator UI,
+in-platform contact relay, SSR listing pages for crawlers.

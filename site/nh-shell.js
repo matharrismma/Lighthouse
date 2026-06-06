@@ -97,6 +97,7 @@ body.nh-radio-on{padding-bottom:62px;}
       <a href="/workspace.html" data-nh-key="desk">Workspace</a>
       <a href="/walks.html"     data-nh-key="discern">Discern</a>
       <a href="/family.html"    data-nh-key="family">Family</a>
+      <a href="/marketplace.html" data-nh-key="market">Market</a>
       <a href="/learn-deep.html" data-nh-key="learn">Learn</a>
       <a href="/tools.html"     data-nh-key="tools">Tools</a>
       <a href="/media-center.html" data-nh-key="watch">Media</a>
@@ -126,6 +127,7 @@ body.nh-radio-on{padding-bottom:62px;}
       <div class="nh-shell-col">
         <h4>Family life</h4>
         <a href="/family.html"><strong>The family desk</strong></a>
+        <a href="/marketplace.html">Marketplace &middot; buy &amp; sell</a>
         <a href="/apothecary.html">Apothecary &middot; remedies</a>
         <a href="/recipes.html">Heritage recipes</a>
         <a href="/maker.html">Maker &middot; projects</a>
@@ -207,6 +209,7 @@ body.nh-radio-on{padding-bottom:62px;}
   // Map URL path prefix → nav data-nh-key
   const SECTION_PATTERNS = [
     [/^\/(workspace|desk|deposit)\b/, "desk"],
+    [/^\/(marketplace|market)\b/, "market"],
     [/^\/(family|apothecary|recipes|maker|calendar|prayer|hearth|household|games|bible-trivia)\b/, "family"],
     [/^\/(learn|learn-deep|phonics|reading|writing|math|science|social_studies|bible_curriculum|workready|curriculum|encyclopedia|bibles|library|reading-room|fieldkit|atlas|places|chronicle)\b/, "learn"],
     [/^\/(codex|codex-deep|guidance|tradition|assembly|testimony|witnesses|refuge|canon|organic-design|works)\b/, "codex"],

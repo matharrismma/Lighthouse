@@ -245,6 +245,13 @@ try:
 except Exception as _e:
     logging.warning("Cards router not mounted: %s", _e)
 
+# Christian Marketplace v1 — free, no fee, no cut; trust is the only currency.
+try:
+    from api.market import get_router as _get_market_router
+    app.include_router(_get_market_router(), tags=["marketplace"])
+except Exception as _e:
+    logging.warning("Marketplace router not mounted: %s", _e)
+
 # Shepherd Interviewer (LOOP 12 — pre-flight before expensive walks)
 try:
     from api.shepherd import get_router as _get_shepherd_router
