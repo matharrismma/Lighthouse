@@ -7271,8 +7271,22 @@ def llms_txt():
 
 
 @app.get("/", include_in_schema=False)
-def root():
-    index = Path(__file__).parent.parent / "site" / "index.html"
+def root(request: Request):
+    site = Path(__file__).parent.parent / "site"
+    # Host-based front doors. Everything lives on .com; .tv and .org are
+    # simple branded entries into the same app:
+    #   narrowhighway.tv  -> the family channel door
+    #   narrowhighway.org -> the innovation / engine showcase
+    host = (request.headers.get("host") or "").lower().split(":")[0]
+    if host.endswith("narrowhighway.tv"):
+        door = site / "door-tv.html"
+        if door.exists():
+            return FileResponse(str(door))
+    elif host.endswith("narrowhighway.org"):
+        door = site / "door-org.html"
+        if door.exists():
+            return FileResponse(str(door))
+    index = site / "index.html"
     if index.exists():
         return FileResponse(str(index))
     return {

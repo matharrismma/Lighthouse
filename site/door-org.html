@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Narrow Highway — a coherent engine that needs less of the model the more it learns</title>
+  <meta name="description" content="A discernment engine whose dependence on the statistical model shrinks with use. It confirms only what closes from math against constants of truth — and shows its own edges. The innovation, in the open.">
+  <link rel="canonical" href="https://narrowhighway.org/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="Narrow Highway — the engine">
+  <meta property="og:description" content="A coherent engine whose dependence on the model shrinks with use. The opposite of the scaling paradigm.">
+  <meta property="og:url" content="https://narrowhighway.org/">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <link rel="icon" type="image/svg+xml" href="https://narrowhighway.com/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--paper:#faf6ec;--paper-2:#f1ead7;--rule:#d4c8a5;--rule-strong:#b9ac82;--ink:#1f1a14;--ink-2:#3a3328;--muted:#6b6253;--brass:#9b7c3c;--brass-hi:#c9a851;--oxblood:#7a3a32;--pass:#4f7a3a;--blue:#1a3a52;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:linear-gradient(180deg,#f3ecda 0%,#ece3c8 100%);color:var(--ink);font-family:'Crimson Pro',Georgia,serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:880px;margin:0 auto;padding:46px 22px 30px;flex:1;width:100%;}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--blue);text-align:center;}
+    h1{font-size:34px;font-weight:600;line-height:1.14;margin:12px auto 12px;text-align:center;max-width:20ch;}
+    @media(max-width:560px){h1{font-size:27px;}}
+    .lede{text-align:center;color:var(--ink-2);font-size:18px;max-width:60ch;margin:0 auto 4px;}
+    .lede em{font-style:italic;color:var(--blue);}
+    /* live scoreboard strip */
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:30px 0 26px;}
+    @media(max-width:560px){.board{grid-template-columns:1fr;}}
+    .stat{background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;padding:16px 18px;text-align:center;}
+    .stat .v{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--brass);line-height:1;}
+    .stat.good .v{color:var(--pass);}
+    .stat .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:7px;}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .wide{grid-column:1 / -1;}
+    @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+    .tile{display:block;background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--blue);border-radius:0 8px 8px 0;padding:18px 20px;box-shadow:0 2px 10px rgba(43,24,16,.06);transition:transform .08s,box-shadow .08s;}
+    .tile:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(43,24,16,.12);}
+    .tile.brass{border-left-color:var(--brass);}
+    .tile .t{font-size:21px;font-weight:600;margin-bottom:3px;}
+    .tile .d{color:var(--muted);font-size:14.5px;}
+    footer{text-align:center;padding:24px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;}
+    footer a{color:var(--oxblood);text-decoration:underline;text-decoration-color:rgba(122,58,50,.35);}
+    footer a:hover{color:var(--brass);}
+    .sep{opacity:.5;margin:0 8px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Narrow Highway · the engine</div>
+    <h1>A coherent engine that needs <em>less</em> of the model the more it learns.</h1>
+    <p class="lede">It confirms only what closes from math against constants of truth — and publishes its own edges. Every question it can't answer becomes a fixed rule, so its dependence on the statistical model falls over time. <em>The opposite of the scaling paradigm.</em></p>
+
+    <div class="board" id="board">
+      <div class="stat"><div class="v" id="odr">—</div><div class="l">Oracle dependence</div></div>
+      <div class="stat good"><div class="v" id="closed">—</div><div class="l">Gaps closed</div></div>
+      <div class="stat"><div class="v" id="rules">—</div><div class="l">Deterministic rules</div></div>
+    </div>
+
+    <div class="grid">
+      <a class="tile brass wide" href="https://narrowhighway.com/innovation.html">
+        <div class="t">The scoreboard &rarr;</div>
+        <div class="d">Watch the oracle-dependence ratio fall in real time — the measurable proof of a different kind of computing.</div>
+      </a>
+      <a class="tile" href="https://narrowhighway.com/gaps.html">
+        <div class="t">What it can &amp; can't verify &rarr;</div>
+        <div class="d">The closed gaps — and what it deliberately declines, because testimony isn't math.</div>
+      </a>
+      <a class="tile" href="https://narrowhighway.com/walks.html">
+        <div class="t">Weigh a teaching &rarr;</div>
+        <div class="d">The four gates — RED · FLOOR · BROTHERS · GOD — on Scripture, witnessed by the Didache.</div>
+      </a>
+      <a class="tile" href="https://narrowhighway.com/codex.html">
+        <div class="t">The Codex &rarr;</div>
+        <div class="d">The substrate, bound as a manuscript — the body the engine reads from.</div>
+      </a>
+      <a class="tile" href="https://narrowhighway.com/how-it-works.html">
+        <div class="t">How it works &rarr;</div>
+        <div class="d">The floor, the gates, the verifiers, the elimination trail — conduit, not source.</div>
+      </a>
+    </div>
+  </div>
+  <footer>
+    For the whole family &middot; <a href="https://narrowhighway.tv/">narrowhighway.tv</a>
+    <span class="sep">·</span>
+    <a href="https://narrowhighway.com/">narrowhighway.com</a>
+    <span class="sep">·</span>
+    Serves Jesus Christ.
+  </footer>
+
+  <script>
+  (function(){
+    function pct(x){ return (x==null) ? '—' : (Math.round(x*1000)/10)+'%'; }
+    fetch('/innovation?days=30').then(function(r){return r.json();}).then(function(d){
+      d = d || {};
+      var odr = d.oracle_dependence_ratio;
+      document.getElementById('odr').textContent = pct(odr);
+      var gaps = d.gaps || {};
+      if (gaps.closed != null) document.getElementById('closed').textContent = gaps.closed;
+      if (d.runtime_rules != null) document.getElementById('rules').textContent = d.runtime_rules;
+    }).catch(function(){ /* scoreboard fills once the engine is serving this host */ });
+  })();
+  </script>
+</body>
+</html>
