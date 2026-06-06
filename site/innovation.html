@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Scoreboard · Narrow Highway</title>
+  <meta name="description" content="The oracle-dependence ratio: how much of the engine runs with zero calls to a statistical model. A different kind of computing — dependence on the model shrinks with use.">
+  <link rel="canonical" href="https://narrowhighway.com/innovation.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Scoreboard · Narrow Highway">
+  <meta property="og:description" content="A knowledge engine whose dependence on the statistical model shrinks with use. Watch the number fall.">
+  <meta property="og:url" content="https://narrowhighway.com/innovation.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+
+  <style>
+    :root{--paper:#faf6ec;--paper-2:#f1ead7;--rule:#d4c8a5;--rule-strong:#b9ac82;--ink:#1f1a14;--ink-2:#3a3328;--muted:#6b6253;--brass:#9b7c3c;--brass-hi:#c9a851;--oxblood:#7a3a32;--pass:#4f7a3a;--blue:#1a3a52;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:radial-gradient(ellipse at top,rgba(255,255,255,.4),transparent 60%),linear-gradient(180deg,#f5efdc 0%,#f0e8d0 100%);color:var(--ink);font-family:'Crimson Pro',Georgia,serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+    a{color:var(--oxblood);text-decoration:underline;text-decoration-color:rgba(122,58,50,.4);text-underline-offset:2px;}
+    a:hover{color:var(--brass);}
+    .mono{font-family:'JetBrains Mono',monospace;}
+    .wrap{max-width:960px;margin:0 auto;padding:22px 22px 70px;}
+    .hero{background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--brass);border-radius:0 5px 5px 0;padding:24px 26px;margin-bottom:16px;box-shadow:0 6px 18px rgba(43,24,16,.06);}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);}
+    .hero h1{font-size:30px;font-weight:600;line-height:1.1;margin:6px 0 6px;}
+    .hero p{color:var(--ink-2);max-width:64ch;}
+    .big{background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;padding:26px;margin-bottom:14px;text-align:center;box-shadow:0 2px 8px rgba(43,24,16,.05);}
+    .big .num{font-family:'JetBrains Mono',monospace;font-size:64px;font-weight:600;color:var(--brass);line-height:1;}
+    .big .cap{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:8px;}
+    .big .sub{font-style:italic;color:var(--muted);margin-top:6px;font-size:14px;}
+    .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+    @media(max-width:620px){.tiles{grid-template-columns:1fr;}}
+    .tile{background:var(--paper);border:1px solid var(--rule-strong);border-radius:6px;padding:16px 18px;}
+    .tile .lbl{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .tile .val{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:600;color:var(--ink);margin-top:6px;}
+    .tile.good .val{color:var(--pass);}
+    .panel{background:var(--paper);border:1px solid var(--rule-strong);border-radius:6px;padding:18px 22px;margin-bottom:14px;}
+    .panel h2{font-size:13px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:12px;}
+    .bar-row{display:grid;grid-template-columns:84px 1fr 54px;gap:10px;align-items:center;margin:5px 0;font-family:'JetBrains Mono',monospace;font-size:11px;}
+    .bar{height:14px;background:var(--paper-2);border-radius:3px;overflow:hidden;border:1px solid var(--rule);}
+    .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--brass-hi));}
+    .bar.det>span{background:linear-gradient(90deg,#4f7a3a,#6fa050);}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;}
+    th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule);}
+    th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+    td.n{font-family:'JetBrains Mono',monospace;text-align:right;}
+    .foot{font-size:13.5px;color:var(--muted-2,#7a7060);font-style:italic;max-width:62ch;line-height:1.65;margin-top:8px;}
+    .empty{color:var(--muted);font-style:italic;}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app"><div class="hero"><div class="eyebrow">Innovation · the scoreboard</div><h1>Loading…</h1></div></div>
+
+<script>
+(function(){
+  "use strict";
+  var app=document.getElementById('app');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function pct(x){return x==null?'—':(Math.round(x*1000)/10)+'%';}
+
+  fetch('/innovation?days=30').then(function(r){return r.json();}).then(render).catch(function(){
+    app.innerHTML='<div class="hero"><div class="eyebrow">Innovation · the scoreboard</div><h1>The scoreboard.</h1><p class="empty">Could not load the figures right now.</p></div>';
+  });
+
+  function render(d){
+    d=d||{};
+    var odr=d.oracle_dependence_ratio, det=d.deterministic_ratio, disp=d.dispatch||{};
+    var gaps=d.gaps||{};
+    var byDay=disp.by_day||{};
+    var days=Object.keys(byDay).sort();
+    var dayRows=days.map(function(k){
+      var v=byDay[k]||{}; var t=v.total||0; var o=t?(v.oracle/t):0;
+      return '<div class="bar-row"><span>'+esc(k)+'</span><div class="bar"><span style="width:'+(o*100).toFixed(0)+'%"></span></div><span>'+pct(o)+'</span></div>';
+    }).join('') || '<div class="empty mono" style="font-size:12px;">No dispatches recorded yet — the scoreboard fills as the engine answers questions.</div>';
+
+    var dom=disp.by_domain||{};
+    var domKeys=Object.keys(dom).sort(function(a,b){return (dom[b].total||0)-(dom[a].total||0);}).slice(0,14);
+    var domRows=domKeys.map(function(k){
+      var v=dom[k]; var t=v.total||0; var dr=t?(v.deterministic/t):0;
+      return '<tr><td>'+esc(k)+'</td><td class="n">'+t+'</td><td class="n">'+pct(dr)+'</td></tr>';
+    }).join('') || '<tr><td colspan="3" class="empty">—</td></tr>';
+
+    app.innerHTML=''
+      + '<div class="hero"><div class="eyebrow">Innovation · the scoreboard</div>'
+      +   '<h1>The mouth is shrinking.</h1>'
+      +   '<p>'+esc(d.thesis||'The engine\'s dependence on the statistical model shrinks with use.')
+      +   ' Every claim the engine couldn\'t answer becomes a deterministic verifier and a routing rule — so the share that still needs the model falls over time. This is that number, in the open.</p></div>'
+      + '<div class="big"><div class="num">'+pct(odr)+'</div>'
+      +   '<div class="cap">Oracle-dependence ratio</div>'
+      +   '<div class="sub">share of dispatches that still need the model — lower is better, the target is zero</div></div>'
+      + '<div class="tiles">'
+      +   '<div class="tile good"><div class="lbl">Served deterministically</div><div class="val">'+pct(det)+'</div></div>'
+      +   '<div class="tile"><div class="lbl">Routing rules</div><div class="val">'+(d.runtime_rules!=null?d.runtime_rules:'—')+'</div></div>'
+      +   '<div class="tile good"><div class="lbl">Gaps closed</div><div class="val">'+(gaps.closed!=null?gaps.closed:'—')+'</div></div>'
+      + '</div>'
+      + '<div class="panel"><h2>Oracle dependence by day</h2>'+dayRows+'</div>'
+      + '<div class="panel"><h2>By domain — % served without the model</h2>'
+      +   '<table><thead><tr><th>Domain</th><th class="n">Dispatches</th><th class="n">Deterministic</th></tr></thead><tbody>'+domRows+'</tbody></table></div>'
+      + '<p class="foot">'+esc(d.note||'')+' This is the same loop that closes the '
+      +   '<a href="/gaps.html">gaps</a>: widen the floor, and the borrowed mouth shrinks. '
+      +   'A knowledge engine that needs <em>less</em> compute the more it learns is the inverse of the scaling paradigm — and the whole point.</p>';
+  }
+})();
+</script>
+</body>
+</html>

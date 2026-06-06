@@ -3450,6 +3450,59 @@ def build_queue_list():
     }
 
 
+@app.get("/innovation", tags=["public"])
+def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
+    """The oracle-dependence scoreboard — the measurable claim of a different
+    kind of computing: the engine's dependence on the statistical model SHRINKS
+    with use. Every closed build-queue gap adds deterministic verifiers + an
+    NL->domain routing rule, so the oracle-dependence ratio (oracle-classified
+    / total verifier dispatches) should fall over time, while deterministic
+    dispatches and runtime rules rise. Public, read-only.
+    """
+    try:
+        from concordance_engine.agent import dispatch_stats as _ds
+        dispatch = _ds.summary(days=days)
+    except Exception as e:  # pragma: no cover
+        dispatch = {"error": str(e)[:200]}
+
+    rules = 0
+    try:
+        from concordance_engine.agent.runtime_rules import list_runtime_rules
+        rules = len(list_runtime_rules())
+    except Exception:
+        pass
+
+    gaps = {"open": 0, "closed": 0, "declined": 0}
+    try:
+        if _BUILD_QUEUE_FILE.exists():
+            for line in _BUILD_QUEUE_FILE.read_text("utf-8", errors="replace").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                try:
+                    s = (json.loads(line).get("status") or "open").lower()
+                except json.JSONDecodeError:
+                    continue
+                if s in gaps:
+                    gaps[s] += 1
+    except OSError:
+        pass
+
+    odr = dispatch.get("oracle_dependence_ratio") if isinstance(dispatch, dict) else None
+    return {
+        "thesis": "The engine's dependence on the statistical model shrinks with use.",
+        "oracle_dependence_ratio": odr,
+        "deterministic_ratio": (dispatch.get("deterministic_ratio")
+                                if isinstance(dispatch, dict) else None),
+        "runtime_rules": rules,
+        "gaps": gaps,
+        "dispatch": dispatch,
+        "note": ("Counts per verifier-dispatch (one per claim that reaches a "
+                 "verifier), not per raw oracle call. A falling oracle ratio = "
+                 "the floor widening, the borrowed mouth shrinking."),
+    }
+
+
 # -- Misalignment review -------------------------------------------------
 # Every non-CONCORDANT verdict from /polymathic is auto-logged. The
 # operator reviews each one and routes it: archive (user wrong), promote

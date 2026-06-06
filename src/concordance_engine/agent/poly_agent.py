@@ -565,6 +565,14 @@ def _run_cluster(
         fn = all_tools.get(f"verify_{domain}")
         if fn is None:
             continue
+        # Oracle-dependence scoreboard: record whether this dispatch was
+        # routed deterministically (a runtime rule matched — no oracle call)
+        # or oracle-classified. Best-effort; must never break dispatch.
+        try:
+            from . import dispatch_stats as _dstats
+            _dstats.record(domain, entry.get("_dispatch_origin", "oracle"))
+        except Exception:
+            pass
         try:
             # Route by first-parameter name:
             #   spec-named → fn(spec)         (labor, economics, music_theory …)
@@ -707,7 +715,9 @@ def run_polymathic(
         # Run recovered claims through the verifiers and add to results
         if keeper_manifest.recovered:
             recovered_specs = [
-                {"domain": r.domain, "spec": r.spec, "_source_claim": r.claim}
+                # matched a runtime rule in the keeper pass — no oracle call
+                {"domain": r.domain, "spec": r.spec, "_source_claim": r.claim,
+                 "_dispatch_origin": "rule"}
                 for r in keeper_manifest.recovered
             ]
             recovered_results = _run_cluster(recovered_specs, ALL_TOOLS)
