@@ -454,6 +454,97 @@ body.nh-radio-on{padding-bottom:62px;}
 
   window.nhFeedback = { attach: nhFeedbackAttach };
 
+  // ── nhFloor — the one airlock renderer, shared by every room ─────
+  // Every scoped airlock (workspace, family, learn, codex, take-part) used
+  // to carry its own copy of result-rendering, and they drifted apart. This
+  // is the single renderer: post to /floor/stand, show the standing cleanly.
+  // Palette-neutral inline styles (brass + translucency + inherited text) so
+  // it reads on both the cream desks and the dark front door. Branches:
+  //   rejected  → the floor refused it
+  //   navigate  → a room to open (no gate noise on "play chess")
+  //   discern   → a claim → walk the four gates
+  //   judgment  → apothecary/scripture/reckon: the standing + choices
+  const _FL = {
+    card: "text-align:left;background:rgba(155,124,60,.06);border:1px solid rgba(155,124,60,.28);border-left:3px solid #9b7c3c;border-radius:0 8px 8px 0;padding:13px 16px;margin-top:10px;font-family:'Crimson Pro',Georgia,serif;",
+    hd:   "font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9b7c3c;margin-bottom:5px;",
+    why:  "font-style:italic;opacity:.85;font-size:14px;line-height:1.5;",
+    mono: "font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;margin-top:7px;",
+    go:   "display:inline-block;margin-top:11px;padding:7px 15px;background:#9b7c3c;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;",
+    chip: "cursor:pointer;background:rgba(155,124,60,.08);border:1px solid rgba(155,124,60,.32);color:inherit;font-family:'Crimson Pro',Georgia,serif;font-size:13.5px;padding:6px 13px;border-radius:7px;",
+    cd:   "margin-top:8px;padding:9px 13px;background:rgba(155,124,60,.07);border-left:2px solid #c9a851;border-radius:0 7px 7px 0;",
+  };
+
+  async function nhFloorStand(text, box) {
+    if (!box) return;
+    text = (text || "").trim();
+    if (!text) return;
+    box.classList.add("show");
+    box.innerHTML = '<div style="font-style:italic;opacity:.6;padding:8px 0;">Weighing it on the floor…</div>';
+    let s = null;
+    try {
+      const r = await fetch("/floor/stand", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      s = await r.json();
+    } catch (e) {}
+    const E = escHtml;
+    if (!s || !s.gates) {
+      box.innerHTML = '<div style="' + _FL.card + '"><span style="' + _FL.why + '">The engine is quiet — open a room below directly.</span></div>';
+      return;
+    }
+    if (s.gates.admitted === false) {
+      const w = (s.gates.verdicts && s.gates.verdicts[0]) || {};
+      box.innerHTML = '<div style="' + _FL.card + 'border-left-color:#c96c6c;"><div style="' + _FL.hd + 'color:#c96c6c;">Did not pass the floor</div><div style="' + _FL.why + '">' + E(w.why || "a gate rejected it") + '</div></div>';
+      return;
+    }
+    const lens = s.lens || {}, route = s.route || {}, nc = s.nested_control || null, ver = s.verifier || {};
+    if (lens.name === "navigate") {
+      box.innerHTML = '<div style="' + _FL.card + '"><div style="' + _FL.why + '">' + E(route.why || "opening the room") + '</div>' +
+        (route.url ? '<a style="' + _FL.go + '" href="' + E(route.url) + '">Open &rarr;</a>' : '') + '</div>';
+      return;
+    }
+    if (lens.name === "discern") {
+      box.innerHTML = '<div style="' + _FL.card + '"><div style="' + _FL.why + '">a claim to weigh against the floor</div>' +
+        '<a style="' + _FL.go + '" href="/walks.html?q=' + encodeURIComponent(text) + '">Walk the four gates &rarr;</a></div>';
+      return;
+    }
+    // judgment lens — apothecary / scripture / reckon
+    let h = '<div style="' + _FL.card + '"><div style="' + _FL.hd + '">Stood on the floor &middot; ' + E(lens.label || "weighed") + '</div>';
+    h += '<div style="' + _FL.why + '">' + E(route.why || lens.frame || "") + '</div>';
+    h += '<div style="' + _FL.mono + 'color:#4f7a3a;">RED ✓ &nbsp; FLOOR ✓ &nbsp;<span style="opacity:.6;">&middot; BROTHERS / GOD pending</span></div>';
+    if (ver.applies) h += '<div style="' + _FL.mono + 'opacity:.6;">wall &middot; ' + E(ver.applies) + '</div>';
+    if (nc && nc.primary_layer) {
+      h += '<div style="color:#a8791f;font-size:13px;margin-top:9px;">Control layer &middot; ' + E(nc.primary_layer) + '</div>';
+      if (nc.referral_note) h += '<div style="font-style:italic;opacity:.7;font-size:11.5px;margin-top:3px;">' + E(nc.referral_note) + '</div>';
+    }
+    if (s.choices && s.choices.options && s.choices.options.length) {
+      h += '<div style="' + _FL.mono + 'opacity:.7;text-transform:uppercase;letter-spacing:.14em;">' + E(s.choices.prompt || "Narrow it") + '</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;">';
+      s.choices.options.forEach((o, i) =>
+        h += '<button type="button" style="' + _FL.chip + '" onclick="nhFloor.pick(this,\'nhflc' + i + '\')">' + E(o.label || "") + '</button>');
+      h += '</div>';
+      s.choices.options.forEach((o, i) => {
+        h += '<div id="nhflc' + i + '" class="nh-fl-cd" style="display:none;' + _FL.cd + '">';
+        if (o.why) h += '<div style="font-style:italic;opacity:.7;font-size:12px;margin-bottom:6px;">often shows as: ' + E(o.why) + '</div>';
+        (o.detail || []).forEach(d => h += '<div style="font-size:13px;line-height:1.5;opacity:.9;">&middot; ' + E(d) + '</div>');
+        h += '</div>';
+      });
+    }
+    if (route.url) h += '<a style="' + _FL.go + '" href="' + E(route.url) + '">Open ' + E(lens.label || "the room") + ' &rarr;</a>';
+    h += '</div>';
+    box.innerHTML = h;
+  }
+
+  function nhFloorPick(btn, id) {
+    const card = (btn && btn.closest && btn.closest("div")) || document;
+    card.querySelectorAll(".nh-fl-cd").forEach((d) => (d.style.display = "none"));
+    const el = document.getElementById(id);
+    if (el) el.style.display = "block";
+  }
+
+  window.nhFloor = { stand: nhFloorStand, pick: nhFloorPick };
+
   // ── Footer status line: engine state + numeric trust row ────────
   // Shows what's actually running, not marketing — engine ok/down, packet
   // count, verifier count, gates, and freshness of the last snapshot. All

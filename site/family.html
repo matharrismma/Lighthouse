@@ -369,34 +369,12 @@ const $ = id => document.getElementById(id);
 })();
 
 // ── The family airlock ────────────────────────────────────────
-async function fAirSubmit(ev) {
+function fAirSubmit(ev) {
   ev.preventDefault();
   const txt = ($('fAirIn').value || '').trim();
   if (!txt) return false;
-  const send = $('fAirSend');
-  send.disabled = true; send.textContent = '…';
-  const routeBox = $('fRouting');
-  routeBox.classList.remove('show');
-  try {
-    const r = await fetch('/airlock/classify', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({text: txt}),
-    });
-    if (!r.ok) throw new Error('classify failed');
-    const j = await r.json();
-    routeBox.innerHTML =
-      '<div class="hd">The shepherd suggests</div>' +
-      '<div class="name">' + esc(j.destination_label || j.route || '—') + '</div>' +
-      '<div class="why"><em>' + esc(j.why || '') + '</em> &middot; confidence ' + Number(j.confidence || 0).toFixed(2) + '</div>' +
-      (j.url ? '<a class="go" href="' + esc(j.url) + '">Open ' + esc(j.destination_label || 'destination') + ' &rarr;</a>' : '');
-    routeBox.classList.add('show');
-  } catch (e) {
-    routeBox.innerHTML = '<div class="hd">The airlock is quiet</div><div class="why">Try opening a room below directly.</div>';
-    routeBox.classList.add('show');
-  } finally {
-    send.disabled = false; send.textContent = 'Send →';
-  }
+  // One renderer, shared by every room (window.nhFloor → /floor/stand).
+  if (window.nhFloor) window.nhFloor.stand(txt, $('fRouting'));
   return false;
 }
 

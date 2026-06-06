@@ -502,37 +502,12 @@ const $ = id => document.getElementById(id);
 })();
 
 // ── Airlock (Desk 1) ─────────────────────────────────────────
-async function alSubmit(ev) {
+function alSubmit(ev) {
   ev.preventDefault();
   const txt = ($('alIn').value || '').trim();
   if (!txt) return false;
-  const box = $('alResult'); box.classList.remove('show');
-  try {
-    // One engine: stand it on the whole floor, show the standing.
-    const r = await fetch('/floor/stand', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({text: txt}),
-    });
-    const s = await r.json();
-    if (s && s.gates && s.gates.admitted === false) {
-      const w = (s.gates.verdicts && s.gates.verdicts[0]) || {};
-      box.innerHTML = '<div class="what" style="color:#c96c6c;">Did not pass the floor — ' + esc(w.why || 'a gate rejected it') + '</div>';
-      box.classList.add('show'); return false;
-    }
-    const lens = (s && s.lens) || {}, route = (s && s.route) || {}, nc = (s && s.nested_control) || null, ver = (s && s.verifier) || {};
-    let html = '<div class="what">' + esc(route.why || lens.frame || 'weighed on the floor') + '</div>';
-    html += '<div class="where">' + esc(lens.label || route.to || 'Discern') +
-            ' <span style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:var(--pass);letter-spacing:.06em;">RED ✓ FLOOR ✓</span></div>';
-    if (ver.applies) html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:var(--ink-2);">wall · ' + esc(ver.applies) + '</div>';
-    if (nc && nc.primary_layer) html += '<div style="font-size:12.5px;color:var(--oxblood);margin-top:3px;">control layer · ' + esc(nc.primary_layer) + '</div>';
-    if (route.url) html += '<a class="go" href="' + esc(route.url) + '">Open ' + esc(lens.label || '') + ' →</a>';
-    box.innerHTML = html;
-    box.classList.add('show');
-  } catch (e) {
-    box.innerHTML = '<div class="what">The airlock is quiet — try one of the desks below.</div>';
-    box.classList.add('show');
-  }
+  // One renderer, shared by every room (api/floor via window.nhFloor).
+  if (window.nhFloor) window.nhFloor.stand(txt, $('alResult'));
   return false;
 }
 $('alIn').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('alForm').requestSubmit(); });
