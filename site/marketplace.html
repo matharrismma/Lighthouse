@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marketplace · Narrow Highway</title>
-  <meta name="description" content="A Christian marketplace — list a good or a service, find one near you, and see the seller vouched before you reach out. Free. No fee, no cut. Trust is the only currency.">
+  <meta name="description" content="A Christian marketplace, organized by ZIP code — find goods and services near you, switch ZIPs easily, with area- and country-code fallbacks. Free. No fee, no cut. Trust is the only currency.">
   <link rel="canonical" href="https://narrowhighway.com/marketplace.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Narrow Highway">
   <meta property="og:title" content="Marketplace · Narrow Highway">
-  <meta property="og:description" content="Do business with brothers and sisters. Free — no fee, no cut. Trust is the only currency.">
+  <meta property="og:description" content="Do business with brothers and sisters, near you. By ZIP code. Free — no fee, no cut. Trust is the only currency.">
   <meta property="og:url" content="https://narrowhighway.com/marketplace.html">
   <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
 
@@ -37,24 +37,36 @@
     .mono{font-family:'JetBrains Mono',monospace;}
     .wrap{max-width:1100px;margin:0 auto;padding:22px 22px 70px;}
 
-    /* hero */
-    .hero{background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--brass);border-radius:0 5px 5px 0;padding:24px 26px;margin-bottom:16px;box-shadow:0 6px 18px rgba(43,24,16,.06);}
+    .hero{background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--brass);border-radius:0 5px 5px 0;padding:24px 26px;margin-bottom:14px;box-shadow:0 6px 18px rgba(43,24,16,.06);}
     .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);}
     .hero h1{font-size:30px;font-weight:600;line-height:1.1;margin:6px 0 6px;}
     .hero p{color:var(--ink-2);max-width:60ch;}
     .hero .free{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--pass);margin-top:8px;}
 
-    /* controls */
-    .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;}
+    /* location bar — the spine of the deck */
+    .locbar{background:var(--paper);border:1px solid var(--rule-strong);border-radius:6px;padding:12px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;box-shadow:0 2px 8px rgba(43,24,16,.05);}
+    .loclabel{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:600;}
+    .zipin{font-family:'JetBrains Mono',monospace;font-size:15px;letter-spacing:.08em;width:120px;padding:8px 11px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;text-transform:uppercase;}
+    .ctryin{font-family:'JetBrains Mono',monospace;font-size:14px;width:58px;text-transform:uppercase;text-align:center;padding:8px 6px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;}
+    .scopes{display:flex;gap:3px;flex-wrap:wrap;}
+    .scope{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:7px 11px;border:1px solid var(--rule-strong);background:#fff;color:var(--ink-2);border-radius:5px;cursor:pointer;}
+    .scope.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
+    .jumpsel{font-family:'JetBrains Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;color:var(--ink-2);max-width:200px;}
+    .recents{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px;align-items:center;}
+    .recents .lab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .zchip{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;padding:4px 10px;border:1px solid var(--rule);border-radius:20px;background:var(--paper);color:var(--ink-2);cursor:pointer;}
+    .zchip:hover{border-color:var(--brass);color:var(--brass);}
+
+    .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;}
     .tabs{display:flex;gap:4px;flex-wrap:wrap;}
     .tab{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:7px 13px;border:1px solid var(--rule-strong);background:var(--paper);color:var(--ink-2);border-radius:5px;cursor:pointer;}
     .tab.on{background:var(--brass);border-color:var(--brass);color:#1a1810;font-weight:600;}
-    .bar input[type=text]{flex:1;min-width:160px;font-family:'Crimson Pro',serif;font-size:15px;padding:8px 12px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;}
+    .bar input[type=text]{flex:1;min-width:150px;font-family:'Crimson Pro',serif;font-size:15px;padding:8px 12px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;}
     .btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:9px 16px;border-radius:6px;border:none;cursor:pointer;background:var(--brass);color:#1a1810;text-decoration:none;display:inline-block;}
     .btn.ghost{background:transparent;border:1px solid var(--rule-strong);color:var(--ink-2);font-weight:600;}
     .btn:hover{background:var(--brass-hi);}
+    .showing{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--muted);margin:-2px 0 10px;}
 
-    /* grid */
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
     .card{background:var(--paper);border:1px solid var(--rule-strong);border-radius:6px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(43,24,16,.05);transition:transform .08s,box-shadow .08s;}
     .card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(43,24,16,.10);}
@@ -62,10 +74,10 @@
     .card .pad{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1;}
     .card .t{font-size:17px;font-weight:600;line-height:1.2;}
     .card .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;}
+    .card .zip{color:var(--blue);font-weight:600;}
     .price{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink);}
     .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;}
 
-    /* trust badge */
     .badge{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:20px;border:1px solid;white-space:nowrap;}
     .badge.new{color:var(--muted);border-color:var(--rule-strong);background:#fff;}
     .badge.known{color:var(--blue);border-color:var(--blue);background:rgba(26,58,82,.06);}
@@ -73,7 +85,6 @@
     .badge.vouched{color:#7a5a16;border-color:var(--brass);background:rgba(201,168,81,.16);}
     .badge.caution{color:var(--oxblood);border-color:var(--oxblood);background:rgba(122,58,50,.07);}
 
-    /* panel (detail / submit / seller) */
     .panel{background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--brass);border-radius:0 5px 5px 0;padding:22px 26px;box-shadow:0 6px 18px rgba(43,24,16,.06);}
     .panel h2{font-size:24px;font-weight:600;margin-bottom:4px;}
     .panel .sub{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;margin-bottom:14px;}
@@ -87,6 +98,7 @@
     .field input,.field textarea,.field select{width:100%;font-family:'Crimson Pro',serif;font-size:16px;padding:9px 12px;border:1px solid var(--rule-strong);border-radius:5px;background:#fff;}
     .field textarea{min-height:90px;resize:vertical;}
     .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
     .hint{font-size:13px;color:var(--muted);font-style:italic;margin-top:3px;}
     .note{font-family:'JetBrains Mono',monospace;font-size:12px;padding:11px 14px;border-radius:6px;margin:12px 0;line-height:1.5;}
     .note.ok{background:rgba(79,122,58,.10);border:1px solid var(--pass);color:#345224;}
@@ -95,11 +107,17 @@
     .empty{text-align:center;color:var(--muted);padding:50px 20px;font-style:italic;}
     .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
     .trustline{font-size:13px;color:var(--muted);font-style:italic;margin-top:10px;}
-    @media(max-width:560px){.two{grid-template-columns:1fr;}.hero h1{font-size:25px;}}
+    @media(max-width:560px){.two,.three{grid-template-columns:1fr;}.hero h1{font-size:25px;}}
   </style>
 </head>
 <body>
   <div class="wrap" id="app"><div class="empty">Loading the marketplace…</div></div>
+
+  <datalist id="ctrylist">
+    <option value="US"><option value="CA"><option value="MX"><option value="GB"><option value="IE">
+    <option value="AU"><option value="NZ"><option value="ZA"><option value="IN"><option value="PH">
+    <option value="NG"><option value="KE"><option value="BR"><option value="DE"><option value="FR">
+  </datalist>
 
 <script>
 (function(){
@@ -108,7 +126,6 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function $(id){return document.getElementById(id);}
 
-  // Stable per-visitor id (household if present, else a local one). Not PII.
   function myId(){
     try{ if(window.NHHousehold && NHHousehold.id) { var h=NHHousehold.id(); if(h) return h; } }catch(e){}
     var k='nh_market_id', v=localStorage.getItem(k);
@@ -116,6 +133,26 @@
     return v;
   }
   function myName(){ return localStorage.getItem('nh_market_name') || ''; }
+
+  // ── location state (persisted; the spine of the deck) ─────────────────────
+  function normZip(s){ return String(s||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,10); }
+  function normCtry(s){ return (String(s||'').replace(/[^A-Za-z]/g,'').toUpperCase().slice(0,2))||'US'; }
+  function getLoc(){
+    var zip = normZip(localStorage.getItem('nh_market_zip')||'');
+    var country = normCtry(localStorage.getItem('nh_market_country')||'US');
+    var scope = localStorage.getItem('nh_market_scope') || (zip?'exact':'all');
+    return {zip:zip, country:country, scope:scope};
+  }
+  function setLoc(p){
+    var l = getLoc();
+    if(p.zip!==undefined) localStorage.setItem('nh_market_zip', normZip(p.zip));
+    if(p.country!==undefined) localStorage.setItem('nh_market_country', normCtry(p.country));
+    if(p.scope!==undefined) localStorage.setItem('nh_market_scope', p.scope);
+    if(p.zip) addRecent(normZip(p.zip));
+    return getLoc();
+  }
+  function recents(){ try{ return JSON.parse(localStorage.getItem('nh_market_recent')||'[]'); }catch(e){ return []; } }
+  function addRecent(z){ if(!z) return; var r=recents().filter(function(x){return x!==z;}); r.unshift(z); localStorage.setItem('nh_market_recent', JSON.stringify(r.slice(0,6))); }
 
   function jget(u){ return fetch(u).then(function(r){ return r.json(); }); }
   function jpost(u,b){ return fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(function(r){ return r.json().then(function(j){ return {ok:r.ok,status:r.status,body:j}; }); }); }
@@ -130,71 +167,121 @@
   function badge(b){ b=b||'new'; return '<span class="badge '+esc(b)+'" title="'+esc(BADGE_TIP[b]||'')+'">'+esc(b)+'</span>'; }
   function priceStr(l){ if(l.price==null) return 'Contact for price'; var u=(l.price_unit&&l.price_unit!=='flat')?('/'+l.price_unit):''; return '$'+l.price+u; }
 
-  // ── router ──────────────────────────────────────────────────────────────
   function go(params){ history.pushState({}, '', 'marketplace.html'+(params?('?'+params):'')); route(); }
   function route(){
     var p = new URLSearchParams(location.search);
     if(p.get('new')!=null) return renderSubmit();
     if(p.get('id')) return renderDetail(p.get('id'));
     if(p.get('seller')) return renderSeller(p.get('seller'));
-    return renderBrowse({category:p.get('category')||'', q:p.get('q')||'', region:p.get('region')||''});
+    return renderBrowse({category:p.get('category')||'', q:p.get('q')||''});
   }
   window.addEventListener('popstate', route);
 
-  // ── browse ──────────────────────────────────────────────────────────────
+  // ── browse ────────────────────────────────────────────────────────────────
   function renderBrowse(f){
     f = f||{};
+    var loc = getLoc();
     var cats=['','goods','services','local'], labels={'':'All','goods':'Goods','services':'Services','local':'Local'};
+    var scopes=[['exact','This ZIP'],['nearby','Nearby'],['country','Country'],['all','Everywhere']];
     var h = ''
       + '<div class="hero">'
-      +   '<div class="eyebrow">Marketplace</div>'
-      +   '<h1>Do business with brothers and sisters.</h1>'
-      +   '<p>List a good or a service. Find one near you. See the seller vouched before you ever reach out — then the two of you deal directly.</p>'
+      +   '<div class="eyebrow">Marketplace · by ZIP code</div>'
+      +   '<h1>Do business with neighbors.</h1>'
+      +   '<p>Everything is organized by ZIP code. Set yours, switch to any other in a tap, and see each seller vouched before you reach out — then the two of you deal directly.</p>'
       +   '<div class="free">Free · no fee · no cut of any trade · trust is the only currency</div>'
       + '</div>'
+      // location bar
+      + '<div class="locbar">'
+      +   '<span class="loclabel">📍 ZIP</span>'
+      +   '<input id="zip" class="zipin" placeholder="ZIP / postal" maxlength="10" value="'+esc(loc.zip)+'">'
+      +   '<input id="country" class="ctryin" list="ctrylist" maxlength="2" placeholder="US" value="'+esc(loc.country)+'" title="Country code">'
+      +   '<div class="scopes">'+scopes.map(function(s){return '<button class="scope'+(loc.scope===s[0]?' on':'')+'" data-scope="'+s[0]+'">'+s[1]+'</button>';}).join('')+'</div>'
+      +   '<select id="jump" class="jumpsel"><option value="">Jump to a place…</option></select>'
+      + '</div>'
+      + '<div class="recents" id="recents"></div>'
+      // category + search
       + '<div class="bar">'
-      +   '<div class="tabs">'
-      +     cats.map(function(c){ return '<button class="tab'+(f.category===c?' on':'')+'" data-cat="'+c+'">'+labels[c]+'</button>'; }).join('')
-      +   '</div>'
+      +   '<div class="tabs">'+cats.map(function(c){ return '<button class="tab'+(f.category===c?' on':'')+'" data-cat="'+c+'">'+labels[c]+'</button>'; }).join('')+'</div>'
       +   '<input type="text" id="q" placeholder="Search listings…" value="'+esc(f.q)+'">'
-      +   '<input type="text" id="region" placeholder="Town or ZIP" value="'+esc(f.region)+'" style="max-width:150px;">'
       +   '<button class="btn" id="listBtn">List something</button>'
       + '</div>'
+      + '<div class="showing" id="showing"></div>'
       + '<div id="results"><div class="empty">Loading…</div></div>';
     app.innerHTML = h;
+
+    // category tabs + search use URL nav (keeps shareable category/search)
     Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(t){ t.onclick=function(){ submitBrowse(t.getAttribute('data-cat')); }; });
     $('listBtn').onclick=function(){ go('new'); };
     function submitBrowse(cat){
-      var q=$('q').value.trim(), region=$('region').value.trim();
-      var parts=[]; if(cat) parts.push('category='+encodeURIComponent(cat)); if(q) parts.push('q='+encodeURIComponent(q)); if(region) parts.push('region='+encodeURIComponent(region));
-      go(parts.join('&'));
+      var q=$('q').value.trim(); var parts=[]; if(cat) parts.push('category='+encodeURIComponent(cat)); if(q) parts.push('q='+encodeURIComponent(q)); go(parts.join('&'));
     }
     $('q').addEventListener('keydown',function(e){ if(e.key==='Enter') submitBrowse(f.category); });
-    $('region').addEventListener('keydown',function(e){ if(e.key==='Enter') submitBrowse(f.category); });
 
-    var u='/market/listings?status=active&limit=60';
-    if(f.category) u+='&category='+encodeURIComponent(f.category);
-    if(f.q) u+='&q='+encodeURIComponent(f.q);
-    if(f.region) u+='&region='+encodeURIComponent(f.region);
-    jget(u).then(function(d){
-      var list=(d&&d.listings)||[];
-      if(!list.length){ $('results').innerHTML='<div class="empty">Nothing here yet. <a href="#" id="be">Be the first to list something →</a></div>'; var b=$('be'); if(b)b.onclick=function(e){e.preventDefault();go('new');}; return; }
-      $('results').innerHTML='<div class="grid">'+list.map(card).join('')+'</div>';
-      Array.prototype.forEach.call(document.querySelectorAll('.card'),function(el){ el.onclick=function(){ go('id='+encodeURIComponent(el.getAttribute('data-id'))); }; });
-    }).catch(function(){ $('results').innerHTML='<div class="empty">Could not load listings.</div>'; });
+    // location controls re-query in place (easy switching, no reload)
+    function applyZip(){ var z=normZip($('zip').value); var l=getLoc(); var sc=(l.scope==='all'||l.scope==='country')&&z?'exact':l.scope; setLoc({zip:z, scope:z?sc:'all'}); rerender(); }
+    $('zip').addEventListener('keydown',function(e){ if(e.key==='Enter') applyZip(); });
+    $('zip').addEventListener('blur', applyZip);
+    $('country').addEventListener('change',function(){ setLoc({country:$('country').value}); if(getLoc().scope==='country') loadResults(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.scope'),function(b){ b.onclick=function(){ setLoc({scope:b.getAttribute('data-scope')}); rerender(); }; });
+    $('jump').addEventListener('change',function(){ var z=$('jump').value; if(z){ setLoc({zip:z, scope:'exact'}); rerender(); } });
+
+    renderRecents(); populateJump(); updateShowing(); loadResults();
+
+    function rerender(){ renderBrowse(f); }   // cheap full re-render keeps chips/scopes in sync
+    function renderRecents(){
+      var r=recents(); var el=$('recents'); if(!el) return;
+      if(!r.length){ el.innerHTML=''; return; }
+      el.innerHTML='<span class="lab">Recent</span>'+r.map(function(z){return '<span class="zchip" data-z="'+esc(z)+'">'+esc(z)+'</span>';}).join('');
+      Array.prototype.forEach.call(el.querySelectorAll('.zchip'),function(c){ c.onclick=function(){ setLoc({zip:c.getAttribute('data-z'),scope:'exact'}); renderBrowse(f); }; });
+    }
+    function populateJump(){
+      jget('/market/zips').then(function(d){
+        var sel=$('jump'); if(!sel) return;
+        var zs=(d&&d.zips)||[];
+        zs.forEach(function(z){ var o=document.createElement('option'); o.value=z.zip; o.textContent=z.zip+' ('+z.count+')'; sel.appendChild(o); });
+      }).catch(function(){});
+    }
+    function updateShowing(){
+      var l=getLoc(); var s=$('showing'); if(!s) return; var t;
+      if(l.scope==='all') t='Showing listings everywhere'+(getLoc().zip?'':' — set your ZIP above to see what\'s near you');
+      else if(l.scope==='country') t='Showing listings across '+(l.country||'US');
+      else if(l.scope==='nearby') t='Showing listings near '+(l.zip||'—')+' (same area)';
+      else t='Showing listings in '+(l.zip||'—');
+      s.textContent=t;
+    }
+    function loadResults(){
+      var l=getLoc();
+      var u='/market/listings?status=active&limit=60&scope='+encodeURIComponent(l.scope);
+      if(f.category) u+='&category='+encodeURIComponent(f.category);
+      if(f.q) u+='&q='+encodeURIComponent(f.q);
+      if(l.scope==='exact'||l.scope==='nearby'){ if(l.zip) u+='&zip='+encodeURIComponent(l.zip); }
+      if(l.scope==='country') u+='&country='+encodeURIComponent(l.country);
+      var res=$('results'); if(res) res.innerHTML='<div class="empty">Loading…</div>';
+      jget(u).then(function(d){
+        var list=(d&&d.listings)||[];
+        if(!list.length){
+          var here=(l.scope==='all')?'anywhere yet':'here yet';
+          res.innerHTML='<div class="empty">Nothing '+here+'. <a href="#" id="be">List something →</a>'
+            +(l.scope!=='all'?' &nbsp;·&nbsp; <a href="#" id="wider">widen to everywhere →</a>':'')+'</div>';
+          var b=$('be'); if(b)b.onclick=function(e){e.preventDefault();go('new');};
+          var w=$('wider'); if(w)w.onclick=function(e){e.preventDefault();setLoc({scope:'all'});renderBrowse(f);};
+          return;
+        }
+        res.innerHTML='<div class="grid">'+list.map(card).join('')+'</div>';
+        Array.prototype.forEach.call(document.querySelectorAll('.card'),function(el){ el.onclick=function(){ go('id='+encodeURIComponent(el.getAttribute('data-id'))); }; });
+      }).catch(function(){ if(res) res.innerHTML='<div class="empty">Could not load listings.</div>'; });
+    }
   }
   function card(l){
-    var sb = (l.seller&&l.seller.badge)||'new';
-    var thumb = (l.photos&&l.photos[0]) ? '<div class="thumb" style="background-image:url('+esc(l.photos[0])+')"></div>' : '<div class="thumb">'+esc(l.category||'item')+'</div>';
+    var sb=(l.seller&&l.seller.badge)||'new';
+    var thumb=(l.photos&&l.photos[0])?'<div class="thumb" style="background-image:url('+esc(l.photos[0])+')"></div>':'<div class="thumb">'+esc(l.category||'item')+'</div>';
+    var place=(l.zip?('<span class="zip">'+esc(l.zip)+'</span>'):'')+(l.region?((l.zip?' · ':'')+esc(l.region)):'')||'—';
     return ''
-      + '<div class="card" data-id="'+esc(l.id)+'">'
-      +   thumb
-      +   '<div class="pad">'
-      +     '<div class="t">'+esc(l.title)+'</div>'
-      +     '<div class="meta">'+esc(l.region||'—')+(l.vouch_count?(' · '+l.vouch_count+' vouched'):'')+'</div>'
-      +     '<div class="row"><span class="price">'+esc(priceStr(l))+'</span>'+badge(sb)+'</div>'
-      +   '</div>'
-      + '</div>';
+      + '<div class="card" data-id="'+esc(l.id)+'">'+thumb+'<div class="pad">'
+      +   '<div class="t">'+esc(l.title)+'</div>'
+      +   '<div class="meta">'+place+(l.vouch_count?(' · '+l.vouch_count+' vouched'):'')+'</div>'
+      +   '<div class="row"><span class="price">'+esc(priceStr(l))+'</span>'+badge(sb)+'</div>'
+      + '</div></div>';
   }
 
   // ── detail ──────────────────────────────────────────────────────────────
@@ -203,34 +290,28 @@
     jget('/market/listings/'+encodeURIComponent(id)).then(function(l){
       if(!l || l.id===undefined){ app.innerHTML='<div class="panel"><span class="back" id="bk">← Marketplace</span><div class="empty">Listing not found.</div></div>'; wireBack(); return; }
       var s=l.seller||{}, mine=(l.seller_id===myId());
-      var photos = (l.photos&&l.photos.length) ? '<div class="photos">'+l.photos.map(function(p){return '<img src="'+esc(p)+'" alt="">';}).join('')+'</div>' : '';
-      var vouches = (l.vouches&&l.vouches.length)
-        ? '<div class="vouches"><div class="sub">Vouched by neighbors (Deuteronomy 19:15)</div>'+l.vouches.map(function(v){return '<div class="vouch"><span class="who">'+esc(v.by||'A neighbor')+'</span> '+esc(v.note||'vouches for this.')+'</div>';}).join('')+'</div>'
-        : '<div class="vouches"><div class="sub" style="margin:0;">No vouches yet. Two neighbors who know this seller can vouch below.</div></div>';
-      var contact='';
-      if(l.contact && l.contact.public){ contact='<div class="note ok">Contact ('+esc(l.contact.method||'')+'): '+esc(l.contact.public)+'</div>'; }
-      else { contact='<div class="trustline">The seller hasn\'t posted a public contact. Vouch or check back; we never share contact details on anyone\'s behalf.</div>'; }
-      var status = l.status!=='active' ? '<div class="note bad">Status: '+esc(l.status)+(l.status==='quarantine'?' — awaiting a second witness or operator review.':'')+'</div>' : '';
-      app.innerHTML = ''
+      var place=[l.zip,l.region,(l.country&&l.country!=='US'?l.country:'')].filter(Boolean).join(' · ')||'—';
+      var photos=(l.photos&&l.photos.length)?'<div class="photos">'+l.photos.map(function(p){return '<img src="'+esc(p)+'" alt="">';}).join('')+'</div>':'';
+      var vouches=(l.vouches&&l.vouches.length)
+        ?'<div class="vouches"><div class="sub">Vouched by neighbors (Deuteronomy 19:15)</div>'+l.vouches.map(function(v){return '<div class="vouch"><span class="who">'+esc(v.by||'A neighbor')+'</span> '+esc(v.note||'vouches for this.')+'</div>';}).join('')+'</div>'
+        :'<div class="vouches"><div class="sub" style="margin:0;">No vouches yet. Two neighbors who know this seller can vouch below.</div></div>';
+      var contact = (l.contact&&l.contact.public)
+        ?'<div class="note ok">Contact ('+esc(l.contact.method||'')+'): '+esc(l.contact.public)+'</div>'
+        :'<div class="trustline">The seller hasn\'t posted a public contact. Vouch or check back; we never share contact details on anyone\'s behalf.</div>';
+      var status=l.status!=='active'?'<div class="note bad">Status: '+esc(l.status)+(l.status==='quarantine'?' — awaiting a second witness or operator review.':'')+'</div>':'';
+      app.innerHTML=''
         + '<div class="panel">'
         +   '<span class="back" id="bk">← Marketplace</span>'
         +   '<h2>'+esc(l.title)+'</h2>'
-        +   '<div class="sub">'+esc((l.category||'')+' · '+(l.region||'—'))+' · <span class="price">'+esc(priceStr(l))+'</span>'+(l.condition?(' · '+esc(l.condition)):'')+'</div>'
-        +   status
-        +   photos
+        +   '<div class="sub">'+esc((l.category||'')+' · ')+'<span class="mono" style="color:var(--blue);font-weight:600;">'+esc(place)+'</span> · <span class="price">'+esc(priceStr(l))+'</span>'+(l.condition?(' · '+esc(l.condition)):'')+'</div>'
+        +   status+photos
         +   '<p style="white-space:pre-wrap;">'+esc(l.description||'')+'</p>'
-        +   '<div class="note" style="background:var(--paper-2);border:1px solid var(--rule);">'
-        +     'Seller: <a href="marketplace.html?seller='+esc(l.seller_id)+'" onclick="return false" id="sellerLink">'+esc(s.name||'A neighbor')+'</a> '+badge(s.badge||'new')
-        +     (s.member_since?(' · <span class="mono" style="font-size:11px;color:var(--muted)">since '+esc((s.member_since||'').slice(0,10))+'</span>'):'')
-        +   '</div>'
-        +   contact
-        +   vouches
+        +   '<div class="note" style="background:var(--paper-2);border:1px solid var(--rule);">Seller: <a href="#" id="sellerLink">'+esc(s.name||'A neighbor')+'</a> '+badge(s.badge||'new')+(s.member_since?(' · <span class="mono" style="font-size:11px;color:var(--muted)">since '+esc((s.member_since||'').slice(0,10))+'</span>'):'')+'</div>'
+        +   contact+vouches
         +   '<div class="actions">'
-        +     (mine
-              ? '<button class="btn ghost" id="soldBtn">Mark sold</button><button class="btn ghost" id="retractBtn">Retract</button>'
-              : '<button class="btn" id="vouchBtn">Vouch for this</button><button class="btn ghost" id="helpfulBtn">Helpful</button><button class="btn ghost" id="flagBtn">Flag</button>')
-        +   '</div>'
-        +   '<div id="msg"></div>'
+        +     (mine?'<button class="btn ghost" id="soldBtn">Mark sold</button><button class="btn ghost" id="retractBtn">Retract</button>'
+                   :'<button class="btn" id="vouchBtn">Vouch for this</button><button class="btn ghost" id="helpfulBtn">Helpful</button><button class="btn ghost" id="flagBtn">Flag</button>')
+        +   '</div><div id="msg"></div>'
         + '</div>';
       wireBack();
       $('sellerLink').onclick=function(e){e.preventDefault();go('seller='+encodeURIComponent(l.seller_id));};
@@ -245,17 +326,17 @@
     }).catch(function(){ app.innerHTML='<div class="panel"><div class="empty">Could not load this listing.</div></div>'; });
     function msg(t,k){ $('msg').innerHTML='<div class="note '+(k||'ok')+'">'+esc(t)+'</div>'; }
     function doVouch(id){
-      var nm = myName() || prompt('Your name (shown with your vouch):') || 'A neighbor';
-      if(nm) localStorage.setItem('nh_market_name', nm);
-      var note = prompt('A word on this seller/item (optional):') || '';
+      var nm=myName()||prompt('Your name (shown with your vouch):')||'A neighbor';
+      if(nm) localStorage.setItem('nh_market_name',nm);
+      var note=prompt('A word on this seller/item (optional):')||'';
       jpost('/market/listings/'+id+'/vouch',{voucher_id:myId(),voucher_name:nm,note:note}).then(function(res){
-        if(res.ok){ msg('Vouch recorded — thank you for standing as a witness.','ok'); setTimeout(function(){ renderDetail(id); }, 900); }
+        if(res.ok){ msg('Vouch recorded — thank you for standing as a witness.','ok'); setTimeout(function(){ renderDetail(id); },900); }
         else { msg((res.body&&res.body.detail)||'Could not record that vouch.','bad'); }
       });
     }
   }
 
-  // ── seller profile ──────────────────────────────────────────────────────
+  // ── seller profile ────────────────────────────────────────────────────────
   function renderSeller(sid){
     app.innerHTML='<div class="empty">Loading…</div>';
     jget('/market/seller/'+encodeURIComponent(sid)).then(function(s){
@@ -263,8 +344,7 @@
       var st=s.stats||{};
       var listings=(s.listings&&s.listings.length)?('<div class="grid" style="margin-top:14px;">'+s.listings.map(card).join('')+'</div>'):'<div class="empty">No active listings.</div>';
       app.innerHTML=''
-        + '<div class="panel">'
-        +   '<span class="back" id="bk">← Marketplace</span>'
+        + '<div class="panel"><span class="back" id="bk">← Marketplace</span>'
         +   '<h2>'+esc(s.name||'A neighbor')+' '+badge(s.badge)+'</h2>'
         +   '<div class="sub">'+esc(s.region||'—')+' · since '+esc((s.member_since||'').slice(0,10))+'</div>'
         +   '<div class="mono" style="font-size:12px;color:var(--muted);">'+(st.listings||0)+' listings · '+(st.active||0)+' active · '+(st.sold||0)+' sold · '+(st.distinct_vouchers||0)+' vouchers</div>'
@@ -277,16 +357,21 @@
 
   // ── submit ──────────────────────────────────────────────────────────────
   function renderSubmit(){
+    var loc=getLoc();
     app.innerHTML=''
-      + '<div class="panel">'
-      +   '<span class="back" id="bk">← Marketplace</span>'
+      + '<div class="panel"><span class="back" id="bk">← Marketplace</span>'
       +   '<h2>List something</h2>'
       +   '<div class="sub">Free. We take no cut. It goes live once two neighbors vouch, or an operator approves it.</div>'
       +   '<div class="field"><label>Title</label><input type="text" id="f_title" maxlength="200" placeholder="e.g. Cast iron skillet, 12in, restored"></div>'
       +   '<div class="field"><label>Description</label><textarea id="f_desc" maxlength="4000" placeholder="Plain and honest. What it is, condition, why you\'re passing it on."></textarea></div>'
+      +   '<div class="three">'
+      +     '<div class="field"><label>ZIP / postal code</label><input type="text" id="f_zip" maxlength="10" placeholder="75701" value="'+esc(loc.zip)+'" style="text-transform:uppercase;"></div>'
+      +     '<div class="field"><label>Country</label><input type="text" id="f_country" list="ctrylist" maxlength="2" placeholder="US" value="'+esc(loc.country)+'" style="text-transform:uppercase;"></div>'
+      +     '<div class="field"><label>Area code (optional)</label><input type="text" id="f_area" maxlength="5" placeholder="903"></div>'
+      +   '</div>'
       +   '<div class="two">'
+      +     '<div class="field"><label>Town / label (optional)</label><input type="text" id="f_region" maxlength="80" placeholder="Tyler, TX"></div>'
       +     '<div class="field"><label>Category</label><select id="f_cat"><option value="goods">Goods</option><option value="services">Services</option><option value="local">Local</option></select></div>'
-      +     '<div class="field"><label>Town or ZIP</label><input type="text" id="f_region" maxlength="80" placeholder="Tyler, TX"></div>'
       +   '</div>'
       +   '<div class="two">'
       +     '<div class="field"><label>Price (blank = contact for price)</label><input type="number" id="f_price" min="0" step="0.01" placeholder=""></div>'
@@ -298,30 +383,29 @@
       +     '<div class="field"><label>How to reach you (optional, public)</label><input type="text" id="f_contact" maxlength="200" placeholder="phone / email / handle"></div>'
       +   '</div>'
       +   '<div class="hint" style="margin-bottom:10px;">Only fill contact with what you\'re comfortable showing publicly. We never message anyone for you.</div>'
-      +   '<button class="btn" id="submitBtn">Submit listing</button>'
-      +   '<div id="smsg"></div>'
+      +   '<button class="btn" id="submitBtn">Submit listing</button><div id="smsg"></div>'
       + '</div>';
     wireBack();
-    $('f_sname').value = myName();
+    $('f_sname').value=myName();
     $('submitBtn').onclick=function(){
       var title=$('f_title').value.trim();
       if(!title){ smsg('A title is needed.','bad'); return; }
       var nm=$('f_sname').value.trim(); if(nm) localStorage.setItem('nh_market_name',nm);
+      var zip=normZip($('f_zip').value), country=normCtry($('f_country').value);
+      if(zip||country!=='US'){ setLoc({zip:zip,country:country}); }   // remember the seller's place for browsing
       var priceRaw=$('f_price').value.trim();
       var body={
         title:title, description:$('f_desc').value.trim(), category:$('f_cat').value,
-        region:$('f_region').value.trim(),
-        price: priceRaw==='' ? null : parseFloat(priceRaw),
-        price_unit:$('f_unit').value,
-        photos: $('f_photos').value.split('\n').map(function(s){return s.trim();}).filter(Boolean),
+        zip:zip, country:country, area_code:$('f_area').value.trim(), region:$('f_region').value.trim(),
+        price: priceRaw===''?null:parseFloat(priceRaw), price_unit:$('f_unit').value,
+        photos:$('f_photos').value.split('\n').map(function(s){return s.trim();}).filter(Boolean),
         contact_method:'other', contact_public:$('f_contact').value.trim(),
         seller_id:myId(), seller_name:nm||'A neighbor', seller_region:$('f_region').value.trim()
       };
       $('submitBtn').disabled=true;
       jpost('/market/listings',body).then(function(res){
-        $('submitBtn').disabled=false;
-        var b=res.body||{};
-        if(b.ok){ smsg(b.message||'Submitted.','ok'); setTimeout(function(){ if(b.id) go('id='+encodeURIComponent(b.id)); }, 1400); }
+        $('submitBtn').disabled=false; var b=res.body||{};
+        if(b.ok){ smsg(b.message||'Submitted.','ok'); setTimeout(function(){ if(b.id) go('id='+encodeURIComponent(b.id)); },1400); }
         else { smsg(b.message||b.reason||'This didn\'t pass the floor.','bad'); }
       }).catch(function(){ $('submitBtn').disabled=false; smsg('Could not submit right now.','bad'); });
     };

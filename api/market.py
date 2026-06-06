@@ -76,7 +76,10 @@ if APIRouter is not None:
         category: str = "goods"
         price: Optional[float] = None          # None = "contact for price"
         price_unit: Optional[str] = "flat"
-        region: str = ""
+        region: str = ""                        # optional human label (town name)
+        zip: Optional[str] = ""                 # postal / ZIP — the primary locator
+        country: Optional[str] = "US"           # ISO-ish 2-letter, default US
+        area_code: Optional[str] = ""           # optional telephone area code (coarse)
         photos: Optional[list] = None          # list of URLs (uploads deferred)
         condition: Optional[str] = None         # goods only: new|good|fair
         contact_method: Optional[str] = "in_platform"
@@ -122,6 +125,23 @@ def _gen_id(prefix: str) -> str:
 
 def _clean(s: Optional[str], limit: int) -> str:
     return (s or "").strip()[:limit]
+
+
+def _norm_zip(s: Optional[str]) -> str:
+    """Postal/ZIP code, normalized: alphanumerics only, upper, max 10.
+    Works for US ZIPs ('75701'), intl postcodes ('SW1A1AA'), or a bare prefix."""
+    return re.sub(r"[^A-Za-z0-9]", "", (s or "")).upper()[:10]
+
+
+def _norm_country(s: Optional[str]) -> str:
+    c = re.sub(r"[^A-Za-z]", "", (s or "")).upper()[:2]
+    return c or "US"
+
+
+def _norm_area(s: Optional[str]) -> str:
+    """Telephone-style area code — digits only, a coarse locator when there's
+    no ZIP granularity."""
+    return re.sub(r"[^0-9]", "", (s or ""))[:5]
 
 
 def _listing_path(lid: str) -> Path:
@@ -285,6 +305,9 @@ def _public_listing(l: dict, *, with_seller: bool = True) -> dict:
         "price": l.get("price"),
         "price_unit": l.get("price_unit"),
         "region": l.get("region"),
+        "zip": l.get("zip"),
+        "country": l.get("country") or "US",
+        "area_code": l.get("area_code"),
         "photos": l.get("photos") or [],
         "condition": l.get("condition"),
         "contact": l.get("contact") or {},
@@ -366,6 +389,9 @@ def get_router():
             "price": (round(float(body.price), 2) if body.price is not None else None),
             "price_unit": unit,
             "region": _clean(body.region, 80),
+            "zip": _norm_zip(body.zip),
+            "country": _norm_country(body.country),
+            "area_code": _norm_area(body.area_code),
             "photos": photos,
             "condition": _clean(body.condition, 20) or None,
             "contact": {"method": method, "public": _clean(body.contact_public, 200)},
@@ -403,28 +429,54 @@ def get_router():
     @router.get("/market/listings", tags=["marketplace"])
     def browse(
         category: Optional[str] = Query(None),
-        region: Optional[str] = Query(None),
+        zip: Optional[str] = Query(None),                 # primary locator
+        scope: Optional[str] = Query(None),               # exact|nearby|area|country|all
+        country: Optional[str] = Query(None),
+        area_code: Optional[str] = Query(None),
+        region: Optional[str] = Query(None),              # free-text label match
         q: Optional[str] = Query(None),
         status: str = Query(ACTIVE),
         limit: int = Query(60, ge=1, le=200),
     ):
         ql = (q or "").strip().lower()
         rl = (region or "").strip().lower()
+        zq = _norm_zip(zip)
+        cq = _norm_country(country) if country else ""
+        aq = _norm_area(area_code)
+        sc = (scope or ("exact" if zq else "all")).lower()
         out = []
         for l in _iter_listings():
             if status != "all" and l.get("status") != status:
                 continue
             if category and l.get("category") != category:
                 continue
+            # ── location scope ─────────────────────────────────────────────
+            lz = _norm_zip(l.get("zip"))
+            lc = _norm_country(l.get("country"))
+            la = _norm_area(l.get("area_code"))
+            if sc == "exact" and zq:
+                if lz != zq:
+                    continue
+            elif sc == "nearby" and zq:
+                k = zq[:3] if len(zq) >= 3 else zq      # ZIP3 ≈ a region
+                if not lz.startswith(k):
+                    continue
+            elif sc == "area" and aq:
+                if la != aq:
+                    continue
+            elif sc == "country" and cq:
+                if lc != cq:
+                    continue
+            # 'all' (or a scope with no matching query) → no location filter
             if rl and rl not in (l.get("region") or "").lower():
                 continue
             if ql:
-                hay = f"{l.get('title','')} {l.get('description','')} {l.get('region','')}".lower()
+                hay = f"{l.get('title','')} {l.get('description','')} {l.get('region','')} {l.get('zip','')}".lower()
                 if ql not in hay:
                     continue
             out.append(_public_listing(l, with_seller=True))
         out.sort(key=lambda x: (x.get("published_at") or x.get("created_at") or ""), reverse=True)
-        return {"count": len(out), "listings": out[:limit]}
+        return {"count": len(out), "scope": sc, "zip": zq, "listings": out[:limit]}
 
     @router.get("/market/listings/{lid}", tags=["marketplace"])
     def get_listing(lid: str):
@@ -598,5 +650,29 @@ def get_router():
             sellers = 0
         return {"total_listings": total, "by_status": c, "active_by_category": by_cat,
                 "sellers": sellers, "free": True, "takes_no_cut": True}
+
+    @router.get("/market/zips", tags=["marketplace"])
+    def zips():
+        """Where the active listings are — ZIPs (and countries) with counts, so
+        the deck can offer easy jump-to-another-place."""
+        z_counts: dict = {}
+        c_counts: dict = {}
+        for l in _iter_listings():
+            if l.get("status") != ACTIVE:
+                continue
+            z = _norm_zip(l.get("zip"))
+            if z:
+                z_counts[z] = z_counts.get(z, 0) + 1
+            cc = _norm_country(l.get("country"))
+            c_counts[cc] = c_counts.get(cc, 0) + 1
+        zlist = sorted(
+            [{"zip": z, "count": n} for z, n in z_counts.items()],
+            key=lambda x: (-x["count"], x["zip"]),
+        )
+        clist = sorted(
+            [{"country": c, "count": n} for c, n in c_counts.items()],
+            key=lambda x: (-x["count"], x["country"]),
+        )
+        return {"zips": zlist, "countries": clist, "count": len(zlist)}
 
     return router

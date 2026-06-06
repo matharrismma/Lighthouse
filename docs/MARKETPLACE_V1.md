@@ -164,6 +164,12 @@ badges, operator/moderator queue):
   Local), search + region filter, listing detail with seller badge + vouches +
   opt-in contact, a submit form, and seller profiles. Wired into the shell nav
   ("Market") and the family-life footer.
+- **By ZIP code (added 2026-06-06):** location is the spine. Listings carry a
+  normalized `zip` + `country` (2-letter, default US) + optional `area_code`.
+  Browse `scope` = exact ZIP · nearby (ZIP3 prefix ≈ a region) · country ·
+  everywhere. The deck has a sticky location selector — ZIP input, country
+  code, scope chips, recent-ZIP chips, and a "jump to a place with listings"
+  menu (`GET /market/zips`). ZIP/scope persist per visitor.
 - **Free:** no billing, tiers, payments, or escrow anywhere. Trust is the only
   currency.
 
