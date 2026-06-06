@@ -46,7 +46,7 @@ scp "$r\data\build_queue\queue.jsonl" "$srv`:~/Lighthouse/data/build_queue/"
 Guard "scp queue"
 
 Write-Host "5/6  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
-scp "$r\site\index.html" "$r\site\nh-shell.js" "$r\site\marketplace.html" "$r\site\innovation.html" "$r\site\gaps.html" "$r\site\workspace.html" "$r\site\family.html" "$r\site\learn-deep.html" "$r\site\codex-deep.html" "$r\site\take-part.html" "$r\site\door-tv.html" "$r\site\door-org.html" "$r\site\sitemap.xml" "$r\site\sitemap_index.xml" "$srv`:~/Lighthouse/site/"
+scp "$r\site\index.html" "$r\site\nh-shell.js" "$r\site\marketplace.html" "$r\site\innovation.html" "$r\site\gaps.html" "$r\site\workspace.html" "$r\site\family.html" "$r\site\learn-deep.html" "$r\site\codex-deep.html" "$r\site\take-part.html" "$r\site\door-tv.html" "$r\site\door-org.html" "$r\site\odysseus.html" "$r\site\sitemap.xml" "$r\site\sitemap_index.xml" "$srv`:~/Lighthouse/site/"
 Guard "scp site"
 
 Write-Host "6/6  Restart the engine..." -ForegroundColor Cyan
