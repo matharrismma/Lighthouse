@@ -41,6 +41,7 @@ Engine integration:
 from __future__ import annotations
 
 import os
+import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -837,6 +838,129 @@ def verify_red_letter_priority(refs):
     )
 
 
+# ── Quotation / allusion detection (textual overlap, NOT interpretation) ──
+# Closes bq-scripture-quotation. Computes the textual relationship between two
+# verses on the WEB text — a contiguous shared phrase and a token-overlap
+# coefficient. This is math on the text, not a theological judgment: the
+# engine confirms quotation/allusion but DECLINES "fulfills" (interpretation).
+
+_QWORD_RE = re.compile(r"[a-z0-9]+")
+
+# Stripped before the overlap coefficient so shared function words ("the",
+# "and", "of") can't manufacture an allusion. The contiguous-phrase metric
+# keeps stopwords — a genuine shared phrase includes them.
+_STOPWORDS = set(
+    "a an and are as at be by for from he her him his i in is it its me my "
+    "no nor not o of on or our shall so that the thee their them then they "
+    "thine thou thy to unto up upon us was we what when where which who will "
+    "with you your".split()
+)
+
+
+def _tokenize_verse(text: str) -> List[str]:
+    return _QWORD_RE.findall((text or "").lower())
+
+
+def _longest_contiguous(a: List[str], b: List[str]) -> int:
+    """Length of the longest token run that appears contiguously in both."""
+    if not a or not b:
+        return 0
+    prev = [0] * (len(b) + 1)
+    best = 0
+    for i in range(1, len(a) + 1):
+        cur = [0] * (len(b) + 1)
+        ai = a[i - 1]
+        for j in range(1, len(b) + 1):
+            if ai == b[j - 1]:
+                cur[j] = prev[j - 1] + 1
+                if cur[j] > best:
+                    best = cur[j]
+        prev = cur
+    return best
+
+
+def _overlap_coefficient(a: List[str], b: List[str]) -> float:
+    sa, sb = set(a), set(b)
+    if not sa or not sb:
+        return 0.0
+    return len(sa & sb) / min(len(sa), len(sb))
+
+
+def verify_scripture_quotation(spec: Dict[str, Any]) -> VerifierResult:
+    """Confirm a textual quotation/allusion between two verses on the WEB text.
+
+        relation strength: quotation ⊇ allusion ⊇ none
+        - longest shared contiguous phrase ≥ min_phrase tokens → quotation
+        - else token overlap coefficient ≥ quote_threshold     → quotation
+        - else overlap ≥ allude_threshold                      → allusion
+        - else                                                 → none
+
+    A claim of 'alludes' is satisfied by quotation-or-allusion; 'quotes' needs
+    quotation strength. 'fulfills' is DECLINED — fulfillment is interpretation,
+    not text overlap; the engine reports the measured overlap as evidence but
+    will not confirm it.
+    """
+    name = "scripture.quotation"
+    ref_a = spec.get("verse_a") or spec.get("a") or spec.get("ref_a")
+    ref_b = spec.get("verse_b") or spec.get("b") or spec.get("ref_b")
+    relation = (spec.get("relation") or "quotes").strip().lower()
+    if not ref_a or not ref_b:
+        return VerifierResult(name=name, status="NOT_APPLICABLE",
+                              detail="needs verse_a and verse_b")
+    ra = resolve_ref(str(ref_a))
+    rb = resolve_ref(str(ref_b))
+    if ra.get("status") == "source_missing" or rb.get("status") == "source_missing":
+        return VerifierResult(name=name, status="SKIPPED",
+                              detail="Layer 0 WEB source not provisioned")
+    if (ra.get("status") != "ok" or not ra.get("web_text")
+            or rb.get("status") != "ok" or not rb.get("web_text")):
+        return VerifierResult(name=name, status="NOT_APPLICABLE",
+                              detail=f"could not resolve both verses ({ref_a}, {ref_b})")
+    ta = _tokenize_verse(ra["web_text"])
+    tb = _tokenize_verse(rb["web_text"])
+    contiguous = _longest_contiguous(ta, tb)
+    # Overlap on CONTENT words (stopwords stripped) so shared function words
+    # don't inflate an allusion that isn't really there.
+    overlap = _overlap_coefficient([t for t in ta if t not in _STOPWORDS],
+                                   [t for t in tb if t not in _STOPWORDS])
+    min_phrase = int(spec.get("min_phrase_tokens", 4))
+    quote_thr = float(spec.get("quote_threshold", 0.6))
+    allude_thr = float(spec.get("allude_threshold", 0.3))
+    if contiguous >= min_phrase or overlap >= quote_thr:
+        measured = "quotation"
+    elif overlap >= allude_thr:
+        measured = "allusion"
+    else:
+        measured = "none"
+    data = {
+        "verse_a": ra.get("ref"), "verse_b": rb.get("ref"),
+        "claimed_relation": relation, "measured_relation": measured,
+        "longest_contiguous_tokens": contiguous,
+        "overlap_coefficient": round(overlap, 3),
+        "thresholds": {"min_phrase_tokens": min_phrase,
+                       "quote_threshold": quote_thr, "allude_threshold": allude_thr},
+        "method": "WEB-text token overlap + longest contiguous shared phrase",
+    }
+    if relation in ("fulfills", "fulfillment", "fulfilled", "fulfil"):
+        data["note"] = ("Fulfillment is a theological judgment, not a textual "
+                        "computation. Reporting the measured overlap as evidence "
+                        "only; the engine does not confirm fulfillment.")
+        return VerifierResult(name=name, status="NOT_APPLICABLE", detail=data["note"], data=data)
+    rank = {"none": 0, "allusion": 1, "quotation": 2}
+    need = 2 if relation in ("quotes", "quotation", "quote") else 1
+    if rank[measured] >= need:
+        return VerifierResult(
+            name=name, status="CONFIRMED",
+            detail=(f"{ra.get('ref')} ↔ {rb.get('ref')}: measured {measured} "
+                    f"(contiguous {contiguous} tokens, overlap {overlap:.2f}) satisfies '{relation}'"),
+            data=data)
+    return VerifierResult(
+        name=name, status="MISMATCH",
+        detail=(f"{ra.get('ref')} ↔ {rb.get('ref')}: claimed '{relation}' but measured {measured} "
+                f"(contiguous {contiguous}, overlap {overlap:.2f})"),
+        data=data)
+
+
 def run(packet: dict) -> list:
     """Run scripture verification for every ref-bearing field in a packet.
 
@@ -867,5 +991,13 @@ def run(packet: dict) -> list:
     if all_refs:
         results.append(verify_canon_membership(all_refs))
         results.append(verify_red_letter_priority(all_refs))
+
+    # Quotation / allusion between two verses (textual overlap on the WEB text)
+    q = packet.get("QUOTATION_VERIFY")
+    if isinstance(q, dict) and (q.get("verse_a") or q.get("a") or q.get("ref_a")):
+        results.append(verify_scripture_quotation(q))
+    for qq in (packet.get("quotations") or []):
+        if isinstance(qq, dict):
+            results.append(verify_scripture_quotation(qq))
 
     return results
