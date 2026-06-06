@@ -440,6 +440,18 @@ def _spec_grounded_in_source(spec: Dict[str, Any], source_text: str) -> Tuple[bo
     return (len(missing) == 0, missing)
 
 
+def _looks_single_claim(text: str) -> bool:
+    """A single-sentence situation is treated as one claim, so a deterministic
+    rule may handle the whole thing. Multi-sentence situations go to the oracle
+    (which decomposes them) — we never let one rule match silently drop the
+    other claims in a multi-claim input."""
+    s = (text or "").strip()
+    if not s:
+        return False
+    parts = [p for p in re.split(r"[.?!]+\s+", s) if p.strip()]
+    return len(parts) <= 1
+
+
 def _poly_oracle_combined(
     situation: str,
     model: str,
@@ -669,7 +681,29 @@ def run_polymathic(
     atomic_claims: List[str] = []
     quarantined_claims: List[str] = []
 
-    if decompose and key:
+    # ── Deterministic dispatch FIRST — shrink the oracle ──────────────────
+    # If a hard-coded or operator-promoted rule matches the situation, route
+    # it with ZERO oracle calls (the rule's extractor produces the spec
+    # verbatim from the text, so it can't be auto-corrected). This is the
+    # mechanism by which the engine's dependence on the statistical model
+    # falls with use: every rule moves a class of claims off the oracle.
+    # Only when NO rule matches do we pay for the oracle below.
+    _det = None
+    try:
+        from .dispatch import dispatch as _rule_dispatch
+        _det = _rule_dispatch(situation)
+    except Exception:
+        _det = None
+
+    if (_det is not None and getattr(_det, "domain", None) in _ALL_DOMAINS
+            and getattr(_det, "spec", None) and _looks_single_claim(situation)):
+        domain_specs = [{
+            "domain": _det.domain,
+            "spec": _det.spec,
+            "_source_claim": situation,
+            "_dispatch_origin": "rule",
+        }]
+    elif decompose and key:
         # Decompose phase: situation → atomic claims
         atomic_claims = decompose_situation(situation, model, key)
         if atomic_claims:
