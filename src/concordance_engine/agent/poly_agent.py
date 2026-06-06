@@ -453,12 +453,27 @@ def _poly_oracle_combined(
     if not key:
         return []
     parsed = _oracle_call(_COMBINED_SYSTEM, situation, model, key)
-    if parsed and isinstance(parsed, dict):
-        return [
-            ds for ds in parsed.get("domains", [])
-            if isinstance(ds, dict) and ds.get("domain") in _ALL_DOMAINS
-        ]
-    return []
+    if not (parsed and isinstance(parsed, dict)):
+        return []
+    # GROUNDING GUARD — the same defense the two-stage path applies. The
+    # single oracle call also "corrects" user errors silently; refuse any
+    # spec whose numbers aren't traceable to the user's own text rather than
+    # confirm a value the user never claimed. Ungrounded → block (quarantine),
+    # never silently verify a substituted claim.
+    out: List[Dict[str, Any]] = []
+    for ds in parsed.get("domains", []):
+        if not (isinstance(ds, dict) and ds.get("domain") in _ALL_DOMAINS):
+            continue
+        grounded, missing = _spec_grounded_in_source(ds.get("spec") or {}, situation)
+        if not grounded:
+            _BLOCK_LOG[f"{situation[:60]}::{ds.get('domain')}"] = {
+                "domain": ds.get("domain"), "spec": ds.get("spec") or {},
+                "ungrounded_values": missing,
+                "reason": "classifier_substituted_values",
+            }
+            continue
+        out.append(ds)
+    return out
 
 
 # ── Umbrella-cluster splitting ─────────────────────────────────────────
