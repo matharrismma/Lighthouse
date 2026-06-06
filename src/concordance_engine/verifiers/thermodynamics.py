@@ -8,6 +8,7 @@ Checks:
   * thermodynamics.ideal_gas_law      — PV = nRT  (R = 8.314 J/mol·K)
   * thermodynamics.specific_heat      — Q = m × c × ΔT
   * thermodynamics.entropy_change     — ΔS = Q / T (reversible process)
+  * thermodynamics.clausius_clapeyron — ln(P₂/P₁) = (L/R)(1/T₁ − 1/T₂)
 
 THERMO_VERIFY shape (any subset):
     {
@@ -31,6 +32,13 @@ THERMO_VERIFY shape (any subset):
       "heat_J": 1000.0,
       "temperature_K": 300.0,
       "claimed_entropy_change_J_per_K": 3.333,
+
+      # Clausius-Clapeyron: L + a reference point are operator-supplied INPUTS;
+      # p_ref and pressure share any unit (the ratio cancels).
+      "latent_heat_J_per_mol": 40660.0,
+      "t_ref_K": 373.15, "p_ref": 101325.0,
+      "pressure": 70000.0,
+      "claimed_boiling_point_K": 362.9,
     }
 """
 from __future__ import annotations
@@ -250,6 +258,52 @@ def verify_entropy_change(spec: Dict[str, Any]) -> VerifierResult:
     )
 
 
+def verify_clausius_clapeyron(spec: Dict[str, Any]) -> VerifierResult:
+    """Clausius-Clapeyron (integrated, ideal-gas + constant-L approximation):
+
+        ln(P₂/P₁) = (L/R) · (1/T₁ − 1/T₂)
+
+    Given a latent heat L (J/mol) and a reference point (T_ref, P_ref) as
+    operator-supplied INPUTS, predict the boiling temperature at the claimed
+    pressure and compare it to the claim. The engine confirms the RELATIONSHIP,
+    not the absolute measured values — L and the reference are inputs, not
+    engine constants, so a bare phase-point claim (no inputs) stays out of
+    scope. p_ref and pressure may be in any unit; the ratio cancels.
+    """
+    name = "thermodynamics.clausius_clapeyron"
+    L = spec.get("latent_heat_J_per_mol")
+    T1 = spec.get("t_ref_K")
+    P1 = spec.get("p_ref")
+    P2 = spec.get("pressure")
+    claimed = spec.get("claimed_boiling_point_K")
+    if any(v is None for v in (L, T1, P1, P2, claimed)):
+        return na(name)
+    try:
+        Lf, T1f, P1f, P2f, cT2 = float(L), float(T1), float(P1), float(P2), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "latent_heat_J_per_mol, t_ref_K, p_ref, pressure, claimed_boiling_point_K must be numeric")
+    if Lf <= 0 or T1f <= 0 or P1f <= 0 or P2f <= 0:
+        return error(name, "latent heat, temperatures, and pressures must be positive")
+    inv_T2 = 1.0 / T1f - (_R / Lf) * math.log(P2f / P1f)
+    if inv_T2 <= 0:
+        return error(name, "inputs imply a non-physical (≤0 K) boiling point; check L / reference / pressure")
+    T2_pred = 1.0 / inv_T2
+    rel_tol = float(spec.get("tolerance_relative", 0.02))   # constant-L approximation
+    abs_tol = float(spec.get("tolerance_absolute", 0.5))    # 0.5 K floor
+    diff = abs(T2_pred - cT2)
+    threshold = max(abs_tol, rel_tol * abs(T2_pred))
+    data = {
+        "latent_heat_J_per_mol": Lf, "t_ref_K": T1f, "p_ref": P1f,
+        "pressure": P2f, "R_J_per_molK": _R,
+        "predicted_boiling_point_K": round(T2_pred, 3),
+        "claimed_boiling_point_K": cT2, "diff_K": round(diff, 3),
+        "formula": "ln(P2/P1) = (L/R)(1/T1 − 1/T2)",
+    }
+    if diff <= threshold:
+        return confirm(name, f"predicted boiling point {T2_pred:.2f} K matches claim {cT2} K (Δ {diff:.2f} K)", data)
+    return mismatch(name, f"predicted {T2_pred:.2f} K, claimed {cT2} K (Δ {diff:.2f} K)", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     tv = packet.get("THERMO_VERIFY") or {}
@@ -271,12 +325,16 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
                                              "claimed_entropy_change_J_per_K")):
         results.append(verify_entropy_change(tv))
 
-    # Phase-point claims (water boils at 100°C, iron melts at 1538°C) used to
-    # be table-lookup checks. They are MEASURED values, not derivable from
-    # constants of truth — they don't meet the engine's bar. Removed; on the
-    # build queue at data/build_queue/queue.jsonl until first-principles
-    # phase-equilibrium math (Clausius-Clapeyron with substance-specific
-    # latent heats) is wired up.
+    if all(tv.get(k) is not None for k in ("latent_heat_J_per_mol", "t_ref_K",
+                                             "p_ref", "pressure",
+                                             "claimed_boiling_point_K")):
+        results.append(verify_clausius_clapeyron(tv))
+
+    # Phase points (water boils at 100°C, iron melts at 1538°C) are MEASURED
+    # values and are NOT looked up — a bare phase-point claim stays out of
+    # scope. But given an operator-supplied latent heat + reference point, the
+    # Clausius-Clapeyron relationship IS confirmable (verify_clausius_clapeyron
+    # above). Closed bq-phase-equilibrium 2026-06-06.
 
     if not results:
         # NA, not error — verifier doesn't apply to this spec shape.
