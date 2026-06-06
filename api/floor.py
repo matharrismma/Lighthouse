@@ -86,9 +86,23 @@ def classify(text: str) -> Dict[str, Any]:
                             "tonic", "herb", "fatigue", "diabetes", "blood sugar", "inflammation",
                             "sick", "symptom", "heal", "tired", "stress", "sleep", "depress")):
         return R("apothecary", "health", "family", "apothecary", "/apothecary.html", 0.8, "a body, read as nested control systems")
-    # Calculation → reckon lens (the math wall verifies it)
+    # Games → the games deck (specific game first, then the deck)
+    if any(k in t for k in ("chess", "wilderness trail", "oregon trail", "bible trivia",
+                            "trivia", "play a game", "board game", "checkers", "arcade")):
+        if "chess" in t:                       return R(None, None, "family", "chess", "/games/chess.html", 0.85, "play chess")
+        if "wilderness" in t or "oregon" in t: return R(None, None, "family", "wilderness", "/games/wilderness-trail.html", 0.85, "Wilderness Trail — Oregon Trail through Sinai")
+        if "trivia" in t:                      return R(None, None, "family", "trivia", "/bible-trivia.html", 0.85, "Bible trivia")
+        return R(None, None, "family", "games", "/games.html", 0.8, "the games deck")
+    # Kids → family-safe cartoons & Bible stories (before the generic watch rule)
+    if any(k in t for k in ("kids", "for my child", "for my kids", "children's", "kid-safe", "cartoon for")):
+        return R(None, None, "watch", "kids", "/kids.html", 0.8, "kids — family-safe cartoons & Bible stories")
+    # Graphing before plain calculation (so "graph y = 2x" → grapher, not calculator)
+    if any(k in t for k in ("graph ", "plot ", "graphing", "y =", "f(x)")):
+        return R(None, "math", "tools", "graph", "/tools/graph.html", 0.75, "the graphing calculator")
+    # Calculation → reckon lens (the math wall verifies it). Require a real
+    # arithmetic pattern or an explicit calc word — not a bare "what is".
     if _re.search(r"[\d\.\s]+[\+\-\*\/×÷=][\d\.\s]+", t) or any(
-            k in t for k in ("calculate", "what is ", "percent of", "how much is")):
+            k in t for k in ("calculate", "percent of", "how much is", "square root", "how many", " times ")):
         return R("reckon", "math", "tools", "calculator", "/tools/calculator.html", 0.8, "a calculation pressed against the math wall")
     # Recipe → navigation (household)
     if any(k in t for k in ("recipe for", "how to cook", "how to bake", "cookbook", "make bread", "make a pie")):
@@ -119,6 +133,52 @@ def classify(text: str) -> Dict[str, Any]:
     # Submit / support
     if any(k in t for k in ("submit ", "send you", "pitch ", "i want to share", "donate", "support you")):
         return R(None, None, "take_part", "", "/support.html", 0.7, "take part")
+    # Almanac — verified observations, folk wisdom, weather lore
+    if any(k in t for k in ("almanac", "weather lore", "folk wisdom", "old wives", "planting by the moon")):
+        return R(None, None, "discern", "almanac", "/almanac.html", 0.8, "the almanac of verified claims")
+    # Encyclopedia / reference lookup
+    if any(k in t for k in ("encyclopedia", "what is a ", "what is an ", "who was ", "tell me about ", "look up ")):
+        return R(None, None, "learn", "encyclopedia", "/encyclopedia.html", 0.7, "the encyclopedia")
+    # Calendar
+    if any(k in t for k in ("calendar", "feast day", "liturgical", "the church year", "what day is")):
+        return R(None, None, "family", "calendar", "/calendar.html", 0.75, "the family calendar")
+    # Maker / projects
+    if any(k in t for k in ("project", "build a", "how to make", "how to build", "woodwork",
+                            "sew ", "knit", "garden", "fix a", "mend ", "whittle")):
+        return R(None, None, "family", "maker", "/maker.html", 0.75, "the maker's workshop")
+    # Household / hearth
+    if any(k in t for k in ("household", "chores", "manage my home", "family rhythm", "hearth", "fellowship")):
+        return R(None, None, "family", "household", "/household.html", 0.7, "household & hearth")
+    # Reading plans / library
+    if any(k in t for k in ("reading plan", "read through the bible", "bible in a year",
+                            "what should i read", "library", "read a book", "reading room")):
+        return R(None, None, "learn", "library", "/library.html", 0.7, "the library & reading plans")
+    # Codex — the manuscript
+    if any(k in t for k in ("codex", "guidance document", "the tradition", "the assembly",
+                            "witness roll", "testimony", "working canon", "what do we believe")):
+        return R(None, None, "codex", "codex", "/codex-deep.html", 0.7, "the codex — the manuscript")
+    # Media center — watch / listen / read in one room
+    if any(k in t for k in ("media center", "what to watch", "something to watch", "free movies",
+                            "free films", "audiobook", "free books", "free library")):
+        return R(None, None, "watch", "media", "/media-center.html", 0.75, "the media center")
+    # The smaller tools
+    if any(k in t for k in ("drawing", "draw ", "paint", "sketch")):
+        return R(None, None, "tools", "draw", "/tools/draw.html", 0.7, "the drawing pad")
+    if any(k in t for k in ("piano", "compose music", "make music", "music maker")):
+        return R(None, None, "tools", "music", "/tools/music.html", 0.7, "the music maker")
+    if any(k in t for k in ("learn to type", "typing tutor", "typing practice", "wpm")):
+        return R(None, None, "tools", "typing", "/tools/typing.html", 0.7, "the typing tutor")
+    if any(k in t for k in ("graph ", "plot ", "graphing calculator", "y =", "f(x)")):
+        return R(None, "math", "tools", "graph", "/tools/graph.html", 0.7, "the graphing calculator")
+    if any(k in t for k in ("periodic table", "atomic number", "chemical element")):
+        return R(None, "chemistry", "tools", "periodic", "/tools/periodic.html", 0.7, "the periodic table")
+    if any(k in t for k in ("synonym", "thesaurus", "another word for", "antonym")):
+        return R(None, "linguistics", "tools", "thesaurus", "/tools/thesaurus.html", 0.75, "the thesaurus")
+    if any(k in t for k in ("wikipedia", "search wikipedia")):
+        return R(None, None, "tools", "wiki", "/tools/wiki.html", 0.7, "Wikipedia search")
+    # Sponsors
+    if any(k in t for k in ("sponsor", "underwrite", "advertise")):
+        return R(None, None, "take_part", "sponsors", "/sponsors.html", 0.7, "sponsors")
     # How-to / learn
     if t.startswith("how do i ") or t.startswith("teach me ") or "lesson on" in t:
         return R(None, None, "learn", "", "/learn.html", 0.7, "learn / how-to")
