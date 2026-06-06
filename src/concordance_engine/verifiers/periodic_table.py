@@ -4,24 +4,33 @@ IUPAC standard atomic weights (2021) and element identity.
 Values are public domain. Elements 1-118.
 
 Checks:
-  * periodic_table.atomic_number — symbol ↔ atomic number
-  * periodic_table.atomic_mass   — claimed atomic mass vs IUPAC standard
-  * periodic_table.element_name  — symbol ↔ name
+  * periodic_table.element        — symbol / name / atomic-number identity
+        (definitional: Z is the proton count; symbol & name are conventions).
+  * periodic_table.atomic_mass_weighted_average
+        m_avg = Σ(abundance_i × mass_i) from operator-supplied isotopic
+        inputs. The engine confirms the weighted-average COMPUTATION; it
+        never looks up a mass value (mass is a measured quantity = authority).
 
 PT_VERIFY shape (any subset):
     {
       "symbol": "Fe",
       "claimed_atomic_number": 26,
-      "claimed_atomic_mass": 55.845,
       "claimed_name": "iron",
-      "mass_rel_tol": 0.01,
+      "isotopes": [
+        {"mass": 53.9396, "abundance": 5.845},
+        {"mass": 55.9349, "abundance": 91.754},
+        {"mass": 56.9354, "abundance": 2.119},
+        {"mass": 57.9333, "abundance": 0.282}
+      ],
+      "claimed_atomic_mass": 55.845,
+      "mass_abs_tol": 0.01,
     }
 """
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from .base import VerifierResult, na, confirm, mismatch
+from .base import VerifierResult, na, confirm, mismatch, error
 
 
 # (atomic_number, symbol, name, standard_atomic_weight)
@@ -209,10 +218,11 @@ def verify_element(spec: Dict[str, Any]) -> VerifierResult:
       * symbol ↔ canonical IUPAC two-letter abbreviation (definition)
       * name ↔ canonical element name (definition)
 
-    Atomic MASS is intentionally NOT supported. Atomic mass is a measured
-    (or weighted-average measured) quantity — not derivable from constants
-    of truth without running mass spectrometry. On the engine's build
-    queue under data/build_queue/queue.jsonl.
+    Atomic MASS is intentionally NOT looked up here. Atomic mass is a
+    measured quantity — not derivable from constants of truth without mass
+    spectrometry. But given isotopic (mass, abundance) inputs, the
+    weighted-average computation IS confirmable: see
+    verify_atomic_mass_weighted_average below.
     """
     name = "periodic_table.element"
     el = _lookup(spec)
@@ -260,6 +270,53 @@ def verify_element(spec: Dict[str, Any]) -> VerifierResult:
     )
 
 
+def verify_atomic_mass_weighted_average(spec: Dict[str, Any]) -> VerifierResult:
+    """Confirm the weighted-average COMPUTATION of atomic mass from
+    operator-supplied isotopic data:
+
+        m_avg = Σ (abundance_i × mass_i),  abundances summing to 1 (or 100%).
+
+    The isotope masses and abundances are measured INPUTS, not engine
+    constants. The engine confirms only that the average is computed
+    correctly from them — never the underlying measurements. Abundances may
+    be supplied as fractions (~1.0 total) or percents (~100 total).
+    """
+    name = "periodic_table.atomic_mass_weighted_average"
+    isotopes = spec.get("isotopes")
+    claimed = spec.get("claimed_atomic_mass")
+    if not isotopes or claimed is None:
+        return na(name)
+    try:
+        pairs = [(float(i["mass"]), float(i["abundance"])) for i in isotopes]
+        c = float(claimed)
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return error(name, "each isotope needs numeric 'mass' and 'abundance'; claimed_atomic_mass numeric")
+    if not pairs:
+        return na(name)
+    ab_sum = sum(a for _, a in pairs)
+    if ab_sum <= 0:
+        return error(name, "abundances must be positive")
+    # Accept a fraction basis (~1 total) or a percent basis (~100 total).
+    if abs(ab_sum - 100.0) < abs(ab_sum - 1.0):
+        norm = [(m, a / 100.0) for m, a in pairs]
+        basis, total = "percent", ab_sum / 100.0
+    else:
+        norm = pairs
+        basis, total = "fraction", ab_sum
+    if abs(total - 1.0) > 0.02:
+        return error(name, f"abundances must sum to ~1 (or ~100%); got {ab_sum}")
+    actual = sum(m * a for m, a in norm)
+    tol = float(spec.get("mass_abs_tol", 0.01))
+    data = {"isotopes": [{"mass": m, "abundance": a} for m, a in pairs],
+            "abundance_basis": basis,
+            "actual_weighted_mass": round(actual, 5),
+            "claimed_atomic_mass": c, "abs_tol": tol,
+            "formula": "m_avg = Σ(abundance_i × mass_i)"}
+    if abs(actual - c) <= tol:
+        return confirm(name, f"weighted average = {actual:.5f} u (matches claim {c})", data)
+    return mismatch(name, f"weighted average = {actual:.5f} u, claimed {c}", data)
+
+
 def list_elements() -> List[Dict[str, Any]]:
     """Public listing — atomic_mass deliberately omitted because the
     verifier does not confirm mass claims (measured quantity)."""
@@ -275,6 +332,8 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     pv = packet.get("PT_VERIFY") or {}
     if pv:
         results.append(verify_element(pv))
+        if "isotopes" in pv and "claimed_atomic_mass" in pv:
+            results.append(verify_atomic_mass_weighted_average(pv))
     if not results:
         results.append(na("periodic_table"))
     return results

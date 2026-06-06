@@ -11,6 +11,7 @@ Checks:
   * economics.future_value         — FV = PV * (1 + r)^t
   * economics.rule_of_72           — years ≈ 72 / rate_percent
   * economics.inflation_adjusted   — real = nominal / (1 + rate)^years
+  * economics.inflation_rate       — inflation = (CPI_t - CPI_prev) / CPI_prev
   * economics.gdp_per_capita       — gdp_per_capita = gdp / population
   * economics.price_elasticity     — PED = (Δq/q) / (Δp/p)
 
@@ -191,6 +192,43 @@ def verify_inflation_adjusted(spec: Dict[str, Any]) -> VerifierResult:
     return mismatch(name, f"real value = {actual:.4f}, claimed {c}", data)
 
 
+def verify_inflation_rate(spec: Dict[str, Any]) -> VerifierResult:
+    """Inflation as the rate of change of a price index:
+        inflation = (CPI_t - CPI_prev) / CPI_prev
+
+    The two index LEVELS are operator-supplied measured inputs — the BLS
+    aggregate level is authority, not math, and is NOT confirmed here. The
+    engine confirms only that the rate is computed correctly from the two
+    supplied levels. claimed_inflation_rate may be a fraction (0.065) or a
+    percent (6.5); both are accepted.
+    """
+    name = "economics.inflation_rate"
+    cpi_t = spec.get("cpi_current")
+    cpi_prev = spec.get("cpi_previous")
+    claimed = spec.get("claimed_inflation_rate")
+    if any(v is None for v in (cpi_t, cpi_prev, claimed)):
+        return na(name)
+    try:
+        ct, cp, c = float(cpi_t), float(cpi_prev), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "cpi_current, cpi_previous, claimed_inflation_rate must be numeric")
+    if cp == 0:
+        return error(name, "cpi_previous cannot be zero (division)")
+    actual_frac = (ct - cp) / cp
+    actual_pct = actual_frac * 100.0
+    tol_frac = float(spec.get("tolerance", 0.0005))
+    tol_pct = tol_frac * 100.0
+    matched = abs(actual_frac - c) <= tol_frac or abs(actual_pct - c) <= tol_pct
+    data = {"cpi_current": ct, "cpi_previous": cp,
+            "actual_rate_fraction": round(actual_frac, 6),
+            "actual_rate_percent": round(actual_pct, 4),
+            "claimed_inflation_rate": c,
+            "formula": "inflation = (CPI_t - CPI_prev) / CPI_prev"}
+    if matched:
+        return confirm(name, f"inflation = {actual_pct:.4f}% (matches claim {c})", data)
+    return mismatch(name, f"inflation = {actual_pct:.4f}% / {actual_frac:.6f}, claimed {c}", data)
+
+
 def verify_gdp_per_capita(spec: Dict[str, Any]) -> VerifierResult:
     """GDP per capita = GDP / population"""
     name = "economics.gdp_per_capita"
@@ -256,6 +294,8 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_rule_of_72(ev))
     if "nominal_value" in ev and "inflation_rate" in ev and "claimed_real_value" in ev:
         results.append(verify_inflation_adjusted(ev))
+    if "cpi_current" in ev and "cpi_previous" in ev and "claimed_inflation_rate" in ev:
+        results.append(verify_inflation_rate(ev))
     if "gdp" in ev and "population" in ev and "claimed_gdp_per_capita" in ev:
         results.append(verify_gdp_per_capita(ev))
     if "pct_change_quantity" in ev and "pct_change_price" in ev and "claimed_price_elasticity" in ev:
