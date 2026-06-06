@@ -3,6 +3,49 @@
 Companion to [THE_GUIDE.md](THE_GUIDE.md). The map gives the rungs; this gives
 the timeline and the backcast.
 
+---
+
+## THE LEVER TEST — read this before building anything
+
+**The one gap that gates everything:** the project is all *supply*, no *demand*.
+The engine, the floor, the channel, the Codex, the marketplace — all built, and
+almost nobody is at the door. The witness, reduce-cost, sponsors, and the
+feedback loop are all *downstream of people arriving.* So the scarce thing isn't
+features; it's **people**, and the real constraint is **Matt's time.**
+
+**Before anything gets built, it must pass one of three:**
+
+> 1. Does it **bring people**?
+> 2. Does it **save Matt's time**?
+> 3. Does it **give someone who arrives a reason to return**?
+
+If it does none of the three, it is a **rabbit** — do not chase it. Most new
+features are rabbits (the marketplace included: well-made, but a room in a
+building no one has walked into). A rabbit is not bad work; it's well-made work
+on the wrong lever.
+
+**Meta-rule:** prefer everything the *engine* can do without Matt. A thing that
+needs his hands again and again is a short lever; a thing the engine compounds
+is a long one.
+
+**The longest levers, in order:**
+1. **The content flywheel — engine-driven, pointing home.** The only thing that
+   brings people, and the engine can do most of it. Always-on channel + travelable
+   pieces on platforms with built-in discovery (YouTube/Shorts/Spotify/Pinterest),
+   every piece a quiet commercial pointing to the site. Reach × low-Matt-time.
+2. **One undeniable reason to come back.** A single value that lands in ten
+   seconds for an arriving visitor (the Well's discernment, or a concrete
+   money/time saved). Converts borrowed reach into the 1,000 true fans. Breadth
+   is the enemy.
+3. **Findability of what already exists.** Index, share, point-home the thousands
+   of pages already built. Near-zero marginal time on a sunk asset; compounds.
+
+**The one pull, if only one:** spin the flywheel — keep the channel alive and
+self-feeding, ship the first engine-produced pieces where discovery is free, all
+pointing home. Everything else waits behind people showing up.
+
+---
+
 **The discipline:** build now only what is expensive to change later; defer
 everything whose cost is flat. Foundations whose cost grows with every file and
 every family get laid today, while they are cheap. Features whose cost is the
