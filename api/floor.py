@@ -249,6 +249,20 @@ def _run_gates(text: str) -> Dict[str, Any]:
     # BROTHERS + GOD are not satisfiable from one call — they require witnesses + time.
     verdicts.append({"gate": "BROTHERS", "status": "PENDING", "why": "needs ≥2 witnesses (Deut 19:15)"})
     verdicts.append({"gate": "GOD", "status": "PENDING", "why": "needs the waiting period (no rushing)"})
+
+    # Ground each gate in Scripture (the floor, primary) and witness it by the
+    # Didache (the Church's oldest application of the same test). Scripture
+    # stands first; the Didache stands with it, never over it.
+    try:
+        from api import didache as _dd
+        for v in verdicts:
+            a = _dd.gate_anchor(v["gate"])
+            if a:
+                v["scripture"] = a.get("scripture")
+                v["didache"] = a.get("didache")
+    except Exception:
+        pass
+
     hard_reject = any(v["status"] == "REJECT" for v in verdicts[:2])
     return {
         "verdicts": verdicts,

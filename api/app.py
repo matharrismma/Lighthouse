@@ -1947,6 +1947,16 @@ def floor_pieces():
     return _floor.floor_summary()
 
 
+@app.get("/didache", tags=["floor"])
+def didache_witness():
+    """The Didache — the Church's oldest discernment, standing under the floor.
+    Each of the four gates grounded in Scripture (primary) and witnessed by the
+    Didache (the earliest application of the same test). Not Canon; a second
+    witness beneath Scripture, never over it."""
+    from api import didache as _dd
+    return _dd.witness()
+
+
 @app.post("/floor/stand", tags=["floor"])
 def floor_stand(req: _FloorStandIn):
     """Put any claim / tool output on the WHOLE floor and return its standing:
