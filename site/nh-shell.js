@@ -506,7 +506,8 @@ body.nh-radio-on{padding-bottom:62px;}
     }
     if (lens.name === "discern") {
       box.innerHTML = '<div style="' + _FL.card + '"><div style="' + _FL.why + '">a claim to weigh against the floor</div>' +
-        '<a style="' + _FL.go + '" href="/walks.html?q=' + encodeURIComponent(text) + '">Walk the four gates &rarr;</a></div>';
+        '<a style="' + _FL.go + '" href="/walks.html?q=' + encodeURIComponent(text) + '">Walk the four gates &rarr;</a>' +
+        (window.nhGatesHtml ? window.nhGatesHtml() : "") + '</div>';
       return;
     }
     // judgment lens — apothecary / scripture / reckon
@@ -544,6 +545,41 @@ body.nh-radio-on{padding-bottom:62px;}
   }
 
   window.nhFloor = { stand: nhFloorStand, pick: nhFloorPick };
+
+  // ── The four gates' grounding — Scripture (floor) + the Didache (witness) ──
+  // Fixed per gate (mirrors api/didache.GATE_ANCHORS). Surfaced wherever the
+  // gates appear, so a person weighing a teaching sees the Word it rests on and
+  // the Church's oldest application of the same test, standing with it.
+  window.nhGates = [
+    { gate: "RED",      principle: "by their fruits, not by claim",
+      scripture: { ref: "Matthew 7:16",      text: "Ye shall know them by their fruits." },
+      didache:   { ref: "Didache 11:8",      text: "From their ways the false and the true prophet shall be known." } },
+    { gate: "FLOOR",    principle: "the way of life, not the way of death",
+      scripture: { ref: "Deuteronomy 30:19", text: "I have set before you life and death; choose life." },
+      didache:   { ref: "Didache 1:1",       text: "There are two ways, one of life and one of death." } },
+    { gate: "BROTHERS", principle: "two or three witnesses",
+      scripture: { ref: "Deuteronomy 19:15", text: "At the mouth of two or three witnesses shall the matter be established." },
+      didache:   { ref: "Didache 12:1",      text: "Receive everyone who comes; then prove and know him." } },
+    { gate: "GOD",      principle: "endure; time is the witness",
+      scripture: { ref: "Matthew 24:13",     text: "He that endureth to the end shall be saved." },
+      didache:   { ref: "Didache 16:1",      text: "Watch; be ready, for you know not the hour." } },
+  ];
+
+  // Compact, palette-neutral grounding block. Verse text rides in the title
+  // attribute so the refs stay quiet but the words are one hover away.
+  window.nhGatesHtml = function () {
+    var rows = window.nhGates.map(function (g) {
+      var tip = g.scripture.ref + " — " + g.scripture.text + "  |  " + g.didache.ref + " — " + g.didache.text;
+      return '<div title="' + escHtml(tip) + '" style="margin-top:4px;">' +
+        '<span style="color:#9b7c3c;font-weight:600;">' + g.gate + '</span>' +
+        '<span style="opacity:.7;"> · ' + escHtml(g.principle) + '</span>' +
+        '<span style="opacity:.5;"> — ' + escHtml(g.scripture.ref) + ' · ' + escHtml(g.didache.ref) + '</span></div>';
+    }).join("");
+    return '<div style="margin-top:14px;padding-top:10px;border-top:1px dashed rgba(155,124,60,.3);' +
+      "font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.04em;line-height:1.5;\">" +
+      '<div style="text-transform:uppercase;letter-spacing:.16em;opacity:.6;margin-bottom:5px;">' +
+      'The four gates rest on Scripture, witnessed by the Didache</div>' + rows + '</div>';
+  };
 
   // ── Footer status line: engine state + numeric trust row ────────
   // Shows what's actually running, not marketing — engine ok/down, packet

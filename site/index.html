@@ -262,6 +262,8 @@ async function nhRunWalk(q, box){
     var html='';
     steps.forEach(function(s){ var src=(s.source&&(s.source.label||s.source.author))||s.shelf||''; html+='<div class="rc"><div class="rt">'+nhEsc(s.title||'(untitled)')+'</div>'+(src?'<div class="rs">'+nhEsc(src)+'</div>':'')+'</div>'; });
     html+='<a class="rmore" href="/walks.html?q='+encodeURIComponent(q)+'">See the full walk + the four gates &rarr;</a>';
+    // The gates rest on Scripture, witnessed by the Didache — shown beneath.
+    if(window.nhGatesHtml) html+=window.nhGatesHtml();
     box.innerHTML=html;
   }catch(e){ location.href='/walks.html?q='+encodeURIComponent(q); }
   return false;
