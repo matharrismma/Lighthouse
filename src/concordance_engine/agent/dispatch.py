@@ -122,9 +122,20 @@ def _math_quad(m, text):
             "c": _num(m.group(3).replace(" ", ""))}
 
 
-@_rule("math_derivative", r"(?:derivative|d/dx)\s*(?:of)?\s*(.+?)\s*=\s*(.+)", "mathematics")
+@_rule("math_derivative", r"(?:derivative|d/dx)\s*(?:of\s+)?(.+?)\s*(?:=|\bis\b)\s*(.+)", "mathematics")
 def _math_deriv(m, text):
-    return {"expression": m.group(1).strip(), "claimed_derivative": m.group(2).strip()}
+    import re as _re
+    # verify_mathematics(mode, params) — derivative mode reads params["function"]
+    # + params["claimed_derivative"]. Normalize for sympy: '^'->'**' (powers) and
+    # insert '*' for implicit multiplication ("2x"->"2*x", "3x^2"->"3*x**2").
+    def _norm(s):
+        s = s.strip().strip(".;:").replace("^", "**")
+        return _re.sub(r'(\d)([a-zA-Z(])', r'\1*\2', s)
+    expr, claimed = _norm(m.group(1)), _norm(m.group(2))
+    if not expr or not claimed:
+        return None
+    return {"mode": "derivative",
+            "params": {"function": expr, "claimed_derivative": claimed, "variable": "x"}}
 
 
 # ── COMPUTER SCIENCE ─────────────────────────────────────────────────

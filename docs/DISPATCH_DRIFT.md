@@ -174,7 +174,34 @@ Decoy audit after batch 3 (16 traps incl. the systemic-gate-relevant ones):
   "N runs scored ... N runs allowed ... win pct" in that order/phrasing. Niche;
   coverage-only.
 
+### Reconcile batch 4 (2026-06-07) — signature-shape drift (the third drift class)
+A third class beyond key-drift and trigger-rigidity: the verifier takes **named
+params with a specific shape**, and the rule's flat spec doesn't fit. Found via
+the nested-shape sweep (verify_mathematics / verify_computer_science).
+- **math_derivative (FIXED):** `verify_mathematics(mode, params)` — derivative mode
+  reads `params["function"]` + `params["claimed_derivative"]`. The rule emitted a
+  flat `{expression, claimed_derivative}` -> TypeError (missing `mode`) -> leaked.
+  Reshaped to `{mode:"derivative", params:{function, claimed_derivative, variable}}`
+  + normalize for sympy ('^'->'**', implicit-mult "2x"->"2*x") + `\bis\b` word
+  boundary (was matching "is" inside "his"). CONFIRMED on x^2=2x / sin(x)=cos(x) /
+  3x^2=6x; MISMATCH on x^3=2x; junk expressions -> NOT_APPLICABLE (leak, harmless).
+- **math_quadratic — left as-is:** "solve 1x^2+5x+6" is a *request* with no claimed
+  roots, so there is nothing to verify (solve mode needs `claimed_solutions`). Not
+  drift; would need a redesign to capture a claimed answer.
+- **cs_complexity / cs_bit_ops — DEAD:** `verify_computer_science(code, ...)`
+  benchmarks RUNNABLE code; it cannot verify "merge sort is O(n log n)" from an
+  algorithm name, and has no bit-shift arithmetic check. Removal candidates.
+
+The nested-shape sweep also confirmed: 5 verifiers use the `out[]` dict-value
+shape (chemistry, computer_science, governance_decision_packet, mathematics,
+statistics); 6 use a bare `_r()` top-level `status` (already handled); 58 use
+`checks[]`. The batch-3 gate fix covers the nested 5.
+
+Decoy audit after batch 4: 0 false-confirms.
+
 DONE (batch 2, 2026-06-07): gen_codon, info_entropy, geo_haversine,
 cal_day_of_week (was/fell-on), comb_permute (natural-language).
 DONE (batch 3, 2026-06-07): SYSTEMIC gate value-dict fix, chem_balance, mfg_cpk,
 agri_hardiness_zone; phys_ke + bio_hardy_weinberg confirmed DEAD.
+DONE (batch 4, 2026-06-07): math_derivative (mode/params reshape); cs_complexity +
+cs_bit_ops confirmed DEAD (code-benchmark verifier, name-only claim).
