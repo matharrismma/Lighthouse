@@ -39,9 +39,55 @@ CARDS_DIR = REPO / "data" / "cards"
 BIBLE_BOOKS = REPO / "content" / "codex" / "bible_books.json"
 INDEX_DIR = REPO / "data" / "codex" / "index"
 SCRIPTURE_INDEX = INDEX_DIR / "scripture.json"
+THEME_INDEX = INDEX_DIR / "themes.json"
+
+# Plumbing bands — the connection/sequence machinery, not themes. Dropped from
+# the theme index. (Book-name and testament bands are dropped separately.)
+_STRUCTURAL_BANDS = {
+    "sequence", "cites", "auto_detected", "prev", "next", "proof_text",
+    "see_also", "illuminates", "parallels", "contradicts", "counterexample",
+    "depends_on", "consequence_of", "dictionary", "bible_dictionary",
+    "nt", "ot", "old_testament", "new_testament",
+}
+# A theme must connect at least this many sites to be bound (Deut 19:15 — two or three).
+_THEME_MIN_SITES = 3
+
+# Source/work bands — these are the author/work index, not concepts. Tagged
+# kind="source" so a reader can keep them apart from genuine themes.
+_SOURCE_WORK_BANDS = {
+    "easton", "augustine", "augustine_confessions", "confessions", "aurelius",
+    "aurelius_meditations", "meditations", "bunyan", "pilgrim", "pilgrims_progress",
+    "imitation_of_christ", "imitation_christ", "heidelberg", "westminster_shorter",
+    "pirkei_avot", "clement_first", "clement", "1689_baptist", "belgic",
+    "canons_of_dort", "creeds", "apostolic_fathers", "patristics", "classics",
+    "didache", "barnabas", "polycarp", "polycarp_philippians", "martyrdom_polycarp",
+    "ignatius", "ignatius_ephesians", "ignatius_magnesians", "ignatius_trallians",
+    "ignatius_smyrnaeans", "ignatius_philadelphians", "ignatius_romans",
+    "ignatius_to_polycarp", "koa", "the_line", "the_door", "the_keeping",
+    "apokalypsis", "molasses", "a_kempis", "thomas_a_kempis", "boethius",
+    "boethius_consolation", "consolation",
+}
+_FACET_BANDS = {"person", "place", "concept"}
+
+# Enumeration bands (chapter_3, q21, article_5, section_10, verse_4 …) are
+# structural pointers, not themes. Dropped.
+_ENUM_RE = re.compile(
+    r"^(chapter|chap|q|question|article|section|sect|verse|head|part|stanza|canon|book|line|no|num|n|page|para)?[_-]?\d+[a-z]?$")
+# Verse-reference bands (matt 28:19, 1 cor 6:11, heb 11:3) belong to the
+# scripture index, not the theme index. Dropped.
+_VERSEREF_RE = re.compile(r"\d+\s*:\s*\d+")
+
+
+def _theme_kind(band: str) -> str:
+    if band in _FACET_BANDS:
+        return "facet"
+    if band in _SOURCE_WORK_BANDS:
+        return "source"
+    return "concept"
 
 _LOCK = threading.Lock()
 _CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
+_THEME_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 
 
 def _now() -> str:
@@ -165,6 +211,84 @@ def load_index() -> Dict[str, Any]:
         return data
 
 
+# ── Theme index ───────────────────────────────────────────────────────────────
+def build_theme_index() -> Dict[str, Any]:
+    """Invert the conceptual card bands into a theme index — theme -> every site
+    across the body that carries it. Plumbing bands (sequence/cites/prev/next...)
+    and book/testament bands are dropped; a theme is bound only if it connects at
+    least _THEME_MIN_SITES sites. Surfaces existing tags; nothing is generated."""
+    books = set(_book_slugs().keys())  # slug form, e.g. '1_timothy'
+    themes: Dict[str, dict] = {}
+    if CARDS_DIR.exists():
+        for f in CARDS_DIR.glob("*.json"):
+            c = _read(f)
+            if not c:
+                continue
+            shelf = c.get("shelf") or ""
+            tier = (c.get("source") or {}).get("authority_tier") or ""
+            entry = {"id": c.get("id"), "title": c.get("title") or "", "shelf": shelf, "tier": tier}
+            for b in (c.get("bands") or []):
+                low = str(b).strip().lower()
+                if (not low or low in _STRUCTURAL_BANDS or low in books
+                        or _ENUM_RE.match(low) or _VERSEREF_RE.search(low)):
+                    continue
+                t = themes.setdefault(low, {"label": str(b).strip(), "cards": [], "tiers": set()})
+                t["cards"].append(entry)
+                if tier:
+                    t["tiers"].add(tier)
+    out: Dict[str, dict] = {}
+    for k, t in themes.items():
+        if len(t["cards"]) < _THEME_MIN_SITES:
+            continue
+        out[k] = {
+            "label": t["label"],
+            "kind": _theme_kind(k),
+            "count": len(t["cards"]),
+            "tiers": sorted(t["tiers"]),
+            "span": len(t["tiers"]),            # distinct authority tiers = cross-tradition reach
+            "cards": t["cards"][:120],
+        }
+    # concepts first, then by cross-tradition span, then frequency
+    _kind_rank = {"concept": 0, "facet": 1, "source": 2}
+    ordered = dict(sorted(out.items(), key=lambda kv: (
+        _kind_rank.get(kv[1]["kind"], 0), -kv[1]["span"], -kv[1]["count"], kv[0])))
+    payload = {
+        "generated": _now(),
+        "stats": {
+            "themes": len(ordered),
+            "concepts": sum(1 for v in ordered.values() if v["kind"] == "concept"),
+            "tagged_sites": sum(v["count"] for v in ordered.values()),
+            "cross_tradition": sum(1 for v in ordered.values() if v["span"] >= 2),
+            "min_sites": _THEME_MIN_SITES,
+        },
+        "themes": ordered,
+    }
+    with _LOCK:
+        INDEX_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = THEME_INDEX.with_suffix(".tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(THEME_INDEX)
+        _THEME_CACHE["data"] = payload
+        _THEME_CACHE["mtime"] = THEME_INDEX.stat().st_mtime
+    return payload
+
+
+def load_themes() -> Dict[str, Any]:
+    if not THEME_INDEX.exists():
+        return {"generated": None, "stats": {}, "themes": {}}
+    try:
+        mt = THEME_INDEX.stat().st_mtime
+    except OSError:
+        return {"generated": None, "stats": {}, "themes": {}}
+    if _THEME_CACHE["data"] is not None and mt <= _THEME_CACHE["mtime"]:
+        return _THEME_CACHE["data"]
+    with _LOCK:
+        data = _read(THEME_INDEX) or {"generated": None, "stats": {}, "themes": {}}
+        _THEME_CACHE["data"] = data
+        _THEME_CACHE["mtime"] = mt
+        return data
+
+
 def _operator_ok(request) -> bool:
     key = os.environ.get("NH_OPERATOR_KEY")
     if not key:
@@ -204,20 +328,54 @@ def get_router():
         raise HTTPException(404, f"No cross-references indexed for '{book}'. "
                                  f"Try one of /codex/index/scripture.")
 
+    @router.get("/codex/index/themes", tags=["codex"])
+    def themes_summary():
+        idx = load_themes()
+        themes = idx.get("themes") or {}
+        return {
+            "generated": idx.get("generated"),
+            "stats": idx.get("stats", {}),
+            "themes": [
+                {"theme": k, "label": v.get("label", k), "kind": v.get("kind", "concept"),
+                 "count": v.get("count", 0), "span": v.get("span", 0), "tiers": v.get("tiers", [])}
+                for k, v in themes.items()
+            ],
+            "note": "Concept tags inverted from card bands (plumbing/book tags dropped; "
+                    "min 3 sites; span = distinct authority tiers). A coarse first index — "
+                    "it surfaces existing tags, it does not synthesize. GET /codex/index/themes/{theme}.",
+        }
+
+    @router.get("/codex/index/themes/{theme}", tags=["codex"])
+    def theme_sites(theme: str):
+        idx = load_themes()
+        themes = idx.get("themes") or {}
+        want = theme.strip().lower()
+        if want in themes:
+            t = themes[want]
+            return {"theme": want, "label": t.get("label", want), "kind": t.get("kind", "concept"),
+                    "count": t.get("count", 0), "span": t.get("span", 0),
+                    "tiers": t.get("tiers", []), "cards": t.get("cards", [])}
+        raise HTTPException(404, f"No theme '{theme}' indexed. Try one of /codex/index/themes.")
+
     @router.get("/codex/index/stats", tags=["codex"])
     def stats():
-        return load_index().get("stats", {}) or {"note": "index not built — POST /codex/index/rebuild"}
+        return {
+            "scripture": load_index().get("stats", {}),
+            "themes": load_themes().get("stats", {}),
+        }
 
     @router.post("/codex/index/rebuild", tags=["codex"])
     def rebuild(request: Request):
         if not _operator_ok(request):
             raise HTTPException(403, "Operator only.")
-        payload = build_scripture_index()
-        return {"ok": True, "stats": payload.get("stats", {})}
+        s = build_scripture_index()
+        t = build_theme_index()
+        return {"ok": True, "scripture": s.get("stats", {}), "themes": t.get("stats", {})}
 
     return router
 
 
-if __name__ == "__main__":  # python -m api.codex  -> build the index
-    p = build_scripture_index()
-    print(json.dumps(p.get("stats", {}), indent=2))
+if __name__ == "__main__":  # python -m api.codex  -> build all indexes
+    s = build_scripture_index()
+    t = build_theme_index()
+    print(json.dumps({"scripture": s.get("stats", {}), "themes": t.get("stats", {})}, indent=2))

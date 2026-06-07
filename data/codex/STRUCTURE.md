@@ -73,8 +73,19 @@ Heidelberg, Easton) are inverted and surfaced.
 - Page: `/codex-xref.html` (linked from `/codex.html`)
 - Rebuild after the card substrate changes: `python -m api.codex` (or POST the rebuild route).
 
-Still to build in Layer 3: the person, place, theme, authority-tier, author/work,
-and time indexes — and the signed artifact (Face 2).
+**Theme index — BUILT (coarse v1).** `build_theme_index` inverts the conceptual
+card bands into `data/codex/index/themes.json`: **138 themes / 99 concepts /
+17,033 tagged sites**, span measured by distinct authority tier (cross-tradition
+reach). Plumbing, book, enumeration (chapter_N) and verse-ref bands are dropped;
+source-works are tagged `kind=source` apart from concepts. This is a HONEST coarse
+surface — it inverts existing tags, it does not synthesize. A true curated theme
+web (e.g. "faith without a map" → Hebrews 11 + the fathers + the lens) is still
+to come.
+- API: `GET /codex/index/themes`, `/codex/index/themes/{theme}`
+- Page: `/codex-themes.html` (linked from `/codex.html`)
+
+Still to build in Layer 3: the person, place, authority-tier, author/work, and
+time indexes — and the signed artifact (Face 2).
 
 ## What the codex compiler does
 
