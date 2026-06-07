@@ -663,18 +663,27 @@ def _info_hamming(m, text):
 # ── METEOROLOGY ───────────────────────────────────────────────────────────────
 
 @_rule("met_dew_point",
-       r"dew\s+point.*?(\d+\.?\d*)\s*[°]?C.*?humidity.*?(\d+\.?\d*)%"
-       r"|temperature.*?(\d+\.?\d*)\s*[°]?C.*?humidity.*?(\d+\.?\d*)%.*?dew\s+point.*?(\d+\.?\d*)",
+       r"(?=.*dew\s*point)(?=.*humidity)(?=.*\d\s*%)(?=.*\d\s*°?\s*C)",
        "meteorology")
 def _met_dew(m, text):
     import re as _re
-    temp_m = _re.search(r'(?:temperature|temp)[^\d]*(\d+\.?\d*)\s*[°]?C', text, _re.I)
-    rh_m = _re.search(r'humidity[^\d]*(\d+\.?\d*)\s*%', text, _re.I)
-    dp_m = _re.search(r'dew\s+point[^\d]*(\d+\.?\d*)\s*[°]?C', text, _re.I)
-    if not (temp_m and rh_m and dp_m):
+    dp_m = _re.search(r'dew\s*point[^\d-]*(-?\d+\.?\d*)\s*°?\s*C', text, _re.I)
+    rh_m = _re.search(r'(\d+\.?\d*)\s*%', text)
+    if not (dp_m and rh_m):
         return None
-    return {"temperature_c": _num(temp_m.group(1)), "relative_humidity_pct": _num(rh_m.group(1)),
-            "claimed_dew_point_c": _num(dp_m.group(1))}
+    dp = _num(dp_m.group(1))
+    # Air temperature: an explicit "temperature N C", else the first "N C"
+    # appearing before "dew point" (handles "at 25 C and 60% RH, dew point 16.7 C").
+    tm = _re.search(r'(?:temperature|temp|air)[^\d-]*(-?\d+\.?\d*)\s*°?\s*C', text, _re.I)
+    temp = _num(tm.group(1)) if tm else None
+    if temp is None:
+        for cm in _re.finditer(r'(-?\d+\.?\d*)\s*°?\s*C\b', text, _re.I):
+            if cm.start() < dp_m.start():
+                temp = _num(cm.group(1)); break
+    if temp is None:
+        return None
+    return {"temperature_c": temp, "relative_humidity_pct": _num(rh_m.group(1)),
+            "claimed_dew_point_c": dp}
 
 
 @_rule("met_wind_chill",
@@ -864,13 +873,14 @@ def _opt_thin_lens(m, text):
 # ── ELECTRICAL ────────────────────────────────────────────────────────────────
 
 @_rule("elec_ohms_law",
-       r"(\d+\.?\d*)\s*V.*?(\d+\.?\d*)\s*(?:A|amp).*?(\d+\.?\d*)\s*(?:ohm|Ω|omega)"
-       r"|(\d+\.?\d*)\s*(?:ohm|Ω).*?(\d+\.?\d*)\s*(?:A|amp).*?(\d+\.?\d*)\s*V",
+       r"(?=.*(?:volt|\d\s*V))(?=.*(?:amp|\d\s*A))(?=.*(?:ohm|Ω|omega))",
        "electrical")
 def _elec_ohm(m, text):
     import re as _re
-    v_m = _re.search(r'(\d+\.?\d*)\s*V(?:olt)?s?(?:\s|,)', text, _re.I)
-    i_m = _re.search(r'(\d+\.?\d*)\s*(?:A|amp)s?(?:\s|,)', text, _re.I)
+    # Order-independent: the verifier (verify_ohms_law) reads voltage_V/current_A/
+    # resistance_ohm and checks V = I*R. The trigger requires all three units.
+    v_m = _re.search(r'(\d+\.?\d*)\s*V(?:olt)?s?\b', text, _re.I)
+    i_m = _re.search(r'(\d+\.?\d*)\s*(?:A|amp)(?:ere)?s?\b', text, _re.I)
     r_m = _re.search(r'(\d+\.?\d*)\s*(?:ohm|Ω|omega)', text, _re.I)
     if not (v_m and i_m and r_m):
         return None

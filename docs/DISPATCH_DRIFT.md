@@ -69,7 +69,32 @@ pass found the real issues:
 - **Decoy audit CLEAN:** 12 trap inputs (stray G/H codes, numbers, refs, a recipe,
   a prayer) → 0 false-confirms. The dispatcher correctly declines non-claims.
 
-Still NO_MATCH on some natural phrasings (acous_harmonic, fin_compound, chem_balance,
-num_prime "is X a prime") — pure coverage (they fall to the oracle, harmless).
-Widen the regexes carefully (a too-greedy widen is how the ling_strongs false-
-confirm happened); re-run the decoy audit after any widening.
+### Widen batch (2026-06-07, verified + decoy-clean)
+6 rules moved oracle -> deterministic. Method: the trigger was too rigid while
+the extractor re-validates, so broaden the trigger (over-trigger -> extractor
+None / verifier NA — safe), then verify CONFIRMED+MISMATCH and re-run the decoy
+audit:
+- **num_prime** — "is 17 a prime number?" (both phrasings now).
+- **comb_choose** — "N choose K is M" (not just "= M").
+- **acous_harmonic** — harmonic + Hz any order.
+- **fin_compound** — drop the required literal "interest".
+- **elec_ohms_law** — order-independent (lookahead trigger) + extractor word-
+  boundary fix. Verifier `verify_ohms_law` reads voltage_V/current_A/resistance_ohm
+  (keys already matched; only the trigger drifted).
+- **met_dew_point** — lookahead trigger + bare-temp extraction (no "temperature"
+  word needed). CONFIRMED 25C/60%->16.7C; MISMATCH on a wrong dew point.
+
+Decoy audits after each batch: 0 false-confirms.
+
+### Still open
+- **chem_balance** — emits `{equation}`; `verify_equation(eq, ...)` takes the eq
+  string. Need to confirm the MCP `verify_chemistry` wrapper routes `spec["equation"]`
+  -> verify_equation (the NA suggests a wrapper key mismatch). Check
+  `mcp_server/tools.py`.
+- **phys_force** — DEAD: verify_physics does dimensional / conservation / kinematics,
+  but no numeric F=ma magnitude check. Harmless NA -> oracle; candidate for removal.
+- **geo_mohs** — works for "X scratches Y"; "X (Mohs n) is harder than Y (Mohs m)"
+  not handled (coverage). **geo_richter** — fine for ratio claims (not drifted).
+- Remaining backlog domains untested this pass: phys_ke, geo_haversine, info_entropy,
+  sport_*, mfg_cpk, agri_hardiness_zone, logic_*, bio_hardy_weinberg, gen_codon.
+  Same method; decoy-audit each widen.
