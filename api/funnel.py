@@ -198,48 +198,73 @@ def get_router():
             raise HTTPException(404, "Not Found")  # hide existence, like /keep
         return _owner_id()
 
-    @router.post("/funnel", tags=["funnel"])
-    async def funnel_in(request: Request):
-        """The one front door. Every input runs through the three offices:
-        the SHEPHERD discerns (keep it, or suggest a tool); the STEWARD notes
-        resources (free by default); the card is kept on your private shelf. Each
-        decision is logged as a training pair for that office's future model."""
-        owner = _require_owner(request)
-        try:
-            data = await request.json()
-        except Exception:
-            data = {}
+    def _history_from(data):
+        """Build the conversation history from the request. Accepts a running
+        thread `messages: [{role,content}]` (the Socratic exchange) or a single
+        `text` (a fresh deposit). Bounded for safety."""
+        msgs = data.get("messages")
+        if isinstance(msgs, list) and msgs:
+            hist = []
+            for m in msgs[-12:]:  # bound the thread
+                role = "assistant" if m.get("role") == "assistant" else "user"
+                content = str(m.get("content") or "").strip()[:4000]
+                if content:
+                    hist.append({"role": role, "content": content})
+            return hist
         text = (str(data.get("text") or "")).strip()
         if not text:
             raise HTTPException(400, "text is required")
         if len(text) > 4000:
             raise HTTPException(400, "max 4000 chars (cards are index cards)")
+        return [{"role": "user", "content": text}]
 
-        # The Shepherd discerns through the full learning stack (office-model ->
-        # keyword floor; oracle is OFF for this high-frequency door — it stays
-        # free, but it now FEEDS and CONSUMES the local model, so it sharpens
-        # with use). The discern call mints the Shepherd training pair itself.
-        shep = _offices.shepherd_discern([{"role": "user", "content": text}],
-                                         allow_keep=True, allow_oracle=False)
-        # Single-shot door: if the model wants to ask, keep the card + surface the
-        # question (the conversational turn is the next step, #2).
-        if shep.get("action") == "ask":
-            shep = {"action": "keep", "deck": "note",
-                    "say": shep.get("say", "Kept on your shelf."), "via": shep.get("via")}
+    @router.post("/funnel", tags=["funnel"])
+    async def funnel_in(request: Request):
+        """The ONE front door, now conversational. Every input runs through the
+        three offices: the SHEPHERD discerns through its full learning stack
+        (keep · office-model · Steward-gated oracle · keyword floor) and may ask
+        ONE Socratic question to clarify intent; the STEWARD gates + records any
+        oracle spend; on resolution the card is kept on your private shelf and,
+        if routed, the proper tool is offered. The Shepherd asking is what lets
+        deposit.html retire — this door now carries the conversation."""
+        owner = _require_owner(request)
+        try:
+            data = await request.json()
+        except Exception:
+            data = {}
+        history = _history_from(data)
+
+        # Oracle is ON here (Steward-gated): this is the one door, so it must be
+        # able to ask. Tier 0 (keep) catches quick captures for free; the oracle
+        # only fires for genuinely ambiguous, non-capture input, and the Steward
+        # caps the spend. Each call also trains the local model -> it shrinks.
+        shep = _offices.shepherd_discern(history, allow_keep=True, allow_oracle=True)
         steward = _offices.steward_check(shep.get("tool", ""))
-        card = _create_private(text, owner, data.get("deck"), shep)
-
-        # the Steward's resource note becomes its own training pair
-        _offices.log_office_pair("steward", json.dumps({"tool": shep.get("tool")}),
+        _offices.log_office_pair("steward", json.dumps({"tool": shep.get("tool"),
+                                                        "action": shep.get("action")}),
                                  json.dumps(steward, ensure_ascii=False))
 
-        resp = {"ok": True, "card": card, "shelf": "mine",
+        # ASK — hold the thread, no card yet. The browser shows the question and
+        # POSTs back the extended `messages`.
+        if shep.get("action") == "ask":
+            new_history = history + [{"role": "assistant", "content": shep.get("say", "")}]
+            return {"ok": True, "status": "asking", "say": shep.get("say", ""),
+                    "messages": new_history,
+                    "steward": {"budget_remaining_usd": steward["budget_remaining_usd"]}}
+
+        # KEEP / ROUTE — resolve. The card body is the ORIGINAL intent (first
+        # user turn), even after a clarifying exchange.
+        original = next((m["content"] for m in history if m["role"] == "user"),
+                        history[-1]["content"] if history else "")
+        card = _create_private(original, owner, data.get("deck"), shep)
+
+        resp = {"ok": True, "status": shep.get("action"), "card": card, "shelf": "mine",
                 "shepherd": {"action": shep.get("action"), "say": shep.get("say", ""),
                              "tool": shep.get("tool")},
                 "steward": {"budget_remaining_usd": steward["budget_remaining_usd"]}}
         if shep.get("action") == "route" and shep.get("tool"):
             resp["route"] = {"tool": shep["tool"],
-                             "query": shep.get("query", text),
+                             "query": shep.get("query", original),
                              "url": _TOOL_URL.get(shep["tool"], "/walk.html")}
         return resp
 

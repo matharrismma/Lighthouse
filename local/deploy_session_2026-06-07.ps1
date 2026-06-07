@@ -38,7 +38,7 @@ scp "$r\src\concordance_engine\agent\dispatch.py" "$r\src\concordance_engine\age
 Guard "scp dispatch + poly_agent"
 
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
-scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\funnel.html" "$r\site\you.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
+scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\funnel.html" "$r\site\you.html" "$r\site\deposit.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
 Guard "scp site"
 
 Write-Host "4/7  Ensure data/codex dirs exist on the server..." -ForegroundColor Cyan
