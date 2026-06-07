@@ -315,13 +315,21 @@ def _cyber_port(m, text):
 
 @_rule("nutr_calories", r"(\d+\.?\d*)\s*g\s+(?:of\s+)?(?:protein|carb|fat).*?calorie", "nutrition")
 def _nutr_cal(m, text):
-    val = _num(m.group(1))
+    import re as _re
+    val = _num(m.group(1))  # grams of the macronutrient
     t = text.lower()
+    # The CLAIMED calorie figure from the text (not computed — we verify the
+    # user's claim, not our own arithmetic). verify_macronutrient_calories reads
+    # `calories_claimed` against 4*carb_g + 4*protein_g + 9*fat_g.
+    cal_m = _re.search(r'(\d+\.?\d*)\s*(?:kcal|calorie|cal\b)', t)
+    spec = {"calories_claimed": _num(cal_m.group(1)) if cal_m else None}
     if "protein" in t:
-        return {"protein_g": val, "claimed_protein_calories": round(val * 4, 1)}
-    if "carb" in t:
-        return {"carbs_g": val, "claimed_carb_calories": round(val * 4, 1)}
-    return {"fat_g": val, "claimed_fat_calories": round(val * 9, 1)}
+        spec["protein_g"] = val
+    elif "carb" in t:
+        spec["carb_g"] = val
+    else:
+        spec["fat_g"] = val
+    return spec
 
 
 # ── GOVERNANCE ───────────────────────────────────────────────────────
