@@ -703,10 +703,19 @@ def _mus_midi(m, text):
 
 @_rule("mus_interval_semitones",
        r"(?:major\s+third|minor\s+third|perfect\s+fifth|major\s+sixth|octave|tritone).*?(\d+)\s*semitone"
-       r"|(\d+)\s+semitones?\s+(?:is|=|for)\s+(?:a\s+)?(\w+\s+\w+)",
+       r"|(\d+)\s+semitones?\s+(?:is|=|for)\s+(?:a\s+)?(\w+\s+\w+)"
+       r"|([A-G][#b]?\d)\s*(?:to|->|-)\s*([A-G][#b]?\d).*?(\d+)\s*semitone",
        "music_theory")
 def _mus_interval(m, text):
     import re as _re
+    # Note-pair form ("C4 to G4 is 7 semitones") -> note_a/note_b, which
+    # verify_music_theory actually reads. This also keeps such claims from
+    # falling through to ling_strongs (G4 is a Strong's number too).
+    note_m = _re.search(r"\b([A-G][#b]?\d)\s*(?:to|->|-)\s*([A-G][#b]?\d)\b", text)
+    semis_m = _re.search(r'(\d+)\s*semitone', text, _re.I)
+    if note_m and semis_m:
+        return {"note_a": note_m.group(1), "note_b": note_m.group(2),
+                "claimed_semitones": int(semis_m.group(1))}
     INTERVALS = {"major second": 2, "minor third": 3, "major third": 4,
                  "perfect fourth": 5, "tritone": 6, "perfect fifth": 7,
                  "major sixth": 9, "minor seventh": 10, "major seventh": 11, "octave": 12}
@@ -714,7 +723,7 @@ def _mus_interval(m, text):
         if name in text.lower():
             claimed_m = _re.search(r'(\d+)\s*semitone', text, _re.I)
             if claimed_m:
-                return {"interval_name": name, "claimed_semitones": int(claimed_m.group(1))}
+                return {"claimed_interval": name, "claimed_semitones": int(claimed_m.group(1))}
     return None
 
 
@@ -1162,13 +1171,23 @@ def _hyd_manning(m, text):
        "linguistics")
 def _ling_strongs(m, text):
     import re as _re
-    strongs_m = _re.search(r'([GH]\d+)', text)
-    gloss_m = _re.search(r"[GH]\d+\s+(?:means?|is|represents?)\s+(\w+)", text, _re.I)
+    strongs_m = _re.search(r'\b([GH]\d+)\b', text)
     if not strongs_m:
         return None
+    # A gloss is a WORD, never a bare number — "G4 is 7" (a musical note + a
+    # semitone count) must not be read as a Strong's gloss.
+    gloss_m = _re.search(r"[GH]\d+\s+(?:means?|is|represents?)\s+([A-Za-z][\w-]*)", text, _re.I)
+    quoted = _re.search(r"[GH]\d+\s*[\(\"']\s*([A-Za-z][\w-]*)", text)
+    has_context = bool(_re.search(r"strong|hebrew|greek|lexicon|lemma|septuagint|transliterat", text.lower()))
+    # Require a genuine Strong's context: the keyword, a quoted gloss, or a word
+    # gloss. A stray "G4"/"H2" token (a musical note, a grid ref) must not trigger
+    # a lexicon lookup that then "confirms" an unrelated claim.
+    if not (has_context or quoted or gloss_m):
+        return None
     spec = {"strongs": strongs_m.group(1)}
-    if gloss_m:
-        spec["gloss_claim"] = gloss_m.group(1)
+    g = gloss_m.group(1) if gloss_m else (quoted.group(1) if quoted else None)
+    if g:
+        spec["gloss_claim"] = g
     return spec
 
 
