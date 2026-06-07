@@ -33,6 +33,10 @@ Write-Host "2/7  Backend  -> ~/Lighthouse/api/" -ForegroundColor Cyan
 scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
+Write-Host "2b/7 Engine    -> ~/Lighthouse/src/concordance_engine/agent/ (floor: dispatch)" -ForegroundColor Cyan
+scp "$r\src\concordance_engine\agent\dispatch.py" "$srv`:~/Lighthouse/src/concordance_engine/agent/"
+Guard "scp dispatch"
+
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
 scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\funnel.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
 Guard "scp site"

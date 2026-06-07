@@ -51,3 +51,25 @@ The audit is ad-hoc (uses `exrex` to generate matching examples). To reproduce:
 drive each `dispatch._RULES` entry's extractor on a matching example, call
 `ALL_TOOLS["verify_{domain}"]` with `_run_cluster`'s calling convention, and
 flag any rule whose `checks[]` contains no CONFIRMED/MISMATCH status.
+
+## Floor pass 2026-06-07 (REALISTIC-example audit, not generated)
+Lesson confirmed: the generated-input audit overstates drift. A realistic-example
+pass found the real issues:
+- **FALSE-CONFIRM killed (correctness):** `ling_strongs` matched "C4 to G4 is 7
+  semitones" ("G4" is a Strong's number) and *confirmed* a lexicon lookup for a
+  music claim. Fixed: it now requires genuine Strong's context (keyword / quoted
+  gloss / WORD gloss — never a bare number).
+- **`mus_interval_semitones`:** added a note-pair branch (note_a/note_b/
+  claimed_semitones — the keys the verifier reads) so note-interval claims verify
+  (CONFIRMED/MISMATCH); fixed the interval-name path to emit `claimed_interval`
+  (was the unread `interval_name`).
+- **`nutr_calories` reconciled:** emitted `claimed_protein_calories`/`carbs_g`
+  (unread) and *computed* the calories (circular). Now extracts the CLAIMED
+  calories + emits `calories_claimed`+`carb_g`/`protein_g`/`fat_g` → real verdict.
+- **Decoy audit CLEAN:** 12 trap inputs (stray G/H codes, numbers, refs, a recipe,
+  a prayer) → 0 false-confirms. The dispatcher correctly declines non-claims.
+
+Still NO_MATCH on some natural phrasings (acous_harmonic, fin_compound, chem_balance,
+num_prime "is X a prime") — pure coverage (they fall to the oracle, harmless).
+Widen the regexes carefully (a too-greedy widen is how the ling_strongs false-
+confirm happened); re-run the decoy audit after any widening.
