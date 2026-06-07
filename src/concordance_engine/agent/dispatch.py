@@ -359,8 +359,8 @@ def _acous_wave(m, text):
 
 
 @_rule("acous_harmonic",
-       r"(\d+\.?\d*)\s*Hz\s+fundamental.*?harmonic[^=\d]*(\d+)[^=\d]*(\d+\.?\d*)\s*Hz"
-       r"|harmonic.*?(\d+).*?fundamental.*?(\d+\.?\d*)\s*Hz.*?(\d+\.?\d*)\s*Hz",
+       r"harmonic.*?(\d+\.?\d*)\s*Hz"
+       r"|(\d+\.?\d*)\s*Hz.*?harmonic",
        "acoustics")
 def _acous_harmonic(m, text):
     import re as _re
@@ -438,21 +438,18 @@ def _cal_dow(m, text):
 # ── COMBINATORICS ─────────────────────────────────────────────────────────────
 
 @_rule("comb_choose",
-       r"C\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=\s*(\d+)"
-       r"|choose\s+(\d+)\s+from\s+(\d+).*?=?\s*(\d+)"
-       r"|(\d+)\s+choose\s+(\d+)\s*=\s*(\d+)",
+       r"C\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*(?:=|is|equals)?\s*(\d+)"
+       r"|(\d+)\s+choose\s+(\d+)\s*(?:=|is|equals|:)?\s*(\d+)",
        "combinatorics")
 def _comb_choose(m, text):
     import re as _re
-    # Match C(n,k) or "n choose k"
-    explicit = _re.search(r'C\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=?\s*(\d+)', text)
-    nck = _re.search(r'(\d+)\s+choose\s+(\d+)\s*=?\s*(\d+)', text, _re.I)
-    if explicit:
-        return {"comb_n": int(explicit.group(1)), "comb_k": int(explicit.group(2)),
-                "claimed_combinations": int(explicit.group(3))}
-    if nck:
-        return {"comb_n": int(nck.group(1)), "comb_k": int(nck.group(2)),
-                "claimed_combinations": int(nck.group(3))}
+    # C(n,k) or "n choose k", with =, "is", or "equals" before the count.
+    explicit = _re.search(r'C\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*(?:=|is|equals)?\s*(\d+)', text, _re.I)
+    nck = _re.search(r'(\d+)\s+choose\s+(\d+)\s*(?:=|is|equals|:)?\s*(\d+)', text, _re.I)
+    hit = explicit or nck
+    if hit:
+        return {"comb_n": int(hit.group(1)), "comb_k": int(hit.group(2)),
+                "claimed_combinations": int(hit.group(3))}
     return None
 
 
@@ -780,17 +777,18 @@ def _net_cidr(m, text):
 # ── NUMBER THEORY ─────────────────────────────────────────────────────────────
 
 @_rule("num_prime",
-       r"(\d+)\s+is\s+(?:a\s+)?(?:not\s+(?:a\s+)?)?prime\s+number"
-       r"|(?:is\s+)?(\d+)\s+(?:is\s+(?:a\s+)?)?prime",
+       r"\bis\s+(\d+)\s+(?:a\s+)?(?:not\s+(?:a\s+)?)?prime"
+       r"|\b(\d+)\s+is\s+(?:a\s+)?(?:not\s+(?:a\s+)?)?prime",
        "number_theory")
 def _num_prime(m, text):
     import re as _re
-    n_m = _re.search(r'(\d+)\s+is\s+(?:a\s+)?(?:not\s+)?prime', text, _re.I)
+    low = text.lower()
+    # "is 17 (a) prime" OR "17 is (a/not) prime" — both natural phrasings.
+    n_m = (_re.search(r'\bis\s+(\d+)\s+(?:a\s+)?(?:not\s+(?:a\s+)?)?prime', low)
+           or _re.search(r'\b(\d+)\s+is\s+(?:a\s+)?(?:not\s+(?:a\s+)?)?prime', low))
     if not n_m:
         return None
-    n = int(n_m.group(1))
-    claimed = "not" not in text.lower()
-    return {"n_prime": n, "claimed_prime": claimed}
+    return {"n_prime": int(n_m.group(1)), "claimed_prime": "not" not in low}
 
 
 @_rule("num_gcd",
@@ -898,7 +896,7 @@ def _elec_power(m, text):
 # ── FINANCE ───────────────────────────────────────────────────────────────────
 
 @_rule("fin_compound",
-       r"(?:compound\s+)?interest.*?\$?(\d[\d,]*\.?\d*)\s*(?:at|@)\s*(\d+\.?\d*)\s*%.*?(\d+\.?\d*)\s*(?:year|yr).*?\$?(\d[\d,]*\.?\d*)",
+       r"(?:compound|interest|invest|principal|deposit|grows?\s+to).*?\d.*?%.*?(?:year|yr)",
        "finance")
 def _fin_compound(m, text):
     import re as _re
