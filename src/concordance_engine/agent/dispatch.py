@@ -1400,6 +1400,50 @@ def _prob_ev_die(m, text):
             "claimed_expected_value": float(mm.group(2))}
 
 
+# ── HISTORY / CHRONOLOGY ──────────────────────────────────────────────────────
+
+@_rule("history_chronology",
+       r"(?:from\s+)?\d{3,4}\s*(?:to|until|-|–)\s*\d{3,4}\s+is\s+\d+\s*years?"
+       r"|\d+\s*years?\s+(?:between|from)\s+\d{3,4}\s+(?:and|to)\s+\d{3,4}",
+       "history_chronology")
+def _hist_elapsed(m, text):
+    import re as _re
+    a = _re.search(r'(?:from\s+)?(\d{3,4})\s*(?:to|until|-|–)\s*(\d{3,4})\s+is\s+(\d+)\s*years?', text, _re.I)
+    if a:
+        return {"from_year": int(a.group(1)), "to_year": int(a.group(2)),
+                "claimed_elapsed_years": int(a.group(3))}
+    b = _re.search(r'(\d+)\s*years?\s+(?:between|from)\s+(\d{3,4})\s+(?:and|to)\s+(\d{3,4})', text, _re.I)
+    if b:
+        y1, y2 = int(b.group(2)), int(b.group(3))
+        return {"from_year": min(y1, y2), "to_year": max(y1, y2),
+                "claimed_elapsed_years": int(b.group(1))}
+    return None
+
+
+# ── MATERIALS SCIENCE ─────────────────────────────────────────────────────────
+
+@_rule("materials_science",
+       r"densit(?:y|ies)\b.*?\d+\.?\d*\s*kg"
+       r"|\(\s*mohs\s+\d+\.?\d*\s*\).*?harder\s+than.*?\(\s*mohs\s+\d+\.?\d*\s*\)",
+       "materials_science")
+def _materials(m, text):
+    import re as _re
+    low = text.lower()
+    if "densit" in low:
+        mass = _re.search(r'(\d+\.?\d*)\s*kg(?!\s*/)', text, _re.I)
+        vol = _re.search(r'(\d+\.?\d*)\s*(?:m\^?3|m3|cubic\s+met\w+)', text, _re.I)
+        dens = _re.search(r'(\d+\.?\d*)\s*kg\s*/\s*m\^?3|densit\w+\s+(?:of\s+|is\s+)?(\d+\.?\d*)', text, _re.I)
+        if mass and vol and dens:
+            d = dens.group(1) or dens.group(2)
+            return {"mass_kg": float(mass.group(1)), "volume_m3": float(vol.group(1)),
+                    "claimed_density_kg_per_m3": float(d)}
+    hm = _re.search(r'\(\s*mohs\s+(\d+\.?\d*)\s*\).*?harder\s+than.*?\(\s*mohs\s+(\d+\.?\d*)\s*\)', text, _re.I)
+    if hm:
+        return {"material_a_hardness": float(hm.group(1)),
+                "material_b_hardness": float(hm.group(2)), "claimed_a_harder_than_b": True}
+    return None
+
+
 # ── Dispatch function ─────────────────────────────────────────────────
 
 def dispatch(text: str) -> Optional[DispatchResult]:

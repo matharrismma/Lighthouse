@@ -229,6 +229,19 @@ CONFIRMED+MISMATCH, decoy-audit.
 - Decoy audit (12 traps incl. "6-sided table", "determinant of his success"): 0
   false-confirms.
 
-Still-open gap domains (next): thermodynamics (Carnot — need the temp keys),
-physical_constants (unit-string matching is finicky), statistics_* (structured
-inputs), history_chronology, materials_science, oceanography, ecology, etc.
+### Gap batch 2 (verified + decoy-clean) — 2 domains filled
+- **history_chronology** — "from 1914 to 1918 is 4 years" / "55 years between 1969
+  and 2024" (from_year/to_year/claimed_elapsed_years). NOTE: the year->century
+  form (year/claimed_century) returned NA — different artifact key; not built.
+- **materials_science** — "a 2 kg object with volume 0.001 m^3 has density 2000
+  kg/m^3" (mass/volume/density) AND "X (Mohs 10) is harder than Y (Mohs 7)"
+  (material_a/b_hardness) — the latter fills the geo_mohs coverage gap noted above
+  ("(Mohs n) harder than (Mohs m)" was unhandled).
+- Decoys ("density of the crowd", "harder than woodpecker lips", "waited 4 years"):
+  0 false-confirms.
+
+Still-open gap domains (next): thermodynamics (Carnot artifact key unknown — needs
+source read), physical_constants (unit-string matching finicky; Avogadro/Boltzmann/
+charge confirm), oceanography, ecology, operations_research, optics (thin lens),
+statistics_* (structured inputs), law/architecture/rhetoric/philosophy (check
+whether they have NL-claim checks at all).
