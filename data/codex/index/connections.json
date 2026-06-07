@@ -1,12 +1,2509 @@
 {
-  "generated": "2026-06-07T02:25:30.487094+00:00",
+  "generated": "2026-06-07T02:39:01.173199+00:00",
   "stats": {
+    "verified_structural": 81,
+    "verified_structural_pairs": 40,
     "verified_hubs": 139,
     "verified_sources": 332,
     "candidate_pairs": 1269,
     "raw_grid_edges": 13953,
     "domains": 60
   },
+  "verified_structural": [
+    {
+      "id": "polymathic_5_domain",
+      "title": "Five-domain synthesis \u2014 the full hive",
+      "domains": [
+        "chemistry",
+        "labor",
+        "mathematics",
+        "physics_dimensional",
+        "statistics_pvalue"
+      ],
+      "domain_count": 5,
+      "axes": [
+        "conservation_balance",
+        "metabolism",
+        "physical_substance",
+        "reasoning",
+        "authority_trust",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Chemical equation 2 H2 + O2 -> 2 H2O is balanced. F = m*a is dimensionally consistent (newton, kilogram, meter/second**2). Two-sample t-test n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives two-tailed p = 0.00025. The mathematical statement 2+2 = 4 is true. An employee earning $18.50/hour for 40 hours has gro",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "atoms and charge balanced"
+        },
+        {
+          "domain": "physics_dimensional",
+          "verdict": "CONFIRMED",
+          "detail": "both sides reduce to kilogram*meter/second**2"
+        },
+        {
+          "domain": "statistics_pvalue",
+          "verdict": "CONFIRMED",
+          "detail": "claimed p=0.00025, recomputed p\u22480.000276 (within 10% ratio)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "2 + 2 == 4 simplifies to zero"
+        },
+        {
+          "domain": "labor",
+          "verdict": "CONFIRMED",
+          "detail": "gross pay = $740.00 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "polymathic-chemistry_labor_mathematics_physics_dimensional_statistics_pvalue",
+      "title": "Cross-domain seal \u00b7 chemistry + labor + mathematics + physics_dimensional + statistics_pvalue",
+      "domains": [
+        "chemistry",
+        "labor",
+        "mathematics",
+        "physics_dimensional",
+        "statistics_pvalue"
+      ],
+      "domain_count": 5,
+      "axes": [
+        "conservation_balance",
+        "metabolism",
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The chemical equation 2 H2 + O2 -> 2 H2O is balanced. F = m * a is dimensionally consistent with F in newton, m in kilogram, and a in meter/second**2. A two-sample t-test with n1=30, n2=30, mean1=5.0, mean2=4.0, sd1=1.0, sd2=1.0 gives a two-tailed p-value of 0.00025. The mathematical statement 2 + 2 = 4 is true. An emp",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics_dimensional",
+          "verdict": "CONFIRMED",
+          "detail": "both sides reduce to kilogram*meter/second**2"
+        },
+        {
+          "domain": "statistics_pvalue",
+          "verdict": "CONFIRMED",
+          "detail": "claimed p=0.00025, recomputed p=0.000275703 (diff 2.57e-05, ratio 1.10)"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "atoms and charge balanced under stated coefficients"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "atoms and charge balanced under stated coefficients"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "2 + 2 == 4 simplifies to zero"
+        },
+        {
+          "domain": "labor",
+          "verdict": "CONFIRMED",
+          "detail": "gross pay = $740.00 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "practical_citrus_canker_management",
+      "title": "Citrus canker management \u2014 copper sprays (3-week cycle) + windbreaks + sanitation",
+      "domains": [
+        "agriculture",
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Once citrus canker is established in a grove, eradication is generally impossible; management aims to suppress lesions to maintain marketable fruit. Copper bactericide sprays (copper hydroxide or copper sulfate at 200\u2013800 ppm Cu metal equivalent) applied every 21 days during flush periods AND after major storms reduce ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Cu\u00b2\u207a disrupts bacterial thiol enzymes; same active species as Bordeaux mixture (1885) but in modern stabilized formulations"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "21-day copper cycle during flush + post-storm sprays = standard Florida grove protocol"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Copper builds up in soil over years; alternate with non-copper management to slow accumulation"
+        }
+      ]
+    },
+    {
+      "id": "practical_dutch_elm_management",
+      "title": "DED management \u2014 sanitation + propiconazole injection + resistant cultivars",
+      "domains": [
+        "agriculture",
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Once DED is present in an area, sustained American elm populations require integrated management: (1) Sanitation \u2014 prompt removal of dead/dying elm wood within \u00bd mile of healthy trees, root-graft trenching between adjacent trees. (2) Therapeutic / preventive fungicide injection \u2014 propiconazole (Alamo, Tebuject) into th",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Propiconazole is a triazole fungicide; inhibits fungal ergosterol biosynthesis (lanosterol 14\u03b1-demethylase)"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "Resistant American elm cultivars released by Cornell/USDA + Princeton Nurseries provide tolerable + landscape-equivalent alternatives"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Propiconazole injection protects ~50\u201390% over 2\u20133 years; cost and tree health limit treatment to high-value individuals"
+        }
+      ]
+    },
+    {
+      "id": "practical_dutch_elm_vector",
+      "title": "DED vector \u2014 elm bark beetles (Scolytus, Hylurgopinus) + root grafts",
+      "domains": [
+        "agriculture",
+        "biology",
+        "ecology"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Two routes spread Ophiostoma novo-ulmi: (1) elm bark beetles, primarily Scolytus multistriatus (smaller European elm bark beetle) and Hylurgopinus rufipes (native American), which breed in dead/dying elm wood, emerge carrying fungal spores, and feed on healthy elm twig crotches \u2014 inoculating the tree. (2) Root grafts b",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "S. multistriatus and H. rufipes both vector O. novo-ulmi; beetles breed in elm wood \u22642 years dead"
+        },
+        {
+          "domain": "ecology",
+          "verdict": "CONFIRMED",
+          "detail": "Root-graft transmission documented in adjacent street-tree pairs; trenching at 0.9 m depth severs grafts"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "Sanitation pruning (remove ALL beetle-breeding wood within \u00bd mi) was historically the most effective municipal intervention"
+        }
+      ]
+    },
+    {
+      "id": "practical_citrus_canker_spread",
+      "title": "Citrus canker spread \u2014 rain splash, wind-driven rain (~30m), leafminer wounds, contaminated tools",
+      "domains": [
+        "agriculture",
+        "biology",
+        "hydrology"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Xanthomonas citri spreads by water \u2014 rain splash short distances (cm), wind-driven rain up to ~30 m between trees in storms, and longer distances via contaminated tools, clothing, machinery, infected nursery stock, and hurricane events. Leafminer (Phyllocnistis citrella) damage creates entry wounds that increase infect",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "X. citri enters through stomata or wounds; high inoculum + wet tissue = infection. Leafminer wounds bypass the natural stomata defense"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Wind-driven rain spreads bacteria up to ~30 m between trees; hurricane events spread hundreds of m"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "Florida 1995\u20132006 eradication failed largely due to undetectable spread during hurricane seasons"
+        }
+      ]
+    },
+    {
+      "id": "patent_penicillin_production",
+      "title": "Penicillin production \u2014 Florey/Heatley fermentation (1940, expired)",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Penicillium chrysogenum grown in corn-steep liquor at 24\u201326\u00b0C with vigorous aeration produces penicillin G (benzylpenicillin). The \u03b2-lactam ring covalently inhibits bacterial transpeptidase, preventing peptidoglycan cross-linking, lysing growing Gram-positive bacteria. Production: gram quantities per liter of broth aft",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "P. chrysogenum strain NRRL 1951 (Mary Hunt's cantaloupe isolate, 1943) and descendants underlie nearly all production"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Penicillin G structure: 6-aminopenicillanic acid + phenylacetic acid sidechain"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Mechanism: \u03b2-lactam binds PBPs (penicillin-binding proteins), blocking peptidoglycan synthesis"
+        }
+      ]
+    },
+    {
+      "id": "practical_athletes_foot_terbinafine",
+      "title": "Athlete's foot (tinea pedis) \u2014 terbinafine 1% topical, 1\u20132 weeks",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Trichophyton rubrum or T. mentagrophytes infection of the foot skin (between toes, soles, lateral edges) presents as itchy, scaly, sometimes macerated lesions. Terbinafine 1% cream applied twice daily for 7\u201314 days achieves mycological cure rates of 70\u201385%. Mechanism: terbinafine inhibits fungal squalene epoxidase, blo",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Terbinafine is an allylamine; selective squalene epoxidase inhibitor"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Dermatophyte susceptibility to terbinafine MIC\u2089\u2080 \u2264 0.1 \u00b5g/mL"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Cochrane review (terbinafine vs azoles): higher cure, shorter course"
+        }
+      ]
+    },
+    {
+      "id": "practical_poison_ivy_urushiol_wash",
+      "title": "Poison ivy / oak / sumac \u2014 wash with surfactant within minutes; urushiol persists",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Toxicodendron species (poison ivy, oak, sumac) coat their leaves and stems with urushiol \u2014 an oily mixture of 3-n-pentadec(en)yl-catechols. Skin contact binds urushiol to keratin within ~10 minutes; subsequent immune response (delayed-type hypersensitivity) causes the characteristic itching, blistering rash 12\u201372 hours",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Urushiol = 3-pentadec(en)yl-catechols (oxidized to quinones that bind protein nucleophiles); highly lipophilic, slow to wash off without surfactant"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Type IV (delayed) hypersensitivity; T-cell-mediated; reaction peaks 4\u20137 days post-exposure"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Wash <10 min: ~80% severity reduction. Tecnu/Zanfel: solvents specifically formulated for urushiol"
+        }
+      ]
+    },
+    {
+      "id": "practical_impetigo_mupirocin",
+      "title": "Impetigo \u2014 honey-crusted lesions, topical mupirocin or oral cephalexin",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Impetigo is a superficial skin infection \u2014 most commonly by Staphylococcus aureus, sometimes Streptococcus pyogenes \u2014 producing characteristic honey-colored crusted lesions, often around the nose and mouth, highly contagious. Topical mupirocin 2% ointment three times daily for 5 days clears 90%+ of localized cases; ext",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Staph aureus is the dominant pathogen in non-bullous impetigo; Strep pyogenes secondary"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Topical mupirocin and retapamulin both >85% clinical cure in limited impetigo (Cochrane)"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Mupirocin: pseudomonic acid A; reversibly inhibits bacterial Ile-tRNA synthetase"
+        }
+      ]
+    },
+    {
+      "id": "practical_scabies_lice_permethrin",
+      "title": "Scabies / lice \u2014 permethrin 5% cream or 1% shampoo; treat household together",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Scabies (Sarcoptes scabiei mite) and head lice (Pediculus humanus capitis) are both treated with synthetic pyrethroid permethrin: 5% cream for scabies (full-body neck-down, leave 8\u201314 hours, repeat in 7 days), 1% shampoo for head lice (apply, leave 10 minutes, comb out nits, repeat in 7 days). Critical: treat ALL house",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Permethrin paralyzes ectoparasites by sodium-channel disruption; mammalian targets less sensitive by ~1000\u00d7"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Two doses 7 days apart achieves >90% cure; single-dose ~70%"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Pyrethroid class; permethrin is type I (no \u03b1-cyano group); minimal mammalian toxicity at topical doses"
+        }
+      ]
+    },
+    {
+      "id": "practical_medical_honey_wound",
+      "title": "Honey wound dressing \u2014 osmotic + glucose-oxidase H\u2082O\u2082 + (Manuka) methylglyoxal",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "authority_trust"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Honey applied to wounds (minor burns, chronic ulcers, infected surgical wounds) acts as an antibacterial dressing via three mechanisms: (1) high osmotic pressure dehydrates bacteria; (2) glucose oxidase enzyme in honey produces low-level hydrogen peroxide on dilution with wound exudate; (3) Manuka honey specifically co",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Glucose oxidase: glucose + O\u2082 + H\u2082O \u2192 gluconic acid + H\u2082O\u2082; the H\u2082O\u2082 is the antibacterial. Manuka MGO from precursor dihydroxyacetone in nectar."
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Antibacterial activity demonstrated against S. aureus including MRSA, P. aeruginosa, others"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Medical-grade honey on chronic wounds: similar or better healing rates vs conventional dressings (Cochrane 2015)"
+        }
+      ]
+    },
+    {
+      "id": "practical_capsaicin_topical_pain",
+      "title": "Capsaicin topical 0.025\u20130.075% \u2014 TRPV1 desensitization for neuropathic pain",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Capsaicin (8-methyl-N-vanillyl-6-nonenamide, the active in chili peppers) applied topically 4\u00d7 daily for 4+ weeks reduces pain from post-herpetic neuralgia, diabetic neuropathy, and localized musculoskeletal pain. Mechanism: capsaicin binds TRPV1 receptors on small C-fiber nociceptors; initial activation (burning sensa",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Capsaicin: vanilloid receptor agonist; selective TRPV1 binding"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Repeated application depletes Substance P and desensitizes nociceptors; reversible defunctionalization"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "NICE + Cochrane: topical capsaicin recommended for post-herpetic neuralgia and diabetic neuropathy"
+        }
+      ]
+    },
+    {
+      "id": "review_melatonin_circadian",
+      "title": "Melatonin \u2014 CONFIRMED for circadian disorders (jet lag, shift work, DSPS); MIXED for general insomnia",
+      "domains": [
+        "biology",
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "time_sequence",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Melatonin is a pineal-gland hormone that signals 'biological night' to circadian-cycling tissues. Exogenous melatonin (0.3\u20135 mg, timed appropriately) effectively shifts circadian phase \u2014 CONFIRMED for jet lag, shift work disorder, delayed sleep phase syndrome (DSPS), and circadian rhythm disorders in blind people and A",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "N-acetyl-5-methoxytryptamine; MT1 and MT2 receptor agonist"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Phase-shifts circadian clock; advance shift if taken in afternoon/evening; delay if morning"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "AASM 2018 guidelines: melatonin recommended for shift work disorder, delayed sleep phase, jet lag"
+        }
+      ]
+    },
+    {
+      "id": "patent_lactic_fermentation",
+      "title": "Lactic-acid fermentation \u2014 sauerkraut/kimchi/pickle preservation",
+      "domains": [
+        "biology",
+        "chemistry",
+        "nutrition"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "time_sequence",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Vegetables submerged in 2\u20133% salt brine under anaerobic conditions: Leuconostoc mesenteroides ferments sugars first, dropping pH; Lactobacillus plantarum takes over below pH 4.5 and continues to pH 3.4. Below pH 4.0 most pathogens cannot grow; vitamin C is preserved or increased.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Two-stage LAB succession (Leuconostoc \u2192 Lactobacillus) is the canonical sauerkraut microbiology"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "C\u2086H\u2081\u2082O\u2086 \u2192 2 C\u2083H\u2086O\u2083 (homolactic) \u2014 atoms balance"
+        },
+        {
+          "domain": "nutrition",
+          "verdict": "CONFIRMED",
+          "detail": "Vitamin C preserved; B-vitamins increased by LAB synthesis"
+        }
+      ]
+    },
+    {
+      "id": "practical_sunburn_uv_spf_math",
+      "title": "Sunburn / UV damage \u2014 SPF math, broad-spectrum 30+, reapply every 2h",
+      "domains": [
+        "biology",
+        "medicine",
+        "physics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Solar UVB radiation (280\u2013315 nm) causes DNA thymine dimers in keratinocytes; severe exposure causes apoptosis ('sunburn cells'), inflammation, blistering. SPF is the ratio of UV dose needed to redden sunscreen-protected skin to bare skin. SPF 15 blocks ~93% of UVB, SPF 30 blocks ~97%, SPF 50 blocks ~98%, SPF 100 blocks",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "SPF 30 transmits 1/30 of incident UVB (97% block); SPF 50 transmits 1/50 (98%); diminishing returns by design"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Thymine dimers form within seconds of UV exposure; nucleotide excision repair handles most; failures accumulate as mutations"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "One severe blistering sunburn in childhood \u2248 doubles melanoma risk; cumulative dose matters for non-melanoma skin cancer"
+        }
+      ]
+    },
+    {
+      "id": "review_creatine_monohydrate",
+      "title": "Creatine monohydrate \u2014 CONFIRMED for strength + power; emerging cognition data; safest sports supplement",
+      "domains": [
+        "chemistry",
+        "exercise_science",
+        "medicine"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Creatine monohydrate is the most-studied sports supplement in history with >500 RCTs. 5 g/day raises muscle phosphocreatine ~20%, providing more rapid ATP regeneration during high-intensity exercise. CONFIRMED outcomes: 5-15% improvement in strength gains, 1-3 kg additional lean mass over training period (largely water",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Creatine + phosphate \u2192 phosphocreatine \u2192 rapid ATP regeneration via creatine kinase"
+        },
+        {
+          "domain": "exercise_science",
+          "verdict": "CONFIRMED",
+          "detail": "Effect on 1RM strength ~5-10%; on lean mass +1-3 kg; on sprint repeated-bout performance"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Safety in healthy populations established over 30+ years; do not use in pre-existing kidney disease without medical supervision"
+        }
+      ]
+    },
+    {
+      "id": "review_magnesium_form_matters",
+      "title": "Magnesium \u2014 CONFIRMED for deficiency; form matters (glycinate/citrate >> oxide for absorption)",
+      "domains": [
+        "chemistry",
+        "medicine",
+        "nutrition"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Magnesium is essential for ~300 enzymatic reactions including ATP synthesis, muscle contraction, nerve transmission. CONFIRMED benefits: leg cramps (multiple RCTs), migraine prophylaxis (400-600 mg/day, AAN guideline recommendation), constipation (osmotic effect), mild blood pressure reduction (~2-4 mmHg). Form matters",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Mg\u00b2\u207a cofactor for ~300 enzymes; ATP requires Mg-ATP complex"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Migraine prophylaxis (AAN Level B), leg cramps (Cochrane), constipation (osmotic)"
+        },
+        {
+          "domain": "nutrition",
+          "verdict": "CONFIRMED",
+          "detail": "Bioavailability: glycinate ~40%, citrate ~30%, oxide ~4%"
+        }
+      ]
+    },
+    {
+      "id": "review_b12_cyanocobalamin",
+      "title": "Vitamin B12 \u2014 CONFIRMED for deficiency (pernicious anemia, vegan, elderly); MISMATCH for 'energy' in non-deficient",
+      "domains": [
+        "chemistry",
+        "medicine",
+        "nutrition"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Vitamin B12 (cobalamin) is essential for DNA synthesis, neurologic function, red blood cell production. Deficiency causes megaloblastic anemia and progressive neuropathy \u2014 both reversible if caught early, irreversible if neglected. CONFIRMED treatment population: vegans (B12 is essentially absent in plant foods), elder",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Cobalt-containing essential micronutrient; cofactor for two enzymes"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Deficiency causes megaloblastic anemia + neuropathy; supplementation reverses (early)"
+        },
+        {
+          "domain": "nutrition",
+          "verdict": "CONFIRMED",
+          "detail": "Plant foods do not contain meaningful B12; vegans require supplementation or fortified food"
+        }
+      ]
+    },
+    {
+      "id": "governance_decision_packet",
+      "title": "Governance decision \u2014 packet structure check",
+      "domains": [
+        "document_validation",
+        "governance_decision_packet",
+        "witness"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "authority_trust",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A board considers a decision packet with title, scope, red_items, floor_items, way_path, execution_steps, and witnesses fields all populated.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "governance_decision_packet",
+          "verdict": "CONFIRMED",
+          "detail": "all required fields present"
+        },
+        {
+          "domain": "witness",
+          "verdict": "CONFIRMED",
+          "detail": "witness count meets the operator's configured threshold"
+        },
+        {
+          "domain": "document_validation",
+          "verdict": "CONFIRMED",
+          "detail": "date ordering and signatory consistency hold"
+        }
+      ]
+    },
+    {
+      "id": "wage_overtime_concord",
+      "title": "Wage + interest + balance-sheet \u2014 three-domain check",
+      "domains": [
+        "economics",
+        "finance",
+        "labor"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "authority_trust",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "An employee earning $18.50/hour who works 40 hours has gross pay of $740.00. Simple interest on $1,000 at 5% (decimal 0.05) for 3 years is $150.00. A company has assets of $1,000,000, liabilities of $600,000, and equity of $400,000.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "labor",
+          "verdict": "CONFIRMED",
+          "detail": "gross pay = $740.00 (matches claim)"
+        },
+        {
+          "domain": "economics",
+          "verdict": "CONFIRMED",
+          "detail": "I = 150.0000 (matches claim)"
+        },
+        {
+          "domain": "finance",
+          "verdict": "CONFIRMED",
+          "detail": "1000000 = 600000 + 400000"
+        }
+      ]
+    },
+    {
+      "id": "seebeck_thermoelectric_generator",
+      "title": "Seebeck effect \u2014 heat-driven electricity without moving parts",
+      "domains": [
+        "energy",
+        "physics",
+        "thermodynamics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "metabolism",
+        "conservation_balance",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "A temperature gradient across two dissimilar conductors (or doped semiconductors) generates a small DC voltage. Stack many such junctions in series and you have a thermoelectric generator (TEG): a solid-state heat-to-electricity converter with no moving parts, no fuel, just a hot side and a cold side.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Seebeck coefficient measured for every conductor and semiconductor; published in standard references."
+        },
+        {
+          "domain": "energy",
+          "verdict": "CONFIRMED",
+          "detail": "TEG efficiency 5-8% at consumer scale, up to ~15% in lab. RTGs on Voyager / Curiosity / Perseverance use plutonium-238 + TEG modules for decade-scale power."
+        },
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Subject to Carnot limit. The 5-8% practical efficiency reflects irreversibilities in finite-time conduction, not a violation of conservation."
+        }
+      ]
+    },
+    {
+      "id": "practical_citrus_canker_identification",
+      "title": "Citrus canker \u2014 raised corky lesions with yellow halo (Xanthomonas citri)",
+      "domains": [
+        "agriculture",
+        "biology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Citrus canker is caused by the bacterium Xanthomonas citri subsp. citri. Identification: raised, brown, corky lesions 2\u201310 mm diameter on leaves, fruit, and twigs, usually with a yellow chlorotic halo on leaves; lesions on fruit do not extend into the flesh but cause cosmetic disqualification for fresh market. Distingu",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "X. citri subsp. citri \u2014 Gram-negative gammaproteobacterium; PthA effector triggers plant cell hyperplasia"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "Lesion morphology: bilateral, raised, corky; differs from scab (one-sided) and melanose (sandy, gum-deposited)"
+        }
+      ]
+    },
+    {
+      "id": "practical_dutch_elm_identification",
+      "title": "Dutch elm disease \u2014 flagging + top-down wilt + brown xylem streaks",
+      "domains": [
+        "agriculture",
+        "biology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Dutch elm disease (DED) is caused by the fungus Ophiostoma novo-ulmi (and the less aggressive O. ulmi). Identification: 'flagging' \u2014 one or several branches in the upper canopy suddenly wilt with yellow then brown curled leaves, while the rest of the tree appears healthy. The wilt progresses top-down through the tree o",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Ophiostoma novo-ulmi grows in xylem; tree responds with tyloses and gels that occlude vessels \u2192 wilt"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "American elm (Ulmus americana) highly susceptible; English elm (U. procera) similarly. Asian elms (U. parvifolia, U. pumila) largely resistant"
+        }
+      ]
+    },
+    {
+      "id": "agricultural_planting",
+      "title": "Drought-resistant crop \u2014 Mendelian + soil + hydrology",
+      "domains": [
+        "agriculture",
+        "genetics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "metabolism",
+        "physical_substance",
+        "time_sequence",
+        "encoding"
+      ],
+      "verdict": "MIXED",
+      "situation": "A breeder crosses homozygous dominant (TT) and homozygous recessive (tt) corn parent lines. They expect a 3:1 dominant:recessive phenotype ratio in the F2. Soil has nitrogen 30 ppm. Annual rainfall is 400mm.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "3:1 phenotype ratio holds for Tt \u00d7 Tt monohybrid cross"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "drought-resistant variety + low-rainfall regime is a coherent breeding program"
+        }
+      ]
+    },
+    {
+      "id": "patent_treadle_pump",
+      "title": "Treadle pump \u2014 foot-driven irrigation lift, 5,000\u201310,000 L/hr",
+      "domains": [
+        "agriculture",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Twin-cylinder reciprocating piston pumps driven by foot treadles lift water from up to ~7 m depth at flow rates of 5,000\u201310,000 L/hr. ~50 W human power input. Each cylinder pulls water on its up-stroke; alternating treadle action keeps continuous flow. Enables irrigation of ~0.4 ha (one acre) of garden vegetables from ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "P = Q \u00d7 \u03c1gh / \u03b7. 50 W \u00d7 0.7 efficiency = 35 W to water. At 5 m head: Q = 35/(1000\u00d79.81\u00d75) = 0.71 L/s \u2248 2,500 L/hr"
+        },
+        {
+          "domain": "agriculture",
+          "verdict": "CONFIRMED",
+          "detail": "IDE field studies (Bangladesh): 1.5 million units adopted; raised farm incomes 2-3\u00d7 in coverage areas"
+        }
+      ]
+    },
+    {
+      "id": "practical_langstroth_hive",
+      "title": "Langstroth beehive \u2014 movable-frame design with 3/8\" bee space (1852)",
+      "domains": [
+        "architecture",
+        "biology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A hive of vertically stacked rectangular boxes ('supers'), each holding 8 or 10 frames suspended from a top bar with exactly 3/8\" (9.5 mm) of 'bee space' on all sides, allows the beekeeper to remove frames intact without crushing comb or bees. A managed Langstroth hive in good forage produces 20\u201360 kg of surplus honey ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Bee space 6\u20139 mm is left clear by Apis mellifera; outside that range, bees fill with comb or propolis (Langstroth, *The Hive and the Honey-Bee*, 1853)"
+        },
+        {
+          "domain": "architecture",
+          "verdict": "CONFIRMED",
+          "detail": "Modular hive boxes (deeps, mediums, shallows) all share the standard frame and 3/8\" spacing; interchangeable across manufacturers"
+        }
+      ]
+    },
+    {
+      "id": "patent_rammed_earth",
+      "title": "Rammed earth wall \u2014 1\u20135 MPa compressive strength from subsoil",
+      "domains": [
+        "architecture",
+        "materials_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Subsoil (not topsoil) at 8\u201315% moisture content, compacted in 10 cm lifts inside formwork with a heavy tamper, produces a monolithic wall of compressive strength 1\u20135 MPa \u2014 comparable to weak concrete. With 5\u201310% stabilizer (lime or cement) added, strength reaches 5\u201310 MPa. Walls breathe (moisture-buffering), store heat",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "Unstabilized rammed earth 1\u20135 MPa, stabilized 5\u201310 MPa; tensile strength low (needs rebar where seismic)"
+        },
+        {
+          "domain": "architecture",
+          "verdict": "CONFIRMED",
+          "detail": "Walls 30\u201360 cm thick; thermal mass damping >12 h; centuries of historical service (Great Wall sections; Alhambra)"
+        }
+      ]
+    },
+    {
+      "id": "patent_pasteurization",
+      "title": "Pasteurization \u2014 heat-only pathogen kill (Pasteur, 1864)",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "time_sequence",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Heating liquid food (milk, juice, water) to 63\u00b0C for 30 minutes (LTLT, vat) OR 72\u00b0C for 15 seconds (HTST, flash) inactivates vegetative bacterial pathogens including Salmonella, Listeria, E. coli, and Mycobacterium bovis to log-5+ reduction, without sterilizing (spores survive).",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "M. bovis pasteurization kinetics: D\u2086\u2083 \u2248 5 min; 30 min \u2248 6-log inactivation"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Protein denaturation kinetics follow Arrhenius below boiling"
+        }
+      ]
+    },
+    {
+      "id": "patent_mason_jar_canning",
+      "title": "Mason jar home canning \u2014 US 22,186 (1858)",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Boiling-water-bath canning of high-acid food (pH \u2264 4.6) in a Mason-style glass jar with metal lid + rubber seal, processed at 100\u00b0C for 10\u201340 minutes (depending on jar size and food), produces shelf-stable food because heat kills vegetative pathogens and the cooling-vapor pressure differential creates a vacuum seal tha",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Vegetative pathogens inactivated at 100\u00b0C \u00d7 10+ min; C. botulinum requires pH \u2264 4.6 OR pressure canning (\u2265 240\u00b0F / 116\u00b0C)"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Vacuum forms from vapor-pressure differential P_atm \u2212 P_vapor at cooled T"
+        }
+      ]
+    },
+    {
+      "id": "patent_salt_curing_water_activity",
+      "title": "Salt curing \u2014 water activity (a_w) \u2264 0.85 blocks pathogen growth",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Curing meat or fish with 8\u201315% salt by weight reduces water activity to a_w \u2264 0.85; below this threshold, Staphylococcus aureus growth is blocked, and below a_w 0.75 nearly all pathogenic bacteria are excluded. Salt-cured pork (~12% salt) reaches a_w \u2248 0.75\u20130.80 after equilibration.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "a_w = (mass-fraction-water in salt-water mixture); 12% NaCl reduces a_w to ~0.78"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "S. aureus growth threshold a_w = 0.86; C. botulinum = 0.94; most molds = 0.70"
+        }
+      ]
+    },
+    {
+      "id": "patent_composting_c_n_ratio",
+      "title": "Composting C:N ratio \u2014 25\u201330:1 + moisture + air = thermophilic compost",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A pile of organic matter with initial C:N ratio ~25\u201330:1, moisture 50\u201360%, and adequate aeration reaches thermophilic temperatures of 55\u201365\u00b0C within days; pathogens and weed seeds are killed at >55\u00b0C \u00d7 3 days; finished compost is produced in 4\u20138 weeks.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Composting is aerobic oxidation: C\u2093H\u1d67N\u1d64O\u1d65 + O\u2082 \u2192 CO\u2082 + H\u2082O + NH\u2083 + heat; mass balance holds"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Thermophilic phase 55\u201365\u00b0C inactivates Salmonella, E. coli, viable weed seeds"
+        }
+      ]
+    },
+    {
+      "id": "patent_bordeaux_mixture",
+      "title": "Bordeaux mixture \u2014 copper sulfate + lime fungicide (Millardet, 1885)",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Mixing copper sulfate (CuSO\u2084\u00b75H\u2082O) with hydrated lime (Ca(OH)\u2082) in water at the classic 1:1:100 ratio (1 kg CuSO\u2084 : 1 kg lime : 100 L water) produces a blue suspension of copper hydroxide (Cu(OH)\u2082) particles. Sprayed on plants, it controls fungal diseases including downy mildew, powdery mildew, and black spot. CuSO\u2084 + ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "CuSO\u2084 + Ca(OH)\u2082 \u2192 Cu(OH)\u2082\u2193 + CaSO\u2084; atoms and charge balance"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Cu\u00b2\u207a disrupts fungal enzyme thiol groups; classic broad-spectrum contact fungicide since 1885"
+        }
+      ]
+    },
+    {
+      "id": "patent_nitrogen_fixing_legumes",
+      "title": "Legume nitrogen fixation \u2014 Rhizobium + nitrogenase = free fertilizer",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Legume plants (clover, alfalfa, beans, peas, soybeans, peanuts) host Rhizobium bacteria in root nodules. The nitrogenase enzyme converts atmospheric N\u2082 to NH\u2083 (ammonia), then to amino acids. A soybean crop can fix 100\u2013250 kg N/ha/year \u2014 replacing the same nitrogen a synthetic fertilizer would supply. Rotation with non-",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Nitrogenase reaction: N\u2082 + 8 H\u207a + 8 e\u207b + 16 ATP \u2192 2 NH\u2083 + H\u2082 + 16 ADP + P\u1d62"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Rhizobium-legume symbiosis fixes 100\u2013250 kg N/ha/year for soybeans"
+        }
+      ]
+    },
+    {
+      "id": "patent_soap_saponification",
+      "title": "Soap by saponification \u2014 NaOH + fat \u2192 soap + glycerol",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A triglyceride (fat) heated with aqueous NaOH (sodium hydroxide, lye) undergoes saponification: 3 NaOH + triglyceride \u2192 3 sodium salt of fatty acid (soap) + glycerol. Each fat has a specific saponification value (mg KOH/g fat); olive oil \u2248 190; coconut oil \u2248 250. Misalignment of lye-to-fat dose gives either harsh exces",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "3 NaOH + (RCOO)\u2083C\u2083H\u2085 \u2192 3 RCOO\u207bNa\u207a + C\u2083H\u2085(OH)\u2083. Atoms balance."
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Surfactant action: hydrophobic tail + hydrophilic head emulsifies oils, lifting microbes and dirt for rinsing"
+        }
+      ]
+    },
+    {
+      "id": "patent_composting_toilet",
+      "title": "Composting toilet \u2014 Clivus Multrum (Lindstrom, 1939, expired)",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "conservation_balance",
+        "time_sequence",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Human excreta + carbon cover material (sawdust, leaves, wood ash) at ~30:1 C:N ratio, separated from urine (or co-composted), enters a chamber with passive aeration and slow drainage. Thermophilic phase 55\u201365\u00b0C for >3 days inactivates pathogens; full year-long cycle through multiple bins or compartments produces stable",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Pathogen die-off in composting humanure: Salmonella + Ascaris ova both inactivated by either thermophilic phase OR 1-year storage at ambient"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Sawdust/leaves at ~30:1 C:N balance the high-N fresh waste to a thermophilic-capable mix"
+        }
+      ]
+    },
+    {
+      "id": "practical_borax_wood_preservative",
+      "title": "Borax wood preservative \u2014 sodium borate, low-toxicity rot/insect resistance",
+      "domains": [
+        "biology",
+        "chemistry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Soaking wood in sodium borate solution (~10\u201320 g/L Na\u2082B\u2084O\u2087\u00b710H\u2082O) until the borate diffuses through the wood reaches 0.5\u20131.5% borax by mass \u2014 sufficient to deter wood-destroying fungi (decay rate dropped 80\u201395% in standard ASTM E10 tests) and many insects (termites, beetles), with very low mammalian toxicity (LD50 oral",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Boric acid / borate disrupts fungal NAD+/NADH cycle; effective at ~0.5% in wood by mass"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Decay-fungi (Coniophora, Postia, Serpula) suppressed; subterranean termites deterred"
+        }
+      ]
+    },
+    {
+      "id": "patent_slow_sand_filter",
+      "title": "Slow sand filter \u2014 biological water purification (Paisley, 1804)",
+      "domains": [
+        "biology",
+        "hydrology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A bed of 0.15\u20130.30 mm fine sand 60\u2013120 cm deep, fed water at 0.1\u20130.4 m/hr surface loading, develops a biological 'schmutzdecke' (1\u20132 cm gelatinous layer) on top that removes 99%+ of bacteria and turbidity by combined filtration + biofilm predation.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "0.1\u20130.4 m/hr surface loading is the validated design range (WHO, 1996)"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "schmutzdecke removes E. coli at >2 log (99%) reliably; >4 log (99.99%) when mature"
+        }
+      ]
+    },
+    {
+      "id": "practical_ringworm_topical_antifungal",
+      "title": "Ringworm (tinea corporis) \u2014 same antifungals, 4-week topical course",
+      "domains": [
+        "biology",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Tinea corporis presents as expanding annular ('ring-shaped') lesions with raised scaly edge and central clearing on body skin. Caused by the same dermatophyte fungi (Trichophyton, Microsporum, Epidermophyton) as athlete's foot, jock itch, and scalp ringworm. Topical antifungal (clotrimazole, miconazole, terbinafine) ap",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Dermatophyte fungi consume keratin; annular spread is a growth pattern not a worm (despite name 'ringworm')"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Topical azoles or allylamines for limited disease; oral terbinafine 250 mg/day \u00d7 2\u20134 weeks for extensive/scalp"
+        }
+      ]
+    },
+    {
+      "id": "practical_eczema_emollient_ladder",
+      "title": "Eczema (atopic dermatitis) \u2014 moisturize generously, avoid triggers, low-potency steroid for flares",
+      "domains": [
+        "biology",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Atopic dermatitis is a chronic inflammatory skin condition with impaired epidermal barrier function \u2014 often associated with filaggrin gene variants. Skin loses water faster than normal, triggers (irritants, allergens, stress, dry air) provoke inflammation. Management: liberal emollient use (3+ times daily), short cool ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Filaggrin loss-of-function variants in ~10% of European-ancestry populations; carriers have 3\u20135\u00d7 eczema risk"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Emollient ladder (cream \u2192 ointment \u2192 occlusive) provides clinical benefit; topical corticosteroids reduce flare severity 50\u201380%"
+        }
+      ]
+    },
+    {
+      "id": "practical_boil_abscess_warm_compress",
+      "title": "Boil / skin abscess \u2014 warm compress, wait to point, then I&D if needed",
+      "domains": [
+        "biology",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A skin abscess (boil/furuncle) is a localized collection of pus walled off by surrounding tissue, usually Staphylococcus aureus (increasingly community-acquired MRSA). Treatment principle: localized pus must drain to heal. Warm compresses 4\u00d7 daily encourage spontaneous drainage; once 'pointing' (a soft yellow/white hea",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Staph aureus produces virulence factors that wall off into abscesses; pus is concentrated bacteria + neutrophils + dead tissue"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Cochrane 2014: simple drained abscess <2 cm in healthy adult does not require antibiotics; >2 cm or with cellulitis benefits from adjunct antibiotic"
+        }
+      ]
+    },
+    {
+      "id": "practical_saline_nasal_irrigation",
+      "title": "Saline nasal irrigation \u2014 neti pot or squeeze bottle, evidence-based for rhinosinusitis",
+      "domains": [
+        "biology",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Isotonic (0.9%) or hypertonic (2\u20133%) saline solution flushed through the nasal cavity using a neti pot or squeeze bottle physically removes mucus, allergens, and inflammatory mediators. Cochrane meta-analyses show meaningful symptom improvement in chronic rhinosinusitis and allergic rhinitis. Hypertonic provides slight",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Cochrane: saline irrigation reduces symptoms and antibiotic use in chronic rhinosinusitis"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "**WARNING**: Naegleria fowleri brain-eating amoeba can be in tap water; uses untreated tap water = serious risk"
+        }
+      ]
+    },
+    {
+      "id": "review_iron_deficient_only",
+      "title": "Iron \u2014 CONFIRMED for iron-deficiency anemia; HARMFUL if supplementing without deficiency",
+      "domains": [
+        "biology",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Iron supplementation is CONFIRMED for treatment of iron-deficiency anemia (low ferritin + low Hb): hemoglobin recovers, fatigue resolves, cognitive function improves. Adults need 8 mg/day (men) or 18 mg/day (premenopausal women); typical supplements provide 18-65 mg elemental iron. CONFIRMED benefit in: heavy menstrual",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Iron-deficiency anemia treatment (Hb normalization in 6-8 weeks at 60-200 mg elemental Fe/day)"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "No physiologic excretion of iron; uptake regulated at gut; surplus stored as ferritin \u2192 free iron \u2192 ROS damage"
+        }
+      ]
+    },
+    {
+      "id": "patent_hand_washing_semmelweis",
+      "title": "Hand-washing with chlorinated lime \u2014 Semmelweis (1847)",
+      "domains": [
+        "biology",
+        "statistics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Hand-washing in chlorinated lime (Ca(OCl)\u2082) solution between patients reduced puerperal fever mortality in Vienna General Hospital's First Obstetric Clinic from 18.3% (1846) to 2.2% (1848). Modern equivalent: soap + 20 seconds, OR alcohol-based hand rub (60\u201380% ethanol or isopropanol).",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "statistics",
+          "verdict": "CONFIRMED",
+          "detail": "Mortality drop 18.3% \u2192 2.2% over a single year is a >5-sigma effect for n \u2248 4000 births/year"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Hand-borne Streptococcus pyogenes was the puerperal fever pathogen; transmission interrupted by handwash"
+        }
+      ]
+    },
+    {
+      "id": "patent_root_cellar",
+      "title": "Root cellar \u2014 soil thermal mass + humidity for winter storage",
+      "domains": [
+        "biology",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "time_sequence",
+        "metabolism"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "An underground or earth-bermed chamber at 0.5\u20132 m depth holds 32\u201340\u00b0F (0\u20134\u00b0C) and 85\u201395% relative humidity year-round via soil thermal mass and ground-water-table coupling. Root vegetables (potatoes, carrots, beets, parsnips, cabbage) keep 3\u20136 months with no electricity.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Soil temperature damping: amplitude halves every ~1 m depth; phase lags ~30 days per m"
+        },
+        {
+          "domain": "biology",
+          "verdict": "CONFIRMED",
+          "detail": "Respiration of stored roots slows ~half per 10\u00b0C drop (Q\u2081\u2080)"
+        }
+      ]
+    },
+    {
+      "id": "practical_daniell_cell_battery",
+      "title": "Daniell cell \u2014 zinc / copper-sulfate wet battery, 1.1V steady",
+      "domains": [
+        "chemistry",
+        "electrical"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A Daniell cell built from a zinc rod in ZnSO\u2084 electrolyte separated by a porous barrier from a copper rod in CuSO\u2084 electrolyte produces a steady terminal voltage of 1.10 V (open-circuit). The cell sustains useful current for telegraphy and clock-driving for months without recharging \u2014 the historical workhorse of the 19",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Standard electrode potentials sum to 1.10 V; cell shows 1.08\u20131.10 V open circuit in practice"
+        },
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "Internal resistance ~1\u03a9 in classroom-size cell; useful for low-current sustained loads (mA range)"
+        }
+      ]
+    },
+    {
+      "id": "practical_copper_electroplating",
+      "title": "Copper electroplating \u2014 CuSO\u2084 + H\u2082SO\u2084 + DC current",
+      "domains": [
+        "chemistry",
+        "electrical"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Electroplating copper onto a conductive substrate uses a copper anode + the object (cathode) in an electrolyte of ~200 g/L CuSO\u2084 + 50 g/L H\u2082SO\u2084 at 1\u20133 V DC. Faraday's law fixes deposition rate: 1 ampere-hour deposits 1.186 g of copper. Quality depends on current density (~0.02\u20130.05 A/cm\u00b2) and electrolyte cleanliness.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Cu\u00b2\u207a + 2e\u207b \u2192 Cu (cathode); Cu \u2192 Cu\u00b2\u207a + 2e\u207b (anode). Anode dissolves to replenish; bath stable."
+        },
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "Voltage 1\u20133 V; current density 0.02\u20130.05 A/cm\u00b2 for bright deposit"
+        }
+      ]
+    },
+    {
+      "id": "patent_charcoal_retort_kiln",
+      "title": "Charcoal retort kiln \u2014 pyrolysis at 400\u2013700\u00b0C",
+      "domains": [
+        "chemistry",
+        "energy"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Heating wood in an oxygen-limited chamber (retort) to 400\u2013700\u00b0C drives off volatile compounds (water, tars, methanol, acetic acid, wood gas) leaving behind carbon-rich charcoal (~75\u201385% carbon by weight). Yield: ~25\u201335% of dry wood mass becomes charcoal. The released wood gas can be captured and burned to heat the kiln",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Pyrolysis temperatures: 200\u2013280\u00b0C drying + initial decomp; 280\u2013500\u00b0C tar and gas release; 500\u2013700\u00b0C completion to high-carbon char"
+        },
+        {
+          "domain": "energy",
+          "verdict": "CONFIRMED",
+          "detail": "Wood gas energy content ~5 MJ/Nm\u00b3; can be burned to drive the kiln"
+        }
+      ]
+    },
+    {
+      "id": "patent_lime_mortar",
+      "title": "Lime mortar \u2014 CaO/Ca(OH)\u2082/CaCO\u2083 reversible carbon cycle",
+      "domains": [
+        "chemistry",
+        "materials_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Three reactions: (1) calcination at 900\u00b0C: CaCO\u2083 \u2192 CaO + CO\u2082; (2) slaking with water: CaO + H\u2082O \u2192 Ca(OH)\u2082; (3) carbonation in air over months to years: Ca(OH)\u2082 + CO\u2082 \u2192 CaCO\u2083 + H\u2082O. All atoms balance; the cement reabsorbs the CO\u2082 released in step 1 over the life of the building. Compressive strength 0.5\u20132 MPa (lower tha",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "CaCO\u2083 \u2192 CaO + CO\u2082 (calcination); CaO + H\u2082O \u2192 Ca(OH)\u2082 (slaking); Ca(OH)\u2082 + CO\u2082 \u2192 CaCO\u2083 + H\u2082O (carbonation). All atoms balance."
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "Hydraulic lime sets faster (weeks) than air lime (months/years); strength 0.5\u20132 MPa"
+        }
+      ]
+    },
+    {
+      "id": "practical_concrete_1_2_3",
+      "title": "Concrete 1:2:3 \u2014 cement : sand : gravel by volume, ~3000 psi",
+      "domains": [
+        "chemistry",
+        "materials_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A concrete mix of 1 part Portland cement, 2 parts clean sharp sand, 3 parts coarse aggregate (3/4\" gravel) by volume, combined with water to a w/c ratio of 0.45\u20130.55, cures to a compressive strength of approximately 20 MPa (3000 psi) at 28 days. Suitable for foundations, slabs, footings, and reinforced beams in light r",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Cement hydration produces calcium-silicate-hydrate gel; full strength reached at 28 days (Portland cement industry standard)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "1:2:3 mix achieves ~20 MPa at 28 days standard cure (ACI 318 reference)"
+        }
+      ]
+    },
+    {
+      "id": "practical_milk_paint",
+      "title": "Milk paint \u2014 casein + lime + pigment, no VOCs, 200+ years of use",
+      "domains": [
+        "chemistry",
+        "materials_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Mixing skim milk (or quark/curds) with hydrated lime (Ca(OH)\u2082) saponifies the milk protein casein into calcium caseinate \u2014 a water-resistant binder. With earth pigments (ochre, umber, iron oxides), this produces a durable matte finish that has protected American colonial furniture and Shaker buildings for centuries.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Casein + Ca(OH)\u2082 \u2192 calcium caseinate (water-resistant film-former); pigments suspend as inert particles in the binder"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "Vapor-permeable finish; flexes with wood substrate; ~15\u201325 year life on protected surfaces"
+        }
+      ]
+    },
+    {
+      "id": "practical_concrete_block_home_made",
+      "title": "Concrete masonry units (CMU) \u2014 home-made hollow blocks, 1:3:5 mix",
+      "domains": [
+        "chemistry",
+        "materials_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Standard concrete blocks 8\u00d78\u00d716 inches (~190\u00d7190\u00d7390 mm) made in a manual block-press from a low-slump 1:3:5 cement:sand:gravel mix achieve compressive strength of ~7 MPa after 28 days \u2014 adequate for non-load-bearing walls and adequately reinforced load-bearing walls in residential construction. One person + one press ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Same Portland-cement hydration as standard concrete; lower w/c gives strength + immediate green strength"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "ASTM C90: medium-weight CMU compressive strength minimum 13.1 MPa NET area for load-bearing; ~7 MPa hand-made blocks suit non-load-bearing or reinforced applications"
+        }
+      ]
+    },
+    {
+      "id": "patent_chlorination_dose_math",
+      "title": "Chlorination dosing \u2014 free chlorine residual \u22650.5 mg/L for safe water",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "authority_trust"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Adding sodium hypochlorite (NaClO) to water at 2 mg/L active chlorine for 30 minutes contact time, holding a free chlorine residual of \u22650.5 mg/L, inactivates >99.99% of bacteria, viruses, and Giardia cysts. NaClO + H\u2082O \u21cc HClO + NaOH; HClO is the active germicide.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "NaClO hydrolysis to HClO is pH-dependent; at pH 7, ~75% is HClO"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "WHO drinking-water guideline: \u22650.5 mg/L free chlorine residual after 30 min contact"
+        }
+      ]
+    },
+    {
+      "id": "patent_oral_rehydration_solution",
+      "title": "Oral rehydration solution (ORS) \u2014 WHO formula, ~$0.10/dose",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "1 liter of safe water + 2.6 g NaCl + 1.5 g KCl + 2.9 g trisodium citrate + 13.5 g glucose = WHO low-osmolarity ORS (245 mOsm/L). Reduces cholera and acute diarrhea mortality from ~50% to <1%. Glucose drives sodium absorption via SGLT1 even when the gut is otherwise leaking water.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Osmolarity \u2248 (Na\u207a + K\u207a + Cl\u207b + citrate + glucose) \u2248 245 mOsm/L"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Lancet 1978: ORS reduces case-fatality of severe dehydrating diarrhea from 30\u201350% to <1%"
+        }
+      ]
+    },
+    {
+      "id": "patent_iodine_tincture",
+      "title": "Iodine tincture antiseptic \u2014 broad-spectrum since 1839",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "2% iodine + 2.4% sodium iodide in 47% ethanol (USP Tincture of Iodine) kills bacteria, viruses, fungi, and protozoa on contact. Applied to skin pre-procedure, it reduces surgical-site infection. 5 drops of 2% iodine per liter of water purifies it in 30 minutes (emergency dose; not for chronic use due to thyroid load).",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "I\u2082 in ethanol stays dissolved; KI or NaI shifts equilibrium to I\u2083\u207b keeping it soluble"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Pre-surgical iodine reduces SSI; emergency water purification at 5 drops 2%/L \u00d7 30 min"
+        }
+      ]
+    },
+    {
+      "id": "practical_aloe_vera_burns",
+      "title": "Aloe vera gel \u2014 cooling + mild anti-inflammatory for minor burns and sunburn",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Aloe vera gel (from Aloe barbadensis leaves) applied to minor first-degree and small second-degree burns reduces pain and accelerates re-epithelialization. Active components: acemannan (polysaccharide, anti-inflammatory), glucomannan (mucilage, cooling/occlusive), low concentrations of salicylates. Mechanism: surface c",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Acemannan + glucomannan polysaccharides with documented anti-inflammatory cell-culture effects"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Cochrane meta-analyses + clinical practice guidelines recognize aloe for minor (1st-degree, small 2nd-degree) burns"
+        }
+      ]
+    },
+    {
+      "id": "practical_peppermint_oil_ibs",
+      "title": "Peppermint oil (enteric-coated) \u2014 menthol smooth-muscle relaxant for IBS",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Enteric-coated peppermint oil capsules (180\u2013225 mg) taken 3\u00d7 daily reduce overall IBS symptoms in 60\u201370% of patients vs ~40% placebo. Active compound is menthol, which blocks L-type calcium channels in intestinal smooth muscle and provides direct relaxation. Enteric coating is essential \u2014 uncoated peppermint oil releas",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Menthol acts at L-type Ca channels and on TRPM8 receptors; smooth-muscle relaxation predominates clinically"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Meta-analyses + ACG 2021 guidelines: peppermint oil recommended for IBS pain and global symptoms"
+        }
+      ]
+    },
+    {
+      "id": "practical_ginger_nausea",
+      "title": "Ginger \u2014 1g/day for nausea (pregnancy, chemo, motion, post-op)",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Ginger (Zingiber officinale) root, taken at 1\u20131.5 grams per day in divided doses, reduces nausea and vomiting in pregnancy (NVP), chemotherapy-induced nausea, motion sickness, and post-operative nausea. Multiple RCTs and meta-analyses converge on efficacy. Active compounds: gingerols (fresh) and shogaols (dried) act on",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Gingerols and shogaols antagonize 5-HT3 receptors (same target as ondansetron); also inhibit prostaglandin synthesis"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "ACOG: ginger first-line for NVP. Cochrane: effective for nausea in pregnancy, chemo, motion sickness, post-op"
+        }
+      ]
+    },
+    {
+      "id": "practical_willow_bark_salicin",
+      "title": "Willow bark \u2014 salicin \u2192 salicylic acid; the original aspirin, same effects + risks",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Willow bark (Salix alba and related species) contains salicin, a glycoside that is metabolized in the body to salicylic acid \u2014 the active metabolite that aspirin (acetylsalicylic acid) is acetylated for. 240 mg salicin (~120\u2013240 mg salicylic acid in vivo) provides analgesic and anti-inflammatory effect comparable to ~5",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Salicin \u2192 saligenin \u2192 salicylic acid (hepatic). Acetylsalicylic acid (aspirin) is acetylated SA with shorter onset, less GI irritation"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Willow bark 240 mg salicin daily \u2248 low-dose aspirin for back pain (Schmid 2001 RCT)"
+        }
+      ]
+    },
+    {
+      "id": "practical_witch_hazel_astringent",
+      "title": "Witch hazel \u2014 tannins astringent for minor skin, hemorrhoids, insect bites",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Witch hazel extract (Hamamelis virginiana) contains 4\u201310% tannins (gallic acid derivatives) that precipitate skin proteins, causing tissue tightening and reducing minor inflammation, oozing, and itching. Topical application is well-tolerated and broadly safe. Indicated uses: minor skin irritation, insect bites, hemorrh",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Hamamelitannin + gallic acid derivatives bind protein side-chains, cross-linking surface tissue"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "USP and BP monographs; topical astringent and anti-inflammatory; safe for adults and children"
+        }
+      ]
+    },
+    {
+      "id": "practical_activated_charcoal_poisoning",
+      "title": "Activated charcoal \u2014 emergency poisoning only; 'detox' uses are MISMATCH",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "MIXED",
+      "situation": "Activated charcoal (highly porous carbon, ~1000 m\u00b2/g surface area) adsorbs many drugs and toxins via van der Waals forces. Clinical use is well-established: oral activated charcoal 1 g/kg within 1 hour of acute ingestion of certain poisons (acetaminophen, aspirin, tricyclic antidepressants, many others) reduces systemi",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "High surface area (~1000 m\u00b2/g) adsorbs many small organic molecules in gut lumen"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Standard ER intervention for many acute oral overdoses if ingestion within 1 hour; not effective for alcohols, heavy metals, lithium, iron"
+        }
+      ]
+    },
+    {
+      "id": "review_vitamin_d_supplementation",
+      "title": "Vitamin D \u2014 CONFIRMED for deficiency (25-OH <20 ng/mL); MIXED for healthy populations",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Vitamin D3 supplementation at 1000\u20134000 IU/day raises serum 25-hydroxyvitamin D. CONFIRMED benefits in deficient populations: rickets (children), osteomalacia (adults), reduced fracture risk in elderly with low baseline. MIXED in healthy populations with adequate baseline: VITAL trial (n=25,871, NEJM 2019) was largely ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Deficiency causes rickets/osteomalacia; supplementation corrects (Cochrane)"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Cholecalciferol \u2192 25-OH-D (liver) \u2192 1,25-(OH)2-D (kidney) \u2192 VDR transcription"
+        }
+      ]
+    },
+    {
+      "id": "review_coq10_ubiquinone",
+      "title": "CoQ10 \u2014 MIXED; CONFIRMED for heart failure (Q-SYMBIO); statin myalgia evidence mixed; anti-aging claims unsupported",
+      "domains": [
+        "chemistry",
+        "medicine"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Coenzyme Q10 is an electron carrier in the mitochondrial respiratory chain, essential for ATP production. Endogenously produced; levels decline with age and in some disease states. CONFIRMED: Q-SYMBIO trial (n=420, JACC 2014) showed 43% reduction in major cardiac events at 100 mg \u00d7 3 daily in chronic heart failure. MIX",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Electron carrier in mitochondrial Complex III; essential for oxidative phosphorylation"
+        },
+        {
+          "domain": "medicine",
+          "verdict": "CONFIRMED",
+          "detail": "Q-SYMBIO: 43% reduction in MACE in chronic heart failure with 300 mg/day"
+        }
+      ]
+    },
+    {
+      "id": "review_whey_protein",
+      "title": "Whey protein \u2014 CONFIRMED for convenience and protein adequacy; MIXED for hypertrophy beyond dietary protein",
+      "domains": [
+        "chemistry",
+        "nutrition"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Whey protein is a high-bioavailability complete protein (~24 g protein per scoop) extracted from milk. CONFIRMED utility: meeting daily protein targets (~1.6-2.2 g/kg for resistance trainees), post-workout convenience, fast leucine absorption. MIXED claim: that whey protein per se produces hypertrophy beyond simply mee",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "nutrition",
+          "verdict": "CONFIRMED",
+          "detail": "Complete protein with high BCAA content; leucine triggers mTOR pathway for muscle synthesis"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Whey protein concentrate ~80% protein; isolate ~90%; hydrolysate pre-digested for faster absorption"
+        }
+      ]
+    },
+    {
+      "id": "review_fish_oil_omega3",
+      "title": "Fish oil (EPA/DHA) \u2014 MIXED for general cardiovascular; CONFIRMED for hypertriglyceridemia at prescription dose",
+      "domains": [
+        "chemistry",
+        "statistics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "MIXED",
+      "situation": "Omega-3 polyunsaturated fatty acids (EPA + DHA) are essential structural components of cell membranes and precursors of anti-inflammatory eicosanoids. Cardiovascular outcomes from supplementation have been revised downward repeatedly: VITAL (n=25,871, 2019), ASCEND (n=15,480, 2018), and STRENGTH (n=13,078, 2020) all nu",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "EPA + DHA: essential, structural, eicosanoid precursors"
+        },
+        {
+          "domain": "statistics",
+          "verdict": "CONFIRMED",
+          "detail": "Multiple large RCTs converge on null for primary prevention; subgroups have signal"
+        }
+      ]
+    },
+    {
+      "id": "patent_rocket_stove",
+      "title": "Rocket stove \u2014 L-feed insulated combustion chamber (Winiarski 1980s)",
+      "domains": [
+        "chemistry",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "An L-shaped feed (horizontal stick chamber + vertical insulated combustion chimney) with a tight pot skirt achieves near-complete wood combustion. Thermal efficiency to pot reaches 30\u201345%, compared to 5\u201315% for an open three-stone fire. Wood consumption per cooking task drops 4\u20137x.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Open fire ~5\u201315% efficient to pot; rocket stove 30\u201345% (Aprovecho lab measurements)"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "Combustion 2C + O\u2082 \u2192 2CO + heat; CO + \u00bdO\u2082 \u2192 CO\u2082 + more heat; both go to completion above 700\u00b0C"
+        }
+      ]
+    },
+    {
+      "id": "patent_rocket_mass_heater",
+      "title": "Rocket mass heater \u2014 70\u201390% efficient wood heat into thermal-mass bench",
+      "domains": [
+        "chemistry",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Rocket-stove combustion (insulated J-tube, internal temperatures 800\u20131000\u00b0C, near-complete burn) routed through a horizontal duct embedded in a cob or masonry bench. The thermal mass absorbs 70\u201390% of the heat that would escape an ordinary stovepipe, releasing it slowly over 12\u201324 hours. Wood consumption per heating se",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Exhaust temperatures often <100\u00b0C (vs 200\u2013400\u00b0C for conventional stoves); difference is heat retained in mass"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "J-tube combustion temperatures >800\u00b0C \u2192 complete oxidation of CO and volatiles \u2192 near-zero PM2.5 emissions"
+        }
+      ]
+    },
+    {
+      "id": "patent_bicycle_generator",
+      "title": "Bicycle generator \u2014 50\u2013100W sustainable human electrical output",
+      "domains": [
+        "electrical",
+        "exercise_science"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A trained adult sustains 60\u2013100W mechanical output for hours; with 80\u201385% efficient permanent-magnet generator + rectifier + voltage regulator, ~50\u201380W of usable DC electrical output. Enough to run LED lighting (3 \u00d7 5W), a radio (3W), a phone charger (5W), or charge a 12V battery (slowly).",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "exercise_science",
+          "verdict": "CONFIRMED",
+          "detail": "Sustained human cycling output: 75W untrained, 150W trained (FTP)"
+        },
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "PM generator efficiency 75\u201390%; net output 50\u201380% of mechanical input"
+        }
+      ]
+    },
+    {
+      "id": "patent_crystal_radio",
+      "title": "Crystal radio \u2014 AM reception with zero external power",
+      "domains": [
+        "electrical",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "information_encoding",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "An LC tank circuit (coil + variable capacitor) tunes to an AM broadcast frequency; a galena or germanium-diode point-contact detector demodulates the AM envelope; high-impedance headphones (\u22652 k\u03a9) reproduce audio. Energy comes entirely from the broadcast signal itself; no batteries, no transistors, no IC. A long antenn",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "Resonant f = 1/(2\u03c0\u221aLC); typical AM band 540\u20131700 kHz; L = 240 \u00b5H + C = 365 pF max tunes the band"
+        },
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Galena (PbS) and germanium are natural semiconductors; their I/V asymmetry rectifies the carrier"
+        }
+      ]
+    },
+    {
+      "id": "patent_yagi_uda_antenna",
+      "title": "Yagi-Uda antenna \u2014 1926, directional gain from parasitic elements",
+      "domains": [
+        "electrical",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "information_encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A driven half-wave dipole + one reflector (5% longer than driven, \u03bb/4 behind) + 1\u2013N directors (each 5% shorter than the previous, \u03bb/4 spacing in front) produces a directional radiation pattern with 6\u201314 dBi forward gain. The directors are not connected \u2014 only inductive coupling reshapes the pattern.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Half-wave dipole \u03bb/2 long; director spacing 0.15\u20130.25 \u03bb optimum; theoretical max gain ~12 dBi for 6-element"
+        },
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "Driven element ~73\u03a9; matched via balun or gamma match to 50\u03a9 coax"
+        }
+      ]
+    },
+    {
+      "id": "practical_solar_water_heater_copper_coil",
+      "title": "Solar water heater \u2014 copper coil + glazing + insulated box",
+      "domains": [
+        "energy",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "physical_substance",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A copper pipe coiled inside a black-painted, insulated wooden box with a glass cover absorbs solar energy and transfers it to water flowing through (or stored in) the coil. At 6 kWh/m\u00b2/day insolation and ~50% net thermal efficiency, a 2 m\u00b2 collector heats ~50 L of water from 15\u00b0C to 50\u00b0C in a sunny day \u2014 enough for a h",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Energy needed: 50kg \u00d7 4.18 kJ/kgK \u00d7 35K = 7.3 MJ \u2248 2 kWh"
+        },
+        {
+          "domain": "energy",
+          "verdict": "CONFIRMED",
+          "detail": "2 m\u00b2 \u00d7 6 kWh/m\u00b2/day \u00d7 50% efficiency = 6 kWh/day available, far exceeds 2 kWh needed"
+        }
+      ]
+    },
+    {
+      "id": "patent_safety_bicycle",
+      "title": "Safety bicycle \u2014 Rover (Starley, 1885) + pneumatic tire (Dunlop, 1888)",
+      "domains": [
+        "exercise_science",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Diamond-frame bicycle with same-size wheels, chain drive (typical 2:1 gear ratio at the rear wheel), and pneumatic tires lets a person travel 3\u20135\u00d7 their walking speed for the same metabolic cost. ~20 km/h sustainable on flat over hours; 5\u201310 W/kg metabolic load. Multiplies a human's effective working range by 4\u20135\u00d7.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Rolling resistance Crr \u2248 0.005 on pavement; aero drag dominates above 25 km/h"
+        },
+        {
+          "domain": "exercise_science",
+          "verdict": "CONFIRMED",
+          "detail": "Cycling is the most metabolically efficient human locomotion: ~5 kJ/(km\u00b7kg) vs ~15 for walking"
+        }
+      ]
+    },
+    {
+      "id": "almanac_codon_redundancy_phenylalanine",
+      "title": "TTT and TTC both code for phenylalanine \u2014 synonymous codons (wobble base)",
+      "domains": [
+        "genetics",
+        "information_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "information_encoding",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Both TTT and TTC translate to phenylalanine (F) under the standard genetic code. The genetic code is redundant: 64 codons map to 20 amino acids + stop, so most amino acids have multiple synonymous codons.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "TTT \u2192 F and TTC \u2192 F (synonymous codons, wobble base)"
+        },
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "Redundant code: 64 codewords mapping to 21 outputs (20 amino acids + stop), surplus = 43 redundant codons."
+        }
+      ]
+    },
+    {
+      "id": "patent_morse_code",
+      "title": "Morse code \u2014 variable-length encoding (Vail/Morse, 1838)",
+      "domains": [
+        "information_theory",
+        "linguistics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "information_encoding",
+        "time_sequence",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Morse code maps each letter to a unique sequence of dots (1 unit) and dashes (3 units), with intra-character gaps of 1 unit, inter-character gaps of 3 units, and inter-word gaps of 7 units. Letter frequency in English roughly inversely correlates with code length (E=\u2022, T=-, both single-unit). Practical hand-key speeds:",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "Variable-length encoding; average code length ~10 units/letter in English; SNR floor below voice"
+        },
+        {
+          "domain": "linguistics",
+          "verdict": "CONFIRMED",
+          "detail": "Code length anti-correlates with letter frequency (Vail's printer type-case analysis)"
+        }
+      ]
+    },
+    {
+      "id": "practical_roubo_workbench",
+      "title": "Roubo workbench \u2014 massive top + leg vise + holdfast (1769)",
+      "domains": [
+        "manufacturing",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A solid-wood workbench with a 4\u20136\" thick laminated top, sliding leg vise, and holdfast-hole array provides a work-holding surface mass-stable against hand-tool forces. The design (Andr\u00e9 Roubo, *L'Art du Menuisier*, 1769) is the universal pattern for hand-tool woodworking: top thick enough that a chisel mortise doesn't ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "100 kg of bench mass + held-down workpiece reduces planing-stroke vibration by ~70% vs. lightweight bench"
+        },
+        {
+          "domain": "manufacturing",
+          "verdict": "CONFIRMED",
+          "detail": "Roubo design (Plate 11, L'Art du Menuisier) has been continuously reproduced in PD form since 1769"
+        }
+      ]
+    },
+    {
+      "id": "practical_sand_casting_aluminum",
+      "title": "Sand casting \u2014 green sand + wooden pattern \u2192 aluminum or lead castings",
+      "domains": [
+        "manufacturing",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Pattern-imprinted molding sand (silica sand + 5\u201310% bentonite clay + 3\u20135% water) in a two-part flask provides a cavity into which molten metal (aluminum at 660\u00b0C, lead at 327\u00b0C, bronze at 950\u00b0C) is poured. After solidification (seconds to minutes), the sand is broken away to reveal the cast object. The same basic proce",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Aluminum melts 660\u00b0C; pour at 720\u2013760\u00b0C for fluidity; cools/solidifies in green sand without sticking"
+        },
+        {
+          "domain": "manufacturing",
+          "verdict": "CONFIRMED",
+          "detail": "Bentonite-bonded green sand (90% silica + 8% bentonite + 4% water) is the standard formulation, unchanged in 100+ years"
+        }
+      ]
+    },
+    {
+      "id": "practical_coal_forge_bellows",
+      "title": "Coal forge with hand bellows \u2014 wrought iron and steel work from 800\u20131300\u00b0C",
+      "domains": [
+        "manufacturing",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "metabolism",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A clay-lined firepot fed by hand-pumped bellows or hand-cranked blower burns bituminous coal or coke at 1100\u20131400\u00b0C \u2014 hot enough to make steel red, orange, and yellow, soft enough to hammer-forge into tools, hardware, and structural shapes. The basic configuration has powered village blacksmithing for 3000 years.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "Forge temperatures 1100\u20131400\u00b0C achievable with hand bellows; steel forge-welds at ~1300\u00b0C (white-hot)"
+        },
+        {
+          "domain": "manufacturing",
+          "verdict": "CONFIRMED",
+          "detail": "Hot working below recrystallization temperature (~723\u00b0C for steel) is warm-working; above is hot-working \u2014 both reshape without machining"
+        }
+      ]
+    },
+    {
+      "id": "practical_glass_cutting_score_break",
+      "title": "Glass cutting \u2014 score and break, perfect edge in 2 seconds",
+      "domains": [
+        "materials_science",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A carbide or diamond scoring wheel run firmly across glass in a single pass creates a microcrack that propagates the full depth on controlled bending pressure, producing a clean fracture along the score line. The mechanism is brittle-crack propagation guided by an engineered stress concentrator \u2014 works on any silicate ",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Brittle fracture mechanics: K_IC \u00d7 stress concentration exceeds threshold at score apex; crack propagates at sound speed in glass (~3000 m/s)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "Score must be a single firm pass \u2014 multiple passes weaken the edge by competing cracks"
+        }
+      ]
+    },
+    {
+      "id": "practical_tool_sharpening_angles",
+      "title": "Tool sharpening \u2014 bevel angle by task, 15\u00b0 to 35\u00b0",
+      "domains": [
+        "materials_science",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Cutting tool edge geometry trades sharpness against durability: 15\u00b0 (razor, paring knife) is supremely sharp but fragile; 25\u201330\u00b0 (chef's knife, wood chisel, plane iron) is the universal balance; 30\u201335\u00b0 (axe, hatchet, machete) trades some keenness for impact resistance. Edge longevity scales roughly as bevel angle squar",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Wedge force: F_split = F_push \u00d7 cot(\u03b8/2). For \u03b8=30\u00b0: F_split = 3.7 \u00d7 F_push"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "Edge retention is a function of bevel angle, steel hardness (Rockwell C), and impact mode"
+        }
+      ]
+    },
+    {
+      "id": "review_multivitamin_general",
+      "title": "Multivitamin (general daily) \u2014 modest cancer signal, null cardiovascular, healthy diet still primary",
+      "domains": [
+        "nutrition",
+        "statistics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "metabolism",
+        "authority_trust"
+      ],
+      "verdict": "MIXED",
+      "situation": "A daily multivitamin/multimineral provides 50\u2013200% RDA of major nutrients in one pill. Best evidence base: Physicians' Health Study II (n=14,641, 11-year follow-up, JAMA 2012) showed modest reduction in total cancer incidence (~8% RR reduction, 0.92, p=0.04) but no benefit for cardiovascular events or all-cause mortali",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "nutrition",
+          "verdict": "CONFIRMED",
+          "detail": "Provides RDA of major micronutrients in one pill (chemistry is reliable)"
+        },
+        {
+          "domain": "statistics",
+          "verdict": "CONFIRMED",
+          "detail": "Effect sizes detected only in well-powered trials; individual user cannot detect benefit"
+        }
+      ]
+    },
+    {
+      "id": "patent_parabolic_solar_cooker",
+      "title": "Parabolic solar cooker \u2014 geometric focal-point concentration",
+      "domains": [
+        "physics",
+        "thermodynamics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "reasoning",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A parabolic reflector with focal length f, paraboloid equation y = x\u00b2/(4f), reflects parallel sun rays to a single focal point. At 1 m\u00b2 aperture and 800 W/m\u00b2 insolation, focal-point irradiance reaches 80+ kW/m\u00b2 (theoretical) and 5\u201350 kW/m\u00b2 practical; cooking temperatures exceed 200\u00b0C; water boils in 5\u201315 minutes.",
+      "tier": "verified-structural",
+      "trail": [
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "Paraboloid focuses parallel rays at the focal point (defining property)"
+        },
+        {
+          "domain": "thermodynamics",
+          "verdict": "CONFIRMED",
+          "detail": "1 m\u00b2 \u00d7 800 W/m\u00b2 \u00d7 50% optical efficiency \u00f7 small focal area \u2192 cooking temperatures"
+        }
+      ]
+    }
+  ],
   "verified": [
     {
       "verse": "Matt 28:19",

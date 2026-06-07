@@ -35,6 +35,12 @@
   .hub .wit { font-family: 'Courier New', monospace; font-size: 0.72em; color: #5c8a3a; }
   .hub .srcs { margin-top: 0.35em; font-size: 0.93em; color: #3a3a38; }
   .hub .srcs b { color: #1a3a52; font-weight: normal; }
+  .vs { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #1a3a52; border-radius: 4px; padding: 0.6em 0.9em; margin-bottom: 0.5em; }
+  .vs .doms { font-family: 'Courier New', monospace; font-size: 0.86em; color: #1a3a52; }
+  .vs .vtag { font-family: 'Courier New', monospace; font-size: 0.72em; color: #5c8a3a; }
+  .vs .vtitle { color: #3a3a38; font-size: 0.95em; margin-top: 0.2em; }
+  .vs .trail { margin-top: 0.35em; }
+  .vchip { font-family: 'Courier New', monospace; font-size: 0.7em; background: #eef3e8; color: #3a5a2a; border: 1px solid #c3d9a8; border-radius: 3px; padding: 0.1em 0.45em; margin-right: 0.2em; }
   .cand { background: #fff; border: 1px solid #e3dcc4; border-radius: 4px; padding: 0.55em 0.9em; margin-bottom: 0.45em; }
   .cand .pair { color: #1a3a52; font-size: 1em; }
   .cand .pair b { font-weight: bold; }
@@ -60,13 +66,19 @@
 </div>
 
 <div class="intro">
-  <p>The engine does not <em>assert</em> connections it cannot back. <strong>Verified connections</strong> are bound by a shared <em>witnessed</em> Scripture verse — two or more sources that both cite it are connected through it, and that citation already passed the witness gate (Deut 19:15). These are verified, not generated.</p>
-  <p><strong>Candidate resonances</strong> are the engine's cross-domain edges — pairs of domains whose claims share conceptual axes. These are <em>suggestive, not verified</em>: a starting point for inquiry, never a claim of truth. They are labeled as such and kept below the verified set. Turning resonances into verified connections is the next frontier.</p>
+  <p>The engine does not <em>assert</em> connections it cannot back. Three tiers, kept strictly apart:</p>
+  <p><strong>Verified cross-domain</strong> — one claim, independently confirmed true by <em>two or more</em> deterministic domain verifiers at once (e.g. penicillin across biology, chemistry, and medicine). Each carries its computation trail. This is the moat: verified, not generated, and cross-domain.</p>
+  <p><strong>Verified scripture</strong> — sources bound by a shared <em>witnessed</em> verse: two or more that both cite it are connected through it, and that citation passed the witness gate (Deut 19:15).</p>
+  <p><strong>Candidate resonances</strong> — cross-domain edges whose claims merely share conceptual axes. <em>Suggestive, not verified</em> — a starting point for inquiry, never a claim of truth. Labeled as such, kept last.</p>
 </div>
 
 <div class="stats" id="stats"></div>
 
-<h2>Verified connections <span class="tag ok">✓ witnessed</span></h2>
+<h2>Verified cross-domain connections <span class="tag ok">✓ multi-verifier</span></h2>
+<div class="sub" id="vssub"></div>
+<div id="vstruct"><div class="empty">Loading…</div></div>
+
+<h2>Verified scripture connections <span class="tag ok">✓ witnessed</span></h2>
 <div class="sub" id="vsub"></div>
 <div id="verified"><div class="empty">Loading…</div></div>
 
@@ -80,6 +92,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
   var $stats = document.getElementById('stats'), $v = document.getElementById('verified'),
       $c = document.getElementById('cands'), $vsub = document.getElementById('vsub'),
+      $vstruct = document.getElementById('vstruct'), $vssub = document.getElementById('vssub'),
       $sel = document.getElementById('domsel');
   var CANDS = [];
 
@@ -88,9 +101,19 @@
     .then(function (j) {
       if (!j) { $v.innerHTML = $c.innerHTML = '<div class="empty">Could not load the connection graph.</div>'; return; }
       var s = j.stats || {};
-      $stats.innerHTML = stat(s.verified_hubs, 'verified hubs') + stat(s.verified_sources, 'sources bound') +
+      $stats.innerHTML = stat(s.verified_structural, 'verified cross-domain') + stat(s.verified_hubs, 'verified scripture') +
         stat(s.candidate_pairs, 'candidate pairs') + stat(s.raw_grid_edges, 'edges smoothed') + stat(s.domains, 'domains');
-      // verified
+      // verified-structural (the moat)
+      var vs = j.verified_structural || [];
+      $vssub.textContent = vs.length + ' claims, each confirmed by two or more independent domain verifiers — with the trail.';
+      $vstruct.innerHTML = vs.length ? vs.map(function (c) {
+        var trail = (c.trail || []).map(function (t) { return '<span class="vchip">' + esc(t.domain) + ' ✓</span>'; }).join('');
+        return '<div class="vs"><span class="doms">' + (c.domains || []).map(esc).join(' + ') + '</span> ' +
+          '<span class="vtag">✓ ' + c.domain_count + ' verifiers · ' + esc(c.verdict || '') + '</span>' +
+          '<div class="vtitle">' + esc(c.title) + '</div>' +
+          '<div class="trail">' + trail + '</div></div>';
+      }).join('') : '<div class="empty">No verified cross-domain connections yet.</div>';
+      // verified scripture
       var hubs = j.verified || [];
       $vsub.textContent = hubs.length + ' verses, each binding two or more sources — every link witnessed.';
       $v.innerHTML = hubs.length ? hubs.map(function (h) {

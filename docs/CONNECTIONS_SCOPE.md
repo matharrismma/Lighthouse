@@ -111,3 +111,26 @@ fold into the signed artifact (Face 2) so the graph is sealed too.
 **Phase 1 + the witness-verified tier.** It's fully deterministic, reuses the
 scripture index, and produces the first connections that are *verified, not
 generated* — proving the model end to end before the harder structural pilot.
+
+## Built (2026-06-06)
+
+**Phase 1 + witness tier — shipped** (`48c7dc3`). 139 witnessed co-citation hubs
+(332 sources) + 1,269 smoothed candidate domain-pairs. API `/codex/connections`,
+page `/codex-connections.html`.
+
+**Phase 2 — verified-structural — shipped.** Pilot, measured-first per this scope:
+- **Path A (dispatch the grid samples): DEAD — 0% of 400 samples matched** the
+  structured dispatch rules. The grid's 441 unique samples are free-text prose;
+  the dispatcher needs structured claim forms. Abandoned, as the scope warned.
+- **Path B (the almanac): WORKS.** Almanac entries are already four-gate verified
+  and carry `pre_run.domain_results`. An entry confirmed by **2+ domain verifiers**
+  is a verified cross-domain connection with a per-verifier trail. **81
+  connections / 40 domain-pairs** (penicillin → biology+chemistry+medicine; a
+  5-verifier synthesis; citrus-canker → agriculture+biology+chemistry).
+
+Modest by design — quality over quantity, exactly as scoped. The tier grows as
+the almanac grows (each new multi-verifier entry is a new verified connection).
+
+**Still ahead:** a deeper structural tier (same-equation / same-conservation-law
+correspondence, not just co-confirmation); promoting candidates by re-verifying
+*structured* claims (not the prose samples); folding connections into walks.

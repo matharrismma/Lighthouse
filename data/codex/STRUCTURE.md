@@ -107,9 +107,17 @@ Written to `data/codex/compiled/codex_<date>.json` + `codex_latest.json`
   ranked domain-pairs across 60 domains, labeled *resonance, not verified*.
 - API: `GET /codex/connections`, `/codex/connections/domain/{d}`. Page:
   `/codex-connections.html`. Scoped in `docs/CONNECTIONS_SCOPE.md`.
-- **Phase 2 (the real moat, still to build):** structural verification — promote a
-  candidate when both samples are CONFIRMED by their domain verifiers via the
-  dispatcher. The oracle may propose; only a verifier/witness/trace may assert.
+
+**Connection graph (Phase 2 — verified-structural) — BUILT (the moat).** A third
+tier: an almanac claim confirmed by **2+ independent domain verifiers** is a
+verified cross-domain connection — one claim, proven by several deterministic
+verifiers at once, each with its computation trail. **81 connections / 40
+domain-pairs** (e.g. penicillin across biology+chemistry+medicine; a 5-verifier
+synthesis). Pilot finding: dispatching the free-text grid samples yielded **0%**
+(prose doesn't fit the structured rules) — so the verified substrate is the
+*almanac* (already four-gate verified), not the grid. The oracle may propose; only
+a verifier/witness/trace asserts. `verified_structural` in `connections.json`;
+leads `/codex-connections.html`.
 
 Still to build in Layer 3: the person, place, authority-tier, author/work, and
 time indexes.

@@ -43,6 +43,7 @@ SCRIPTURE_INDEX = INDEX_DIR / "scripture.json"
 THEME_INDEX = INDEX_DIR / "themes.json"
 CONNECTIONS_INDEX = INDEX_DIR / "connections.json"
 GRID_CONNECTIONS = REPO / "data" / "grid_connections.jsonl"
+ALMANAC_ENTRIES = REPO / "data" / "almanac" / "entries.jsonl"
 COMPILED_DIR = REPO / "data" / "codex" / "compiled"
 LATEST_ARTIFACT = COMPILED_DIR / "codex_latest.json"
 
@@ -306,6 +307,49 @@ def _source_label(by: str) -> str:
     return by.strip()
 
 
+def _verified_structural() -> List[dict]:
+    """Phase 2 — the moat. An almanac entry confirmed by 2+ independent domain
+    verifiers is a VERIFIED cross-domain connection: one claim, proven true by
+    several deterministic verifiers at once, each with its computation trail.
+    Not generated, not resonance — verified, and traceable.
+
+    (Phase-2 pilot finding 2026-06-06: dispatching the free-text grid samples
+    yielded 0% — the prose doesn't fit the structured rules. The almanac, whose
+    claims are already four-gate verified, is the sound substrate instead.)"""
+    out: List[dict] = []
+    if not ALMANAC_ENTRIES.exists():
+        return out
+    with ALMANAC_ENTRIES.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                e = json.loads(line)
+            except Exception:
+                continue
+            dr = (e.get("pre_run") or {}).get("domain_results") or []
+            confirmed = [d for d in dr if d.get("verdict") == "CONFIRMED" and d.get("domain")]
+            doms = sorted({d["domain"] for d in confirmed})
+            if len(doms) < 2:  # a cross-domain connection needs 2+ verifiers
+                continue
+            out.append({
+                "id": e.get("id"),
+                "title": e.get("title") or e.get("id"),
+                "domains": doms,
+                "domain_count": len(doms),
+                "axes": e.get("axes") or [],
+                "verdict": e.get("verdict"),
+                "situation": (e.get("situation") or "")[:320],
+                "tier": "verified-structural",
+                "trail": [{"domain": d.get("domain"), "verdict": d.get("verdict"),
+                           "detail": (d.get("detail") or "")[:200]}
+                          for d in confirmed],
+            })
+    out.sort(key=lambda x: (-x["domain_count"], x["domains"]))
+    return out
+
+
 def build_connection_index() -> Dict[str, Any]:
     """Unify the connection candidates into one tiered, scored ledger.
 
@@ -381,15 +425,21 @@ def build_connection_index() -> Dict[str, Any]:
         })
     candidates.sort(key=lambda c: (-c["score"], -c["axis_count"], c["domains"]))
 
+    # ── Verified-structural tier (Phase 2): almanac claims confirmed by 2+ verifiers ──
+    vstruct = _verified_structural()
+
     payload = {
         "generated": _now(),
         "stats": {
+            "verified_structural": len(vstruct),
+            "verified_structural_pairs": len({tuple(c["domains"]) for c in vstruct}),
             "verified_hubs": len(hubs),
             "verified_sources": sum(h["source_count"] for h in hubs),
             "candidate_pairs": len(candidates),
             "raw_grid_edges": raw_edges,
             "domains": len({d for c in candidates for d in c["domains"]}),
         },
+        "verified_structural": vstruct,
         "verified": hubs,
         "candidates": candidates,
     }
@@ -405,11 +455,11 @@ def build_connection_index() -> Dict[str, Any]:
 
 def load_connections() -> Dict[str, Any]:
     if not CONNECTIONS_INDEX.exists():
-        return {"generated": None, "stats": {}, "verified": [], "candidates": []}
+        return {"generated": None, "stats": {}, "verified_structural": [], "verified": [], "candidates": []}
     try:
         mt = CONNECTIONS_INDEX.stat().st_mtime
     except OSError:
-        return {"generated": None, "stats": {}, "verified": [], "candidates": []}
+        return {"generated": None, "stats": {}, "verified_structural": [], "verified": [], "candidates": []}
     if _CONN_CACHE["data"] is not None and mt <= _CONN_CACHE["mtime"]:
         return _CONN_CACHE["data"]
     with _LOCK:
@@ -604,11 +654,13 @@ def get_router():
         return {
             "generated": idx.get("generated"),
             "stats": idx.get("stats", {}),
+            "verified_structural": (idx.get("verified_structural") or [])[:200],
             "verified": (idx.get("verified") or [])[:200],
             "candidates": (idx.get("candidates") or [])[:200],
-            "note": "VERIFIED = witnessed co-citation hubs (two+ sources share a "
-                    "witnessed verse). CANDIDATE = grid resonances (shared axes), NOT "
-                    "verified. The trail is the trust. GET /codex/connections/domain/{d}.",
+            "note": "VERIFIED-STRUCTURAL = one claim confirmed by 2+ independent domain "
+                    "verifiers (cross-domain, with computation trail). VERIFIED = witnessed "
+                    "co-citation hubs (2+ sources share a witnessed verse). CANDIDATE = grid "
+                    "resonances (shared axes), NOT verified. The trail is the trust.",
         }
 
     @router.get("/codex/connections/domain/{domain}", tags=["codex"])
