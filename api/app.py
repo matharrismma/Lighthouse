@@ -252,6 +252,14 @@ try:
 except Exception as _e:
     logging.warning("Marketplace router not mounted: %s", _e)
 
+# The Codex — Layer 3 index (scripture cross-reference graph, inverted from
+# the witnessed connection cards). Engine binds + indexes; it does not synthesize.
+try:
+    from api.codex import get_router as _get_codex_router
+    app.include_router(_get_codex_router(), tags=["codex"])
+except Exception as _e:
+    logging.warning("Codex index router not mounted: %s", _e)
+
 # Shepherd Interviewer (LOOP 12 — pre-flight before expensive walks)
 try:
     from api.shepherd import get_router as _get_shepherd_router
