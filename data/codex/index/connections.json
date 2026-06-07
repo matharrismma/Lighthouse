@@ -1,12 +1,12 @@
 {
-  "generated": "2026-06-07T03:09:01.372130+00:00",
+  "generated": "2026-06-07T12:34:55.595336+00:00",
   "stats": {
-    "verified_structural": 123,
-    "verified_structural_pairs": 46,
+    "verified_structural": 141,
+    "verified_structural_pairs": 50,
     "verified_hubs": 139,
     "verified_sources": 332,
     "candidate_pairs": 1269,
-    "raw_grid_edges": 13953,
+    "raw_grid_edges": 13991,
     "domains": 60
   },
   "verified_structural": [
@@ -724,6 +724,150 @@
       ]
     },
     {
+      "id": "gen_reinforced_beam_4e37e8ec34",
+      "title": "6m steel-reinforced beam at 5.0 kN/m",
+      "domains": [
+        "construction",
+        "geometry",
+        "materials_science"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A reinforced concrete beam spans 6 m with width 0.30 m (plan area 1.80 m^2). A uniform total load of 30 kN gives a load intensity of 5.00 kN/m. Its steel reinforcement (~250 HV) is harder than aluminum (~107 HV).",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "l=6.0 w=0.3 area=1.8000 perim=12.6000 (matches claims)"
+        },
+        {
+          "domain": "construction",
+          "verdict": "CONFIRMED",
+          "detail": "load intensity = 5.0000 kN/m (matches claim)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "HV/HB 250.0 > 107.0 \u2192 a_harder=True (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_reinforced_beam_fc1648f434",
+      "title": "8m steel-reinforced beam at 6.0 kN/m",
+      "domains": [
+        "construction",
+        "geometry",
+        "materials_science"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A reinforced concrete beam spans 8 m with width 0.40 m (plan area 3.20 m^2). A uniform total load of 48 kN gives a load intensity of 6.00 kN/m. Its steel reinforcement (~250 HV) is harder than aluminum (~107 HV).",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "l=8.0 w=0.4 area=3.2000 perim=16.8000 (matches claims)"
+        },
+        {
+          "domain": "construction",
+          "verdict": "CONFIRMED",
+          "detail": "load intensity = 6.0000 kN/m (matches claim)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "HV/HB 250.0 > 107.0 \u2192 a_harder=True (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_reinforced_beam_882befa64c",
+      "title": "5m steel-reinforced beam at 4.0 kN/m",
+      "domains": [
+        "construction",
+        "geometry",
+        "materials_science"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A reinforced concrete beam spans 5 m with width 0.25 m (plan area 1.25 m^2). A uniform total load of 20 kN gives a load intensity of 4.00 kN/m. Its steel reinforcement (~250 HV) is harder than aluminum (~107 HV).",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "l=5.0 w=0.25 area=1.2500 perim=10.5000 (matches claims)"
+        },
+        {
+          "domain": "construction",
+          "verdict": "CONFIRMED",
+          "detail": "load intensity = 4.0000 kN/m (matches claim)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "HV/HB 250.0 > 107.0 \u2192 a_harder=True (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_reinforced_beam_6060ede192",
+      "title": "10m steel-reinforced beam at 7.5 kN/m",
+      "domains": [
+        "construction",
+        "geometry",
+        "materials_science"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A reinforced concrete beam spans 10 m with width 0.50 m (plan area 5.00 m^2). A uniform total load of 75 kN gives a load intensity of 7.50 kN/m. Its steel reinforcement (~250 HV) is harder than aluminum (~107 HV).",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "l=10.0 w=0.5 area=5.0000 perim=21.0000 (matches claims)"
+        },
+        {
+          "domain": "construction",
+          "verdict": "CONFIRMED",
+          "detail": "load intensity = 7.5000 kN/m (matches claim)"
+        },
+        {
+          "domain": "materials_science",
+          "verdict": "CONFIRMED",
+          "detail": "HV/HB 250.0 > 107.0 \u2192 a_harder=True (matches claim)"
+        }
+      ]
+    },
+    {
       "id": "governance_decision_packet",
       "title": "Governance decision \u2014 packet structure check",
       "domains": [
@@ -1050,6 +1194,161 @@
           "domain": "thermodynamics",
           "verdict": "CONFIRMED",
           "detail": "Subject to Carnot limit. The 5-8% practical efficiency reflects irreversibilities in finite-time conduction, not a violation of conservation."
+        }
+      ]
+    },
+    {
+      "id": "gen_string_octave_d5cf05a688",
+      "title": "String 110Hz: 2nd harmonic = octave (A2 to A3)",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "physical_substance",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A vibrating string with fundamental 110.00 Hz (A2) sounds its 2nd harmonic at 220.00 Hz (A3) -- exactly one octave above the fundamental. The interval from A2 to A3 is 12 semitones.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "f_2 = 2\u00b7110.0 = 220.0 Hz (matches claim 220.0)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "A2 \u2192 A3 = 12 semitones (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_string_octave_f29c9038b3",
+      "title": "String 220Hz: 2nd harmonic = octave (A3 to A4)",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "physical_substance",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A vibrating string with fundamental 220.00 Hz (A3) sounds its 2nd harmonic at 440.00 Hz (A4) -- exactly one octave above the fundamental. The interval from A3 to A4 is 12 semitones.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "f_2 = 2\u00b7220.0 = 440.0 Hz (matches claim 440.0)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "A3 \u2192 A4 = 12 semitones (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_string_octave_b199dc6954",
+      "title": "String 131Hz: 2nd harmonic = octave (C3 to C4)",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "physical_substance",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A vibrating string with fundamental 130.81 Hz (C3) sounds its 2nd harmonic at 261.62 Hz (C4) -- exactly one octave above the fundamental. The interval from C3 to C4 is 12 semitones.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "f_2 = 2\u00b7130.81 = 261.62 Hz (matches claim 261.62)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "C3 \u2192 C4 = 12 semitones (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_string_octave_597f35458d",
+      "title": "String 196Hz: 2nd harmonic = octave (G3 to G4)",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "physical_substance",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A vibrating string with fundamental 196.00 Hz (G3) sounds its 2nd harmonic at 392.00 Hz (G4) -- exactly one octave above the fundamental. The interval from G3 to G4 is 12 semitones.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "f_2 = 2\u00b7196.0 = 392.0 Hz (matches claim 392.0)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "G3 \u2192 G4 = 12 semitones (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_string_octave_7912ed4b2b",
+      "title": "String 147Hz: 2nd harmonic = octave (D3 to D4)",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "physical_substance",
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A vibrating string with fundamental 146.83 Hz (D3) sounds its 2nd harmonic at 293.66 Hz (D4) -- exactly one octave above the fundamental. The interval from D3 to D4 is 12 semitones.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "f_2 = 2\u00b7146.83 = 293.66 Hz (matches claim 293.66)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "D3 \u2192 D4 = 12 semitones (matches claim)"
         }
       ]
     },
@@ -2549,6 +2848,151 @@
       ]
     },
     {
+      "id": "gen_committee_3cf05529e5",
+      "title": "Committees of 3 from 11 (prime): C(11,3) = 165",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "From a group of 11 people (11 is a prime number), the number of distinct committees of 3 members is C(11,3) = 165.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "11 is prime (matches claim)"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(11,3) = 165 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_committee_ee9f3a13cc",
+      "title": "Committees of 4 from 13 (prime): C(13,4) = 715",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "From a group of 13 people (13 is a prime number), the number of distinct committees of 4 members is C(13,4) = 715.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "13 is prime (matches claim)"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(13,4) = 715 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_committee_6e8b963f9d",
+      "title": "Committees of 2 from 7 (prime): C(7,2) = 21",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "From a group of 7 people (7 is a prime number), the number of distinct committees of 2 members is C(7,2) = 21.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "7 is prime (matches claim)"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(7,2) = 21 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_committee_5359e5172a",
+      "title": "Committees of 5 from 17 (prime): C(17,5) = 6188",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "From a group of 17 people (17 is a prime number), the number of distinct committees of 5 members is C(17,5) = 6188.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "17 is prime (matches claim)"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(17,5) = 6188 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_committee_b0d6f06ca8",
+      "title": "Committees of 3 from 23 (prime): C(23,3) = 1771",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "From a group of 23 people (23 is a prime number), the number of distinct committees of 3 members is C(23,3) = 1771.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "23 is prime (matches claim)"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(23,3) = 1771 (matches claim)"
+        }
+      ]
+    },
+    {
       "id": "gen_savings_vs_inflation_91282d03ee",
       "title": "$10,000 at 5.0% for 10y vs 19% inflation",
       "domains": [
@@ -3564,6 +4008,126 @@
           "domain": "geometry",
           "verdict": "CONFIRMED",
           "detail": "l=37.0 w=37.0 area=1369.0000 perim=148.0000 (matches claims)"
+        }
+      ]
+    },
+    {
+      "id": "gen_storm_1fde5cfa8e",
+      "title": "Storm at 25C (es 32 hPa) gives 7.00 cfs over 10 ac",
+      "domains": [
+        "hydrology",
+        "meteorology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "During a storm the air is 25C, where saturation vapor pressure is es = 31.60 hPa. The 2.0 in/hr rain falls on a 10-acre field (runoff coefficient 0.35), producing peak runoff Q = C*i*A = 7.00 cfs.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "meteorology",
+          "verdict": "CONFIRMED",
+          "detail": "T=25.0\u00b0C \u2192 es 31.631 hPa (matches claim)"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Q = 7.0000 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_storm_6aab407be5",
+      "title": "Storm at 30C (es 42 hPa) gives 6.00 cfs over 5 ac",
+      "domains": [
+        "hydrology",
+        "meteorology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "During a storm the air is 30C, where saturation vapor pressure is es = 42.34 hPa. The 3.0 in/hr rain falls on a 5-acre field (runoff coefficient 0.4), producing peak runoff Q = C*i*A = 6.00 cfs.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "meteorology",
+          "verdict": "CONFIRMED",
+          "detail": "T=30.0\u00b0C \u2192 es 42.385 hPa (matches claim)"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Q = 6.0000 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_storm_5a0b727d24",
+      "title": "Storm at 20C (es 23 hPa) gives 9.00 cfs over 20 ac",
+      "domains": [
+        "hydrology",
+        "meteorology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "During a storm the air is 20C, where saturation vapor pressure is es = 23.33 hPa. The 1.5 in/hr rain falls on a 20-acre field (runoff coefficient 0.3), producing peak runoff Q = C*i*A = 9.00 cfs.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "meteorology",
+          "verdict": "CONFIRMED",
+          "detail": "T=20.0\u00b0C \u2192 es 23.344 hPa (matches claim)"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Q = 9.0000 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "gen_storm_6b4cae3be0",
+      "title": "Storm at 15C (es 17 hPa) gives 3.60 cfs over 8 ac",
+      "domains": [
+        "hydrology",
+        "meteorology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "During a storm the air is 15C, where saturation vapor pressure is es = 17.02 hPa. The 1.0 in/hr rain falls on a 8-acre field (runoff coefficient 0.45), producing peak runoff Q = C*i*A = 3.60 cfs.",
+      "tier": "verified-structural",
+      "generated": true,
+      "trail": [
+        {
+          "domain": "meteorology",
+          "verdict": "CONFIRMED",
+          "detail": "T=15.0\u00b0C \u2192 es 17.027 hPa (matches claim)"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Q = 3.6000 (matches claim)"
         }
       ]
     },
@@ -5531,7 +6095,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5553,7 +6117,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5575,7 +6139,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5597,7 +6161,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5618,7 +6182,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 249,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5639,7 +6203,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5660,7 +6224,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5681,7 +6245,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5702,7 +6266,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5723,7 +6287,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 251,
+      "edge_count": 252,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5744,7 +6308,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5765,7 +6329,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5786,7 +6350,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5807,7 +6371,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5828,7 +6392,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5849,7 +6413,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5869,7 +6433,7 @@
         "time_sequence"
       ],
       "axis_count": 3,
-      "edge_count": 248,
+      "edge_count": 249,
       "score": 80,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5889,7 +6453,7 @@
         "time_sequence"
       ],
       "axis_count": 3,
-      "edge_count": 248,
+      "edge_count": 249,
       "score": 80,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5952,7 +6516,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5971,7 +6535,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -5990,7 +6554,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6009,7 +6573,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6028,7 +6592,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6047,7 +6611,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6066,7 +6630,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 206,
+      "edge_count": 207,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6085,7 +6649,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 251,
+      "edge_count": 252,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6104,7 +6668,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6123,7 +6687,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6142,7 +6706,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6161,7 +6725,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 255,
+      "edge_count": 256,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6319,7 +6883,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6337,7 +6901,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 207,
+      "edge_count": 208,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6355,7 +6919,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6373,7 +6937,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6391,7 +6955,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 207,
+      "edge_count": 208,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6409,7 +6973,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6427,7 +6991,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6445,7 +7009,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 247,
+      "edge_count": 248,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",

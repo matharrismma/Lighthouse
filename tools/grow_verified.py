@@ -45,6 +45,12 @@ AXES = {
     "astronomy": ["physical_substance", "time_sequence", "reasoning"],
     "optics": ["physical_substance", "reasoning", "encoding"],
     "hydrology": ["conservation_balance", "physical_substance", "time_sequence"],
+    "acoustics": ["physical_substance", "time_sequence", "encoding"],
+    "music_theory": ["encoding", "reasoning", "time_sequence"],
+    "combinatorics": ["reasoning", "encoding"],
+    "construction": ["physical_substance", "conservation_balance", "reasoning"],
+    "materials_science": ["physical_substance", "conservation_balance", "reasoning"],
+    "meteorology": ["physical_substance", "time_sequence", "conservation_balance"],
 }
 
 
@@ -270,8 +276,79 @@ def t_circular_catchment():
                                "runoff_coefficient": C, "claimed_runoff": Q})])
 
 
+def t_string_octave():
+    """A vibrating string: its 2nd harmonic is one octave up (acoustics) — and an
+    octave is 12 semitones (music_theory)."""
+    params = [(110.0, "A2", "A3"), (220.0, "A3", "A4"), (130.81, "C3", "C4"),
+              (196.0, "G3", "G4"), (146.83, "D3", "D4")]
+    for f0, na, nb in params:
+        h2 = round(2 * f0, 4)
+        sit = (f"A vibrating string with fundamental {f0:.2f} Hz ({na}) sounds its 2nd harmonic "
+               f"at {h2:.2f} Hz ({nb}) -- exactly one octave above the fundamental. The interval "
+               f"from {na} to {nb} is 12 semitones.")
+        title = f"String {f0:.0f}Hz: 2nd harmonic = octave ({na} to {nb})"
+        yield ("string_octave", title, sit,
+               [("acoustics", {"fundamental_hz": f0, "harmonic_n": 2, "claimed_harmonic_hz": h2}),
+                ("music_theory", {"note_a": na, "note_b": nb, "claimed_semitones": 12})])
+
+
+def t_reinforced_beam():
+    """A reinforced concrete beam: plan area (geometry) + load intensity over the
+    span (construction) + steel harder than aluminum (materials_science)."""
+    params = [(6.0, 0.30, 30.0), (8.0, 0.40, 48.0), (5.0, 0.25, 20.0), (10.0, 0.50, 75.0)]
+    for span, w, load in params:
+        area = round(span * w, 4)
+        perim = round(2 * (span + w), 4)
+        wi = round(load / span, 4)
+        sit = (f"A reinforced concrete beam spans {span:.0f} m with width {w:.2f} m (plan area "
+               f"{area:.2f} m^2). A uniform total load of {load:.0f} kN gives a load intensity of "
+               f"{wi:.2f} kN/m. Its steel reinforcement (~250 HV) is harder than aluminum (~107 HV).")
+        title = f"{span:.0f}m steel-reinforced beam at {wi:.1f} kN/m"
+        yield ("reinforced_beam", title, sit,
+               [("geometry", {"rect_l": span, "rect_w": w, "claimed_rect_area": area,
+                              "claimed_rect_perimeter": perim}),
+                ("construction", {"span_m": span, "total_load_kn": load,
+                                  "claimed_load_intensity_kn_per_m": wi}),
+                ("materials_science", {"material_a_hardness": 250.0, "material_b_hardness": 107.0,
+                                       "claimed_a_harder_than_b": True})])
+
+
+def t_committee():
+    """A committee drawn from a prime-sized group: the group size is prime
+    (number_theory) and the count of committees is C(n,k) (combinatorics)."""
+    params = [(11, 3), (13, 4), (7, 2), (17, 5), (23, 3)]
+    for n, k in params:
+        c = math.comb(n, k)
+        sit = (f"From a group of {n} people ({n} is a prime number), the number of distinct "
+               f"committees of {k} members is C({n},{k}) = {c}.")
+        title = f"Committees of {k} from {n} (prime): C({n},{k}) = {c}"
+        yield ("committee", title, sit,
+               [("number_theory", {"n_prime": n, "claimed_prime": True}),
+                ("combinatorics", {"comb_n": n, "comb_k": k, "claimed_combinations": c})])
+
+
+def t_storm():
+    """A storm over a field: the air's saturation vapor pressure at temperature
+    (meteorology) + the rain's runoff over the field (hydrology)."""
+    params = [(25.0, 2.0, 10.0, 0.35), (30.0, 3.0, 5.0, 0.40),
+              (20.0, 1.5, 20.0, 0.30), (15.0, 1.0, 8.0, 0.45)]
+    for T, i, acres, C in params:
+        es = round(6.112 * math.exp(17.62 * T / (243.12 + T)), 3)
+        Q = round(C * i * acres, 4)
+        sit = (f"During a storm the air is {T:.0f}C, where saturation vapor pressure is "
+               f"es = {es:.2f} hPa. The {i} in/hr rain falls on a {acres:.0f}-acre field "
+               f"(runoff coefficient {C}), producing peak runoff Q = C*i*A = {Q:.2f} cfs.")
+        title = f"Storm at {T:.0f}C (es {es:.0f} hPa) gives {Q:.2f} cfs over {acres:.0f} ac"
+        yield ("storm", title, sit,
+               [("meteorology", {"temperature_c_for_es": T,
+                                 "claimed_saturation_vapor_pressure_hpa": es}),
+                ("hydrology", {"rainfall_intensity": i, "drainage_area": acres,
+                               "runoff_coefficient": C, "claimed_runoff": Q})])
+
+
 TEMPLATES = [t_household, t_flooring_job, t_workers_day, t_square_garden, t_savings_vs_inflation,
-             t_telescope_star, t_field_drainage, t_circular_catchment]
+             t_telescope_star, t_field_drainage, t_circular_catchment,
+             t_string_octave, t_reinforced_beam, t_committee, t_storm]
 
 
 def main():
