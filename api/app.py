@@ -3513,6 +3513,16 @@ def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
         pass
 
     odr = dispatch.get("oracle_dependence_ratio") if isinstance(dispatch, dict) else None
+
+    # The offices' own oracle-dependence — the Shepherd shrinking with use,
+    # measured from the minted training pairs (the same thesis, for the front door).
+    offices = None
+    try:
+        from api import offices as _offices
+        offices = _offices.office_stats(days=days)
+    except Exception as e:  # pragma: no cover
+        offices = {"error": str(e)[:200]}
+
     return {
         "thesis": "The engine's dependence on the statistical model shrinks with use.",
         "oracle_dependence_ratio": odr,
@@ -3521,9 +3531,11 @@ def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
         "runtime_rules": rules,
         "gaps": gaps,
         "dispatch": dispatch,
+        "offices": offices,
         "note": ("Counts per verifier-dispatch (one per claim that reaches a "
                  "verifier), not per raw oracle call. A falling oracle ratio = "
-                 "the floor widening, the borrowed mouth shrinking."),
+                 "the floor widening, the borrowed mouth shrinking. `offices` is "
+                 "the same measure for the Shepherd front door."),
     }
 
 

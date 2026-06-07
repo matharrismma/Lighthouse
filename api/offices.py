@@ -394,3 +394,54 @@ def log_office_pair(office: str, prompt: str, completion: str,
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     except Exception:
         pass
+
+
+# A Shepherd decision is FREE (keep / the local office-model / keyword floor) or
+# PAID (the oracle). The thesis, made visible for the offices: the oracle ratio
+# falls and the learned share rises as the local model takes over with use.
+_VIA_FREE = {"keep", "office_model", "office_model_hybrid", "fallback", "deterministic"}
+_VIA_PAID = {"shepherd"}  # the Anthropic oracle tier
+
+
+def office_stats(days: int = 30) -> Dict[str, Any]:
+    """Oracle-dependence for the offices, measured from the minted training pairs
+    (no separate counter to drift). Read-only."""
+    cutoff = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=days)).isoformat()
+    out: Dict[str, Any] = {}
+    for office in ("shepherd", "steward", "scribe"):
+        f = _OFFICE_CORPUS / f"{office}.jsonl"
+        by_via: Dict[str, int] = {}
+        total = 0
+        if f.exists():
+            for ln in f.read_text(encoding="utf-8", errors="replace").splitlines():
+                ln = ln.strip()
+                if not ln:
+                    continue
+                try:
+                    rec = json.loads(ln)
+                except Exception:
+                    continue
+                if (rec.get("at") or "") < cutoff:
+                    continue
+                via = None
+                try:
+                    via = json.loads(rec.get("completion") or "{}").get("via")
+                except Exception:
+                    pass
+                via = via or (rec.get("meta") or {}).get("via") or "unknown"
+                by_via[via] = by_via.get(via, 0) + 1
+                total += 1
+        paid = sum(v for k, v in by_via.items() if k in _VIA_PAID)
+        learned = sum(v for k, v in by_via.items()
+                      if k in ("office_model", "office_model_hybrid"))
+        out[office] = {
+            "decisions": total,
+            "by_via": by_via,
+            "oracle_dependence_ratio": round(paid / total, 4) if total else None,
+            "free_ratio": round((total - paid) / total, 4) if total else None,
+            "learned_ratio": round(learned / total, 4) if total else None,
+        }
+    return {"days": days, "offices": out,
+            "note": ("Shepherd FREE = keep / office-model / keyword floor; PAID = "
+                     "oracle. The oracle ratio falls and the learned share rises "
+                     "as the local model takes over — the thesis, for the offices.")}
