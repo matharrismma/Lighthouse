@@ -1444,6 +1444,42 @@ def _materials(m, text):
     return None
 
 
+# ── THERMODYNAMICS ────────────────────────────────────────────────────────────
+
+@_rule("thermodynamics",
+       r"(?=.*carnot)(?=.*efficien)(?=.*\d\s*K\b)",
+       "thermodynamics")
+def _thermo_carnot(m, text):
+    import re as _re
+    temps = _re.findall(r'(\d+\.?\d*)\s*K\b', text)
+    eff = (_re.search(r'efficiency\s+(?:of\s+|is\s+|=\s*)?(\d+\.?\d*)\s*(%?)', text, _re.I)
+           or _re.search(r'(\d+\.?\d*)\s*(%)\s*efficien', text, _re.I))
+    if len(temps) < 2 or not eff:
+        return None
+    t1, t2 = float(temps[0]), float(temps[1])
+    th, tc = max(t1, t2), min(t1, t2)
+    c = float(eff.group(1))
+    if (eff.group(2) == "%") or c > 1:
+        c = c / 100.0
+    return {"T_hot_K": th, "T_cold_K": tc, "claimed_efficiency": c}
+
+
+# ── OPTICS — Snell's law (thin-lens already handled by opt_thin_lens) ──────────
+
+@_rule("optics",
+       r"(?:snell|refract)",
+       "optics")
+def _optics_snell(m, text):
+    import re as _re
+    ns = _re.findall(r'\bn\s*=\s*(\d+\.?\d*)|\bn[12]\s*=?\s*(\d+\.?\d*)|index\s+(?:of\s+refraction\s+)?(?:is\s+)?(\d+\.?\d*)', text, _re.I)
+    ns = [next(g for g in tup if g) for tup in ns]
+    angs = _re.findall(r'(\d+\.?\d*)\s*(?:deg|degree|°)', text, _re.I)
+    if len(ns) >= 2 and len(angs) >= 2:
+        return {"n1": float(ns[0]), "n2": float(ns[1]),
+                "theta1_deg": float(angs[0]), "claimed_theta2_deg": float(angs[1])}
+    return None
+
+
 # ── Dispatch function ─────────────────────────────────────────────────
 
 def dispatch(text: str) -> Optional[DispatchResult]:

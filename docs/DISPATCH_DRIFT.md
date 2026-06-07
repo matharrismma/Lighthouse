@@ -240,8 +240,18 @@ CONFIRMED+MISMATCH, decoy-audit.
 - Decoys ("density of the crowd", "harder than woodpecker lips", "waited 4 years"):
   0 false-confirms.
 
-Still-open gap domains (next): thermodynamics (Carnot artifact key unknown — needs
-source read), physical_constants (unit-string matching finicky; Avogadro/Boltzmann/
-charge confirm), oceanography, ecology, operations_research, optics (thin lens),
-statistics_* (structured inputs), law/architecture/rhetoric/philosophy (check
-whether they have NL-claim checks at all).
+### Gap batch 3 (verified + decoy-clean) — thermodynamics + optics(Snell)
+- **thermodynamics** — "a Carnot engine between 600 K and 300 K has efficiency 0.5
+  / 50%". KEY NOTE: Carnot keys are CAPITALIZED `T_hot_K`/`T_cold_K` + (the lower-
+  case grep missed them; read the source). MISMATCH on wrong efficiency.
+- **optics (coverage add, not a gap domain)** — Snell's law: "from air (n=1.0) into
+  glass (n=1.5) at 30 deg refracts to 19.47 deg". (Thin-lens was already covered by
+  the existing opt_thin_lens rule, so my optics rule is Snell-only.)
+- Decoys ("Carnot family bakery", "refracts criticism", "met in 1.5 hours"): clean.
+
+Still-open gap domains (next): physical_constants (unit-string matching finicky;
+Avogadro/Boltzmann/charge confirm), oceanography, ecology, operations_research,
+statistics_* (structured inputs), law/architecture/rhetoric/philosophy (verify they
+have NL-claim checks at all). 7 gap domains filled so far (periodic_table,
+linear_algebra, nuclear_physics, probability, history_chronology, materials_science,
+thermodynamics) + optics Snell + 1 self-confirm bug killed (geom_polygon_angles).
