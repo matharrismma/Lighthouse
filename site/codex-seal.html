@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sealed Manuscript — The Codex — Narrow Highway</title>
+<meta name="description" content="The Codex sealed: an Ed25519-signed manifest certifying the chosen body — Scripture, the fathers, the confessions, the operator's works — walked and indexed by the engine, fingerprinted and verifiable.">
+<link rel="canonical" href="https://narrowhighway.com/codex-seal.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Sealed Manuscript — The Codex">
+<meta property="og:description" content="The Codex sealed and signed — the chosen body, walked and indexed by the engine, fingerprinted and verifiable.">
+<meta property="og:url" content="https://narrowhighway.com/codex-seal.html">
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
+  .seal { background: #fff; border: 1px solid #d4c8a5; border-radius: 8px; padding: 1.4em 1.5em; margin-bottom: 1.2em; box-shadow: 0 1px 4px rgba(120,90,30,0.08); }
+  .seal-status { display: flex; align-items: center; gap: 0.6em; font-size: 1.3em; color: #1a3a52; margin-bottom: 0.2em; }
+  .seal-status .dot { width: 0.9em; height: 0.9em; border-radius: 50%; background: #5c8a3a; display: inline-block; }
+  .seal-status .dot.bad { background: #a23a2a; }
+  .seal-sub { color: #6a5a3a; font-size: 0.92em; margin-bottom: 1em; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em 1.2em; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+  .row { border-bottom: 1px dotted #e0d6b8; padding: 0.35em 0; }
+  .row .k { font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.06em; text-transform: uppercase; color: #8a7a4a; }
+  .row .v { color: #2a2a28; font-size: 0.96em; }
+  .hash { font-family: 'Courier New', monospace; font-size: 0.74em; color: #1a3a52; word-break: break-all; background: #f7f2e2; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.2em 0.4em; display: inline-block; }
+  .check { font-family: 'Courier New', monospace; font-size: 0.85em; }
+  .check.ok { color: #5c8a3a; } .check.bad { color: #a23a2a; }
+  .statement { background: #fff5d4; border-left: 4px solid #b8945a; padding: 0.8em 1.1em; margin: 1em 0; font-style: italic; color: #5a4a30; font-size: 0.97em; }
+  .breakdown { font-family: 'Courier New', monospace; font-size: 0.8em; color: #5a4a30; }
+  .breakdown span { display: inline-block; background: #f3eedb; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.1em 0.5em; margin: 0.15em 0.15em 0 0; }
+  .links { font-size: 0.88em; color: #6a5a3a; margin-top: 1em; }
+  .links a { color: #1a3a52; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.4em; text-align: center; color: #6a5a3a; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/codex-xref.html">Cross-References</a> · <a href="/codex-themes.html">Themes</a></nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE CODEX · FACE 2 · THE SEAL</div>
+  <h1>The Sealed Manuscript</h1>
+  <div class="tagline">The chosen body, walked and indexed by the engine — fingerprinted, signed, and verifiable by anyone</div>
+</div>
+
+<div id="out"><div class="empty">Reading the seal…</div></div>
+
+<script>
+(function () {
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+  var $out = document.getElementById('out');
+
+  Promise.all([
+    fetch('/codex/verify', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+    fetch('/codex/artifact', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+  ]).then(function (res) {
+    var v = res[0] || {}, a = res[1] || {};
+    if (!v.sealed || !a || a.sealed === false) {
+      $out.innerHTML = '<div class="empty">The Codex has not been sealed yet. An operator seals it with <code>POST /codex/seal</code> (or <code>python -m api.codex seal</code>).</div>';
+      return;
+    }
+    var ok = v.signature_valid, fresh = v.indexes_unchanged_since_seal;
+    var body = a.body || {}, idx = a.indexes || {};
+    function kv(k, v) { return '<div class="row"><div class="k">' + esc(k) + '</div><div class="v">' + v + '</div></div>'; }
+    function bd(obj) { return Object.keys(obj || {}).map(function (k) { return '<span>' + esc(k) + ': ' + obj[k] + '</span>'; }).join(' '); }
+    $out.innerHTML =
+      '<div class="seal">' +
+        '<div class="seal-status"><span class="dot' + (ok ? '' : ' bad') + '"></span>' +
+          (ok ? 'Sealed &amp; signature verified' : 'Signature INVALID') + '</div>' +
+        '<div class="seal-sub">Sealed ' + esc(a.sealed_at) + ' by engine identity <strong>' + esc(v.instance_id || a._instance_id) + '</strong> · Codex ' + esc(a.version || 'v1') + '</div>' +
+        '<div class="grid">' +
+          kv('Signature', '<span class="check ' + (ok ? 'ok' : 'bad') + '">' + (ok ? '✓ valid (Ed25519)' : '✗ invalid') + '</span>') +
+          kv('Indexes since seal', '<span class="check ' + (fresh ? 'ok' : 'bad') + '">' + (fresh ? '✓ unchanged' : '✗ drifted: ' + esc((v.drifted_indexes || []).join(', '))) + '</span>') +
+          kv('Body — cards', esc(body.cards_total)) +
+          kv('Scripture cross-refs', esc(((idx.scripture || {}).stats || {}).cross_references)) +
+          kv('Themes', esc(((idx.themes || {}).stats || {}).themes)) +
+          kv('Cross-refs witnessed', esc(((idx.scripture || {}).stats || {}).witnessed)) +
+        '</div>' +
+        '<div class="row" style="margin-top:0.6em"><div class="k">Body fingerprint (sha256)</div><div class="v"><span class="hash">' + esc(body.body_hash_sha256) + '</span></div></div>' +
+        '<div class="row"><div class="k">Scripture index (sha256)</div><div class="v"><span class="hash">' + esc((idx.scripture || {}).sha256) + '</span></div></div>' +
+        '<div class="row"><div class="k">Theme index (sha256)</div><div class="v"><span class="hash">' + esc((idx.themes || {}).sha256) + '</span></div></div>' +
+        '<div class="row" style="margin-top:0.6em"><div class="k">Body by shelf</div><div class="breakdown">' + bd(body.by_shelf) + '</div></div>' +
+        '<div class="row"><div class="k">Body by authority tier</div><div class="breakdown">' + bd(body.by_authority_tier) + '</div></div>' +
+        (a.statement ? '<div class="statement">' + esc(a.statement) + '</div>' : '') +
+        '<div class="links">Verify it yourself: <a href="/codex/artifact">the signed manifest</a> · <a href="/codex/verify">live verification</a> · <a href="/identity/pubkey">the engine public key</a></div>' +
+      '</div>';
+  });
+})();
+</script>
+</body>
+</html>

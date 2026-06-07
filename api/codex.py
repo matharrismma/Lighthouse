@@ -20,6 +20,7 @@ Faces:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -40,6 +41,8 @@ BIBLE_BOOKS = REPO / "content" / "codex" / "bible_books.json"
 INDEX_DIR = REPO / "data" / "codex" / "index"
 SCRIPTURE_INDEX = INDEX_DIR / "scripture.json"
 THEME_INDEX = INDEX_DIR / "themes.json"
+COMPILED_DIR = REPO / "data" / "codex" / "compiled"
+LATEST_ARTIFACT = COMPILED_DIR / "codex_latest.json"
 
 # Plumbing bands — the connection/sequence machinery, not themes. Dropped from
 # the theme index. (Book-name and testament bands are dropped separately.)
@@ -289,6 +292,115 @@ def load_themes() -> Dict[str, Any]:
         return data
 
 
+# ── Signed artifact (Face 2) ────────────────────────────────────────────────────
+def _sha256_file(p: Path) -> Optional[str]:
+    try:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def _body_fingerprint() -> Dict[str, Any]:
+    """Walk the body once: counts by shelf and authority tier, and a cheap,
+    order-independent fingerprint over each card's (id, source_hash)."""
+    import collections
+    shelves: "collections.Counter" = collections.Counter()
+    tiers: "collections.Counter" = collections.Counter()
+    total = 0
+    pairs: List[str] = []
+    if CARDS_DIR.exists():
+        for f in CARDS_DIR.glob("*.json"):
+            c = _read(f)
+            if not c:
+                continue
+            total += 1
+            shelves[c.get("shelf") or "?"] += 1
+            tiers[(c.get("source") or {}).get("authority_tier") or "?"] += 1
+            pairs.append((c.get("id") or f.stem) + "\t" + (c.get("source_hash") or ""))
+    pairs.sort()
+    fp = hashlib.sha256()
+    for line in pairs:
+        fp.update(line.encode("utf-8"))
+        fp.update(b"\n")
+    return {
+        "cards_total": total,
+        "by_shelf": dict(shelves.most_common()),
+        "by_authority_tier": dict(tiers.most_common()),
+        "body_hash_sha256": fp.hexdigest(),
+    }
+
+
+def build_codex_artifact() -> Dict[str, Any]:
+    """Seal the Codex: assemble a manifest (body fingerprint + index hashes +
+    index stats), sign it with the engine's instance identity, and write it to
+    data/codex/compiled/. Certifies 'the chosen body, walked and indexed by this
+    engine, as of this date.' The private key never leaves the engine node."""
+    body = _body_fingerprint()
+    scr, thm = load_index(), load_themes()
+    manifest = {
+        "kind": "codex_artifact",
+        "version": "v1",
+        "sealed_at": _now(),
+        "serves": "Jesus Christ",
+        "statement": ("This certifies the Codex — the chosen body (Scripture, the "
+                      "named fathers, the confessions, and the operator's works), walked "
+                      "and indexed by the engine — as of sealed_at. The body is "
+                      "fingerprinted by body_hash_sha256; each index by its sha256. The "
+                      "engine binds and indexes; it does not synthesize. Conduit, not source."),
+        "body": body,
+        "indexes": {
+            "scripture": {"stats": scr.get("stats", {}), "sha256": _sha256_file(SCRIPTURE_INDEX),
+                          "generated": scr.get("generated")},
+            "themes": {"stats": thm.get("stats", {}), "sha256": _sha256_file(THEME_INDEX),
+                       "generated": thm.get("generated")},
+        },
+    }
+    from concordance_engine.instance_identity import sign_dict
+    signed = sign_dict(manifest)  # adds _sig, _instance_pubkey, _instance_id
+    with _LOCK:
+        COMPILED_DIR.mkdir(parents=True, exist_ok=True)
+        date = (signed.get("sealed_at") or "")[:10] or "undated"
+        dated = COMPILED_DIR / f"codex_{date}.json"
+        for path in (dated, LATEST_ARTIFACT):
+            tmp = path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(signed, indent=2), encoding="utf-8")
+            tmp.replace(path)
+    return signed
+
+
+def load_latest_artifact() -> Optional[dict]:
+    if not LATEST_ARTIFACT.exists():
+        return None
+    return _read(LATEST_ARTIFACT)
+
+
+def verify_codex_artifact() -> Dict[str, Any]:
+    """Verify the latest sealed artifact: (1) the Ed25519 signature, and (2) that
+    the current index files still hash to what was sealed (drift detection)."""
+    art = load_latest_artifact()
+    if not art:
+        return {"sealed": False, "note": "No artifact sealed yet — POST /codex/seal."}
+    from concordance_engine.instance_identity import verify_dict
+    ok, detail = verify_dict(art)
+    # drift: re-hash the live index files against the sealed hashes
+    drift = []
+    for name, path in (("scripture", SCRIPTURE_INDEX), ("themes", THEME_INDEX)):
+        sealed = (art.get("indexes", {}).get(name, {}) or {}).get("sha256")
+        live = _sha256_file(path)
+        if sealed and live and sealed != live:
+            drift.append(name)
+    return {
+        "sealed": True,
+        "signature_valid": ok,
+        "detail": detail,
+        "instance_id": art.get("_instance_id"),
+        "sealed_at": art.get("sealed_at"),
+        "body_hash_sha256": art.get("body", {}).get("body_hash_sha256"),
+        "indexes_unchanged_since_seal": not drift,
+        "drifted_indexes": drift,
+    }
+
+
 def _operator_ok(request) -> bool:
     key = os.environ.get("NH_OPERATOR_KEY")
     if not key:
@@ -372,10 +484,42 @@ def get_router():
         t = build_theme_index()
         return {"ok": True, "scripture": s.get("stats", {}), "themes": t.get("stats", {})}
 
+    @router.get("/codex/artifact", tags=["codex"])
+    def artifact():
+        art = load_latest_artifact()
+        if not art:
+            return {"sealed": False, "note": "The Codex has not been sealed yet — POST /codex/seal."}
+        return art
+
+    @router.get("/codex/verify", tags=["codex"])
+    def verify():
+        return verify_codex_artifact()
+
+    @router.post("/codex/seal", tags=["codex"])
+    def seal(request: Request):
+        if not _operator_ok(request):
+            raise HTTPException(403, "Operator only.")
+        try:
+            signed = build_codex_artifact()
+        except ImportError as e:
+            raise HTTPException(501, f"Signing unavailable: {e}")
+        return {
+            "ok": True, "sealed_at": signed.get("sealed_at"),
+            "instance_id": signed.get("_instance_id"),
+            "body_hash_sha256": signed.get("body", {}).get("body_hash_sha256"),
+        }
+
     return router
 
 
-if __name__ == "__main__":  # python -m api.codex  -> build all indexes
+if __name__ == "__main__":  # python -m api.codex [seal]
+    import sys
     s = build_scripture_index()
     t = build_theme_index()
-    print(json.dumps({"scripture": s.get("stats", {}), "themes": t.get("stats", {})}, indent=2))
+    out = {"scripture": s.get("stats", {}), "themes": t.get("stats", {})}
+    if "seal" in sys.argv[1:]:
+        art = build_codex_artifact()
+        out["sealed"] = {"sealed_at": art.get("sealed_at"),
+                         "instance_id": art.get("_instance_id"),
+                         "body_hash": art.get("body", {}).get("body_hash_sha256")}
+    print(json.dumps(out, indent=2))

@@ -1,0 +1,6 @@
+# Signed Codex artifacts are sealed per engine node, with that node's instance
+# identity key (~/.concordance/instance_key.json). They are NOT version-controlled
+# — each authoritative engine seals its own. Re-seal with:  python -m api.codex seal
+# (or POST /codex/seal). Served at /codex/artifact, verified at /codex/verify.
+*.json
+!.gitignore

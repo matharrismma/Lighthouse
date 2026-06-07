@@ -84,8 +84,22 @@ to come.
 - API: `GET /codex/index/themes`, `/codex/index/themes/{theme}`
 - Page: `/codex-themes.html` (linked from `/codex.html`)
 
+**Signed artifact (Face 2) — BUILT.** `build_codex_artifact` assembles a manifest
+— body fingerprint (counts by shelf/tier + a sha256 over every card's
+(id, source_hash)) + each index's stats and sha256 — and signs it with the
+engine's **instance identity** (`concordance_engine.instance_identity.sign_dict`,
+Ed25519; private key stays on the node at `~/.concordance/instance_key.json`).
+Written to `data/codex/compiled/codex_<date>.json` + `codex_latest.json`
+(git-ignored — each engine seals its own).
+- API: `GET /codex/artifact` (the signed manifest), `GET /codex/verify`
+  (signature + index-drift check), `POST /codex/seal` (operator).
+- Page: `/codex-seal.html` (linked from `/codex.html`).
+- Seal on the authoritative node: `python -m api.codex seal` (or POST the route).
+  Tamper-evident: any change to the manifest fails `verify`.
+
 Still to build in Layer 3: the person, place, authority-tier, author/work, and
-time indexes — and the signed artifact (Face 2).
+time indexes. The genuine cross-domain connector — the axis / grid_connections
+graph — is the next frontier (floor → Codex → **connections**).
 
 ## What the codex compiler does
 
