@@ -260,6 +260,14 @@ try:
 except Exception as _e:
     logging.warning("Codex index router not mounted: %s", _e)
 
+# Original-language Scripture (Greek MorphGNT + Strong's): original word first,
+# WEB as the translation vehicle, the original word + definition on any confusion.
+try:
+    from api.original_language import get_router as _get_origlang_router
+    app.include_router(_get_origlang_router(), tags=["scripture"])
+except Exception as _e:
+    logging.warning("Original-language router not mounted: %s", _e)
+
 # Shepherd Interviewer (LOOP 12 — pre-flight before expensive walks)
 try:
     from api.shepherd import get_router as _get_shepherd_router

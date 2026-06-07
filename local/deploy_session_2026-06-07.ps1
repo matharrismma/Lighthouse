@@ -30,7 +30,7 @@ git push origin main
 Guard "git push"
 
 Write-Host "2/7  Backend  -> ~/Lighthouse/api/" -ForegroundColor Cyan
-scp "$r\api\codex.py" "$r\api\app.py" "$srv`:~/Lighthouse/api/"
+scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
