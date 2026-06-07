@@ -18,10 +18,16 @@
 // works for someone whose network is intermittently hostile, not
 // just for the always-online happy path.
 
-const CACHE = 'concordance-shell-v2';
+// v6: page navigations are now network-first with ONLY offline.html as the
+// offline fallback (never a stale cached page), and HTML is no longer runtime-
+// cached — so new and updated pages always show when online. The version bump
+// purges any HTML that older versions cached.
+const CACHE = 'concordance-shell-v6';
 
 // Pre-cached shell. Everything here loads once at install and is
-// available offline thereafter.
+// available offline thereafter. The shared JS/CSS files are the
+// real win — even when offline, every navigated-to page gets its
+// translations + accessibility + mobile styling from cache.
 const SHELL = [
   '/',
   '/manifest.json',
@@ -34,6 +40,17 @@ const SHELL = [
   '/reach.html',
   '/setup.html',
   '/llms.txt',
+  // Shared JS — used by every page
+  '/i18n.js',
+  '/a11y.js',
+  '/welcome.js',
+  '/audio.js',
+  '/vibe.js',
+  // Shared CSS
+  '/styles.css',
+  '/mobile.css',
+  '/lens-polish.css',
+  '/vibe.css',
 ];
 
 self.addEventListener('install', (event) => {
@@ -70,18 +87,34 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   if (new URL(req.url).origin !== self.location.origin) return;
 
+  // Page navigations: ALWAYS network-first, and on failure fall back ONLY to
+  // the offline page — never a stale cached copy of the page. This guarantees
+  // new and updated pages always show when online. (Pages are not cached here.)
+  if (req.mode === 'navigate') {
+    event.respondWith((async () => {
+      try {
+        return await fetch(req);
+      } catch (_) {
+        return (await caches.match('/offline.html')) || Response.error();
+      }
+    })());
+    return;
+  }
+
+  // Static assets (CSS / JS / SVG / manifest / text): network-first with a
+  // cache fallback, and cache fresh copies for offline + speed. HTML is
+  // intentionally NOT runtime-cached, so a page is never served stale.
   event.respondWith((async () => {
     try {
       const fresh = await fetch(req);
-      // Cache shell-shaped resources (HTML, JSON, SVG) silently for
-      // offline use. The cache lookup below picks them up later.
       const ct = fresh.headers.get('content-type') || '';
       const cacheable =
         fresh.ok &&
-        (ct.includes('text/html') ||
-         ct.includes('application/manifest+json') ||
+        (ct.includes('application/manifest+json') ||
          ct.includes('image/svg') ||
-         ct.includes('text/plain'));
+         ct.includes('text/plain') ||
+         ct.includes('text/css') ||
+         ct.includes('javascript'));
       if (cacheable) {
         const copy = fresh.clone();
         caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
@@ -89,14 +122,7 @@ self.addEventListener('fetch', (event) => {
       return fresh;
     } catch (_) {
       const cached = await caches.match(req);
-      if (cached) return cached;
-      // Last resort for navigations: the offline page.
-      if (req.mode === 'navigate') {
-        const fallback = await caches.match('/offline.html');
-        if (fallback) return fallback;
-      }
-      // Truly nothing — let the browser handle it.
-      return Response.error();
+      return cached || Response.error();
     }
   })());
 });
