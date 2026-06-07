@@ -80,7 +80,7 @@
   var $map=document.getElementById('map'), $panel=document.getElementById('panel'), $stat=document.getElementById('stat');
   // The Logos lens — the Bible reference for general-revelation (science) paths.
   var LOGOS=['Colossians 1:17','John 1:3','Hebrews 1:3','Romans 1:20'];
-  var verseCache={};
+  var verseCache={}, origCache={};
 
   fetch('/codex/connections',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
     if(!j||!j.verified_structural){ $map.innerHTML='<text x="20" y="40">connection graph not available</text>'; return; }
@@ -171,13 +171,24 @@
     conns.slice(0,6).forEach(function(c){ fillChrist(c); });
   }
 
+  function loadOrig(ref){
+    if(origCache[ref]!==undefined) return Promise.resolve(origCache[ref]);
+    return fetch('/scripture/original?ref='+encodeURIComponent(ref),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){ origCache[ref]=(j&&j.words)||[]; return origCache[ref]; })
+      .catch(function(){ origCache[ref]=[]; return []; });
+  }
   function fillChrist(c){
     var el=document.getElementById('christ-'+c.id); if(!el) return;
-    var primary=LOGOS[0];
-    Promise.all(LOGOS.map(loadVerse)).then(function(){
+    var primary=LOGOS[0], KEY='G4921', i;
+    Promise.all([Promise.all(LOGOS.map(loadVerse)), loadOrig(primary)]).then(function(res){
+      var words=res[1]||[], key=null;
+      for(i=0;i<words.length;i++){ if(words[i].strongs===KEY){ key=words[i]; break; } }
+      if(!key){ for(i=0;i<words.length;i++){ var w=words[i]; if(w.definition && (!key || w.definition.length>key.definition.length)) key=w; } }
       var t=verseCache[primary];
       var others=LOGOS.slice(1).filter(function(r){return verseCache[r];}).map(function(r){return '<span class="vref">'+esc(r)+'</span>';}).join(' · ');
+      var origLine = key ? '<div class="small" style="margin-top:0.3em"><b>In the original:</b> <span class="vref">'+esc(key.greek)+(key.translit?' ('+esc(key.translit)+')':'')+'</span> — '+esc((key.definition||'').slice(0,90))+'</div>' : '';
       el.innerHTML = (t? '<div class="vref">'+esc(primary)+'</div><div class="verse">“'+esc(t)+'”</div>' : '<div class="vref">'+esc(primary)+'</div>') +
+        origLine +
         '<div class="small">The order this math proves is not its own — it is the faithfulness of Christ the Logos, in whom all things hold together. '+(others?'Also: '+others:'')+'</div>';
     });
   }
