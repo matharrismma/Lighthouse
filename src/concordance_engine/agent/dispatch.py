@@ -692,13 +692,14 @@ def _geom_pyth(m, text):
 def _geom_poly(m, text):
     import re as _re
     n_m = _re.search(r'(\d+)[-\s]?(?:sided|gon|sides?)', text, _re.I)
-    angle_m = _re.search(r'(\d+)\s*(?:deg|°|degree)', text, _re.I)
-    if not n_m:
+    angle_m = _re.search(r'(\d+\.?\d*)\s*(?:deg|°|degree)', text, _re.I)
+    # Require a REAL claimed angle. Without one there is nothing to verify, and
+    # defaulting to the computed value self-confirms (and collides with non-
+    # geometry "N-sided" phrasings like "6-sided die").
+    if not (n_m and angle_m):
         return None
     n = int(n_m.group(1))
-    expected = (n - 2) * 180
-    return {"polygon_n": n,
-            "claimed_interior_angle_sum_deg": _num(angle_m.group(1)) if angle_m else expected}
+    return {"polygon_n": n, "claimed_interior_angle_sum_deg": _num(angle_m.group(1))}
 
 
 @_rule("geom_circle_area",
@@ -1307,6 +1308,96 @@ def _bio_hw(m, text):
         return {"hardy_weinberg": {"check": "equilibrium"}}
     p, q = _num(p_m.group(1)), _num(q_m.group(1))
     return {"hardy_weinberg": {"p": p, "q": q, "claimed_equilibrium": abs(p + q - 1.0) < 0.001}}
+
+
+# ── PERIODIC TABLE ────────────────────────────────────────────────────────────
+# Gap fill 2026-06-07: verifier existed, no rule -> every element claim hit oracle.
+
+@_rule("periodic_table",
+       r"atomic\s+number\s+of\s+\w+\s+is\s+\d+"
+       r"|\w+\s+has\s+(?:an?\s+)?atomic\s+number\s+(?:of\s+)?\d+"
+       r"|(?:chemical\s+)?symbol\s+(?:for|of)\s+\w+\s+is\s+[A-Z][a-z]?\b",
+       "periodic_table")
+def _periodic_table(m, text):
+    import re as _re
+
+    def _elkey(tok):
+        tok = tok.strip()
+        if 1 <= len(tok) <= 2 and tok.isalpha():
+            return ("symbol", tok.capitalize())
+        return ("name", tok.lower())
+
+    an = (_re.search(r'atomic\s+number\s+of\s+(\w+)\s+is\s+(\d+)', text, _re.I)
+          or _re.search(r'(\w+)\s+has\s+(?:an?\s+)?atomic\s+number\s+(?:of\s+)?(\d+)', text, _re.I))
+    if an:
+        k, v = _elkey(an.group(1))
+        return {k: v, "claimed_atomic_number": int(an.group(2))}
+    sym = _re.search(r'symbol\s+(?:for|of)\s+(\w+)\s+is\s+([A-Z][a-z]?)\b', text)
+    if sym:
+        return {"name": sym.group(1).lower(), "claimed_symbol": sym.group(2)}
+    return None
+
+
+# ── LINEAR ALGEBRA ────────────────────────────────────────────────────────────
+
+@_rule("linear_algebra",
+       r"(?:determinant|det)\s+(?:of\s+)?\[\[.*?\]\]\s*(?:is|=|equals)\s*-?\d"
+       r"|dot\s+product\s+of\s+\[.*?\]\s+and\s+\[.*?\]\s*(?:is|=|equals)\s*-?\d",
+       "linear_algebra")
+def _linalg(m, text):
+    import re as _re
+    import ast as _ast
+    det = _re.search(r'(?:determinant|det)\s+(?:of\s+)?(\[\[.*?\]\])\s*(?:is|=|equals)\s*(-?\d+\.?\d*)', text, _re.I)
+    if det:
+        try:
+            mat = _ast.literal_eval(det.group(1))
+        except Exception:
+            return None
+        return {"matrix": mat, "claimed_determinant": float(det.group(2))}
+    dp = _re.search(r'dot\s+product\s+of\s+(\[.*?\])\s+and\s+(\[.*?\])\s*(?:is|=|equals)\s*(-?\d+\.?\d*)', text, _re.I)
+    if dp:
+        try:
+            a = _ast.literal_eval(dp.group(1))
+            b = _ast.literal_eval(dp.group(2))
+        except Exception:
+            return None
+        return {"vec_a": a, "vec_b": b, "claimed_dot_product": float(dp.group(3))}
+    return None
+
+
+# ── NUCLEAR PHYSICS ───────────────────────────────────────────────────────────
+
+@_rule("nuclear_physics",
+       r"after\s+\d+\.?\d*\s+half-?li(?:fe|ves)\b.*?\d+\.?\d*\s*(?:%|percent)",
+       "nuclear_physics")
+def _nuc_halflife(m, text):
+    import re as _re
+    hm = _re.search(r'after\s+(\d+\.?\d*)\s+half-?li(?:fe|ves)', text, _re.I)
+    pm = _re.search(r'(\d+\.?\d*)\s*(?:%|percent)', text)
+    if not (hm and pm):
+        return None
+    if not _re.search(r'remain|left|undecayed', text, _re.I):
+        return None  # "% remaining after N half-lives" is the claim shape
+    return {"half_life_seconds": 1.0, "elapsed_seconds": float(hm.group(1)),
+            "initial_count": 100.0, "claimed_remaining_count": float(pm.group(1))}
+
+
+# ── PROBABILITY ───────────────────────────────────────────────────────────────
+
+@_rule("probability",
+       r"expected\s+value\s+of\s+a\s+(?:fair\s+)?\d+[\s-]*sided\s+(?:die|dice)",
+       "probability")
+def _prob_ev_die(m, text):
+    import re as _re
+    mm = _re.search(r'expected\s+value\s+of\s+a\s+(?:fair\s+)?(\d+)[\s-]*sided\s+(?:die|dice)[^\d]*(\d+\.?\d*)',
+                    text, _re.I)
+    if not mm:
+        return None
+    n = int(mm.group(1))
+    if not (2 <= n <= 1000):
+        return None
+    return {"outcomes": list(range(1, n + 1)), "probabilities": [1.0 / n] * n,
+            "claimed_expected_value": float(mm.group(2))}
 
 
 # ── Dispatch function ─────────────────────────────────────────────────

@@ -205,3 +205,30 @@ DONE (batch 3, 2026-06-07): SYSTEMIC gate value-dict fix, chem_balance, mfg_cpk,
 agri_hardiness_zone; phys_ke + bio_hardy_weinberg confirmed DEAD.
 DONE (batch 4, 2026-06-07): math_derivative (mode/params reshape); cs_complexity +
 cs_bit_ops confirmed DEAD (code-benchmark verifier, name-only claim).
+
+## Coverage gap-fill (new rules, not drift) — 2026-06-07
+Standing directive from Matt: "We keep filling gaps. Once this is filled go to the
+next one. Same thing." A scan found 29 verifier domains with NO dispatch rule
+(every such claim hit the oracle). Filling them moves whole claim-classes
+oracle -> deterministic. Method = the drift method applied to NEW rules: confirm
+the verifier CONFIRMS a hand-built spec, write trigger+extractor, verify
+CONFIRMED+MISMATCH, decoy-audit.
+
+### Gap batch 1 (verified + decoy-clean) — 4 domains filled + 1 bug killed
+- **periodic_table** — "atomic number of carbon is 6" / "X has atomic number N" /
+  "symbol for sodium is Na" (detects symbol vs name).
+- **linear_algebra** — "determinant of [[1,2],[3,4]] is -2" / "dot product of
+  [1,2,3] and [4,5,6] is 32" (ast.literal_eval the bracket forms).
+- **nuclear_physics** — "after N half-lives, X% remains" (maps to half-life decay:
+  hl=1, elapsed=N, init=100, claimed=X).
+- **probability** — "expected value of a fair N-sided die is M".
+- **FALSE-CONFIRM KILLED (geom_polygon_angles):** it fired on any "N-sided" and,
+  with no angle claim, defaulted `claimed_interior_angle_sum_deg` to its OWN
+  computed value -> self-confirm. It collided with "6-sided die" too. Fixed: it
+  now REQUIRES a real claimed angle (degrees); else returns None.
+- Decoy audit (12 traps incl. "6-sided table", "determinant of his success"): 0
+  false-confirms.
+
+Still-open gap domains (next): thermodynamics (Carnot — need the temp keys),
+physical_constants (unit-string matching is finicky), statistics_* (structured
+inputs), history_chronology, materials_science, oceanography, ecology, etc.
