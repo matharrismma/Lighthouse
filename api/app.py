@@ -4629,49 +4629,19 @@ _DEPOSITS_DIR = Path(__file__).resolve().parent.parent / "data" / "deposits"
 
 
 def _classify_deposit(text: str):
-    """Return (classification, routed_to). Conservative on messages —
-    drafts only; never auto-sends."""
-    t = (text or "").strip().lower()
-    if not t:
-        return ("empty", "none")
-    if (t.startswith(("email ", "send ", "message ", "reply ", "dm ", "text ",
-                      "draft ", "compose ", "write an email"))
-            or ("@" in t and ("send" in t or "email" in t))):
-        return ("message", "draft_review")
-    if any(k in t for k in ("verify", "is it true", "fact check", "balanced",
-                            "calculate", "compute", "prove")):
-        return ("claim", "verify")
-    if t.endswith("?") or t.startswith(("is ", "what ", "how ", "why ", "should ",
-                                        "does ", "can ", "who ", "when ", "where ",
-                                        "did ", "are ")):
-        return ("question", "discern")
-    return ("idea", "walk")
+    """Return (classification, routed_to). The deterministic Shepherd core now
+    lives in api/offices.py (shared with the funnel front door); this delegates
+    so there is one implementation, not parallel copies."""
+    from api import offices as _offices
+    return _offices.classify_deposit(text)
 
 
 # ── The three offices: Shepherd (Socratic) · Scribe (record) · Steward (resource) ──
 def _ledger_remaining_usd() -> float:
-    """Steward's resource check — what's left of the monthly cap."""
-    try:
-        import datetime as _dt
-        root = Path(__file__).resolve().parent.parent
-        month = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m")
-        led = root / "data" / "spend" / "ledger.jsonl"
-        spent = 0.0
-        if led.exists():
-            for ln in led.read_text(encoding="utf-8").splitlines():
-                ln = ln.strip()
-                if not ln:
-                    continue
-                try:
-                    o = json.loads(ln)
-                except Exception:
-                    continue
-                if o.get("month") == month:
-                    spent += float(o.get("usd", 0) or 0)
-        cap = float(os.environ.get("NH_MONTHLY_BUDGET_USD", "500") or 500)
-        return cap - spent
-    except Exception:
-        return 0.0
+    """Steward's resource check — what's left of the monthly cap.
+    Delegates to api/offices.py (the single Steward implementation)."""
+    from api import offices as _offices
+    return _offices.steward_budget_remaining_usd()
 
 
 def _ledger_record(source: str, usd: float) -> None:
@@ -4689,18 +4659,10 @@ def _ledger_record(source: str, usd: float) -> None:
 
 def _log_office_pair(office: str, prompt: str, completion: str, meta=None) -> None:
     """Each office's decision becomes a training pair for its future small model.
-    This is how the body mints the data for the three sovereign organs as it runs."""
-    try:
-        import datetime as _dt
-        root = Path(__file__).resolve().parent.parent
-        d = root / "data" / "training_corpus" / "offices"; d.mkdir(parents=True, exist_ok=True)
-        rec = {"schema": "narrowhighway.office_pair/1", "office": office,
-               "prompt": prompt, "completion": completion,
-               "at": _dt.datetime.now(_dt.timezone.utc).isoformat(), "meta": meta or {}}
-        with (d / f"{office}.jsonl").open("a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
+    This is how the body mints the data for the three sovereign organs as it runs.
+    Delegates to api/offices.py (the single implementation)."""
+    from api import offices as _offices
+    _offices.log_office_pair(office, prompt, completion, meta)
 
 
 _SHEPHERD_DISCERN_PROMPT = """You are the Shepherd of the Narrow Highway discernment engine, which serves Jesus Christ. The engine is a conduit, not a source: it eliminates what is not the answer so the narrow path is illuminated by what survives.

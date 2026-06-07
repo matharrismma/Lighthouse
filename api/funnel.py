@@ -34,11 +34,26 @@ except Exception:  # pragma: no cover
     class BaseModel:  # type: ignore
         pass
 
+try:
+    from api import offices as _offices
+except Exception:  # pragma: no cover
+    import offices as _offices  # type: ignore
+
 REPO = Path(__file__).resolve().parent.parent
 USER_CARDS = REPO / "data" / "user_cards"
 PUBLIC_CARDS = REPO / "data" / "cards"
 KEEP_ALLOWED = REPO / "data" / "keep_allowed_ips.txt"
 KEEP_SESSIONS = REPO / "data" / "keep" / "sessions.json"
+
+# Where each Shepherd-routed tool lives (only pages that exist; else the walk).
+_TOOL_URL = {
+    "walk": "/walk.html",
+    "discern": "/discern-teaching.html",
+    "verify": "/discern-teaching.html",
+    "teach": "/learn.html",
+    "scripture": "/walk.html",
+    "draft": "/scribe.html",
+}
 
 
 def _now() -> str:
@@ -90,25 +105,10 @@ def _is_owner(request) -> bool:
     return False
 
 
-# ── Classify / route (deterministic v1 — one input, the right deck) ─────────────
-def _classify(text: str) -> Dict[str, str]:
+# ── Title (the deck + routing now come from the Shepherd, in api/offices.py) ─────
+def _title(text: str) -> str:
     t = (text or "").strip()
-    low = t.lower()
-    deck = "note"
-    if low.startswith(("pray", "prayer")) or "pray for" in low or "lord," in low:
-        deck = "prayer"
-    elif any(k in low for k in ("recipe", "preheat", "ingredient", "tbsp", "tsp",
-                                "cup of", "bake at", "simmer")):
-        deck = "recipe"
-    elif low.startswith(("todo", "task:", "remember to", "need to", "buy ", "schedule")):
-        deck = "task"
-    elif t.endswith("?") or low.startswith(("what", "who", "why", "how", "when", "where")):
-        deck = "question"
-    elif any(k in low for k in ("genesis", "exodus", "psalm", "matthew", "mark ",
-                                "luke", "john ", "romans", "verse")) and ":" in t:
-        deck = "scripture"
-    title = (t[:70] + ("…" if len(t) > 70 else "")) or "Note"
-    return {"deck": deck, "title": title}
+    return (t[:70] + ("…" if len(t) > 70 else "")) or "Note"
 
 
 def _user_dir(owner: str) -> Path:
@@ -116,14 +116,17 @@ def _user_dir(owner: str) -> Path:
     return USER_CARDS / safe
 
 
-def _create_private(text: str, owner: str, deck: Optional[str] = None) -> dict:
-    routed = _classify(text)
-    deck = deck or routed["deck"]
+def _create_private(text: str, owner: str, deck: Optional[str] = None,
+                    shep: Optional[dict] = None) -> dict:
+    """Create a private, owned card. The Shepherd (offices.shepherd_route) decides
+    the deck and whether to suggest a tool; an explicit `deck` override wins."""
+    shep = shep or _offices.shepherd_route(text)
+    deck = deck or shep.get("deck") or "note"
     cid = "card_n_" + hashlib.sha256((owner + "|" + text + "|" + _now()).encode("utf-8")).hexdigest()[:12]
     card = {
         "id": cid,
         "kind": "note",
-        "title": routed["title"],
+        "title": _title(text),
         "body": text,
         "source": {"label": "Your input", "url": "", "ref": "", "authority_tier": "user_household"},
         "shelf": "mine",
@@ -133,13 +136,33 @@ def _create_private(text: str, owner: str, deck: Optional[str] = None) -> dict:
         "visibility": "private",
         "lifecycle_stage": "private",
         "witness_status": "self_only",
+        # the Shepherd's discernment, kept on the card so the shelf can show it
+        "shepherd": {"action": shep.get("action"), "say": shep.get("say", ""),
+                     "tool": shep.get("tool"), "via": shep.get("via")},
         "created_at": _now(),
         "updated_at": _now(),
     }
+    if shep.get("action") == "route" and shep.get("tool"):
+        card["routed_to"] = shep["tool"]
     d = _user_dir(owner)
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{cid}.json").write_text(json.dumps(card, indent=2), encoding="utf-8")
     return card
+
+
+def _read_any(owner: str, cid: str) -> Optional[dict]:
+    """A card from the private shelf, or — if already published — from the public
+    substrate. (propose can run before or after publish.)"""
+    card = _read_private(owner, cid)
+    if card:
+        return card
+    p = PUBLIC_CARDS / f"{cid}.json"
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+    return None
 
 
 def _read_private(owner: str, cid: str) -> Optional[dict]:
@@ -177,7 +200,10 @@ def get_router():
 
     @router.post("/funnel", tags=["funnel"])
     async def funnel_in(request: Request):
-        """The single input. Creates a PRIVATE, owned card and routes it to a deck."""
+        """The one front door. Every input runs through the three offices:
+        the SHEPHERD discerns (keep it, or suggest a tool); the STEWARD notes
+        resources (free by default); the card is kept on your private shelf. Each
+        decision is logged as a training pair for that office's future model."""
         owner = _require_owner(request)
         try:
             data = await request.json()
@@ -188,8 +214,28 @@ def get_router():
             raise HTTPException(400, "text is required")
         if len(text) > 4000:
             raise HTTPException(400, "max 4000 chars (cards are index cards)")
-        card = _create_private(text, owner, data.get("deck"))
-        return {"ok": True, "card": card, "shelf": "mine"}
+
+        # Shepherd discerns (deterministic, free); Steward notes the resource state.
+        shep = _offices.shepherd_route(text)
+        steward = _offices.steward_check(shep.get("tool", ""))
+        card = _create_private(text, owner, data.get("deck"), shep)
+
+        # each office's decision becomes a training pair
+        _offices.log_office_pair("shepherd", text, json.dumps(
+            {"action": shep.get("action"), "deck": card["deck"], "tool": shep.get("tool")},
+            ensure_ascii=False))
+        _offices.log_office_pair("steward", json.dumps({"tool": shep.get("tool")}),
+                                 json.dumps(steward, ensure_ascii=False))
+
+        resp = {"ok": True, "card": card, "shelf": "mine",
+                "shepherd": {"action": shep.get("action"), "say": shep.get("say", ""),
+                             "tool": shep.get("tool")},
+                "steward": {"budget_remaining_usd": steward["budget_remaining_usd"]}}
+        if shep.get("action") == "route" and shep.get("tool"):
+            resp["route"] = {"tool": shep["tool"],
+                             "query": shep.get("query", text),
+                             "url": _TOOL_URL.get(shep["tool"], "/walk.html")}
+        return resp
 
     @router.get("/funnel/mine", tags=["funnel"])
     def funnel_mine(request: Request):
@@ -234,19 +280,38 @@ def get_router():
             (_user_dir(owner) / f"{cid}.json").unlink(missing_ok=True)
         except Exception:
             pass
+        # the Scribe records the publication (training pair)
+        _offices.log_office_pair("scribe", str(card.get("body", ""))[:2000],
+                                 json.dumps({"published": cid, "shelf": "public"},
+                                            ensure_ascii=False))
         return {"ok": True, "published": cid, "visibility": "public",
                 "note": "On the public shelf. Not in the knowledge bank until it "
                         "passes the witness gate — POST /funnel/propose/{id}."}
 
     @router.post("/funnel/propose/{cid}", tags=["funnel"])
     def funnel_propose(cid: str, request: Request):
-        """Flag a card for the knowledge bank. The witness gate (existing) decides;
-        the user/operator cannot self-admit to the bank."""
-        _require_owner(request)
-        return {"ok": True, "proposed": cid,
-                "note": "Flagged for the witness gate. A card enters the knowledge "
-                        "bank only by passing two or three witnesses + the four gates — "
-                        "the gate decides, not the submitter."}
+        """Send a card to the knowledge bank — via the SCRIBE. The Scribe records
+        it into the same intake queue the witness gate reads; the gate (two or
+        three witnesses + the four gates) decides admission, never the submitter."""
+        owner = _require_owner(request)
+        card = _read_any(owner, cid)
+        if not card:
+            raise HTTPException(404, "Not Found")
+        body = str(card.get("body") or card.get("text") or "").strip()
+        if not body:
+            raise HTTPException(400, "card has no text to propose")
+        try:
+            receipt = _offices.scribe_submit(text=body, title=str(card.get("title") or ""),
+                                             visitor_id=owner)
+        except Exception as e:
+            raise HTTPException(500, f"propose failed: {e}")
+        _offices.log_office_pair("scribe", body[:2000],
+                                 json.dumps({"proposed": cid, "intake_id": receipt.get("id")},
+                                            ensure_ascii=False))
+        return {"ok": True, "proposed": cid, "scribe": receipt,
+                "note": "The Scribe has recorded it. A card enters the knowledge "
+                        "bank only by passing two or three witnesses + the four "
+                        "gates — the gate decides, not the submitter."}
 
     @router.get("/funnel/stats", tags=["funnel"])
     def funnel_stats(request: Request):

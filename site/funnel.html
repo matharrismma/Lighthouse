@@ -39,6 +39,14 @@
   .card .pub:hover { background: #e5dcb9; }
   .priv { font-family: 'Courier New', monospace; font-size: 0.66em; color: #8a7a4a; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.05em 0.4em; margin-left: 0.4em; }
   .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
+  #flash .shep { color: #1a3a52; font-style: italic; }
+  #flash .go { display: inline-block; margin-left: 0.4em; background: #1a3a52; color: #f4ecd5; text-decoration: none; border-radius: 4px; padding: 0.1em 0.6em; font-size: 0.85em; font-style: normal; }
+  #flash .go:hover { background: #2a5570; }
+  .card .shepc { font-size: 0.82em; color: #6a5a3a; font-style: italic; margin-top: 0.2em; }
+  .card .prop { background: #f3eedb; color: #806010; border: 1px solid #d4c8a5; border-radius: 3px; padding: 0.15em 0.6em; font-size: 0.78em; }
+  .card .prop:hover { background: #e5dcb9; }
+  .offices { margin-top: 2.4em; padding-top: 1em; border-top: 1px solid #e3d3a0; font-size: 0.8em; color: #8a7a4a; text-align: center; }
+  .offices b { color: #1a3a52; font-weight: normal; }
 </style>
 <link rel="stylesheet" href="/nh-sabbath.css">
 <link rel="stylesheet" href="/nh-print.css" media="print">
@@ -63,6 +71,11 @@
 <h2>Your shelf</h2>
 <div id="mine"><div class="empty">Loading your cards…</div></div>
 
+<div class="offices">
+  Three offices keep this place: the <b>Shepherd</b> discerns what you bring ·
+  the <b>Steward</b> guards what it costs · the <b>Scribe</b> records what you send on.
+</div>
+
 <script>
 (function () {
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
@@ -84,15 +97,29 @@
     Object.keys(byDeck).sort().forEach(function(d){
       html+='<div class="deck">'+esc(d)+' ('+byDeck[d].length+')</div>';
       byDeck[d].forEach(function(c){
+        var shepNote=(c.shepherd&&c.shepherd.say)?'<div class="shepc">'+esc(c.shepherd.say)+'</div>':'';
         html+='<div class="card"><div class="t">'+esc(c.title||'')+'<span class="priv">private</span></div>'+
           (c.body && c.body!==c.title? '<div class="b">'+esc(c.body.slice(0,160))+(c.body.length>160?'…':'')+'</div>':'')+
-          '<div class="acts"><button class="pub" data-id="'+esc(c.id)+'">Publish to the public shelf</button></div></div>';
+          shepNote+
+          '<div class="acts"><button class="pub" data-id="'+esc(c.id)+'">Publish to the public shelf</button>'+
+          ' <button class="prop" data-id="'+esc(c.id)+'">Propose to the knowledge bank</button></div></div>';
       });
     });
     $mine.innerHTML=html;
     Array.prototype.forEach.call($mine.querySelectorAll('.pub'),function(b){
       b.addEventListener('click',function(){ publish(b.dataset.id, b); });
     });
+    Array.prototype.forEach.call($mine.querySelectorAll('.prop'),function(b){
+      b.addEventListener('click',function(){ propose(b.dataset.id, b); });
+    });
+  }
+
+  function propose(id, btn){
+    btn.textContent='Sending to the Scribe…'; btn.disabled=true;
+    fetch('/funnel/propose/'+encodeURIComponent(id),{method:'POST'})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(j){ if(j&&j.ok){ btn.textContent='Recorded by the Scribe'; $flash.textContent='The Scribe recorded it — the witness gate decides what enters the bank.'; } else { btn.textContent='Propose'; btn.disabled=false; } })
+      .catch(function(){ btn.textContent='Propose'; btn.disabled=false; });
   }
 
   function publish(id, btn){
@@ -105,10 +132,23 @@
 
   function capture(){
     var text=$box.value.trim(); if(!text){ $box.focus(); return; }
-    $send.disabled=true; $flash.textContent='Capturing…';
+    $send.disabled=true; $flash.textContent='The Shepherd is listening…';
     fetch('/funnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
       .then(function(r){ if(r.status===404){ $flash.textContent='Sign in on this device to use your funnel.'; return null; } return r.ok?r.json():null; })
-      .then(function(j){ $send.disabled=false; if(j&&j.ok){ $box.value=''; $flash.textContent='Saved to your '+(j.card.deck||'note')+' shelf.'; loadMine(); } else if(j!==null){ $flash.textContent='Could not capture.'; } })
+      .then(function(j){
+        $send.disabled=false;
+        if(j&&j.ok){
+          $box.value='';
+          // The Shepherd's vetted reply. If it routed, offer the tool.
+          var say=(j.shepherd&&j.shepherd.say)||('Kept on your '+(j.card.deck||'note')+' shelf.');
+          var html='<span class="shep">'+esc(say)+'</span>';
+          if(j.route&&j.route.url){
+            html+=' <a class="go" href="'+esc(j.route.url)+'?q='+encodeURIComponent(j.route.query||'')+'">Take it through the '+esc(j.route.tool)+' →</a>';
+          }
+          $flash.innerHTML=html;
+          loadMine();
+        } else if(j!==null){ $flash.textContent='Could not capture.'; }
+      })
       .catch(function(){ $send.disabled=false; $flash.textContent='Could not capture.'; });
   }
 
