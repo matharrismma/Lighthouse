@@ -20,6 +20,7 @@ Faces:
 """
 from __future__ import annotations
 
+import collections
 import hashlib
 import json
 import os
@@ -42,6 +43,7 @@ INDEX_DIR = REPO / "data" / "codex" / "index"
 SCRIPTURE_INDEX = INDEX_DIR / "scripture.json"
 THEME_INDEX = INDEX_DIR / "themes.json"
 CONNECTIONS_INDEX = INDEX_DIR / "connections.json"
+CARDS_DEV_INDEX = INDEX_DIR / "cards_dev.json"
 GRID_CONNECTIONS = REPO / "data" / "grid_connections.jsonl"
 ALMANAC_ENTRIES = REPO / "data" / "almanac" / "entries.jsonl"
 # Engine-generated, deterministically-verified connections (oracle-free, reversible —
@@ -98,6 +100,7 @@ _LOCK = threading.Lock()
 _CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 _THEME_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 _CONN_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
+_CARDSDEV_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 
 
 def _now() -> str:
@@ -479,6 +482,99 @@ def load_connections() -> Dict[str, Any]:
         return data
 
 
+# ── Card development index (the method: see every card by how finished it is) ───
+# Content cards (note/walk) flow through a derived lifecycle. `lifecycle_stage` in
+# the data is ~100% "public" (unused as a pipeline), so we DERIVE the real stage
+# from completeness: a card isn't "developed" until it has a substantive body AND
+# 2+ connections AND a passed witness.
+_CONTENT_KINDS = {"note", "walk"}
+_BODY_FULL = 300      # chars — a substantive body
+_CONN_DONE = 2        # connections — "established by two or three"
+
+
+def _card_stage(body_len: int, conn: int, witnessed: bool) -> str:
+    if body_len >= _BODY_FULL and conn >= _CONN_DONE and witnessed:
+        return "developed"      # done
+    if conn >= _CONN_DONE:
+        return "connected"      # linked, but body thin / unwitnessed
+    if body_len >= _BODY_FULL:
+        return "drafted"        # has a body, under-connected
+    return "seed"               # stub + under-connected — rawest
+
+
+def build_cards_dev_index() -> Dict[str, Any]:
+    """Survey content cards and stage them by development. Connection cards (edges)
+    are counted separately. Writes data/codex/index/cards_dev.json."""
+    stages: "collections.Counter" = collections.Counter()
+    by_shelf: Dict[str, "collections.Counter"] = collections.defaultdict(collections.Counter)
+    lists: Dict[str, list] = {"seed": [], "drafted": [], "connected": []}  # needs-work queues
+    CAP = 500
+    edges = content = 0
+    if CARDS_DIR.exists():
+        for f in CARDS_DIR.glob("*.json"):
+            c = _read(f)
+            if not c:
+                continue
+            if c.get("kind") not in _CONTENT_KINDS:
+                edges += 1
+                continue
+            content += 1
+            body_len = len(c.get("body") or "")
+            conn = len(c.get("connections") or [])
+            witnessed = c.get("witness_status") == "passed"
+            st = _card_stage(body_len, conn, witnessed)
+            shelf = c.get("shelf") or "?"
+            stages[st] += 1
+            by_shelf[shelf][st] += 1
+            if st in lists and len(lists[st]) < CAP:
+                missing = []
+                if body_len < _BODY_FULL:
+                    missing.append("body")
+                if conn < _CONN_DONE:
+                    missing.append("connections")
+                lists[st].append({"id": c.get("id"), "title": (c.get("title") or "")[:90],
+                                  "shelf": shelf, "body_len": body_len, "conn": conn,
+                                  "missing": missing})
+    developed = stages.get("developed", 0)
+    payload = {
+        "generated": _now(),
+        "stats": {
+            "content_cards": content,
+            "edges": edges,
+            "developed": developed,
+            "needs_work": content - developed,
+            "pct_developed": round(100 * developed / content, 1) if content else 0,
+            "stages": {k: stages.get(k, 0) for k in ("seed", "drafted", "connected", "developed")},
+            "by_shelf": {k: dict(v) for k, v in sorted(by_shelf.items())},
+        },
+        "queues": lists,
+    }
+    with _LOCK:
+        INDEX_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = CARDS_DEV_INDEX.with_suffix(".tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(CARDS_DEV_INDEX)
+        _CARDSDEV_CACHE["data"] = payload
+        _CARDSDEV_CACHE["mtime"] = CARDS_DEV_INDEX.stat().st_mtime
+    return payload
+
+
+def load_cards_dev() -> Dict[str, Any]:
+    if not CARDS_DEV_INDEX.exists():
+        return {"generated": None, "stats": {}, "queues": {}}
+    try:
+        mt = CARDS_DEV_INDEX.stat().st_mtime
+    except OSError:
+        return {"generated": None, "stats": {}, "queues": {}}
+    if _CARDSDEV_CACHE["data"] is not None and mt <= _CARDSDEV_CACHE["mtime"]:
+        return _CARDSDEV_CACHE["data"]
+    with _LOCK:
+        data = _read(CARDS_DEV_INDEX) or {"generated": None, "stats": {}, "queues": {}}
+        _CARDSDEV_CACHE["data"] = data
+        _CARDSDEV_CACHE["mtime"] = mt
+        return data
+
+
 # ── Signed artifact (Face 2) ────────────────────────────────────────────────────
 def _sha256_file(p: Path) -> Optional[str]:
     try:
@@ -684,12 +780,24 @@ def get_router():
         return {"domain": want, "candidates": hits, "count": len(hits),
                 "note": "Resonances (shared axes) — candidate, not verified."}
 
+    @router.get("/codex/cards/dev", tags=["codex"])
+    def cards_dev():
+        idx = load_cards_dev()
+        return {
+            "generated": idx.get("generated"),
+            "stats": idx.get("stats", {}),
+            "queues": idx.get("queues", {}),
+            "note": "Content cards by DERIVED development stage. developed = body >= 300 "
+                    "chars AND 2+ connections AND witnessed; seed/drafted/connected need work.",
+        }
+
     @router.get("/codex/index/stats", tags=["codex"])
     def stats():
         return {
             "scripture": load_index().get("stats", {}),
             "themes": load_themes().get("stats", {}),
             "connections": load_connections().get("stats", {}),
+            "cards_dev": load_cards_dev().get("stats", {}),
         }
 
     @router.post("/codex/index/rebuild", tags=["codex"])
@@ -699,8 +807,9 @@ def get_router():
         s = build_scripture_index()
         t = build_theme_index()
         cn = build_connection_index()
+        cd = build_cards_dev_index()
         return {"ok": True, "scripture": s.get("stats", {}), "themes": t.get("stats", {}),
-                "connections": cn.get("stats", {})}
+                "connections": cn.get("stats", {}), "cards_dev": cd.get("stats", {})}
 
     @router.get("/codex/artifact", tags=["codex"])
     def artifact():
@@ -735,7 +844,9 @@ if __name__ == "__main__":  # python -m api.codex [seal]
     s = build_scripture_index()
     t = build_theme_index()
     cn = build_connection_index()
-    out = {"scripture": s.get("stats", {}), "themes": t.get("stats", {}), "connections": cn.get("stats", {})}
+    cd = build_cards_dev_index()
+    out = {"scripture": s.get("stats", {}), "themes": t.get("stats", {}),
+           "connections": cn.get("stats", {}), "cards_dev": cd.get("stats", {})}
     if "seal" in sys.argv[1:]:
         art = build_codex_artifact()
         out["sealed"] = {"sealed_at": art.get("sealed_at"),

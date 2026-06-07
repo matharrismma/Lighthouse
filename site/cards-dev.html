@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Develop the Cards — The Codex — Narrow Highway</title>
+<meta name="description" content="The card development board: every content card by how finished it is — seed, drafted, connected, developed. The method that makes the corpus cohere instead of just accumulate.">
+<link rel="canonical" href="https://narrowhighway.com/cards-dev.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="Develop the Cards — The Codex">
+<meta property="og:description" content="Every content card by how finished it is — seed, drafted, connected, developed. A definition of done for the corpus.">
+<style>
+  body { font-family: Georgia, serif; max-width: 960px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1em; font-size: 0.96em; }
+  .intro p { margin: 0.4em 0; }
+  .barwrap { margin: 1em 0; }
+  .bar { display: flex; height: 34px; border-radius: 5px; overflow: hidden; border: 1px solid #d4c8a5; }
+  .bar .seg { display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Courier New', monospace; font-size: 0.78em; min-width: 2px; }
+  .bar .seed { background: #b06a4a; } .bar .drafted { background: #c9a24a; } .bar .connected { background: #5c8a3a; } .bar .developed { background: #1a3a52; }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.4em; margin-top: 0.6em; }
+  .stage-tile { cursor: pointer; border: 1px solid #d4c8a5; border-radius: 5px; padding: 0.5em 0.9em; background: #fff; font-family: inherit; text-align: left; min-width: 120px; }
+  .stage-tile.sel { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .stage-tile .n { font-size: 1.5em; color: #1a3a52; } .stage-tile.sel .n { color: #f0d68a; }
+  .stage-tile .lbl { font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.06em; text-transform: uppercase; }
+  .stage-tile .dot { display: inline-block; width: 0.7em; height: 0.7em; border-radius: 2px; margin-right: 0.3em; vertical-align: middle; }
+  .stage-tile .desc { font-size: 0.78em; color: #6a5a3a; margin-top: 0.15em; }
+  .stage-tile.sel .desc { color: #c9b48a; }
+  h2 { color: #1a3a52; margin-top: 1.5em; font-size: 1.2em; font-weight: normal; }
+  .shelf-tbl { width: 100%; border-collapse: collapse; font-size: 0.88em; margin-top: 0.4em; }
+  .shelf-tbl th, .shelf-tbl td { text-align: right; padding: 0.25em 0.7em; border-bottom: 1px dotted #e0d6b8; }
+  .shelf-tbl th:first-child, .shelf-tbl td:first-child { text-align: left; }
+  .shelf-tbl th { font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; }
+  .card-row { display: flex; align-items: baseline; gap: 0.6em; background: #fff; border: 1px solid #e3dcc4; border-radius: 3px; padding: 0.4em 0.7em; margin-bottom: 0.3em; }
+  .card-row a { color: #1a3a52; text-decoration: none; font-size: 0.96em; }
+  .card-row a:hover { text-decoration: underline; }
+  .card-row .meta { margin-left: auto; display: flex; gap: 0.3em; align-items: center; white-space: nowrap; }
+  .miss { font-family: 'Courier New', monospace; font-size: 0.68em; padding: 0.1em 0.4em; border-radius: 3px; background: #f6e3d8; color: #a2502a; border: 1px solid #e6c4ad; }
+  .num { font-family: 'Courier New', monospace; font-size: 0.72em; color: #8a7a4a; }
+  .shelfpill { font-family: 'Courier New', monospace; font-size: 0.68em; color: #6a5a3a; }
+  .hint { color: #6a5a3a; font-style: italic; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/codex-connections.html">Connections</a> · <a href="/keep.html">Keep</a></nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE CODEX · CARD DEVELOPMENT</div>
+  <h1>Develop the Cards</h1>
+  <div class="tagline">Every card, by how finished it is — so the corpus coheres instead of just accumulating</div>
+</div>
+
+<div class="intro">
+  <p><strong>A card isn't done until it's <em>developed</em></strong> — a substantive body (300+ chars) <em>and</em> at least two connections <em>and</em> a passed witness. Anything less is still in progress. This board shows the whole content corpus against that definition of done, so the work is visible and finishable — not a pile that only grows.</p>
+  <p class="hint">Click a stage to see its cards. Each links to the card to develop it. Connections are the biggest lever — most cards have a body but too few links.</p>
+</div>
+
+<div id="stats"></div>
+<div class="barwrap"><div class="bar" id="bar"></div></div>
+<div class="legend" id="legend"></div>
+
+<h2>By shelf</h2>
+<div id="byshelf"></div>
+
+<h2 id="queue-h">The queue</h2>
+<div id="queue"><div class="empty">Loading the board…</div></div>
+
+<script>
+(function () {
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+  var STAGES = [
+    {k: 'seed', label: 'Seed', color: '#b06a4a', desc: 'stub + few links'},
+    {k: 'drafted', label: 'Drafted', color: '#c9a24a', desc: 'has body, needs links'},
+    {k: 'connected', label: 'Connected', color: '#5c8a3a', desc: 'linked, body thin'},
+    {k: 'developed', label: 'Developed', color: '#1a3a52', desc: 'done'}
+  ];
+  var $stats = document.getElementById('stats'), $bar = document.getElementById('bar'),
+      $legend = document.getElementById('legend'), $byshelf = document.getElementById('byshelf'),
+      $queue = document.getElementById('queue'), $qh = document.getElementById('queue-h');
+  var DATA = null, sel = 'drafted';
+
+  fetch('/codex/cards/dev', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) {
+      if (!j || !j.stats || !j.stats.stages) { $queue.innerHTML = '<div class="empty">Card board not built yet.</div>'; return; }
+      DATA = j; var s = j.stats;
+      $stats.innerHTML = '<div style="font-size:1.1em;"><b style="color:#1a3a52;font-size:1.3em;">' +
+        s.pct_developed + '%</b> developed &nbsp;·&nbsp; <b>' + Number(s.developed).toLocaleString() + '</b> done &nbsp;·&nbsp; <b>' +
+        Number(s.needs_work).toLocaleString() + '</b> need work &nbsp;·&nbsp; ' + Number(s.content_cards).toLocaleString() +
+        ' content cards (' + Number(s.edges).toLocaleString() + ' connection edges)</div>';
+      var total = s.content_cards || 1;
+      $bar.innerHTML = STAGES.map(function (st) {
+        var n = s.stages[st.k] || 0; var pct = 100 * n / total;
+        return '<div class="seg ' + st.k + '" style="width:' + pct + '%" title="' + st.label + ': ' + n + '">' + (pct > 7 ? n : '') + '</div>';
+      }).join('');
+      $legend.innerHTML = STAGES.map(function (st) {
+        var n = s.stages[st.k] || 0;
+        return '<button class="stage-tile' + (st.k === sel ? ' sel' : '') + '" data-k="' + st.k + '">' +
+          '<div class="lbl"><span class="dot" style="background:' + st.color + '"></span>' + st.label + '</div>' +
+          '<div class="n">' + Number(n).toLocaleString() + '</div><div class="desc">' + st.desc + '</div></button>';
+      }).join('');
+      Array.prototype.forEach.call($legend.querySelectorAll('.stage-tile'), function (b) {
+        b.addEventListener('click', function () { sel = b.dataset.k; renderLegendSel(); renderQueue(); });
+      });
+      renderShelves(s.by_shelf || {});
+      renderQueue();
+    })
+    .catch(function () { $queue.innerHTML = '<div class="empty">Could not load the board.</div>'; });
+
+  function renderLegendSel() {
+    Array.prototype.forEach.call($legend.querySelectorAll('.stage-tile'), function (b) {
+      b.classList.toggle('sel', b.dataset.k === sel);
+    });
+  }
+
+  function renderShelves(byShelf) {
+    var keys = ['seed', 'drafted', 'connected', 'developed'];
+    var rows = Object.keys(byShelf).map(function (shelf) {
+      var st = byShelf[shelf];
+      var tot = keys.reduce(function (a, k) { return a + (st[k] || 0); }, 0);
+      return '<tr><td>' + esc(shelf) + '</td>' + keys.map(function (k) { return '<td>' + (st[k] || 0) + '</td>'; }).join('') + '<td><b>' + tot + '</b></td></tr>';
+    }).join('');
+    $byshelf.innerHTML = '<table class="shelf-tbl"><tr><th>shelf</th><th>seed</th><th>drafted</th><th>connected</th><th>developed</th><th>total</th></tr>' + rows + '</table>';
+  }
+
+  function renderQueue() {
+    if (!DATA) return;
+    if (sel === 'developed') {
+      $qh.textContent = 'The queue';
+      $queue.innerHTML = '<div class="empty">Developed cards are done — nothing to work on here. Pick seed, drafted, or connected.</div>';
+      return;
+    }
+    var list = (DATA.queues || {})[sel] || [];
+    var st = STAGES.filter(function (x) { return x.k === sel; })[0] || {};
+    $qh.innerHTML = 'The queue — <span style="color:' + st.color + '">' + esc(st.label) + '</span> <span class="num">(showing ' + list.length + ')</span>';
+    if (!list.length) { $queue.innerHTML = '<div class="empty">No cards in this stage.</div>'; return; }
+    $queue.innerHTML = list.map(function (c) {
+      var miss = (c.missing || []).map(function (m) { return '<span class="miss">needs ' + esc(m) + '</span>'; }).join('');
+      return '<div class="card-row"><a href="/c/' + esc(c.id) + '">' + esc(c.title || c.id) + '</a>' +
+        '<span class="meta"><span class="shelfpill">' + esc(c.shelf) + '</span>' +
+        '<span class="num">' + c.body_len + 'c · ' + c.conn + ' link' + (c.conn === 1 ? '' : 's') + '</span>' + miss + '</span></div>';
+    }).join('');
+  }
+})();
+</script>
+</body>
+</html>
