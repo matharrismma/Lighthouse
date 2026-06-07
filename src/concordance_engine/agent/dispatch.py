@@ -62,9 +62,29 @@ def _rule(rule_id: str, pattern: str, domain: str):
 
 # ── CHEMISTRY ────────────────────────────────────────────────────────
 
-@_rule("chem_balance", r"(?:is|verify|check|balance)\s+(.+?)\s*(?:balanced|->|→)", "chemistry")
+# a chemical species: optional coefficient + one-or-more element/paren groups
+_CHEM_SPECIES = r'(?:\d+\s+)?(?:[A-Z][a-z]?\d*|\([A-Za-z0-9]+\)\d*)+'
+_CHEM_EQ = (r'(' + _CHEM_SPECIES + r'(?:\s*\+\s*' + _CHEM_SPECIES + r')*'
+            r'\s*(?:->|→)\s*'
+            + _CHEM_SPECIES + r'(?:\s*\+\s*' + _CHEM_SPECIES + r')*)')
+
+
+@_rule("chem_balance",
+       r"(?=.*(?:balanc|equation|reaction))(?=.*(?:->|→))",
+       "chemistry")
 def _chem_balance(m, text):
-    return {"equation": m.group(1).strip()}
+    import re as _re
+    # capture ONLY the 'LHS -> RHS' species (prose like "Is ... balanced" corrupts
+    # the atom count — "Is"/"is" parse as elements -> false MISMATCH).
+    eqm = _re.search(_CHEM_EQ, text)
+    if not eqm:
+        return None
+    eq = _re.sub(r'\s+', ' ', eqm.group(1)).strip()
+    # require a real formula (element with subscript) or multiple species ('+'),
+    # not arbitrary 'A -> B' prose
+    if not (_re.search(r'[A-Z][a-z]?\d', eq) or '+' in eq):
+        return None
+    return {"equation": eq}
 
 
 @_rule("chem_molar_mass", r"molar\s+mass\s+of\s+([A-Za-z0-9\(\)]+)", "chemistry")
@@ -1159,8 +1179,7 @@ def _photo_ev(m, text):
 # ── MANUFACTURING ─────────────────────────────────────────────────────────────
 
 @_rule("mfg_cpk",
-       r"C(?:pk|p)\s*=?\s*(\d+\.?\d*).*?USL.*?(\d+\.?\d*).*?LSL.*?(\d+\.?\d*)"
-       r"|process\s+(?:is\s+)?capable.*?USL.*?(\d+\.?\d*).*?LSL.*?(\d+\.?\d*)",
+       r"(?=.*\bUSL\b)(?=.*\bLSL\b)(?=.*\bmean\b)(?=.*\bsigma\b)(?=.*capable)",
        "manufacturing")
 def _mfg_cpk(m, text):
     import re as _re
@@ -1179,17 +1198,20 @@ def _mfg_cpk(m, text):
 # ── AGRICULTURE ───────────────────────────────────────────────────────────────
 
 @_rule("agri_hardiness_zone",
-       r"(?:USDA\s+)?(?:plant\s+)?hardiness\s+zone\s+(\d+[ab]?)\s+(?:is\s+)?(?:suitable\s+for\s+)?(\w+)"
-       r"|(\w+)\s+(?:grows?|thrives?|suitable)\s+in\s+zone\s+(\d+[ab]?)",
+       r"(?=.*hardiness\s+zone)(?=.*zone\s+\d)"
+       r"|(\w+)\s+(?:grows?|thrives?|hardy|suitable|cultivat\w+)(?:\s+\w+){0,2}?\s+in\s+(?:hardiness\s+)?zone\s+(\d+[ab]?)",
        "agriculture")
 def _agri_zone(m, text):
     import re as _re
     zone_m = _re.search(r'zone\s+(\d+[ab]?)', text, _re.I)
-    crops = ["tomato", "wheat", "corn", "maize", "apple", "peach", "avocado",
-             "orange", "grape", "strawberry", "blueberry", "soybean", "cotton"]
+    # crops the verifier's hardiness reference table actually knows ("maize" -> "corn")
+    crops = ["tomato", "wheat", "corn", "maize", "apple", "peach",
+             "strawberry", "blueberry", "soybean", "cotton"]
     crop = next((c for c in crops if c in text.lower()), None)
     if not (zone_m and crop):
         return None
+    if crop == "maize":
+        crop = "corn"
     return {"claimed_zone": zone_m.group(1), "crop": crop}
 
 

@@ -482,7 +482,16 @@ def _rule_dispatch_verifies(domain: str, spec: Dict[str, Any]) -> bool:
             isinstance(c, dict) and c.get("status") in ("CONFIRMED", "MISMATCH") for c in checks
         ):
             return True
-        return raw.get("status") in ("CONFIRMED", "MISMATCH")
+        if raw.get("status") in ("CONFIRMED", "MISMATCH"):
+            return True
+        # Some verifiers return per-aspect verdicts as dict VALUES rather than a
+        # checks[] list — e.g. verify_chemistry -> {"equation": {"status": ...}}.
+        # Recognize a real CONFIRMED/MISMATCH wherever it lands so these rules go
+        # deterministic instead of leaking to the oracle.
+        return any(
+            isinstance(v, dict) and v.get("status") in ("CONFIRMED", "MISMATCH")
+            for v in raw.values()
+        )
     except Exception:
         return False
 

@@ -119,26 +119,62 @@ Decoy audit after the batch: 0 false-confirms. (Two inputs in the trap list were
 actually TRUE claims — "Strong G2316 is theos" and "C4 to G4 is 7 semitones" —
 correctly CONFIRMED by ling_strongs / mus_interval_semitones; not false-confirms.)
 
+### Reconcile batch 3 (2026-06-07) — a SYSTEMIC gate fix + 3 rules + 2 dead confirmed
+**Systemic (the big one): the gate couldn't read a whole class of verifier
+output.** `_rule_dispatch_verifies` (poly_agent.py) only recognized a real verdict
+in `checks[]`, `results[]`, or a top-level `status`. But some verifiers return
+per-aspect verdicts as dict VALUES — e.g. `verify_chemistry` -> `{"equation":
+{"status": ...}}`. The gate saw no verdict there and **leaked every such claim to
+the oracle even though a deterministic verdict existed**. Fix: the gate now also
+recognizes `CONFIRMED`/`MISMATCH` in any dict value. Additive + safe (only ever
+recognizes MORE real verdicts, never fewer). This un-leaks chemistry and any other
+nested-shape verifier at once.
+- **chem_balance (REAL HARMFUL DRIFT FIXED + un-leaked):** two bugs. (1) The old
+  trigger `(.+?)(?:->|...)` truncated the equation at the FIRST arrow -> only the
+  LHS. (2) Even fixed, capturing the surrounding prose ("Is ... balanced") made the
+  atom-counter read "Is"/"is" as ELEMENTS -> a *balanced* equation came back
+  MISMATCH (false negative on a true claim). New `_CHEM_EQ` regex captures only the
+  `LHS -> RHS` species (coefficients + element/paren groups), guarded by a real-
+  formula check. Verified: balanced -> CONFIRMED, unbalanced -> MISMATCH; decoys
+  ("Team A -> Team B ... balanced", "step 1 -> step 2 ... reaction") NO_MATCH.
+- **mfg_cpk:** extractor keys already correct (`process_mean`/`process_sigma`/
+  `claimed_cp_capable`); only the trigger drifted (required Cpk-before-USL-before-
+  LSL order). New order-independent lookahead trigger requiring USL+LSL+mean+sigma
+  +a capability claim (so we never assert a capability the user didn't state).
+  CONFIRMED verified.
+- **agri_hardiness_zone:** verifier's reference table covers tomato/wheat/corn/
+  apple/peach/strawberry/blueberry/soybean/cotton (CONFIRMS). Trigger widened to
+  any "hardiness zone N" mention (extractor re-finds zone+crop) + "grows/thrives/
+  hardy/cultivated in zone N" with up to 2 filler words; `maize`->`corn`. Crops not
+  in the table (avocado/orange/grape) correctly NO_MATCH -> oracle.
+
+**Confirmed DEAD (mark for removal; harmless NA/ERROR -> oracle):**
+- **phys_ke** — DEAD: verify_physics recognizes kinematics (v0/a/t/displacement) +
+  conservation, but has no kinetic-energy magnitude check. Like phys_force.
+- **bio_hardy_weinberg** — DEAD: verify_biology's biology check is an integer-count
+  chi-square (observed/expected); it has no Hardy-Weinberg p^2+2pq+q^2 check and
+  ERRORs on allele frequencies. The rule emits a nested `{hardy_weinberg:{...}}`
+  the verifier never reads.
+
+Decoy audit after batch 3 (16 traps incl. the systemic-gate-relevant ones):
+0 false-confirms.
+
 ### Still open
-- **chem_balance** — emits `{equation}`; `verify_equation(eq, ...)` takes the eq
-  string. Need to confirm the MCP `verify_chemistry` wrapper routes `spec["equation"]`
-  -> verify_equation (the NA suggests a wrapper key mismatch). Check
-  `mcp_server/tools.py`.
-- **phys_force** — DEAD: verify_physics does dimensional / conservation / kinematics,
-  but no numeric F=ma magnitude check. Harmless NA -> oracle; candidate for removal.
+- **phys_force / phys_ke / bio_hardy_weinberg** — DEAD (no matching numeric check
+  in the target verifier). Harmless (gate -> oracle); removal candidates. Leave
+  until a numeric F=ma / KE / HW check exists, or delete the rules.
 - **geo_mohs** — works for "X scratches Y"; "X (Mohs n) is harder than Y (Mohs m)"
   not handled (coverage). **geo_richter** — fine for ratio claims (not drifted).
-- **logic_tautology / logic_satisfiable** — keys already match and the verifier
-  CONFIRMS on the `>>`/`&`/`|`/`~` notation, but the trigger only fires on that
-  exact notation. Widening to natural connectives ("P AND Q", "P -> Q", "implies")
-  is higher-risk (prose "A and B" is everywhere); needs a careful normalize step.
-  Low corpus frequency -> deferred, not dead.
+- **logic_tautology / logic_satisfiable** — keys match + verifier CONFIRMS on the
+  `>>`/`&`/`|`/`~` notation, but the trigger only fires on that exact notation.
+  Widening to natural connectives ("P AND Q", "P -> Q", "implies") is higher-risk
+  (prose "A and B" is everywhere); needs a careful normalize step. Low corpus
+  frequency -> deferred, not dead.
 - **sport_pythagorean** — keys match + verifier CONFIRMS, but the extractor needs
-  "N runs scored ... N runs allowed ... win pct" in that order/phrasing; "scored N
-  runs" or a bare ".566 expectation" won't fire. Niche; coverage-only.
-- Remaining backlog domains untested this pass: phys_ke (likely DEAD like
-  phys_force — verify_physics has no numeric KE check), mfg_cpk,
-  agri_hardiness_zone, bio_hardy_weinberg. Same method; decoy-audit each widen.
+  "N runs scored ... N runs allowed ... win pct" in that order/phrasing. Niche;
+  coverage-only.
 
 DONE (batch 2, 2026-06-07): gen_codon, info_entropy, geo_haversine,
-cal_day_of_week (was/fell-on), comb_permute (natural-language). See batch 2 above.
+cal_day_of_week (was/fell-on), comb_permute (natural-language).
+DONE (batch 3, 2026-06-07): SYSTEMIC gate value-dict fix, chem_balance, mfg_cpk,
+agri_hardiness_zone; phys_ke + bio_hardy_weinberg confirmed DEAD.
