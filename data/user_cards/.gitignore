@@ -1,0 +1,5 @@
+# Private, owned user cards — NEVER version-controlled. These are the user's own
+# cards (the "mine" shelf), per node, outside the public substrate. Keep them out
+# of git entirely. Published cards move to data/cards/; only those become public.
+*
+!.gitignore

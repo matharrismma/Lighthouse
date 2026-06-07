@@ -268,6 +268,14 @@ try:
 except Exception as _e:
     logging.warning("Original-language router not mounted: %s", _e)
 
+# The user layer — one funnel + private (owned) cards (data/user_cards/, outside
+# the public substrate). Private by default; user publishes; the gate banks.
+try:
+    from api.funnel import get_router as _get_funnel_router
+    app.include_router(_get_funnel_router(), tags=["funnel"])
+except Exception as _e:
+    logging.warning("Funnel router not mounted: %s", _e)
+
 # Shepherd Interviewer (LOOP 12 — pre-flight before expensive walks)
 try:
     from api.shepherd import get_router as _get_shepherd_router
