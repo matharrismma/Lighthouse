@@ -41,6 +41,7 @@
   .vs .vtitle { color: #3a3a38; font-size: 0.95em; margin-top: 0.2em; }
   .vs .trail { margin-top: 0.35em; }
   .vchip { font-family: 'Courier New', monospace; font-size: 0.7em; background: #eef3e8; color: #3a5a2a; border: 1px solid #c3d9a8; border-radius: 3px; padding: 0.1em 0.45em; margin-right: 0.2em; }
+  .genbadge { font-family: 'Courier New', monospace; font-size: 0.68em; letter-spacing: 0.04em; background: #2a5570; color: #f4ecd5; border-radius: 3px; padding: 0.1em 0.45em; margin-left: 0.3em; }
   .cand { background: #fff; border: 1px solid #e3dcc4; border-radius: 4px; padding: 0.55em 0.9em; margin-bottom: 0.45em; }
   .cand .pair { color: #1a3a52; font-size: 1em; }
   .cand .pair b { font-weight: bold; }
@@ -105,11 +106,14 @@
         stat(s.candidate_pairs, 'candidate pairs') + stat(s.raw_grid_edges, 'edges smoothed') + stat(s.domains, 'domains');
       // verified-structural (the moat)
       var vs = j.verified_structural || [];
-      $vssub.textContent = vs.length + ' claims, each confirmed by two or more independent domain verifiers — with the trail.';
+      var ngen = vs.filter(function (c) { return c.generated; }).length;
+      $vssub.textContent = vs.length + ' claims, each confirmed by two or more independent domain verifiers — with the trail.' +
+        (ngen ? ' ' + ngen + ' are engine-generated (deterministic, oracle-free).' : '');
       $vstruct.innerHTML = vs.length ? vs.map(function (c) {
         var trail = (c.trail || []).map(function (t) { return '<span class="vchip">' + esc(t.domain) + ' ✓</span>'; }).join('');
+        var gen = c.generated ? '<span class="genbadge">engine-generated</span>' : '';
         return '<div class="vs"><span class="doms">' + (c.domains || []).map(esc).join(' + ') + '</span> ' +
-          '<span class="vtag">✓ ' + c.domain_count + ' verifiers · ' + esc(c.verdict || '') + '</span>' +
+          '<span class="vtag">✓ ' + c.domain_count + ' verifiers · ' + esc(c.verdict || '') + '</span>' + gen +
           '<div class="vtitle">' + esc(c.title) + '</div>' +
           '<div class="trail">' + trail + '</div></div>';
       }).join('') : '<div class="empty">No verified cross-domain connections yet.</div>';

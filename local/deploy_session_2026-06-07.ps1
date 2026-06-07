@@ -47,6 +47,14 @@ Guard "scp indexes"
 scp "$r\data\codex\STRUCTURE.md" "$r\data\codex\README.md" "$r\data\codex\AUTHORITY_SPINE.md" "$srv`:~/Lighthouse/data/codex/"
 Guard "scp codex docs"
 
+Write-Host "5b/7 Engine-generated verified connections + the generator..." -ForegroundColor Cyan
+ssh $srv "mkdir -p ~/Lighthouse/tools"
+Guard "mkdir tools"
+scp "$r\data\almanac\generated_verified.jsonl" "$srv`:~/Lighthouse/data/almanac/"
+Guard "scp generated_verified"
+scp "$r\tools\grow_verified.py" "$srv`:~/Lighthouse/tools/"
+Guard "scp grow_verified"
+
 Write-Host "6/7  Restart the engine..." -ForegroundColor Cyan
 ssh $srv "sudo systemctl restart nh-engine"
 Guard "engine restart"

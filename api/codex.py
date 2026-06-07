@@ -44,6 +44,9 @@ THEME_INDEX = INDEX_DIR / "themes.json"
 CONNECTIONS_INDEX = INDEX_DIR / "connections.json"
 GRID_CONNECTIONS = REPO / "data" / "grid_connections.jsonl"
 ALMANAC_ENTRIES = REPO / "data" / "almanac" / "entries.jsonl"
+# Engine-generated, deterministically-verified connections (oracle-free, reversible —
+# produced by tools/grow_verified.py; separate from the curated almanac).
+GENERATED_VERIFIED = REPO / "data" / "almanac" / "generated_verified.jsonl"
 COMPILED_DIR = REPO / "data" / "codex" / "compiled"
 LATEST_ARTIFACT = COMPILED_DIR / "codex_latest.json"
 
@@ -317,35 +320,42 @@ def _verified_structural() -> List[dict]:
     yielded 0% — the prose doesn't fit the structured rules. The almanac, whose
     claims are already four-gate verified, is the sound substrate instead.)"""
     out: List[dict] = []
-    if not ALMANAC_ENTRIES.exists():
-        return out
-    with ALMANAC_ENTRIES.open(encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                e = json.loads(line)
-            except Exception:
-                continue
-            dr = (e.get("pre_run") or {}).get("domain_results") or []
-            confirmed = [d for d in dr if d.get("verdict") == "CONFIRMED" and d.get("domain")]
-            doms = sorted({d["domain"] for d in confirmed})
-            if len(doms) < 2:  # a cross-domain connection needs 2+ verifiers
-                continue
-            out.append({
-                "id": e.get("id"),
-                "title": e.get("title") or e.get("id"),
-                "domains": doms,
-                "domain_count": len(doms),
-                "axes": e.get("axes") or [],
-                "verdict": e.get("verdict"),
-                "situation": (e.get("situation") or "")[:320],
-                "tier": "verified-structural",
-                "trail": [{"domain": d.get("domain"), "verdict": d.get("verdict"),
-                           "detail": (d.get("detail") or "")[:200]}
-                          for d in confirmed],
-            })
+    seen_ids = set()
+    for path in (ALMANAC_ENTRIES, GENERATED_VERIFIED):
+        if not path.exists():
+            continue
+        with path.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    e = json.loads(line)
+                except Exception:
+                    continue
+                dr = (e.get("pre_run") or {}).get("domain_results") or []
+                confirmed = [d for d in dr if d.get("verdict") == "CONFIRMED" and d.get("domain")]
+                doms = sorted({d["domain"] for d in confirmed})
+                if len(doms) < 2:  # a cross-domain connection needs 2+ verifiers
+                    continue
+                eid = e.get("id")
+                if eid in seen_ids:
+                    continue
+                seen_ids.add(eid)
+                out.append({
+                    "id": eid,
+                    "title": e.get("title") or eid,
+                    "domains": doms,
+                    "domain_count": len(doms),
+                    "axes": e.get("axes") or [],
+                    "verdict": e.get("verdict"),
+                    "situation": (e.get("situation") or "")[:320],
+                    "tier": "verified-structural",
+                    "generated": bool(e.get("generated")),
+                    "trail": [{"domain": d.get("domain"), "verdict": d.get("verdict"),
+                               "detail": (d.get("detail") or "")[:200]}
+                              for d in confirmed],
+                })
     out.sort(key=lambda x: (-x["domain_count"], x["domains"]))
     return out
 
