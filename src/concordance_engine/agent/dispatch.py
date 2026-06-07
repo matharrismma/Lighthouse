@@ -1480,6 +1480,54 @@ def _optics_snell(m, text):
     return None
 
 
+# ── PHYSICAL CONSTANTS ────────────────────────────────────────────────────────
+# value-only check (the verifier resolves the name + checks value with rel_tol;
+# omitting the unit avoids brittle unit-string mismatches).
+_PHYS_CONST_MAP = [
+    (("speed of light",), "speed of light"),
+    (("avogadro",), "avogadro number"),
+    (("stefan-boltzmann", "stefan boltzmann"), "stefan-boltzmann constant"),
+    (("boltzmann",), "boltzmann constant"),
+    (("planck",), "planck constant"),
+    (("gravitational constant", "newton's constant"), "gravitational constant"),
+    (("elementary charge", "electron charge"), "elementary charge"),
+    (("gas constant",), "gas constant"),
+    (("electron mass",), "electron mass"),
+    (("proton mass",), "proton mass"),
+    (("neutron mass",), "neutron mass"),
+]
+
+
+@_rule("physical_constants",
+       r"(?:speed of light|avogadro|boltzmann|planck|gravitational constant|"
+       r"elementary charge|electron charge|gas constant|electron mass|proton mass|"
+       r"neutron mass)('?s)?\s+(?:constant|number)?\s*(?:is|=|equals|:)\s*"
+       r"(?:about\s+|approximately\s+|~)?-?\d",
+       "physical_constants")
+def _phys_const(m, text):
+    import re as _re
+    low = text.lower()
+    name = None
+    for keys, canon in _PHYS_CONST_MAP:
+        if any(k in low for k in keys):
+            name = canon
+            break
+    if not name:
+        return None
+    vm = _re.search(r'(?:is|=|equals|:|of)\s+(?:about\s+|approximately\s+|~)?'
+                    r'(-?\d+\.?\d*(?:\s*[x×]\s*10\^?-?\d+|[eE][-+]?\d+)?)', text, _re.I)
+    if not vm:
+        return None
+    raw = (vm.group(1).replace(" ", "")
+           .replace("x10^", "e").replace("×10^", "e")
+           .replace("x10", "e").replace("×10", "e"))
+    try:
+        val = float(raw)
+    except ValueError:
+        return None
+    return {"constant": name, "claimed_value": val}
+
+
 # ── Dispatch function ─────────────────────────────────────────────────
 
 def dispatch(text: str) -> Optional[DispatchResult]:
