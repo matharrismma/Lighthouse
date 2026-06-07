@@ -351,4 +351,19 @@ def get_router():
         return {"owner": owner, "private_cards": len(cards),
                 "decks": sorted({c.get("deck") or "note" for c in cards})}
 
+    @router.post("/offices/retrain", tags=["funnel"])
+    def offices_retrain(request: Request):
+        """Operator-only: close the learning loop (FREE). Fold high-quality live
+        decisions into the train set, retrain the local office models, reload them.
+        The teacher-distill bootstrap (which spends oracle budget) is run from the
+        CLI: `python -m tools.office_corpus --balanced --apply` then this."""
+        _require_owner(request)
+        return _offices.retrain("all")
+
+    @router.get("/offices/stats", tags=["funnel"])
+    def offices_stats(days: int = 30):
+        """The offices' oracle-dependence (public, read-only) — the Shepherd
+        shrinking with use, measured from the minted training pairs."""
+        return _offices.office_stats(days=days)
+
     return router

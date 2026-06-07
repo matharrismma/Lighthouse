@@ -445,3 +445,85 @@ def office_stats(days: int = 30) -> Dict[str, Any]:
             "note": ("Shepherd FREE = keep / office-model / keyword floor; PAID = "
                      "oracle. The oracle ratio falls and the learned share rises "
                      "as the local model takes over — the thesis, for the offices.")}
+
+
+# ── The learning loop: fold live decisions back in, retrain, reload ──────────
+# Only HIGH-QUALITY live decisions become training data: the oracle's own calls
+# (via=shepherd) are gold ground truth, and deterministic keeps (via=keep) are
+# high-precision. The keyword FLOOR (fallback) is uncertain and the office-model's
+# own predictions would self-reinforce, so neither is folded.
+_FOLD_VIAS = {"shepherd", "keep"}
+
+
+def _norm(s: str) -> str:
+    return " ".join((s or "").lower().split())
+
+
+def _fold_live_into_train(office: str) -> int:
+    """Append high-quality live decisions to <office>.train.jsonl (deduped by
+    prompt). Free — turns real, paid-for oracle calls into training signal so the
+    local model learns to replace them."""
+    live = _OFFICE_CORPUS / f"{office}.jsonl"
+    train = _OFFICE_CORPUS / f"{office}.train.jsonl"
+    if not live.exists():
+        return 0
+    seen = set()
+    if train.exists():
+        for ln in train.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                seen.add(_norm(json.loads(ln).get("prompt", "")))
+            except Exception:
+                pass
+    out = []
+    for ln in live.read_text(encoding="utf-8", errors="replace").splitlines():
+        ln = ln.strip()
+        if not ln:
+            continue
+        try:
+            rec = json.loads(ln)
+        except Exception:
+            continue
+        via = None
+        try:
+            via = json.loads(rec.get("completion") or "{}").get("via")
+        except Exception:
+            pass
+        via = via or (rec.get("meta") or {}).get("via")
+        if via not in _FOLD_VIAS:
+            continue
+        p = rec.get("prompt", "")
+        np = _norm(p)
+        if not np or np in seen:
+            continue
+        seen.add(np)
+        out.append(json.dumps({"prompt": p, "completion": rec.get("completion"),
+                               "meta": {"via": "live_" + str(via), "split": "train"}},
+                              ensure_ascii=False))
+    if out:
+        with train.open("a", encoding="utf-8") as f:
+            f.write("\n".join(out) + "\n")
+    return len(out)
+
+
+def retrain(office: str = "all", fold_live: bool = True) -> Dict[str, Any]:
+    """Close the loop (FREE): fold high-quality live decisions into the train set,
+    retrain the local from-scratch office model, and reload it so the next request
+    uses it. The teacher-distill bootstrap is separate (it spends oracle budget);
+    this is the continuous, no-cost path that compounds with real use."""
+    targets = ["shepherd", "scribe", "steward"] if office == "all" else [office]
+    report: Dict[str, Any] = {}
+    for off in targets:
+        folded = _fold_live_into_train(off) if fold_live else 0
+        try:
+            from tools import office_train as _ot
+            res = _ot.train_office(off)  # writes data/offices/models/<off>.json
+            report[off] = {"folded_live": folded, "trained": bool(res),
+                           "eval": (res or {}).get("report") if res else None}
+        except Exception as e:
+            report[off] = {"folded_live": folded, "trained": False, "error": str(e)[:200]}
+    try:
+        from api import office_models as _om
+        _om.reload()  # drop the cache so the fresh model is picked up
+    except Exception:
+        pass
+    return {"retrained": targets, "report": report}
