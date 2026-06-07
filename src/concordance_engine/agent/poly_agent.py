@@ -452,6 +452,41 @@ def _looks_single_claim(text: str) -> bool:
     return len(parts) <= 1
 
 
+def _rule_dispatch_verifies(domain: str, spec: Dict[str, Any]) -> bool:
+    """Confirm a deterministic rule's spec actually yields a real verdict
+    (CONCORDANT/DISCORDANT) from its verifier — not a silent NOT_APPLICABLE.
+
+    Guards deterministic-first dispatch against rules whose spec keys have
+    drifted from the verifier they target: a non-verifying rule transparently
+    falls through to the oracle instead of returning the claim unverified. So
+    the engine only skips the oracle when the deterministic path genuinely
+    works, and any future drift self-heals to the oracle rather than lying."""
+    try:
+        from ..mcp_server.tools import ALL_TOOLS
+        fn = ALL_TOOLS.get(f"verify_{domain}")
+        if fn is None:
+            return False
+        params = inspect.signature(fn).parameters
+        first = next(iter(params))
+        if first == "spec":
+            raw = fn(spec)
+        else:
+            kw = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
+            raw = fn(**spec) if kw else fn(**{k: v for k, v in spec.items() if k in set(params)})
+        if not isinstance(raw, dict):
+            return False
+        # A real verdict means at least one check actually evaluated the claim
+        # (CONFIRMED or MISMATCH) — not NOT_APPLICABLE / ERROR.
+        checks = raw.get("checks") or raw.get("results") or []
+        if isinstance(checks, list) and any(
+            isinstance(c, dict) and c.get("status") in ("CONFIRMED", "MISMATCH") for c in checks
+        ):
+            return True
+        return raw.get("status") in ("CONFIRMED", "MISMATCH")
+    except Exception:
+        return False
+
+
 def _poly_oracle_combined(
     situation: str,
     model: str,
@@ -696,7 +731,8 @@ def run_polymathic(
         _det = None
 
     if (_det is not None and getattr(_det, "domain", None) in _ALL_DOMAINS
-            and getattr(_det, "spec", None) and _looks_single_claim(situation)):
+            and getattr(_det, "spec", None) and _looks_single_claim(situation)
+            and _rule_dispatch_verifies(_det.domain, _det.spec)):
         domain_specs = [{
             "domain": _det.domain,
             "spec": _det.spec,
