@@ -97,9 +97,22 @@ Written to `data/codex/compiled/codex_<date>.json` + `codex_latest.json`
 - Seal on the authoritative node: `python -m api.codex seal` (or POST the route).
   Tamper-evident: any change to the manifest fails `verify`.
 
+**Connection graph (Phase 1 + witness tier) — BUILT.** `build_connection_index`
+(api/codex.py) writes a tiered ledger to `data/codex/index/connections.json`:
+- **VERIFIED (witness tier):** co-citation hubs from the scripture index — a verse
+  that two+ sources both cite is a *witnessed* connection between them. 139 hubs
+  binding 332 sources (e.g. Matt 28:19 binds 10 confessional statements). Verified,
+  not generated.
+- **CANDIDATE (resonance):** the Connector's 13,953 grid edges smoothed into 1,269
+  ranked domain-pairs across 60 domains, labeled *resonance, not verified*.
+- API: `GET /codex/connections`, `/codex/connections/domain/{d}`. Page:
+  `/codex-connections.html`. Scoped in `docs/CONNECTIONS_SCOPE.md`.
+- **Phase 2 (the real moat, still to build):** structural verification — promote a
+  candidate when both samples are CONFIRMED by their domain verifiers via the
+  dispatcher. The oracle may propose; only a verifier/witness/trace may assert.
+
 Still to build in Layer 3: the person, place, authority-tier, author/work, and
-time indexes. The genuine cross-domain connector — the axis / grid_connections
-graph — is the next frontier (floor → Codex → **connections**).
+time indexes.
 
 ## What the codex compiler does
 

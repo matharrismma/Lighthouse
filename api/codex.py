@@ -41,6 +41,8 @@ BIBLE_BOOKS = REPO / "content" / "codex" / "bible_books.json"
 INDEX_DIR = REPO / "data" / "codex" / "index"
 SCRIPTURE_INDEX = INDEX_DIR / "scripture.json"
 THEME_INDEX = INDEX_DIR / "themes.json"
+CONNECTIONS_INDEX = INDEX_DIR / "connections.json"
+GRID_CONNECTIONS = REPO / "data" / "grid_connections.jsonl"
 COMPILED_DIR = REPO / "data" / "codex" / "compiled"
 LATEST_ARTIFACT = COMPILED_DIR / "codex_latest.json"
 
@@ -91,6 +93,7 @@ def _theme_kind(band: str) -> str:
 _LOCK = threading.Lock()
 _CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 _THEME_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
+_CONN_CACHE: Dict[str, Any] = {"mtime": 0.0, "data": None}
 
 
 def _now() -> str:
@@ -292,6 +295,130 @@ def load_themes() -> Dict[str, Any]:
         return data
 
 
+# ── Connection graph (Phase 1: ledger + smoothing + witness tier) ───────────────
+def _source_label(by: str) -> str:
+    """The citing source from a cross-ref title like 'WSC Q40 ↔ Romans'."""
+    if not by:
+        return ""
+    for sep in (" ↔ ", " <-> ", " cites ", ":"):
+        if sep in by:
+            return by.split(sep, 1)[0].strip()
+    return by.strip()
+
+
+def build_connection_index() -> Dict[str, Any]:
+    """Unify the connection candidates into one tiered, scored ledger.
+
+    VERIFIED (witness tier): co-citation hubs from the scripture index — a verse
+    that two or more sources both cite is a *witnessed* connection between them.
+    Verified, not generated: the shared citation already passed the Deut 19:15 gate.
+
+    CANDIDATE (resonance): the Connector's grid edges (data/grid_connections.jsonl)
+    smoothed — 13,953 raw edges deduped into ranked domain-pairs by shared-axis
+    count and co-occurrence. Honest label: resonance, not verified.
+    """
+    # ── Witness tier: co-citation hubs from the scripture index ──
+    scr = load_index()
+    by_verse: Dict[str, Dict[str, Any]] = {}
+    for book, refs in (scr.get("books") or {}).items():
+        for e in refs:
+            if e.get("witness_status") != "passed":
+                continue
+            src = _source_label(e.get("by") or "")
+            for vr in (e.get("verse_refs") or []):
+                key = re.sub(r"\s+", " ", str(vr).strip())
+                if not key:
+                    continue
+                slot = by_verse.setdefault(key, {"sources": {}, "book": book})
+                if src:
+                    slot["sources"][src] = e.get("tier") or ""
+    hubs = []
+    for verse, slot in by_verse.items():
+        srcs = sorted(slot["sources"].keys())
+        if len(srcs) >= 2:  # a connection needs two or three
+            hubs.append({"verse": verse, "book": slot["book"], "sources": srcs,
+                         "source_count": len(srcs), "tier": "witnessed",
+                         "witness_status": "passed"})
+    hubs.sort(key=lambda h: -h["source_count"])
+
+    # ── Candidate tier: smooth the grid edges into ranked domain pairs ──
+    pairs: Dict[tuple, Dict[str, Any]] = {}
+    raw_edges = 0
+    if GRID_CONNECTIONS.exists():
+        with GRID_CONNECTIONS.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except Exception:
+                    continue
+                a, b = r.get("domain_a"), r.get("domain_b")
+                if not a or not b or a == b:
+                    continue
+                raw_edges += 1
+                key = tuple(sorted((a, b)))
+                p = pairs.setdefault(key, {"domains": list(key), "axes": set(),
+                                           "edges": 0, "max_axis": 0, "sample": None})
+                p["axes"].update(r.get("shared_axes") or [])
+                p["edges"] += 1
+                p["max_axis"] = max(p["max_axis"], int(r.get("axis_count") or 0))
+                if p["sample"] is None and r.get("sample_a") and r.get("sample_b"):
+                    p["sample"] = {"a": str(r["sample_a"])[:240], "b": str(r["sample_b"])[:240]}
+    candidates = []
+    for p in pairs.values():
+        axes = sorted(p["axes"])
+        candidates.append({
+            "domains": p["domains"],
+            "shared_axes": axes,
+            "axis_count": len(axes),
+            "edge_count": p["edges"],
+            "score": len(axes) * 10 + min(p["edges"], 50),  # deterministic
+            "tier": "candidate",
+            "note": "resonance (shared axes) — NOT a verified connection",
+            "sample": p["sample"],
+        })
+    candidates.sort(key=lambda c: (-c["score"], -c["axis_count"], c["domains"]))
+
+    payload = {
+        "generated": _now(),
+        "stats": {
+            "verified_hubs": len(hubs),
+            "verified_sources": sum(h["source_count"] for h in hubs),
+            "candidate_pairs": len(candidates),
+            "raw_grid_edges": raw_edges,
+            "domains": len({d for c in candidates for d in c["domains"]}),
+        },
+        "verified": hubs,
+        "candidates": candidates,
+    }
+    with _LOCK:
+        INDEX_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = CONNECTIONS_INDEX.with_suffix(".tmp")
+        tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        tmp.replace(CONNECTIONS_INDEX)
+        _CONN_CACHE["data"] = payload
+        _CONN_CACHE["mtime"] = CONNECTIONS_INDEX.stat().st_mtime
+    return payload
+
+
+def load_connections() -> Dict[str, Any]:
+    if not CONNECTIONS_INDEX.exists():
+        return {"generated": None, "stats": {}, "verified": [], "candidates": []}
+    try:
+        mt = CONNECTIONS_INDEX.stat().st_mtime
+    except OSError:
+        return {"generated": None, "stats": {}, "verified": [], "candidates": []}
+    if _CONN_CACHE["data"] is not None and mt <= _CONN_CACHE["mtime"]:
+        return _CONN_CACHE["data"]
+    with _LOCK:
+        data = _read(CONNECTIONS_INDEX) or {"generated": None, "stats": {}, "verified": [], "candidates": []}
+        _CONN_CACHE["data"] = data
+        _CONN_CACHE["mtime"] = mt
+        return data
+
+
 # ── Signed artifact (Face 2) ────────────────────────────────────────────────────
 def _sha256_file(p: Path) -> Optional[str]:
     try:
@@ -336,7 +463,7 @@ def build_codex_artifact() -> Dict[str, Any]:
     data/codex/compiled/. Certifies 'the chosen body, walked and indexed by this
     engine, as of this date.' The private key never leaves the engine node."""
     body = _body_fingerprint()
-    scr, thm = load_index(), load_themes()
+    scr, thm, cn = load_index(), load_themes(), load_connections()
     manifest = {
         "kind": "codex_artifact",
         "version": "v1",
@@ -353,6 +480,8 @@ def build_codex_artifact() -> Dict[str, Any]:
                           "generated": scr.get("generated")},
             "themes": {"stats": thm.get("stats", {}), "sha256": _sha256_file(THEME_INDEX),
                        "generated": thm.get("generated")},
+            "connections": {"stats": cn.get("stats", {}), "sha256": _sha256_file(CONNECTIONS_INDEX),
+                            "generated": cn.get("generated")},
         },
     }
     from concordance_engine.instance_identity import sign_dict
@@ -384,7 +513,7 @@ def verify_codex_artifact() -> Dict[str, Any]:
     ok, detail = verify_dict(art)
     # drift: re-hash the live index files against the sealed hashes
     drift = []
-    for name, path in (("scripture", SCRIPTURE_INDEX), ("themes", THEME_INDEX)):
+    for name, path in (("scripture", SCRIPTURE_INDEX), ("themes", THEME_INDEX), ("connections", CONNECTIONS_INDEX)):
         sealed = (art.get("indexes", {}).get(name, {}) or {}).get("sha256")
         live = _sha256_file(path)
         if sealed and live and sealed != live:
@@ -469,11 +598,36 @@ def get_router():
                     "tiers": t.get("tiers", []), "cards": t.get("cards", [])}
         raise HTTPException(404, f"No theme '{theme}' indexed. Try one of /codex/index/themes.")
 
+    @router.get("/codex/connections", tags=["codex"])
+    def connections_summary():
+        idx = load_connections()
+        return {
+            "generated": idx.get("generated"),
+            "stats": idx.get("stats", {}),
+            "verified": (idx.get("verified") or [])[:200],
+            "candidates": (idx.get("candidates") or [])[:200],
+            "note": "VERIFIED = witnessed co-citation hubs (two+ sources share a "
+                    "witnessed verse). CANDIDATE = grid resonances (shared axes), NOT "
+                    "verified. The trail is the trust. GET /codex/connections/domain/{d}.",
+        }
+
+    @router.get("/codex/connections/domain/{domain}", tags=["codex"])
+    def connections_for_domain(domain: str):
+        idx = load_connections()
+        want = domain.strip().lower()
+        hits = [c for c in (idx.get("candidates") or [])
+                if want in [d.lower() for d in c.get("domains", [])]]
+        if not hits:
+            raise HTTPException(404, f"No candidate connections for domain '{domain}'.")
+        return {"domain": want, "candidates": hits, "count": len(hits),
+                "note": "Resonances (shared axes) — candidate, not verified."}
+
     @router.get("/codex/index/stats", tags=["codex"])
     def stats():
         return {
             "scripture": load_index().get("stats", {}),
             "themes": load_themes().get("stats", {}),
+            "connections": load_connections().get("stats", {}),
         }
 
     @router.post("/codex/index/rebuild", tags=["codex"])
@@ -482,7 +636,9 @@ def get_router():
             raise HTTPException(403, "Operator only.")
         s = build_scripture_index()
         t = build_theme_index()
-        return {"ok": True, "scripture": s.get("stats", {}), "themes": t.get("stats", {})}
+        cn = build_connection_index()
+        return {"ok": True, "scripture": s.get("stats", {}), "themes": t.get("stats", {}),
+                "connections": cn.get("stats", {})}
 
     @router.get("/codex/artifact", tags=["codex"])
     def artifact():
@@ -516,7 +672,8 @@ if __name__ == "__main__":  # python -m api.codex [seal]
     import sys
     s = build_scripture_index()
     t = build_theme_index()
-    out = {"scripture": s.get("stats", {}), "themes": t.get("stats", {})}
+    cn = build_connection_index()
+    out = {"scripture": s.get("stats", {}), "themes": t.get("stats", {}), "connections": cn.get("stats", {})}
     if "seal" in sys.argv[1:]:
         art = build_codex_artifact()
         out["sealed"] = {"sealed_at": art.get("sealed_at"),
