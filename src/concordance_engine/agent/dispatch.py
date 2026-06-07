@@ -85,10 +85,13 @@ def _phys_ke(m, text):
 
 
 # ── STATISTICS ───────────────────────────────────────────────────────
-
-@_rule("stat_pvalue", r"p[\s-]?value\s*[=:]\s*(\d+\.?\d*)\s*.*?n\s*=\s*(\d+)", "statistics")
-def _stat_pvalue(m, text):
-    return {"p_value": _num(m.group(1)), "n": int(m.group(2))}
+# (No deterministic rule — by design.) You cannot verify a p-value without the
+# underlying data: the statistics verifier RECOMPUTES p from the test statistic
+# + df, not from a claimed p alone. A bare "p = X, n = Y" scraped by regex can't
+# be checked, so these claims route to the oracle (which can extract the full
+# test setup) or are declined. Removed the old dead rule 2026-06-06: its domain
+# "statistics" had no verifier, and its {p_value, n} spec didn't fit the
+# verifier even if renamed — keeping it would have produced silent false-NAs.
 
 
 # ── MATHEMATICS ──────────────────────────────────────────────────────
@@ -322,11 +325,12 @@ def _nutr_cal(m, text):
 
 
 # ── GOVERNANCE ───────────────────────────────────────────────────────
-
-@_rule("gov_witnesses", r"(\d+)\s+witnesses?.*?(?:decision|proposal|admit|approve)", "governance")
-def _gov_wit(m, text):
-    count = int(m.group(1))
-    return {"witness_count": count, "claimed_quorum_met": count >= 2}
+# (No deterministic rule — by design.) The governance verifier checks a FULL
+# decision packet (red_items, floor_items, way_path, execution_steps, and a
+# witnesses LIST); a witness count scraped from prose isn't enough to build it.
+# These claims route to the oracle, which can assemble the structured packet.
+# Removed the old dead rule 2026-06-06: domain "governance" had no verifier and
+# its {witness_count} spec didn't fit the verifier even if renamed.
 
 
 # ── ACOUSTICS ────────────────────────────────────────────────────────────────
@@ -1188,6 +1192,11 @@ def _bio_hw(m, text):
 def dispatch(text: str) -> Optional[DispatchResult]:
     """Try every rule in priority order. Return the first match or None.
 
+    Order:
+      1. hard-coded rules (this module — ship with the engine)
+      2. runtime rules (operator-promoted from misalignment review,
+         loaded from data/agent/runtime_rules.jsonl)
+
     None means no rule matched — the caller should fall through to the
     oracle (any AI) and log the result as a training example.
     """
@@ -1208,6 +1217,22 @@ def dispatch(text: str) -> Optional[DispatchResult]:
                     )
             except Exception:
                 continue
+
+    # Fall through to runtime rules — operator promotions compound here.
+    try:
+        from concordance_engine.agent.runtime_rules import try_dispatch as _rt_try
+        rt = _rt_try(text)
+        if rt is not None:
+            return DispatchResult(
+                domain=rt["domain"],
+                spec=rt.get("spec") or {},
+                rule_id=rt["rule_id"],
+                confidence=0.95,  # slightly lower than hard-coded
+                raw_text=text,
+            )
+    except Exception:
+        pass
+
     return None
 
 
