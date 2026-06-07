@@ -59,17 +59,14 @@ Guard "scp generated_verified"
 scp "$r\tools\grow_verified.py" "$srv`:~/Lighthouse/tools/"
 Guard "scp grow_verified"
 
-Write-Host "5c/7 Offices: ship the trainer + generator (models are bootstrapped ON PROD)" -ForegroundColor Cyan
-ssh $srv "mkdir -p ~/Lighthouse/data/offices/models ~/Lighthouse/data/training_corpus/offices"
-Guard "mkdir offices dirs"
-scp "$r\tools\office_train.py" "$r\tools\office_corpus.py" "$srv`:~/Lighthouse/tools/"
-Guard "scp office tools"
-Write-Host "     ONE-TIME bootstrap (run on PROD where the real ANTHROPIC key + Steward budget live):" -ForegroundColor DarkGray
-Write-Host "       ssh $srv" -ForegroundColor DarkGray
-Write-Host "       cd ~/Lighthouse && .venv/bin/python -m tools.office_corpus --balanced --per-class 8 --office all --apply   # ~`$1.62, teacher-distill" -ForegroundColor DarkGray
-Write-Host "       .venv/bin/python -m tools.office_train --office all                                                        # trains the local models" -ForegroundColor DarkGray
-Write-Host "       curl -fsS https://narrowhighway.com/offices/stats | head                                                  # learned_ratio should rise as the funnel is used" -ForegroundColor DarkGray
-Write-Host "     Thereafter the loop is FREE: POST /offices/retrain folds live oracle decisions in + retrains." -ForegroundColor DarkGray
+Write-Host "5c/7 Offices: NO bootstrap needed - prod is ALREADY trained." -ForegroundColor Cyan
+Write-Host "     Verified 2026-06-07: prod has trained office models (shepherd/scribe/steward.json)" -ForegroundColor DarkGray
+Write-Host "     on ~1890/1580/1433 examples; predictions fire at conf 0.95-1.00. The new offices.py" -ForegroundColor DarkGray
+Write-Host "     uses these existing models immediately (office-model tier). Do NOT re-run the" -ForegroundColor DarkGray
+Write-Host "     teacher-distill - it would re-spend to regenerate data that already exists." -ForegroundColor DarkGray
+Write-Host "     The FREE loop is live after deploy: POST /offices/retrain folds live oracle" -ForegroundColor DarkGray
+Write-Host "     decisions into the train set + retrains (no oracle cost); GET /offices/stats reads" -ForegroundColor DarkGray
+Write-Host "     the oracle-dependence. tools/ + models already on prod; nothing to scp here." -ForegroundColor DarkGray
 
 Write-Host "6/7  Restart the engine..." -ForegroundColor Cyan
 ssh $srv "sudo systemctl restart nh-engine"
