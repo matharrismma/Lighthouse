@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Atlas — the map of verified connections — Narrow Highway</title>
+<meta name="description" content="The Atlas: a visual map of the verified connections between domains. Click any path to see its math (why it is true) and its Bible reference (how it points home). The connections that hold are the faithfulness of Christ the Logos.">
+<link rel="canonical" href="https://narrowhighway.com/atlas-map.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Atlas — the map of verified connections">
+<meta property="og:description" content="A visual map of verified connections. Each path shows its math and its Bible reference — true, and pointing home.">
+<meta property="og:url" content="https://narrowhighway.com/atlas-map.html">
+<style>
+  body { font-family: Georgia, serif; max-width: 1040px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.5; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .masthead { text-align: center; padding: 1.8em 1em 0.8em; border-bottom: 3px double #b8945a; margin-bottom: 1em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.05em; margin-top: 0.3em; }
+  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 1.2em; align-items: start; }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+  .mapwrap { background: #fff; border: 1px solid #d4c8a5; border-radius: 8px; padding: 0.5em; }
+  svg { width: 100%; height: auto; display: block; }
+  .node circle { fill: #1a3a52; cursor: pointer; transition: fill 0.1s; }
+  .node:hover circle, .node.sel circle { fill: #b8945a; }
+  .node text { font-family: Georgia, serif; font-size: 11px; fill: #2a2a28; cursor: pointer; }
+  .node.sel text { fill: #1a3a52; font-weight: bold; }
+  .edge { stroke: #c9b48a; fill: none; cursor: pointer; transition: stroke 0.1s, stroke-opacity 0.1s; }
+  .edge:hover, .edge.sel { stroke: #5c8a3a; stroke-opacity: 0.95 !important; }
+  .edge.dim { stroke-opacity: 0.06 !important; }
+  .panel { position: sticky; top: 1em; }
+  .panel .ph { font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.12em; text-transform: uppercase; color: #b8945a; margin: 0 0 0.3em; }
+  .pcard { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.8em 1em; margin-bottom: 0.8em; }
+  .pcard h3 { margin: 0 0 0.2em; color: #1a3a52; font-size: 1.1em; font-weight: normal; }
+  .doms { font-family: 'Courier New', monospace; font-size: 0.82em; color: #1a3a52; margin-bottom: 0.4em; }
+  .block { border-left: 3px solid #c9b48a; padding: 0.3em 0 0.3em 0.7em; margin: 0.6em 0; }
+  .block.math { border-left-color: #5c8a3a; }
+  .block.christ { border-left-color: #b8945a; background: #fff7e0; }
+  .block .lbl { font-family: 'Courier New', monospace; font-size: 0.68em; letter-spacing: 0.08em; text-transform: uppercase; color: #806010; }
+  .vchip { font-family: 'Courier New', monospace; font-size: 0.7em; background: #eef3e8; color: #3a5a2a; border: 1px solid #c3d9a8; border-radius: 3px; padding: 0.1em 0.4em; margin: 0.1em 0.15em 0 0; display: inline-block; }
+  .detail { font-size: 0.85em; color: #3a3a38; margin-top: 0.2em; }
+  .verse { font-family: 'Crimson Pro', Georgia, serif; font-size: 0.97em; color: #5a4a30; font-style: italic; margin: 0.3em 0; }
+  .vref { font-family: 'Courier New', monospace; font-size: 0.74em; color: #1a3a52; }
+  .small { font-size: 0.82em; color: #6a5a3a; }
+  .hint { color: #6a5a3a; font-style: italic; font-size: 0.9em; }
+  .stat { font-family: 'Courier New', monospace; font-size: 0.8em; color: #806010; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
+</head>
+<body>
+
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/codex-connections.html">Connections (list)</a> · <a href="/atlas.html">Walks</a></nav>
+
+<div class="masthead">
+  <div class="eyebrow">THE ATLAS · THE MAP</div>
+  <h1>The Atlas</h1>
+  <div class="tagline">Every verified path — and where each one points home</div>
+</div>
+
+<p class="hint" style="text-align:center; margin:0 0 1em;">Click a domain or a path. Each connection shows its <b style="color:#5c8a3a">math</b> (why it's true) and its <b style="color:#b8945a">Bible reference</b> (how it points home). <span class="stat" id="stat"></span></p>
+
+<div class="layout">
+  <div class="mapwrap"><svg id="map" viewBox="0 0 640 640" role="img" aria-label="map of verified connections"></svg></div>
+  <div class="panel">
+    <div class="ph">Selected path</div>
+    <div id="panel"><div class="pcard hint">Pick a path on the map to see its math and its Bible reference.</div></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+  var SVGNS='http://www.w3.org/2000/svg';
+  var CX=320, CY=320, R=232;
+  var $map=document.getElementById('map'), $panel=document.getElementById('panel'), $stat=document.getElementById('stat');
+  // The Logos lens — the Bible reference for general-revelation (science) paths.
+  var LOGOS=['Colossians 1:17','John 1:3','Hebrews 1:3','Romans 1:20'];
+  var verseCache={};
+
+  fetch('/codex/connections',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.verified_structural){ $map.innerHTML='<text x="20" y="40">connection graph not available</text>'; return; }
+    var vs=j.verified_structural;
+    // nodes = unique domains; edges = unordered domain-pairs -> the connections that span them
+    var SEP='~~';
+    var pairKey=function(a,b){return a<b?a+SEP+b:b+SEP+a;};
+    var domSet={}, pairs={};
+    vs.forEach(function(c){
+      var ds=(c.domains||[]); ds.forEach(function(d){domSet[d]=(domSet[d]||0)+1;});
+      for(var i=0;i<ds.length;i++) for(var k=i+1;k<ds.length;k++){
+        var key=pairKey(ds[i],ds[k]); (pairs[key]=pairs[key]||{a:ds[i]<ds[k]?ds[i]:ds[k],b:ds[i]<ds[k]?ds[k]:ds[i],conns:[]}).conns.push(c);
+      }
+    });
+    var domains=Object.keys(domSet).sort();
+    var N=domains.length, pos={};
+    domains.forEach(function(d,i){ var ang=(-90 + i*360/N)*Math.PI/180; pos[d]={x:CX+R*Math.cos(ang), y:CY+R*Math.sin(ang), ang:ang}; });
+    $stat.textContent='· '+vs.length+' verified paths · '+N+' domains · '+Object.keys(pairs).length+' links';
+
+    var frag='';
+    // edges first (under nodes)
+    Object.keys(pairs).forEach(function(key){
+      var p=pairs[key], A=pos[p.a], B=pos[p.b];
+      var w=Math.min(5, 1+p.conns.length*0.6), op=Math.min(0.85, 0.25+p.conns.length*0.12);
+      // quadratic curve bending toward center
+      var mx=(A.x+B.x)/2, my=(A.y+B.y)/2; var ctrlx=CX+(mx-CX)*0.35, ctrly=CY+(my-CY)*0.35;
+      frag+='<path class="edge" data-key="'+esc(key)+'" d="M'+A.x.toFixed(1)+','+A.y.toFixed(1)+' Q'+ctrlx.toFixed(1)+','+ctrly.toFixed(1)+' '+B.x.toFixed(1)+','+B.y.toFixed(1)+'" stroke-width="'+w.toFixed(1)+'" stroke-opacity="'+op.toFixed(2)+'"></path>';
+    });
+    // nodes
+    domains.forEach(function(d){
+      var P=pos[d], deg=domSet[d], rad=4+Math.min(7,deg*0.5);
+      var lx=CX+(R+14)*Math.cos(P.ang), ly=CY+(R+14)*Math.sin(P.ang);
+      var anchor = Math.cos(P.ang)<-0.3?'end':(Math.cos(P.ang)>0.3?'start':'middle');
+      frag+='<g class="node" data-dom="'+esc(d)+'"><circle cx="'+P.x.toFixed(1)+'" cy="'+P.y.toFixed(1)+'" r="'+rad.toFixed(1)+'"></circle>'+
+        '<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" text-anchor="'+anchor+'">'+esc(d.replace(/_/g,' '))+'</text></g>';
+    });
+    $map.innerHTML=frag;
+
+    Array.prototype.forEach.call($map.querySelectorAll('.edge'),function(e){ e.addEventListener('click',function(){ selectEdge(e.dataset.key, pairs); }); });
+    Array.prototype.forEach.call($map.querySelectorAll('.node'),function(g){ g.addEventListener('click',function(){ selectNode(g.dataset.dom, pairs); }); });
+
+    // preload the Logos verses for the Christ display
+    LOGOS.forEach(loadVerse);
+  }).catch(function(){ $map.innerHTML='<text x="20" y="40">could not load the map</text>'; });
+
+  function loadVerse(ref){
+    if(verseCache[ref]!==undefined) return Promise.resolve(verseCache[ref]);
+    return fetch('/scripture/lookup?ref='+encodeURIComponent(ref),{cache:'no-store'})
+      .then(function(r){return r.ok?r.json():null;}).then(function(j){ verseCache[ref]=(j&&j.text)||null; return verseCache[ref]; })
+      .catch(function(){ verseCache[ref]=null; return null; });
+  }
+
+  function clearSel(){ Array.prototype.forEach.call($map.querySelectorAll('.edge,.node'),function(x){x.classList.remove('sel','dim');}); }
+
+  function selectNode(dom, pairs){
+    clearSel();
+    Array.prototype.forEach.call($map.querySelectorAll('.node'),function(g){ if(g.dataset.dom===dom) g.classList.add('sel'); });
+    Array.prototype.forEach.call($map.querySelectorAll('.edge'),function(e){
+      var k=e.dataset.key, parts=k.split(SEP);
+      if(parts[0]===dom||parts[1]===dom){ e.classList.add('sel'); } else { e.classList.add('dim'); }
+    });
+    var keys=Object.keys(pairs).filter(function(k){var p=k.split(SEP);return p[0]===dom||p[1]===dom;});
+    var conns=[]; keys.forEach(function(k){ pairs[k].conns.forEach(function(c){ if(conns.indexOf(c)<0) conns.push(c); }); });
+    renderPanel(dom.replace(/_/g,' '), conns);
+  }
+
+  function selectEdge(key, pairs){
+    clearSel();
+    Array.prototype.forEach.call($map.querySelectorAll('.edge'),function(e){ if(e.dataset.key===key){e.classList.add('sel');} else {e.classList.add('dim');} });
+    var p=pairs[key];
+    renderPanel(p.a.replace(/_/g,' ')+'  ↔  '+p.b.replace(/_/g,' '), p.conns);
+  }
+
+  function renderPanel(title, conns){
+    var html='<div class="pcard"><h3>'+esc(title)+'</h3><div class="small">'+conns.length+' verified path'+(conns.length===1?'':'s')+'</div></div>';
+    conns.slice(0,6).forEach(function(c){
+      var trail=(c.trail||[]).map(function(t){return '<span class="vchip">'+esc(t.domain)+' ✓</span>';}).join('');
+      var details=(c.trail||[]).filter(function(t){return t.detail;}).slice(0,3).map(function(t){return '<div class="detail"><b>'+esc(t.domain)+':</b> '+esc(t.detail)+'</div>';}).join('');
+      html+='<div class="pcard">'+
+        '<div class="doms">'+esc((c.domains||[]).join(' + '))+(c.generated?' <span class="vchip" style="background:#2a5570;color:#f4ecd5;border:0">engine-generated</span>':'')+'</div>'+
+        '<div style="font-size:0.95em;color:#2a2a28;">'+esc(c.title||'')+'</div>'+
+        '<div class="block math"><div class="lbl">The math — why it is true</div>'+trail+details+'</div>'+
+        '<div class="block christ"><div class="lbl">The connection to Christ</div><div id="christ-'+esc(c.id)+'"><span class="small">resolving Scripture…</span></div></div>'+
+      '</div>';
+    });
+    $panel.innerHTML=html;
+    // fill the Christ display (the Logos reference + resolved verse text)
+    conns.slice(0,6).forEach(function(c){ fillChrist(c); });
+  }
+
+  function fillChrist(c){
+    var el=document.getElementById('christ-'+c.id); if(!el) return;
+    var primary=LOGOS[0];
+    Promise.all(LOGOS.map(loadVerse)).then(function(){
+      var t=verseCache[primary];
+      var others=LOGOS.slice(1).filter(function(r){return verseCache[r];}).map(function(r){return '<span class="vref">'+esc(r)+'</span>';}).join(' · ');
+      el.innerHTML = (t? '<div class="vref">'+esc(primary)+'</div><div class="verse">“'+esc(t)+'”</div>' : '<div class="vref">'+esc(primary)+'</div>') +
+        '<div class="small">The order this math proves is not its own — it is the faithfulness of Christ the Logos, in whom all things hold together. '+(others?'Also: '+others:'')+'</div>';
+    });
+  }
+})();
+</script>
+</body>
+</html>

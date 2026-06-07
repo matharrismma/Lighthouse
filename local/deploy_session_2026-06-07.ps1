@@ -34,7 +34,7 @@ scp "$r\api\codex.py" "$r\api\app.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
-scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
+scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
 Guard "scp site"
 
 Write-Host "4/7  Ensure data/codex dirs exist on the server..." -ForegroundColor Cyan
