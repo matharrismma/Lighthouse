@@ -34,7 +34,7 @@ scp "$r\api\codex.py" "$r\api\app.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
-scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$srv`:~/Lighthouse/site/"
+scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
 Guard "scp site"
 
 Write-Host "4/7  Ensure data/codex dirs exist on the server..." -ForegroundColor Cyan
@@ -42,7 +42,7 @@ ssh $srv "mkdir -p ~/Lighthouse/data/codex/index ~/Lighthouse/data/codex/compile
 Guard "mkdir codex dirs"
 
 Write-Host "5/7  Indexes  -> ~/Lighthouse/data/codex/" -ForegroundColor Cyan
-scp "$r\data\codex\index\scripture.json" "$r\data\codex\index\themes.json" "$r\data\codex\index\connections.json" "$srv`:~/Lighthouse/data/codex/index/"
+scp "$r\data\codex\index\scripture.json" "$r\data\codex\index\themes.json" "$r\data\codex\index\connections.json" "$r\data\codex\index\cards_dev.json" "$srv`:~/Lighthouse/data/codex/index/"
 Guard "scp indexes"
 scp "$r\data\codex\STRUCTURE.md" "$r\data\codex\README.md" "$r\data\codex\AUTHORITY_SPINE.md" "$srv`:~/Lighthouse/data/codex/"
 Guard "scp codex docs"
