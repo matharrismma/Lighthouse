@@ -4645,16 +4645,10 @@ def _ledger_remaining_usd() -> float:
 
 
 def _ledger_record(source: str, usd: float) -> None:
-    try:
-        import datetime as _dt
-        root = Path(__file__).resolve().parent.parent
-        d = root / "data" / "spend"; d.mkdir(parents=True, exist_ok=True)
-        now = _dt.datetime.now(_dt.timezone.utc)
-        with (d / "ledger.jsonl").open("a", encoding="utf-8") as f:
-            f.write(json.dumps({"ts": now.isoformat(), "month": now.strftime("%Y-%m"),
-                                "source": source, "usd": round(float(usd), 6)}) + "\n")
-    except Exception:
-        pass
+    """The Steward records a spend against the monthly cap. Delegates to
+    api/offices.py (the single implementation)."""
+    from api import offices as _offices
+    _offices.ledger_record(source, usd)
 
 
 def _log_office_pair(office: str, prompt: str, completion: str, meta=None) -> None:
@@ -4665,135 +4659,20 @@ def _log_office_pair(office: str, prompt: str, completion: str, meta=None) -> No
     _offices.log_office_pair(office, prompt, completion, meta)
 
 
-_SHEPHERD_DISCERN_PROMPT = """You are the Shepherd of the Narrow Highway discernment engine, which serves Jesus Christ. The engine is a conduit, not a source: it eliminates what is not the answer so the narrow path is illuminated by what survives.
-
-A person has deposited a thought. Through BRIEF Socratic questioning, discern what they truly need, then route to the proper tool. A Socratic question helps THEM clarify their own intent; it never interrogates or lectures. Speak warmly, plainly, briefly.
-
-Tools you may route to:
-- discern  : weigh a teaching, claim, or question through the four gates (Scripture, doctrine, 69 verifiers). For "is this sound / true / biblical?"
-- walk     : surface related substrate (cards) for an idea or topic. For exploring, "what connects?"
-- verify   : a specific factual or computational claim (math, science, dates).
-- scripture: resolve or study a Bible reference or term.
-- teach     : the person wants to learn, or to teach a child, a subject — phonics/reading, writing, math, science, history, Bible, or work skills. Route here to open the learning pathway. This is the homeschool road; start the youngest at phonics.
-- draft    : the person wants to send a message/email. Draft it for THEIR review. The engine never sends.
-
-Rules:
-- Ask AT MOST one short clarifying question, and ONLY if the proper tool is genuinely unclear. If you can already discern it, route immediately; do not ask needlessly.
-- One sentence per question.
-- Teach along the way: when something is hard, you may relate it simply — a short metaphor or a parable (biblical or plain) plus a memorable hook — but keep it to one or two sentences inside "say". Never lecture.
-- Respond with ONLY a JSON object, nothing else:
-  {"action":"ask","say":"<one-sentence Socratic question>"}
-  or
-  {"action":"route","tool":"discern|walk|verify|scripture|teach|draft","query":"<refined query for the tool>","say":"<one warm sentence telling the person what you're doing>"}"""
-
-
-# Shepherd's vetted voice — the no-lineage path. The Shepherd CLASSIFIES
-# (action, tool) and SELECTS a pre-approved line; it never generates prose.
-# Today the keyword fallback uses this; tomorrow the from-scratch classifier
-# replaces the keyword step and the phrasebook stays. Every word is vetted.
-_PHRASEBOOK_PATH = Path(__file__).parent.parent / "data" / "offices" / "shepherd_phrasebook.json"
-_PHRASEBOOK_CACHE: Optional[Dict[str, Any]] = None
-
-
 def _shepherd_say(action: str, tool: str = "") -> str:
-    """Select a vetted Shepherd line for (action, tool) from the phrasebook."""
-    global _PHRASEBOOK_CACHE
-    if _PHRASEBOOK_CACHE is None:
-        try:
-            _PHRASEBOOK_CACHE = json.loads(_PHRASEBOOK_PATH.read_text("utf-8"))
-        except Exception:
-            _PHRASEBOOK_CACHE = {}
-    pb = _PHRASEBOOK_CACHE or {}
-    if action == "ask":
-        lines = pb.get("ask") or ["Can you tell me a little more about what you're hoping for?"]
-    else:
-        lines = (pb.get("route") or {}).get(tool) or ["Let me bring this through the gates and keep what survives."]
-    import random as _r
-    return _r.choice(lines) if lines else "Let me bring this through the gates and keep what survives."
+    """Select a vetted Shepherd line. Delegates to api/offices.py (one voice)."""
+    from api import offices as _offices
+    return _offices.shepherd_say(action, tool)
 
 
 def _shepherd_discern(history: list) -> dict:
-    """Shepherd office: ask one Socratic question OR route to a tool. Logs a
-    Shepherd training pair. Falls back to keyword routing if no key / over budget."""
-    last_user = ""
-    for m in reversed(history):
-        if m.get("role") == "user":
-            last_user = m.get("content", "")
-            break
-
-    def _fallback():
-        cls, routed = _classify_deposit(last_user)
-        tool = {"walk": "walk", "discern": "discern", "verify": "verify",
-                "draft_review": "draft", "none": "walk"}.get(routed, "walk")
-        return {"action": "route", "tool": tool,
-                "query": (history[0]["content"] if history else last_user),
-                "say": _shepherd_say("route", tool),
-                "via": "fallback"}
-
-    # ── No-lineage hybrid: try the local from-scratch Shepherd FIRST.
-    # If confidence clears the threshold, the decision is ours (no API call,
-    # no Anthropic, no lineage). Otherwise we fall through silently to the
-    # Anthropic path below. Any model error also falls through — the existing
-    # behavior is the floor, never the ceiling.
-    _SHEP_ACTION_THRESH = float(os.environ.get("NH_SHEP_ACTION_THRESH", "0.85"))
-    _SHEP_TOOL_THRESH = float(os.environ.get("NH_SHEP_TOOL_THRESH", "0.70"))
-    try:
-        from api import office_models as _om
-        _r = _om.predict_with_confidence("shepherd", last_user)
-        if _r:
-            _d, _conf = _r
-            _action = _d.get("action") or "route"
-            _tool = _d.get("tool") or "walk"
-            _action_ok = _conf.get("action", 0.0) >= _SHEP_ACTION_THRESH
-            _tool_ok = (_action == "ask") or (_conf.get("tool", 0.0) >= _SHEP_TOOL_THRESH)
-            if _action_ok and _tool_ok:
-                _obj: Dict[str, Any] = {
-                    "action": _action,
-                    "query": (history[0]["content"] if history else last_user),
-                    "say": _shepherd_say(_action, _tool if _action == "route" else ""),
-                    "via": "office_model",
-                }
-                if _action == "route":
-                    _obj["tool"] = _tool
-                # Mint a training pair tagged as a local-model decision so we
-                # can audit production accuracy and distinguish it from teacher
-                # and Anthropic pairs in the corpus.
-                _log_office_pair(
-                    "shepherd", last_user, json.dumps(_obj, ensure_ascii=False),
-                    meta={"via": "office_model_hybrid",
-                          "conf_action": round(float(_conf.get("action", 0.0)), 3),
-                          "conf_tool": round(float(_conf.get("tool", 0.0)), 3)})
-                return _obj
-    except Exception:
-        pass  # any model issue → silent fallthrough to Anthropic / keyword
-
-    if not os.environ.get("ANTHROPIC_API_KEY") or _ledger_remaining_usd() < 1.0:
-        return _fallback()
-    try:
-        import anthropic
-        import re as _re
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-        msgs = [{"role": m["role"], "content": m["content"]} for m in history if m.get("content")]
-        resp = client.messages.create(
-            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
-            max_tokens=300, system=_SHEPHERD_DISCERN_PROMPT, messages=msgs)
-        txt = "".join(getattr(b, "text", "") for b in resp.content).strip()
-        try:
-            ti = getattr(resp.usage, "input_tokens", 0) or 0
-            to = getattr(resp.usage, "output_tokens", 0) or 0
-            _ledger_record("shepherd", ti * 3e-6 + to * 15e-6)
-        except Exception:
-            pass
-        mj = _re.search(r"\{.*\}", txt, _re.S)
-        obj = json.loads(mj.group(0)) if mj else {}
-        if obj.get("action") in ("ask", "route"):
-            obj["via"] = "shepherd"
-            _log_office_pair("shepherd", msgs[-1]["content"] if msgs else last_user,
-                             json.dumps(obj, ensure_ascii=False))
-            return obj
-        return _fallback()
-    except Exception:
-        return _fallback()
+    """Shepherd office: ask one Socratic question OR route to a tool. The full
+    stack (office-model -> Steward-gated oracle -> keyword floor) lives in
+    api/offices.py and is shared with the funnel front door. /deposit is a
+    route-only door, so allow_keep=False (a personal-capture candidate routes to
+    a walk rather than being kept on a shelf)."""
+    from api import offices as _offices
+    return _offices.shepherd_discern(history, allow_keep=False, allow_oracle=True)
 
 
 def _save_deposit(card: dict) -> None:

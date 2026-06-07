@@ -215,15 +215,21 @@ def get_router():
         if len(text) > 4000:
             raise HTTPException(400, "max 4000 chars (cards are index cards)")
 
-        # Shepherd discerns (deterministic, free); Steward notes the resource state.
-        shep = _offices.shepherd_route(text)
+        # The Shepherd discerns through the full learning stack (office-model ->
+        # keyword floor; oracle is OFF for this high-frequency door — it stays
+        # free, but it now FEEDS and CONSUMES the local model, so it sharpens
+        # with use). The discern call mints the Shepherd training pair itself.
+        shep = _offices.shepherd_discern([{"role": "user", "content": text}],
+                                         allow_keep=True, allow_oracle=False)
+        # Single-shot door: if the model wants to ask, keep the card + surface the
+        # question (the conversational turn is the next step, #2).
+        if shep.get("action") == "ask":
+            shep = {"action": "keep", "deck": "note",
+                    "say": shep.get("say", "Kept on your shelf."), "via": shep.get("via")}
         steward = _offices.steward_check(shep.get("tool", ""))
         card = _create_private(text, owner, data.get("deck"), shep)
 
-        # each office's decision becomes a training pair
-        _offices.log_office_pair("shepherd", text, json.dumps(
-            {"action": shep.get("action"), "deck": card["deck"], "tool": shep.get("tool")},
-            ensure_ascii=False))
+        # the Steward's resource note becomes its own training pair
         _offices.log_office_pair("steward", json.dumps({"tool": shep.get("tool")}),
                                  json.dumps(steward, ensure_ascii=False))
 

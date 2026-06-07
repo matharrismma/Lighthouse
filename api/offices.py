@@ -15,9 +15,10 @@ from __future__ import annotations
 import datetime as _dt
 import hashlib
 import json
+import os
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 REPO = Path(__file__).resolve().parent.parent
 _SPEND_LEDGER = REPO / "data" / "spend" / "ledger.jsonl"
@@ -136,6 +137,159 @@ def shepherd_route(text: str) -> Dict[str, Any]:
             "classification": classification, "via": "deterministic"}
 
 
+# The Shepherd's vetted voice — it SELECTS a pre-approved line, never generates
+# prose. The keyword + office-model tiers use this phrasebook; the oracle writes
+# its own "say" but is held to the same brevity by the prompt.
+_PHRASEBOOK_PATH = REPO / "data" / "offices" / "shepherd_phrasebook.json"
+_PHRASEBOOK_CACHE: Optional[Dict[str, Any]] = None
+
+
+def shepherd_say(action: str, tool: str = "") -> str:
+    """Select a vetted Shepherd line for (action, tool/deck) from the phrasebook,
+    falling back to the built-in _SAY lines."""
+    global _PHRASEBOOK_CACHE
+    if _PHRASEBOOK_CACHE is None:
+        try:
+            _PHRASEBOOK_CACHE = json.loads(_PHRASEBOOK_PATH.read_text("utf-8"))
+        except Exception:
+            _PHRASEBOOK_CACHE = {}
+    pb = _PHRASEBOOK_CACHE or {}
+    if action == "ask":
+        lines = pb.get("ask") or ["Can you tell me a little more about what you're hoping for?"]
+    elif action == "keep":
+        return _SAY["keep"].get(tool, _SAY["keep"]["note"])
+    else:
+        lines = (pb.get("route") or {}).get(tool) or [_SAY["route"].get(tool, _SAY["route"]["walk"])]
+    import random as _r
+    return _r.choice(lines) if lines else _SAY["route"]["walk"]
+
+
+def _deck_for_tool(tool: str) -> str:
+    return {"draft": "task", "verify": "question", "discern": "question",
+            "teach": "question", "scripture": "scripture", "walk": "note"}.get(tool, "note")
+
+
+_SHEPHERD_DISCERN_PROMPT = """You are the Shepherd of the Narrow Highway discernment engine, which serves Jesus Christ. The engine is a conduit, not a source: it eliminates what is not the answer so the narrow path is illuminated by what survives.
+
+A person has deposited a thought. Through BRIEF Socratic questioning, discern what they truly need, then route to the proper tool. A Socratic question helps THEM clarify their own intent; it never interrogates or lectures. Speak warmly, plainly, briefly.
+
+Tools you may route to:
+- discern  : weigh a teaching, claim, or question through the four gates (Scripture, doctrine, 69 verifiers). For "is this sound / true / biblical?"
+- walk     : surface related substrate (cards) for an idea or topic. For exploring, "what connects?"
+- verify   : a specific factual or computational claim (math, science, dates).
+- scripture: resolve or study a Bible reference or term.
+- teach     : the person wants to learn, or to teach a child, a subject — phonics/reading, writing, math, science, history, Bible, or work skills. Route here to open the learning pathway. This is the homeschool road; start the youngest at phonics.
+- draft    : the person wants to send a message/email. Draft it for THEIR review. The engine never sends.
+
+Rules:
+- Ask AT MOST one short clarifying question, and ONLY if the proper tool is genuinely unclear. If you can already discern it, route immediately; do not ask needlessly.
+- One sentence per question.
+- Teach along the way: when something is hard, you may relate it simply — a short metaphor or a parable (biblical or plain) plus a memorable hook — but keep it to one or two sentences inside "say". Never lecture.
+- Respond with ONLY a JSON object, nothing else:
+  {"action":"ask","say":"<one-sentence Socratic question>"}
+  or
+  {"action":"route","tool":"discern|walk|verify|scripture|teach|draft","query":"<refined query for the tool>","say":"<one warm sentence telling the person what you're doing>"}"""
+
+
+def shepherd_discern(history: List[Dict[str, str]], allow_keep: bool = True,
+                     allow_oracle: bool = True) -> Dict[str, Any]:
+    """The ONE Shepherd, shared by every door. Tiers, cheapest first:
+
+      0. KEEP        — a personal capture (prayer/task/recipe/verse/note). Free,
+                       deterministic. Skipped for route-only doors (allow_keep=False).
+      1. office-model— the local, from-scratch learned classifier. Free.
+                       Confidence-gated; below threshold it falls through.
+      2. oracle      — Anthropic, ONLY when allow_oracle AND the Steward admits
+                       budget (>= $1 remaining). The spend is recorded.
+      3. keyword     — the deterministic floor. Free, always answers.
+
+    Every tier mints a Shepherd training pair, so each use teaches the local
+    model and the oracle-dependence ratio shrinks with use. `history` is a list
+    of {role, content}; the last user turn is what's discerned.
+    """
+    last_user = ""
+    for m in reversed(history):
+        if m.get("role") == "user":
+            last_user = m.get("content", "")
+            break
+    query0 = (history[0]["content"] if history else last_user)
+
+    # Tier 0 — keep (personal capture).
+    if allow_keep:
+        kd = _keep_deck(last_user)
+        if kd:
+            obj = {"action": "keep", "deck": kd,
+                   "say": _SAY["keep"].get(kd, _SAY["keep"]["note"]), "via": "keep"}
+            log_office_pair("shepherd", last_user, json.dumps(obj, ensure_ascii=False))
+            return obj
+
+    # Tier 1 — the local learned Shepherd (free, confidence-gated).
+    action_thresh = float(os.environ.get("NH_SHEP_ACTION_THRESH", "0.85"))
+    tool_thresh = float(os.environ.get("NH_SHEP_TOOL_THRESH", "0.70"))
+    try:
+        from api import office_models as _om
+        r = _om.predict_with_confidence("shepherd", last_user)
+        if r:
+            d, conf = r
+            action = d.get("action") or "route"
+            tool = d.get("tool") or "walk"
+            if (conf.get("action", 0.0) >= action_thresh
+                    and (action == "ask" or conf.get("tool", 0.0) >= tool_thresh)):
+                obj = {"action": action, "query": query0,
+                       "say": shepherd_say(action, tool if action == "route" else ""),
+                       "via": "office_model"}
+                if action == "route":
+                    obj["tool"] = tool
+                    obj["deck"] = _deck_for_tool(tool)
+                log_office_pair("shepherd", last_user, json.dumps(obj, ensure_ascii=False),
+                                meta={"via": "office_model_hybrid",
+                                      "conf_action": round(float(conf.get("action", 0.0)), 3),
+                                      "conf_tool": round(float(conf.get("tool", 0.0)), 3)})
+                return obj
+    except Exception:
+        pass
+
+    # Tier 2 — the oracle. Only when allowed AND the Steward admits the spend.
+    if (allow_oracle and os.environ.get("ANTHROPIC_API_KEY")
+            and steward_budget_remaining_usd() >= 1.0):
+        try:
+            import anthropic
+            import re as _re
+            client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+            msgs = [{"role": m["role"], "content": m["content"]} for m in history if m.get("content")]
+            resp = client.messages.create(
+                model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
+                max_tokens=300, system=_SHEPHERD_DISCERN_PROMPT, messages=msgs)
+            txt = "".join(getattr(b, "text", "") for b in resp.content).strip()
+            try:
+                ti = getattr(resp.usage, "input_tokens", 0) or 0
+                to = getattr(resp.usage, "output_tokens", 0) or 0
+                ledger_record("shepherd", ti * 3e-6 + to * 15e-6)  # Steward records the cost
+            except Exception:
+                pass
+            mj = _re.search(r"\{.*\}", txt, _re.S)
+            obj = json.loads(mj.group(0)) if mj else {}
+            if obj.get("action") in ("ask", "route"):
+                obj["via"] = "shepherd"
+                if obj.get("action") == "route" and obj.get("tool") and "deck" not in obj:
+                    obj["deck"] = _deck_for_tool(obj["tool"])
+                log_office_pair("shepherd", msgs[-1]["content"] if msgs else last_user,
+                                json.dumps(obj, ensure_ascii=False))
+                return obj
+        except Exception:
+            pass
+
+    # Tier 3 — the deterministic floor (free). keep (if allowed) or route.
+    sr = shepherd_route(last_user)
+    if sr.get("action") == "keep" and not allow_keep:
+        sr = {"action": "route", "tool": "walk", "deck": "note", "query": last_user,
+              "say": shepherd_say("route", "walk")}
+    sr["via"] = "fallback"
+    sr.setdefault("query", query0)
+    log_office_pair("shepherd", last_user, json.dumps(sr, ensure_ascii=False))
+    return sr
+
+
 # ── Steward (resource) ──────────────────────────────────────────────────────
 def steward_budget_remaining_usd() -> float:
     """The Steward's resource check — what's left of the monthly cap.
@@ -159,6 +313,20 @@ def steward_budget_remaining_usd() -> float:
         return round(cap - spent, 2)
     except Exception:
         return 0.0
+
+
+def ledger_record(source: str, usd: float) -> None:
+    """The Steward records a spend against the monthly cap (e.g. an oracle call).
+    The single implementation (app.py delegates here)."""
+    try:
+        d = REPO / "data" / "spend"
+        d.mkdir(parents=True, exist_ok=True)
+        now = _dt.datetime.now(_dt.timezone.utc)
+        with (d / "ledger.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": now.isoformat(), "month": now.strftime("%Y-%m"),
+                                "source": source, "usd": round(float(usd), 6)}) + "\n")
+    except Exception:
+        pass
 
 
 def steward_check(candidate_tool: str = "") -> Dict[str, Any]:
