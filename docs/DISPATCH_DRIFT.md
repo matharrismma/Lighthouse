@@ -86,6 +86,39 @@ audit:
 
 Decoy audits after each batch: 0 false-confirms.
 
+### Widen + reconcile batch 2 (2026-06-07, verified + decoy-clean)
+Same method, plus one genuine correctness fix. All keys were already aligned to
+the verifier; the failures were trigger-too-narrow (NO_MATCH) or a normalization
+mismatch. 5 rules moved oracle -> deterministic:
+- **gen_codon (REAL HARMFUL DRIFT FIXED):** `verify_genetics` translates on DNA
+  (rejects RNA `U` as ERROR) and reports **single-letter** codes, so a *true*
+  claim ("codon AUG codes for Methionine") came back ERROR/MISMATCH. The
+  extractor now normalizes RNA->DNA (`U`->`T`, coding-strand equivalence) and maps
+  amino-acid names / 3-letter / single-letter -> the single letter the verifier
+  emits (`_AA_TO_LETTER`/`_AA_SINGLE`). Guard: a bare lowercase single letter
+  ("...for a protein") is NOT treated as a code. CONFIRMED on AUG/ATG x name/Met/M;
+  MISMATCH on a wrong AA; NO_MATCH on codon-prose.
+- **info_entropy:** keys matched, verifier CONFIRMS; only the trigger was rigid.
+  Now `(?=.*entropy)(?=.*bits)` (any order). The extractor still requires explicit
+  decimal probabilities (`0.\d+`), so entropy-prose without probs -> None (safe).
+- **geo_haversine:** keys matched, verifier CONFIRMS. New trigger fires on a
+  decimal `lat, lon` pair + km. Extractor rewritten to read explicit coordinate
+  PAIRS (order-independent; ignores the distance number) and the N/S/E/W fallback
+  now REQUIRES the hemisphere letter (was optional -> grabbed stray numbers).
+  Decoys (recipe "2.5, 1.5 cups", "drove 300 km") correctly NO_MATCH.
+- **cal_day_of_week (coverage):** matched "is a <day>" but not the dominant
+  historical phrasing **"was a / fell on a <day>"**. Connector widened; extractor
+  re-derives date+day independently (safe). CONFIRMED/MISMATCH both verified.
+- **comb_permute (dead branch fixed):** the natural-language trigger branch existed
+  but the extractor only handled `P(n,k)` notation, so "permutations of 5 taken 2
+  is 20" triggered then returned None -> NO_MATCH. Added the natural-language
+  extractor branch + `is`/`equals` connector. CONFIRMED/MISMATCH verified; P(n,k)
+  still works.
+
+Decoy audit after the batch: 0 false-confirms. (Two inputs in the trap list were
+actually TRUE claims — "Strong G2316 is theos" and "C4 to G4 is 7 semitones" —
+correctly CONFIRMED by ling_strongs / mus_interval_semitones; not false-confirms.)
+
 ### Still open
 - **chem_balance** — emits `{equation}`; `verify_equation(eq, ...)` takes the eq
   string. Need to confirm the MCP `verify_chemistry` wrapper routes `spec["equation"]`
@@ -95,6 +128,17 @@ Decoy audits after each batch: 0 false-confirms.
   but no numeric F=ma magnitude check. Harmless NA -> oracle; candidate for removal.
 - **geo_mohs** — works for "X scratches Y"; "X (Mohs n) is harder than Y (Mohs m)"
   not handled (coverage). **geo_richter** — fine for ratio claims (not drifted).
-- Remaining backlog domains untested this pass: phys_ke, geo_haversine, info_entropy,
-  sport_*, mfg_cpk, agri_hardiness_zone, logic_*, bio_hardy_weinberg, gen_codon.
-  Same method; decoy-audit each widen.
+- **logic_tautology / logic_satisfiable** — keys already match and the verifier
+  CONFIRMS on the `>>`/`&`/`|`/`~` notation, but the trigger only fires on that
+  exact notation. Widening to natural connectives ("P AND Q", "P -> Q", "implies")
+  is higher-risk (prose "A and B" is everywhere); needs a careful normalize step.
+  Low corpus frequency -> deferred, not dead.
+- **sport_pythagorean** — keys match + verifier CONFIRMS, but the extractor needs
+  "N runs scored ... N runs allowed ... win pct" in that order/phrasing; "scored N
+  runs" or a bare ".566 expectation" won't fire. Niche; coverage-only.
+- Remaining backlog domains untested this pass: phys_ke (likely DEAD like
+  phys_force — verify_physics has no numeric KE check), mfg_cpk,
+  agri_hardiness_zone, bio_hardy_weinberg. Same method; decoy-audit each widen.
+
+DONE (batch 2, 2026-06-07): gen_codon, info_entropy, geo_haversine,
+cal_day_of_week (was/fell-on), comb_permute (natural-language). See batch 2 above.

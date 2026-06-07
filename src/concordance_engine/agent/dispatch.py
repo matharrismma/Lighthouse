@@ -423,7 +423,7 @@ def _cal_leap(m, text):
 
 
 @_rule("cal_day_of_week",
-       r"(\d{4}-\d{2}-\d{2})\s+(?:is\s+(?:a\s+)?)?(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)"
+       r"(\d{4}-\d{2}-\d{2})\s+(?:(?:is|was|fell\s+on)\s+(?:a\s+)?)?(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)"
        r"|(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday).*?(\d{4}-\d{2}-\d{2})",
        "calendar_time")
 def _cal_dow(m, text):
@@ -454,15 +454,21 @@ def _comb_choose(m, text):
 
 
 @_rule("comb_permute",
-       r"P\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=\s*(\d+)"
-       r"|permutations?\s+of\s+(\d+).*?(\d+).*?=\s*(\d+)",
+       r"P\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*(?:=|is|equals)\s*(\d+)"
+       r"|permutations?\s+of\s+(\d+).*?(\d+).*?(?:=|is|equals)\s*(\d+)",
        "combinatorics")
 def _comb_perm(m, text):
     import re as _re
-    explicit = _re.search(r'P\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*=?\s*(\d+)', text)
+    explicit = _re.search(r'P\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*(?:=|is|equals)?\s*(\d+)', text, _re.I)
     if explicit:
         return {"perm_n": int(explicit.group(1)), "perm_k": int(explicit.group(2)),
                 "claimed_permutations": int(explicit.group(3))}
+    # natural language: "permutations of 5 items taken 2 at a time is 20"
+    nat = _re.search(r'permutations?\s+of\s+(\d+)\s+(?:items?|things?|objects?|elements?)?\s*'
+                     r'(?:taken\s+)?(\d+)\s*(?:at\s+a\s+time)?.*?(?:=|is|equals)\s*(\d+)', text, _re.I)
+    if nat:
+        return {"perm_n": int(nat.group(1)), "perm_k": int(nat.group(2)),
+                "claimed_permutations": int(nat.group(3))}
     return None
 
 
@@ -515,30 +521,79 @@ def _gen_comp(m, text):
     return {"sequence": seqs[0], "claimed_complement": seqs[1]}
 
 
+# verify_genetics translates on DNA (T, not U) and reports SINGLE-LETTER codes,
+# so the extractor must normalize both to match (else a true claim MISMATCHes).
+_AA_SINGLE = set("ARNDCQEGHILKMFPSTWYV")
+_AA_TO_LETTER = {
+    "alanine": "A", "ala": "A",
+    "arginine": "R", "arg": "R",
+    "asparagine": "N", "asn": "N",
+    "aspartate": "D", "aspartic acid": "D", "asp": "D",
+    "cysteine": "C", "cys": "C",
+    "glutamine": "Q", "gln": "Q",
+    "glutamate": "E", "glutamic acid": "E", "glu": "E",
+    "glycine": "G", "gly": "G",
+    "histidine": "H", "his": "H",
+    "isoleucine": "I", "ile": "I",
+    "leucine": "L", "leu": "L",
+    "lysine": "K", "lys": "K",
+    "methionine": "M", "met": "M",
+    "phenylalanine": "F", "phe": "F",
+    "proline": "P", "pro": "P",
+    "serine": "S", "ser": "S",
+    "threonine": "T", "thr": "T",
+    "tryptophan": "W", "trp": "W",
+    "tyrosine": "Y", "tyr": "Y",
+    "valine": "V", "val": "V",
+    "stop": "*", "ter": "*", "termination": "*",
+}
+
+
 @_rule("gen_codon",
-       r"codon\s+([A-Z]{3})\s+(?:codes?|translates?)\s+(?:for\s+)?(\w+)"
-       r"|([A-Z]{3})\s+codon.*?(?:amino\s+acid\s+is\s+|encodes?\s+)(\w+)",
+       r"codon\s+([A-Za-z]{3})\s+(?:codes?|translates?)\s+(?:for|to|into)?\s*(\w+)"
+       r"|([A-Za-z]{3})\s+codon.*?(?:amino\s+acid\s+is\s+|encodes?\s+)(\w+)",
        "genetics")
 def _gen_codon(m, text):
     import re as _re
-    codon_m = _re.search(r'\b([ACGTU]{3})\b', text)
-    aa_m = _re.search(r'(?:codes?\s+for|encodes?|amino\s+acid\s+is)\s+(\w+)', text, _re.I)
+    codon_m = _re.search(r'\b([ACGTUacgtu]{3})\b', text)
+    aa_m = _re.search(r'(?:codes?\s+for|translates?\s+(?:to|into)|encodes?|amino\s+acid\s+is)\s+([A-Za-z][A-Za-z ]*?)\b',
+                      text, _re.I)
     if not (codon_m and aa_m):
         return None
-    return {"codon": codon_m.group(1).upper(), "claimed_amino_acid": aa_m.group(1).capitalize()}
+    codon = codon_m.group(1).upper().replace("U", "T")
+    tok = aa_m.group(1).strip()
+    if len(tok) == 1:
+        # a bare single letter is only an amino-acid CODE if written upper-case
+        aa = tok.upper() if (tok.isupper() and tok.upper() in _AA_SINGLE) else None
+    else:
+        aa = _AA_TO_LETTER.get(tok.lower())
+    if aa is None:
+        return None  # not a recognized amino acid -> let the oracle handle it
+    return {"codon": codon, "claimed_amino_acid": aa}
 
 
 # ── GEOGRAPHY ─────────────────────────────────────────────────────────────────
 
 @_rule("geo_haversine",
-       r"(?:distance|km|kilometer).*?lat.*?lon.*?lat.*?lon"
+       r"(?=.*(?:km|kilomet))(?=.*-?\d+\.\d+\s*,\s*-?\d+\.\d+)"
+       r"|(?:distance|kilometer).*?lat.*?lon.*?lat.*?lon"
        r"|(\d+\.?\d*)\s*[NS].*?(\d+\.?\d*)\s*[EW].*?(\d+\.?\d*)\s*[NS].*?(\d+\.?\d*)\s*[EW]",
        "geography")
 def _geo_haversine(m, text):
     import re as _re
-    coords = _re.findall(r'(-?\d+\.?\d*)\s*[NSEWnsew°]?', text)
-    dist_m = _re.search(r'(\d+\.?\d*)\s*km', text, _re.I)
-    if len(coords) >= 4 and dist_m:
+    dist_m = _re.search(r'(\d+\.?\d*)\s*(?:km|kilomet(?:er|re)s?)\b', text, _re.I)
+    if not dist_m:
+        return None
+    # prefer explicit "lat, lon" decimal pairs (order-independent, ignores the distance number)
+    pairs = _re.findall(r'(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)', text)
+    if len(pairs) >= 2:
+        (la1, lo1), (la2, lo2) = pairs[0], pairs[1]
+        return {"lat1": float(la1), "lon1": float(lo1),
+                "lat2": float(la2), "lon2": float(lo2),
+                "claimed_distance_km": _num(dist_m.group(1))}
+    # fall back to hemisphere-tagged coords (require the N/S/E/W letter, not optional)
+    coords = _re.findall(r'(-?\d+\.?\d*)\s*[NSEWnsew]', text)
+    if len(coords) >= 4:
         return {"lat1": float(coords[0]), "lon1": float(coords[1]),
                 "lat2": float(coords[2]), "lon2": float(coords[3]),
                 "claimed_distance_km": _num(dist_m.group(1))}
@@ -633,8 +688,7 @@ def _geom_circle(m, text):
 # ── INFORMATION THEORY ────────────────────────────────────────────────────────
 
 @_rule("info_entropy",
-       r"(?:shannon\s+)?entropy.*?(?:probabilities?|distribution).*?(\d+\.?\d*)\s*bits?"
-       r"|(\d+\.?\d*)\s*bits?\s+(?:of\s+)?entropy",
+       r"(?=.*entropy)(?=.*\bbits?\b)",
        "information_theory")
 def _info_entropy(m, text):
     import re as _re, math as _math
