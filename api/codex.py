@@ -510,31 +510,49 @@ def build_cards_dev_index() -> Dict[str, Any]:
     lists: Dict[str, list] = {"seed": [], "drafted": [], "connected": []}  # needs-work queues
     CAP = 500
     edges = content = 0
+    # Pass 1: build the connection-card GRAPH (the real edge set — the verified
+    # cross-reference moat). A card linked by N connection cards IS connected, even
+    # if its own inline connections[] is empty. Counting only inline (the old way)
+    # undercounted massively: ~17% looked connected vs ~57% counting the graph.
+    graph: Dict[str, set] = collections.defaultdict(set)
+    pending = []  # (id, body_len, witnessed, shelf, inline_neighbors, title)
     if CARDS_DIR.exists():
         for f in CARDS_DIR.glob("*.json"):
             c = _read(f)
             if not c:
                 continue
-            if c.get("kind") not in _CONTENT_KINDS:
+            kind = c.get("kind")
+            if kind not in _CONTENT_KINDS:
                 edges += 1
+                if kind == "connection":
+                    ex = c.get("extra") or {}
+                    l, r = ex.get("left_card_id"), ex.get("right_card_id")
+                    if l and r:
+                        graph[l].add(r)
+                        graph[r].add(l)
                 continue
             content += 1
-            body_len = len(c.get("body") or "")
-            conn = len(c.get("connections") or [])
-            witnessed = c.get("witness_status") == "passed"
-            st = _card_stage(body_len, conn, witnessed)
-            shelf = c.get("shelf") or "?"
-            stages[st] += 1
-            by_shelf[shelf][st] += 1
-            if st in lists and len(lists[st]) < CAP:
-                missing = []
-                if body_len < _BODY_FULL:
-                    missing.append("body")
-                if conn < _CONN_DONE:
-                    missing.append("connections")
-                lists[st].append({"id": c.get("id"), "title": (c.get("title") or "")[:90],
-                                  "shelf": shelf, "body_len": body_len, "conn": conn,
-                                  "missing": missing})
+            inline = {x.get("to_card_id") for x in (c.get("connections") or []) if x.get("to_card_id")}
+            pending.append((c.get("id"), len(c.get("body") or ""),
+                            c.get("witness_status") == "passed", c.get("shelf") or "?",
+                            inline, (c.get("title") or "")[:90]))
+    # Pass 2: stage each content card by DISTINCT connected neighbors (inline + graph)
+    for cid, body_len, witnessed, shelf, inline, title in pending:
+        neighbors = (inline | graph.get(cid, set()))
+        neighbors.discard(cid)
+        conn = len(neighbors)
+        st = _card_stage(body_len, conn, witnessed)
+        stages[st] += 1
+        by_shelf[shelf][st] += 1
+        if st in lists and len(lists[st]) < CAP:
+            missing = []
+            if body_len < _BODY_FULL:
+                missing.append("body")
+            if conn < _CONN_DONE:
+                missing.append("connections")
+            lists[st].append({"id": cid, "title": title,
+                              "shelf": shelf, "body_len": body_len, "conn": conn,
+                              "missing": missing})
     developed = stages.get("developed", 0)
     payload = {
         "generated": _now(),
