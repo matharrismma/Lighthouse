@@ -72,14 +72,14 @@ Write-Host "6/7  Restart the engine..." -ForegroundColor Cyan
 ssh $srv "sudo systemctl restart nh-engine"
 Guard "engine restart"
 
-Write-Host "7/7  Seal the Codex on prod (Face 2) - OPTIONAL, non-fatal." -ForegroundColor Cyan
-Write-Host "     This signs the manifest with the PROD identity key. If your engine" -ForegroundColor DarkGray
-Write-Host "     runs in a venv, adjust the python path. Skipping is fine - the four" -ForegroundColor DarkGray
-Write-Host "     surfaces work unsealed; /codex/verify just reports 'not sealed yet'." -ForegroundColor DarkGray
-ssh $srv "cd ~/Lighthouse && python3 -m api.codex seal"
+Write-Host "7/7  Seal the Codex on prod (Face 2) via the LIVE engine endpoint." -ForegroundColor Cyan
+Write-Host "     POST /codex/seal runs INSIDE the running engine, which always has the" -ForegroundColor DarkGray
+Write-Host "     correct venv environment. The old step shelled out to system 'python3'," -ForegroundColor DarkGray
+Write-Host "     which lacks the concordance_engine package (it lives only in ~/.venv) ->" -ForegroundColor DarkGray
+Write-Host "     'No module named concordance_engine'. Sealing in-process can't hit that." -ForegroundColor DarkGray
+ssh $srv "curl -fsS -m 30 -X POST http://127.0.0.1:8000/codex/seal"
 if ($LASTEXITCODE -ne 0) {
-  Write-Host "  [WARN] seal step did not run (likely python env path) - deploy still succeeded." -ForegroundColor Yellow
-  Write-Host "         To seal later: ssh $srv, cd ~/Lighthouse, run 'python -m api.codex seal' in the engine's env." -ForegroundColor Yellow
+  Write-Host "  [WARN] seal POST failed - is the engine up? Retry: ssh $srv 'curl -X POST http://127.0.0.1:8000/codex/seal'" -ForegroundColor Yellow
 }
 
 Write-Host ""
