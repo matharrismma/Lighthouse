@@ -6278,6 +6278,7 @@ def daily_comments_list(iso_date: str, limit: int = 200):
 # The user's localStorage is the cache; this is the substrate. Walks
 # survive device wipes and browser switches. visitor_id is opaque.
 from api import coach_journal as _coach_journal  # noqa: E402
+from api import person_identity as _person_identity  # noqa: E402
 
 
 class _JournalSaveRequest(BaseModel):
@@ -6348,14 +6349,31 @@ def coach_journal_save(request: Request, req: _JournalSaveRequest):
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    # Bridge the surfaces: link this walk identity to the resolved person (operator
+    # or household). Lets the Shepherd recall this walk in the funnel — his memory
+    # spans every surface, not just the funnel shelf. Best-effort, never blocks.
+    try:
+        person = _person_identity.person_id(request)
+        if person:
+            _person_identity.link(person, req.visitor_id)
+    except Exception:
+        pass
     return {"ok": True, "walk": rec}
 
 
 @app.get("/coach/journal", tags=["humans"])
-def coach_journal_list(visitor_id: str, limit: int = 50):
+def coach_journal_list(visitor_id: str, request: Request, limit: int = 50):
     """List the visitor's walks, dedup-by-walk_id keeping latest, newest first."""
     if not _coach_journal._valid_visitor_id(visitor_id):
         raise HTTPException(status_code=400, detail="invalid visitor_id")
+    # Linking on read too means just opening the walk page (which lists) bridges a
+    # returning walker's existing walks to their person — no new save required.
+    try:
+        person = _person_identity.person_id(request)
+        if person:
+            _person_identity.link(person, visitor_id)
+    except Exception:
+        pass
     items = _coach_journal.list_walks(visitor_id, limit=max(1, min(500, limit)))
     return {"total": len(items), "walks": items}
 

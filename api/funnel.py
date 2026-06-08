@@ -21,8 +21,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -40,11 +38,14 @@ try:
 except Exception:  # pragma: no cover
     import offices as _offices  # type: ignore
 
+try:
+    from api import coach_journal as _coach_journal
+except Exception:  # pragma: no cover
+    import coach_journal as _coach_journal  # type: ignore
+
 REPO = Path(__file__).resolve().parent.parent
 USER_CARDS = REPO / "data" / "user_cards"
 PUBLIC_CARDS = REPO / "data" / "cards"
-KEEP_ALLOWED = REPO / "data" / "keep_allowed_ips.txt"
-KEEP_SESSIONS = REPO / "data" / "keep" / "sessions.json"
 
 # Where each Shepherd-routed tool lives (only pages that exist; else the walk).
 _TOOL_URL = {
@@ -61,75 +62,74 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _owner_id() -> str:
-    """The current owner. Single-user today = the node's user identity."""
-    try:
-        from concordance_engine.user_identity import get_user_id
-        return get_user_id()
-    except Exception:
-        return "operator"
-
-
-# ── Operator gate (single-user: owner == operator; reuse /keep admission) ───────
-def _client_ip(request) -> str:
-    try:
-        return (request.headers.get("cf-connecting-ip")
-                or (request.headers.get("x-forwarded-for", "").split(",")[0].strip())
-                or (request.client.host if request.client else ""))
-    except Exception:
-        return ""
-
-
-def _is_owner(request) -> bool:
-    """True if the requester is the owner/operator: localhost, an allowlisted
-    /keep IP, or a valid /keep session cookie. (Single-user model.)"""
-    ip = _client_ip(request)
-    if ip in ("127.0.0.1", "::1", "localhost", ""):
-        return True
-    try:
-        if KEEP_ALLOWED.exists():
-            for line in KEEP_ALLOWED.read_text(encoding="utf-8").splitlines():
-                line = line.split("#", 1)[0].strip()
-                if line and line == ip:
-                    return True
-    except Exception:
-        pass
-    try:
-        cookie = request.cookies.get("nh_keep_session", "")
-        if cookie and KEEP_SESSIONS.exists():
-            sess = json.loads(KEEP_SESSIONS.read_text(encoding="utf-8"))
-            e = sess.get(cookie)
-            if e and int(e.get("expires_ts", 0)) > int(time.time()):
-                return True
-    except Exception:
-        pass
-    return False
-
-
 # ── Person identity (capability model — like the keep token; no passwords) ──────
-# A household id (NHHousehold) is 64-bit crypto-random: possession IS the key.
-# Each household gets its own private shelf + its own Shepherd. The operator
-# (localhost / keep) is one such person. This is what makes the Shepherd per-user.
-_HH_RE = re.compile(r"^hh_[0-9a-f]{16}$")
+# The canonical resolution lives in api/person_identity.py so EVERY surface (this
+# funnel + the four-gates walk) resolves the same person. A household id
+# (NHHousehold) is 64-bit crypto-random: possession IS the key. Each household
+# gets its own private shelf + its own Shepherd; the operator (localhost / keep)
+# is one such person and wins when present. This is what makes the Shepherd
+# per-user. The `_`-aliases keep the rest of this module unchanged.
+try:
+    from api import person_identity as _pid
+except Exception:  # pragma: no cover
+    import person_identity as _pid  # type: ignore
+
+_owner_id = _pid.owner_id
+_is_owner = _pid.is_owner
+_household_id = _pid.household_id
+_person_id = _pid.person_id
 
 
-def _household_id(request) -> Optional[str]:
+def _recall_walk(person: str, situation: str):
+    """The Shepherd's memory spans surfaces. Gather this person's prior four-gates
+    WALKS (coach_journal, across every walk identity linked to them) and surface the
+    one that most resonates with what they bring now — so the funnel can say 'you
+    walked something like this before; here is what the gates showed you.' Reuses
+    the same deterministic overlap as card recall. Best-effort; None when nothing
+    resonates."""
     try:
-        h = (request.headers.get("x-household-id")
-             or request.query_params.get("hh") or "").strip()
+        vids = _pid.visitors_for(person)
     except Exception:
-        h = ""
-    return h if _HH_RE.match(h) else None
-
-
-def _person_id(request) -> Optional[str]:
-    """The requesting person. The OPERATOR (localhost / keep) wins when present so
-    Matt always lands on his own shelf even if his browser also carries a household
-    capability id; a genuine remote household user is never an owner, so they fall
-    through to their household id. None = no identity → no access (existence hidden)."""
-    if _is_owner(request):
-        return _owner_id()
-    return _household_id(request)
+        vids = []
+    if not vids:
+        return None
+    shaped, by_id = [], {}
+    for vid in vids:
+        try:
+            walks = _coach_journal.list_walks(vid, limit=50)
+        except Exception:
+            walks = []
+        for w in walks:
+            wid = w.get("walk_id")
+            if not wid or wid in by_id:
+                continue
+            gates = w.get("gates") or {}
+            ts = w.get("updated_at") or w.get("created_at")
+            when = ""
+            if isinstance(ts, (int, float)):
+                try:
+                    when = datetime.fromtimestamp(int(ts), timezone.utc).strftime("%Y-%m-%d")
+                except Exception:
+                    when = ""
+            shaped.append({
+                "id": wid,
+                "title": w.get("situation") or "",
+                "body": (w.get("situation") or "") + " " + " ".join(str(v) for v in gates.values()),
+                "created_at": when,
+            })
+            by_id[wid] = w
+    if not shaped:
+        return None
+    wr = _offices.recall_connection(situation, shaped)
+    if not wr:
+        return None
+    w = by_id.get(wr.get("id")) or {}
+    gates = w.get("gates") or {}
+    # the gate answers are the fruit of that walk — surface a couple beside the recall
+    wr["situation"] = w.get("situation") or wr.get("title") or ""
+    wr["gates"] = {k: v for k, v in gates.items() if str(v).strip()}
+    wr["answered"] = w.get("answered_count") or len(wr["gates"])
+    return wr
 
 
 # ── Title (the deck + routing now come from the Shepherd, in api/offices.py) ─────
@@ -321,8 +321,11 @@ def get_router():
             resp["narrow"] = nz
             resp["query"] = original
 
-        # The Shepherd never forgets. (1) recall a prior share that resonates;
-        # (2) see RECURRENCE — a pattern you keep returning to (the unseen thread).
+        # The Shepherd never forgets, and his memory spans every surface.
+        # (1) recall a prior CARD share that resonates; (2) see RECURRENCE — a
+        # pattern you keep returning to (the unseen thread); (3) recall a prior
+        # WALK (four-gates) that resonates — connecting the funnel to what the
+        # gates already showed you elsewhere.
         try:
             prior = [c for c in _list_private(owner) if c.get("id") != card.get("id")]
             rc = _offices.recall_connection(original, prior)
@@ -333,6 +336,9 @@ def get_router():
                 rec["name"] = next((c.get("name") for c in (nz.get("cards") or nz.get("choices") or [])
                                     if c.get("id") == rec["pattern_id"]), rec["pattern_id"]) if nz else rec["pattern_id"]
                 resp["recurring"] = rec
+            wr = _recall_walk(owner, original)
+            if wr:
+                resp["recall_walk"] = wr
         except Exception:
             pass
         return resp

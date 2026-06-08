@@ -535,6 +535,7 @@
       font-weight: 600;
     }
 </style>
+  <script src="/nh-household.js"></script>
   <script src="/i18n.js"></script>
   <script src="/a11y.js"></script>
   <script src="/audio.js"></script>
@@ -829,6 +830,16 @@ function getVisitorId() {
 }
 const VISITOR_ID = getVisitorId();
 
+// The household capability id (NHHousehold) is this person's identity across
+// surfaces. Sending it lets the server bridge this walk to the same person who
+// uses the funnel — so the Shepherd's memory spans both (he connects the dots).
+// The walk's own VISITOR_ID is unchanged; this is an additive link, no migration.
+function hhHeaders(base) {
+  const h = Object.assign({}, base || {});
+  try { var id = (window.NHHousehold && NHHousehold.id()) || ''; if (id) h['X-Household-Id'] = id; } catch (_) {}
+  return h;
+}
+
 function _djb2(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
@@ -873,7 +884,7 @@ async function saveGateAnswerServer(walkId, situation, gates) {
   try {
     await fetch('/coach/journal', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: hhHeaders({'Content-Type':'application/json'}),
       body: JSON.stringify({
         visitor_id: VISITOR_ID,
         walk_id: walkId,
@@ -957,7 +968,7 @@ async function loadReturnState() {
 
   let walks = [];
   try {
-    const r = await fetch('/coach/journal?visitor_id=' + encodeURIComponent(VISITOR_ID));
+    const r = await fetch('/coach/journal?visitor_id=' + encodeURIComponent(VISITOR_ID), { headers: hhHeaders() });
     if (r.ok) {
       const d = await r.json();
       walks = d.walks || [];
