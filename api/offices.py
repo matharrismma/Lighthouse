@@ -352,7 +352,13 @@ def _arrive(situation, chosen, candidates):
 def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int = 6) -> Dict[str, Any]:
     """Rung 2: the multi-level narrowing. First call surfaces the floor's candidate
     patterns for a need (the right choices at the right size). The human picks one
-    (chosen_id); the floor hands the answer + trail + Christ. Retrieval is choosing."""
+    (chosen_id); the floor hands the answer + trail + Christ. Retrieval is choosing.
+
+    NOTE: drawing the WHOLE well when no protocol fits is the next increment — it
+    needs SEMANTIC ranking (a naive keyword merge surfaces noise: common words like
+    'god' flood it). Until then, no-pattern honestly returns the open walk rather
+    than hand a false trail. (Gemma 4 local embeddings — free, on-box, no data
+    leak — is the aligned tool for that ranking.)"""
     from api import walk as _walk
     situation = (situation or "").strip()
     if not situation:
@@ -371,7 +377,6 @@ def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int 
         return _arrive(situation, chosen, protos)
     if len(protos) == 1:
         return _arrive(situation, protos[0], protos)
-    # several candidates -> surface the fork; the person's intuition chooses
     return {
         "arrived": False, "narrowable": True, "level": "pattern",
         "say": "The floor knows several patterns that touch this. Which is closest to yours?",
