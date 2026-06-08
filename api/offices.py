@@ -380,56 +380,184 @@ def _arrive_well(situation, packet):
     }
 
 
-def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int = 6) -> Dict[str, Any]:
-    """Rung 2: the narrowing. First surfaces the floor's candidate PATTERNS (the
-    right choices at the right size); when none fit, draws the WELL's wisdom via
-    high-precision TF-IDF (well_retriever — silent rather than noisy). The human
-    picks (chosen_id); the floor hands the answer + trail + Christ. Retrieval is
-    choosing, not generating. (Synonymy recall is the embeddings upgrade later.)"""
+def _otoks(s):
+    import re as _re
+    return [w for w in _re.findall(r"[a-z']{3,}", (s or "").lower()) if w not in _WELL_NOISE]
+
+
+_WELL_NOISE = set((
+    "the and for with from this that what when where who how why are was were you your "
+    "not but its his her she him them they too can just about have has had feel need want"
+).split())
+
+
+# ── SCRIBE — finds the cards (retrieval from the keeping) ────────────────────
+def scribe_find(situation: str, max_candidates: int = 6) -> List[Dict[str, Any]]:
+    """The Scribe finds the candidate cards: the floor's PATTERNS first
+    (recognize_protocols), then the WELL's wisdom (well_retriever) when no pattern
+    fits or the lone pattern is weak. Returns unified cards (the answer-space the
+    Shepherd will question over)."""
+    from api import walk as _walk
+    from api import well_retriever as _well
+    protos = _walk.recognize_protocols(situation, max_results=max_candidates)
+    cards = [{"id": p.get("id"), "name": p.get("name"), "summary": p.get("summary", ""),
+              "scripture": _coerce_list(p.get("scripture")), "kind": "protocol",
+              "source": "protocol", "strength": int(p.get("match_strength") or 0),
+              "why": p.get("matched_triggers") or [], "_proto": p} for p in protos]
+    if not cards or (len(cards) == 1 and cards[0]["strength"] < 2):
+        have = {c["id"] for c in cards}
+        for w in _well.search(situation, limit=5):
+            if w["id"] not in have:
+                cards.append({"id": w["id"], "name": w["title"], "summary": w.get("summary", ""),
+                              "scripture": _coerce_list(w.get("scripture")), "kind": w.get("kind"),
+                              "source": "well", "strength": 0, "why": [w.get("kind")]})
+    return cards
+
+
+def _arrive_card(situation, card, cards):
+    from api import well_retriever as _well
+    if card.get("source") == "protocol" and card.get("_proto"):
+        return _arrive(situation, card["_proto"], [c["_proto"] for c in cards if c.get("_proto")])
+    pkt = _well.get(card["id"])
+    if pkt is not None:
+        return _arrive_well(situation, pkt)
+    return {"arrived": False, "narrowable": True, "note": "card not found"}
+
+
+# ── SHEPHERD — speaks in questions (the Socratic voice) ──────────────────────
+# Vetted lines (the Shepherd never generates prose on the free path). The
+# Steward-gated oracle phrases a sharper, situation-specific question in prod.
+_SOCRATIC = [
+    "When you sit with this, what's the one thing underneath the rest?",
+    "If you named the truest part of it in a single sentence, what would you say?",
+    "Where do you feel the weight of it most?",
+    "What part of this is yours to carry — and what part isn't?",
+]
+_SOCRATIC_AGAIN = [
+    "Stay with it a moment — which of those is the heavier one right now?",
+    "And beneath that — what's the root of it?",
+]
+
+
+def _shepherd_socratic_oracle(situation, cards):
+    """Steward-gated: the oracle phrases ONE sharp Socratic question contrasting
+    the found cards. Returns None when the Steward can't provision it (no key /
+    over budget) — then the deterministic vetted stem is used."""
+    import os
+    if not os.environ.get("ANTHROPIC_API_KEY") or steward_budget_remaining_usd() < 1.0:
+        return None
+    try:
+        import anthropic
+        names = "; ".join(f"{c['name']}: {c.get('summary','')[:80]}" for c in cards[:5])
+        sys_prompt = (
+            "You are the Shepherd of a Christian discernment engine. A person brought a "
+            "situation; the floor surfaced these possible patterns. Ask ONE brief Socratic "
+            "question (one sentence) that helps THEM discern which is the heart of it — or "
+            "name what they truly need. Do NOT list the options, do not lecture, do not "
+            "answer. Warm, plain, short. Output only the question.")
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        resp = client.messages.create(
+            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"), max_tokens=80,
+            system=sys_prompt,
+            messages=[{"role": "user", "content": f"Situation: {situation}\nPatterns: {names}"}])
+        try:
+            ti = getattr(resp.usage, "input_tokens", 0) or 0
+            to = getattr(resp.usage, "output_tokens", 0) or 0
+            ledger_record("shepherd", ti * 3e-6 + to * 15e-6)  # Steward records the cost
+        except Exception:
+            pass
+        q = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        return q or None
+    except Exception:
+        return None
+
+
+def _shepherd_socratic(situation, cards, again=False):
+    q = _shepherd_socratic_oracle(situation, cards)
+    if q:
+        return q, "shepherd"
+    stems = _SOCRATIC_AGAIN if again else _SOCRATIC
+    return stems[len(situation) % len(stems)], "vetted"
+
+
+def _shepherd_map(situation, reply, cards):
+    """The Shepherd discerns which found card the person's answer points to.
+    Deterministic overlap of the reply with each card's name/summary/why."""
+    rt = set(_otoks(reply))
+    if not rt:
+        return None
+    scored = []
+    for c in cards:
+        ct = set(_otoks((c.get("name") or "") + " " + (c.get("summary") or "")
+                        + " " + " ".join(c.get("why") or [])))
+        scored.append((len(rt & ct), c))
+    scored.sort(key=lambda x: -x[0])
+    if scored and scored[0][0] > 0 and (len(scored) == 1 or scored[0][0] > scored[1][0]):
+        return scored[0][1]
+    return None
+
+
+def _shepherd_ask(situation, cards, again=False):
+    """The Scribe calls the Shepherd to speak. He poses a Socratic question; the
+    Steward provisions (gates the paid voice) and observes (logs the pair)."""
+    q, via = _shepherd_socratic(situation, cards, again=again)
+    steward = steward_check()
+    log_office_pair("shepherd", situation,
+                    json.dumps({"action": "ask", "via": via,
+                                "cards": [c["id"] for c in cards]}, ensure_ascii=False))
+    return {
+        "arrived": False, "narrowable": True, "action": "ask", "via": via,
+        "level": (cards[0]["source"] if cards else "pattern"),
+        "say": q,
+        "cards": [{"id": c["id"], "name": c["name"], "summary": c.get("summary", ""),
+                   "scripture": c.get("scripture") or [], "why": c.get("why")} for c in cards],
+        "steward": {"budget_remaining_usd": steward["budget_remaining_usd"]},
+    }
+
+
+def narrow(situation: str, reply: Optional[str] = None, chosen_id: Optional[str] = None,
+           max_candidates: int = 6) -> Dict[str, Any]:
+    """Rung 2, as the TRIAD. The SCRIBE finds the candidate cards; when discernment
+    is needed she calls the SHEPHERD, who QUESTIONS (Socratic — never a menu); the
+    person answers; the Shepherd discerns which card; the floor hands the answer +
+    trail + Christ. The STEWARD provisions the paid voice and observes (logs).
+    chosen_id is the explicit-pick escape hatch; reply is the person's answer."""
     from api import walk as _walk
     from api import well_retriever as _well
     situation = (situation or "").strip()
     if not situation:
         return {"arrived": False, "narrowable": False, "note": "empty"}
-    protos = _walk.recognize_protocols(situation, max_results=max_candidates)
+
+    cards = scribe_find(situation, max_candidates)
+    if not cards:
+        return {"arrived": False, "narrowable": False,
+                "note": "No pattern or wisdom fit this — this needs the open walk."}
 
     if chosen_id:
-        chosen = next((p for p in protos if p.get("id") == chosen_id), None)
-        if chosen is None:
-            wide = _walk.recognize_protocols(situation, max_results=50)
-            chosen = next((p for p in wide if p.get("id") == chosen_id), None)
-        if chosen is not None:
-            return _arrive(situation, chosen, protos)
-        pkt = _well.get(chosen_id)  # the choice was a well packet, not a protocol
+        card = next((c for c in cards if c["id"] == chosen_id), None)
+        if card is not None:
+            return _arrive_card(situation, card, cards)
+        pkt = _well.get(chosen_id)
         if pkt is not None:
             return _arrive_well(situation, pkt)
+        wide = _walk.recognize_protocols(situation, max_results=50)
+        wp = next((p for p in wide if p.get("id") == chosen_id), None)
+        if wp is not None:
+            return _arrive(situation, wp, [])
         return {"arrived": False, "narrowable": True, "note": "choice not found"}
 
-    if protos:
-        if len(protos) == 1:
-            return _arrive(situation, protos[0], protos)
-        return {
-            "arrived": False, "narrowable": True, "level": "pattern",
-            "say": "The floor knows several patterns that touch this. Which is closest to yours?",
-            "choices": [{"id": p.get("id"), "name": p.get("name"),
-                         "summary": p.get("summary", ""),
-                         "scripture": _coerce_list(p.get("scripture")),
-                         "why": p.get("matched_triggers")} for p in protos],
-            "considered": len(protos),
-        }
+    # a single CONFIDENT pattern is clear — the floor answers without questioning
+    if len(cards) == 1 and cards[0]["source"] == "protocol" and cards[0]["strength"] >= 2:
+        return _arrive_card(situation, cards[0], cards)
 
-    # no fixed pattern -> the well's wisdom (high-precision; silent if not confident)
-    well = _well.search(situation, limit=5)
-    if well:
-        return {
-            "arrived": False, "narrowable": True, "level": "well", "source": "well",
-            "say": "No fixed pattern fits this, but the well holds these. Which is closest?",
-            "choices": [{"id": w["id"], "name": w["title"], "summary": w["summary"],
-                         "scripture": _coerce_list(w["scripture"]), "why": [w["kind"]]} for w in well],
-            "considered": len(well),
-        }
-    return {"arrived": False, "narrowable": False,
-            "note": "No specific pattern matched — this needs the open walk."}
+    if reply:
+        card = _shepherd_map(situation, reply, cards)
+        if card is not None:
+            return _arrive_card(situation, card, cards)
+        return _shepherd_ask(situation, cards, again=True)  # still unclear — ask once more
+
+    # discernment needed -> the Shepherd questions (Socratic)
+    return _shepherd_ask(situation, cards, again=False)
 
 
 # ── Steward (resource) ──────────────────────────────────────────────────────

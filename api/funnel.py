@@ -394,6 +394,9 @@ def get_router():
         if len(situation) > 4000:
             raise HTTPException(400, "situation too long")
         chosen = data.get("chosen_id")
-        return _offices.narrow(situation, chosen_id=(str(chosen) if chosen else None))
+        reply = data.get("reply")
+        return _offices.narrow(situation,
+                               reply=(str(reply)[:2000] if reply else None),
+                               chosen_id=(str(chosen) if chosen else None))
 
     return router

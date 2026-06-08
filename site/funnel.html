@@ -48,6 +48,13 @@
   #flash .sayspk { background: none; border: none; cursor: pointer; font-size: 0.95em; padding: 0 0.2em; }
   #narrow { margin: 0.4em 0 0.2em; }
   #narrow .nq { color: #1a3a52; font-style: italic; margin-bottom: 0.4em; }
+  #narrow .nrow { display: flex; gap: 0.4em; margin-bottom: 0.4em; }
+  #narrow #nreply { flex: 1; font-family: Georgia, serif; font-size: 1em; padding: 0.5em 0.7em; border: 2px solid #c9b48a; border-radius: 6px; background: #fff; color: #2a2a28; }
+  #narrow #nreply:focus { outline: none; border-color: #1a3a52; }
+  #narrow #nsend { background: #1a3a52; color: #f4ecd5; border: 0; border-radius: 6px; padding: 0 0.9em; font-size: 1.1em; cursor: pointer; }
+  #narrow .nchips { font-size: 0.82em; color: #8a7a4a; }
+  #narrow .nchip { background: #faf6ea; border: 1px solid #d4c8a5; border-radius: 12px; padding: 0.12em 0.7em; margin: 0.1em 0.15em; font-size: 0.85em; color: #1a3a52; cursor: pointer; font-family: inherit; }
+  #narrow .nchip:hover { background: #efe6cf; }
   #narrow .choice { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #c9b48a; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.55em 0.8em; margin-bottom: 0.4em; cursor: pointer; font-family: inherit; }
   #narrow .choice:hover { background: #f3eedb; }
   #narrow .choice .cn { color: #1a3a52; font-size: 1.02em; }
@@ -201,21 +208,35 @@
     if($narrow) $narrow.innerHTML='';
   }
 
-  // ── The narrowing (rung 2): the engine surfaces choices; you pick; the floor answers ──
+  // ── The narrowing (rung 2): the Shepherd ASKS (Socratic); you answer; the floor answers ──
   function renderNarrow(nz, situation){
     if(!$narrow) return;
     if(nz.arrived){ renderArrival(nz); return; }
-    if(!nz.narrowable || !(nz.choices||[]).length){ $narrow.innerHTML=''; return; }
-    var html='<div class="nq">'+esc(nz.say||'Which is closest?')+'</div>';
-    nz.choices.forEach(function(c){
-      html+='<button class="choice" data-id="'+esc(c.id)+'"><span class="cn">'+esc(c.name||c.id)+'</span>'+
-        (c.summary?'<span class="cs">'+esc(c.summary.slice(0,140))+'</span>':'')+
-        (c.scripture&&c.scripture.length?'<span class="cw">'+esc(c.scripture.join(' · '))+'</span>':'')+'</button>';
-    });
+    if(!nz.narrowable){ $narrow.innerHTML=''; return; }
+    var cards = nz.cards || nz.choices || [];
+    // The Shepherd's question + a place to answer in your own words.
+    var html='<div class="nq">'+esc(nz.say||'')+'</div>'+
+      '<div class="nrow"><input id="nreply" placeholder="Answer in your own words…" autocomplete="off" /><button id="nsend">→</button></div>';
+    if(cards.length){
+      html+='<div class="nchips">or name it: '+cards.map(function(c){
+        return '<button class="nchip" data-id="'+esc(c.id)+'" title="'+esc((c.scripture||[]).join(' · '))+'">'+esc(c.name||c.id)+'</button>';
+      }).join(' ')+'</div>';
+    }
     $narrow.innerHTML=html;
-    Array.prototype.forEach.call($narrow.querySelectorAll('.choice'),function(b){
+    var inp=document.getElementById('nreply'), snd=document.getElementById('nsend');
+    function go(){ var v=inp.value.trim(); if(v){ replyNarrow(situation, v); } }
+    if(snd) snd.addEventListener('click', go);
+    if(inp){ inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } }); inp.focus(); }
+    Array.prototype.forEach.call($narrow.querySelectorAll('.nchip'),function(b){
       b.addEventListener('click',function(){ pickNarrow(situation, b.dataset.id); });
     });
+  }
+  function replyNarrow(situation, reply){
+    $narrow.innerHTML='<div class="nq">…</div>';
+    fetch('/narrow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({situation:situation,reply:reply})})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(nz){ if(nz){ renderNarrow(nz, situation); } else { $narrow.innerHTML='<div class="nq">Could not continue.</div>'; } })
+      .catch(function(){ $narrow.innerHTML='<div class="nq">Could not continue.</div>'; });
   }
   function pickNarrow(situation, chosen_id){
     $narrow.innerHTML='<div class="nq">Bringing the path…</div>';
