@@ -30,7 +30,7 @@ git push origin main
 Guard "git push"
 
 Write-Host "2/7  Backend  -> ~/Lighthouse/api/" -ForegroundColor Cyan
-scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$srv`:~/Lighthouse/api/"
+scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$r\api\cards.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "2b/7 Engine    -> ~/Lighthouse/src/concordance_engine/agent/ (floor: dispatch + gate)" -ForegroundColor Cyan
@@ -56,8 +56,8 @@ ssh $srv "mkdir -p ~/Lighthouse/tools"
 Guard "mkdir tools"
 scp "$r\data\almanac\generated_verified.jsonl" "$srv`:~/Lighthouse/data/almanac/"
 Guard "scp generated_verified"
-scp "$r\tools\grow_verified.py" "$srv`:~/Lighthouse/tools/"
-Guard "scp grow_verified"
+scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$srv`:~/Lighthouse/tools/"
+Guard "scp grow_verified + suggest_connections"
 
 Write-Host "5c/7 Offices: NO bootstrap needed - prod is ALREADY trained." -ForegroundColor Cyan
 Write-Host "     Verified 2026-06-07: prod has trained office models (shepherd/scribe/steward.json)" -ForegroundColor DarkGray
@@ -90,5 +90,12 @@ Write-Host "  https://narrowhighway.com/codex-themes.html       (the theme index
 Write-Host "  https://narrowhighway.com/codex-connections.html  (verified cross-domain + scripture + candidates)" -ForegroundColor Green
 Write-Host "  https://narrowhighway.com/codex-seal.html         (the signed manuscript - after the seal step)" -ForegroundColor Green
 Write-Host "  curl https://narrowhighway.com/codex/connections  (81 verified-structural, 139 hubs, 1269 candidates)" -ForegroundColor Green
+Write-Host ""
+Write-Host "Card connection LOOP (prod follow-ups):" -ForegroundColor Green
+Write-Host "  1) Rebuild the dev index so the graph-aware counter takes effect (free):" -ForegroundColor DarkGray
+Write-Host "       curl -fsS -X POST https://narrowhighway.com/codex/index/rebuild   # developed ~12% -> ~39%" -ForegroundColor DarkGray
+Write-Host "  2) Populate the suggestion queue for the orphans (free, deterministic; O(n^2) so scope it):" -ForegroundColor DarkGray
+Write-Host "       ssh $srv 'cd ~/Lighthouse && .venv/bin/python tools/suggest_connections.py --apply --threshold 0.18'" -ForegroundColor DarkGray
+Write-Host "  3) Review + approve at https://narrowhighway.com/cards-dev.html (Suggested connections panel; operator-gated)." -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "After this deploy, purge the Cloudflare cache (HTML + the new pages)." -ForegroundColor DarkGray

@@ -77,6 +77,10 @@
 <h2 id="queue-h">The queue</h2>
 <div id="queue"><div class="empty">Loading the board…</div></div>
 
+<h2>Suggested connections <span class="num" id="connq-count"></span></h2>
+<p style="color:#6a5a3a;font-style:italic;margin:0.2em 0 0.6em;">The engine proposes; you decide. Approve links the two cards (the card advances a stage); reject dismisses it for good.</p>
+<div id="connq"><div class="empty">Loading suggestions…</div></div>
+
 <script>
 (function () {
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
@@ -153,6 +157,43 @@
         '<span class="num">' + c.body_len + 'c · ' + c.conn + ' link' + (c.conn === 1 ? '' : 's') + '</span>' + miss + '</span></div>';
     }).join('');
   }
+
+  // ── The connection loop: review the suggester's proposals ──
+  var $connq = document.getElementById('connq'), $connc = document.getElementById('connq-count'), CONNS = [];
+  function loadConns() {
+    fetch('/connections/suggested?limit=40', { cache: 'no-store' })
+      .then(function (r) { if (r.status === 404) { $connq.innerHTML = '<div class="empty">Operator only — sign in on this device to review suggestions.</div>'; return null; } return r.ok ? r.json() : null; })
+      .then(function (j) { if (!j) return; renderConns(j); })
+      .catch(function () { $connq.innerHTML = '<div class="empty">Could not load suggestions.</div>'; });
+  }
+  function renderConns(j) {
+    CONNS = j.pending || [];
+    if ($connc) $connc.textContent = '(' + (j.count || 0) + ' pending)';
+    if (!CONNS.length) { $connq.innerHTML = '<div class="empty">No suggestions pending. Run tools/suggest_connections.py --apply to refill.</div>'; return; }
+    $connq.innerHTML = CONNS.map(function (s, i) {
+      return '<div class="card-row"><span><a href="/c/' + esc(s.from_card_id) + '">' + esc(s.from_title || s.from_card_id) + '</a> <span class="num">' + esc(s.relationship) + '</span> <a href="/c/' + esc(s.to_card_id) + '">' + esc(s.to_title || s.to_card_id) + '</a></span>' +
+        '<span class="meta"><span class="num">j=' + esc(s.jaccard) + '</span> <button class="appr" data-i="' + i + '">approve</button> <button class="rej" data-i="' + i + '">reject</button></span></div>';
+    }).join('');
+    Array.prototype.forEach.call($connq.querySelectorAll('.appr'), function (b) { b.addEventListener('click', function () { actConn(+b.dataset.i, b, true); }); });
+    Array.prototype.forEach.call($connq.querySelectorAll('.rej'), function (b) { b.addEventListener('click', function () { actConn(+b.dataset.i, b, false); }); });
+  }
+  function actConn(i, btn, approve) {
+    var s = CONNS[i]; if (!s) return;
+    btn.textContent = '…'; btn.disabled = true;
+    var url = approve ? '/connections' : '/connections/reject';
+    var body = approve
+      ? { left_card_id: s.from_card_id, right_card_id: s.to_card_id, relationship: s.relationship, explanation: 'operator-approved suggestion', author: 'matt' }
+      : { from_card_id: s.from_card_id, to_card_id: s.to_card_id };
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (x) {
+        var row = btn.parentNode.parentNode;
+        if (x) { row.style.opacity = 0.35; btn.textContent = approve ? 'linked' : 'rejected'; }
+        else { btn.textContent = approve ? 'approve' : 'reject'; btn.disabled = false; }
+      })
+      .catch(function () { btn.textContent = approve ? 'approve' : 'reject'; btn.disabled = false; });
+  }
+  loadConns();
 })();
 </script>
 </body>
