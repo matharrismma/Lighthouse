@@ -8,6 +8,7 @@
 <link rel="canonical" href="https://narrowhighway.com/funnel.html">
   <link rel="stylesheet" href="/nh-shell.css">
   <script defer src="/nh-shell.js"></script>
+  <script src="/nh-household.js"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Narrow Highway">
 <meta property="og:title" content="The Funnel — your one input">
@@ -124,19 +125,27 @@
 <script>
 (function () {
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+  // The household capability id (NHHousehold) is this device's key to its own
+  // private shelf + its own Shepherd. Possession is the key — no passwords. We
+  // send it on every funnel/narrow call so each household gets its own keeping
+  // and its own remembered relationship. The operator (localhost/keep) is
+  // resolved server-side and wins over this, so Matt always lands on his shelf.
+  function hhId(){ try{ return (window.NHHousehold && NHHousehold.id()) || ''; }catch(e){ return ''; } }
+  function hdr(extra){ var h=Object.assign({}, extra||{}); var id=hhId(); if(id) h['X-Household-Id']=id; return h; }
   var $box=document.getElementById('box'), $send=document.getElementById('send'),
       $flash=document.getElementById('flash'), $mine=document.getElementById('mine'),
       $narrow=document.getElementById('narrow'), $recall=document.getElementById('recall');
 
   function loadMine(){
-    fetch('/funnel/mine',{cache:'no-store'})
-      .then(function(r){ if(r.status===404){ $mine.innerHTML='<div class="empty">This is your private workspace — visible only to you when you\'re signed in on this device.</div>'; return null; } return r.ok?r.json():null; })
+    fetch('/funnel/mine',{cache:'no-store',headers:hdr()})
+      .then(function(r){ if(r.status===404){ $mine.innerHTML='<div class="empty">This is your private workspace, kept on this device. Your browser is blocking local storage, so a private shelf can\'t be set up here.</div>'; return null; } return r.ok?r.json():null; })
       .then(function(j){ if(!j) return; render(j); })
       .catch(function(){ $mine.innerHTML='<div class="empty">Could not load your shelf.</div>'; });
   }
 
   function render(j){
     if(!j.cards || !j.cards.length){ $mine.innerHTML='<div class="empty">Nothing yet. Capture your first card above.</div>'; return; }
+    var canPub=!!j.can_publish;  // operator-only: promoting a card to the shared substrate
     var byDeck={};
     j.cards.forEach(function(c){ (byDeck[c.deck||'note']=byDeck[c.deck||'note']||[]).push(c); });
     var html='';
@@ -144,11 +153,11 @@
       html+='<div class="deck">'+esc(d)+' ('+byDeck[d].length+')</div>';
       byDeck[d].forEach(function(c){
         var shepNote=(c.shepherd&&c.shepherd.say)?'<div class="shepc">'+esc(c.shepherd.say)+'</div>':'';
+        var acts=canPub? '<div class="acts"><button class="pub" data-id="'+esc(c.id)+'">Publish to the public shelf</button>'+
+          ' <button class="prop" data-id="'+esc(c.id)+'">Propose to the knowledge bank</button></div>' : '';
         html+='<div class="card"><div class="t">'+esc(c.title||'')+'<span class="priv">private</span></div>'+
           (c.body && c.body!==c.title? '<div class="b">'+esc(c.body.slice(0,160))+(c.body.length>160?'…':'')+'</div>':'')+
-          shepNote+
-          '<div class="acts"><button class="pub" data-id="'+esc(c.id)+'">Publish to the public shelf</button>'+
-          ' <button class="prop" data-id="'+esc(c.id)+'">Propose to the knowledge bank</button></div></div>';
+          shepNote+acts+'</div>';
       });
     });
     $mine.innerHTML=html;
@@ -162,7 +171,7 @@
 
   function propose(id, btn){
     btn.textContent='Sending to the Scribe…'; btn.disabled=true;
-    fetch('/funnel/propose/'+encodeURIComponent(id),{method:'POST'})
+    fetch('/funnel/propose/'+encodeURIComponent(id),{method:'POST',headers:hdr()})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(j){ if(j&&j.ok){ btn.textContent='Recorded by the Scribe'; $flash.textContent='The Scribe recorded it — the witness gate decides what enters the bank.'; } else { btn.textContent='Propose'; btn.disabled=false; } })
       .catch(function(){ btn.textContent='Propose'; btn.disabled=false; });
@@ -170,7 +179,7 @@
 
   function publish(id, btn){
     btn.textContent='Publishing…'; btn.disabled=true;
-    fetch('/funnel/publish/'+encodeURIComponent(id),{method:'POST'})
+    fetch('/funnel/publish/'+encodeURIComponent(id),{method:'POST',headers:hdr()})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(j){ if(j&&j.ok){ $flash.textContent='Published to the public shelf.'; loadMine(); } else { btn.textContent='Publish failed'; btn.disabled=false; } })
       .catch(function(){ btn.textContent='Publish failed'; btn.disabled=false; });
@@ -255,14 +264,14 @@
   }
   function replyNarrow(situation, reply){
     $narrow.innerHTML='<div class="nq">…</div>';
-    fetch('/narrow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({situation:situation,reply:reply})})
+    fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,reply:reply})})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(nz){ if(nz){ renderNarrow(nz, situation); } else { $narrow.innerHTML='<div class="nq">Could not continue.</div>'; } })
       .catch(function(){ $narrow.innerHTML='<div class="nq">Could not continue.</div>'; });
   }
   function pickNarrow(situation, chosen_id){
     $narrow.innerHTML='<div class="nq">Bringing the path…</div>';
-    fetch('/narrow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({situation:situation,chosen_id:chosen_id})})
+    fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,chosen_id:chosen_id})})
       .then(function(r){return r.ok?r.json():null;})
       .then(function(a){ if(a&&a.arrived){ renderArrival(a); } else { $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; } })
       .catch(function(){ $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; });
@@ -286,8 +295,8 @@
     var text=$box.value.trim(); if(!text){ $box.focus(); return; }
     thread.push({role:'user',content:text}); renderConvo();
     $box.value=''; $send.disabled=true; $flash.textContent='The Shepherd is listening…';
-    fetch('/funnel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:thread})})
-      .then(function(r){ if(r.status===404){ $flash.textContent='Sign in on this device to use your funnel.'; return null; } return r.ok?r.json():null; })
+    fetch('/funnel',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({messages:thread})})
+      .then(function(r){ if(r.status===404){ $flash.textContent='Could not reach your funnel — refresh and try again.'; return null; } return r.ok?r.json():null; })
       .then(function(j){
         $send.disabled=false;
         if(!j){ if(j!==null){ $flash.textContent='Could not capture.'; } return; }

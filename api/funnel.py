@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -103,6 +104,32 @@ def _is_owner(request) -> bool:
     except Exception:
         pass
     return False
+
+
+# ── Person identity (capability model — like the keep token; no passwords) ──────
+# A household id (NHHousehold) is 64-bit crypto-random: possession IS the key.
+# Each household gets its own private shelf + its own Shepherd. The operator
+# (localhost / keep) is one such person. This is what makes the Shepherd per-user.
+_HH_RE = re.compile(r"^hh_[0-9a-f]{16}$")
+
+
+def _household_id(request) -> Optional[str]:
+    try:
+        h = (request.headers.get("x-household-id")
+             or request.query_params.get("hh") or "").strip()
+    except Exception:
+        h = ""
+    return h if _HH_RE.match(h) else None
+
+
+def _person_id(request) -> Optional[str]:
+    """The requesting person. The OPERATOR (localhost / keep) wins when present so
+    Matt always lands on his own shelf even if his browser also carries a household
+    capability id; a genuine remote household user is never an owner, so they fall
+    through to their household id. None = no identity → no access (existence hidden)."""
+    if _is_owner(request):
+        return _owner_id()
+    return _household_id(request)
 
 
 # ── Title (the deck + routing now come from the Shepherd, in api/offices.py) ─────
@@ -197,9 +224,18 @@ def get_router():
     router = APIRouter()
 
     def _require_owner(request):
+        # OPERATOR only — for substrate-affecting actions (publish, propose, retrain).
         if not _is_owner(request):
             raise HTTPException(404, "Not Found")  # hide existence, like /keep
         return _owner_id()
+
+    def _require_person(request):
+        # the PERSON (household capability id, or the operator) — for their OWN
+        # private shelf + their Shepherd. This is what makes the funnel multi-user.
+        pid = _person_id(request)
+        if not pid:
+            raise HTTPException(404, "Not Found")  # hide existence
+        return pid
 
     def _history_from(data):
         """Build the conversation history from the request. Accepts a running
@@ -230,7 +266,7 @@ def get_router():
         oracle spend; on resolution the card is kept on your private shelf and,
         if routed, the proper tool is offered. The Shepherd asking is what lets
         deposit.html retire — this door now carries the conversation."""
-        owner = _require_owner(request)
+        owner = _require_person(request)
         try:
             data = await request.json()
         except Exception:
@@ -303,16 +339,21 @@ def get_router():
 
     @router.get("/funnel/mine", tags=["funnel"])
     def funnel_mine(request: Request):
-        owner = _require_owner(request)
+        owner = _require_person(request)
         cards = _list_private(owner)
         decks: Dict[str, int] = {}
         for c in cards:
             decks[c.get("deck") or "note"] = decks.get(c.get("deck") or "note", 0) + 1
-        return {"owner": owner, "count": len(cards), "by_deck": decks, "cards": cards}
+        # publish/propose touch the SHARED substrate, so they stay operator-only
+        # (anti-spam, privacy). Households keep + walk their private shelf; only
+        # the operator can promote a card outward. The UI hides the buttons unless
+        # this is true, so households don't see actions that would 404 on them.
+        return {"owner": owner, "count": len(cards), "by_deck": decks, "cards": cards,
+                "can_publish": _is_owner(request)}
 
     @router.get("/funnel/card/{cid}", tags=["funnel"])
     def funnel_card(cid: str, request: Request):
-        owner = _require_owner(request)
+        owner = _require_person(request)
         card = _read_private(owner, cid)
         if not card:
             raise HTTPException(404, "Not Found")
@@ -379,7 +420,7 @@ def get_router():
 
     @router.get("/funnel/stats", tags=["funnel"])
     def funnel_stats(request: Request):
-        owner = _require_owner(request)
+        owner = _require_person(request)
         cards = _list_private(owner)
         return {"owner": owner, "private_cards": len(cards),
                 "decks": sorted({c.get("deck") or "note" for c in cards})}
