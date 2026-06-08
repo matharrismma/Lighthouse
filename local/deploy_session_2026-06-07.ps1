@@ -56,8 +56,8 @@ ssh $srv "mkdir -p ~/Lighthouse/tools"
 Guard "mkdir tools"
 scp "$r\data\almanac\generated_verified.jsonl" "$srv`:~/Lighthouse/data/almanac/"
 Guard "scp generated_verified"
-scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$srv`:~/Lighthouse/tools/"
-Guard "scp grow_verified + suggest_connections"
+scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$r\tools\suggest_connections_verified.py" "$srv`:~/Lighthouse/tools/"
+Guard "scp grow_verified + suggesters"
 
 Write-Host "5c/7 Offices: NO bootstrap needed - prod is ALREADY trained." -ForegroundColor Cyan
 Write-Host "     Verified 2026-06-07: prod has trained office models (shepherd/scribe/steward.json)" -ForegroundColor DarkGray
@@ -94,8 +94,9 @@ Write-Host ""
 Write-Host "Card connection LOOP (prod follow-ups):" -ForegroundColor Green
 Write-Host "  1) Rebuild the dev index so the graph-aware counter takes effect (free):" -ForegroundColor DarkGray
 Write-Host "       curl -fsS -X POST https://narrowhighway.com/codex/index/rebuild   # developed ~12% -> ~39%" -ForegroundColor DarkGray
-Write-Host "  2) Populate the suggestion queue for the orphans (free, deterministic; O(n^2) so scope it):" -ForegroundColor DarkGray
-Write-Host "       ssh $srv 'cd ~/Lighthouse && .venv/bin/python tools/suggest_connections.py --apply --threshold 0.18'" -ForegroundColor DarkGray
-Write-Host "  3) Review + approve at https://narrowhighway.com/cards-dev.html (Suggested connections panel; operator-gated)." -ForegroundColor DarkGray
+Write-Host "  2) Populate the queues (free, deterministic). VERIFIED first - provable shared-verse links, bulk-safe:" -ForegroundColor DarkGray
+Write-Host "       ssh $srv 'cd ~/Lighthouse && .venv/bin/python tools/suggest_connections_verified.py --apply'   # ~2,380 verified pairs" -ForegroundColor DarkGray
+Write-Host "       ssh $srv 'cd ~/Lighthouse && .venv/bin/python tools/suggest_connections.py --apply --threshold 0.18'   # heuristic (Jaccard), optional" -ForegroundColor DarkGray
+Write-Host "  3) Review + approve at https://narrowhighway.com/cards-dev.html (Suggested connections; verified sort first, operator-gated)." -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "After this deploy, purge the Cloudflare cache (HTML + the new pages)." -ForegroundColor DarkGray

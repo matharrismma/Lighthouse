@@ -171,8 +171,11 @@
     if ($connc) $connc.textContent = '(' + (j.count || 0) + ' pending)';
     if (!CONNS.length) { $connq.innerHTML = '<div class="empty">No suggestions pending. Run tools/suggest_connections.py --apply to refill.</div>'; return; }
     $connq.innerHTML = CONNS.map(function (s, i) {
+      var why = (s.method === 'verified')
+        ? '<span class="num" title="both cards cite this" style="color:#5c8a3a;">✓ ' + esc((s.evidence || []).join(', ')) + '</span>'
+        : '<span class="num">j=' + esc(s.jaccard) + '</span>';
       return '<div class="card-row"><span><a href="/c/' + esc(s.from_card_id) + '">' + esc(s.from_title || s.from_card_id) + '</a> <span class="num">' + esc(s.relationship) + '</span> <a href="/c/' + esc(s.to_card_id) + '">' + esc(s.to_title || s.to_card_id) + '</a></span>' +
-        '<span class="meta"><span class="num">j=' + esc(s.jaccard) + '</span> <button class="appr" data-i="' + i + '">approve</button> <button class="rej" data-i="' + i + '">reject</button></span></div>';
+        '<span class="meta">' + why + ' <button class="appr" data-i="' + i + '">approve</button> <button class="rej" data-i="' + i + '">reject</button></span></div>';
     }).join('');
     Array.prototype.forEach.call($connq.querySelectorAll('.appr'), function (b) { b.addEventListener('click', function () { actConn(+b.dataset.i, b, true); }); });
     Array.prototype.forEach.call($connq.querySelectorAll('.rej'), function (b) { b.addEventListener('click', function () { actConn(+b.dataset.i, b, false); }); });

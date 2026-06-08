@@ -1100,9 +1100,12 @@ def get_router():
         _save_card(conn_card)
         return {"status": "created", "card": conn_card}
 
-    # ── The connection LOOP: review the suggester's queue, approve/reject ──────
-    # suggest_connections.py proposes; the operator approves (-> POST /connections,
-    # which now auto-advances the card's dev-stage) or rejects (never re-surfaces).
+    # ── The connection LOOP: review the suggesters' queues, approve/reject ─────
+    # Two queues feed it: VERIFIED (shared scripture ref — provable; bulk-safe) and
+    # HEURISTIC (Jaccard). The operator approves (-> POST /connections, which now
+    # auto-advances the card's dev-stage) or rejects (never re-surfaces). Verified
+    # proposals sort first.
+    _VERIFIED_PATH = REPO / "data" / "rebalance" / "verified_connections.json"
     _SUGGEST_PATH = REPO / "data" / "rebalance" / "suggested_connections.json"
     _REJECT_PATH = REPO / "data" / "rebalance" / "rejected_connections.json"
 
@@ -1115,38 +1118,47 @@ def get_router():
         return set()
 
     @router.get("/connections/suggested")
-    def connections_suggested(request: Request, limit: int = 60):
-        """The review queue: the suggester's proposals, minus rejected + already-
-        connected, enriched for one-click review. Operator-only."""
+    def connections_suggested(request: Request, limit: int = 60, method: str = "all"):
+        """The review queue: verified (shared-ref) + heuristic (jaccard) proposals,
+        minus rejected, enriched + tagged for one-click review. Operator-only.
+        `method`: all | verified | heuristic."""
         from api.funnel import _is_owner
         if not _is_owner(request):
             raise HTTPException(404, "Not Found")
-        if not _SUGGEST_PATH.exists():
-            return {"pending": [], "count": 0,
-                    "note": "Empty. Run: python tools/suggest_connections.py --apply"}
-        data = json.loads(_SUGGEST_PATH.read_text(encoding="utf-8"))
         rejected = _load_rejected()
         out = []
-        for from_id, info in (data.get("suggestions_by_card") or {}).items():
-            for s in (info.get("suggestions") or []):
-                to_id = s.get("to_card_id")
-                if not to_id:
-                    continue
-                if tuple(sorted((from_id, to_id))) in rejected:
-                    continue
-                out.append({
-                    "from_card_id": from_id, "from_title": info.get("card_title"),
-                    "from_shelf": info.get("shelf"),
-                    "to_card_id": to_id, "to_title": s.get("to_title"),
-                    "to_shelf": s.get("to_shelf"),
-                    "relationship": s.get("relationship_suggested") or "see_also",
-                    "jaccard": s.get("jaccard"), "score": s.get("score"),
-                })
-                if len(out) >= limit:
-                    break
-            if len(out) >= limit:
-                break
-        return {"pending": out, "count": len(out)}
+
+        def _drain(path, tag):
+            if not path.exists():
+                return
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except Exception:
+                return
+            for from_id, info in (data.get("suggestions_by_card") or {}).items():
+                for s in (info.get("suggestions") or []):
+                    to_id = s.get("to_card_id")
+                    if not to_id or tuple(sorted((from_id, to_id))) in rejected:
+                        continue
+                    out.append({
+                        "from_card_id": from_id, "from_title": info.get("card_title"),
+                        "from_shelf": info.get("shelf"),
+                        "to_card_id": to_id, "to_title": s.get("to_title"),
+                        "to_shelf": s.get("to_shelf"),
+                        "relationship": s.get("relationship_suggested") or "see_also",
+                        "method": tag,
+                        "evidence": s.get("evidence"), "shared_count": s.get("shared_count"),
+                        "jaccard": s.get("jaccard"), "score": s.get("score"),
+                    })
+
+        if method in ("all", "verified"):
+            _drain(_VERIFIED_PATH, "verified")
+        if method in ("all", "heuristic"):
+            _drain(_SUGGEST_PATH, "heuristic")
+        # verified first, then by score
+        out.sort(key=lambda x: (0 if x["method"] == "verified" else 1, -(x.get("score") or 0)))
+        return {"pending": out[:limit], "count": len(out),
+                "verified_available": _VERIFIED_PATH.exists()}
 
     @router.post("/connections/reject")
     def connections_reject(payload: RejectIn, request: Request):
