@@ -59,6 +59,12 @@ Guard "scp generated_verified"
 scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$r\tools\suggest_connections_verified.py" "$srv`:~/Lighthouse/tools/"
 Guard "scp grow_verified + suggesters"
 
+Write-Host "5d/7 Protocols data (the narrowing / walk reads this; was missing on prod)..." -ForegroundColor Cyan
+ssh $srv "mkdir -p ~/Lighthouse/data/protocols"
+Guard "mkdir protocols"
+scp "$r\data\protocols\scripture_protocols.jsonl" "$srv`:~/Lighthouse/data/protocols/"
+Guard "scp protocols"
+
 Write-Host "5c/7 Offices: NO bootstrap needed - prod is ALREADY trained." -ForegroundColor Cyan
 Write-Host "     Verified 2026-06-07: prod has trained office models (shepherd/scribe/steward.json)" -ForegroundColor DarkGray
 Write-Host "     on ~1890/1580/1433 examples; predictions fire at conf 0.95-1.00. The new offices.py" -ForegroundColor DarkGray
@@ -77,7 +83,9 @@ Write-Host "     POST /codex/seal runs INSIDE the running engine, which always h
 Write-Host "     correct venv environment. The old step shelled out to system 'python3'," -ForegroundColor DarkGray
 Write-Host "     which lacks the concordance_engine package (it lives only in ~/.venv) ->" -ForegroundColor DarkGray
 Write-Host "     'No module named concordance_engine'. Sealing in-process can't hit that." -ForegroundColor DarkGray
-ssh $srv "curl -fsS -m 30 -X POST http://127.0.0.1:8000/codex/seal"
+# Wait for the engine to finish booting after the restart, THEN seal (curling
+# immediately races the restart -> 'could not connect' / exit 7).
+ssh $srv "for i in `$(seq 1 15); do curl -fsS -m 5 http://127.0.0.1:8000/health >/dev/null 2>&1 && break; sleep 2; done; curl -fsS -m 30 -X POST http://127.0.0.1:8000/codex/seal"
 if ($LASTEXITCODE -ne 0) {
   Write-Host "  [WARN] seal POST failed - is the engine up? Retry: ssh $srv 'curl -X POST http://127.0.0.1:8000/codex/seal'" -ForegroundColor Yellow
 }
