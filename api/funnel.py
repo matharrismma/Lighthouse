@@ -266,6 +266,18 @@ def get_router():
             resp["route"] = {"tool": shep["tool"],
                              "query": shep.get("query", original),
                              "url": _TOOL_URL.get(shep["tool"], "/walk.html")}
+        # The narrowing (rung 2) — offered for ANY capture the floor recognizes a
+        # pattern for. Declarative needs ("my brother wronged me") are KEPT, not
+        # routed, but still deserve the path. recognize_protocols self-gates: it
+        # only fires when the floor genuinely knows a pattern, so notes/recipes
+        # don't trigger it. The card is kept regardless; wisdom is offered beside it.
+        try:
+            nz = _offices.narrow(original)
+            if nz.get("narrowable") or nz.get("arrived"):
+                resp["narrow"] = nz
+                resp["query"] = original
+        except Exception:
+            pass
         return resp
 
     @router.get("/funnel/mine", tags=["funnel"])
@@ -365,5 +377,23 @@ def get_router():
         """The offices' oracle-dependence (public, read-only) — the Shepherd
         shrinking with use, measured from the minted training pairs."""
         return _offices.office_stats(days=days)
+
+    @router.post("/narrow", tags=["guide"])
+    async def narrow_in(request: Request):
+        """The Guide's narrowing (PUBLIC, read-only) — THE_GUIDE rung 2. First call
+        surfaces the floor's candidate patterns for a need; pass chosen_id to descend
+        to the answer + the elimination trail + the Christ reference. Retrieval is
+        choosing, not generating. This is where knowledge meets discernment."""
+        try:
+            data = await request.json()
+        except Exception:
+            data = {}
+        situation = str(data.get("situation") or data.get("text") or "").strip()
+        if not situation:
+            raise HTTPException(400, "situation is required")
+        if len(situation) > 4000:
+            raise HTTPException(400, "situation too long")
+        chosen = data.get("chosen_id")
+        return _offices.narrow(situation, chosen_id=(str(chosen) if chosen else None))
 
     return router

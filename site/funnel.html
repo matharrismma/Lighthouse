@@ -46,6 +46,24 @@
   #flash .go { display: inline-block; margin-left: 0.4em; background: #1a3a52; color: #f4ecd5; text-decoration: none; border-radius: 4px; padding: 0.1em 0.6em; font-size: 0.85em; font-style: normal; }
   #flash .go:hover { background: #2a5570; }
   #flash .sayspk { background: none; border: none; cursor: pointer; font-size: 0.95em; padding: 0 0.2em; }
+  #narrow { margin: 0.4em 0 0.2em; }
+  #narrow .nq { color: #1a3a52; font-style: italic; margin-bottom: 0.4em; }
+  #narrow .choice { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #c9b48a; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.55em 0.8em; margin-bottom: 0.4em; cursor: pointer; font-family: inherit; }
+  #narrow .choice:hover { background: #f3eedb; }
+  #narrow .choice .cn { color: #1a3a52; font-size: 1.02em; }
+  #narrow .choice .cs { color: #4a4a44; font-size: 0.9em; margin-top: 0.15em; }
+  #narrow .choice .cw { color: #8a7a4a; font-size: 0.78em; font-family: 'Courier New', monospace; margin-top: 0.2em; }
+  .arrival { background: #fff; border: 1px solid #c9b48a; border-radius: 8px; padding: 1em 1.1em; margin: 0.4em 0; }
+  .arrival h3 { color: #1a3a52; margin: 0 0 0.2em; font-size: 1.15em; font-weight: normal; }
+  .arrival .ref { font-family: 'Courier New', monospace; color: #806010; font-size: 0.9em; }
+  .arrival ol { margin: 0.5em 0; padding-left: 1.3em; }
+  .arrival ol li { margin-bottom: 0.3em; }
+  .arrival .gates { margin-top: 0.6em; font-size: 0.9em; }
+  .arrival .gate { display: inline-block; background: #1a3a52; color: #f4ecd5; border-radius: 3px; padding: 0.08em 0.5em; margin: 0.1em 0.2em 0.1em 0; font-size: 0.8em; }
+  .arrival .christ { margin-top: 0.6em; padding-top: 0.5em; border-top: 1px solid #e3d3a0; color: #1a3a52; }
+  .arrival .christ b { color: #806010; }
+  .arrival .trail { margin-top: 0.6em; font-size: 0.82em; color: #6a5a3a; }
+  .arrival .trail .t { font-family: 'Courier New', monospace; }
   .card .shepc { font-size: 0.82em; color: #6a5a3a; font-style: italic; margin-top: 0.2em; }
   .card .prop { background: #f3eedb; color: #806010; border: 1px solid #d4c8a5; border-radius: 3px; padding: 0.15em 0.6em; font-size: 0.78em; }
   .card .prop:hover { background: #e5dcb9; }
@@ -78,6 +96,7 @@
   <button id="mic" type="button" title="Speak it" aria-label="Speak">🎙</button>
   <span id="flash"></span>
 </div>
+<div id="narrow"></div>
 <p class="hint">Everything you capture is <strong>private by default</strong> — yours, on your shelf. You choose what to publish; only the verified few rise to the knowledge bank.</p>
 
 <h2>Your shelf</h2>
@@ -92,7 +111,8 @@
 (function () {
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
   var $box=document.getElementById('box'), $send=document.getElementById('send'),
-      $flash=document.getElementById('flash'), $mine=document.getElementById('mine');
+      $flash=document.getElementById('flash'), $mine=document.getElementById('mine'),
+      $narrow=document.getElementById('narrow');
 
   function loadMine(){
     fetch('/funnel/mine',{cache:'no-store'})
@@ -177,6 +197,44 @@
   function resetThread(){
     thread=[]; renderConvo();
     $send.textContent='Capture →'; $box.setAttribute('placeholder',ORIG_PH); $flash.textContent='';
+    if($narrow) $narrow.innerHTML='';
+  }
+
+  // ── The narrowing (rung 2): the engine surfaces choices; you pick; the floor answers ──
+  function renderNarrow(nz, situation){
+    if(!$narrow) return;
+    if(nz.arrived){ renderArrival(nz); return; }
+    if(!nz.narrowable || !(nz.choices||[]).length){ $narrow.innerHTML=''; return; }
+    var html='<div class="nq">'+esc(nz.say||'Which is closest?')+'</div>';
+    nz.choices.forEach(function(c){
+      html+='<button class="choice" data-id="'+esc(c.id)+'"><span class="cn">'+esc(c.name||c.id)+'</span>'+
+        (c.summary?'<span class="cs">'+esc(c.summary.slice(0,140))+'</span>':'')+
+        (c.scripture&&c.scripture.length?'<span class="cw">'+esc(c.scripture.join(' · '))+'</span>':'')+'</button>';
+    });
+    $narrow.innerHTML=html;
+    Array.prototype.forEach.call($narrow.querySelectorAll('.choice'),function(b){
+      b.addEventListener('click',function(){ pickNarrow(situation, b.dataset.id); });
+    });
+  }
+  function pickNarrow(situation, chosen_id){
+    $narrow.innerHTML='<div class="nq">Bringing the path…</div>';
+    fetch('/narrow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({situation:situation,chosen_id:chosen_id})})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(a){ if(a&&a.arrived){ renderArrival(a); } else { $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; } })
+      .catch(function(){ $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; });
+  }
+  function renderArrival(a){
+    var ans=a.answer||{};
+    var html='<div class="arrival"><h3>'+esc(ans.name||'')+'</h3>';
+    if(ans.scripture&&ans.scripture.length) html+='<div class="ref">'+esc(ans.scripture.join(' · '))+'</div>';
+    if(ans.summary) html+='<p>'+esc(ans.summary)+'</p>';
+    var steps=ans.steps||[];
+    if(steps.length){ html+='<ol>'+steps.map(function(s){ var t=(typeof s==='object')?(s.title||s.text||JSON.stringify(s)):s; return '<li>'+esc(String(t))+'</li>'; }).join('')+'</ol>'; }
+    if(a.gates&&a.gates.length){ html+='<div class="gates">Walk it through the gates: '+a.gates.map(function(g){return '<span class="gate" title="'+esc(g.scripture||'')+'">'+esc(g.gate)+'</span>';}).join('')+'</div>'; }
+    if(a.christ_reference){ html+='<div class="christ">The path rests on <b>'+esc(a.christ_reference)+'</b> — the arrow points to Christ.</div>'; }
+    if(a.trail&&a.trail.length){ html+='<div class="trail">Set aside: '+a.trail.map(function(t){return esc(t.name)+(t.why_considered?' <span class="t">('+esc((t.why_considered||[]).join(', '))+')</span>':'');}).join(' · ')+'</div>'; }
+    html+='</div>';
+    $narrow.innerHTML=html;
   }
 
   function capture(){
@@ -205,6 +263,8 @@
         }
         setShepFlash(say, routeHtml);
         loadMine();
+        // the floor recognized a pattern -> begin the narrowing (rung 2)
+        if(j.narrow){ renderNarrow(j.narrow, j.query||(j.route&&j.route.query)||''); }
       })
       .catch(function(){ $send.disabled=false; $flash.textContent='Could not capture.'; });
   }

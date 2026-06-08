@@ -290,6 +290,86 @@ def shepherd_discern(history: List[Dict[str, str]], allow_keep: bool = True,
     return sr
 
 
+# ── The narrowing (THE_GUIDE rung 2) — where knowledge meets discernment ─────
+# "We have the answers; they sit in the well. The reach is the right question."
+# The engine surfaces the right CHOICES at the right size (retrieval, not
+# generation); the human's intuition picks; the floor hands the answer with the
+# elimination trail and the Christ reference. system/pattern -> protocol.
+
+def _coerce_list(v):
+    if isinstance(v, list):
+        return v
+    if isinstance(v, str) and v:
+        try:
+            import ast
+            x = ast.literal_eval(v)
+            return x if isinstance(x, list) else [v]
+        except Exception:
+            return [v]
+    return []
+
+
+def _arrive(situation, chosen, candidates):
+    """Bottom of the descent: the floor hands the surviving path + the trail (what
+    was set aside + why) + the Christ reference (a Bible reference)."""
+    from api import walk as _walk
+    scripture = _coerce_list(chosen.get("scripture"))
+    steps = _coerce_list(chosen.get("steps"))
+    trail = [{"id": p.get("id"), "name": p.get("name"),
+              "why_considered": p.get("matched_triggers")}
+             for p in candidates if p.get("id") != chosen.get("id")]
+    gates = None
+    try:
+        gates = _walk.four_gates_walk()
+    except Exception:
+        pass
+    return {
+        "arrived": True, "level": "protocol",
+        "answer": {"id": chosen.get("id"), "name": chosen.get("name"),
+                   "summary": chosen.get("summary", ""), "scripture": scripture,
+                   "steps": steps, "failure_modes": _coerce_list(chosen.get("failure_modes"))},
+        "christ_reference": scripture[0] if scripture else "",
+        "gates": gates,
+        "trail": trail,
+        "say": ("Here is the narrow path the floor surfaced for this. Walk it through "
+                "the gates; here is what was set aside, and the Scripture it rests on."),
+    }
+
+
+def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int = 6) -> Dict[str, Any]:
+    """Rung 2: the multi-level narrowing. First call surfaces the floor's candidate
+    patterns for a need (the right choices at the right size). The human picks one
+    (chosen_id); the floor hands the answer + trail + Christ. Retrieval is choosing."""
+    from api import walk as _walk
+    situation = (situation or "").strip()
+    if not situation:
+        return {"arrived": False, "narrowable": False, "note": "empty"}
+    protos = _walk.recognize_protocols(situation, max_results=max_candidates)
+    if not protos:
+        return {"arrived": False, "narrowable": False,
+                "note": "No specific pattern matched — this needs the open walk."}
+    if chosen_id:
+        chosen = next((p for p in protos if p.get("id") == chosen_id), None)
+        if chosen is None:
+            wide = _walk.recognize_protocols(situation, max_results=50)
+            chosen = next((p for p in wide if p.get("id") == chosen_id), None)
+        if chosen is None:
+            return {"arrived": False, "narrowable": True, "note": "choice not found among matches"}
+        return _arrive(situation, chosen, protos)
+    if len(protos) == 1:
+        return _arrive(situation, protos[0], protos)
+    # several candidates -> surface the fork; the person's intuition chooses
+    return {
+        "arrived": False, "narrowable": True, "level": "pattern",
+        "say": "The floor knows several patterns that touch this. Which is closest to yours?",
+        "choices": [{"id": p.get("id"), "name": p.get("name"),
+                     "summary": p.get("summary", ""),
+                     "scripture": _coerce_list(p.get("scripture")),
+                     "why": p.get("matched_triggers")} for p in protos],
+        "considered": len(protos),
+    }
+
+
 # ── Steward (resource) ──────────────────────────────────────────────────────
 def steward_budget_remaining_usd() -> float:
     """The Steward's resource check — what's left of the monthly cap.
