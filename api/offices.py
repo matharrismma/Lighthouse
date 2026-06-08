@@ -349,43 +349,87 @@ def _arrive(situation, chosen, candidates):
     }
 
 
-def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int = 6) -> Dict[str, Any]:
-    """Rung 2: the multi-level narrowing. First call surfaces the floor's candidate
-    patterns for a need (the right choices at the right size). The human picks one
-    (chosen_id); the floor hands the answer + trail + Christ. Retrieval is choosing.
-
-    NOTE: drawing the WHOLE well when no protocol fits is the next increment — it
-    needs SEMANTIC ranking (a naive keyword merge surfaces noise: common words like
-    'god' flood it). Until then, no-pattern honestly returns the open walk rather
-    than hand a false trail. (Gemma 4 local embeddings — free, on-box, no data
-    leak — is the aligned tool for that ranking.)"""
+def _arrive_well(situation, packet):
+    """Arrival on a WELL packet (no fixed protocol): the well's wisdom + the gates
+    + the Christ reference. No steps (it's a teaching/precedent, not a protocol)."""
     from api import walk as _walk
+    scripture = _coerce_list(packet.get("scripture"))
+    if not scripture:
+        # psalm/scripture packets carry the reference in the title, not a field
+        try:
+            from concordance_engine.scripture_retrieval import _REF_PATTERN
+            m = _REF_PATTERN.search(packet.get("title") or "")
+            if m:
+                scripture = [m.group(0).strip()]
+        except Exception:
+            pass
+    gates = None
+    try:
+        gates = _walk.four_gates_walk()
+    except Exception:
+        pass
+    return {
+        "arrived": True, "level": "well", "kind": packet.get("kind"),
+        "answer": {"id": packet.get("id"), "name": packet.get("title") or packet.get("id"),
+                   "summary": packet.get("summary") or "", "scripture": scripture,
+                   "steps": [], "failure_modes": []},
+        "precedent": None,
+        "christ_reference": scripture[0] if scripture else "",
+        "gates": gates, "trail": [],
+        "say": "No fixed pattern fits this, but the well holds it. Weigh it through the gates.",
+    }
+
+
+def narrow(situation: str, chosen_id: Optional[str] = None, max_candidates: int = 6) -> Dict[str, Any]:
+    """Rung 2: the narrowing. First surfaces the floor's candidate PATTERNS (the
+    right choices at the right size); when none fit, draws the WELL's wisdom via
+    high-precision TF-IDF (well_retriever — silent rather than noisy). The human
+    picks (chosen_id); the floor hands the answer + trail + Christ. Retrieval is
+    choosing, not generating. (Synonymy recall is the embeddings upgrade later.)"""
+    from api import walk as _walk
+    from api import well_retriever as _well
     situation = (situation or "").strip()
     if not situation:
         return {"arrived": False, "narrowable": False, "note": "empty"}
     protos = _walk.recognize_protocols(situation, max_results=max_candidates)
-    if not protos:
-        return {"arrived": False, "narrowable": False,
-                "note": "No specific pattern matched — this needs the open walk."}
+
     if chosen_id:
         chosen = next((p for p in protos if p.get("id") == chosen_id), None)
         if chosen is None:
             wide = _walk.recognize_protocols(situation, max_results=50)
             chosen = next((p for p in wide if p.get("id") == chosen_id), None)
-        if chosen is None:
-            return {"arrived": False, "narrowable": True, "note": "choice not found among matches"}
-        return _arrive(situation, chosen, protos)
-    if len(protos) == 1:
-        return _arrive(situation, protos[0], protos)
-    return {
-        "arrived": False, "narrowable": True, "level": "pattern",
-        "say": "The floor knows several patterns that touch this. Which is closest to yours?",
-        "choices": [{"id": p.get("id"), "name": p.get("name"),
-                     "summary": p.get("summary", ""),
-                     "scripture": _coerce_list(p.get("scripture")),
-                     "why": p.get("matched_triggers")} for p in protos],
-        "considered": len(protos),
-    }
+        if chosen is not None:
+            return _arrive(situation, chosen, protos)
+        pkt = _well.get(chosen_id)  # the choice was a well packet, not a protocol
+        if pkt is not None:
+            return _arrive_well(situation, pkt)
+        return {"arrived": False, "narrowable": True, "note": "choice not found"}
+
+    if protos:
+        if len(protos) == 1:
+            return _arrive(situation, protos[0], protos)
+        return {
+            "arrived": False, "narrowable": True, "level": "pattern",
+            "say": "The floor knows several patterns that touch this. Which is closest to yours?",
+            "choices": [{"id": p.get("id"), "name": p.get("name"),
+                         "summary": p.get("summary", ""),
+                         "scripture": _coerce_list(p.get("scripture")),
+                         "why": p.get("matched_triggers")} for p in protos],
+            "considered": len(protos),
+        }
+
+    # no fixed pattern -> the well's wisdom (high-precision; silent if not confident)
+    well = _well.search(situation, limit=5)
+    if well:
+        return {
+            "arrived": False, "narrowable": True, "level": "well", "source": "well",
+            "say": "No fixed pattern fits this, but the well holds these. Which is closest?",
+            "choices": [{"id": w["id"], "name": w["title"], "summary": w["summary"],
+                         "scripture": _coerce_list(w["scripture"]), "why": [w["kind"]]} for w in well],
+            "considered": len(well),
+        }
+    return {"arrived": False, "narrowable": False,
+            "note": "No specific pattern matched — this needs the open walk."}
 
 
 # ── Steward (resource) ──────────────────────────────────────────────────────
