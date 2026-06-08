@@ -463,8 +463,27 @@ def get_router():
             raise HTTPException(400, "situation too long")
         chosen = data.get("chosen_id")
         reply = data.get("reply")
-        return _offices.narrow(situation,
-                               reply=(str(reply)[:2000] if reply else None),
-                               chosen_id=(str(chosen) if chosen else None))
+        result = _offices.narrow(situation,
+                                 reply=(str(reply)[:2000] if reply else None),
+                                 chosen_id=(str(chosen) if chosen else None))
+        # Memoryful when the soul is known. The Guide stays PUBLIC + stateless for
+        # strangers (no identity -> nothing attached), but for a person carrying a
+        # capability id (or the operator) the Shepherd connects today's need to their
+        # prior shares + walks — the same recall the funnel gives, now on the open
+        # guide. Only on the OPENING call (when they first state the situation), not
+        # on every reply/descent. Best-effort; never blocks the narrowing.
+        if isinstance(result, dict) and not reply and not chosen:
+            try:
+                person = _person_id(request)
+                if person:
+                    rc = _offices.recall_connection(situation, _list_private(person))
+                    if rc:
+                        result["recall"] = rc
+                    wr = _recall_walk(person, situation)
+                    if wr:
+                        result["recall_walk"] = wr
+            except Exception:
+                pass
+        return result
 
     return router

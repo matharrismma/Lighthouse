@@ -178,6 +178,7 @@
     }
     .you-privacy a { color: var(--accent); }
   </style>
+  <script src="/nh-household.js"></script>
   <script src="/i18n.js"></script>
   <script src="/a11y.js"></script>
   <script src="/audio.js"></script>
@@ -341,10 +342,19 @@
     if (e.key === 'Escape') cancelBtn.click();
   });
 
+  // The household capability id — this person's identity across surfaces. Sending
+  // it lets the server bridge their walk identity to the same person who uses the
+  // funnel, so the Shepherd's memory spans both. Additive; the visitor_id is unchanged.
+  function hhHeaders(base) {
+    const h = Object.assign({}, base || {});
+    try { var id = (window.NHHousehold && NHHousehold.id()) || ''; if (id) h['X-Household-Id'] = id; } catch (_) {}
+    return h;
+  }
+
   // ── Load everything the engine knows ────────────────────────────
   async function probe(url) {
     try {
-      const r = await fetch(url);
+      const r = await fetch(url, { headers: hhHeaders() });
       if (!r.ok) return null;
       return await r.json();
     } catch (_) { return null; }
@@ -367,8 +377,10 @@
     }
     myHearthMsgs.sort((a,b) => b.ts_ms - a.ts_ms);
 
-    // Walks (coach journal)
-    const walks = await probe('/coach/journal/mine?visitor_id=' + VID);
+    // Walks (coach journal). The list endpoint is /coach/journal (returns
+    // {total, walks}); it also links this walk identity to the person. (The old
+    // /coach/journal/mine matched no route and 404'd — walks always read 0.)
+    const walks = await probe('/coach/journal?visitor_id=' + VID);
 
     // Scribe writings
     const scribe = await probe('/scribe/mine?visitor_id=' + VID);
