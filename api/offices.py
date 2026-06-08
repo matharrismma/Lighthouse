@@ -317,9 +317,7 @@ def _arrive(situation, chosen, candidates):
     from api import walk as _walk
     scripture = _coerce_list(chosen.get("scripture"))
     steps = _coerce_list(chosen.get("steps"))
-    trail = [{"id": p.get("id"), "name": p.get("name"),
-              "why_considered": p.get("matched_triggers")}
-             for p in candidates if p.get("id") != chosen.get("id")]
+    trail = _candidate_trail(situation, chosen.get("id"), candidates)
     gates = None
     try:
         gates = _walk.four_gates_walk()
@@ -349,9 +347,37 @@ def _arrive(situation, chosen, candidates):
     }
 
 
-def _arrive_well(situation, packet):
+def _candidate_trail(situation, chosen_id, candidates):
+    """The elimination trail: what the Scribe ALSO surfaced and the floor set aside.
+    The trail IS the reasoning — 'what survives' only means something against what
+    did not. Each entry says WHY it was a candidate (its own triggers + the concepts
+    it shares with the situation, via the curated lexicon), so the person can see it
+    was weighed, not ignored. Used by both protocol and well arrivals so the trail is
+    present everywhere an answer is."""
+    from api import synonymy as _syn
+    sit_concepts = _syn.concepts_in(_otoks(situation))
+    trail = []
+    for c in (candidates or []):
+        if not c or c.get("id") == chosen_id:
+            continue
+        # why it was a candidate: a protocol's own matched triggers, else the concepts
+        # it shares with the situation (the kind is metadata, kept in its own field —
+        # not jargon in the human reason).
+        why = [w for w in (c.get("why") or []) if w] if c.get("source") == "protocol" else []
+        ctext = (c.get("name") or "") + " " + (c.get("summary") or "")
+        for s in sorted(sit_concepts & _syn.concepts_in(_otoks(ctext))):
+            if s not in why:
+                why.append(s)
+        trail.append({"id": c.get("id"), "name": c.get("name"),
+                      "kind": c.get("kind") or c.get("source"),
+                      "why_considered": why[:4] or None})
+    return trail
+
+
+def _arrive_well(situation, packet, candidates=None):
     """Arrival on a WELL packet (no fixed protocol): the well's wisdom + the gates
-    + the Christ reference. No steps (it's a teaching/precedent, not a protocol)."""
+    + the Christ reference + the elimination trail (the other wisdom the Scribe
+    surfaced and set aside). No steps (it's a teaching/precedent, not a protocol)."""
     from api import walk as _walk
     scripture = _coerce_list(packet.get("scripture"))
     if not scripture:
@@ -368,6 +394,7 @@ def _arrive_well(situation, packet):
         gates = _walk.four_gates_walk()
     except Exception:
         pass
+    trail = _candidate_trail(situation, packet.get("id"), candidates)
     return {
         "arrived": True, "level": "well", "kind": packet.get("kind"),
         "answer": {"id": packet.get("id"), "name": packet.get("title") or packet.get("id"),
@@ -375,8 +402,11 @@ def _arrive_well(situation, packet):
                    "steps": [], "failure_modes": []},
         "precedent": None,
         "christ_reference": scripture[0] if scripture else "",
-        "gates": gates, "trail": [],
-        "say": "No fixed pattern fits this, but the well holds it. Weigh it through the gates.",
+        "gates": gates, "trail": trail,
+        "say": ("No fixed pattern fits this, but the well holds it. Weigh it through the "
+                "gates; here is what else was surfaced and set aside."
+                if trail else
+                "No fixed pattern fits this, but the well holds it. Weigh it through the gates."),
     }
 
 
@@ -417,10 +447,12 @@ def scribe_find(situation: str, max_candidates: int = 6) -> List[Dict[str, Any]]
 def _arrive_card(situation, card, cards):
     from api import well_retriever as _well
     if card.get("source") == "protocol" and card.get("_proto"):
-        return _arrive(situation, card["_proto"], [c["_proto"] for c in cards if c.get("_proto")])
+        # chosen = the raw protocol (scripture/steps); candidates = the unified cards
+        # (so the trail includes set-aside WELL wisdom too, not only other protocols).
+        return _arrive(situation, card["_proto"], cards)
     pkt = _well.get(card["id"])
     if pkt is not None:
-        return _arrive_well(situation, pkt)
+        return _arrive_well(situation, pkt, cards)
     return {"arrived": False, "narrowable": True, "note": "card not found"}
 
 
@@ -588,7 +620,7 @@ def narrow(situation: str, reply: Optional[str] = None, chosen_id: Optional[str]
             return _arrive_card(situation, card, cards)
         pkt = _well.get(chosen_id)
         if pkt is not None:
-            return _arrive_well(situation, pkt)
+            return _arrive_well(situation, pkt, cards)
         wide = _walk.recognize_protocols(situation, max_results=50)
         wp = next((p for p in wide if p.get("id") == chosen_id), None)
         if wp is not None:
