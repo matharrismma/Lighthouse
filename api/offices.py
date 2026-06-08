@@ -504,6 +504,25 @@ def recall_connection(situation, prior_shares, min_overlap=2):
     }
 
 
+def recall_recurrence(current_pattern_ids, prior_shares):
+    """The Shepherd sees the thread: among the person's PRIOR shares, how often
+    have they returned to a pattern they're touching again now? The prophetic 'what
+    you don't see' turn — you keep coming back here. Returns the most-recurring
+    pattern + count, or None."""
+    cur = set(current_pattern_ids or [])
+    if not cur:
+        return None
+    counts = {}
+    for c in prior_shares:
+        for pid in (c.get("patterns") or []):
+            if pid in cur:
+                counts[pid] = counts.get(pid, 0) + 1
+    if not counts:
+        return None
+    pid, n = max(counts.items(), key=lambda kv: kv[1])
+    return {"pattern_id": pid, "count": n}
+
+
 def _shepherd_map(situation, reply, cards):
     """The Shepherd discerns which found card the person's answer points to.
     Deterministic overlap of the reply with each card's name/summary/why."""

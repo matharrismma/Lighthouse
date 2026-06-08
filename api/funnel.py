@@ -117,9 +117,11 @@ def _user_dir(owner: str) -> Path:
 
 
 def _create_private(text: str, owner: str, deck: Optional[str] = None,
-                    shep: Optional[dict] = None) -> dict:
+                    shep: Optional[dict] = None, patterns: Optional[list] = None) -> dict:
     """Create a private, owned card. The Shepherd (offices.shepherd_route) decides
-    the deck and whether to suggest a tool; an explicit `deck` override wins."""
+    the deck and whether to suggest a tool; an explicit `deck` override wins.
+    `patterns` = the floor's candidate-pattern ids for this share, kept on the card
+    so the Shepherd can see recurrence over time (the thread you keep returning to)."""
     shep = shep or _offices.shepherd_route(text)
     deck = deck or shep.get("deck") or "note"
     cid = "card_n_" + hashlib.sha256((owner + "|" + text + "|" + _now()).encode("utf-8")).hexdigest()[:12]
@@ -139,6 +141,7 @@ def _create_private(text: str, owner: str, deck: Optional[str] = None,
         # the Shepherd's discernment, kept on the card so the shelf can show it
         "shepherd": {"action": shep.get("action"), "say": shep.get("say", ""),
                      "tool": shep.get("tool"), "via": shep.get("via")},
+        "patterns": list(patterns or []),
         "created_at": _now(),
         "updated_at": _now(),
     }
@@ -256,7 +259,19 @@ def get_router():
         # user turn), even after a clarifying exchange.
         original = next((m["content"] for m in history if m["role"] == "user"),
                         history[-1]["content"] if history else "")
-        card = _create_private(original, owner, data.get("deck"), shep)
+
+        # The narrowing (rung 2) — computed FIRST so the card carries its candidate
+        # patterns (the Shepherd reads them later to see recurrence). Offered for ANY
+        # capture the floor recognizes a pattern for; self-gating (notes/recipes won't
+        # trigger it). The card is kept regardless; wisdom is offered beside it.
+        nz, patterns = None, []
+        try:
+            nz = _offices.narrow(original)
+            patterns = [c.get("id") for c in (nz.get("cards") or nz.get("choices") or []) if c.get("id")]
+        except Exception:
+            nz = None
+
+        card = _create_private(original, owner, data.get("deck"), shep, patterns=patterns)
 
         resp = {"ok": True, "status": shep.get("action"), "card": card, "shelf": "mine",
                 "shepherd": {"action": shep.get("action"), "say": shep.get("say", ""),
@@ -266,25 +281,22 @@ def get_router():
             resp["route"] = {"tool": shep["tool"],
                              "query": shep.get("query", original),
                              "url": _TOOL_URL.get(shep["tool"], "/walk.html")}
-        # The narrowing (rung 2) — offered for ANY capture the floor recognizes a
-        # pattern for. Declarative needs ("my brother wronged me") are KEPT, not
-        # routed, but still deserve the path. recognize_protocols self-gates: it
-        # only fires when the floor genuinely knows a pattern, so notes/recipes
-        # don't trigger it. The card is kept regardless; wisdom is offered beside it.
-        try:
-            nz = _offices.narrow(original)
-            if nz.get("narrowable") or nz.get("arrived"):
-                resp["narrow"] = nz
-                resp["query"] = original
-        except Exception:
-            pass
-        # The Shepherd never forgets — recall a prior share that resonates with this
-        # one (connect the dots; put the unseen thread in front of them). Per-user.
+        if nz and (nz.get("narrowable") or nz.get("arrived")):
+            resp["narrow"] = nz
+            resp["query"] = original
+
+        # The Shepherd never forgets. (1) recall a prior share that resonates;
+        # (2) see RECURRENCE — a pattern you keep returning to (the unseen thread).
         try:
             prior = [c for c in _list_private(owner) if c.get("id") != card.get("id")]
             rc = _offices.recall_connection(original, prior)
             if rc:
                 resp["recall"] = rc
+            rec = _offices.recall_recurrence(patterns, prior)
+            if rec:
+                rec["name"] = next((c.get("name") for c in (nz.get("cards") or nz.get("choices") or [])
+                                    if c.get("id") == rec["pattern_id"]), rec["pattern_id"]) if nz else rec["pattern_id"]
+                resp["recurring"] = rec
         except Exception:
             pass
         return resp
