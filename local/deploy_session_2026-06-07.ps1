@@ -30,7 +30,7 @@ git push origin main
 Guard "git push"
 
 Write-Host "2/7  Backend  -> ~/Lighthouse/api/" -ForegroundColor Cyan
-scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$r\api\cards.py" "$r\api\well_retriever.py" "$r\api\person_identity.py" "$r\api\synonymy.py" "$srv`:~/Lighthouse/api/"
+scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$r\api\cards.py" "$r\api\well_retriever.py" "$r\api\person_identity.py" "$r\api\synonymy.py" "$r\api\walk.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "2b/7 Engine    -> ~/Lighthouse/src/concordance_engine/agent/ (floor: dispatch + gate)" -ForegroundColor Cyan
@@ -38,7 +38,7 @@ scp "$r\src\concordance_engine\agent\dispatch.py" "$r\src\concordance_engine\age
 Guard "scp dispatch + poly_agent"
 
 Write-Host "3/7  Site     -> ~/Lighthouse/site/" -ForegroundColor Cyan
-scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\funnel.html" "$r\site\walk.html" "$r\site\nh-household.js" "$r\site\you.html" "$r\site\deposit.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
+scp "$r\site\codex.html" "$r\site\codex-xref.html" "$r\site\codex-themes.html" "$r\site\codex-seal.html" "$r\site\codex-connections.html" "$r\site\cards-dev.html" "$r\site\atlas-map.html" "$r\site\funnel.html" "$r\site\walk.html" "$r\site\poly.html" "$r\site\nh-household.js" "$r\site\you.html" "$r\site\deposit.html" "$r\site\sw.js" "$srv`:~/Lighthouse/site/"
 Guard "scp site"
 
 Write-Host "4/7  Ensure data/codex dirs exist on the server..." -ForegroundColor Cyan

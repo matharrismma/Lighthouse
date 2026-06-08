@@ -275,6 +275,18 @@
     .verdict-mini.MISMATCH      { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
     .verdict-mini.NOT_APPLICABLE{ background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
     .verdict-mini.ERROR         { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .verdict-mini.QUARANTINED   { background: #2a2010; color: var(--quarantine); border: 1px solid #4a3a18; }
+    .verdict-mini.BLOCKED       { background: #2b1212; color: var(--reject);     border: 1px solid #4a2020; }
+
+    /* The elimination trail — what was set aside and why */
+    .trail-card { margin: 14px 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+    .trail-sub { font-size: 12px; color: var(--muted); margin: 2px 0 12px; line-height: 1.5; }
+    .trail-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--border); }
+    .trail-row:first-of-type { border-top: none; }
+    .trail-body { flex: 1; min-width: 0; }
+    .trail-claim { font-size: 13.5px; color: var(--text); line-height: 1.5; }
+    .trail-why { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+    .trail-dom { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted-2, var(--muted)); margin-left: 4px; }
 
     .chevron {
       color: var(--muted);
@@ -826,6 +838,27 @@
         ${hash ? `<a class="hash-link" href="${API}/cas/${encodeURIComponent(hash)}" target="_blank" rel="noopener">${hash.slice(0,10)}…${hash.slice(-6)}</a>` : ''}
       </div>`;
     resultsEl.appendChild(compEl);
+
+    // ── The elimination trail — what was set aside and why ──────────
+    // The trail IS the reasoning: what survives only means something against what
+    // did not. Distilled by the engine beside the composite verdict.
+    const trail = d.trail || null;
+    if (trail && trail.set_aside && trail.set_aside.length) {
+      const tEl = document.createElement('div');
+      tEl.className = 'trail-card';
+      const rows = trail.set_aside.map(s => `
+        <div class="trail-row">
+          <span class="verdict-mini ${esc(s.verdict||'')}">${esc((s.verdict||'').replace('_',' '))}</span>
+          <div class="trail-body">
+            <div class="trail-claim">${esc(s.claim||'(claim)')}</div>
+            <div class="trail-why">${esc(s.why||'')}${s.domain?` <span class="trail-dom">${esc(s.domain)}</span>`:''}</div>
+          </div>
+        </div>`).join('');
+      tEl.innerHTML = `<div class="section-title">The trail — what was set aside</div>
+        <div class="trail-sub"><strong>${trail.confirmed}</strong> confirmed · <strong>${trail.set_aside.length}</strong> set aside${trail.not_applicable?` · ${trail.not_applicable} not applicable`:''} · of ${trail.checked} checked. What survives is what survives.</div>
+        ${rows}`;
+      resultsEl.appendChild(tEl);
+    }
 
     // ── Quarantine + keeper manifest + Socratic questions ──
     const quarantined = d.quarantined_claims || [];

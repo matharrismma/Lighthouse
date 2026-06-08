@@ -10559,6 +10559,41 @@ def polymathic_endpoint(request: Request, req: PolymathicRequest):
     except Exception:
         pass
 
+    # The elimination trail — "the engine eliminates what it cannot confirm; what
+    # survives is what survives." The per-domain results, quarantine, and blocks
+    # are already in the record; distil them into ONE legible "what was set aside
+    # and why" beside the composite verdict, so the trail (the reasoning) is the
+    # answer here too, not something the reader must reconstruct from raw cards.
+    try:
+        _dr = d.get("domain_results") or []
+        _set_aside = []
+        for _r in _dr:
+            _v = _r.get("verdict")
+            if _v in ("MISMATCH", "ERROR"):
+                _set_aside.append({
+                    "claim": _r.get("source_claim") or "",
+                    "domain": _r.get("domain"), "verdict": _v,
+                    "why": (_r.get("detail") or "").strip()
+                           or ("the verifier could not run" if _v == "ERROR"
+                               else "the math did not close"),
+                })
+        for _c in (d.get("quarantined_claims") or []):
+            _set_aside.append({"claim": _c, "domain": None, "verdict": "QUARANTINED",
+                               "why": "no domain could verify this claim — it waits"})
+        for _b in (d.get("blocked_claims") or []):
+            _set_aside.append({"claim": _b.get("claim"), "domain": _b.get("domain"),
+                               "verdict": "BLOCKED",
+                               "why": _b.get("reason") or _b.get("note")
+                                      or "rejected by spec-grounding"})
+        d["trail"] = {
+            "checked": len(_dr),
+            "confirmed": sum(1 for _r in _dr if _r.get("verdict") == "CONFIRMED"),
+            "not_applicable": sum(1 for _r in _dr if _r.get("verdict") == "NOT_APPLICABLE"),
+            "set_aside": _set_aside,
+        }
+    except Exception:
+        pass
+
     if req.store:
         try:
             from concordance_engine.cas import store as _cas_store

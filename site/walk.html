@@ -284,6 +284,22 @@
       color: var(--text);
       line-height: 1.65;
     }
+    .gate-card .gate-eliminates {
+      margin-top: 9px;
+      padding: 7px 11px;
+      border-left: 2px solid var(--reject, #a8324a);
+      background: rgba(120, 40, 50, 0.07);
+      border-radius: 5px;
+      font-size: 12.5px;
+      color: var(--muted, #6a5a5a);
+      line-height: 1.55;
+    }
+    .gate-card .gate-eliminates .gel-label {
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+      color: var(--reject, #a8324a);
+      font-weight: 600;
+    }
     .gate-card .gate-answer {
       width: 100%;
       margin-top: 10px;
@@ -753,6 +769,7 @@ function renderWalk(walk, savedAnswers, walkId, witnessList) {
       </div>
       <div class="verse">${esc(g.scripture_text || '')}</div>
       <div class="q">${esc(g.question || '')}</div>
+      ${g.eliminates ? `<div class="gate-eliminates"><span class="gel-label">This gate sets aside</span> ${esc(g.eliminates)}</div>` : ''}
       <textarea class="gate-answer" data-gate="${esc(gateName)}"
         placeholder="Write what you find as you answer this gate yourself. Saved on your device and to the engine."
         maxlength="4000">${esc(prior)}</textarea>
