@@ -311,7 +311,9 @@ def _coerce_list(v):
 
 def _arrive(situation, chosen, candidates):
     """Bottom of the descent: the floor hands the surviving path + the trail (what
-    was set aside + why) + the Christ reference (a Bible reference)."""
+    was set aside + why) + the Christ reference (a Bible reference). Draws the
+    broader well too — the closest almanac/sealed PRECEDENT for this situation —
+    so the answer is the meeting of the protocol AND the discerned record."""
     from api import walk as _walk
     scripture = _coerce_list(chosen.get("scripture"))
     steps = _coerce_list(chosen.get("steps"))
@@ -323,11 +325,22 @@ def _arrive(situation, chosen, candidates):
         gates = _walk.four_gates_walk()
     except Exception:
         pass
+    # the broader well: the closest discerned precedent (almanac / sealed record)
+    precedent = None
+    try:
+        pr = _walk.find_precedent(situation, protocols_result=[chosen])
+        if pr:
+            precedent = {"summary": pr.get("wisdom") or pr.get("summary") or "",
+                         "ref": pr.get("id") or pr.get("ref") or "",
+                         "score": pr.get("score"), "source": pr.get("source") or pr.get("store")}
+    except Exception:
+        pass
     return {
         "arrived": True, "level": "protocol",
         "answer": {"id": chosen.get("id"), "name": chosen.get("name"),
                    "summary": chosen.get("summary", ""), "scripture": scripture,
                    "steps": steps, "failure_modes": _coerce_list(chosen.get("failure_modes"))},
+        "precedent": precedent,
         "christ_reference": scripture[0] if scripture else "",
         "gates": gates,
         "trail": trail,
