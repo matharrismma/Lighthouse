@@ -14,8 +14,12 @@ on a single proper noun). This retriever fixes that, with NO model install
   - REQUIRE >=2 distinct query terms to match: kills single-proper-noun hits, so
     it stays SILENT rather than hand a false trail. Honesty over coverage.
 
-Synonymy (afraid != anxiety) is the recall ceiling here; local embeddings
-(Gemma/Ollama, on-box, no data leak) are the future upgrade — same interface.
+Synonymy (afraid ~ anxiety) is handled by a curated, explainable concept lexicon
+(api/synonymy.py): a doc term matches a query when they share a concept, and the
+two-term floor counts DISTINCT CONCEPTS so synonyms can't fake it. Local embeddings
+(Gemma/Ollama, on-box) remain a possible deeper layer IF the box ever gets the
+headroom and a similarity threshold is validated against the no-false-trail bar —
+but the curated map is the aligned default (explainable, $0, no leak, no model).
 """
 from __future__ import annotations
 
@@ -87,19 +91,36 @@ def reload() -> None:
 def search(query: str, limit: int = 5, min_terms: int = 2) -> List[Dict[str, Any]]:
     """Return the well's most relevant WISDOM packets for a free-form need, or []
     (honest silence) when nothing clears the bar. Each result: id/title/summary/
-    kind/scripture/score."""
-    idx = _build()
-    qc = Counter(_toks(query))
-    if not qc:
+    kind/scripture/score.
+
+    Synonymy: a doc term matches a query when they share a CONCEPT (afraid~anxious),
+    so the well reaches across different words. The min_terms bar counts DISTINCT
+    CONCEPTS, not raw terms — so two synonyms of one idea can't fake the two-term
+    floor. This keeps the 'honesty over coverage' guard intact (it even tightens it)
+    while lifting the synonymy ceiling. Curated + explainable; no model, no leak."""
+    from api import synonymy as _syn
+    q_tokens = _toks(query)
+    if not q_tokens:
         return []
+    idx = _build()
+    qc = Counter(q_tokens)
+    # the query's concept buckets (concept id, or the literal word when off-lexicon),
+    # with a per-bucket weight = how often the person used that idea.
+    q_weight: Dict[str, float] = {}
+    for w, n in qc.items():
+        q_weight[_syn.canonical(w)] = q_weight.get(_syn.canonical(w), 0.0) + n
+    q_sig = set(q_weight)
     idf = idx["idf"]
     out = []
     for p, c in idx["docs"]:
-        matched = [w for w in qc if c.get(w, 0)]
-        if len(matched) < min_terms:
-            continue
-        score = sum(c.get(w, 0) * idf.get(w, 0.0) * qn for w, qn in qc.items())
-        if score <= 0:
+        matched_concepts = set()
+        score = 0.0
+        for w, cnt in c.items():
+            cw = _syn.canonical(w)
+            if cw in q_sig:
+                matched_concepts.add(cw)
+                score += cnt * idf.get(w, 0.0) * q_weight[cw]
+        if len(matched_concepts) < min_terms or score <= 0:
             continue
         out.append((score, p))
     out.sort(key=lambda x: -x[0])
