@@ -278,6 +278,15 @@ def get_router():
                 resp["query"] = original
         except Exception:
             pass
+        # The Shepherd never forgets — recall a prior share that resonates with this
+        # one (connect the dots; put the unseen thread in front of them). Per-user.
+        try:
+            prior = [c for c in _list_private(owner) if c.get("id") != card.get("id")]
+            rc = _offices.recall_connection(original, prior)
+            if rc:
+                resp["recall"] = rc
+        except Exception:
+            pass
         return resp
 
     @router.get("/funnel/mine", tags=["funnel"])

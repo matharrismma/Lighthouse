@@ -69,6 +69,10 @@
   .arrival .gate { display: inline-block; background: #1a3a52; color: #f4ecd5; border-radius: 3px; padding: 0.08em 0.5em; margin: 0.1em 0.2em 0.1em 0; font-size: 0.8em; }
   .arrival .christ { margin-top: 0.6em; padding-top: 0.5em; border-top: 1px solid #e3d3a0; color: #1a3a52; }
   .arrival .christ b { color: #806010; }
+  #recall .recall { background: #f0f4f7; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.5em 0.8em; margin: 0.3em 0; font-size: 0.92em; color: #2a2a28; }
+  #recall .rl { color: #1a3a52; font-style: italic; }
+  #recall .rw { color: #8a7a4a; font-size: 0.85em; }
+  #recall .rs { color: #4a4a44; font-size: 0.88em; margin-top: 0.2em; font-style: italic; }
   .arrival .prec { margin-top: 0.55em; font-size: 0.88em; color: #4a4a44; background: #faf6ea; border-left: 3px solid #c9b48a; padding: 0.4em 0.7em; border-radius: 4px; }
   .arrival .trail { margin-top: 0.6em; font-size: 0.82em; color: #6a5a3a; }
   .arrival .trail .t { font-family: 'Courier New', monospace; }
@@ -104,6 +108,7 @@
   <button id="mic" type="button" title="Speak it" aria-label="Speak">🎙</button>
   <span id="flash"></span>
 </div>
+<div id="recall"></div>
 <div id="narrow"></div>
 <p class="hint">Everything you capture is <strong>private by default</strong> — yours, on your shelf. You choose what to publish; only the verified few rise to the knowledge bank.</p>
 
@@ -120,7 +125,7 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
   var $box=document.getElementById('box'), $send=document.getElementById('send'),
       $flash=document.getElementById('flash'), $mine=document.getElementById('mine'),
-      $narrow=document.getElementById('narrow');
+      $narrow=document.getElementById('narrow'), $recall=document.getElementById('recall');
 
   function loadMine(){
     fetch('/funnel/mine',{cache:'no-store'})
@@ -206,6 +211,15 @@
     thread=[]; renderConvo();
     $send.textContent='Capture →'; $box.setAttribute('placeholder',ORIG_PH); $flash.textContent='';
     if($narrow) $narrow.innerHTML='';
+    if($recall) $recall.innerHTML='';
+  }
+  function renderRecall(rc){
+    if(!$recall) return;
+    if(!rc){ $recall.innerHTML=''; return; }
+    $recall.innerHTML='<div class="recall"><span class="rl">He remembers.</span> This connects to '+
+      '<a href="/funnel#'+esc(rc.id)+'">'+esc(rc.title||'something you brought before')+'</a>'+
+      (rc.when?' <span class="rw">('+esc(rc.when)+')</span>':'')+
+      (rc.snippet?'<div class="rs">'+esc(rc.snippet)+'</div>':'')+'</div>';
   }
 
   // ── The narrowing (rung 2): the Shepherd ASKS (Socratic); you answer; the floor answers ──
@@ -288,6 +302,8 @@
         loadMine();
         // the floor recognized a pattern -> begin the narrowing (rung 2)
         if(j.narrow){ renderNarrow(j.narrow, j.query||(j.route&&j.route.query)||''); }
+        // the Shepherd remembers -> connect the dots to a prior share
+        renderRecall(j.recall);
       })
       .catch(function(){ $send.disabled=false; $flash.textContent='Could not capture.'; });
   }

@@ -480,6 +480,30 @@ def _shepherd_socratic(situation, cards, again=False):
     return stems[len(situation) % len(stems)], "vetted"
 
 
+def recall_connection(situation, prior_shares, min_overlap=2):
+    """The Shepherd never forgets. Given the person's PRIOR shares, find the one
+    that most resonates with what they bring now — connect the dots, put in front
+    of them the thread they may not see. Per-user; deterministic overlap."""
+    st = set(_otoks(situation))
+    if not st or not prior_shares:
+        return None
+    best, best_ov = None, 0
+    for c in prior_shares:
+        ct = set(_otoks((c.get("title") or "") + " " + (c.get("body") or c.get("text") or "")))
+        ov = len(st & ct)
+        if ov > best_ov:
+            best, best_ov = c, ov
+    if best is None or best_ov < min_overlap:
+        return None
+    body = best.get("body") or best.get("text") or ""
+    bt = set(_otoks((best.get("title") or "") + " " + body))
+    return {
+        "id": best.get("id"), "title": best.get("title") or "",
+        "when": (best.get("created_at") or best.get("deposited_at") or "")[:10],
+        "snippet": body[:160], "shared_terms": sorted(st & bt)[:6],
+    }
+
+
 def _shepherd_map(situation, reply, cards):
     """The Shepherd discerns which found card the person's answer points to.
     Deterministic overlap of the reply with each card's name/summary/why."""
