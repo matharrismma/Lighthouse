@@ -1,1313 +1,372 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-page-title="page.walk.title">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Walk · Narrow Highway</title>
-  <meta name="description" content="Describe a situation. The engine surfaces the patterns it resembles, the Scripture that bears on it, the protocol that applies, and the four gates to walk through. Engine shows. You walk.">
-  <script src="/nh-nav.js" defer></script>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&display=swap" rel="stylesheet">
-
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="The Walk · Concordance Engine">
-  <meta property="og:description" content="A guided walk through a situation. Pattern + Scripture + protocol + four gates. Engine shows; you walk.">
-  <meta property="og:url" content="https://narrowhighway.com/walk.html">
-  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
-  <meta property="og:site_name" content="Concordance Engine">
-  <link rel="canonical" href="https://narrowhighway.com/walk.html">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Walk · Narrow Highway</title>
+<meta name="description" content="Walk through something with the Shepherd — bring a situation, a question, a teaching. Whatever you bring becomes your own card, private by default, yours to organize. The verified few rise to the knowledge bank.">
+<link rel="canonical" href="https://narrowhighway.com/walk.html">
   <link rel="stylesheet" href="/nh-shell.css">
   <script defer src="/nh-shell.js"></script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"The Walk · Concordance Engine","description":"Guided walk through a situation: archetype recognition, Layer 0 Scripture grounding, Scripture-defined protocols (Matthew 18 conflict, discernment, confession, witness, test the spirits, reproof), closest precedent, and the four gates as prompts.","url":"https://narrowhighway.com/walk.html","applicationCategory":"GuidanceTool","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"Concordance Engine","url":"https://narrowhighway.com"},"publisher":{"@type":"Organization","name":"Concordance Engine","url":"https://narrowhighway.com","logo":{"@type":"ImageObject","url":"https://narrowhighway.com/chi-rho.svg"}}}</script>
-
-  <style>
-    main.container.wide { max-width: 880px; }
-
-    .intro {
-      max-width: 64ch;
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 17px;
-      line-height: 1.7;
-      color: var(--text);
-      margin: 0 0 22px;
-    }
-    .intro em { color: var(--accent); font-style: italic; }
-
-    .input-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 20px 22px;
-      margin: 14px 0 28px;
-    }
-    .input-card label {
-      display: block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .input-card textarea {
-      width: 100%;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      color: var(--text);
-      font-family: inherit;
-      font-size: 15px;
-      line-height: 1.55;
-      min-height: 100px;
-      resize: vertical;
-    }
-    .input-card textarea:focus { border-color: var(--accent); outline: none; }
-    .input-row {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 10px;
-      margin-top: 12px;
-    }
-    .input-row .hint {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      color: var(--muted-2);
-      font-size: 13.5px;
-      max-width: 50ch;
-    }
-    .walk-btn {
-      background: var(--accent); color: #1a1208;
-      border: none; border-radius: 7px;
-      padding: 10px 22px;
-      font: 600 14px inherit;
-      cursor: pointer;
-    }
-    .walk-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .layer {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px 22px;
-      margin-bottom: 18px;
-    }
-    .layer h2 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 6px;
-    }
-    .layer h2 .ct {
-      color: var(--muted-2);
-      font-weight: 400;
-      letter-spacing: 0.06em;
-      text-transform: lowercase;
-      margin-left: 8px;
-    }
-    .layer .sub {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      color: var(--muted-2);
-      font-size: 13.5px;
-      line-height: 1.55;
-      margin-bottom: 14px;
-    }
-
-    /* Patterns */
-    .pattern-summary {
-      font-family: 'Inter', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-    .pattern-sig {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 16px;
-      color: var(--accent);
-      font-style: italic;
-      margin-bottom: 12px;
-    }
-    .pattern-card {
-      background: rgba(0,0,0,0.18);
-      border-left: 2px solid var(--accent-dim);
-      border-radius: 0 6px 6px 0;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-    }
-    .pattern-card .pn {
-      font-weight: 500;
-      color: var(--accent);
-    }
-    .pattern-card .pp {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 14px;
-      color: var(--text);
-      margin-top: 4px;
-      line-height: 1.55;
-    }
-
-    /* Scripture */
-    .verse-card {
-      background: rgba(0,0,0,0.18);
-      border-left: 2px solid var(--accent);
-      border-radius: 0 6px 6px 0;
-      padding: 12px 16px;
-      margin-bottom: 8px;
-    }
-    .verse-card .ref {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
-      color: var(--accent);
-      letter-spacing: 0.04em;
-    }
-    .verse-card .vt {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 16.5px;
-      line-height: 1.65;
-      color: var(--text);
-      margin-top: 6px;
-    }
-
-    /* Protocol */
-    .proto-card {
-      margin-bottom: 18px;
-      padding: 14px 18px;
-      background: rgba(217,168,114,0.04);
-      border: 1px solid rgba(217,168,114,0.25);
-      border-radius: 8px;
-    }
-    .proto-card .pn {
-      font-family: 'Inter', sans-serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-    .proto-card .ps {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 14.5px;
-      color: var(--text);
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-    .proto-step {
-      display: grid;
-      grid-template-columns: 36px 1fr;
-      gap: 10px;
-      padding: 8px 0;
-      align-items: start;
-    }
-    .proto-step .num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12.5px;
-      color: var(--muted);
-      padding-top: 3px;
-    }
-    .proto-step .body .t {
-      font-weight: 500;
-      color: var(--text);
-      font-size: 15px;
-    }
-    .proto-step .body .src {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--accent);
-      letter-spacing: 0.04em;
-      margin: 2px 0 4px;
-    }
-    .proto-step .body .d {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.55;
-    }
-    .proto-fail {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
-      font-size: 12.5px;
-      color: var(--muted-2);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      line-height: 1.6;
-    }
-    .proto-fail b {
-      font-family: 'JetBrains Mono', monospace;
-      font-style: normal;
-      font-size: 10.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    /* The walk — four gates */
-    .gate-card {
-      border-left: 3px solid var(--accent);
-      padding: 14px 18px;
-      margin-bottom: 10px;
-      background: rgba(0,0,0,0.18);
-      border-radius: 0 8px 8px 0;
-    }
-    .gate-card .gh {
-      display: flex; align-items: baseline; gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-    .gate-card .gh .gn {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-    }
-    .gate-card .gh .gs {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--muted-2);
-      letter-spacing: 0.04em;
-    }
-    .gate-card .verse {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 14.5px;
-      color: var(--muted-2);
-      line-height: 1.55;
-      margin: 2px 0 8px;
-    }
-    .gate-card .q {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 16px;
-      color: var(--text);
-      line-height: 1.65;
-    }
-    .gate-card .gate-eliminates {
-      margin-top: 9px;
-      padding: 7px 11px;
-      border-left: 2px solid var(--reject, #a8324a);
-      background: rgba(120, 40, 50, 0.07);
-      border-radius: 5px;
-      font-size: 12.5px;
-      color: var(--muted, #6a5a5a);
-      line-height: 1.55;
-    }
-    .gate-card .gate-eliminates .gel-label {
-      font-variant: small-caps;
-      letter-spacing: 0.04em;
-      color: var(--reject, #a8324a);
-      font-weight: 600;
-    }
-    .gate-card .gate-answer {
-      width: 100%;
-      margin-top: 10px;
-      min-height: 64px;
-      max-height: 320px;
-      padding: 10px 12px;
-      background: rgba(0,0,0,0.28);
-      border: 1px solid var(--border-hi);
-      border-radius: 6px;
-      color: var(--text);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 15px;
-      line-height: 1.55;
-      resize: vertical;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .gate-card .gate-answer:focus { border-color: var(--accent); }
-    .gate-card .gate-answer::placeholder { color: var(--muted-2); font-style: italic; }
-    .gate-card .gate-status {
-      display: flex; align-items: center; justify-content: flex-end;
-      gap: 8px;
-      margin-top: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .gate-card.answered { border-left-color: var(--pass); }
-    .gate-card .gate-status-state.saved { color: var(--pass); }
-
-    /* BROTHERS gate witness panel */
-    .brothers-witnesses {
-      margin-top: 14px;
-      padding: 14px 16px;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    .bw-header {
-      display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .bw-count {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border-radius: 11px;
-      color: var(--hold);
-      border: 1px solid rgba(196,160,48,0.45);
-      background: rgba(196,160,48,0.07);
-    }
-    .bw-count.met {
-      color: var(--pass);
-      border-color: rgba(111,196,124,0.45);
-      background: rgba(111,196,124,0.07);
-    }
-    .bw-help, .bw-help-2 {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      color: var(--muted-2);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .bw-help-2 { margin-top: 8px; }
-
-    .bw-witness {
-      padding: 8px 12px;
-      background: rgba(111, 196, 124, 0.05);
-      border: 1px solid rgba(111, 196, 124, 0.30);
-      border-radius: 6px;
-      margin-bottom: 6px;
-    }
-    .bw-witness-name {
-      font-family: 'Inter', sans-serif;
-      font-size: 13.5px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .bw-witness-role {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--accent);
-      letter-spacing: 0.08em;
-      margin-left: 8px;
-    }
-    .bw-witness-when {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      margin-left: 8px;
-    }
-    .bw-witness-attest {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      color: var(--text-dim);
-      font-size: 13px;
-      margin-top: 4px;
-      white-space: pre-wrap;
-    }
-
-    .bw-invite-row {
-      display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
-    }
-    .bw-link {
-      flex: 1; min-width: 220px;
-      padding: 7px 10px;
-      background: rgba(0,0,0,0.28);
-      border: 1px solid var(--border-hi);
-      border-radius: 6px;
-      color: var(--text-dim);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      outline: none;
-    }
-    .bw-link:focus { border-color: var(--accent); color: var(--text); }
-    .bw-copy {
-      padding: 7px 16px;
-      background: var(--accent);
-      color: #1a1208;
-      border: none; border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .bw-copy.copied { background: var(--pass); }
-
-    /* Your previous walks — return state */
-    .return-panel {
-      max-width: var(--maxw, 1080px);
-      margin: 0 auto 18px;
-      padding: 14px 18px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r, 12px);
-    }
-    .return-panel summary {
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      font-weight: 600;
-      list-style: none;
-    }
-    .return-panel summary::-webkit-details-marker { display: none; }
-    .return-panel summary::before { content: '▸ '; color: var(--muted); }
-    .return-panel[open] summary::before { content: '▾ '; color: var(--accent); }
-    .return-panel summary:hover { color: var(--accent); }
-    .return-panel .rp-count { color: var(--accent); }
-    .return-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .return-item {
-      display: flex; align-items: baseline; gap: 10px;
-      padding: 8px 12px;
-      background: var(--bg-2, rgba(0,0,0,0.18));
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .return-item:hover { border-color: var(--accent); background: var(--surface-2, rgba(0,0,0,0.22)); }
-    .return-item .ri-sit {
-      flex: 1;
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-size: 14.5px;
-      color: var(--text);
-      line-height: 1.45;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .return-item .ri-meta {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-    .return-item .ri-progress {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.06em;
-      padding: 1px 7px;
-      border-radius: 9px;
-      border: 1px solid var(--border-hi);
-      color: var(--text-dim);
-    }
-    .return-item .ri-progress.full { color: var(--pass); border-color: rgba(111,196,124,0.35); background: rgba(111,196,124,0.06); }
-    .return-empty {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      color: var(--muted-2);
-      padding: 10px 0 2px;
-      font-size: 13.5px;
-    }
-
-    .empty {
-      color: var(--muted-2);
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-style: italic;
-      font-size: 14px;
-    }
-
-    /* Output area initially hidden */
-    #walkOut { display: none; margin-top: 18px; }
-    #walkOut.show { display: block; }
-  
-    /* Lens chrome — every lens page surfaces the other lenses */
-    .lens-bar {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      align-items: center;
-      margin: 14px 0 22px;
-      padding: 10px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
-      max-width: var(--maxw, 1080px);
-      margin-left: auto; margin-right: auto;
-    }
-    .lens-bar .lens-label {
-      color: var(--muted);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      font-weight: 600;
-      margin-right: 6px;
-    }
-    .lens-bar a {
-      padding: 4px 11px;
-      border-radius: 14px;
-      color: var(--text-dim);
-      border: 1px solid var(--border-hi);
-      text-decoration: none;
-      letter-spacing: 0.05em;
-      transition: all 0.12s;
-    }
-    .lens-bar a:hover { color: var(--accent); border-color: var(--accent); }
-    .lens-bar a.active {
-      background: var(--accent);
-      color: #1a1208;
-      border-color: var(--accent);
-      font-weight: 600;
-    }
-</style>
   <script src="/nh-household.js"></script>
-  <script src="/i18n.js"></script>
-  <script src="/a11y.js"></script>
-  <script src="/audio.js"></script>
-  <script src="/vibe.js"></script>
-  <script src="/you.js"></script>
-  <link rel="stylesheet" href="/mobile.css">
-  <link rel="stylesheet" href="/lens-polish.css">
-  <link rel="stylesheet" href="/vibe.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Narrow Highway">
+<meta property="og:title" content="The Walk">
+<meta property="og:description" content="Walk through something with the Shepherd — bring a situation, a question, a teaching. It becomes your own card, private by default, yours to organize.">
+<meta property="og:url" content="https://narrowhighway.com/walk.html">
+<style>
+  body { font-family: Georgia, serif; max-width: 820px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+  nav.top { font-size: 0.9em; padding: 0.8em 0; }
+  nav.top a { color: #1a3a52; text-decoration: none; }
+  .masthead { text-align: center; padding: 1.8em 1em 0.8em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
+  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
+  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
+  #box { width: 100%; box-sizing: border-box; font-family: Georgia, serif; font-size: 1.1em; padding: 0.7em 0.9em; border: 2px solid #c9b48a; border-radius: 8px; min-height: 4em; resize: vertical; background: #fff; color: #2a2a28; }
+  #box:focus { outline: none; border-color: #1a3a52; }
+  .row { display: flex; align-items: center; gap: 0.8em; margin-top: 0.6em; }
+  button { font-family: inherit; cursor: pointer; }
+  #send { background: #1a3a52; color: #f4ecd5; border: 0; border-radius: 6px; padding: 0.6em 1.4em; font-size: 1.05em; }
+  #send:hover { background: #2a5570; }
+  #mic { width: 2.4em; height: 2.4em; border-radius: 50%; border: 1px solid #c9b48a; background: #faf4e8; cursor: pointer; font-size: 1em; flex: none; }
+  #mic.live { background: #c75d2e; border-color: #c75d2e; animation: micpulse 1.1s infinite; }
+  @keyframes micpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(199,93,46,0.5); } 50% { box-shadow: 0 0 0 6px rgba(199,93,46,0); } }
+  .hint { color: #6a5a3a; font-style: italic; font-size: 0.92em; }
+  #flash { font-size: 0.92em; color: #5c8a3a; min-height: 1.2em; }
+  h2 { color: #1a3a52; margin-top: 1.8em; font-size: 1.15em; border-left: 4px solid #c9b48a; padding-left: 0.6em; }
+  .deck { font-family: 'Courier New', monospace; font-size: 0.72em; letter-spacing: 0.08em; text-transform: uppercase; color: #806010; margin: 1em 0 0.3em; }
+  .card { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 4px; padding: 0.55em 0.8em; margin-bottom: 0.4em; }
+  .card .t { color: #1a3a52; }
+  .card .b { font-size: 0.9em; color: #4a4a44; margin-top: 0.15em; }
+  .card .acts { margin-top: 0.35em; }
+  .card .pub { background: #f3eedb; color: #1a3a52; border: 1px solid #d4c8a5; border-radius: 3px; padding: 0.15em 0.6em; font-size: 0.78em; }
+  .card .pub:hover { background: #e5dcb9; }
+  .priv { font-family: 'Courier New', monospace; font-size: 0.66em; color: #8a7a4a; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.05em 0.4em; margin-left: 0.4em; }
+  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
+  #flash .shep { color: #1a3a52; font-style: italic; }
+  #flash .go { display: inline-block; margin-left: 0.4em; background: #1a3a52; color: #f4ecd5; text-decoration: none; border-radius: 4px; padding: 0.1em 0.6em; font-size: 0.85em; font-style: normal; }
+  #flash .go:hover { background: #2a5570; }
+  #flash .sayspk { background: none; border: none; cursor: pointer; font-size: 0.95em; padding: 0 0.2em; }
+  #narrow { margin: 0.4em 0 0.2em; }
+  #narrow .nq { color: #1a3a52; font-style: italic; margin-bottom: 0.4em; }
+  #narrow .nrow { display: flex; gap: 0.4em; margin-bottom: 0.4em; }
+  #narrow #nreply { flex: 1; font-family: Georgia, serif; font-size: 1em; padding: 0.5em 0.7em; border: 2px solid #c9b48a; border-radius: 6px; background: #fff; color: #2a2a28; }
+  #narrow #nreply:focus { outline: none; border-color: #1a3a52; }
+  #narrow #nsend { background: #1a3a52; color: #f4ecd5; border: 0; border-radius: 6px; padding: 0 0.9em; font-size: 1.1em; cursor: pointer; }
+  #narrow .nchips { font-size: 0.82em; color: #8a7a4a; }
+  #narrow .nchip { background: #faf6ea; border: 1px solid #d4c8a5; border-radius: 12px; padding: 0.12em 0.7em; margin: 0.1em 0.15em; font-size: 0.85em; color: #1a3a52; cursor: pointer; font-family: inherit; }
+  #narrow .nchip:hover { background: #efe6cf; }
+  #narrow .choice { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #c9b48a; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.55em 0.8em; margin-bottom: 0.4em; cursor: pointer; font-family: inherit; }
+  #narrow .choice:hover { background: #f3eedb; }
+  #narrow .choice .cn { color: #1a3a52; font-size: 1.02em; }
+  #narrow .choice .cs { color: #4a4a44; font-size: 0.9em; margin-top: 0.15em; }
+  #narrow .choice .cw { color: #8a7a4a; font-size: 0.78em; font-family: 'Courier New', monospace; margin-top: 0.2em; }
+  .arrival { background: #fff; border: 1px solid #c9b48a; border-radius: 8px; padding: 1em 1.1em; margin: 0.4em 0; }
+  .arrival h3 { color: #1a3a52; margin: 0 0 0.2em; font-size: 1.15em; font-weight: normal; }
+  .arrival .ref { font-family: 'Courier New', monospace; color: #806010; font-size: 0.9em; }
+  .arrival ol { margin: 0.5em 0; padding-left: 1.3em; }
+  .arrival ol li { margin-bottom: 0.3em; }
+  .arrival .gates { margin-top: 0.6em; font-size: 0.9em; }
+  .arrival .gate { display: inline-block; background: #1a3a52; color: #f4ecd5; border-radius: 3px; padding: 0.08em 0.5em; margin: 0.1em 0.2em 0.1em 0; font-size: 0.8em; }
+  .arrival .christ { margin-top: 0.6em; padding-top: 0.5em; border-top: 1px solid #e3d3a0; color: #1a3a52; }
+  .arrival .christ b { color: #806010; }
+  #recall .recall { background: #f0f4f7; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.5em 0.8em; margin: 0.3em 0; font-size: 0.92em; color: #2a2a28; }
+  #recall .rl { color: #1a3a52; font-style: italic; }
+  #recall .rw { color: #8a7a4a; font-size: 0.85em; }
+  #recall .rs { color: #4a4a44; font-size: 0.88em; margin-top: 0.2em; font-style: italic; }
+  #recall .recur { background: #f6f0e6; border-left-color: #806010; }
+  #recall .walk { background: #eef4ee; border-left-color: #3a6b4a; }
+  #recall .rg { color: #3a4a3a; font-size: 0.85em; margin-top: 0.3em; line-height: 1.5; }
+  #recall .rg b { color: #2a5a3a; }
+  .arrival .prec { margin-top: 0.55em; font-size: 0.88em; color: #4a4a44; background: #faf6ea; border-left: 3px solid #c9b48a; padding: 0.4em 0.7em; border-radius: 4px; }
+  .arrival .trail { margin-top: 0.6em; font-size: 0.82em; color: #6a5a3a; }
+  .arrival .trail .t { font-family: 'Courier New', monospace; }
+  .card .shepc { font-size: 0.82em; color: #6a5a3a; font-style: italic; margin-top: 0.2em; }
+  .card .prop { background: #f3eedb; color: #806010; border: 1px solid #d4c8a5; border-radius: 3px; padding: 0.15em 0.6em; font-size: 0.78em; }
+  .card .prop:hover { background: #e5dcb9; }
+  .offices { margin-top: 2.4em; padding-top: 1em; border-top: 1px solid #e3d3a0; font-size: 0.8em; color: #8a7a4a; text-align: center; }
+  .offices b { color: #1a3a52; font-weight: normal; }
+  #convo { margin-bottom: 0.6em; }
+  #convo .turn { border-radius: 8px; padding: 0.45em 0.8em; margin-bottom: 0.4em; max-width: 85%; }
+  #convo .turn.you { background: #f3eedb; color: #2a2a28; margin-left: auto; }
+  #convo .turn.shep { background: #1a3a52; color: #f4ecd5; font-style: italic; }
+  #convo .startover { display: block; text-align: center; font-size: 0.78em; margin-top: 0.2em; }
+  #convo .startover a { color: #8a7a4a; cursor: pointer; }
+</style>
+<link rel="stylesheet" href="/nh-sabbath.css">
+<link rel="stylesheet" href="/nh-print.css" media="print">
 </head>
 <body>
 
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/keep.html">Keep</a></nav>
 
-<div class="lens-bar" style="margin: 0 auto; max-width: 1080px; margin-top: 14px;"><span class="lens-label">Lenses</span>
-    <a href="/curriculum.html" class="lens-curriculum">Curriculum</a><a href="/daily.html">Today</a><a href="/apothecary.html">Apothecary</a><a href="/training.html">Training</a><a href="/parable.html">Parable</a><a href="/bibles.html">Bibles</a><a href="/places.html">Places</a><a href="/scribe.html">Scribe</a><a href="/receipts.html">Receipts</a><a href="/misalignments.html">Misalignments</a><a href="/almanac.html">Almanac</a><a href="/atlas.html">Atlas</a><a href="/encyclopedia.html">Encyclopedia</a><a href="/chronicle.html">Chronicle</a><a href="/canon.html">Canon</a><a href="/fieldkit.html">FieldKit</a><a href="/archetypes.html">Archetypes</a><a href="/walk.html" class="active">Shepherd</a><a href="/packets.html">Index</a></div>
-
-
-<div class="page-header">
-  <div class="container wide">
-    <div class="eyebrow">The Shepherd OS · your teacher and guide</div>
-    <h1 data-i18n="page.walk.h1">Walk a situation.</h1>
-    <p class="intro">
-      Describe what you carry. The Shepherd is the operating system; the lenses
-      are the tools. He reaches into the keeping &mdash; patterns, Scripture
-      (Layer 0), protocols (Matthew 18, discernment, confession, witness, test
-      the spirits, reproof), precedent &mdash; and brings the resources to you.
-      Then he gives you the four gates as questions <em>you answer</em>. He
-      teaches; he never tells you what to do. <em>You walk.</em>
-    </p>
-  </div>
+<div class="masthead">
+  <div class="eyebrow">THE WALK</div>
+  <h1>The Walk</h1>
+  <div class="tagline">Walk through something with the Shepherd — bring a situation, a question, a teaching.</div>
 </div>
 
-<main class="container wide" style="padding-bottom:80px;">
+<div id="convo" style="display:none;"></div>
+<textarea id="box" placeholder="Bring what you carry — a situation, a worry, a verse, a question, a note…"></textarea>
+<div class="row">
+  <button id="send">Walk →</button>
+  <button id="mic" type="button" title="Speak it" aria-label="Speak">🎙</button>
+  <span id="flash"></span>
+</div>
+<div id="recall"></div>
+<div id="narrow"></div>
+<p class="hint">Everything you bring is <strong>private by default</strong> — yours, on your shelf. You choose what to publish; only the verified few rise to the knowledge bank.</p>
 
-  <details class="return-panel" id="returnPanel" style="display:none;">
-    <summary>Your previous walks · <span class="rp-count" id="returnCount">0</span></summary>
-    <div class="return-list" id="returnList"></div>
-  </details>
+<h2>Your shelf</h2>
+<div id="mine"><div class="empty">Loading your cards…</div></div>
 
-  <section class="input-card">
-    <label for="situation">Describe the situation — type, or tap the mic to speak</label>
-    <textarea id="situation" placeholder="e.g. I was clearly wronged by a brother in our church and I'm trying to figure out what to do…" maxlength="4000"></textarea>
-    <div class="input-row">
-      <div class="hint">Engine shows. Human names. The engine never tells you what to do — it surfaces the framework, you walk.</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button id="micBtn" type="button" aria-label="Speak instead of typing"
-                title="Speak instead of typing (Chrome/Edge/Safari)"
-                style="background:transparent;border:1px solid var(--border);border-radius:50%;width:38px;height:38px;cursor:pointer;display:none;font-size:18px;line-height:1;">
-          <span id="micGlyph" aria-hidden="true">🎤</span>
-        </button>
-        <button class="walk-btn" id="walkBtn" type="button">Walk</button>
-      </div>
-    </div>
-    <div id="micStatus" style="display:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.04em;margin-top:8px;"></div>
-  </section>
-
-  <script>
-  // Voice input — Web Speech API. Graceful degradation: hidden if unsupported.
-  // Per THE SCHEMA: spoken modality is first-class, not a workaround.
-  (function setupVoiceInput() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;  // browser doesn't support; mic stays hidden
-    const micBtn = document.getElementById('micBtn');
-    const micGlyph = document.getElementById('micGlyph');
-    const micStatus = document.getElementById('micStatus');
-    const situation = document.getElementById('situation');
-    if (!micBtn || !situation) return;
-    micBtn.style.display = 'inline-flex';
-
-    let recognition = null;
-    let listening = false;
-    let baseText = '';
-
-    function startListening() {
-      recognition = new SR();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-      baseText = situation.value;
-      recognition.onresult = (event) => {
-        let interim = '';
-        let final = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const t = event.results[i][0].transcript;
-          if (event.results[i].isFinal) final += t + ' ';
-          else interim += t;
-        }
-        situation.value = (baseText + ' ' + final + interim).trim();
-        if (final) baseText = (baseText + ' ' + final).trim();
-      };
-      recognition.onerror = (e) => {
-        micStatus.textContent = 'mic error: ' + (e.error || 'unknown');
-        micStatus.style.display = 'block';
-        stopListening();
-      };
-      recognition.onend = () => {
-        if (listening) {
-          // auto-end after silence; keep button state in sync
-          listening = false;
-          micBtn.style.borderColor = '';
-          micBtn.style.background = '';
-          micGlyph.textContent = '🎤';
-          micStatus.textContent = 'paused — tap mic to resume';
-          micStatus.style.display = 'block';
-        }
-      };
-      recognition.start();
-      listening = true;
-      micBtn.style.borderColor = 'var(--accent)';
-      micBtn.style.background = 'rgba(217,168,114,0.15)';
-      micGlyph.textContent = '⏺';
-      micStatus.textContent = 'listening — speak now; tap mic to stop';
-      micStatus.style.display = 'block';
-    }
-
-    function stopListening() {
-      if (recognition) try { recognition.stop(); } catch (_) {}
-      listening = false;
-      micBtn.style.borderColor = '';
-      micBtn.style.background = '';
-      micGlyph.textContent = '🎤';
-      setTimeout(() => { micStatus.style.display = 'none'; }, 2500);
-    }
-
-    micBtn.addEventListener('click', () => {
-      if (listening) stopListening(); else startListening();
-    });
-  })();
-  </script>
-
-  <div id="walkOut"></div>
-
-</main>
+<div class="offices">
+  Three offices keep this place: the <b>Shepherd</b> discerns what you bring ·
+  the <b>Steward</b> guards what it costs · the <b>Scribe</b> records what you send on.
+</div>
 
 <script>
-const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-function renderPatterns(p) {
-  if (!p || !p.candidates || !p.candidates.length) return '';
-  const combo = p.combination || {};
-  const sig = combo.signature ? `<div class="pattern-sig">${esc(combo.signature)}</div>` : '';
-  const cards = p.candidates.map(c => `
-    <div class="pattern-card">
-      <span class="pn">${esc(c.name)}</span>
-      <span style="color:var(--muted-2);font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:8px;">${esc(c.category||'')} · weight ${c.weight}</span>
-      <div class="pp">${esc(c.pattern || '')}</div>
-    </div>`).join('');
-  return `<section class="layer">
-    <h2>Patterns<span class="ct">${p.candidates.length}</span></h2>
-    <div class="sub">A person is rarely one type. Engine surfaces the combination; you name whether it fits.</div>
-    <div class="pattern-summary">${esc(combo.summary || '')}</div>
-    ${sig}
-    ${cards}
-  </section>`;
-}
-
-function renderScripture(sc) {
-  if (!sc || !sc.passages || !sc.passages.length) return '';
-  const cards = sc.passages.map(p => `
-    <div class="verse-card">
-      <div class="ref">${esc(p.ref || '')}</div>
-      <div class="vt">${esc(p.text || '')}</div>
-    </div>`).join('');
-  return `<section class="layer">
-    <h2>Scripture<span class="ct">Layer 0</span></h2>
-    <div class="sub">The WEB Bible (World English Bible, public domain). Engine surfaces the text; does not interpret.</div>
-    ${cards}
-  </section>`;
-}
-
-function renderProtocol(proto) {
-  const steps = (proto.steps || []).map(s => `
-    <div class="proto-step">
-      <div class="num">${s.order}.</div>
-      <div class="body">
-        <div class="t">${esc(s.title || '')}</div>
-        <div class="src">${esc(s.scripture || '')}</div>
-        <div class="d">${esc(s.do || '')}</div>
-      </div>
-    </div>`).join('');
-  const fails = (proto.failure_modes || []).map(f => `<div>· ${esc(f)}</div>`).join('');
-  return `<div class="proto-card">
-    <div class="pn">${esc(proto.name || '')}</div>
-    <div class="ps">${esc(proto.summary || '')}</div>
-    ${steps}
-    ${fails ? `<div class="proto-fail"><b>common failure modes</b><br>${fails}</div>` : ''}
-  </div>`;
-}
-
-function renderProtocols(arr) {
-  if (!arr || !arr.length) return '';
-  return `<section class="layer">
-    <h2>Protocol<span class="ct">${arr.length}</span></h2>
-    <div class="sub">A Scripture-defined sequence appears to apply. Walk it in order.</div>
-    ${arr.map(renderProtocol).join('')}
-  </section>`;
-}
-
-function renderWalk(walk, savedAnswers, walkId, witnessList) {
-  if (!walk || !walk.length) return '';
-  savedAnswers = savedAnswers || {};
-  witnessList = witnessList || [];
-  const gates = walk.map(g => {
-    const gateName = g.gate || '';
-    const prior = (savedAnswers[gateName] || '').trim();
-    const answered = !!prior;
-    // BROTHERS gate gets the witness panel
-    const brothersPanel = (gateName === 'BROTHERS' && walkId)
-      ? renderBrothersWitnessPanel(walkId, witnessList) : '';
-    return `
-    <div class="gate-card${answered ? ' answered' : ''}" data-gate="${esc(gateName)}">
-      <div class="gh">
-        <span class="gn">${esc(gateName)}</span>
-        <span class="gs">${esc(g.scripture || '')}</span>
-      </div>
-      <div class="verse">${esc(g.scripture_text || '')}</div>
-      <div class="q">${esc(g.question || '')}</div>
-      ${g.eliminates ? `<div class="gate-eliminates"><span class="gel-label">This gate sets aside</span> ${esc(g.eliminates)}</div>` : ''}
-      <textarea class="gate-answer" data-gate="${esc(gateName)}"
-        placeholder="Write what you find as you answer this gate yourself. Saved on your device and to the engine."
-        maxlength="4000">${esc(prior)}</textarea>
-      <div class="gate-status">
-        <span class="gate-status-state${answered ? ' saved' : ''}">${answered ? 'saved' : 'unanswered'}</span>
-      </div>
-      ${brothersPanel}
-    </div>`;
-  }).join('');
-  return `<section class="layer">
-    <h2>The Walk<span class="ct">four gates</span></h2>
-    <div class="sub">RED → FLOOR → BROTHERS → GOD. Engine asks; you answer. The engine never answers these for you. What you write is kept — for you, across visits.</div>
-    ${gates}
-  </section>`;
-}
-
-function renderBrothersWitnessPanel(walkId, witnessList) {
-  const count = witnessList.length;
-  const meetsThreshold = count >= 2;
-  const baseUrl = location.origin + '/witness.html?walker_visitor_id=' + encodeURIComponent(VISITOR_ID) + '&walk_id=' + encodeURIComponent(walkId);
-  const witnessHtml = witnessList.length
-    ? witnessList.map(w => `<div class="bw-witness">
-        <span class="bw-witness-name">${esc(w.witness_name)}</span>
-        ${w.witness_role ? `<span class="bw-witness-role">${esc(w.witness_role)}</span>` : ''}
-        <span class="bw-witness-when">${esc(fmtWitnessWhen(w.logged_at_iso))}</span>
-        ${w.attestation ? `<div class="bw-witness-attest">${esc(w.attestation)}</div>` : ''}
-      </div>`).join('')
-    : '';
-  return `<div class="brothers-witnesses">
-      <div class="bw-header">
-        <span class="bw-count${meetsThreshold ? ' met' : ''}">${count}/2 witnesses</span>
-        <span class="bw-help">Two or three witnesses (Mt 18:16). Solo decisions wait.</span>
-      </div>
-      ${witnessHtml}
-      <div class="bw-invite-row">
-        <input type="text" class="bw-link" readonly value="${esc(baseUrl)}" id="bw-link-input">
-        <button type="button" class="bw-copy" id="bw-copy-btn">Copy invite link</button>
-      </div>
-      <div class="bw-help-2">Send this link to someone you trust. They open it, see your situation and your BROTHERS answer, and put their name to what they see. You don't need their account — they don't need yours.</div>
-    </div>`;
-}
-
-function fmtWitnessWhen(iso) {
-  if (!iso) return '';
-  try {
-    const d = new Date(iso);
-    const s = Math.max(1, Math.floor((Date.now() - d.getTime()) / 1000));
-    if (s < 60) return s + 's ago';
-    if (s < 3600) return Math.floor(s/60) + 'm ago';
-    if (s < 86400) return Math.floor(s/3600) + 'h ago';
-    return d.toISOString().slice(0,10);
-  } catch (_) { return iso; }
-}
-
-/* ── Identity + journal: localStorage cache, server is substrate ───── */
-const VISITOR_KEY = 'concordance_visitor_id';
-const WALK_JOURNAL_KEY = 'concordance_walk_journal_v1';
-const WALK_JOURNAL_MAX = 100;
-
-function getVisitorId() {
-  try {
-    let id = localStorage.getItem(VISITOR_KEY);
-    if (!id) {
-      const buf = new Uint8Array(12);
-      if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
-        window.crypto.getRandomValues(buf);
-      } else {
-        for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
-      }
-      id = Array.from(buf).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 12);
-      localStorage.setItem(VISITOR_KEY, id);
-    }
-    return id;
-  } catch (_) { return 'anonanonanon'; }
-}
-const VISITOR_ID = getVisitorId();
-
-// The household capability id (NHHousehold) is this person's identity across
-// surfaces. Sending it lets the server bridge this walk to the same person who
-// uses the funnel — so the Shepherd's memory spans both (he connects the dots).
-// The walk's own VISITOR_ID is unchanged; this is an additive link, no migration.
-function hhHeaders(base) {
-  const h = Object.assign({}, base || {});
-  try { var id = (window.NHHousehold && NHHousehold.id()) || ''; if (id) h['X-Household-Id'] = id; } catch (_) {}
-  return h;
-}
-
-function _djb2(s) {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return (h >>> 0).toString(16);
-}
-function walkIdFor(situation) {
-  const norm = (situation || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  return _djb2((VISITOR_ID || 'anon') + '|' + norm);
-}
-function readJournal() {
-  try { return JSON.parse(localStorage.getItem(WALK_JOURNAL_KEY) || '{}'); }
-  catch (_) { return {}; }
-}
-function writeJournal(j) {
-  try {
-    const keys = Object.keys(j);
-    if (keys.length > WALK_JOURNAL_MAX) {
-      const sorted = keys.map(k => [k, j[k].updated_at || 0]).sort((a,b) => a[1]-b[1]);
-      for (let i = 0; i < sorted.length - WALK_JOURNAL_MAX; i++) delete j[sorted[i][0]];
-    }
-    localStorage.setItem(WALK_JOURNAL_KEY, JSON.stringify(j));
-  } catch (_) {}
-}
-function readGateAnswers(walkId) {
-  const j = readJournal();
-  return (j[walkId] || {}).gates || {};
-}
-function saveGateAnswerLocal(walkId, gate, answer, situation) {
-  const j = readJournal();
-  const entry = j[walkId] || { situation: situation || '', gates: {}, created_at: Date.now() };
-  entry.situation = entry.situation || (situation || '');
-  entry.gates = entry.gates || {};
-  entry.gates[gate] = answer;
-  entry.updated_at = Date.now();
-  entry.answered_count = Object.values(entry.gates).filter(v => (v||'').trim()).length;
-  j[walkId] = entry;
-  writeJournal(j);
-  return entry;
-}
-
-async function saveGateAnswerServer(walkId, situation, gates) {
-  try {
-    await fetch('/coach/journal', {
-      method: 'POST',
-      headers: hhHeaders({'Content-Type':'application/json'}),
-      body: JSON.stringify({
-        visitor_id: VISITOR_ID,
-        walk_id: walkId,
-        situation: situation,
-        gates: gates,
-      }),
-    });
-  } catch (_) { /* offline: localStorage is the cache */ }
-}
-
-function wireWitnessCopy() {
-  const btn = document.getElementById('bw-copy-btn');
-  const input = document.getElementById('bw-link-input');
-  if (!btn || !input) return;
-  btn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(input.value);
-    } catch (_) {
-      // Fallback: select + execCommand
-      input.select();
-      try { document.execCommand('copy'); } catch (__) {}
-    }
-    const orig = btn.textContent;
-    btn.textContent = (window._i18n && _i18n.t('status.copied', 'Copied ✓')) || 'Copied ✓';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
-  });
-}
-
-function wireGateAnswers(walkId, situation) {
-  const out = $('walkOut');
-  if (!out) return;
-  out.querySelectorAll('textarea.gate-answer').forEach(ta => {
-    let saveTimer = null;
-    const gate = ta.dataset.gate;
-    const gateEl = ta.closest('.gate-card');
-    const statusEl = gateEl?.querySelector('.gate-status-state');
-    const refresh = () => {
-      const hasText = !!ta.value.trim();
-      if (statusEl) {
-        statusEl.textContent = hasText ? 'saved' : 'unanswered';
-        statusEl.classList.toggle('saved', hasText);
-      }
-      if (gateEl) gateEl.classList.toggle('answered', hasText);
-    };
-    const persist = () => {
-      const entry = saveGateAnswerLocal(walkId, gate, ta.value, situation);
-      refresh();
-      // Best-effort server mirror — does not block the UI.
-      saveGateAnswerServer(walkId, situation, entry.gates);
-    };
-    ta.addEventListener('input', () => {
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(persist, 350);
-    });
-    ta.addEventListener('blur', () => {
-      if (saveTimer) clearTimeout(saveTimer);
-      persist();
-    });
-  });
-}
-
-/* ── Return state: load journal from server (falls back to local) ── */
-function fmtAgo(ts) {
-  const s = Math.max(1, Math.floor((Date.now() - ts*1000) / 1000));
-  if (s < 60) return s + 's ago';
-  if (s < 3600) return Math.floor(s/60) + 'm ago';
-  if (s < 86400) return Math.floor(s/3600) + 'h ago';
-  return Math.floor(s/86400) + 'd ago';
-}
-function truncate(s, n) {
-  s = (s || '').trim();
-  return s.length <= n ? s : (s.slice(0, n - 1) + '…');
-}
-
-async function loadReturnState() {
-  const panel = $('returnPanel');
-  const list  = $('returnList');
-  const count = $('returnCount');
-  if (!panel || !list) return;
-
-  let walks = [];
-  try {
-    const r = await fetch('/coach/journal?visitor_id=' + encodeURIComponent(VISITOR_ID), { headers: hhHeaders() });
-    if (r.ok) {
-      const d = await r.json();
-      walks = d.walks || [];
-    }
-  } catch (_) {}
-
-  // Merge with localStorage as a fallback / offline source.
-  const j = readJournal();
-  const fromLocal = Object.entries(j).map(([wid, v]) => ({
-    walk_id: wid,
-    situation: v.situation || '',
-    gates: v.gates || {},
-    answered_count: v.answered_count || Object.values(v.gates||{}).filter(x => (x||'').trim()).length,
-    updated_at: Math.floor((v.updated_at || 0) / 1000),
-  }));
-  const byId = new Map();
-  for (const w of walks) byId.set(w.walk_id, w);
-  for (const w of fromLocal) {
-    const ex = byId.get(w.walk_id);
-    if (!ex || (w.updated_at || 0) > (ex.updated_at || 0)) byId.set(w.walk_id, w);
-  }
-  walks = Array.from(byId.values()).sort((a,b) => (b.updated_at||0) - (a.updated_at||0));
-
-  if (!walks.length) { panel.style.display = 'none'; return; }
-  panel.style.display = 'block';
-  if (count) count.textContent = String(walks.length);
-
-  list.innerHTML = walks.slice(0, 25).map(w => {
-    const n = w.answered_count || 0;
-    return `<div class="return-item" data-situation="${esc(w.situation)}">
-      <div class="ri-sit">${esc(truncate(w.situation, 120) || '(empty situation)')}</div>
-      <span class="ri-progress${n===4 ? ' full' : ''}">${n}/4</span>
-      <span class="ri-meta">${esc(fmtAgo(w.updated_at || 0))}</span>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.return-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const sit = el.dataset.situation || '';
-      $('situation').value = sit;
-      runWalk();
-    });
-  });
-}
-
-/* ── Walk a situation ──────────────────────────────────────────────── */
-async function runWalk() {
-  const s = ($('situation').value || '').trim();
-  if (!s) { $('situation').focus(); return; }
-  const btn = $('walkBtn');
-  const out = $('walkOut');
-  btn.disabled = true;
-  out.classList.add('show');
-  out.innerHTML = '<div style="color:var(--muted);font-family:\'Crimson Pro\',serif;font-style:italic;padding:20px 0;">Walking…</div>';
-  const walkId = walkIdFor(s);
-  try {
-    const r = await fetch('/walk', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({situation: s}),
-    });
-    if (!r.ok) {
-      let detail = 'engine returned ' + r.status;
-      try { const d = await r.json(); detail = d.detail || detail; } catch(_){}
-      throw new Error(detail);
-    }
-    const d = await r.json();
-
-    // Preload any prior gate answers for this walk_id.
-    let savedAnswers = readGateAnswers(walkId);
-    try {
-      const jr = await fetch('/coach/journal/' + encodeURIComponent(walkId) + '?visitor_id=' + encodeURIComponent(VISITOR_ID));
-      if (jr.ok) {
-        const jd = await jr.json();
-        if (jd && jd.gates) savedAnswers = Object.assign({}, savedAnswers, jd.gates);
-      }
-    } catch (_) {}
-
-    // Fetch witnesses for this walk so BROTHERS gate can render them.
-    let witnessList = [];
-    try {
-      const wr = await fetch('/witness/walk?walker_visitor_id=' + encodeURIComponent(VISITOR_ID) + '&walk_id=' + encodeURIComponent(walkId));
-      if (wr.ok) {
-        const wd = await wr.json();
-        witnessList = wd.witnesses || [];
-      }
-    } catch (_) {}
-
-    const sections = [];
-    const patterns = renderPatterns(d.patterns);
-    if (patterns) sections.push(patterns); else sections.push('<section class="layer"><h2>Patterns</h2><div class="empty">No recognizable archetype pattern surfaced from this situation. Describe it in more concrete terms if you want pattern recognition.</div></section>');
-    const scripture = renderScripture(d.scripture);
-    if (scripture) sections.push(scripture);
-    const protocols = renderProtocols(d.protocols);
-    if (protocols) sections.push(protocols); else sections.push('<section class="layer"><h2>Protocol</h2><div class="empty">No Scripture-defined protocol matched this situation\'s shape. Walking the four gates below still applies.</div></section>');
-    sections.push(renderWalk(d.the_walk, savedAnswers, walkId, witnessList));
-
-    // ── The Shepherd reaches into the rest of the engine ──
-    // A placeholder that gets filled async after the walk renders.
-    sections.push('<div id="shepherdReach"></div>');
-
-    sections.push(renderPolyOffer(s));
-    sections.push(renderWhatNext(s));
-    out.innerHTML = sections.join('');
-
-    // Wire textareas to save on type/blur.
-    wireGateAnswers(walkId, s);
-    // Wire the BROTHERS-panel copy button.
-    wireWitnessCopy();
-    // Wire the polymathic offer button.
-    wirePolyOffer(s);
-    // Re-load return state so newly walked situations appear.
-    loadReturnState();
-
-    // ── Async enrichment: Shepherd draws from Apothecary + Almanac ──
-    enrichWalk(s);
-  } catch (e) {
-    out.innerHTML = `<div style="color:#f7b9b3;padding:18px 22px;background:rgba(224,124,124,0.06);border-radius:8px;">Could not walk: ${esc(e.message)}</div>`;
-  } finally {
-    btn.disabled = false;
-  }
-}
-$('walkBtn').addEventListener('click', runWalk);
-
-/* ── "What next?" — flow affordance after the four gates render ──
-   The Shepherd shows you the gates; this panel shows you the next move
-   beyond the walk itself. Compound a remedy, write a reflection, search
-   wider, find precedent. These are the canonical onward paths. */
-function renderWhatNext(situation) {
-  const enc = encodeURIComponent(situation);
-  return `<section class="layer" style="border-top:1px dashed var(--accent);background:rgba(217,168,114,0.04);">
-    <h2>What next?<span class="ct">flow onward</span></h2>
-    <div class="sub">You walked. Here's where this can go from here. None are required; each is a real path.</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;">
-      <a href="/apothecary.html?q=${enc}" style="display:block;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid #b88ed6;border-radius:8px;text-decoration:none;color:inherit;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#b88ed6;text-transform:uppercase;margin-bottom:3px;">Compound a remedy</div>
-        <div style="color:var(--text);font-size:14px;font-weight:500;">Scripture + protocol + practice + parable + body, for this same situation</div>
-      </a>
-      <a href="/scribe.html?prefill=${enc}" style="display:block;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--pass);border-radius:8px;text-decoration:none;color:inherit;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--pass);text-transform:uppercase;margin-bottom:3px;">Write a reflection</div>
-        <div style="color:var(--text);font-size:14px;font-weight:500;">Capture what you learned for the keeping to decide on</div>
-      </a>
-      <a href="/?q=${enc}" style="display:block;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid #7fa8c0;border-radius:8px;text-decoration:none;color:inherit;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#7fa8c0;text-transform:uppercase;margin-bottom:3px;">Find precedent</div>
-        <div style="color:var(--text);font-size:14px;font-weight:500;">Search the substrate for similar situations across every lens</div>
-      </a>
-      <a href="/witness.html?walker_visitor_id=${encodeURIComponent(VISITOR_ID)}" style="display:block;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;text-decoration:none;color:inherit;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:3px;">Invite witnesses</div>
-        <div style="color:var(--text);font-size:14px;font-weight:500;">Two or three witnesses (Mt 18:16). Solo decisions wait.</div>
-      </a>
-    </div>
-  </section>`;
-}
-
-/* ── Polymathic-from-Walk — fire every applicable verifier in parallel ──
-   Folds the standalone /poly.html tool into the walk: after the four gates
-   render, the Shepherd offers to run polymathic on the same situation.
-   One click, results render inline. */
-function renderPolyOffer(situation) {
-  return `<section class="layer" id="poly-offer-layer">
-    <h2>Polymathic <span class="ct">optional · every applicable verifier in parallel</span></h2>
-    <div class="sub">If your situation contains factual claims (numbers, equations, dates, financial figures, calorie counts) the Shepherd can fire every applicable verifier on them in parallel and return a composite verdict. About 5&ndash;15s.</div>
-    <div id="poly-offer-box" style="margin-top:14px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;">
-      <button id="polyOfferBtn" type="button" style="background:var(--accent);color:#1a1208;border:none;border-radius:7px;padding:9px 18px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;letter-spacing:0.02em;">Run polymathic on this situation →</button>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.04em;">or open in the standalone tool: <a href="/poly.html?situation=${encodeURIComponent(situation)}" style="color:var(--accent);">/poly →</a></span>
-    </div>
-    <div id="poly-result-box" style="margin-top:14px;"></div>
-  </section>`;
-}
-
-function wirePolyOffer(situation) {
-  const btn = document.getElementById('polyOfferBtn');
-  const box = document.getElementById('poly-result-box');
-  if (!btn || !box) return;
-  btn.addEventListener('click', async () => {
-    btn.disabled = true;
-    const origText = btn.textContent;
-    btn.textContent = (window._i18n && _i18n.t('status.running', 'Running polymathic…')) || 'Running polymathic…';
-    box.innerHTML = `<div style="color:var(--muted);font-style:italic;font-family:'Crimson Pro',serif;">Oracle is classifying atomic claims and dispatching verifiers in parallel…</div>`;
-    try {
-      const t0 = performance.now();
-      const r = await fetch('/polymathic', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ situation, visitor_id: VISITOR_ID }),
-      });
-      const elapsed = Math.round(performance.now() - t0);
-      if (!r.ok) {
-        let detail = 'engine returned ' + r.status;
-        try { const e = await r.json(); detail = e.detail || detail; } catch(_){}
-        throw new Error(detail);
-      }
-      const pd = await r.json();
-      box.innerHTML = renderPolyResult(pd, elapsed);
-    } catch (err) {
-      box.innerHTML = `<div style="color:#f7b9b3;padding:14px 18px;background:rgba(224,124,124,0.06);border-radius:8px;">Polymathic could not run: ${esc(err.message || 'network error')}.</div>`;
-    } finally {
-      btn.textContent = origText;
-      btn.disabled = false;
-    }
-  });
-}
-
-/* ── The Shepherd reaches into the whole engine ──
-   After the walk renders, fetch the Apothecary compound and Almanac search
-   for the same situation. The Shepherd brings everything to you. */
-async function enrichWalk(situation) {
-  const box = document.getElementById('shepherdReach');
-  if (!box) return;
-  const parts = [];
-
-  // Fire both in parallel
-  const [apothRes, searchRes] = await Promise.allSettled([
-    fetch('/apothecary?condition=' + encodeURIComponent(situation)).then(r => r.ok ? r.json() : null),
-    fetch('/index/packets/search?q=' + encodeURIComponent(situation) + '&limit=4').then(r => r.ok ? r.json() : null),
-  ]);
-
-  // Apothecary compound — structure is compound.{slot} = {title, text, ...} or null
-  const apoth = apothRes.status === 'fulfilled' ? apothRes.value : null;
-  const compound = apoth && apoth.compound ? apoth.compound : null;
-  if (compound) {
-    const slotColors = {scripture:'#c9a87c', proverb:'#c9a87c', protocol:'var(--pass)', mind:'#b88ed6',
-      training:'var(--pass)', fieldkit:'#c4a030', body:'#7fa8c0', parable:'#b88ed6',
-      philosopher:'#b88ed6', father:'#c9a87c', almanac:'#6fc47c'};
-    const showSlots = ['scripture','protocol','mind','almanac','fieldkit','training'];
-    const cards = showSlots.map(slot => {
-      const ing = compound[slot];
-      if (!ing || typeof ing !== 'object') return '';
-      const color = slotColors[slot] || 'var(--muted)';
-      const title = ing.title || ing.name || ing.id || slot;
-      const snip = ing.text || ing.body || ing.snippet || '';
-      const short = snip.length > 100 ? snip.slice(0, 100) + '…' : snip;
-      return `<div style="padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;color:${color};text-transform:uppercase;margin-bottom:3px;">${esc(slot)}</div>
-        <div style="font-family:'Crimson Pro',Georgia,serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px;">${esc(title)}</div>
-        ${short ? `<div style="font-family:'Crimson Pro',Georgia,serif;font-size:13px;color:var(--text-dim);line-height:1.45;font-style:italic;">${esc(short)}</div>` : ''}
-      </div>`;
-    }).filter(Boolean).join('');
-    if (cards) {
-      parts.push(`<section class="layer" style="border-top:1px dashed #b88ed6;background:rgba(184,142,214,0.03);">
-        <h2 style="color:#b88ed6;">The Shepherd also compounded<span class="ct">from the Apothecary</span></h2>
-        <div class="sub">For the same situation, the engine's Apothecary found these ingredients. <a href="/apothecary.html?q=${encodeURIComponent(situation)}" style="color:#b88ed6;">See the full compound →</a></div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px;">${cards}</div>
-      </section>`);
-    }
-  }
-
-  // Almanac / search results
-  const sr = searchRes.status === 'fulfilled' ? searchRes.value : null;
-  const hits = sr ? (sr.packets || sr.results || sr.hits || []) : [];
-  if (hits.length > 0) {
-    const items = hits.slice(0, 3).map(h => {
-      const title = h.title || h.claim || h.id || '';
-      const verdict = (h.verdict || '').toUpperCase();
-      const vColor = verdict === 'CONFIRMED' ? 'var(--pass)' : verdict === 'MISMATCH' ? 'var(--fail)' : 'var(--muted)';
-      return `<div style="padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;gap:10px;align-items:baseline;">
-        ${verdict ? `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:${vColor};white-space:nowrap;">${esc(verdict)}</span>` : ''}
-        <span style="font-family:'Crimson Pro',Georgia,serif;font-size:14px;color:var(--text);">${esc(title)}</span>
-      </div>`;
-    }).join('');
-    parts.push(`<section class="layer" style="border-top:1px dashed #7fa8c0;background:rgba(127,168,192,0.03);">
-      <h2 style="color:#7fa8c0;">Also in the keeping<span class="ct">related entries</span></h2>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">${items}</div>
-      <div style="margin-top:8px;"><a href="/?q=${encodeURIComponent(situation)}" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#7fa8c0;letter-spacing:0.04em;">Search all ${(sr.total || hits.length)} results →</a></div>
-    </section>`);
-  }
-
-  if (parts.length) box.innerHTML = parts.join('');
-}
-
-function renderPolyResult(pd, elapsedMs) {
-  const verdict = (pd.composite_verdict || pd.verdict || 'UNKNOWN').toUpperCase();
-  const verdictColor = v => ({
-    'CONCORDANT': 'var(--pass)', 'CONFIRMED': 'var(--pass)',
-    'OUT_OF_SCOPE': 'var(--muted)', 'QUARANTINE': 'var(--hold)',
-    'DISCORDANT': 'var(--fail)', 'MIXED': 'var(--hold)',
-  })[v] || 'var(--muted)';
-  // Two server shapes: `claims[]` (older) OR `domain_results[]` (current).
-  const rows = [];
-  if (Array.isArray(pd.claims) && pd.claims.length) {
-    pd.claims.forEach(c => rows.push({
-      verdict: (c.verdict || '?').toUpperCase(),
-      verifier: c.verifier || '',
-      detail: (c.claim || '').slice(0, 140),
-    }));
-  } else if (Array.isArray(pd.domain_results) && pd.domain_results.length) {
-    pd.domain_results.forEach(d => rows.push({
-      verdict: (d.verdict || '?').toUpperCase(),
-      verifier: d.verifier || d.domain || '',
-      detail: (d.detail || d.summary || '').slice(0, 140),
-    }));
-  }
-  const rowsHtml = rows.slice(0, 8).map(r => {
-    return `<div style="margin:6px 0;font-size:13px;color:var(--text);"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:${verdictColor(r.verdict)};letter-spacing:0.06em;font-weight:600;">${esc(r.verdict)}</span> · <span style="color:var(--accent);">${esc(r.verifier)}</span>${r.detail ? ' · ' + esc(r.detail) : ''}</div>`;
-  }).join('');
-  const more = rows.length > 8 ? `<div style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10.5px;margin-top:6px;">… and ${rows.length - 8} more · <a href="/poly.html?situation=${encodeURIComponent(pd.situation || '')}" style="color:var(--accent);">open in /poly →</a></div>` : '';
-  const outOfScopeNote = verdict === 'OUT_OF_SCOPE' && !rows.length
-    ? `<div style="margin-top:8px;font-family:'Crimson Pro',serif;font-size:13px;color:var(--text-dim);line-height:1.55;">The Shepherd ran the oracle, but no atomic claims matched a verifier &mdash; either there are none to verify, or the oracle is unavailable. The walk above still holds; polymathic just had nothing to add.</div>`
-    : '';
-  return `<div style="padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);">
-    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;">Composite verdict</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:14.5px;color:${verdictColor(verdict)};font-weight:700;letter-spacing:0.06em;">${esc(verdict)}</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);">${rows.length} claim${rows.length===1?'':'s'} · ${elapsedMs}ms</span>
-    </div>
-    ${rowsHtml}
-    ${more}
-    ${outOfScopeNote}
-  </div>`;
-}
-
-/* ── On load: surface prior walks + honor ?situation= deep link ── */
 (function () {
-  loadReturnState();
-  const sp = new URLSearchParams(location.search);
-  const sit = (sp.get('situation') || '').trim();
-  if (sit) {
-    $('situation').value = sit;
-    runWalk();
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+  // The household capability id (NHHousehold) is this device's key to its own
+  // private shelf + its own Shepherd. Possession is the key — no passwords. We
+  // send it on every funnel/narrow call so each household gets its own keeping
+  // and its own remembered relationship. The operator (localhost/keep) is
+  // resolved server-side and wins over this, so Matt always lands on his shelf.
+  function hhId(){ try{ return (window.NHHousehold && NHHousehold.id()) || ''; }catch(e){ return ''; } }
+  function hdr(extra){ var h=Object.assign({}, extra||{}); var id=hhId(); if(id) h['X-Household-Id']=id; return h; }
+  var $box=document.getElementById('box'), $send=document.getElementById('send'),
+      $flash=document.getElementById('flash'), $mine=document.getElementById('mine'),
+      $narrow=document.getElementById('narrow'), $recall=document.getElementById('recall');
+
+  function loadMine(){
+    fetch('/funnel/mine',{cache:'no-store',headers:hdr()})
+      .then(function(r){ if(r.status===404){ $mine.innerHTML='<div class="empty">This is your private workspace, kept on this device. Your browser is blocking local storage, so a private shelf can\'t be set up here.</div>'; return null; } return r.ok?r.json():null; })
+      .then(function(j){ if(!j) return; render(j); })
+      .catch(function(){ $mine.innerHTML='<div class="empty">Could not load your shelf.</div>'; });
   }
+
+  function render(j){
+    if(!j.cards || !j.cards.length){ $mine.innerHTML='<div class="empty">Nothing yet. Bring your first card above.</div>'; return; }
+    var canPub=!!j.can_publish;  // operator-only: promoting a card to the shared substrate
+    var byDeck={};
+    j.cards.forEach(function(c){ (byDeck[c.deck||'note']=byDeck[c.deck||'note']||[]).push(c); });
+    var html='';
+    Object.keys(byDeck).sort().forEach(function(d){
+      html+='<div class="deck">'+esc(d)+' ('+byDeck[d].length+')</div>';
+      byDeck[d].forEach(function(c){
+        var shepNote=(c.shepherd&&c.shepherd.say)?'<div class="shepc">'+esc(c.shepherd.say)+'</div>':'';
+        var acts=canPub? '<div class="acts"><button class="pub" data-id="'+esc(c.id)+'">Publish to the public shelf</button>'+
+          ' <button class="prop" data-id="'+esc(c.id)+'">Propose to the knowledge bank</button></div>' : '';
+        html+='<div class="card"><div class="t">'+esc(c.title||'')+'<span class="priv">private</span></div>'+
+          (c.body && c.body!==c.title? '<div class="b">'+esc(c.body.slice(0,160))+(c.body.length>160?'…':'')+'</div>':'')+
+          shepNote+acts+'</div>';
+      });
+    });
+    $mine.innerHTML=html;
+    Array.prototype.forEach.call($mine.querySelectorAll('.pub'),function(b){
+      b.addEventListener('click',function(){ publish(b.dataset.id, b); });
+    });
+    Array.prototype.forEach.call($mine.querySelectorAll('.prop'),function(b){
+      b.addEventListener('click',function(){ propose(b.dataset.id, b); });
+    });
+  }
+
+  function propose(id, btn){
+    btn.textContent='Sending to the Scribe…'; btn.disabled=true;
+    fetch('/funnel/propose/'+encodeURIComponent(id),{method:'POST',headers:hdr()})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(j){ if(j&&j.ok){ btn.textContent='Recorded by the Scribe'; $flash.textContent='The Scribe recorded it — the witness gate decides what enters the bank.'; } else { btn.textContent='Propose'; btn.disabled=false; } })
+      .catch(function(){ btn.textContent='Propose'; btn.disabled=false; });
+  }
+
+  function publish(id, btn){
+    btn.textContent='Publishing…'; btn.disabled=true;
+    fetch('/funnel/publish/'+encodeURIComponent(id),{method:'POST',headers:hdr()})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(j){ if(j&&j.ok){ $flash.textContent='Published to the public shelf.'; loadMine(); } else { btn.textContent='Publish failed'; btn.disabled=false; } })
+      .catch(function(){ btn.textContent='Publish failed'; btn.disabled=false; });
+  }
+
+  var thread=[];                       // the running Socratic exchange
+  var ORIG_PH=$box.getAttribute('placeholder');
+  var $convo=document.getElementById('convo');
+
+  // ── Voice out — hear the Shepherd's reply (ported from the retired deposit page) ──
+  var curAudio=null;
+  function speak(text, btn){
+    try{
+      if(curAudio){ curAudio.pause(); curAudio=null; }
+      if(btn) btn.textContent='⏸';
+      fetch('/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
+        .then(function(r){ return r.ok?r.blob():null; })
+        .then(function(b){ if(!b){ if(btn) btn.textContent='🔇'; return; } curAudio=new Audio(URL.createObjectURL(b)); curAudio.onended=function(){ if(btn) btn.textContent='🔊'; }; curAudio.play(); })
+        .catch(function(){ if(btn) btn.textContent='🔊'; });
+    }catch(e){ if(btn) btn.textContent='🔊'; }
+  }
+  function setShepFlash(say, routeHtml){
+    $flash.innerHTML='<span class="shep">'+esc(say)+'</span> <button class="sayspk" title="Hear it">🔊</button>'+(routeHtml||'');
+    var b=$flash.querySelector('.sayspk'); if(b){ b.addEventListener('click',function(){ speak(say,b); }); }
+  }
+
+  function renderConvo(){
+    if(!thread.length){ $convo.style.display='none'; $convo.innerHTML=''; return; }
+    $convo.style.display='block';
+    var html=thread.map(function(m){
+      return '<div class="turn '+(m.role==='assistant'?'shep':'you')+'">'+esc(m.content)+'</div>';
+    }).join('');
+    html+='<div class="startover"><a id="so">start over</a></div>';
+    $convo.innerHTML=html;
+    var so=document.getElementById('so');
+    if(so) so.addEventListener('click', resetThread);
+  }
+  function resetThread(){
+    thread=[]; renderConvo();
+    $send.textContent='Walk →'; $box.setAttribute('placeholder',ORIG_PH); $flash.textContent='';
+    if($narrow) $narrow.innerHTML='';
+    if($recall) $recall.innerHTML='';
+  }
+  function renderRecall(rc, rec, rw){
+    if(!$recall) return;
+    var html='';
+    if(rec && rec.count){
+      html+='<div class="recall recur"><span class="rl">He sees the thread.</span> You keep returning to <b>'+
+        esc(rec.name||rec.pattern_id)+'</b>'+(rec.count>1?' — '+(rec.count+1)+' times now':'')+'.</div>';
+    }
+    if(rc){
+      html+='<div class="recall"><span class="rl">He remembers.</span> This connects to '+
+        '<a href="/walk#'+esc(rc.id)+'">'+esc(rc.title||'something you brought before')+'</a>'+
+        (rc.when?' <span class="rw">('+esc(rc.when)+')</span>':'')+
+        (rc.snippet?'<div class="rs">'+esc(rc.snippet)+'</div>':'')+'</div>';
+    }
+    if(rw){
+      // memory spans surfaces: a prior four-gates WALK on a related situation.
+      var gates = rw.gates || {};
+      var gk = Object.keys(gates);
+      var gatesHtml = gk.length ? '<div class="rg">'+gk.map(function(k){
+        return '<b>'+esc(k)+'</b> '+esc(String(gates[k]).slice(0,120));
+      }).join('<br>')+'</div>' : '';
+      html+='<div class="recall walk"><span class="rl">He has walked this with you.</span> You took '+
+        '<a href="/_archive/walk-fourgates.html">'+esc(rw.situation||rw.title||'a situation like this')+'</a>'+
+        (rw.when?' <span class="rw">('+esc(rw.when)+')</span>':'')+' through the gates'+
+        (rw.answered?(' — '+rw.answered+' answered'):'')+'.'+gatesHtml+'</div>';
+    }
+    $recall.innerHTML=html;
+  }
+
+  // ── The narrowing (rung 2): the Shepherd ASKS (Socratic); you answer; the floor answers ──
+  function renderNarrow(nz, situation){
+    if(!$narrow) return;
+    if(nz.arrived){ renderArrival(nz); return; }
+    if(!nz.narrowable){ $narrow.innerHTML=''; return; }
+    var cards = nz.cards || nz.choices || [];
+    // The Shepherd's question + a place to answer in your own words.
+    var html='<div class="nq">'+esc(nz.say||'')+'</div>'+
+      '<div class="nrow"><input id="nreply" placeholder="Answer in your own words…" autocomplete="off" /><button id="nsend">→</button></div>';
+    if(cards.length){
+      html+='<div class="nchips">or name it: '+cards.map(function(c){
+        return '<button class="nchip" data-id="'+esc(c.id)+'" title="'+esc((c.scripture||[]).join(' · '))+'">'+esc(c.name||c.id)+'</button>';
+      }).join(' ')+'</div>';
+    }
+    $narrow.innerHTML=html;
+    var inp=document.getElementById('nreply'), snd=document.getElementById('nsend');
+    function go(){ var v=inp.value.trim(); if(v){ replyNarrow(situation, v); } }
+    if(snd) snd.addEventListener('click', go);
+    if(inp){ inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); go(); } }); inp.focus(); }
+    Array.prototype.forEach.call($narrow.querySelectorAll('.nchip'),function(b){
+      b.addEventListener('click',function(){ pickNarrow(situation, b.dataset.id); });
+    });
+  }
+  function replyNarrow(situation, reply){
+    $narrow.innerHTML='<div class="nq">…</div>';
+    fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,reply:reply})})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(nz){ if(nz){ renderNarrow(nz, situation); } else { $narrow.innerHTML='<div class="nq">Could not continue.</div>'; } })
+      .catch(function(){ $narrow.innerHTML='<div class="nq">Could not continue.</div>'; });
+  }
+  function pickNarrow(situation, chosen_id){
+    $narrow.innerHTML='<div class="nq">Bringing the path…</div>';
+    fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,chosen_id:chosen_id})})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(a){ if(a&&a.arrived){ renderArrival(a); } else { $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; } })
+      .catch(function(){ $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; });
+  }
+  function renderArrival(a){
+    var ans=a.answer||{};
+    var html='<div class="arrival"><h3>'+esc(ans.name||'')+'</h3>';
+    if(ans.scripture&&ans.scripture.length) html+='<div class="ref">'+esc(ans.scripture.join(' · '))+'</div>';
+    if(ans.summary) html+='<p>'+esc(ans.summary)+'</p>';
+    var steps=ans.steps||[];
+    if(steps.length){ html+='<ol>'+steps.map(function(s){ var t=(typeof s==='object')?(s.title||s.text||JSON.stringify(s)):s; return '<li>'+esc(String(t))+'</li>'; }).join('')+'</ol>'; }
+    if(a.precedent&&a.precedent.summary){ html+='<div class="prec">From the well — closest precedent: '+esc(a.precedent.summary.slice(0,160))+(a.precedent.ref?' <span class="t">('+esc(a.precedent.ref)+')</span>':'')+'</div>'; }
+    if(a.gates&&a.gates.length){ html+='<div class="gates">Walk it through the gates: '+a.gates.map(function(g){return '<span class="gate" title="'+esc(g.scripture||'')+'">'+esc(g.gate)+'</span>';}).join('')+'</div>'; }
+    if(a.christ_reference){ html+='<div class="christ">The path rests on <b>'+esc(a.christ_reference)+'</b> — the arrow points to Christ.</div>'; }
+    if(a.trail&&a.trail.length){ html+='<div class="trail">Set aside: '+a.trail.map(function(t){return esc(t.name)+(t.why_considered?' <span class="t">('+esc((t.why_considered||[]).join(', '))+')</span>':'');}).join(' · ')+'</div>'; }
+    html+='</div>';
+    $narrow.innerHTML=html;
+  }
+
+  function capture(){
+    var text=$box.value.trim(); if(!text){ $box.focus(); return; }
+    thread.push({role:'user',content:text}); renderConvo();
+    $box.value=''; $send.disabled=true; $flash.textContent='The Shepherd is listening…';
+    fetch('/funnel',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({messages:thread})})
+      .then(function(r){ if(r.status===404){ $flash.textContent='Could not reach the Shepherd — refresh and try again.'; return null; } return r.ok?r.json():null; })
+      .then(function(j){
+        $send.disabled=false;
+        if(!j){ if(j!==null){ $flash.textContent='Could not capture.'; } return; }
+        if(j.status==='asking'){
+          // the Shepherd needs one clarification — carry the conversation
+          thread=(j.messages&&j.messages.length)?j.messages:thread.concat([{role:'assistant',content:j.say}]);
+          renderConvo();
+          setShepFlash(j.say||'');
+          $send.textContent='Reply →'; $box.setAttribute('placeholder','Your reply…'); $box.focus();
+          return;
+        }
+        // resolved — kept or routed
+        resetThread();
+        var say=(j.shepherd&&j.shepherd.say)||('Kept on your '+((j.card&&j.card.deck)||'note')+' shelf.');
+        var routeHtml='';
+        if(j.route&&j.route.url){
+          routeHtml=' <a class="go" href="'+esc(j.route.url)+'?q='+encodeURIComponent(j.route.query||'')+'">Take it through the '+esc(j.route.tool)+' →</a>';
+        }
+        setShepFlash(say, routeHtml);
+        loadMine();
+        // the floor recognized a pattern -> begin the narrowing (rung 2)
+        if(j.narrow){ renderNarrow(j.narrow, j.query||(j.route&&j.route.query)||''); }
+        // the Shepherd remembers -> connect the dots, see the recurring thread,
+        // and recall a prior walk on a related situation (memory spans surfaces)
+        renderRecall(j.recall, j.recurring, j.recall_walk);
+      })
+      .catch(function(){ $send.disabled=false; $flash.textContent='Could not capture.'; });
+  }
+
+  // ── Voice in — speak instead of type (ported from the retired deposit page) ──
+  var $mic=document.getElementById('mic'), recog=null;
+  (function initMic(){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){ if($mic) $mic.style.display='none'; return; }
+    $mic.addEventListener('click', function(){
+      if(recog){ recog.stop(); recog=null; $mic.classList.remove('live'); return; }
+      recog=new SR(); recog.continuous=true; recog.interimResults=true; recog.lang='en-US';
+      var base=$box.value.trim();
+      $mic.classList.add('live'); $box.focus();
+      recog.onresult=function(e){ var t=''; for(var i=e.resultIndex;i<e.results.length;i++){ t+=e.results[i][0].transcript; } $box.value=(base?base+' ':'')+t; };
+      recog.onend=function(){ $mic.classList.remove('live'); recog=null; };
+      recog.onerror=function(){ $mic.classList.remove('live'); recog=null; };
+      recog.start();
+    });
+  })();
+
+  $send.addEventListener('click', capture);
+  $box.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ capture(); } });
+  // carry a prefilled situation into the box: ?q= (retired /deposit redirect) OR
+  // ?situation= (the param the site's deep-links use — almanac "ask the Shepherd",
+  // apothecary, archetypes). Accepting both lets the Walk become the one door
+  // those links point to without losing the carried context.
+  try{ var _sp=new URLSearchParams(location.search); var pq=_sp.get('q')||_sp.get('situation'); if(pq){ $box.value=pq; $box.focus(); } }catch(e){}
+  loadMine();
 })();
 </script>
-
-  <script defer src="/nh-shepherd.js"></script>
 </body>
 </html>

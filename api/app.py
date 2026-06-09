@@ -7211,9 +7211,12 @@ def root(request: Request):
 # not a family entrance); walk.html stays until its four-gates journal merges
 # into the funnel (no lossy redirect of a live capability).
 _COLLAPSED_DOORS = {
-    "/discern-teaching.html": "/funnel.html",   # "Discern this teaching" — same act
-    "/shepherd-room.html": "/funnel.html",       # "The Shepherd's Room" — the funnel IS his voice
-    "/walks.html": "/funnel.html",               # "The Discernment Engine" — the old main door
+    # The ONE door is /walk.html — the better NAME ("Walk") carrying the better
+    # MECHANISM (the funnel: per-user, narrowing, recall, the local mouth).
+    "/funnel.html": "/walk.html",                # the funnel mechanism now lives at /walk.html
+    "/discern-teaching.html": "/walk.html",      # "Discern this teaching" — same act
+    "/shepherd-room.html": "/walk.html",         # "The Shepherd's Room" — the Shepherd's voice
+    "/walks.html": "/walk.html",                 # "The Discernment Engine" — the old main door
 }
 
 
