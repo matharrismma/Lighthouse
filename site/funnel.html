@@ -360,8 +360,11 @@
 
   $send.addEventListener('click', capture);
   $box.addEventListener('keydown', function(e){ if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ capture(); } });
-  // carry a ?q= (e.g. from the retired /deposit redirect) into the box
-  try{ var pq=new URLSearchParams(location.search).get('q'); if(pq){ $box.value=pq; $box.focus(); } }catch(e){}
+  // carry a prefilled situation into the box: ?q= (retired /deposit redirect) OR
+  // ?situation= (the param the site's deep-links use — almanac "ask the Shepherd",
+  // apothecary, archetypes). Accepting both lets the funnel become the one door
+  // those links point to without losing the carried context.
+  try{ var _sp=new URLSearchParams(location.search); var pq=_sp.get('q')||_sp.get('situation'); if(pq){ $box.value=pq; $box.focus(); } }catch(e){}
   loadMine();
 })();
 </script>
