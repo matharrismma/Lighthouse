@@ -533,11 +533,21 @@ def build_cards_dev_index() -> Dict[str, Any]:
                 continue
             content += 1
             inline = {x.get("to_card_id") for x in (c.get("connections") or []) if x.get("to_card_id")}
+            # matt-tier original writing is witnessed by anchoring to >=2 Scripture/
+            # elder authorities (Matt's ruling) — surface its anchor progress so the
+            # board names exactly what each card still needs, never a bare "witness".
+            anchors = None
+            if (c.get("source") or {}).get("authority_tier") == "matt" and c.get("witness_status") != "passed":
+                try:
+                    from api import witness_authorship as _wa
+                    anchors = _wa.count_anchors(c)["count"]
+                except Exception:
+                    anchors = None
             pending.append((c.get("id"), len(c.get("body") or ""),
                             c.get("witness_status") == "passed", c.get("shelf") or "?",
-                            inline, (c.get("title") or "")[:90]))
+                            inline, (c.get("title") or "")[:90], anchors))
     # Pass 2: stage each content card by DISTINCT connected neighbors (inline + graph)
-    for cid, body_len, witnessed, shelf, inline, title in pending:
+    for cid, body_len, witnessed, shelf, inline, title, anchors in pending:
         neighbors = (inline | graph.get(cid, set()))
         neighbors.discard(cid)
         conn = len(neighbors)
@@ -551,10 +561,11 @@ def build_cards_dev_index() -> Dict[str, Any]:
             if conn < _CONN_DONE:
                 missing.append("connections")
             if not witnessed:
-                missing.append("witness")
+                # name the real bar for matt-tier authored cards: N/2 anchors
+                missing.append(f"witness ({anchors}/2 anchors)" if anchors is not None else "witness")
             lists[st].append({"id": cid, "title": title,
                               "shelf": shelf, "body_len": body_len, "conn": conn,
-                              "witnessed": witnessed, "missing": missing})
+                              "witnessed": witnessed, "anchors": anchors, "missing": missing})
     # Order each needs-work queue by closeness to done — fewest missing first,
     # then most body, then most links — so the operator's fastest wins (e.g. a
     # card needing only a witness) rise to the top. Cap AFTER sorting, so the
