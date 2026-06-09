@@ -544,15 +544,24 @@ def build_cards_dev_index() -> Dict[str, Any]:
         st = _card_stage(body_len, conn, witnessed)
         stages[st] += 1
         by_shelf[shelf][st] += 1
-        if st in lists and len(lists[st]) < CAP:
+        if st in lists:
             missing = []
             if body_len < _BODY_FULL:
                 missing.append("body")
             if conn < _CONN_DONE:
                 missing.append("connections")
+            if not witnessed:
+                missing.append("witness")
             lists[st].append({"id": cid, "title": title,
                               "shelf": shelf, "body_len": body_len, "conn": conn,
-                              "missing": missing})
+                              "witnessed": witnessed, "missing": missing})
+    # Order each needs-work queue by closeness to done — fewest missing first,
+    # then most body, then most links — so the operator's fastest wins (e.g. a
+    # card needing only a witness) rise to the top. Cap AFTER sorting, so the
+    # queue shows the closest 500, not an arbitrary first-500-encountered.
+    for _st, _lst in lists.items():
+        _lst.sort(key=lambda c: (len(c["missing"]), -c["body_len"], -c["conn"]))
+        lists[_st] = _lst[:CAP]
     developed = stages.get("developed", 0)
     payload = {
         "generated": _now(),
