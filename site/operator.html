@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Operator Console — Narrow Highway</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="The Steward's bench — every operator tool in one place.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--paper:#faf6ec;--rule:#d4c8a5;--rule-strong:#b9ac82;--ink:#1f1a14;--ink-2:#3a3328;--muted:#6b6253;--brass:#9b7c3c;--oxblood:#7a3a32;--pass:#4f7a3a;--blue:#1a3a52;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:linear-gradient(180deg,#f3ecda,#ece3c8);color:var(--ink);font-family:'Crimson Pro',Georgia,serif;line-height:1.5;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    .wrap{max-width:880px;margin:0 auto;padding:40px 22px 40px;}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--oxblood);}
+    h1{font-size:30px;font-weight:600;margin:8px 0 4px;}
+    .lede{color:var(--muted);font-style:italic;font-size:16px;margin-bottom:8px;}
+    .note{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:8px 12px;margin:14px 0 26px;background:rgba(0,0,0,.02);}
+    h2{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin:24px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:5px;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+    .tool{display:block;background:var(--paper);border:1px solid var(--rule-strong);border-left:4px solid var(--blue);border-radius:0 7px 7px 0;padding:12px 15px;transition:transform .07s,box-shadow .07s;}
+    .tool:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(43,24,16,.10);}
+    .tool .t{font-size:17px;font-weight:600;color:var(--blue);}
+    .tool .d{font-size:13px;color:var(--muted);margin-top:2px;}
+    .tool.warn{border-left-color:var(--oxblood);} .tool.warn .t{color:var(--oxblood);}
+    .tool.good{border-left-color:var(--pass);} .tool.good .t{color:var(--pass);}
+    footer{text-align:center;padding:20px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;}
+    footer a{color:var(--oxblood);text-decoration:underline;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">The Steward · operator only</div>
+    <h1>Operator Console</h1>
+    <p class="lede">The Steward's bench — where the one who tends the engine works. Every operator tool, one place.</p>
+    <div class="note">Operator-only · not in any public nav · noindex. The Steward sees everything and improves the product + infrastructure in the background; this is his bench.</div>
+
+    <h2>Engine &amp; gaps — the oracle shrinking with use</h2>
+    <div class="grid">
+      <a class="tool good" href="/innovation.html"><div class="t">The Scoreboard</div><div class="d">Oracle-dependence, gaps closed, deterministic rules — the thesis, measured.</div></a>
+      <a class="tool" href="/gaps.html"><div class="t">Gaps</div><div class="d">What the engine can &amp; can't verify; the build queue.</div></a>
+      <a class="tool" href="/engine-queue.html"><div class="t">Engine Queue</div><div class="d">Operator review of what the engine produced.</div></a>
+      <a class="tool warn" href="/misalignments.html"><div class="t">Misalignments</div><div class="d">Where the engine got it wrong — every flag is read.</div></a>
+    </div>
+
+    <h2>Content ops — the keeping</h2>
+    <div class="grid">
+      <a class="tool" href="/cards-dev.html"><div class="t">Develop the Cards</div><div class="d">The needs-work queue; suggested connections, operator-gated.</div></a>
+      <a class="tool" href="/publish.html"><div class="t">Publish</div><div class="d">Promote content outward.</div></a>
+      <a class="tool" href="/curate.html"><div class="t">Curate</div><div class="d">Tend the substrate — admit, prune, strengthen.</div></a>
+      <a class="tool" href="/witness.html"><div class="t">Attest as Witness</div><div class="d">The witness gate — two or three witnesses establish a card.</div></a>
+      <a class="tool" href="/witnesses.html"><div class="t">The Witness Roll</div><div class="d">Who has attested what.</div></a>
+      <a class="tool" href="/steward.html"><div class="t">Steward — admit/deny</div><div class="d">The admission audit log.</div></a>
+    </div>
+
+    <h2>Channels — TV &amp; radio</h2>
+    <div class="grid">
+      <a class="tool" href="/channels/admin.html"><div class="t">Channel Operator</div><div class="d">Schedule, manifests, the FAST channels.</div></a>
+      <a class="tool" href="/channels.html"><div class="t">Channels (public)</div><div class="d">The family-facing channel browser.</div></a>
+    </div>
+
+    <h2>Planning &amp; outreach</h2>
+    <div class="grid">
+      <a class="tool" href="/roadmap.html"><div class="t">Production Roadmap</div><div class="d">What's shipping next.</div></a>
+      <a class="tool" href="/tasks.html"><div class="t">Tasks</div><div class="d">The operator's task list.</div></a>
+      <a class="tool" href="/outreach.html"><div class="t">Outreach</div><div class="d">Sponsor-as-studio + distribution outreach.</div></a>
+      <a class="tool" href="/dashboard.html"><div class="t">Activity</div><div class="d">What's happening across the engine.</div></a>
+    </div>
+
+    <h2>The doors &amp; the registry</h2>
+    <div class="grid">
+      <a class="tool" href="/registry.html"><div class="t">The Registry</div><div class="d">One mechanism, five substrates (the .org core).</div></a>
+      <a class="tool" href="/walk.html"><div class="t">The Walk</div><div class="d">The one door — the Shepherd / calibration.</div></a>
+      <a class="tool" href="/agents.html"><div class="t">For AI Agents</div><div class="d">MCP + how agents call the authority layer.</div></a>
+    </div>
+  </div>
+  <footer>
+    <a href="/registry.html">the registry</a> · <a href="https://narrowhighway.org/">the engine</a> · Serves Jesus Christ.
+  </footer>
+</body>
+</html>
