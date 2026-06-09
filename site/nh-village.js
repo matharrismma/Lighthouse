@@ -99,7 +99,7 @@
             "want. He is how you find the narrow path without reading every sign.",
       rule: "Here when you ask — and only when you ask.",
       ref: "John 10:11",
-      link: "/funnel.html", linkLabel: "Walk with the Shepherd"
+      link: "/walk.html", linkLabel: "Walk with the Shepherd"
     }
   };
 

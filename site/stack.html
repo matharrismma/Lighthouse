@@ -83,7 +83,7 @@
 
 <nav class="top">
   <a href="/">← Narrow Highway</a>
-  <a href="/funnel.html">Walk the cards</a>
+  <a href="/walk.html">Walk the cards</a>
   <a href="/codex.html">The Codex</a>
 </nav>
 
@@ -220,7 +220,7 @@
               : (stack.forked_card_ids || []);
     if (ids.length === 0) {
       $c.innerHTML = '<div class="empty">' +
-        (currentTab === 'paperclipped' ? 'No cards on your stack yet. Walk the cards at <a href="/funnel.html">/funnel.html</a>; paperclip the ones you want to keep.' :
+        (currentTab === 'paperclipped' ? 'No cards on your stack yet. Walk the cards at <a href="/walk.html">/walk.html</a>; paperclip the ones you want to keep.' :
          currentTab === 'authored' ? 'No authored cards yet. Use the "+ New note" tab to write the first one.' :
          'No forks yet. Find a public card you want to refine and fork it.') +
         '</div>';

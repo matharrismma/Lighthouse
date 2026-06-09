@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Deposit → The Funnel · Narrow Highway</title>
   <meta name="description" content="The deposit page has become The Funnel — one door where the Shepherd discerns what you bring. Speak it or type it.">
-  <link rel="canonical" href="https://narrowhighway.com/funnel.html">
+  <link rel="canonical" href="https://narrowhighway.com/walk.html">
   <meta name="robots" content="noindex">
-  <meta http-equiv="refresh" content="0; url=/funnel.html">
+  <meta http-equiv="refresh" content="0; url=/walk.html">
   <style>
     body { font-family: Georgia, serif; background: #fafaf6; color: #2a2a28; max-width: 540px; margin: 0 auto; padding: 4em 1.5em; text-align: center; line-height: 1.6; }
     a { color: #1a3a52; }
@@ -15,14 +15,14 @@
 </head>
 <body>
   <p>The deposit page has become <strong>The Funnel</strong> — one door, where the Shepherd discerns what you bring. Speak it or type it; he asks if it's unclear.</p>
-  <p><a href="/funnel.html">Continue to The Funnel →</a></p>
+  <p><a href="/walk.html">Continue to The Funnel →</a></p>
   <script>
     // Carry any pre-filled query through to the one door, then redirect.
     try {
       var p = new URLSearchParams(location.search);
       var q = p.get('q') || p.get('text');
-      location.replace('/funnel.html' + (q ? ('?q=' + encodeURIComponent(q)) : ''));
-    } catch (e) { location.replace('/funnel.html'); }
+      location.replace('/walk.html' + (q ? ('?q=' + encodeURIComponent(q)) : ''));
+    } catch (e) { location.replace('/walk.html'); }
   </script>
 </body>
 </html>
