@@ -7217,6 +7217,7 @@ _COLLAPSED_DOORS = {
     "/discern-teaching.html": "/walk.html",      # "Discern this teaching" — same act
     "/shepherd-room.html": "/walk.html",         # "The Shepherd's Room" — the Shepherd's voice
     "/walks.html": "/walk.html",                 # "The Discernment Engine" — the old main door
+    "/watch-listen.html": "/media-center.html",  # retired stub — superseded by the media center
 }
 
 

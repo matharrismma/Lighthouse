@@ -143,6 +143,20 @@ _CONCEPTS = {
     "decision": ["decision", "decide", "deciding", "decided", "choice", "choose",
                  "choosing", "chose", "crossroads", "discern", "discernment",
                  "guidance", "direction"],
+
+    # ── added 2026-06-09 (continuous-improvement loop) — common family/discipleship concepts ──
+    "weariness": ["weary", "weariness", "burnout", "burntout", "exhausted",
+                  "exhaustion", "tired", "overwhelmed", "drained", "fatigue",
+                  "fatigued", "worn", "depleted"],
+    "wisdom": ["wise", "wisdom", "prudent", "prudence", "folly", "foolish",
+               "foolishness", "sage", "sagacious"],
+    "obedience": ["obey", "obeys", "obeyed", "obedience", "obedient", "submit",
+                  "submission", "submissive", "surrender", "yield", "compliance",
+                  "comply"],
+    "purity": ["holy", "holiness", "pure", "purity", "sanctify", "sanctified",
+               "sanctification", "blameless", "undefiled", "chaste", "chastity"],
+    "comfort": ["comfort", "comforted", "consolation", "console", "consoled",
+                "solace", "reassurance", "reassured", "soothe", "soothed"],
 }
 
 # Reverse map: surface word -> concept id. First concept wins on any accidental
