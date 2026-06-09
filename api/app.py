@@ -1798,7 +1798,7 @@ _AIRLOCK_LOCK = _visit_threading.Lock()
 # destinations get built, these URLs move (e.g. /walks.html → /discern).
 _AIRLOCK_DESTINATIONS = {
     "desk":      {"url": "/workspace.html",    "label": "The Workspace",   "why": "save to journal"},
-    "discern":   {"url": "/walks.html",        "label": "Discern",         "why": "verify or weigh"},
+    "discern":   {"url": "/walk.html",         "label": "Discern",         "why": "verify or weigh"},
     "family":    {"url": "/family.html",       "label": "Family life",     "why": "remedy, recipe, or home"},
     "watch":     {"url": "/media-center.html", "label": "Media Center",    "why": "audio, video, or books"},
     "learn":     {"url": "/learn-deep.html",   "label": "Learn",           "why": "study, scripture, reference"},
@@ -1821,7 +1821,7 @@ def _airlock_route(text: str) -> dict:
     from api import floor as _floor
     r = _floor.classify(text)
     return {"route": r.get("route", "discern"), "tool": r.get("tool", ""),
-            "confidence": r.get("confidence", 0.3), "url": r.get("url", "/walks.html"),
+            "confidence": r.get("confidence", 0.3), "url": r.get("url", "/walk.html"),
             "why": r.get("why", ""), "lens": r.get("lens")}
 
 
@@ -18087,7 +18087,7 @@ def _discern_render_teaching_html(d: dict) -> str:
     perma = (
         '<div class="td-permalink">'
         'Permalink: <code>' + _discern_esc(permalink) + '</code><br>'
-        '<a href="/discern-teaching.html" style="color:#1a3a52;">Bring another teaching &rarr;</a>'
+        '<a href="/walk.html" style="color:#1a3a52;">Bring another teaching &rarr;</a>'
         '</div>\n'
     )
 
@@ -18364,7 +18364,7 @@ def _discern_render_gated_html(d: dict) -> str:
 
     foot = (
         '<p style="margin-top:1.4em;font-size:0.88em;color:#6a5a3a;text-align:center;">'
-        '<a href="/discern-teaching.html" style="color:#1a3a52;">Bring another teaching</a> &middot; '
+        '<a href="/walk.html" style="color:#1a3a52;">Bring another teaching</a> &middot; '
         '<a href="/" style="color:#1a3a52;">Run a discernment</a></p>\n'
         '</div>\n'
         '<script defer src="/nh-shepherd.js"></script>\n'
@@ -18494,7 +18494,7 @@ def _discern_render_html(d: dict) -> str:
 
     nav = (
         '<nav class="d-top"><a href="/">&larr; Narrow Highway</a> '
-        '<a href="/walks.html">Run another discernment</a> '
+        '<a href="/walk.html">Run another discernment</a> '
         '<a href="/codex.html">The Codex</a></nav>\n'
     )
 
@@ -18532,7 +18532,7 @@ def _discern_render_html(d: dict) -> str:
         _discern_esc(permalink) + '</code></div>'
         '<a class="d-btn" href="#" id="d-copy">Copy link</a>'
         '<a class="d-btn outline" href="#" id="d-print">Print</a>'
-        '<a class="d-btn outline" href="/walks.html">Run another &rarr;</a>'
+        '<a class="d-btn outline" href="/walk.html">Run another &rarr;</a>'
         '</div>\n'
     )
 

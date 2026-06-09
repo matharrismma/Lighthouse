@@ -50,8 +50,8 @@ PUBLIC_CARDS = REPO / "data" / "cards"
 # Where each Shepherd-routed tool lives (only pages that exist; else the walk).
 _TOOL_URL = {
     "walk": "/walk.html",
-    "discern": "/discern-teaching.html",
-    "verify": "/discern-teaching.html",
+    "discern": "/walk.html",
+    "verify": "/poly.html",
     "teach": "/learn.html",
     "scripture": "/walk.html",
     "draft": "/scribe.html",

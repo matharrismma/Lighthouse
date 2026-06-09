@@ -187,7 +187,7 @@ def classify(text: str) -> Dict[str, Any]:
     if t.startswith("how do i ") or t.startswith("teach me ") or "lesson on" in t:
         return R(None, None, "learn", "", "/learn.html", 0.7, "learn / how-to")
     # Default → weigh it as a claim
-    return R("discern", None, "discern", "engine", "/walks.html", 0.3, "unrouted — weighed as a claim")
+    return R("discern", None, "discern", "engine", "/walk.html", 0.3, "unrouted — weighed as a claim")
 
 
 def detect_lens(text: str) -> str:
