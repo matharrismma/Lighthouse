@@ -548,6 +548,42 @@ WITNESS_REGISTRY = {
          "label": "The Cyber Hymnal — public-domain hymn text + tune republication",
          "ref": "CyberHymnal"},
     ],
+
+    # ===== 19th-CENTURY PD COOKBOOKS =====
+    # These are canonical public-domain household texts (pre-1927 US / pre-1900
+    # UK; all PD beyond dispute). Each entry has >=2 DISTINCT independence classes.
+    # Note: Project Gutenberg + Archive.org are both 'republication' class — the
+    # same class doesn't count twice. These entries pair a digital republication
+    # with a scholarly critical edition or an academic citation tradition, which
+    # are genuinely independent types of corroboration.
+
+    # Mrs. Isabella Beeton — Book of Household Management (1861)
+    # critical_edition confirmed: Oxford World's Classics 2000, ed. Nicola Humble
+    # (OUP ISBN 978-0-19-953674-4; searchable at global.oup.com)
+    "Mrs. Beeton 1861": [
+        {"class": "critical_edition",
+         "label": "Oxford World's Classics — Mrs Beeton's Book of Household Management (abridged), 2000, ed. Nicola Humble",
+         "url": "https://global.oup.com/academic/product/mrs-beetons-book-of-household-management-9780199536740",
+         "ref": "OUP-Beeton-2000"},
+        {"class": "republication",
+         "label": "Project Gutenberg — full text of the 1861 first edition",
+         "url": "https://www.gutenberg.org/ebooks/10136",
+         "ref": "PG-10136"},
+    ],
+
+    # Fannie Merritt Farmer — The Boston Cooking-School Cook Book (1896)
+    # citation_tradition: Cited as formative for standardized American cooking in
+    # Laura Shapiro, 'Perfection Salad: Women and Cooking at the Turn of the
+    # Century' (1986, Farrar, Straus and Giroux) — verifiable academic culinary history.
+    "Fannie Farmer 1896": [
+        {"class": "republication",
+         "label": "Project Gutenberg — plain text of The Boston Cooking-School Cook Book, 1896",
+         "url": "https://www.gutenberg.org/ebooks/39441",
+         "ref": "PG-39441"},
+        {"class": "citation_tradition",
+         "label": "Laura Shapiro — Perfection Salad: Women and Cooking at the Turn of the Century (1986, Farrar Straus Giroux) — academic culinary history citing Farmer as foundational to standardized American cooking",
+         "ref": "Shapiro-PerfectionSalad-1986"},
+    ],
 }
 
 
@@ -599,6 +635,12 @@ SOURCE_LABEL_PATTERNS = [
     ("Pirkei Avot",                         "Pirkei Avot"),
     ("La Rochefoucauld",                    "La Rochefoucauld"),
     ("Sermon on the Mount",                 "Sermon on the Mount"),
+    # 19th-century PD cookbooks (more-specific patterns first)
+    ("Boston Cooking-School",               "Fannie Farmer 1896"),
+    ("Fannie Merritt Farmer",               "Fannie Farmer 1896"),
+    ("Fannie Farmer",                       "Fannie Farmer 1896"),
+    ("Isabella Beeton",                     "Mrs. Beeton 1861"),
+    ("Beeton",                              "Mrs. Beeton 1861"),
 ]
 
 
