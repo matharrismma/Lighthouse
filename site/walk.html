@@ -299,7 +299,11 @@
     var steps=ans.steps||[];
     if(steps.length){ html+='<ol>'+steps.map(function(s){ var t=(typeof s==='object')?(s.title||s.text||JSON.stringify(s)):s; return '<li>'+esc(String(t))+'</li>'; }).join('')+'</ol>'; }
     if(a.precedent&&a.precedent.summary){ html+='<div class="prec">From the well — closest precedent: '+esc(a.precedent.summary.slice(0,160))+(a.precedent.ref?' <span class="t">('+esc(a.precedent.ref)+')</span>':'')+'</div>'; }
-    if(a.gates&&a.gates.length){ html+='<div class="gates">Walk it through the gates: '+a.gates.map(function(g){return '<span class="gate" title="'+esc(g.scripture||'')+'">'+esc(g.gate)+'</span>';}).join('')+'</div>'; }
+    if(a.gates&&a.gates.length){
+      html+='<div class="gates">Walk it through the gates: '+a.gates.map(function(g){return '<span class="gate" title="'+esc(g.scripture||'')+'">'+esc(g.gate)+'</span>';}).join('')+'</div>';
+      var _sit=''; try{ var _u=(typeof thread!=='undefined'&&thread)?thread.filter(function(m){return m.role==='user';}):[]; _sit=_u.length?String(_u[0].content||''):''; }catch(e){}
+      html+='<div style="margin-top:0.45em;font-size:0.88em;"><a href="/gates.html'+(_sit?('?situation='+encodeURIComponent(_sit)):'')+'" style="color:#1a3a52;">Journal each gate, step by step &rarr;</a> <span style="color:#6a5a3a;font-style:italic;">— write your answers, gather your two or three witnesses</span></div>';
+    }
     if(a.christ_reference){ html+='<div class="christ">The path rests on <b>'+esc(a.christ_reference)+'</b> — the arrow points to Christ.</div>'; }
     if(a.trail&&a.trail.length){ html+='<div class="trail">Set aside: '+a.trail.map(function(t){return esc(t.name)+(t.why_considered?' <span class="t">('+esc((t.why_considered||[]).join(', '))+')</span>':'');}).join(' · ')+'</div>'; }
     html+='</div>';
