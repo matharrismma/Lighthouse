@@ -593,6 +593,74 @@ def load_cards_dev() -> Dict[str, Any]:
         return data
 
 
+# ── Auto-invalidation (P5): keep the compiled indexes in step with the cards ──
+_INDEX_FILES = (SCRIPTURE_INDEX, THEME_INDEX, CONNECTIONS_INDEX, CARDS_DEV_INDEX)
+
+
+def _newest_source_mtime() -> float:
+    """Newest mtime across the codex's inputs — the connection cards
+    (data/cards/card_c_*.json), the grid edges, and the verified-structural
+    file. Returns 0.0 when none exist."""
+    latest = 0.0
+    if CARDS_DIR.exists():
+        for f in CARDS_DIR.glob("card_c_*.json"):
+            try:
+                latest = max(latest, f.stat().st_mtime)
+            except OSError:
+                continue
+    for p in (GRID_CONNECTIONS, GENERATED_VERIFIED):
+        try:
+            if p.exists():
+                latest = max(latest, p.stat().st_mtime)
+        except OSError:
+            continue
+    return latest
+
+
+def _oldest_index_mtime() -> float:
+    """Oldest mtime across the four compiled indexes. Returns 0.0 if ANY is
+    missing — a missing index is maximally stale and must force a rebuild."""
+    oldest: Optional[float] = None
+    for p in _INDEX_FILES:
+        try:
+            if not p.exists():
+                return 0.0
+            m = p.stat().st_mtime
+        except OSError:
+            return 0.0
+        oldest = m if oldest is None else min(oldest, m)
+    return oldest or 0.0
+
+
+def rebuild_if_stale() -> Dict[str, Any]:
+    """Recompile the four codex indexes IFF a source is newer than the compiled
+    output (a connection card / grid / verified input changed since the last
+    compile). Cheap (~0.5s for all four) and idempotent — when nothing changed
+    it does no work and returns {"rebuilt": False}.
+
+    Meant to be called ONCE per steward cycle (~15 min). That cadence IS the
+    debounce: the steward writes connection cards continuously, but the codex
+    recompiles at most once per cycle, and only when actually stale — so a
+    per-write rebuild thrash is impossible. The engine never silently drifts
+    from its cards (Principle A), and never fabricates: this only re-derives
+    VERIFIED card data deterministically."""
+    src = _newest_source_mtime()
+    idx = _oldest_index_mtime()
+    if src <= idx:
+        return {"rebuilt": False, "source_mtime": src, "index_mtime": idx}
+    # Stale → recompile in dependency order: build_connection_index reads the
+    # scripture index via load_index(), so scripture MUST be rebuilt first.
+    s = build_scripture_index()
+    t = build_theme_index()
+    cn = build_connection_index()
+    cd = build_cards_dev_index()
+    return {
+        "rebuilt": True, "source_mtime": src, "index_mtime": idx,
+        "stats": {"scripture": s.get("stats", {}), "themes": t.get("stats", {}),
+                  "connections": cn.get("stats", {}), "cards_dev": cd.get("stats", {})},
+    }
+
+
 # ── Signed artifact (Face 2) ────────────────────────────────────────────────────
 def _sha256_file(p: Path) -> Optional[str]:
     try:
@@ -857,8 +925,14 @@ def get_router():
     return router
 
 
-if __name__ == "__main__":  # python -m api.codex [seal]
+if __name__ == "__main__":  # python -m api.codex [seal | --if-stale]
     import sys
+    if "--if-stale" in sys.argv[1:]:
+        # Debounced refresh: recompile only when a source (connection card / grid
+        # / verified) is newer than the compiled index. The steward calls this
+        # once per ~15-min cycle right after writing connections.
+        print(json.dumps(rebuild_if_stale(), indent=2))
+        sys.exit(0)
     s = build_scripture_index()
     t = build_theme_index()
     cn = build_connection_index()

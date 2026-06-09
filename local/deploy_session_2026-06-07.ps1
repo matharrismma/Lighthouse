@@ -56,7 +56,7 @@ ssh $srv "mkdir -p ~/Lighthouse/tools"
 Guard "mkdir tools"
 scp "$r\data\almanac\generated_verified.jsonl" "$srv`:~/Lighthouse/data/almanac/"
 Guard "scp generated_verified"
-scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$r\tools\suggest_connections_verified.py" "$srv`:~/Lighthouse/tools/"
+scp "$r\tools\grow_verified.py" "$r\tools\suggest_connections.py" "$r\tools\suggest_connections_verified.py" "$r\tools\steward_scheduler.py" "$srv`:~/Lighthouse/tools/"
 Guard "scp grow_verified + suggesters"
 
 Write-Host "5d/7 Protocols data (the narrowing / walk reads this; was missing on prod)..." -ForegroundColor Cyan
