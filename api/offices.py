@@ -532,13 +532,49 @@ def recall_connection(situation, prior_shares, min_overlap=2):
         if ov > best_ov:
             best, best_ov = c, ov
     if best is None or best_ov < min_overlap:
-        return None
+        # The lexicon found nothing. Reach once more with SEMANTIC embeddings
+        # (local, on-box) — they catch what a curated map can't enumerate. Gated by
+        # a conservative cosine so it never surfaces a false thread; silent (None)
+        # when the embedder is down. The lexicon match above always wins when present.
+        return _recall_semantic(situation, prior_shares)
     body = best.get("body") or best.get("text") or ""
     bt = _syn.signature(_otoks((best.get("title") or "") + " " + body))
     return {
         "id": best.get("id"), "title": best.get("title") or "",
         "when": (best.get("created_at") or best.get("deposited_at") or "")[:10],
         "snippet": body[:160], "shared_terms": sorted(st & bt)[:6],
+    }
+
+
+# Cosine floor for a semantic recall. Measured on nomic-embed-text (2026-06-08):
+# related pairs 0.67-0.86, unrelated 0.22-0.43 — 0.60 sits in the gap with margin.
+_SEMANTIC_FLOOR = float(os.environ.get("NH_RECALL_SEMANTIC_FLOOR", "0.60"))
+
+
+def _recall_semantic(situation, prior_shares):
+    """Semantic fallback for recall: the local embedder finds the prior share whose
+    MEANING is closest, even with no shared word/concept. Returns a recall dict
+    (marked via='semantic') only above the conservative floor, else None. Degrades
+    to None when embeddings are unavailable — so the curated path is never weakened."""
+    from api import embeddings as _emb
+    sv = _emb.embed(situation)
+    if sv is None:
+        return None
+    best, best_sim = None, 0.0
+    for c in prior_shares:
+        text = ((c.get("title") or "") + " " + (c.get("body") or c.get("text") or "")).strip()
+        cv = _emb.embed(text)
+        sim = _emb.cosine(sv, cv)
+        if sim > best_sim:
+            best, best_sim = c, sim
+    if best is None or best_sim < _SEMANTIC_FLOOR:
+        return None
+    body = best.get("body") or best.get("text") or ""
+    return {
+        "id": best.get("id"), "title": best.get("title") or "",
+        "when": (best.get("created_at") or best.get("deposited_at") or "")[:10],
+        "snippet": body[:160], "shared_terms": [], "via": "semantic",
+        "similarity": round(best_sim, 3),
     }
 
 
