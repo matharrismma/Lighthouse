@@ -866,20 +866,27 @@ def office_stats(days: int = 30) -> Dict[str, Any]:
                 via = via or (rec.get("meta") or {}).get("via") or "unknown"
                 by_via[via] = by_via.get(via, 0) + 1
                 total += 1
+        # teacher_distill = one-time bootstrap synthetic pairs (the distill step),
+        # not live serving decisions — kept visible in by_via but excluded from the
+        # ratios so they measure ACTUAL serving and the tiers sum to ~1.0.
+        bootstrap = sum(v for k, v in by_via.items() if k == "teacher_distill")
+        serving = total - bootstrap
         paid = sum(v for k, v in by_via.items() if k in _VIA_PAID)
         local_llm = sum(v for k, v in by_via.items() if k in _VIA_LOCAL_LLM)
         learned = sum(v for k, v in by_via.items() if k in _VIA_LEARNED)
         deterministic = sum(v for k, v in by_via.items() if k in _VIA_DETERMINISTIC)
         out[office] = {
             "decisions": total,
+            "serving_decisions": serving,
+            "bootstrap_pairs": bootstrap,
             "by_via": by_via,
-            "oracle_dependence_ratio": round(paid / total, 4) if total else None,
-            "free_ratio": round((total - paid) / total, 4) if total else None,
-            "learned_ratio": round(learned / total, 4) if total else None,
+            "oracle_dependence_ratio": round(paid / serving, 4) if serving else None,
+            "free_ratio": round((serving - paid) / serving, 4) if serving else None,
+            "learned_ratio": round(learned / serving, 4) if serving else None,
             # the on-box model's share — paid oracle calls it REPLACED at $0
-            "local_llm_ratio": round(local_llm / total, 4) if total else None,
+            "local_llm_ratio": round(local_llm / serving, 4) if serving else None,
             # answered with NO model at all (the cheapest, most-verifiable tier)
-            "deterministic_ratio": round(deterministic / total, 4) if total else None,
+            "deterministic_ratio": round(deterministic / serving, 4) if serving else None,
         }
     return {"days": days, "offices": out,
             "note": ("Shepherd tiers — PAID = the Anthropic oracle; FREE splits into "
