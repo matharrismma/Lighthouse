@@ -7201,6 +7201,36 @@ def root(request: Request):
 
 
 # ─────────────────────────────────────────────────────────────────────
+# Door collapse — the redundant engine entrances fold into the ONE door.
+#
+# The funnel + narrowing is the single front door (the Scribe's one entrance:
+# type a situation, the Shepherd questions, the floor hands the path + trail +
+# Christ-reference). Older surfaces that did the same job under different names
+# now 308-redirect here, so a visitor meets ONE door, not seven. Reversible:
+# delete an entry. NOTE: poly.html stays (it is the .org authority-layer face,
+# not a family entrance); walk.html stays until its four-gates journal merges
+# into the funnel (no lossy redirect of a live capability).
+_COLLAPSED_DOORS = {
+    "/discern-teaching.html": "/funnel.html",   # "Discern this teaching" — same act
+    "/shepherd-room.html": "/funnel.html",       # "The Shepherd's Room" — the funnel IS his voice
+    "/walks.html": "/funnel.html",               # "The Discernment Engine" — the old main door
+}
+
+
+def _make_door_redirect(_target):
+    def _door_redirect():
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=_target, status_code=308)
+    return _door_redirect
+
+
+for _src, _dst in _COLLAPSED_DOORS.items():
+    # Explicit routes register before the StaticFiles("/") mount, so they win.
+    app.add_api_route(_src, _make_door_redirect(_dst), methods=["GET"],
+                      include_in_schema=False)
+
+
+# ─────────────────────────────────────────────────────────────────────
 # /health — rebuilt
 #
 # The previous implementation did the slow work (walking 21k-entry
