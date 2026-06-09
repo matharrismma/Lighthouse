@@ -68,6 +68,12 @@
   .arrival ol li { margin-bottom: 0.3em; }
   .arrival .gates { margin-top: 0.6em; font-size: 0.9em; }
   .arrival .gate { display: inline-block; background: #1a3a52; color: #f4ecd5; border-radius: 3px; padding: 0.08em 0.5em; margin: 0.1em 0.2em 0.1em 0; font-size: 0.8em; }
+  .arrival .gate-steps { margin-top: 0.65em; border-top: 1px solid #e3d3a0; padding-top: 0.5em; }
+  .arrival .gate-step { margin-bottom: 0.7em; }
+  .arrival .gate-step .gnm { display: inline-block; background: #1a3a52; color: #f4ecd5; border-radius: 3px; padding: 0.05em 0.45em; font-size: 0.76em; font-family: 'Courier New', monospace; letter-spacing: 0.05em; margin-right: 0.4em; vertical-align: middle; }
+  .arrival .gate-step .gsc { font-family: 'Courier New', monospace; color: #806010; font-size: 0.8em; vertical-align: middle; }
+  .arrival .gate-step .gq { margin-top: 0.2em; font-style: italic; color: #2a2a28; font-size: 0.92em; line-height: 1.5; }
+  .arrival .gate-step .gel { margin-top: 0.1em; font-size: 0.8em; color: #8a7a4a; }
   .arrival .christ { margin-top: 0.6em; padding-top: 0.5em; border-top: 1px solid #e3d3a0; color: #1a3a52; }
   .arrival .christ b { color: #806010; }
   #recall .recall { background: #f0f4f7; border-left: 3px solid #1a3a52; border-radius: 5px; padding: 0.5em 0.8em; margin: 0.3em 0; font-size: 0.92em; color: #2a2a28; }
@@ -300,9 +306,18 @@
     if(steps.length){ html+='<ol>'+steps.map(function(s){ var t=(typeof s==='object')?(s.title||s.text||JSON.stringify(s)):s; return '<li>'+esc(String(t))+'</li>'; }).join('')+'</ol>'; }
     if(a.precedent&&a.precedent.summary){ html+='<div class="prec">From the well — closest precedent: '+esc(a.precedent.summary.slice(0,160))+(a.precedent.ref?' <span class="t">('+esc(a.precedent.ref)+')</span>':'')+'</div>'; }
     if(a.gates&&a.gates.length){
-      html+='<div class="gates">Walk it through the gates: '+a.gates.map(function(g){return '<span class="gate" title="'+esc(g.scripture||'')+'">'+esc(g.gate)+'</span>';}).join('')+'</div>';
       var _sit=''; try{ var _u=(typeof thread!=='undefined'&&thread)?thread.filter(function(m){return m.role==='user';}):[]; _sit=_u.length?String(_u[0].content||''):''; }catch(e){}
-      html+='<div style="margin-top:0.45em;font-size:0.88em;"><a href="/gates.html'+(_sit?('?situation='+encodeURIComponent(_sit)):'')+'" style="color:#1a3a52;">Journal each gate, step by step &rarr;</a> <span style="color:#6a5a3a;font-style:italic;">— write your answers, gather your two or three witnesses</span></div>';
+      html+='<div class="gate-steps">';
+      html+=a.gates.map(function(g){
+        return '<div class="gate-step">'
+          +'<span class="gnm">'+esc(g.gate)+'</span>'
+          +(g.scripture?' <span class="gsc">'+esc(g.scripture)+'</span>':'')
+          +(g.question?'<div class="gq">'+esc(g.question)+'</div>':'')
+          +(g.eliminates?'<div class="gel">Sets aside: '+esc(g.eliminates)+'</div>':'')
+          +'</div>';
+      }).join('');
+      html+='<div style="margin-top:0.5em;font-size:0.85em;"><a href="/_archive/walk-fourgates.html'+(_sit?('?situation='+encodeURIComponent(_sit)):'')+'" style="color:#1a3a52;">Full journal &rarr;</a> <span style="color:#6a5a3a;font-style:italic;">&#8212; write your answers, gather your two or three witnesses</span></div>';
+      html+='</div>';
     }
     if(a.christ_reference){ html+='<div class="christ">The path rests on <b>'+esc(a.christ_reference)+'</b> — the arrow points to Christ.</div>'; }
     if(a.trail&&a.trail.length){ html+='<div class="trail">Set aside: '+a.trail.map(function(t){return esc(t.name)+(t.why_considered?' <span class="t">('+esc((t.why_considered||[]).join(', '))+')</span>':'');}).join(' · ')+'</div>'; }
