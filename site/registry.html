@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Registry — one mechanism, five substrates · Narrow Highway</title>
+  <meta name="description" content="One mechanism: separate what must not change from what can be adjusted, make the boundary explicit, validate at the boundary before anything crosses. Verified in titanium, steel, copper, money, and information. The master registry that links the canons.">
+  <link rel="canonical" href="https://narrowhighway.org/registry.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Narrow Highway">
+  <meta property="og:title" content="The Registry — one mechanism, five substrates">
+  <meta property="og:description" content="The substrate changes; the mechanism does not. Verified across titanium, steel, copper, money, and information.">
+  <meta property="og:url" content="https://narrowhighway.org/registry.html">
+  <link rel="icon" type="image/svg+xml" href="https://narrowhighway.com/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--paper:#faf6ec;--paper-2:#f1ead7;--rule:#d4c8a5;--rule-strong:#b9ac82;--ink:#1f1a14;--ink-2:#3a3328;--muted:#6b6253;--brass:#9b7c3c;--brass-hi:#c9a851;--oxblood:#7a3a32;--pass:#4f7a3a;--blue:#1a3a52;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{background:linear-gradient(180deg,#f3ecda 0%,#ece3c8 100%);color:var(--ink);font-family:'Crimson Pro',Georgia,serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+    a{color:inherit;}
+    .wrap{max-width:880px;margin:0 auto;padding:46px 22px 30px;flex:1;width:100%;}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--blue);text-align:center;}
+    h1{font-size:34px;font-weight:600;line-height:1.14;margin:12px auto 14px;text-align:center;max-width:18ch;}
+    @media(max-width:560px){h1{font-size:27px;}}
+    /* the one mechanism, stated once */
+    .mech{background:var(--paper);border:1px solid var(--rule-strong);border-left:5px solid var(--brass);border-radius:0 10px 10px 0;padding:20px 24px;margin:26px 0 14px;}
+    .mech .m{font-size:20px;line-height:1.45;color:var(--ink);}
+    .mech .m b{color:var(--oxblood);font-weight:600;}
+    .mech .sub{margin-top:10px;font-style:italic;color:var(--muted);font-size:15px;}
+    .secrule{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);text-align:center;margin:30px 0 14px;}
+    /* substrate cards */
+    .sub-card{background:var(--paper);border:1px solid var(--rule-strong);border-radius:9px;padding:0;margin:12px 0;overflow:hidden;box-shadow:0 2px 10px rgba(43,24,16,.05);}
+    .sub-head{display:flex;align-items:baseline;gap:12px;padding:14px 20px 10px;border-bottom:1px solid var(--rule);}
+    .sub-mat{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);}
+    .sub-dom{font-size:19px;font-weight:600;color:var(--blue);}
+    .sub-status{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--rule);border-radius:10px;padding:2px 9px;white-space:nowrap;}
+    .sub-status.live{color:var(--pass);border-color:#bcd2ad;background:#f0f5ea;}
+    .sub-body{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+    @media(max-width:560px){.sub-body{grid-template-columns:1fr;}}
+    .cell{padding:13px 20px;border-right:1px solid var(--rule);}
+    .cell:last-child{border-right:none;}
+    @media(max-width:560px){.cell{border-right:none;border-bottom:1px solid var(--rule);}.cell:last-child{border-bottom:none;}}
+    .cell .k{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .cell.fixed .k{color:var(--oxblood);}
+    .cell.adj .k{color:var(--brass);}
+    .cell.bound .k{color:var(--blue);}
+    .cell .v{font-size:15px;line-height:1.4;color:var(--ink-2);}
+    .sub-foot{padding:0 20px 14px;}
+    .sub-foot a{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(26,58,82,.3);}
+    .sub-foot a:hover{color:var(--brass);}
+    /* the reference */
+    .ref{background:var(--paper-2);border:1px solid var(--rule-strong);border-radius:10px;padding:20px 24px;margin:30px 0 8px;text-align:center;}
+    .ref .rk{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;}
+    .ref .rt{font-size:18px;color:var(--ink);line-height:1.5;}
+    .ref .rt b{color:var(--oxblood);}
+    .ref .rsrc{margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;}
+    .note{margin-top:22px;font-size:14px;color:var(--muted);font-style:italic;line-height:1.6;border-top:1px solid var(--rule);padding-top:16px;}
+    footer{text-align:center;padding:24px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;}
+    footer a{color:var(--oxblood);text-decoration:underline;text-decoration-color:rgba(122,58,50,.35);}
+    footer a:hover{color:var(--brass);}
+    .sep{opacity:.5;margin:0 8px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">The Registry · the master link</div>
+    <h1>One mechanism. Five substrates.</h1>
+
+    <div class="mech">
+      <div class="m"><b>Separate what must not change from what can be adjusted. Make the boundary explicit. Validate at the boundary before anything crosses.</b></div>
+      <div class="sub">That is the architecture. It appears in the watch, the tool system, the PCB, the wealth engine, and the software. The substrate changes; the mechanism does not. This is not a metaphor — it is a literal structure, implemented with the same logic in every domain.</div>
+    </div>
+
+    <div class="secrule">— verified across five substrates —</div>
+
+    <div class="sub-card">
+      <div class="sub-head"><span class="sub-mat">Titanium</span><span class="sub-dom">The watch movement</span><span class="sub-status">canon complete</span></div>
+      <div class="sub-body">
+        <div class="cell fixed"><div class="k">Fixed</div><div class="v">Mainplate geometry</div></div>
+        <div class="cell adj"><div class="k">Adjustable</div><div class="v">Regulation</div></div>
+        <div class="cell bound"><div class="k">Validates at the boundary</div><div class="v">The escapement controls what energy crosses.</div></div>
+      </div>
+    </div>
+
+    <div class="sub-card">
+      <div class="sub-head"><span class="sub-mat">Steel</span><span class="sub-dom">The tool system</span><span class="sub-status">canon complete</span></div>
+      <div class="sub-body">
+        <div class="cell fixed"><div class="k">Fixed</div><div class="v">The hex interface</div></div>
+        <div class="cell adj"><div class="k">Adjustable</div><div class="v">Accessories, interchangeable</div></div>
+        <div class="cell bound"><div class="k">Validates at the boundary</div><div class="v">The geometry enforces the boundary without instruction.</div></div>
+      </div>
+    </div>
+
+    <div class="sub-card">
+      <div class="sub-head"><span class="sub-mat">Copper</span><span class="sub-dom">The PCB patent</span><span class="sub-status">canon complete</span></div>
+      <div class="sub-body">
+        <div class="cell fixed"><div class="k">Fixed</div><div class="v">The immutable inner core</div></div>
+        <div class="cell adj"><div class="k">Adjustable</div><div class="v">The configurable fabric layer</div></div>
+        <div class="cell bound"><div class="k">Validates at the boundary</div><div class="v">The CAM engine validates at the boundary.</div></div>
+      </div>
+    </div>
+
+    <div class="sub-card">
+      <div class="sub-head"><span class="sub-mat">Money</span><span class="sub-dom">The barn hub &amp; regional wealth engine</span><span class="sub-status">canon complete</span></div>
+      <div class="sub-body">
+        <div class="cell fixed"><div class="k">Fixed</div><div class="v">Firstfruits reserve &amp; stability floor</div></div>
+        <div class="cell adj"><div class="k">Adjustable</div><div class="v">Operator execution</div></div>
+        <div class="cell bound"><div class="k">Validates at the boundary</div><div class="v">The quarantine rule validates new projects before they enter the portfolio.</div></div>
+      </div>
+    </div>
+
+    <div class="sub-card">
+      <div class="sub-head"><span class="sub-mat">Information</span><span class="sub-dom">The Concordance</span><span class="sub-status live">live</span></div>
+      <div class="sub-body">
+        <div class="cell fixed"><div class="k">Fixed</div><div class="v">RED &amp; FLOOR — the hard gates</div></div>
+        <div class="cell adj"><div class="k">Adjustable</div><div class="v">Way &amp; execution</div></div>
+        <div class="cell bound"><div class="k">Validates at the boundary</div><div class="v">The four gates — RED · FLOOR · BROTHERS · GOD — validate at the boundary.</div></div>
+      </div>
+      <div class="sub-foot"><a href="https://narrowhighway.com/walk.html">Walk a situation through the gates &rarr;</a> &nbsp; <a href="https://narrowhighway.com/poly.html">Weigh a claim &rarr;</a></div>
+    </div>
+
+    <div class="ref">
+      <div class="rk">below all of it</div>
+      <div class="rt">One external, unchanging reference. <b>The reference does not generate — it constrains.</b> Constraint is what makes outputs trustworthy over time.</div>
+      <div class="rsrc">Scripture · Westminster Leningrad Codex (Hebrew) · Robinson-Pierpont Byzantine Majority (Greek) · WEB as the human interface</div>
+    </div>
+
+    <div class="note">The mechanism is verified across these five — the same boundary-validation in every material. Four canons are complete; Information (the Concordance) is live and you can use it now. This page is the master registry — the link that binds the canons, named as the missing piece and now built. The difference between what is real and what is projected stays explicit: the mechanism is real, proven in each substrate; broader integration is ongoing.</div>
+  </div>
+  <footer>
+    <a href="https://narrowhighway.org/">the engine</a>
+    <span class="sep">·</span>
+    For the whole family &middot; <a href="https://narrowhighway.tv/">narrowhighway.tv</a>
+    <span class="sep">·</span>
+    Serves Jesus Christ.
+  </footer>
+</body>
+</html>
