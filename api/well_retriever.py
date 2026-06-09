@@ -29,14 +29,8 @@ import threading
 from collections import Counter
 from typing import Any, Dict, List, Optional
 
-_WISDOM_KINDS = {
-    "scripture", "psalm", "proverbs", "ecclesiastes", "almanac", "protocol",
-    "parable", "fieldkit_card", "sermon", "pilgrim", "imitation_christ",
-    "pirkei_avot", "augustine_confessions", "boethius_consolation", "aurelius",
-    "polycarp", "clement1", "didache", "barnabas", "james", "ignatius_eph",
-    "ignatius_mag", "ignatius_rom", "ignatius_tra", "ignatius_smy", "ignatius_phild",
-    "ignatius_polyc", "martyrdom_polycarp",
-}
+# WISDOM_KINDS now lives in api/packets_index.py (the single source of truth for
+# "what is wisdom"); the well consumes packets_index.load_all_wisdom().
 
 _STOP = set((
     "i a an the and or but if is am are was were be been being to of in on at for "
@@ -64,9 +58,7 @@ def _build() -> Dict[str, Any]:
         docs = []
         df: Counter = Counter()
         by_id: Dict[str, Any] = {}
-        for p in _pi.load_all():
-            if (p.get("kind") or "") not in _WISDOM_KINDS:
-                continue
+        for p in _pi.load_all_wisdom():
             text = (p.get("title") or "") + " " + (p.get("summary") or "") + " " + (p.get("body") or "")
             c = Counter(_toks(text))
             if not c:
