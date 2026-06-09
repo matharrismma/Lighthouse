@@ -25,7 +25,24 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
+
+
+def jaccard(a: Set[str], b: Set[str]) -> float:
+    """Jaccard similarity |a&b| / |a|b| of two sets — the single canonical
+    definition shared by every retriever (walk precedent, apothecary scoring).
+
+    Returns 0.0 when either set is empty (no overlap is possible) or when there
+    is no intersection. walk.py and apothecary.py each used to carry their own
+    copy that differed only cosmetically (`not a or not b` vs `not a and not b`)
+    yet computed the same value for all inputs; this folds them to one so the
+    two can never silently drift."""
+    if not a or not b:
+        return 0.0
+    union = len(a | b)
+    if union == 0:
+        return 0.0
+    return len(a & b) / union
 
 
 def read_jsonl(path: Path) -> List[Dict[str, Any]]:

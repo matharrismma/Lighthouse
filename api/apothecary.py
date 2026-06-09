@@ -165,12 +165,8 @@ def _load_all() -> Dict[str, List[Dict[str, Any]]]:
 # ── Retrieval ────────────────────────────────────────────────────────────
 
 def _jaccard(a: Set[str], b: Set[str]) -> float:
-    if not a or not b:
-        return 0.0
-    union = len(a | b)
-    if union == 0:
-        return 0.0
-    return len(a & b) / union
+    """Delegate to the one canonical jaccard (api/substrate.jaccard)."""
+    return _substrate.jaccard(a, b)
 
 
 def _text_of(packet: Dict[str, Any]) -> str:
