@@ -30,7 +30,7 @@ git push origin main
 Guard "git push"
 
 Write-Host "2/7  Backend  -> ~/Lighthouse/api/" -ForegroundColor Cyan
-scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$r\api\cards.py" "$r\api\well_retriever.py" "$r\api\person_identity.py" "$r\api\synonymy.py" "$r\api\walk.py" "$r\api\embeddings.py" "$srv`:~/Lighthouse/api/"
+scp "$r\api\codex.py" "$r\api\app.py" "$r\api\original_language.py" "$r\api\funnel.py" "$r\api\offices.py" "$r\api\cards.py" "$r\api\well_retriever.py" "$r\api\person_identity.py" "$r\api\synonymy.py" "$r\api\walk.py" "$r\api\embeddings.py" "$r\api\local_llm.py" "$srv`:~/Lighthouse/api/"
 Guard "scp api"
 
 Write-Host "2b/7 Engine    -> ~/Lighthouse/src/concordance_engine/agent/ (floor: dispatch + gate)" -ForegroundColor Cyan

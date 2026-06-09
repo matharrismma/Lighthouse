@@ -471,27 +471,66 @@ _SOCRATIC_AGAIN = [
 ]
 
 
+# The Shepherd's voice — one system prompt, used by BOTH the local model and the
+# paid oracle so the question reads the same whoever phrases it.
+_SOCRATIC_SYS = (
+    "You are the Shepherd of a Christian discernment engine. A person brought a "
+    "situation; the floor surfaced these possible patterns. Ask ONE brief Socratic "
+    "question (one sentence) that helps THEM discern which is the heart of it — or "
+    "name what they truly need. Do NOT list the options, do not lecture, do not "
+    "answer. Warm, plain, short. Output only the question.")
+
+
+def _socratic_user(situation, cards):
+    names = "; ".join(f"{c['name']}: {c.get('summary','')[:80]}" for c in cards[:5])
+    return f"Situation: {situation}\nPatterns: {names}"
+
+
+def _valid_socratic(q):
+    """A gate on a GENERATED question — the same skepticism the engine gives any
+    generation. A bad local question must never reach the person; if it fails this,
+    the caller falls through to the paid oracle, then the vetted stems."""
+    if not q:
+        return False
+    q = q.strip()
+    if not (10 <= len(q) <= 240):
+        return False
+    if "?" not in q or q.count("?") > 2:          # exactly a question, not a quiz
+        return False
+    low = q.lower()
+    bad = ("as an ai", "i cannot", "i can't", "i'm sorry", "i am sorry",
+           "language model", "here are", "option 1", "option a", "1.", "2.", "•")
+    return not any(b in low for b in bad)
+
+
+def _shepherd_socratic_local(situation, cards):
+    """The FREE local model (on-box Ollama) phrases the question — tried BEFORE the
+    paid oracle. Validated; returns None on any failure or a question that doesn't
+    pass the gate, so the oracle takes over. This is the Steward's oracle-shrinking
+    tier: $0, no data leaves, the paid call avoided whenever the local one is good."""
+    try:
+        from api import local_llm as _llm
+    except Exception:
+        return None
+    q = _llm.generate(_socratic_user(situation, cards), system=_SOCRATIC_SYS,
+                      max_tokens=60, temperature=0.7)
+    return q.strip() if _valid_socratic(q) else None
+
+
 def _shepherd_socratic_oracle(situation, cards):
-    """Steward-gated: the oracle phrases ONE sharp Socratic question contrasting
-    the found cards. Returns None when the Steward can't provision it (no key /
-    over budget) — then the deterministic vetted stem is used."""
-    import os
+    """Steward-gated: the PAID oracle phrases the question. Now the FALLBACK beneath
+    the free local model — fires only when the local one is down or its output failed
+    the gate. Returns None when the Steward can't provision it (no key / over budget)
+    — then the deterministic vetted stem is used."""
     if not os.environ.get("ANTHROPIC_API_KEY") or steward_budget_remaining_usd() < 1.0:
         return None
     try:
         import anthropic
-        names = "; ".join(f"{c['name']}: {c.get('summary','')[:80]}" for c in cards[:5])
-        sys_prompt = (
-            "You are the Shepherd of a Christian discernment engine. A person brought a "
-            "situation; the floor surfaced these possible patterns. Ask ONE brief Socratic "
-            "question (one sentence) that helps THEM discern which is the heart of it — or "
-            "name what they truly need. Do NOT list the options, do not lecture, do not "
-            "answer. Warm, plain, short. Output only the question.")
         client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
         resp = client.messages.create(
             model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"), max_tokens=80,
-            system=sys_prompt,
-            messages=[{"role": "user", "content": f"Situation: {situation}\nPatterns: {names}"}])
+            system=_SOCRATIC_SYS,
+            messages=[{"role": "user", "content": _socratic_user(situation, cards)}])
         try:
             ti = getattr(resp.usage, "input_tokens", 0) or 0
             to = getattr(resp.usage, "output_tokens", 0) or 0
@@ -505,6 +544,10 @@ def _shepherd_socratic_oracle(situation, cards):
 
 
 def _shepherd_socratic(situation, cards, again=False):
+    # Steward's order: FREE local model → paid oracle → deterministic vetted stem.
+    q = _shepherd_socratic_local(situation, cards)
+    if q:
+        return q, "shepherd_local"
     q = _shepherd_socratic_oracle(situation, cards)
     if q:
         return q, "shepherd"
