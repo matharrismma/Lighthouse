@@ -22,10 +22,11 @@ Engine shows. Human names.
 """
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
+
+from api import substrate as _substrate
 
 _PROTOCOLS_FILE = Path(__file__).parent.parent / "data" / "protocols" / "scripture_protocols.jsonl"
 _ALMANAC_FILE = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
@@ -152,20 +153,7 @@ def _load_protocols() -> List[Dict[str, Any]]:
         return []
     if _PROTOCOL_CACHE["items"] and mtime <= _PROTOCOL_CACHE["mtime"]:
         return _PROTOCOL_CACHE["items"]
-    items: List[Dict[str, Any]] = []
-    try:
-        with _PROTOCOLS_FILE.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                try:
-                    rec = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                items.append(rec)
-    except OSError:
-        return []
+    items = _substrate.read_jsonl(_PROTOCOLS_FILE)
     _PROTOCOL_CACHE["mtime"] = mtime
     _PROTOCOL_CACHE["items"] = items
     return items
@@ -259,20 +247,7 @@ def _load_almanac() -> List[Dict[str, Any]]:
         return []
     if _ALMANAC_CACHE["items"] and mtime <= _ALMANAC_CACHE["mtime"]:
         return _ALMANAC_CACHE["items"]
-    items: List[Dict[str, Any]] = []
-    try:
-        with _ALMANAC_FILE.open("r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                try:
-                    rec = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                items.append(rec)
-    except OSError:
-        return []
+    items = _substrate.read_jsonl(_ALMANAC_FILE)
     _ALMANAC_CACHE["mtime"] = mtime
     _ALMANAC_CACHE["items"] = items
     return items

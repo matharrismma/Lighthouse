@@ -19,12 +19,12 @@ Ingredients (in order of presentation):
   7. Almanac confirmation — verified observation
 """
 from __future__ import annotations
-import json
 import re
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
+from api import substrate as _substrate
 from api import walk as _walk_mod
 from api import scripture_lookup as _scripture_lookup
 from api import mt_adapter as _mt_adapter
@@ -135,21 +135,8 @@ _CACHE: Dict[str, Any] = {"mtime": 0.0, "items": {}}
 
 
 def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
-    if not path.exists():
-        return []
-    out: List[Dict[str, Any]] = []
-    try:
-        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                out.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-    except OSError:
-        return []
-    return out
+    """Thin delegate to the shared substrate reader (kept for call-site stability)."""
+    return _substrate.read_jsonl(path)
 
 
 def _latest_mtime() -> float:
