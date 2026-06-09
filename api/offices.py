@@ -16,6 +16,7 @@ import datetime as _dt
 import hashlib
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -503,6 +504,25 @@ def _valid_socratic(q):
     return not any(b in low for b in bad)
 
 
+def _first_question(text):
+    """Salvage the first well-formed question from a longer local output.
+
+    The free local model often gives a good Socratic question wrapped in extra
+    prose (a lead-in, a trailing remark) that trips _valid_socratic. Rather than
+    spend a paid oracle call to rephrase what we already have, lift the first
+    clean question clause. Returns None if nothing salvageable — then the oracle
+    takes over as before. Oracle-shrinking with no change to the voice: the words
+    are still the local model's own."""
+    if not text:
+        return None
+    # first '?'-terminated clause, with any preceding sentence/prefix trimmed off
+    m = re.search(r"([^.!?\n]*\?)", text)
+    if not m:
+        return None
+    cand = m.group(1).strip().strip('"“” ')
+    return cand if _valid_socratic(cand) else None
+
+
 def _shepherd_socratic_local(situation, cards):
     """The FREE local model (on-box Ollama) phrases the question — tried BEFORE the
     paid oracle. Validated; returns None on any failure or a question that doesn't
@@ -514,7 +534,11 @@ def _shepherd_socratic_local(situation, cards):
         return None
     q = _llm.generate(_socratic_user(situation, cards), system=_SOCRATIC_SYS,
                       max_tokens=60, temperature=0.7)
-    return q.strip() if _valid_socratic(q) else None
+    if _valid_socratic(q):
+        return q.strip()
+    # Salvage a clean question buried in extra prose rather than pay the oracle to
+    # rephrase what the free local model already gave us (oracle-shrinking).
+    return _first_question(q)
 
 
 def _shepherd_socratic_oracle(situation, cards):
