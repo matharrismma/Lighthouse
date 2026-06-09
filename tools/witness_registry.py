@@ -584,6 +584,24 @@ WITNESS_REGISTRY = {
          "label": "Laura Shapiro — Perfection Salad: Women and Cooking at the Turn of the Century (1986, Farrar Straus Giroux) — academic culinary history citing Farmer as foundational to standardized American cooking",
          "ref": "Shapiro-PerfectionSalad-1986"},
     ],
+
+    # Lydia Maria Child — The American Frugal Housewife (1829)
+    # One of the earliest American household guides; authored by the abolitionist
+    # and writer Lydia Maria Child (1802-1880). The work is studied in women's
+    # history scholarship.
+    # citation_tradition confirmed: Carolyn L. Karcher, 'The First Woman in the
+    # Republic: A Cultural Biography of Lydia Maria Child' (1994, Duke University
+    # Press) — peer-reviewed biography that discusses the Frugal Housewife as
+    # central to Child's early career and cultural influence.
+    "Lydia Maria Child 1829": [
+        {"class": "citation_tradition",
+         "label": "Carolyn L. Karcher -- The First Woman in the Republic: A Cultural Biography of Lydia Maria Child (1994, Duke University Press) -- scholarly biography covering the Frugal Housewife as formative to Child's career",
+         "ref": "Karcher-FirstWoman-1994"},
+        {"class": "non_government_archive",
+         "label": "The Internet Archive -- preserves multiple early editions of The American Frugal Housewife (search archive.org 'American Frugal Housewife Child')",
+         "url": "https://archive.org/search?query=american+frugal+housewife+lydia+maria+child",
+         "ref": "IA-FrugalHousewife"},
+    ],
 }
 
 
@@ -641,6 +659,8 @@ SOURCE_LABEL_PATTERNS = [
     ("Fannie Farmer",                       "Fannie Farmer 1896"),
     ("Isabella Beeton",                     "Mrs. Beeton 1861"),
     ("Beeton",                              "Mrs. Beeton 1861"),
+    ("Lydia Maria Child",                   "Lydia Maria Child 1829"),
+    ("Frugal Housewife",                    "Lydia Maria Child 1829"),
 ]
 
 
