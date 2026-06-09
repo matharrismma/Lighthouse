@@ -826,11 +826,16 @@ def log_office_pair(office: str, prompt: str, completion: str,
         pass
 
 
-# A Shepherd decision is FREE (keep / the local office-model / keyword floor) or
-# PAID (the oracle). The thesis, made visible for the offices: the oracle ratio
-# falls and the learned share rises as the local model takes over with use.
-_VIA_FREE = {"keep", "office_model", "office_model_hybrid", "fallback", "deterministic"}
-_VIA_PAID = {"shepherd"}  # the Anthropic oracle tier
+# A Shepherd decision is FREE or PAID. FREE splits three ways: DETERMINISTIC (keep
+# / keyword floor / vetted stem — no model at all), LEARNED (the from-scratch
+# office-model), and LOCAL_LLM (the on-box model — qwen2.5:3b — phrasing/answering
+# at $0, no data leaving). PAID is the Anthropic oracle. The thesis made visible:
+# the paid ratio falls as the office-model AND the on-box mouth take over with use.
+_VIA_PAID = {"shepherd"}                                   # the Anthropic oracle
+_VIA_LOCAL_LLM = {"shepherd_local"}                        # the on-box model (free)
+_VIA_LEARNED = {"office_model", "office_model_hybrid"}     # the learned classifier
+_VIA_DETERMINISTIC = {"keep", "fallback", "deterministic", "vetted"}  # no model
+_VIA_FREE = _VIA_LOCAL_LLM | _VIA_LEARNED | _VIA_DETERMINISTIC
 
 
 def office_stats(days: int = 30) -> Dict[str, Any]:
@@ -862,19 +867,26 @@ def office_stats(days: int = 30) -> Dict[str, Any]:
                 by_via[via] = by_via.get(via, 0) + 1
                 total += 1
         paid = sum(v for k, v in by_via.items() if k in _VIA_PAID)
-        learned = sum(v for k, v in by_via.items()
-                      if k in ("office_model", "office_model_hybrid"))
+        local_llm = sum(v for k, v in by_via.items() if k in _VIA_LOCAL_LLM)
+        learned = sum(v for k, v in by_via.items() if k in _VIA_LEARNED)
+        deterministic = sum(v for k, v in by_via.items() if k in _VIA_DETERMINISTIC)
         out[office] = {
             "decisions": total,
             "by_via": by_via,
             "oracle_dependence_ratio": round(paid / total, 4) if total else None,
             "free_ratio": round((total - paid) / total, 4) if total else None,
             "learned_ratio": round(learned / total, 4) if total else None,
+            # the on-box model's share — paid oracle calls it REPLACED at $0
+            "local_llm_ratio": round(local_llm / total, 4) if total else None,
+            # answered with NO model at all (the cheapest, most-verifiable tier)
+            "deterministic_ratio": round(deterministic / total, 4) if total else None,
         }
     return {"days": days, "offices": out,
-            "note": ("Shepherd FREE = keep / office-model / keyword floor; PAID = "
-                     "oracle. The oracle ratio falls and the learned share rises "
-                     "as the local model takes over — the thesis, for the offices.")}
+            "note": ("Shepherd tiers — PAID = the Anthropic oracle; FREE splits into "
+                     "DETERMINISTIC (keep / keyword floor / vetted stem, no model), "
+                     "LEARNED (the from-scratch office-model), and LOCAL_LLM (the on-box "
+                     "model, qwen2.5:3b, $0 + no data leaves). oracle_dependence_ratio "
+                     "falls as the office-model AND the on-box mouth take over with use.")}
 
 
 # ── The learning loop: fold live decisions back in, retrain, reload ──────────
