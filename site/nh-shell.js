@@ -95,7 +95,7 @@ body.nh-radio-on{padding-bottom:62px;}
     </a>
     <nav class="nh-shell-nav" aria-label="Site sections">
       <a href="/workspace.html" data-nh-key="desk">Workspace</a>
-      <a href="/walks.html"     data-nh-key="discern">Discern</a>
+      <a href="/funnel.html"     data-nh-key="discern">Discern</a>
       <a href="/family.html"    data-nh-key="family">Family</a>
       <a href="/marketplace.html" data-nh-key="market">Market</a>
       <a href="/learn-deep.html" data-nh-key="learn">Learn</a>
@@ -117,9 +117,9 @@ body.nh-radio-on{padding-bottom:62px;}
       <div class="nh-shell-col">
         <h4>Discern</h4>
         <a href="/workspace.html">The Workspace &middot; one input</a>
-        <a href="/walks.html">The engine</a>
+        <a href="/funnel.html">The engine</a>
         <a href="/try.html">Verify a claim</a>
-        <a href="/discern-teaching.html">Discern this teaching</a>
+        <a href="/funnel.html">Discern this teaching</a>
         <a href="/almanac.html">Almanac</a>
         <a href="/verifiers.html">69 verifiers</a>
         <a href="/how-it-works.html">How it works</a>
@@ -509,7 +509,7 @@ body.nh-radio-on{padding-bottom:62px;}
     }
     if (lens.name === "discern") {
       box.innerHTML = '<div style="' + _FL.card + '"><div style="' + _FL.why + '">a claim to weigh against the floor</div>' +
-        '<a style="' + _FL.go + '" href="/walks.html?q=' + encodeURIComponent(text) + '">Walk the four gates &rarr;</a>' +
+        '<a style="' + _FL.go + '" href="/funnel.html">Walk the four gates &rarr;</a>' +
         (window.nhGatesHtml ? window.nhGatesHtml() : "") + '</div>';
       return;
     }

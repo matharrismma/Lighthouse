@@ -258,14 +258,14 @@ async function nhRunWalk(q, box){
     var minMs=GATE_MS*(gates.length+0.5), waited=performance.now()-startT;
     if(waited<minMs) await new Promise(function(res){ setTimeout(res, minMs-waited); });
     var steps=(d&&d.steps)||[];
-    if(!steps.length){ location.href='/walks.html?q='+encodeURIComponent(q); return false; }
+    if(!steps.length){ location.href='/funnel.html'; return false; }
     var html='';
     steps.forEach(function(s){ var src=(s.source&&(s.source.label||s.source.author))||s.shelf||''; html+='<div class="rc"><div class="rt">'+nhEsc(s.title||'(untitled)')+'</div>'+(src?'<div class="rs">'+nhEsc(src)+'</div>':'')+'</div>'; });
-    html+='<a class="rmore" href="/walks.html?q='+encodeURIComponent(q)+'">See the full walk + the four gates &rarr;</a>';
+    html+='<a class="rmore" href="/funnel.html">See the full walk + the four gates &rarr;</a>';
     // The gates rest on Scripture, witnessed by the Didache — shown beneath.
     if(window.nhGatesHtml) html+=window.nhGatesHtml();
     box.innerHTML=html;
-  }catch(e){ location.href='/walks.html?q='+encodeURIComponent(q); }
+  }catch(e){ location.href='/funnel.html'; }
   return false;
 }
 

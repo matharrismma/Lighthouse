@@ -93,7 +93,7 @@
 
 <nav class="top">
   <a href="/">← Narrow Highway</a>
-  <a href="/walks.html">Walk a question</a>
+  <a href="/funnel.html">Walk a question</a>
   <a href="/codex.html">The Codex</a>
   <a href="/atlas.html">Spatial atlas</a>
 </nav>
@@ -155,7 +155,7 @@
     const j = await r.json();
     const $list = document.getElementById('list');
     if (!j.paths || j.paths.length === 0) {
-      $list.innerHTML = '<div class="empty">No paths yet on this shelf. Walks land here as the family uses /walks.html — and operator-curated paths can be authored directly.</div>';
+      $list.innerHTML = '<div class="empty">No paths yet on this shelf. Walks land here as the family uses /funnel.html — and operator-curated paths can be authored directly.</div>';
       return;
     }
     $list.innerHTML = j.paths.map(p => {

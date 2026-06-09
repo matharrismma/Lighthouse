@@ -408,7 +408,7 @@
   <section class="desk work" id="d-work">
     <div class="desk-head">
       <div><span class="lbl">Workshop</span><h2>Verify a claim. Walk the four gates.</h2></div>
-      <a class="more" href="/walks.html">Full workshop →</a>
+      <a class="more" href="/funnel.html">Full workshop →</a>
     </div>
     <div class="desk-grid grid-2">
       <div class="tool">
@@ -425,7 +425,7 @@
           <a class="pill" href="/almanac.html">⚖️ Almanac</a>
           <a class="pill" href="/verifiers.html">🔍 69 verifiers</a>
           <a class="pill" href="/how-it-works.html">📐 How it works</a>
-          <a class="pill" href="/discern-teaching.html">📖 Discern a teaching</a>
+          <a class="pill" href="/funnel.html">📖 Discern a teaching</a>
           <a class="pill" href="/benchmark.html">📊 Benchmark</a>
           <a class="pill" href="/poly.html">🪡 Polymathic</a>
         </div>
@@ -671,16 +671,16 @@ async function vfSubmit(ev) {
     const d = await r.json();
     const steps = (d && d.steps) || [];
     if (!steps.length) {
-      el.innerHTML = '<em>No steps surfaced. Open the workshop to walk it in full.</em> · <a href="/walks.html?q=' + encodeURIComponent(q) + '">Open →</a>';
+      el.innerHTML = '<em>No steps surfaced. Open the workshop to walk it in full.</em> · <a href="/funnel.html">Open →</a>';
       return;
     }
     el.innerHTML = steps.slice(0, 3).map(s => {
       const src = (s.source && (s.source.label || s.source.author)) || s.shelf || '';
       return '<div style="padding:4px 0;border-bottom:1px dotted var(--rule);"><strong>' + esc(s.title || '(untitled)') + '</strong> <span class="meta" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--brass);">' + esc(src) + '</span></div>';
     }).join('') +
-    '<a href="/walks.html?q=' + encodeURIComponent(q) + '" style="display:inline-block;margin-top:6px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--oxblood);">See the full walk →</a>';
+    '<a href="/funnel.html" style="display:inline-block;margin-top:6px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--oxblood);">See the full walk →</a>';
   } catch (e) {
-    el.innerHTML = '<em>Engine quiet — open the workshop to walk it in full.</em> · <a href="/walks.html?q=' + encodeURIComponent(q) + '">Open →</a>';
+    el.innerHTML = '<em>Engine quiet — open the workshop to walk it in full.</em> · <a href="/funnel.html">Open →</a>';
   }
 }
 </script>
