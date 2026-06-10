@@ -5604,6 +5604,38 @@ def capabilities():
             out["mcp_tools"] = len(_reg)
     except Exception:
         pass
+    # Substrate counts — computed from the live data dirs (same treatment as the
+    # engine numbers; cached with the response so the 11k-file glob runs once).
+    _data = Path(__file__).parent.parent / "data"
+
+    def _glob_count(pat: str):
+        try:
+            return sum(1 for _ in _data.glob(pat))
+        except Exception:
+            return None
+
+    def _line_count(*pats: str):
+        n = 0
+        for pat in pats:
+            try:
+                for f in _data.glob(pat):
+                    n += sum(1 for ln in f.read_text("utf-8", errors="replace").splitlines() if ln.strip())
+            except Exception:
+                pass
+        return n
+
+    sub: Dict[str, Any] = {}
+    sub["cards"] = _glob_count("cards/*.json")
+    sub["almanac_entries"] = _line_count("almanac/entries.jsonl")
+    sub["archetypes"] = _line_count("archetypes/*.jsonl")
+    sub["scripture_protocols"] = _line_count("protocols/*.jsonl")
+    sub["fieldkit_cards"] = _line_count("fieldkit/*.jsonl") or _glob_count("fieldkit/*")
+    try:
+        from api import packets_index as _pi
+        sub["unified_index_packets"] = len(_pi.load_all())
+    except Exception:
+        pass
+    out["substrate"] = {k: v for k, v in sub.items() if v is not None}
     out["capabilities"] = [
         "Deterministic verification across the sciences — every check is recomputed, never inferred; a false claim returns MISMATCH with the true value.",
         "Multi-step derivation verification — a whole solution checked step by step (POST /derivation/verify), or a problem stated in plain language formalized then judged (POST /derivation/solve). The trail is the proof; the engine never generates the answer.",
