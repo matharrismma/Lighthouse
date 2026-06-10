@@ -145,6 +145,14 @@ def _all_mtimes() -> float:
                 latest = max(latest, p.stat().st_mtime)
         except OSError:
             continue
+    # Cards dir mtime — so the index refreshes when note cards change (one stat,
+    # not 11k file stats).
+    try:
+        _cd = Path(__file__).parent.parent / "data" / "cards"
+        if _cd.exists():
+            latest = max(latest, _cd.stat().st_mtime)
+    except OSError:
+        pass
     return latest
 
 
@@ -203,6 +211,42 @@ def _normalize_packet_records() -> List[Dict[str, Any]]:
             "weight": 0.9 if e.get("verdict") in ("CONFIRMED", "CONCORDANT") else 0.6,
             "timestamp": ts,
         })
+
+    # ── Note cards — the content slice of the card substrate ───────────────
+    # Fold the ~5k note cards into the ONE unified index so the book/search
+    # includes them (Matt 2026-06-10: "everything is almanac; the cards should be
+    # in it — I don't see how they aren't"). Connection cards stay the link GRAPH,
+    # not pages. Public + non-trivial body only. Kept OUT of WISDOM_KINDS below so
+    # the well's discernment corpus stays curated (Scripture/patristics/protocols).
+    try:
+        from api import cards as _cards_mod
+        for c in _cards_mod._all_cards_unified().values():
+            if (c.get("kind") or "") != "note":
+                continue
+            if (c.get("visibility") or "public") != "public":
+                continue
+            if c.get("retracted") or (c.get("lifecycle_stage") or "") in ("archived", "quarantine"):
+                continue
+            body = (c.get("body") or "").strip()
+            if len(body) < 60:
+                continue
+            cid = c.get("id", "")
+            packets.append({
+                "kind": "note",
+                "id": cid,
+                "title": (c.get("title") or body[:80] or cid)[:240],
+                "verdict": None,
+                "domains": [],
+                "axes": list(c.get("axes") or []),
+                "summary": body[:280],
+                "body": body,
+                "permalink": f"/card.html#{cid}",
+                "api_path": f"/cards/{cid}",
+                "weight": 0.7,
+                "timestamp": c.get("created_at") or 0,
+            })
+    except Exception:
+        pass
 
     # ── Sealed polymathic axis_index ───────────────────────────────────
     if _AXIS_INDEX.exists():
