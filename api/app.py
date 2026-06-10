@@ -5438,6 +5438,83 @@ def testimony_pending(limit: int = 50):
             "matters": pending[:max(1, min(200, limit))]}
 
 
+# ── The question ladder — never a dead-end (project_wisdom_flywheel_2026-06-10) ──
+# When the well holds no card that weighs a real question, we capture it as a
+# TICKET instead of shrugging. Create is PUBLIC (a person/agent opting into
+# follow-up — so nonsense never becomes a ticket); listing + resolving are
+# OPERATOR-only (Matt's bench, keep-gated 404). An open ticket is airlock intake;
+# a resolved answer elevates into a card (the wisdom flywheel — next rung).
+class _TicketIn(BaseModel):
+    question: str
+    elaboration: str = ""
+    source: str = ""
+    visitor_id: str = ""
+
+
+@app.post("/tickets", tags=["public"])
+def tickets_create(body: _TicketIn, request: Request):
+    """Public: capture a real question the well can't yet answer. Opt-in only —
+    the front door calls this when a person/agent chooses 'get back to me', so
+    nonsense queries never become tickets. Returns the ticket id + a promise."""
+    from api import tickets as _tickets
+    q = (body.question or "").strip()
+    if len(q) < 3:
+        raise HTTPException(status_code=400, detail="A question is required.")
+    try:
+        tk = _tickets.create_ticket(
+            question=q, elaboration=body.elaboration, source=body.source or "walk",
+            asked_by=(body.visitor_id or "anon"),
+            context={"ua": request.headers.get("user-agent", "")[:160]},
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "ticket_id": tk["id"], "status": tk["status"],
+            "also_asked": tk.get("also_asked", 0),
+            "message": ("Captured. A real question deserves a real answer — we'll work "
+                        "it through and come back to you. You haven't hit a dead-end.")}
+
+
+@app.get("/tickets", tags=["humans"])
+def tickets_list(request: Request, status: str = "open", limit: int = 100):
+    """Operator: the question backlog, most-asked first (demand = priority).
+    Keep-gated (404 unless operator IP/session)."""
+    _keep_require_allowed(request)
+    from api import tickets as _tickets
+    st = status if status and status.lower() != "all" else None
+    return {"office": "shepherd", "stats": _tickets.stats(),
+            "items": _tickets.list_tickets(status=st, limit=limit)}
+
+
+@app.post("/tickets/{tid}/resolve", tags=["humans"])
+def tickets_resolve(tid: str, body: Dict[str, Any], request: Request):
+    """Operator: attach an answer + advance status (open->researching->answered
+    ->closed). Capturing the answer as a card is the next rung; this leaves
+    answer_card_id as the hook. Keep-gated."""
+    _keep_require_allowed(request)
+    from api import tickets as _tickets
+    tk = _tickets.resolve_ticket(
+        tid,
+        answer=str(body.get("answer", "")),
+        answered_by=str(body.get("answered_by", "matt")),
+        status=str(body.get("status", "answered")),
+        answer_card_id=body.get("answer_card_id"),
+    )
+    if tk is None:
+        raise HTTPException(status_code=404, detail=f"ticket {tid!r} not found")
+    return {"ok": True, "ticket": tk}
+
+
+@app.post("/tickets/{tid}/tier", tags=["humans"])
+def tickets_set_tier(tid: str, body: Dict[str, Any], request: Request):
+    """Operator: escalate a ticket research -> community -> matt (last resort)."""
+    _keep_require_allowed(request)
+    from api import tickets as _tickets
+    tk = _tickets.set_tier(tid, str(body.get("tier", "")))
+    if tk is None:
+        raise HTTPException(status_code=404, detail="ticket not found or bad tier")
+    return {"ok": True, "ticket": tk}
+
+
 # ── Wedges: pedagogical intervention catalog ─────────────────
 # Ported from Coach OS v1.0 (Repeat / Chunk / Echo / Phonics /
 # Context / Skip / Meaning / Praise). Phonics units reference
