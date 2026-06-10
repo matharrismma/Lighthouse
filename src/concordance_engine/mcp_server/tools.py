@@ -74,6 +74,7 @@ from ..verifiers import materials_science as _materials_science
 from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
 from ..verifiers import phase as _phase
+from ..verifiers import atomic as _atomic
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -564,6 +565,11 @@ def verify_physical_constants(spec):
 def verify_periodic_table(spec):
     """IUPAC 2021 periodic table: symbol/name/atomic_number/atomic_mass cross-validation for all 118 elements. Public domain."""
     return {"checks": [_r(r) for r in _periodic_table.run({"PT_VERIFY": spec or {}})]}
+
+
+def verify_atomic(spec):
+    """Atomic structure: quantum-number validity (n,l,m_l,m_s), shell capacity (2n²), and ground-state electron configuration for Z=1-118 (Madelung order + the standard ground-state exceptions). The electron layer beneath chemistry, quantum, and the periodic table."""
+    return {"checks": [_r(r) for r in _atomic.run({"ATOM_VERIFY": spec or {}})]}
 
 
 def verify_ephemeris(spec):
@@ -1529,6 +1535,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_phase": verify_phase,
     "verify_physical_constants": verify_physical_constants,
     "verify_periodic_table": verify_periodic_table,
+    "verify_atomic": verify_atomic,
     "verify_ephemeris": verify_ephemeris,
     "verify_layer_zero_grounding": verify_layer_zero_grounding,
     "verify_linear_algebra": verify_linear_algebra,
