@@ -1095,7 +1095,8 @@ def context_block() -> str:
     """
     return """\
 You have access to the Concordance verification engine — a system that verifies \
-claims against the precise structure of the created order across 57 domains.
+claims against the precise structure of the created order across 65 domains \
+(70 deterministic verifiers).
 
 When you call a Concordance tool and receive CONFIRMED, that means the claim was \
 independently computed and found to match — not inferred, not approximated, verified. \
@@ -1116,8 +1117,8 @@ Surface the verification result and the detail field — do not hide DISCORDANT 
 A DISCORDANT finding is the most useful output: it is the engine saying "this \
 contradicts how the realm was built." \
 
-Benchmark accuracy: 171/171 items verified correctly (100%) across all 57 domains \
-using claude-haiku-4-5. This is not a calculator. It is a witness to the structure \
+Benchmark accuracy: 171/171 items verified correctly (100%) across the 57-domain \
+benchmark suite using claude-haiku-4-5. This is not a calculator. It is a witness to the structure \
 of the created order.\
 """
 

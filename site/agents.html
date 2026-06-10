@@ -159,7 +159,7 @@ https://narrowhighway.com/mcp/sse</div>
 <section id="mcp-tools">
   <div class="container">
     <h2>MCP tool inventory</h2>
-    <p>111 MCP tools total: <strong>69 verifiers</strong> (one per deterministic domain check), plus pipeline tools (validate / seal / attest / walk through), read &amp; synthesize surfaces (atlas, almanac, run_polymathic, propose_almanac_entry), and the <strong>12 card-library tools</strong> added 2026-05-19 (cards_walk, shepherd_interview, atlas_paths, card_get, card_notes, daily_card, etc.). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
+    <p>100 MCP tools total: <strong>70 verifiers</strong> (one per deterministic domain check), plus pipeline tools (validate / seal / attest / walk through), read &amp; synthesize surfaces (atlas, almanac, run_polymathic, propose_almanac_entry), and the <strong>12 card-library tools</strong> added 2026-05-19 (cards_walk, shepherd_interview, atlas_paths, card_get, card_notes, daily_card, etc.). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
 
     <h3 style="margin-top:1.8em; color:var(--accent);">Card library tools <span style="font-size:0.7em; font-weight:400; color:var(--muted);">— new 2026-05-19</span></h3>
     <table>
@@ -195,7 +195,7 @@ https://narrowhighway.com/mcp/sse</div>
         <tr><td><code>validate_packet</code> / <code>seal_packet</code> / <code>walkthrough_packet</code> / <code>attest_red</code> / <code>attest_floor</code></td><td>Gate pipeline. Run a packet through RED → FLOOR → WAY → BROTHERS → GOD; record the trail; seal into the audit chain when it passes.</td></tr>
         <tr><td><code>resolve_scripture_ref</code> / <code>word_study</code> / <code>verify_scripture_anchors</code></td><td>Scripture layer — WEB Bible, Strong's numbers, citation anchoring. Catches fabricated references.</td></tr>
         <tr><td><code>triangulate_claim</code> / <code>get_example_packet</code></td><td>Multi-source corroboration helper and an example-packet fetcher for new integrations.</td></tr>
-        <tr><td><code>verify_*</code> (69 tools)</td><td>One per domain — chemistry, physics_dimensional, statistics_pvalue, mathematics, biology, etc. All deterministic. See the full <a href="/verifiers.html">verifier list</a>.</td></tr>
+        <tr><td><code>verify_*</code> (70 tools)</td><td>One per domain — chemistry, physics_dimensional, statistics_pvalue, mathematics, biology, etc. All deterministic. See the full <a href="/verifiers.html">verifier list</a>.</td></tr>
       </tbody>
     </table>
   </div>
@@ -257,7 +257,7 @@ https://narrowhighway.com/mcp/sse</div>
     "concordance": { "url": "https://narrowhighway.com/mcp" }
   }
 }</code></pre>
-    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 111 tools become available immediately.</p>
+    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 100 tools become available immediately.</p>
 
     <h3>2 · MCP over stdio — for offline / air-gapped use</h3>
     <p>Install once, run locally. No outbound calls.</p>

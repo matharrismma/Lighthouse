@@ -325,7 +325,7 @@
 <header class="page-header">
   <p class="eyebrow">Integration hub</p>
   <h1 data-i18n="page.connect.h1">Connect any AI agent.</h1>
-  <p class="lead">Five doors in. The engine is the same — 86 tools, 109 domains, 9,501-packet unified index, 886 almanac entries, 13 FieldKit cards, 108 archetypes, 26 Scripture protocols, Shepherd OS, four gates. Pick the integration that fits your stack and copy the config. Live tests on every section.</p>
+  <p class="lead">Five doors in. The engine is the same — 100 tools, 65 verifier domains, 9,501-packet unified index, 886 almanac entries, 13 FieldKit cards, 108 archetypes, 26 Scripture protocols, Shepherd OS, four gates. Pick the integration that fits your stack and copy the config. Live tests on every section.</p>
 </header>
 
 <div class="endpoint-band">
@@ -368,7 +368,7 @@
 <section id="claude">
   <div class="container">
     <h2><span class="num-badge">1</span>Claude Desktop</h2>
-    <p class="sub">The fastest path. Hosted MCP — no install. Add three lines to your config and 86 tools light up in any new conversation.</p>
+    <p class="sub">The fastest path. Hosted MCP — no install. Add three lines to your config and 100 tools light up in any new conversation.</p>
 
     <div class="section-card">
       <h3>Step 1 · Open the config file</h3>
@@ -392,12 +392,12 @@
       </div>
 
       <h3 style="margin-top:22px">Step 3 · Restart Claude Desktop</h3>
-      <p>Open a new conversation. Look for the tool icon in the input box — you should see 86 tools available. Try: <em>"Use concordance to verify that 2 H2 + O2 → 2 H2O is balanced."</em></p>
+      <p>Open a new conversation. Look for the tool icon in the input box — you should see 100 tools available. Try: <em>"Use concordance to verify that 2 H2 + O2 → 2 H2O is balanced."</em></p>
 
       <div class="pill-row">
         <span class="pill ok">No install</span>
         <span class="pill ok">No auth needed</span>
-        <span class="pill ok">All 86 tools</span>
+        <span class="pill ok">All 100 tools</span>
       </div>
 
       <div class="test-row">
@@ -455,7 +455,7 @@ URL:  <span class="s">https://narrowhighway.com/mcp/</span></pre>
         <button class="pre-copy" data-copy-pre>copy</button>
 <pre><span class="k">import</span> openai, json, urllib.request
 
-<span class="c"># Pull the OpenAPI spec — 240+ endpoints, all 86 MCP tools mirrored</span>
+<span class="c"># Pull the OpenAPI spec — 240+ endpoints, all 100 MCP tools mirrored</span>
 spec = json.loads(urllib.request.urlopen(
     <span class="s">"https://narrowhighway.com/openapi.json"</span>).read())
 
@@ -489,7 +489,7 @@ assistant = client.beta.assistants.create(
       <h3>Verify a chemistry claim</h3>
       <div class="pre-wrap">
         <button class="pre-copy" data-copy-pre>copy</button>
-<pre><span class="c"># POST /verify — all 69 verifiers reachable</span>
+<pre><span class="c"># POST /verify — all 70 verifiers reachable</span>
 curl -X POST https://narrowhighway.com/verify/chemistry \
   -H <span class="s">"Content-Type: application/json"</span> \
   -d <span class="s">'{"equation": "H2 + O2 -> H2O"}'</span></pre>
@@ -522,7 +522,7 @@ curl -X POST https://narrowhighway.com/verify/chemistry \
 <pre>curl https://narrowhighway.com/health        <span class="c"># status + module counts</span>
 curl https://narrowhighway.com/identity      <span class="c"># engine identity statement</span>
 curl https://narrowhighway.com/llms.txt      <span class="c"># tool inventory for AI crawlers</span>
-curl https://narrowhighway.com/verifiers     <span class="c"># list all 69 verifiers</span>
+curl https://narrowhighway.com/verifiers     <span class="c"># list all 70 verifiers</span>
 curl https://narrowhighway.com/journal/recent
 curl https://narrowhighway.com/grid/scaffold <span class="c"># axis assignments per domain</span>
 curl https://narrowhighway.com/audit-chain   <span class="c"># sealed packets, newest first</span></pre>
