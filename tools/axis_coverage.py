@@ -31,7 +31,12 @@ _TAG = re.compile(r"""(?:confirm|error)\(\s*['"]([a-z_]+)\.([a-z_]+)['"]""")
 
 
 def _domain_invariants():
-    """tag-prefix domain -> sorted list of distinct sub-operations it checks."""
+    """domain (verifier FILE stem) -> sorted distinct sub-operations it checks.
+
+    Keyed by FILE STEM, not the tag prefix: a verifier abbreviates its own tags
+    (computer_science.py writes confirm("cs.determinism")), and "cs" is NOT a real
+    domain -- keying by the tag prefix invents phantom domains with 0 axes. The
+    file stem is the real domain (computer_science.py -> computer_science)."""
     out = {}
     for fn in sorted(os.listdir(_VDIR)):
         if not fn.endswith(".py") or fn.startswith("_") or fn == "base.py":
@@ -40,9 +45,10 @@ def _domain_invariants():
             src = open(os.path.join(_VDIR, fn), encoding="utf-8").read()
         except OSError:
             continue
-        for dom, sub in _TAG.findall(src):
-            out.setdefault(dom, set()).add(sub)
-    return {d: sorted(s) for d, s in out.items()}
+        subs = {sub for _pref, sub in _TAG.findall(src)}
+        if subs:
+            out[fn[:-3]] = sorted(subs)
+    return out
 
 
 def _axes_for(domain, axis_dims):
