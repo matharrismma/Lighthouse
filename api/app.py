@@ -5515,6 +5515,36 @@ def tickets_set_tier(tid: str, body: Dict[str, Any], request: Request):
     return {"ok": True, "ticket": tk}
 
 
+# ── The derivation chain — multi-step verification (Task B keystone) ──────────
+# A single verifier confirms one claim; a DERIVATION chains claims so each step
+# is machine-checked AND may build only on confirmed prior steps. Returns the
+# full trail + a composite verdict (HOLDS / BROKEN / INCOMPLETE). The engine
+# verifies a PROVIDED derivation — it never generates the answer. This is the
+# "solve a real problem, every step verified" surface (project_moat_track).
+class _DerivationIn(BaseModel):
+    steps: List[Dict[str, Any]]
+    title: str = ""
+
+
+@app.post("/derivation/verify", tags=["public"])
+def derivation_verify(body: _DerivationIn):
+    """Public: verify a multi-step derivation. Each step = {domain, spec, uses?,
+    claim?}; `spec` is the structured kwargs the domain's verifier wants. The
+    chain HOLDS iff every step CONFIRMED and every `uses` points to a confirmed
+    prior step; BROKEN names the first failing step; INCOMPLETE flags a step the
+    verifier couldn't run (the prose->spec bridge gap). The trail is the trust."""
+    from api import derivation as _derivation
+    steps = body.steps or []
+    if not steps:
+        raise HTTPException(status_code=400, detail="provide at least one step")
+    if len(steps) > 100:
+        raise HTTPException(status_code=400, detail="too many steps (max 100)")
+    result = _derivation.verify_derivation(steps)
+    if body.title:
+        result["title"] = body.title[:200]
+    return result
+
+
 # ── Wedges: pedagogical intervention catalog ─────────────────
 # Ported from Coach OS v1.0 (Repeat / Chunk / Echo / Phonics /
 # Context / Skip / Meaning / Praise). Phonics units reference
