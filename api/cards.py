@@ -730,9 +730,15 @@ def _tokens(text: str) -> list[str]:
     return re.findall(r"[a-zA-Z][a-zA-Z']{1,}", (text or "").lower())
 
 
-def _score_card_for_query(card: dict, query_tokens: set) -> float:
-    """Lightweight TF-IDF-ish scoring against title + body + bands + source.ref.
-    Kept for direct-scoring of small candidate sets surfaced via the index."""
+def _score_card_for_query(card: dict, query_tokens: set, idf: dict = None) -> float:
+    """TF-IDF scoring against title + body + bands + source.ref.
+
+    With `idf` (query-token -> inverse-document-frequency), each matched token is
+    weighted by how DISTINCTIVE it is: a near-universal word ('is', 'good', 'lord')
+    weighs ~0, a topic word ('baptism') weighs heavily. A card surfaces only if it
+    matches at least one genuinely distinctive query token — so off-topic cards stop
+    ranking for a query whose real subject isn't in the corpus. (Without idf, falls
+    back to raw term-frequency, for direct-scoring small candidate sets.)"""
     text = " ".join([
         card.get("title", ""),
         card.get("body", "")[:1000],
@@ -748,11 +754,18 @@ def _score_card_for_query(card: dict, query_tokens: set) -> float:
     if not common:
         return 0.0
     import math
+    # A real topical match must carry a DISTINCTIVE token, not just common words.
+    # (This is the fix for "is infant baptism biblical?" surfacing Pirkei Avot.)
+    if idf is not None and max((idf.get(t, 0.0) for t in common), default=0.0) < _MIN_DISTINCTIVE_IDF:
+        return 0.0
     counts = {t: 0 for t in common}
     for t in doc_tokens:
         if t in counts:
             counts[t] += 1
-    score = sum(counts.values()) / math.log(len(doc_tokens) + 10)
+    if idf is not None:
+        score = sum(counts[t] * idf.get(t, 0.0) for t in common) / math.log(len(doc_tokens) + 10)
+    else:
+        score = sum(counts.values()) / math.log(len(doc_tokens) + 10)
     if len(common) == len(query_tokens):
         score *= 1.5
     # Authority tier boost: scriptural sources rank higher
@@ -789,7 +802,10 @@ def _ensure_inverted_index(force: bool = False):
     cards_dir_mtime = 0.0
     try:
         if CARDS_DIR.exists():
-            cards_dir_mtime = max(f.stat().st_mtime for f in CARDS_DIR.glob("*.json")) if any(CARDS_DIR.glob("*.json")) else 0
+            # ONE stat on the directory, not 11k stats over every card file. The
+            # dir mtime bumps on any add/remove/rename; in-place edits are caught
+            # by the periodic force=True warm. (Same cheap guard as _all_cards_unified.)
+            cards_dir_mtime = CARDS_DIR.stat().st_mtime
     except Exception:
         pass
     if not force and _INVERTED_INDEX["card_count"] > 0 and abs(cards_dir_mtime - _INVERTED_INDEX["watched_mtime"]) < 1.0:
@@ -825,6 +841,31 @@ def _candidates_via_index(query_tokens: set, max_candidates: int = 500) -> list[
     # Sort by how many query tokens hit; cap at max_candidates
     sorted_ids = sorted(candidate_counts.keys(), key=lambda x: -candidate_counts[x])
     return sorted_ids[:max_candidates]
+
+
+# A query token must be at least this DISTINCTIVE (high IDF) for a card matching
+# it to count as a real topical hit. log(N/(df+1)): a token in <~20% of the corpus
+# clears 1.5. Below it, the token is a near-universal word ("is", "good", "lord")
+# that matches everywhere and would otherwise surface off-topic cards — the exact
+# defect where "is infant baptism biblical?" returned Pirkei Avot / Boethius.
+_MIN_DISTINCTIVE_IDF = 1.5
+
+
+def _query_idf(query_tokens: set) -> dict:
+    """Inverse-document-frequency for each query token, from the inverted index.
+    Distinctive tokens (present in few cards) weigh heavily; near-universal tokens
+    weigh ~0. This is what separates a genuine topical match from a coincidental
+    common-word match — verification over vague similarity (the Scribe retrieves
+    only what truly fits, or honestly nothing)."""
+    import math
+    _ensure_inverted_index()
+    by_token = _INVERTED_INDEX["by_token"]
+    n = max(1, int(_INVERTED_INDEX.get("card_count", 1)))
+    out: dict = {}
+    for t in query_tokens:
+        df = len(by_token.get(t, ()))
+        out[t] = max(0.0, math.log(n / (df + 1)))
+    return out
 
 
 # ---------- Router ----------
@@ -1224,25 +1265,42 @@ def get_router():
         query_tokens = set(_tokens(payload.query))
         if not query_tokens:
             return {"query": payload.query, "steps": [], "narration": "No searchable terms in query."}
-        # Use inverted index to narrow candidates BEFORE scoring (LOOP 43).
-        # Falls back to full corpus walk if the index returns nothing.
+        # IDF-weighted retrieval: distinctive query tokens carry the topic; common
+        # words don't. Candidates come from the inverted index (only cards that
+        # actually contain a query token). NO full-corpus fallback — if the index
+        # returns nothing, nothing in the substrate contains these words, so the
+        # honest answer is "no card yet" (below), not a scan of all 11k cards
+        # (which both wastes the box and surfaces coincidental matches).
         all_cards = _all_cards_unified()
+        idf = _query_idf(query_tokens)
         candidate_ids = _candidates_via_index(query_tokens, max_candidates=400)
-        if candidate_ids:
-            candidates = [all_cards[cid] for cid in candidate_ids if cid in all_cards]
-        else:
-            candidates = list(all_cards.values())
+        candidates = [all_cards[cid] for cid in candidate_ids if cid in all_cards]
         scored = []
         for c in candidates:
             if c.get("retracted"):
                 continue
             if c.get("lifecycle_stage") in ("archived", "quarantine"):
                 continue
-            s = _score_card_for_query(c, query_tokens)
+            s = _score_card_for_query(c, query_tokens, idf)
             if s > 0:
                 scored.append((s, c))
         scored.sort(key=lambda x: -x[0])
         top = scored[:payload.k]
+        # Honest empty: nothing in the substrate genuinely weighs this. Do NOT
+        # launder coincidental matches as an answer — say so plainly. The caller
+        # (homepage) routes a no-match to the four-gate walk, where the person
+        # weighs it themselves — never a verdict on a contested claim.
+        if not top:
+            return {
+                "query": payload.query,
+                "step_count": 0,
+                "steps": [],
+                "no_match": True,
+                "narration": ("The well doesn't hold a card that weighs this yet — "
+                              "rather than offer something that only looks related, "
+                              "walk it through the four gates yourself."),
+                "corpus_size": len(all_cards),
+            }
         steps = []
         for sc, c in top:
             steps.append({
