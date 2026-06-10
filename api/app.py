@@ -5150,24 +5150,51 @@ def almanac_proposals(limit: int = 50):
 
 @app.get("/stats/visitors", tags=["humans"])
 def stats_visitors():
-    """Scribe: visitor count summary — today / last 7 days / all-time."""
+    """Scribe: visitor count summary — today / last 7 days / all-time.
+
+    "Visitors" means REAL HUMANS (ua_class == 'human'). The raw access log counts
+    every hit — AI agents, crawlers, scanners, link-unfurl bots — which over-counts
+    the human audience several-fold (a recent day: 4169 hits, only 1028 human). The
+    headline counts are human-only; the *_total fields keep the full traffic visible
+    so nothing is hidden. (ua_class is best-effort UA classification; a bot spoofing
+    a browser UA can still slip into 'human', so treat these as an upper bound.)"""
     from datetime import datetime as _dt, timezone as _tz, timedelta as _td
 
-    def _count(path: Path) -> int:
+    def _counts(path: Path) -> tuple:
+        """(human, total) for one access file."""
         if not path.exists():
-            return 0
-        return sum(1 for ln in path.read_text("utf-8", errors="replace").splitlines()
-                   if ln.strip())
+            return (0, 0)
+        human = total = 0
+        for ln in path.read_text("utf-8", errors="replace").splitlines():
+            ln = ln.strip()
+            if not ln:
+                continue
+            total += 1
+            try:
+                if json.loads(ln).get("ua_class") == "human":
+                    human += 1
+            except Exception:
+                pass
+        return (human, total)
 
     today = _dt.now(_tz.utc).date()
-    today_n = _count(_VISITS_DIR_PATH / f"access-{today.strftime('%Y%m%d')}.jsonl")
-    week_n = sum(_count(_VISITS_DIR_PATH / f"access-{(today - _td(days=d)).strftime('%Y%m%d')}.jsonl")
-                 for d in range(7))
-    all_n = 0
+    th, tt = _counts(_VISITS_DIR_PATH / f"access-{today.strftime('%Y%m%d')}.jsonl")
+    wh = wt = 0
+    for d in range(7):
+        h, t = _counts(_VISITS_DIR_PATH / f"access-{(today - _td(days=d)).strftime('%Y%m%d')}.jsonl")
+        wh += h
+        wt += t
+    ah = at = 0
     if _VISITS_DIR_PATH.exists():
         for f in _VISITS_DIR_PATH.glob("access-*.jsonl"):
-            all_n += _count(f)
-    return {"office": "scribe", "today": today_n, "last_7_days": week_n, "all_time": all_n}
+            h, t = _counts(f)
+            ah += h
+            at += t
+    return {"office": "scribe",
+            "today": th, "last_7_days": wh, "all_time": ah,
+            "today_total": tt, "last_7_days_total": wt, "all_time_total": at,
+            "note": "today/last_7_days/all_time = real human visits (ua_class=human); "
+                    "*_total includes agents, crawlers, scanners, and bots."}
 
 
 # — Keep: visitor geography (operator surface) — where are they coming from? —
