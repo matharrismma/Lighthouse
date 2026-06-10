@@ -3,7 +3,15 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 $Cloudflared = "C:\Concordance\cloudflared.exe"
-$TunnelToken = "eyJhIjoiODc4NDllMzg0OWMxZGE2YmNmMWE3MGRiM2EwMjAzMTIiLCJ0IjoiNjM1NDRiMmYtYjE0Ni00MDUzLTk5ZGYtM2UxNTNhNDY5MzQ5IiwicyI6Ik5UQTVaREkxT0RFdE9UaGxZUzAwTkRsbUxXRXpOMkl0WVRrM05ESXdZak0wT0RabSJ9"
+$TokenFile   = "C:\Concordance\tunnel.token"
+if (-not (Test-Path $TokenFile)) {
+    Write-Host ""
+    Write-Host "ERROR: $TokenFile not found." -ForegroundColor Red
+    Write-Host "Run .\local\rotate_tunnel_token.ps1 first to provision a fresh tunnel token." -ForegroundColor Yellow
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+$TunnelToken = (Get-Content $TokenFile -Raw).Trim()
 
 Write-Host ""
 Write-Host "=== Repairing Cloudflared Service ===" -ForegroundColor Cyan

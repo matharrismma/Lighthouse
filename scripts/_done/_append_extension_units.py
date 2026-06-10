@@ -1,0 +1,140 @@
+"""One-shot appender for the extension units that fix dangling next pointers."""
+import json
+import os
+
+UNITS = {
+    "data/science/units.jsonl": {
+        "id": "science_magnets",
+        "title": "Magnets — what they pull and do not pull",
+        "unit_seq": 6,
+        "track": "science_physics",
+        "rule": "A MAGNET is an object that PULLS some metals (iron, steel, nickel) and DOES NOT PULL most other things (wood, paper, plastic, aluminum, copper, glass). Every magnet has TWO ENDS, called POLES — a NORTH pole and a SOUTH pole. Opposite poles ATTRACT (N pulls S). Same poles REPEL (N pushes N away). The Earth is also a giant magnet, which is why a compass needle points north.",
+        "examples": [
+            "Magnets attract: iron nail, steel paperclip, refrigerator door, scissors with steel blades",
+            "Magnets DO NOT attract: wood, paper, plastic, aluminum can, copper penny, glass",
+            "Two magnets, N facing S → pull together",
+            "Two magnets, N facing N → push apart",
+            "Pole rule: opposites attract, same poles repel",
+            "Compass needle is a tiny magnet — its N pole points toward Earth's MAGNETIC north pole",
+            "Trap: not all metals are magnetic. Aluminum is metal but doesn't stick. Same for copper, gold, silver.",
+            "Magnets work through paper and thin plastic — try moving a paperclip on a table by moving a magnet under the table.",
+        ],
+        "manipulative": "Two bar magnets (or refrigerator magnets) plus a mix of materials: paperclip, penny, aluminum foil, wood block, plastic spoon, glass marble, steel scissors. Test each: does the magnet pull it? Sort into magnetic and not-magnetic piles. Then test the two magnets together — flip one to feel the push-vs-pull.",
+        "modes": [
+            {"id": "coach_models", "label": "Coach tests", "instruction": "Engine holds a magnet near each material, names what happens. Then puts two magnets together (opposite poles, then same poles) and names the force.", "script": "Watch. (Magnet near paperclip — it sticks.) Magnetic. (Magnet near wood — nothing.) Not magnetic. (Two magnets, opposite poles — they pull together.) Attract. (Flip one, same poles — they push.) Repel."},
+            {"id": "take_turns", "label": "Take turns", "instruction": "Engine names an object; learner predicts magnetic or not, then tests. Surprise discoveries are the lesson (aluminum looks metallic but isn't magnetic).", "script": "Predict: penny. Magnetic or not? Now test. Surprise!"},
+            {"id": "i_test", "label": "I test", "instruction": "Learner tests 5 objects, records magnetic/not. Stuck → Context (is it iron or steel?), then Repeat, then Echo.", "script": "Find 5 things. Test each. Make two piles."},
+        ],
+        "check": {
+            "prompt": "A penny is metal. So why doesn't a magnet stick to it?",
+            "answer": "Pennies are made of copper (and zinc), not iron or steel. Only certain metals — iron, steel, nickel, and a few rare ones — are magnetic. Most metals (copper, aluminum, gold, silver, lead) are NOT magnetic, even though they look metallic. The rule is not 'metal sticks to magnets' — it's 'iron-family metals stick to magnets'.",
+            "teaching_note": "Undoes the common misconception that all metals are magnetic. Surprising and memorable. Pair with a quick test of many metal objects — the pattern emerges.",
+        },
+        "wedges": ["wedge_repeat", "wedge_context", "wedge_echo", "wedge_chunk", "wedge_meaning", "wedge_praise"],
+        "prerequisites": ["science_states_matter"],
+        "next": "science_day_night",
+        "summary": "Magnets — pull iron/steel/nickel, not most other things. Poles (N and S) — opposites attract, same repel. Eight examples + mixed-materials manipulative. Check surfaces the not-all-metals-are-magnetic misconception.",
+        "domains": ["physics", "pedagogy"],
+        "axes": ["physical_substance", "authority_trust"],
+    },
+    "data/bible_curriculum/units.jsonl": {
+        "id": "bible_fruit_of_spirit",
+        "title": "The fruit of the Spirit — what a Spirit-led life grows",
+        "unit_seq": 5,
+        "track": "bible_character",
+        "rule": "In Galatians 5:22-23, Paul names NINE qualities the Holy Spirit grows in a believer's life: LOVE, JOY, PEACE, PATIENCE, KINDNESS, GOODNESS, FAITHFULNESS, GENTLENESS, SELF-CONTROL. They're called fruit (singular) — they grow together, like one tree bearing many. You can't fake them; they grow from being WITH Christ, not from trying harder on your own.",
+        "examples": [
+            "Love — choosing others' good, not just feeling fondness (1 John 3:16-18)",
+            "Joy — gladness that doesn't depend on circumstances (Philippians 4:11-13)",
+            "Peace — wholeness with God and others (John 14:27)",
+            "Patience (long-suffering) — staying with people through hard times",
+            "Kindness — gentleness toward others, especially those who can't repay you",
+            "Goodness — moral excellence that isn't just rule-following",
+            "Faithfulness — keeping commitments even when costly",
+            "Gentleness (meekness) — strength under control, not weakness",
+            "Self-control — saying no to impulses that harm",
+            "Galatians 5:22-23: the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, meekness, temperance: against such there is no law.",
+        ],
+        "manipulative": "A tree poster with nine fruits hanging from branches. Write each fruit on a tag with a Scripture verse. As a child shows that fruit in real life (sharing, waiting, controlling temper), add a note. Visible record of growth is the lesson.",
+        "modes": [
+            {"id": "coach_reads", "label": "Coach reads", "instruction": "Adult reads Galatians 5:22-23 and walks through each of nine fruits, giving one-sentence examples. Names that all nine grow TOGETHER — not one at a time.", "script": "(Read the verse.) Nine qualities. Love — putting others first. Joy — gladness that lasts. Peace — wholeness. Patience — staying when it's hard. They grow together."},
+            {"id": "name_in_others", "label": "Name in others", "instruction": "Adult and child name people they know who show each fruit. Real names make qualities concrete.", "script": "Who do you know who is PATIENT? Who is KIND? Who has SELF-CONTROL?"},
+            {"id": "i_grow", "label": "I grow", "instruction": "Child picks ONE fruit to ask the Holy Spirit to grow this week. Records it. At week-end, look at what happened. Stuck → Echo (adult picks one first), then Meaning.", "script": "Pick one. We'll pray: Holy Spirit, please grow ___ in me this week."},
+        ],
+        "check": {
+            "prompt": "Why does Paul call them FRUIT (singular) instead of FRUITS (plural)?",
+            "answer": "Because they grow TOGETHER, like one tree bearing many fruits. You don't get just love and skip patience. They're parts of one life with Christ. As one grows, the others grow too. The Spirit grows them as a set.",
+            "teaching_note": "The singular-vs-plural fact is small but theologically deep. Don't push the connection hard with young children — let it land naturally over years. What matters now: name the fruits, look for them in real life, ask the Spirit to grow them.",
+        },
+        "wedges": ["wedge_repeat", "wedge_echo", "wedge_chunk", "wedge_meaning", "wedge_context", "wedge_praise"],
+        "prerequisites": ["bible_ten_commandments"],
+        "next": "bible_great_commandment",
+        "summary": "The nine fruits of the Spirit from Galatians 5:22-23. Singular fruit framing — they grow together as one set, from being with Christ. Three modes including name-in-others and weekly I grow practice. Check surfaces the singular-vs-plural insight.",
+        "domains": ["scripture", "theology", "pedagogy"],
+        "axes": ["authority_trust", "reasoning", "information_encoding"],
+    },
+    "data/social_studies/units.jsonl": {
+        "id": "social_citizenship",
+        "title": "Citizenship — rights and responsibilities",
+        "unit_seq": 4,
+        "track": "social_civics",
+        "rule": "A CITIZEN is a recognized member of a country. With citizenship come both RIGHTS (what you're free to do) and RESPONSIBILITIES (what you should do). Rights include: speaking freely, worshiping freely, voting (when old enough), equal treatment under the law. Responsibilities include: following just laws, paying taxes, telling the truth in court, defending your community, helping neighbors, voting thoughtfully. Rights and responsibilities go together.",
+        "examples": [
+            "Right: free speech — say what you think (but not lies that hurt people)",
+            "Right: free worship — practice your faith (or not)",
+            "Right: vote — at age 18, choose leaders",
+            "Responsibility: follow just laws — stop at red lights, don't steal",
+            "Responsibility: pay taxes — schools, roads, firefighters depend on it",
+            "Responsibility: jury duty — when called, serve",
+            "Responsibility: help neighbors — citizenship is belonging",
+            "Trap: rights without responsibilities = chaos. Responsibilities without rights = tyranny.",
+            "Higher loyalty: a Christian citizen is also a citizen of God's kingdom. When the two conflict (rare but real), the kingdom comes first (Acts 5:29).",
+        ],
+        "manipulative": "A two-column chart: My rights / My responsibilities. Child fills both. Then add a connection arrow — each right has a matching responsibility (free speech AND truth-telling; vote AND vote thoughtfully).",
+        "modes": [
+            {"id": "coach_models", "label": "Coach names", "instruction": "Adult names a right; learner names the matching responsibility.", "script": "Right: free speech. Matching responsibility? (Speak truth, not lies.) Right: vote. Matching responsibility? (Learn before voting; choose for the common good.)"},
+            {"id": "take_turns", "label": "Take turns", "instruction": "Adult names a real-life situation; learner names the right and responsibility that apply.", "script": "Someone says something unkind about your friend. Right? (Say something back if you choose.) Responsibility? (Respond with truth, defend your friend.)"},
+            {"id": "i_serve", "label": "I serve", "instruction": "Learner picks ONE responsibility to practice this week. Reports back. Stuck → Context, then Echo.", "script": "Pick one responsibility. Tell me how it goes."},
+        ],
+        "check": {
+            "prompt": "Why are rights and responsibilities paired? What happens if a society has only one?",
+            "answer": "Rights without responsibilities = chaos (free speech but no truth). Responsibilities without rights = tyranny (must obey but no voice). Both together = a healthy citizen. The pairing is the foundation of every just society.",
+            "teaching_note": "Older children grasp this; younger ones need it concrete: rights are what you get; responsibilities are what you give. Both are needed. Tie to the Beatitudes — the meek inherit the earth because they balance their rights against their neighbor's good.",
+        },
+        "wedges": ["wedge_repeat", "wedge_echo", "wedge_chunk", "wedge_context", "wedge_meaning", "wedge_praise"],
+        "prerequisites": ["social_calendar_timelines"],
+        "next": "social_three_branches",
+        "summary": "Citizenship — rights and responsibilities paired. Nine examples including the Christian higher-loyalty note (Acts 5:29). Three modes plus a check that explains why both halves are needed for a healthy society.",
+        "domains": ["governance", "law", "pedagogy"],
+        "axes": ["authority_trust", "reasoning"],
+    },
+    "data/workready/units.jsonl": {
+        "id": "workready_interview_star",
+        "title": "Interview answers — the STAR method",
+        "unit_seq": 2,
+        "track": "workready_communication",
+        "competency": "Communication",
+        "principle": "In a job interview, the hardest questions are 'tell me about a time when…' STAR is a four-part answer template: SITUATION (where + when), TASK (what needed to happen), ACTION (what YOU did, not what the team did), RESULT (what changed, measurable if possible). Each part takes 1-2 sentences. Don't blur them; name each part as you go.",
+        "examples": [
+            {"weak": "I'm good at customer service.", "strong": "SITUATION: At my last job a customer was angry about a late order. TASK: I had to listen and find a solution within policy. ACTION: I apologized, called the warehouse, arranged a same-day re-ship, and refunded shipping. RESULT: The customer thanked me and ordered three more times that month."},
+            {"weak": "I work well with others.", "strong": "SITUATION: At the food pantry I volunteer at, two volunteers were doing the same job and arguing. TASK: I wanted to fix it without making either feel small. ACTION: I split the task — one would intake, the other stock — and asked the manager to agree. RESULT: Both volunteers stayed; we served 30% more families that month."},
+            {"weak": "I'm hardworking.", "strong": "SITUATION: My family was short on rent in June. TASK: I needed extra income fast. ACTION: I picked up two shifts mowing lawns, and asked my church if anyone needed weekend help. RESULT: I made $340 in two weeks; we paid rent on time."},
+        ],
+        "craft_prompt": "Pick a real story from your life (paid work, volunteer, family, church). Write a STAR answer: Situation, Task, Action, Result. Keep it under 90 seconds spoken aloud. Use 'I' — not 'we'.",
+        "check": {
+            "prompt": "Rewrite this weak interview answer with STAR: 'I'm a good problem-solver. I fix stuff.'",
+            "rubric": "Strong STAR has all four parts: (1) Situation — where, when, who. (2) Task — what needed to happen. (3) Action — what YOU did, active verbs, first person. (4) Result — what changed, measurable. If any of the four are missing, the answer feels vague.",
+        },
+        "prerequisites": ["workready_resume_phrasing"],
+        "next": "workready_email_subject",
+        "summary": "Interview answers using STAR (Situation, Task, Action, Result). Three weak-strong example pairs grounded in real-world contexts. Craft prompt + rubric for self-check.",
+        "domains": ["rhetoric", "labor", "pedagogy"],
+        "axes": ["information_encoding", "authority_trust"],
+    },
+}
+
+for path, unit in UNITS.items():
+    abs_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), path.replace("/", os.sep))
+    with open(abs_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(unit, ensure_ascii=False) + "\n")
+    print("appended:", path)

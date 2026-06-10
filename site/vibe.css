@@ -1,0 +1,213 @@
+/* vibe.css — site-wide atmospheric layer.
+ *
+ * The site is one thing. Six small touches make it feel like one:
+ *
+ *   1. Vignette       — subtle radial darkening at the edges, like a lantern
+ *   2. Grain          — faint paper texture so flat surfaces breathe
+ *   3. Transitions    — fade pages instead of jump-cut
+ *   4. Watermark      — chi-rho ghost behind major empty states
+ *   5. Hover lift     — every card subtly rises under attention
+ *   6. Reading rhythm — text-wrap balanced, max-widths capped, lines breathe
+ *
+ * All effects respect prefers-reduced-motion. Nothing depends on JS.
+ * Layered on top of styles.css / mobile.css / lens-polish.css.
+ */
+
+/* ── 1. Vignette + grain ──────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(0, 0, 0, 0.18) 95%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+  opacity: 0.85;
+}
+
+/* Paper-grain via an inline SVG noise pattern (no extra request).
+ * Very faint so the eye barely registers it — but the surfaces breathe. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
+  background-size: 220px 220px;
+}
+
+/* Keep nav + content above the overlays */
+header,
+main,
+footer,
+nav.topnav,
+.topbar,
+.page-header,
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 2. Smooth page transitions ───────────────────────────────────── */
+body {
+  animation: vibe-page-in 0.45s ease-out;
+}
+@keyframes vibe-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Body has class .vibe-leaving when JS intercepts a nav click */
+body.vibe-leaving {
+  animation: vibe-page-out 0.18s ease-in forwards;
+}
+@keyframes vibe-page-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ── 3. Chi-rho watermark behind major empty/hero states ──────────── */
+.vibe-watermark {
+  position: relative;
+  isolation: isolate;
+}
+.vibe-watermark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23c9a87c' stroke-width='3' stroke-linecap='round'><line x1='16' y1='18' x2='48' y2='50'/><line x1='48' y1='18' x2='16' y2='50'/><line x1='32' y1='10' x2='32' y2='56'/><path d='M 32 10 C 46 10, 46 28, 32 28'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 120px;
+  opacity: 0.04;
+}
+
+/* Auto-apply watermark behind any empty-state container */
+:where(.status, .empty, .dy-empty, .ap-status, .almanac-empty, .ms-empty, .sg-empty):not(:empty) {
+  position: relative;
+  isolation: isolate;
+}
+:where(.status, .empty, .dy-empty, .ap-status, .almanac-empty, .ms-empty, .sg-empty):not(:empty)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none' stroke='%23c9a87c' stroke-width='3' stroke-linecap='round'><line x1='16' y1='18' x2='48' y2='50'/><line x1='48' y1='18' x2='16' y2='50'/><line x1='32' y1='10' x2='32' y2='56'/><path d='M 32 10 C 46 10, 46 28, 32 28'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 64px;
+  opacity: 0.05;
+}
+
+/* ── 4. Hover lift on every card-like surface ─────────────────────── */
+:where(.section, .layer, .ap-card, .stat-card, .panel, .almanac-hero-card,
+        .rc-card, .ms-card, .sg-card, .rb-section, .rb-endpoint, .door,
+        .summary-card, .unit, .badge-card) {
+  transition: transform 0.22s ease, box-shadow 0.22s ease,
+              border-color 0.22s ease, background 0.22s ease;
+}
+:where(.section, .layer, .ap-card, .stat-card, .panel,
+        .rc-card, .sg-card, .summary-card, .badge-card):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* ── 5. Breathing chi-rho on the wordmark ────────────────────────── */
+.wordmark .chi-rho-mark,
+.brand-mark,
+.glyph,
+svg[class*="chi"] {
+  animation: vibe-breathe 6s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes vibe-breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.025); }
+}
+
+/* ── 6. Contemplative loading rhythm ─────────────────────────────── */
+:where(.status, .empty):where(:contains("Loading"), :contains("…")) {
+  animation: vibe-meditate 2.4s ease-in-out infinite;
+}
+@keyframes vibe-meditate {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.95; }
+}
+
+/* ── 7. Footer voice anchor — same line on every page ────────────── */
+.vibe-footer-anchor {
+  text-align: center;
+  padding: 40px 20px 30px;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--muted, #6e6878);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: 24px auto 0;
+  border-top: 1px solid var(--border, #29232f);
+  position: relative;
+}
+.vibe-footer-anchor::before {
+  content: '✚';
+  display: block;
+  font-size: 18px;
+  color: var(--accent, #c9a87c);
+  opacity: 0.55;
+  margin-bottom: 12px;
+  font-style: normal;
+  animation: vibe-breathe 6s ease-in-out infinite;
+}
+.vibe-footer-anchor em {
+  color: var(--accent, #c9a87c);
+  font-style: normal;
+}
+
+/* ── 8. Selection colors that match the gold/cream palette ───────── */
+::selection {
+  background: rgba(201, 168, 124, 0.32);
+  color: var(--text, #ede7db);
+}
+
+/* ── 9. Smooth scrollbar (Firefox + Chromium) ────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hi, #3a3142) transparent;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-hi, #3a3142);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent, #c9a87c); background-clip: padding-box; border: 2px solid transparent; }
+
+/* ── 10. Honor reduced-motion preference ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+  body.vibe-leaving { animation: none; opacity: 0.5; }
+  .wordmark .chi-rho-mark,
+  .brand-mark,
+  .glyph,
+  svg[class*="chi"],
+  .vibe-footer-anchor::before {
+    animation: none;
+  }
+  :where(.status, .empty) { animation: none; }
+  :where(.section, .layer, .ap-card, .stat-card, .panel,
+          .rc-card, .sg-card, .summary-card, .badge-card):hover {
+    transform: none;
+  }
+}

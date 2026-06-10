@@ -1,0 +1,106 @@
+/* The Discernment Engine — permanent record (served from /d/<slug>).
+   One page per discernment: question, trail, what survived, sources, permalink. */
+body { font-family: Georgia, serif; max-width: 1080px; margin: 0 auto;
+  padding: 0 1em 3em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
+.d-top { font-size: 0.9em; padding: 0.8em 0; }
+.d-top a { color: #1a3a52; text-decoration: none; margin-right: 0.8em; }
+
+.d-masthead { text-align: center; padding: 1.4em 1em 1em;
+  border-bottom: 3px double #b8945a; margin-bottom: 1em; }
+.d-eyebrow { font-family: 'Courier New', monospace; font-size: 0.74em;
+  letter-spacing: 0.22em; text-transform: uppercase; color: #b8945a; }
+.d-masthead h1 { font-family: Georgia, serif; font-weight: normal;
+  font-size: 1.95em; color: #1a3a52; letter-spacing: 0.01em;
+  margin: 0.3em 0 0.2em; line-height: 1.18; }
+.d-stamp { font-family: 'Courier New', monospace; font-size: 0.75em;
+  color: #6a5a3a; letter-spacing: 0.1em; }
+
+.d-synth { background: #fff5d4; border-left: 4px solid #1a3a52;
+  padding: 0.9em 1.2em; margin: 0.6em 0 1.2em; color: #1a3a52;
+  font-style: italic; font-size: 1.06em; border-radius: 0 4px 4px 0; }
+.d-synth-lbl { display: block; font-family: 'Courier New', monospace;
+  font-size: 0.72em; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #806010; font-style: normal; margin-bottom: 0.35em; }
+
+.d-gates { display: flex; gap: 0.4em; flex-wrap: wrap; align-items: center;
+  font-family: 'Courier New', monospace; font-size: 0.8em; color: #5a4a30;
+  padding: 0.55em 0.9em; background: #f3eedb; border-radius: 4px;
+  margin: 0.6em 0 1.2em; }
+.d-gates strong { color: #1a3a52; font-weight: bold; }
+
+.d-trail { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px;
+  padding: 0.9em 1.1em; margin-bottom: 1.2em; box-shadow: 0 1px 0 #e8e0c0; }
+.d-trail-label { font-family: 'Courier New', monospace; font-size: 0.74em;
+  color: #806010; letter-spacing: 0.15em; text-transform: uppercase;
+  margin-bottom: 0.5em; padding-bottom: 0.4em; border-bottom: 1px dashed #d4c8a5; }
+.d-turn { padding: 0.55em 0.9em; margin: 0.4em 0; border-radius: 4px; max-width: 90%; }
+.d-turn.user { background: #f3eedb; border-right: 4px solid #b8945a;
+  margin-left: auto; color: #2a2a28; }
+.d-turn.shepherd, .d-turn.engine { background: #fff5d4;
+  border-left: 4px solid #1a3a52; color: #1a3a52; }
+.d-who { font-family: 'Courier New', monospace; font-size: 0.7em;
+  color: #806010; letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 0.2em; }
+.d-body { font-size: 1em; line-height: 1.5; }
+
+.d-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.9em; margin: 0.6em 0 1.4em; }
+.d-card { background: #fffef7; border: 1px solid #d4c8a5; border-radius: 4px;
+  padding: 0; box-shadow: 0 1px 0 #e8e0c0, 0 4px 10px rgba(60, 40, 0, 0.05);
+  text-decoration: none; color: #2a2a28; display: block;
+  transition: transform 0.08s, box-shadow 0.08s; position: relative; overflow: hidden; }
+.d-card:hover { transform: translateY(-2px);
+  box-shadow: 0 1px 0 #e8e0c0, 0 6px 14px rgba(60, 40, 0, 0.08); }
+.d-card::before { content: ""; display: block; height: 0.8em;
+  background: linear-gradient(to bottom, transparent calc(100% - 2px),
+    #c66 calc(100% - 2px), #c66 calc(100% - 1px), transparent 100%);
+  border-bottom: 1px solid #d4c8a5; }
+.d-card-face { padding: 0.6em 0.9em 0.8em; }
+.d-num { font-family: 'Courier New', monospace; font-size: 0.72em;
+  color: #806010; letter-spacing: 0.12em; }
+.d-card h3 { margin: 0.15em 0 0.3em; color: #1a3a52; font-size: 1.05em;
+  font-weight: bold; line-height: 1.25; }
+.d-pills { margin: 0.2em 0; min-height: 1.2em; }
+.d-pill { display: inline-block; padding: 0.05em 0.45em; border-radius: 8px;
+  background: #f3eedb; color: #1a3a52; font-size: 0.7em;
+  font-family: 'Courier New', monospace; border: 1px solid #d4c8a5;
+  margin-right: 0.2em; }
+.d-pill.tier-scripture { background: #fff5d4; border-color: #b8945a; }
+.d-pill.tier-words_in_red { background: #ffd4d4; border-color: #c66; }
+.d-pill.tier-creed, .d-pill.tier-catechism { background: #ede4ce; }
+.d-src { font-family: 'Courier New', monospace; font-size: 0.78em;
+  color: #6a5a3a; letter-spacing: 0.04em; margin-top: 0.2em; }
+.d-narr { font-size: 0.92em; color: #5a4a30; font-style: italic;
+  margin-top: 0.5em; padding-top: 0.4em; border-top: 1px dashed #d4c8a5; }
+
+.d-footer { display: flex; flex-wrap: wrap; gap: 0.6em; align-items: center;
+  margin-top: 1.8em; padding: 0.8em 1em; background: #fff;
+  border: 1px solid #d4c8a5; border-radius: 6px; box-shadow: 0 1px 0 #e8e0c0; }
+.d-permalink { flex: 1; min-width: 220px; font-family: 'Courier New', monospace;
+  font-size: 0.78em; color: #6a5a3a; letter-spacing: 0.03em; }
+.d-permalink code { background: #f3eedb; padding: 0.1em 0.4em; border-radius: 3px;
+  color: #1a3a52; word-break: break-all; }
+.d-btn { display: inline-flex; align-items: center; gap: 0.3em;
+  background: #1a3a52; color: #f4ecd5; border: 1px solid #1a3a52;
+  padding: 0.45em 1em; font-family: 'Courier New', monospace; font-size: 0.85em;
+  letter-spacing: 0.06em; border-radius: 4px; cursor: pointer; text-decoration: none; }
+.d-btn:hover { background: #2a5570; }
+.d-btn.outline { background: #fff; color: #1a3a52; }
+.d-btn.outline:hover { background: #f3eedb; }
+
+.d-principle { margin-top: 2em; padding: 0.9em 1.1em; background: #f3eedb;
+  border-left: 4px solid #b8945a; border-radius: 0 4px 4px 0; font-size: 0.9em;
+  color: #5a4a30; font-style: italic; }
+.d-principle strong { font-style: normal; color: #1a3a52; }
+
+@media (max-width: 600px) {
+  .d-masthead h1 { font-size: 1.55em; }
+  .d-footer { gap: 0.5em; }
+  .d-btn { padding: 0.5em 0.8em; font-size: 0.8em; }
+}
+
+@media print {
+  .d-top, .d-footer { display: none !important; }
+  body { background: #fff; max-width: 100%; padding: 0; }
+  .d-card { break-inside: avoid; }
+}

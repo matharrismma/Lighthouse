@@ -1,0 +1,53 @@
+/* nh-sabbath.css — Visual effects when the Sabbath-Mode strip is up.
+ *
+ * Activates when <html class="nh-sabbath-active"> is set by nh-sabbath.js.
+ * Pages get this for free if they include <link rel="stylesheet" href="/nh-sabbath.css">.
+ *
+ * Effects:
+ *   - Background calms (no gradients)
+ *   - Animations / transitions slowed or stopped
+ *   - Channel marquees + sponsor cards de-emphasized
+ *   - Elements marked .nh-hide-on-sabbath are hidden
+ *   - Elements marked .nh-show-on-sabbath are shown (default: display:none in normal mode)
+ */
+html.nh-sabbath-active {
+  /* Calmer color tone */
+  --nh-page-bg: #f7f4ec !important;
+}
+
+html.nh-sabbath-active body {
+  background: var(--nh-page-bg, #f7f4ec) !important;
+  background-image: none !important;
+}
+
+/* Stop animations on the Sabbath; honor user preference */
+html.nh-sabbath-active *,
+html.nh-sabbath-active *::before,
+html.nh-sabbath-active *::after {
+  animation-duration: 0.001s !important;
+  transition-duration: 0.001s !important;
+}
+
+/* Hide elements opted out for Sunday */
+html.nh-sabbath-active .nh-hide-on-sabbath { display: none !important; }
+
+/* Show elements that should appear only on Sunday */
+.nh-show-on-sabbath { display: none; }
+html.nh-sabbath-active .nh-show-on-sabbath { display: revert; }
+
+/* Calm down channel marquees + sponsor cards + live badges */
+html.nh-sabbath-active .live-now-strip,
+html.nh-sabbath-active .live-badge,
+html.nh-sabbath-active .live-now-badge {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+
+/* Hymns + sermons + scripture remain at full color — they belong to Sunday */
+html.nh-sabbath-active .scripture-box,
+html.nh-sabbath-active .feast-banner,
+html.nh-sabbath-active .feast-card,
+html.nh-sabbath-active [data-readable] {
+  opacity: 1 !important;
+  filter: none !important;
+}

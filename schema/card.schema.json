@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://narrowhighway.com/schema/card.schema.json",
+  "title": "Card",
+  "description": "One unified shape for everything in the Narrow Highway library. Notes, connections, walks, searches, community notes, and stacks are all cards distinguished by 'kind'. A card carries its content, its source with link-back, its place in the bookcase (shelf/box/bands), its connections to other cards, its lifecycle stage, and its quality signals. The library catalogs itself in this shape.",
+  "type": "object",
+  "required": ["id", "kind", "title", "shelf", "created_at", "author", "visibility", "lifecycle_stage"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^card_[a-z0-9_]{8,60}$",
+      "description": "Deterministic, short, citable. card_<kind-prefix>_<hash>"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["note", "connection", "walk", "search", "community_note", "stack"],
+      "description": "Subtype. Determines which optional fields are meaningful."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "body": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "The content of the card. Terse, index-card style. If long-form is needed, the body is a summary and the full text lives at source.url."
+    },
+    "source": {
+      "type": "object",
+      "description": "Where the claim came from. Every card must trace back to a source.",
+      "properties": {
+        "label": {"type": "string", "description": "Human-readable origin, e.g. 'Westminster Shorter Catechism Q33' or 'Easton's Bible Dictionary'"},
+        "url": {"type": "string", "description": "URL or repo path back to the source"},
+        "ref": {"type": "string", "description": "Specific reference within the source, e.g. 'Rom 8:28-30' or 'p. 217'"},
+        "authority_tier": {
+          "type": "string",
+          "enum": ["words_in_red", "scripture", "creed", "catechism", "father", "matt", "user_household", "external_aligned", "external_unverified", "engine_derived"],
+          "description": "Doctrinal source hierarchy. Tier 1 (Words in Red) is the most authoritative; engine_derived is the least."
+        }
+      }
+    },
+    "shelf": {
+      "type": "string",
+      "description": "Top-level library section: codex, almanac, apothecary, hymns, recipes, maker, curriculum, atlas, household, etc."
+    },
+    "box": {
+      "type": "string",
+      "description": "Sub-grouping within the shelf, e.g. 'Pauline epistles' within 'codex'"
+    },
+    "bands": {
+      "type": "array",
+      "items": {"type": "string"},
+      "maxItems": 32,
+      "description": "Small free-form tags for tight clustering and search"
+    },
+    "connections": {
+      "type": "array",
+      "description": "Back-of-card links. Each connection points to another card and names the relationship.",
+      "items": {
+        "type": "object",
+        "required": ["to_card_id", "relationship"],
+        "properties": {
+          "to_card_id": {"type": "string"},
+          "relationship": {
+            "type": "string",
+            "enum": ["proof_text", "illuminates", "fulfills", "cites", "parallels", "contradicts", "counterexample", "depends_on", "consequence_of", "see_also"]
+          },
+          "via_connection_card_id": {
+            "type": ["string", "null"],
+            "description": "If a dedicated connection-card explains this edge, its id lives here"
+          }
+        }
+      }
+    },
+    "author": {
+      "type": "string",
+      "description": "engine | matt | household_<id> | external_<source-slug>"
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "source_hash": {
+      "type": "string",
+      "description": "sha256 of (title + body + source.url + source.ref). Used for dedup and integrity."
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["private", "shared", "public", "quarantine"],
+      "description": "Who can see this card. Quarantine = freshly created, not yet promoted anywhere."
+    },
+    "shared_with": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "If visibility=shared, the list of household_ids that can see it"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": ["quarantine", "private", "shared", "public_review", "public", "featured", "fading", "archived"],
+      "description": "Operational lifecycle. Operator approves the loud transitions."
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Quality signals that drive promotion. Updated by the engine; not user-editable.",
+      "properties": {
+        "paperclips_count": {"type": "integer", "minimum": 0},
+        "helpful_count": {"type": "integer", "minimum": 0},
+        "not_helpful_count": {"type": "integer", "minimum": 0},
+        "cite_count": {"type": "integer", "minimum": 0},
+        "walks_through_count": {"type": "integer", "minimum": 0},
+        "flagged_count": {"type": "integer", "minimum": 0},
+        "trust_weighted_score": {"type": "number"},
+        "tip_total_usd": {"type": "number", "minimum": 0}
+      }
+    },
+    "volatility": {
+      "type": "string",
+      "enum": ["permanent", "stable", "seasonal", "current"],
+      "default": "stable",
+      "description": "How long this card's claim is expected to hold. Permanent = doctrinal/scriptural; current = re-check before relying."
+    },
+    "forked_from": {
+      "type": ["string", "null"],
+      "description": "If this card was forked from another, the parent card_id"
+    },
+    "retracted": {"type": "boolean", "default": false},
+    "retraction_reason": {"type": ["string", "null"]},
+    "featured_at": {"type": ["string", "null"], "format": "date-time"},
+    "archived_at": {"type": ["string", "null"], "format": "date-time"},
+
+    "extra": {
+      "type": "object",
+      "description": "Subtype-specific fields. Schema enforcement happens at the API layer based on 'kind'.",
+      "properties": {
+        "left_card_id": {"type": "string", "description": "connection: the 'from' card"},
+        "right_card_id": {"type": "string", "description": "connection: the 'to' card"},
+        "relationship_kind": {"type": "string", "description": "connection: the relationship type"},
+        "explanation": {"type": "string", "description": "connection: why these two link"},
+
+        "walk_steps": {
+          "type": "array",
+          "description": "walk: ordered card_ids visited",
+          "items": {
+            "type": "object",
+            "properties": {
+              "card_id": {"type": "string"},
+              "narration": {"type": "string", "description": "What Shepherd says when this card is surfaced"}
+            }
+          }
+        },
+        "walk_total_steps": {"type": "integer"},
+
+        "query": {"type": "string", "description": "search: the question asked"},
+        "asked_by": {"type": "string", "description": "search: household_id or 'anon'"},
+        "cards_surfaced": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "search: the card_ids that survived for this query"
+        },
+        "quarantine_flushed_at": {"type": ["string", "null"], "format": "date-time"},
+
+        "card_id_annotated": {"type": "string", "description": "community_note: the card this note balances"},
+        "votes_by_tradition": {
+          "type": "object",
+          "description": "community_note: helpful_count per tradition (1689_baptist, presbyterian, etc.)",
+          "additionalProperties": {"type": "integer"}
+        },
+        "bridge_score": {"type": "number", "description": "community_note: cross-tradition agreement; surfaces when > threshold"},
+        "surfaced_as_balance": {"type": "boolean"},
+
+        "household_id": {"type": "string", "description": "stack: the household this stack belongs to"},
+        "paperclipped_card_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

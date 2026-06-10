@@ -1,0 +1,150 @@
+/* lens-polish.css — site-wide visual polish.
+ *
+ * Targets the consistent issues found across lens pages:
+ *   1. Inconsistent vertical rhythm
+ *   2. Card hierarchy too flat (all surfaces same elevation)
+ *   3. Empty states look broken rather than intentional
+ *   4. Long text gets cramped on wide screens
+ *   5. Loading states have no visual texture
+ *   6. Heading hierarchy was visually weak
+ *
+ * Designed to layer on top of existing styles — uses :where() for low
+ * specificity so individual pages can still override. Imported via
+ * <link rel="stylesheet" href="/lens-polish.css">.
+ */
+
+/* ── Typography rhythm ──────────────────────────────────────────── */
+:where(h1, h2, h3, h4) {
+  text-wrap: balance;
+}
+
+:where(p, li) {
+  text-wrap: pretty;
+}
+
+/* Reading-width caps for prose, so wide screens don't make 120-char lines */
+:where(.lens-page .intro, .lens-page .sub, .lens-page p) {
+  max-width: 68ch;
+}
+
+/* ── Card depth (subtle, layered) ───────────────────────────────── */
+:where(.section, .layer, .ap-card, .stat-card, .panel) {
+  position: relative;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+:where(.section, .layer, .ap-card, .panel):hover {
+  border-color: var(--border-hi, #3a3142);
+}
+
+/* Stat cards: subtle gradient + lift on hover */
+:where(.stat-card) {
+  background: linear-gradient(180deg, rgba(255,255,255,0.012), transparent);
+}
+
+/* ── Empty states ───────────────────────────────────────────────── */
+:where(.status, .empty, .dy-empty, .ap-status, .almanac-empty) {
+  position: relative;
+  padding: 28px 24px;
+  text-align: center;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-style: italic;
+  color: var(--muted, #6e6878);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+/* Empty-state ornament: faint chi-rho watermark */
+:where(.empty, .dy-empty):not(:empty)::before {
+  content: '✚';
+  display: block;
+  font-size: 32px;
+  color: var(--accent, #c9a87c);
+  opacity: 0.18;
+  margin-bottom: 8px;
+  font-style: normal;
+}
+
+/* ── Loading state pulse ─────────────────────────────────────────── */
+@keyframes lens-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.85; }
+}
+
+:where(.status):is(:contains("Loading"), :contains("…")) {
+  animation: lens-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── Heading hierarchy ──────────────────────────────────────────── */
+:where(h1) {
+  letter-spacing: -0.015em;
+}
+
+:where(h2) {
+  letter-spacing: -0.01em;
+}
+
+/* Subtle accent underline on h2 in lens sections */
+:where(.section > h2)::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--accent, #c9a87c);
+  margin-top: 6px;
+  opacity: 0.45;
+  border-radius: 1px;
+}
+
+/* ── Link affordance ────────────────────────────────────────────── */
+:where(a:not(.btn):not(.cta):not(.nav-home):not([class*="-card"]):not(nav a)) {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+:where(a:not(.btn):not(.cta):not(.nav-home):not([class*="-card"]):not(nav a)):hover {
+  text-decoration-color: currentColor;
+}
+
+/* ── Verdict color saturation tweak (slightly less harsh) ───────── */
+:where(.verdict-CONFIRMED, .verdict-CONCORDANT) {
+  text-shadow: 0 0 12px rgba(111, 196, 124, 0.18);
+}
+:where(.verdict-MISMATCH, .verdict-DISCORDANT) {
+  text-shadow: 0 0 12px rgba(201, 108, 108, 0.18);
+}
+
+/* ── Print-friendly: lens pages should print without nav/footer ─── */
+@media print {
+  nav, footer, .a11y-skiplink, .topbar, .topnav, #welcome-card,
+  #langSelect, .refresh-btn, button:not(.print-keep) {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  :where(.section, .layer, .ap-card, .panel) {
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+    background: white !important;
+  }
+  a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+}
+
+/* ── Focus state on text inputs (lifts above existing styles) ───── */
+:where(input[type="text"], input[type="search"], input[type="email"], textarea):focus {
+  border-color: var(--accent, #c9a87c) !important;
+  box-shadow: 0 0 0 3px rgba(201, 168, 124, 0.18);
+  outline: none;
+}
+
+/* ── Section spacing on wider screens ───────────────────────────── */
+@media (min-width: 1024px) {
+  :where(.section, .layer, .ap-card, .panel) {
+    margin-bottom: 22px;
+  }
+}

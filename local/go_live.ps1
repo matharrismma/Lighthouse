@@ -134,17 +134,25 @@ Start-ScheduledTask -TaskName $TaskName
 Write-Host "[5/6] Task started, waiting for /health ..." -ForegroundColor Yellow
 
 $ok = $false
-for ($i = 0; $i -lt 30; $i++) {
+# Engine first cold-start takes ~60-120s (fastapi + pydantic imports + warmer
+# initial pass). Polling for 180s avoids false-negative "NOT RESPONDING" reports.
+# Print a heartbeat every 30s so the operator knows we're still waiting.
+$elapsed = 0
+for ($i = 0; $i -lt 180; $i++) {
     Start-Sleep -Seconds 1
+    $elapsed++
+    if ($elapsed % 30 -eq 0) {
+        Write-Host "        ... still waiting ($elapsed s elapsed; cold-start can take up to 120s)" -ForegroundColor DarkGray
+    }
     try {
         $r = Invoke-RestMethod 'http://localhost:8000/health' -TimeoutSec 2
         if ($r.status -eq 'ok') { $ok = $true; break }
     } catch {}
 }
 if ($ok) {
-    Write-Host "        Local /health: ok (engine_available=$($r.engine_available))" -ForegroundColor Green
+    Write-Host "        Local /health: ok (engine_available=$($r.engine_available); $elapsed s to bind)" -ForegroundColor Green
 } else {
-    Write-Host "        Local /health: NOT RESPONDING after 30s" -ForegroundColor Red
+    Write-Host "        Local /health: NOT RESPONDING after 180s" -ForegroundColor Red
     Write-Host "        Check the log: $LogPath" -ForegroundColor Yellow
 }
 

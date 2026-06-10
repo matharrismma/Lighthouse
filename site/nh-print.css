@@ -1,0 +1,94 @@
+/* nh-print.css — Shared print-friendly stylesheet.
+ *
+ * Drop this <link> into any page where families might want to print:
+ *   <link rel="stylesheet" href="/nh-print.css" media="print">
+ *
+ * The rules below apply ONLY when printing. Goals:
+ *   - hide site chrome (nav, sabbath strip, shepherd widget, form buttons)
+ *   - drop background colors and shadows for ink economy
+ *   - put dark text on white
+ *   - keep recipe/lesson/hymn body content legible at 11–12pt
+ *   - widow/orphan control on key content
+ */
+@media print {
+  /* Reset background + colors for ink */
+  html, body, .intro, .card, .coll-card, .coll-view, .project-view, .recipe-view,
+  .plan-card, .feast-card, .today, .month-grid .cell, .compose, .form-row,
+  .members-table, .schedule-table, .filters, .alignment-box, .wallet-box,
+  .privacy, .what-this-unlocks, .partner-cta, .free-banner, .pd-banner,
+  .submit-cta, .build-status, .pitch, .principles, .no-list, .currently-presenting,
+  .live-now-strip, .grid-2, .grid-3, .grid-ages, .subjects-grid, .add-member-row,
+  .pref-row, .saved-flash {
+    background: #fff !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    border-color: #888 !important;
+  }
+
+  body {
+    max-width: none !important;
+    margin: 0.5in !important;
+    padding: 0 !important;
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 11pt !important;
+    line-height: 1.45 !important;
+    color: #000 !important;
+  }
+
+  h1, h2, h3, h4 { color: #000 !important; }
+  h1 { font-size: 22pt; border-bottom: 1.5pt solid #888; padding-bottom: 4pt; margin-top: 0; }
+  h2 { font-size: 14pt; border-left: 3pt solid #888; padding-left: 6pt; }
+  h3 { font-size: 12pt; }
+  a { color: #000 !important; text-decoration: underline; }
+
+  /* Hide site chrome */
+  nav.top, nav.topnav,
+  #nhSabbathStrip, .nh-shepherd, .nh-shepherd-fab,
+  .live-now-strip, .saved-flash, .filters, .day-tabs, .month-nav,
+  .what-this-unlocks, .submit-cta, .add-event, .compose,
+  button, .submit-btn, .back, .members-check, .fav,
+  .embed-row, .player-wrap, .embed-wrap, .fallback-row,
+  .privacy, .pd-banner, .build-status, .free-banner,
+  .alignment-box, .wallet-box,
+  script, .nh-hide-on-print {
+    display: none !important;
+  }
+
+  /* Widow/orphan tightening */
+  ul, ol, p { orphans: 3; widows: 3; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  li { page-break-inside: avoid; }
+
+  /* Recipe-specific: ingredients/method should not split mid-list */
+  .recipe-view h3,
+  .project-view h3 { break-after: avoid-page; }
+  .recipe-view ul,
+  .recipe-view ol,
+  .project-view ul,
+  .project-view ol { page-break-inside: avoid; }
+
+  /* Image handling */
+  img { max-width: 100% !important; page-break-inside: avoid; }
+
+  /* Show URLs for printed links — but only for external ones */
+  a[href^="http"]:after,
+  a[href^="https"]:after {
+    content: " [" attr(href) "]";
+    font-size: 8pt;
+    color: #555;
+  }
+  /* Don't repeat internal-page links inline (they look messy) */
+  a[href^="/"]:after,
+  a[href^="#"]:after,
+  a[href^="mailto:"]:after { content: ""; }
+
+  /* Tasteful corner credit (only on first page) */
+  @page :first {
+    @bottom-right {
+      content: "narrowhighway.com";
+      font-family: 'Georgia', serif;
+      font-size: 8pt;
+      color: #555;
+    }
+  }
+}
