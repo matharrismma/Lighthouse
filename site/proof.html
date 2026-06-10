@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Proof · Concordance Engine</title>
+  <meta name="description" content="Verified, step by step. Real problems in mathematics and physics, every step machine-checked by the engine — live on this page. Try your own.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Proof · Concordance Engine">
+  <meta property="og:description" content="Real problems in math and physics, every step machine-checked. It cannot be made to bless a false step. Try your own.">
+  <meta property="og:url" content="https://narrowhighway.com/proof.html">
+  <meta property="og:image" content="https://narrowhighway.com/chi-rho.svg">
+  <link rel="canonical" href="https://narrowhighway.com/proof.html">
+  <style>
+    .wp { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); padding:16px 18px; margin:14px 0; }
+    .wp-title { font-weight:700; font-size:16px; margin:0 0 3px; }
+    .wp-sub { color:var(--muted); font-size:12.5px; margin:0 0 12px; line-height:1.5; }
+    .verdict { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:.1em; padding:3px 10px; border-radius:5px; text-transform:uppercase; margin-bottom:6px; }
+    .v-holds { background:rgba(90,185,130,.14); color:#5cc88a; border:1px solid rgba(90,185,130,.4); }
+    .v-broken { background:rgba(210,95,95,.14); color:#e07a7a; border:1px solid rgba(210,95,95,.4); }
+    .v-incomplete { background:rgba(201,168,124,.14); color:var(--accent); border:1px solid rgba(201,168,124,.4); }
+    .step { display:flex; gap:10px; padding:7px 0; border-top:1px solid var(--border); font-size:13.5px; align-items:flex-start; }
+    .step-mark { font-family:'JetBrains Mono',monospace; font-weight:700; flex-shrink:0; width:16px; }
+    .m-ok { color:#5cc88a; } .m-no { color:#e07a7a; } .m-na { color:var(--accent); }
+    .step-claim { line-height:1.5; }
+    .step-detail { color:var(--muted); font-size:11.5px; font-family:'JetBrains Mono',monospace; margin-top:2px; }
+    textarea#problem { width:100%; box-sizing:border-box; min-height:78px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); color:inherit; font:inherit; padding:10px; }
+    button.go { margin-top:10px; padding:9px 20px; background:var(--accent); color:#1a1820; border:none; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; cursor:pointer; }
+  </style>
+  <link rel="stylesheet" href="/mobile.css">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">The Atlas</div>
+    <h1>Verified, step by step</h1>
+    <p>Real problems in mathematics and physics — every step machine-checked by the engine, <strong>live on this page</strong>. Nothing here is generated. The engine verifies a provided derivation and reports exactly where any step would break. The trail is the proof — and it cannot be made to bless a false step.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>Worked, and proven</h2>
+    <p style="color:var(--muted);max-width:62ch">These run against the live engine as this page loads. A green chain means every step held; a red mark is exactly where a claim would break.</p>
+    <div id="examples"><div class="wp"><div class="wp-sub">Running against the engine…</div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Try your own</h2>
+    <p style="color:var(--muted);max-width:62ch">Type a math problem in plain language — derivatives, integrals, limits, solving, equalities. The engine formalizes it, then verifies each step. If it's wrong, it tells you where.</p>
+    <textarea id="problem" placeholder="e.g. What is the derivative of x**3, and where does it equal 12?"></textarea>
+    <div><button class="go" onclick="runOwn()">Verify &rarr;</button></div>
+    <div id="own"></div>
+  </div>
+</section>
+
+<script>
+const EXAMPLES = [
+  {title:"Calculus — derivative, then solve", sub:"The slope of x², and where it equals 6.", steps:[
+    {id:"s0",domain:"mathematics",claim:"d/dx of x² is 2x",spec:{mode:"derivative",params:{function:"x**2",variable:"x",claimed_derivative:"2*x"}}},
+    {id:"s1",domain:"mathematics",uses:["s0"],claim:"so 2x = 6 gives x = 3",spec:{mode:"solve",params:{equation:"2*x - 6",variable:"x",claimed_solutions:[3]}}}
+  ]},
+  {title:"Fiber optics — one fiber, many signals", sub:"Light contained, gathered, carried 100 km, and split into 80 colors.", steps:[
+    {id:"s0",domain:"optics",claim:"Light is CONTAINED: total internal reflection above 76.74° (core 1.50, cladding 1.46)",spec:{n_core:1.5,n_cladding:1.46,claimed_critical_angle_deg:76.74}},
+    {id:"s1",domain:"optics",uses:["s0"],claim:"The cone of light it gathers: numerical aperture 0.344",spec:{n_core:1.5,n_cladding:1.46,claimed_numerical_aperture:0.3441}},
+    {id:"s2",domain:"optics",uses:["s0"],claim:"A light touch travels far: 0.2 dB/km over 100 km is only 20 dB lost",spec:{attenuation_db_per_km:0.2,length_km:100,claimed_loss_db:20.0}},
+    {id:"s3",domain:"optics",uses:["s0"],claim:"Many signals, one fiber: 80 colors × 100 Gbps = 8 Tbps",spec:{num_channels:80,bitrate_per_channel_gbps:100,claimed_total_gbps:8000}}
+  ]},
+  {title:"The photon double-slit — light is particle and wave", sub:"And the same wave law governs sound: light and vibration are one.", steps:[
+    {id:"s0",domain:"optics",claim:"A 650 nm photon carries E = hc/λ = 3.06×10⁻¹⁹ J (the particle)",spec:{wavelength_m:6.5e-7,claimed_photon_energy_j:3.056e-19}},
+    {id:"s1",domain:"optics",uses:["s0"],claim:"The same light through two slits interferes: 1.3 cm fringes (the wave)",spec:{wavelength_m:6.5e-7,slit_separation_m:1e-4,screen_distance_m:2.0,claimed_fringe_spacing_m:0.013}},
+    {id:"s2",domain:"optics",uses:["s1"],claim:"Matter carries a wavelength too: an electron, λ = h/p = 7.27×10⁻¹⁰ m",spec:{mass_kg:9.109e-31,velocity_m_s:1e6,claimed_de_broglie_m:7.274e-10}},
+    {id:"s3",domain:"acoustics",uses:["s1"],claim:"Vibration obeys the same law v = fλ (sound: 343 = 440 × 0.7795)",spec:{speed_of_wave:343.0,frequency_hz:440.0,wavelength_m:0.7795}}
+  ]},
+  {title:"The atom — the quantized shell", sub:"Quantum numbers, shell capacity, and chromium's exceptional ground state.", steps:[
+    {id:"s0",domain:"atomic",claim:"(n,l,mₗ,mₛ) = (3, 2, −1, +½) is a valid quantum-number set",spec:{n:3,l:2,m_l:-1,m_s:0.5}},
+    {id:"s1",domain:"atomic",uses:["s0"],claim:"the d subshell (l=2) holds 2(2l+1) = 10 electrons",spec:{subshell_l:2,claimed_subshell_capacity:10}},
+    {id:"s2",domain:"atomic",uses:["s1"],claim:"chromium (Z=24) ground state is [Ar] 3d⁵ 4s¹ — the exception, not 3d⁴ 4s²",spec:{atomic_number:24,claimed_configuration:"[Ar] 3d5 4s1"}}
+  ]}
+];
+function esc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+function mark(s){ if(s==='CONFIRMED')return '<span class="step-mark m-ok">✓</span>'; if(s==='NOT_APPLICABLE')return '<span class="step-mark m-na">?</span>'; return '<span class="step-mark m-no">✕</span>'; }
+function vclass(v){ return v==='HOLDS'?'v-holds':(v==='INCOMPLETE'?'v-incomplete':'v-broken'); }
+function renderTrail(r){
+  var h='<span class="verdict '+vclass(r.verdict)+'">'+esc(r.verdict)+'</span>';
+  if(r.broken_at) h+=' <span style="color:#e07a7a;font-size:12px;margin-left:8px">first break at '+esc(r.broken_at)+'</span>';
+  if(r.gap_at) h+=' <span style="color:var(--accent);font-size:12px;margin-left:8px">incomplete at '+esc(r.gap_at)+'</span>';
+  (r.trail||[]).forEach(function(t){ h+='<div class="step">'+mark(t.status)+'<div><div class="step-claim">'+esc(t.claim||t.id)+'</div>'+(t.detail?'<div class="step-detail">'+esc(t.detail)+'</div>':'')+'</div></div>'; });
+  return h;
+}
+async function verify(steps){ var r=await fetch('/derivation/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({steps:steps})}); return r.json(); }
+(async function(){
+  var box=document.getElementById('examples'); box.innerHTML='';
+  for(var i=0;i<EXAMPLES.length;i++){ (function(ex){
+    var card=document.createElement('div'); card.className='wp';
+    card.innerHTML='<div class="wp-title">'+esc(ex.title)+'</div><div class="wp-sub">'+esc(ex.sub)+'</div><div class="trail"><span class="wp-sub">verifying…</span></div>';
+    box.appendChild(card);
+    verify(ex.steps).then(function(r){ card.querySelector('.trail').innerHTML=renderTrail(r); })
+      .catch(function(){ card.querySelector('.trail').innerHTML='<span class="wp-sub">engine unreachable — try again in a moment.</span>'; });
+  })(EXAMPLES[i]); }
+})();
+async function runOwn(){
+  var p=(document.getElementById('problem').value||'').trim(); var out=document.getElementById('own');
+  if(p.length<3){ out.innerHTML='<div class="wp"><div class="wp-sub">Type a problem first.</div></div>'; return; }
+  out.innerHTML='<div class="wp"><div class="trail"><span class="wp-sub">formalizing + verifying…</span></div></div>';
+  try{
+    var r=await fetch('/derivation/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({problem:p})});
+    var d=await r.json();
+    if(!d.ok){ out.innerHTML='<div class="wp"><div class="wp-sub">'+esc(d.message||'Could not formalize this one. Try a clearer single problem (derivative, integral, limit, solve, or an equality).')+'</div></div>'; return; }
+    out.innerHTML='<div class="wp"><div class="trail">'+renderTrail(d)+'</div><div class="wp-sub" style="margin-top:10px">'+esc(d.oracle_note||'')+'</div></div>';
+  }catch(e){ out.innerHTML='<div class="wp"><div class="wp-sub">Engine unreachable — try again in a moment.</div></div>'; }
+}
+</script>
+</body>
+</html>
