@@ -5150,51 +5150,56 @@ def almanac_proposals(limit: int = 50):
 
 @app.get("/stats/visitors", tags=["humans"])
 def stats_visitors():
-    """Scribe: visitor count summary — today / last 7 days / all-time.
+    """Scribe: who the engine reached — every audience, by kind.
 
-    "Visitors" means REAL HUMANS (ua_class == 'human'). The raw access log counts
-    every hit — AI agents, crawlers, scanners, link-unfurl bots — which over-counts
-    the human audience several-fold (a recent day: 4169 hits, only 1028 human). The
-    headline counts are human-only; the *_total fields keep the full traffic visible
-    so nothing is hidden. (ua_class is best-effort UA classification; a bot spoofing
-    a browser UA can still slip into 'human', so treat these as an upper bound.)"""
+    Narrow Highway serves HUMANS AND AGENTS/AI alike. It is a verification floor that
+    other agents call (the MCP door + the X-Engine-URL headers that ride along when an
+    agent surfaces an answer to its user), an AI-crawlable knowledge source, and a site
+    for families. No audience is privileged — humans, agents, retrieval clients, and
+    crawlers are all counted, broken out by kind so the mix is visible.
+
+    The ONLY traffic not counted is SELF: the operator (keep cookie/IP) and the engine's
+    own box/Claude self-tests, both excluded upstream in the access-log middleware.
+    `today/last_7_days/all_time` = total reached; `*_by_kind` = the ua_class split
+    (best-effort UA classification)."""
     from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    import collections as _collections
 
-    def _counts(path: Path) -> tuple:
-        """(human, total) for one access file."""
+    def _counts(path: Path) -> "_collections.Counter":
+        c: "_collections.Counter" = _collections.Counter()
         if not path.exists():
-            return (0, 0)
-        human = total = 0
+            return c
         for ln in path.read_text("utf-8", errors="replace").splitlines():
             ln = ln.strip()
             if not ln:
                 continue
-            total += 1
+            c["total"] += 1
             try:
-                if json.loads(ln).get("ua_class") == "human":
-                    human += 1
+                c[json.loads(ln).get("ua_class") or "other"] += 1
             except Exception:
-                pass
-        return (human, total)
+                c["other"] += 1
+        return c
 
     today = _dt.now(_tz.utc).date()
-    th, tt = _counts(_VISITS_DIR_PATH / f"access-{today.strftime('%Y%m%d')}.jsonl")
-    wh = wt = 0
+    tc = _counts(_VISITS_DIR_PATH / f"access-{today.strftime('%Y%m%d')}.jsonl")
+    wc: "_collections.Counter" = _collections.Counter()
     for d in range(7):
-        h, t = _counts(_VISITS_DIR_PATH / f"access-{(today - _td(days=d)).strftime('%Y%m%d')}.jsonl")
-        wh += h
-        wt += t
-    ah = at = 0
+        wc += _counts(_VISITS_DIR_PATH / f"access-{(today - _td(days=d)).strftime('%Y%m%d')}.jsonl")
+    ac: "_collections.Counter" = _collections.Counter()
     if _VISITS_DIR_PATH.exists():
         for f in _VISITS_DIR_PATH.glob("access-*.jsonl"):
-            h, t = _counts(f)
-            ah += h
-            at += t
+            ac += _counts(f)
+
+    def _kinds(c) -> dict:
+        return {k: v for k, v in sorted(c.items()) if k != "total"}
+
     return {"office": "scribe",
-            "today": th, "last_7_days": wh, "all_time": ah,
-            "today_total": tt, "last_7_days_total": wt, "all_time_total": at,
-            "note": "today/last_7_days/all_time = real human visits (ua_class=human); "
-                    "*_total includes agents, crawlers, scanners, and bots."}
+            "today": tc.get("total", 0), "last_7_days": wc.get("total", 0), "all_time": ac.get("total", 0),
+            "today_by_kind": _kinds(tc), "last_7_days_by_kind": _kinds(wc), "all_time_by_kind": _kinds(ac),
+            "note": "The engine serves humans AND agents/AI alike — every audience counted, none "
+                    "privileged. today/last_7_days/all_time = all audiences reached; *_by_kind splits "
+                    "human vs agent vs retrieval vs crawler vs scanner. Self (operator + the engine's "
+                    "own box/Claude self-tests) is excluded upstream — the only traffic not counted."}
 
 
 # — Keep: visitor geography (operator surface) — where are they coming from? —
