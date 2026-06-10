@@ -59,8 +59,31 @@ def _field_map():
     return _collect_all()
 
 
-def _oracle_structure(claim: str, domain: str, fields, model: str):
-    """The TRANSLATOR. Returns a spec dict, or None if not applicable. Records cost."""
+def _enum_map():
+    """domain -> {field: [allowed dispatch tokens]} so the oracle hits the
+    verifier's exact vocabulary up front (not prose)."""
+    from concordance_engine.agent.verifier_schema import _collect_enums
+    return _collect_enums()
+
+
+def _resolve(domain: str, m: dict):
+    """The field/enum maps key by verifier FILE stem; a domain may be an umbrella
+    child of it (statistics_pvalue -> statistics, physics_dimensional -> physics).
+    Resolve by exact match, else the longest stem that prefixes the domain."""
+    if domain in m:
+        return m[domain]
+    cands = [k for k in m if domain.startswith(k + "_")]
+    return m[max(cands, key=len)] if cands else None
+
+
+def _oracle_structure(claim: str, domain: str, fields, model: str, prior_error: str = "",
+                      enums: dict = None):
+    """The TRANSLATOR. Returns a spec dict, or None if not applicable. Records cost.
+
+    When `prior_error` is given, the deterministic verifier already REJECTED a prior
+    spec; its own error is fed back so the oracle can correct toward the verifier's
+    exact vocabulary. The verifier teaches the translator -- no static enum tables to
+    drift. The oracle still only translates; the verifier still judges."""
     import anthropic
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
@@ -71,11 +94,23 @@ def _oracle_structure(claim: str, domain: str, fields, model: str):
         "must never decide whether a claim is true or false. Given a claim and the "
         "field names a deterministic verifier accepts, extract values from the claim "
         "into a JSON object using ONLY those field names. Include a field only if the "
-        "claim states or directly implies its value -- never invent numbers. If the "
+        "claim states or directly implies its value -- never invent numbers. Use the "
+        "verifier's exact vocabulary: dispatch fields (claim_type, test, mode, kind...) "
+        "take canonical snake_case tokens the verifier defines, not free prose. If the "
         "claim contains nothing this verifier can check, output exactly "
         '{"not_applicable": true}. Output ONLY the JSON object, nothing else.')
     user = (f"Claim:\n{claim}\n\nVerifier: verify_{domain}\n"
-            f"Accepted fields: {sorted(fields)}\n\nJSON spec:")
+            f"Accepted fields: {sorted(fields)}")
+    if enums:
+        user += "\nDispatch vocabularies (use these EXACT tokens):"
+        for fld, vals in sorted(enums.items()):
+            user += f"\n  {fld} must be one of: {vals}"
+    user += "\n\nJSON spec:"
+    if prior_error:
+        user += (f"\n\nA previous spec was REJECTED by the verifier with this error:\n"
+                 f"  {prior_error}\n"
+                 "Correct the spec to the verifier's exact vocabulary, or output "
+                 '{"not_applicable": true} if this verifier cannot check the claim.')
     resp = client.messages.create(model=model, max_tokens=500, system=system,
                                   messages=[{"role": "user", "content": user}])
     # Record the spend (Steward observes).
@@ -129,6 +164,7 @@ def main() -> int:
 
     dom_axes, axis_doms = _axis_map()
     fields = _field_map()
+    enum_map = _enum_map()
 
     if args.domains:
         targets = [d.strip() for d in args.domains.split(",") if d.strip()]
@@ -156,11 +192,27 @@ def main() -> int:
     print(f"testing {len(targets)} domains: {targets}\n")
     confirmed = []
     for d in targets:
-        spec, why = _oracle_structure(args.claim, d, fields.get(d, []), args.model)
+        den = _resolve(d, enum_map)
+        flds = _resolve(d, fields) or []
+        spec, why = _oracle_structure(args.claim, d, flds, args.model, enums=den)
         if spec is None:
             print(f"  {d:24} -> (not structured: {why})")
             continue
         verdict, detail = _judge(d, spec)
+        # Feedback retry: if the verifier REJECTED the spec (ERROR -- e.g. an unknown
+        # enum token), hand its own error back to the oracle once to correct. MISMATCH
+        # is the verifier's honest "no" on a well-formed spec -- never retried.
+        if verdict == "ERROR":
+            spec2, why2 = _oracle_structure(args.claim, d, flds,
+                                            args.model, prior_error=detail or "rejected", enums=den)
+            if spec2 is not None:
+                v2, det2 = _judge(d, spec2)
+                if v2 != "ERROR":
+                    spec, verdict, detail = spec2, v2, det2 + " [after retry]"
+                else:
+                    detail = f"{detail} | retry still ERROR: {det2}"
+            elif why2:
+                detail = f"{detail} | retry -> {why2}"
         tag = "CONFIRMED" if verdict == "CONFIRMED" else verdict
         print(f"  {d:24} -> {tag:12} spec={json.dumps(spec, ensure_ascii=False)[:80]}")
         if detail:

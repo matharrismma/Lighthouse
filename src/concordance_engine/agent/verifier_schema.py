@@ -236,11 +236,51 @@ def _collect_all() -> Dict[str, List[str]]:
     return out
 
 
+def _extract_enums(verifier_path: Path) -> Dict[str, List[str]]:
+    """For each spec field a verifier DISPATCHES on -- compared against >= 2 string
+    literals (test, claim_type, mode, method, kind, ...) -- return {field: [values]}.
+
+    Scans the WHOLE source (dispatch often lives in helpers, not run()). Keeps only
+    real spec fields (read via .get(...) / spec[...]) and guards against `for x in
+    (...)` loops so a loop variable's keys don't masquerade as a dispatch vocabulary.
+    Best-effort: the oracle uses these to hit the verifier's exact tokens instead of
+    guessing prose; the verifier still judges."""
+    try:
+        src = verifier_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return {}
+    spec_fields = set(re.findall(r"""\.get\(\s*['"]([a-zA-Z_][\w]*)""", src))
+    spec_fields |= set(re.findall(r"""(?:spec|packet|p)\[\s*['"]([a-zA-Z_][\w]*)""", src))
+    enums: Dict[str, set] = {}
+    for fld, val in re.findall(r"""([a-zA-Z_][a-zA-Z_0-9]+)\s*==\s*['"]([a-zA-Z_][\w]*)['"]""", src):
+        if fld in spec_fields:
+            enums.setdefault(fld, set()).add(val)
+    for fld, grp in re.findall(r"""(?<!for )([a-zA-Z_][a-zA-Z_0-9]+)\s+in\s*[\(\{\[]([^)\}\]]+)[\)\}\]]""", src):
+        if fld in spec_fields:
+            for v in re.findall(r"""['"]([a-zA-Z_][\w]*)['"]""", grp):
+                enums.setdefault(fld, set()).add(v)
+    return {f: sorted(vs) for f, vs in enums.items() if len(vs) >= 2}
+
+
+def _collect_enums() -> Dict[str, Dict[str, List[str]]]:
+    """Return {domain: {field: [allowed dispatch tokens]}} across all verifiers."""
+    out: Dict[str, Dict[str, List[str]]] = {}
+    if _VERIFIERS_DIR.exists():
+        for path in sorted(_VERIFIERS_DIR.glob("*.py")):
+            if path.stem.startswith("_") or path.stem == "base":
+                continue
+            e = _extract_enums(path)
+            if e:
+                out[path.stem] = e
+    return out
+
+
 def format_field_spec_block() -> str:
     """Return a multi-line string suitable for embedding in a system
     prompt. Each line: "domain: {field1, field2, ...}".
     """
     domains = _collect_all()
+    enums = _collect_enums()
     lines: List[str] = []
     for domain in sorted(domains):
         fields = domains[domain]
@@ -250,6 +290,13 @@ def format_field_spec_block() -> str:
         # explode the prompt. Most verifiers have ≤ 20 fields.
         fields_to_show = fields[:24]
         lines.append(f"  {domain:30} {{{', '.join(fields_to_show)}}}")
+        # Dispatch-enum vocabularies: the exact tokens a field accepts, so the
+        # oracle targets the verifier's vocabulary instead of guessing prose
+        # (an unknown token -> the verifier rejects the spec).
+        for fld, vals in sorted((enums.get(domain) or {}).items()):
+            shown = vals[:12]
+            more = "" if len(vals) <= 12 else f", +{len(vals) - 12} more"
+            lines.append(f"      {fld} in {{{', '.join(shown)}{more}}}")
     # Disambiguation hints — when multiple domains could apply, prefer
     # the one whose verifier actually checks the kind of claim being
     # made. These bias the oracle without altering the field schemas.
