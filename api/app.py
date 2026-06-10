@@ -682,6 +682,12 @@ def _mcp_log_entry(request: Request) -> None:
         pass
 
 
+# Visit-log exclusions beyond the /keep IP allowlist: the engine box curling its
+# own public hostname (health checks, agent self-tests, probes) arrives as the
+# box's own public IP — that is self/infra traffic, never a visitor.
+_VISITLOG_EXCLUDE_IPS = {"5.78.186.55"}
+
+
 @app.middleware("http")
 async def _access_log_middleware(request: Request, call_next):
     started = time.time()
@@ -746,6 +752,17 @@ async def _access_log_middleware(request: Request, call_next):
         # obscure the actual outside-traffic picture. The /keep allowlist
         # (env + file + localhost) is the operator definition.
         if _is_operator_ip(client_ip):
+            return response
+        # Operator session cookie: residential WiFi rotates the IP, so a returning
+        # operator on a new IP would otherwise be counted as a visitor. The 90-day
+        # keep session cookie identifies the operator across IP changes — honour it
+        # for visit-logging too, not just the /keep gate. (Forgery-proof: the cookie
+        # is validated against the server-side session store.)
+        if _keep_session_valid(request):
+            return response
+        # Self / infra traffic: the box curling its own public hostname arrives as
+        # the box's own public IP, which is not a visitor.
+        if client_ip in _VISITLOG_EXCLUDE_IPS:
             return response
         # Operator dashboard self-traffic: the /keep dashboard polls many
         # endpoints on a timer, each carrying referer=/keep.html. That's
