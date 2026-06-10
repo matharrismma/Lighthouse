@@ -261,6 +261,105 @@ def verify_de_broglie(spec: Dict[str, Any]) -> VerifierResult:
     return mismatch(name, f"λ = {actual:.3e} m, claimed {c:.3e}", data)
 
 
+def verify_critical_angle(spec: Dict[str, Any]) -> VerifierResult:
+    """Total internal reflection: theta_c = arcsin(n_clad / n_core). Light at an
+    angle above theta_c is fully contained — how a fiber CARRIES light."""
+    name = "optics.critical_angle"
+    nc = spec.get("n_core"); ncl = spec.get("n_cladding")
+    claimed = spec.get("claimed_critical_angle_deg")
+    if nc is None or ncl is None or claimed is None:
+        return na(name)
+    try:
+        ncf, nclf, c = float(nc), float(ncl), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "indices and angle must be numeric")
+    if ncf <= 0 or nclf <= 0:
+        return error(name, "refractive indices must be positive")
+    if nclf >= ncf:
+        return mismatch(name, f"no TIR: cladding index {nclf} must be < core index {ncf}")
+    actual = math.degrees(math.asin(nclf / ncf))
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"n_core": ncf, "n_cladding": nclf, "actual_critical_angle_deg": actual,
+            "claimed_critical_angle_deg": c, "formula": "theta_c = arcsin(n_clad/n_core)"}
+    if abs(actual - c) <= max(1e-6, rel_tol * abs(actual)):
+        return confirm(name, f"theta_c = arcsin({nclf}/{ncf}) = {actual:.4g} deg (matches claim)", data)
+    return mismatch(name, f"theta_c = {actual:.4g} deg, claimed {c:.4g}", data)
+
+
+def verify_numerical_aperture(spec: Dict[str, Any]) -> VerifierResult:
+    """Light-gathering: NA = sqrt(n_core^2 - n_clad^2)."""
+    name = "optics.numerical_aperture"
+    nc = spec.get("n_core"); ncl = spec.get("n_cladding")
+    claimed = spec.get("claimed_numerical_aperture")
+    if nc is None or ncl is None or claimed is None:
+        return na(name)
+    try:
+        ncf, nclf, c = float(nc), float(ncl), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "inputs must be numeric")
+    if ncf <= nclf:
+        return error(name, "core index must exceed cladding index")
+    actual = math.sqrt(ncf * ncf - nclf * nclf)
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"actual_numerical_aperture": actual, "claimed_numerical_aperture": c,
+            "formula": "NA = sqrt(n_core^2 - n_clad^2)"}
+    if abs(actual - c) <= max(1e-6, rel_tol * abs(actual)):
+        return confirm(name, f"NA = sqrt({ncf}^2-{nclf}^2) = {actual:.4g} (matches claim)", data)
+    return mismatch(name, f"NA = {actual:.4g}, claimed {c:.4g}", data)
+
+
+def verify_fiber_attenuation(spec: Dict[str, Any]) -> VerifierResult:
+    """Signal loss: loss_dB = alpha(dB/km) x length(km); or 10*log10(P_in/P_out).
+    The 'light touch travels far' — a tiny loss per km over a long run."""
+    name = "optics.fiber_attenuation"
+    a = spec.get("attenuation_db_per_km"); L = spec.get("length_km")
+    pin = spec.get("power_in_mw"); pout = spec.get("power_out_mw")
+    claimed = spec.get("claimed_loss_db")
+    if claimed is None:
+        return na(name)
+    try:
+        c = float(claimed)
+        if a is not None and L is not None:
+            actual = float(a) * float(L); basis = f"{a} dB/km x {L} km"
+        elif pin is not None and pout is not None:
+            pif, pof = float(pin), float(pout)
+            if pif <= 0 or pof <= 0:
+                return error(name, "powers must be positive")
+            actual = 10.0 * math.log10(pif / pof); basis = f"10*log10({pin}/{pout})"
+        else:
+            return na(name)
+    except (TypeError, ValueError):
+        return error(name, "inputs must be numeric")
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"actual_loss_db": actual, "claimed_loss_db": c, "formula": "loss = alpha*L = 10log10(Pin/Pout)"}
+    if abs(actual - c) <= max(1e-6, rel_tol * abs(actual)):
+        return confirm(name, f"loss = {basis} = {actual:.4g} dB (matches claim)", data)
+    return mismatch(name, f"loss = {actual:.4g} dB, claimed {c:.4g}", data)
+
+
+def verify_wdm_capacity(spec: Dict[str, Any]) -> VerifierResult:
+    """Wavelength-division multiplexing: total = num_channels x bitrate_per_channel.
+    MANY independent signals (colors) through ONE fiber at once."""
+    name = "optics.wdm_capacity"
+    n = spec.get("num_channels"); rate = spec.get("bitrate_per_channel_gbps")
+    claimed = spec.get("claimed_total_gbps")
+    if n is None or rate is None or claimed is None:
+        return na(name)
+    try:
+        nf, rf, c = float(n), float(rate), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "inputs must be numeric")
+    if nf <= 0 or rf <= 0:
+        return error(name, "channels and bitrate must be positive")
+    actual = nf * rf
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"actual_total_gbps": actual, "claimed_total_gbps": c,
+            "formula": "total = num_channels x bitrate_per_channel"}
+    if abs(actual - c) <= max(1e-6, rel_tol * abs(actual)):
+        return confirm(name, f"{int(nf)} channels x {rf} Gbps = {actual:.6g} Gbps through one fiber (matches claim)", data)
+    return mismatch(name, f"total = {actual:.6g} Gbps, claimed {c:.6g}", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     ov = packet.get("OPT_VERIFY") or {}
@@ -282,6 +381,16 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_photon_energy(ov))
     if ov.get("claimed_de_broglie_m") is not None:
         results.append(verify_de_broglie(ov))
+    if all(ov.get(k) is not None for k in ("n_core", "n_cladding", "claimed_critical_angle_deg")):
+        results.append(verify_critical_angle(ov))
+    if all(ov.get(k) is not None for k in ("n_core", "n_cladding", "claimed_numerical_aperture")):
+        results.append(verify_numerical_aperture(ov))
+    if ov.get("claimed_loss_db") is not None and (
+        (ov.get("attenuation_db_per_km") is not None and ov.get("length_km") is not None) or
+        (ov.get("power_in_mw") is not None and ov.get("power_out_mw") is not None)):
+        results.append(verify_fiber_attenuation(ov))
+    if all(ov.get(k) is not None for k in ("num_channels", "bitrate_per_channel_gbps", "claimed_total_gbps")):
+        results.append(verify_wdm_capacity(ov))
 
     if not results:
         results.append(na("optics", "no OPT_VERIFY artifacts present"))
