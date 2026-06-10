@@ -258,7 +258,14 @@ async function nhRunWalk(q, box){
     var minMs=GATE_MS*(gates.length+0.5), waited=performance.now()-startT;
     if(waited<minMs) await new Promise(function(res){ setTimeout(res, minMs-waited); });
     var steps=(d&&d.steps)||[];
-    if(!steps.length){ location.href='/walk.html'; return false; }
+    if(!steps.length){
+      // Never a dead-end (project_wisdom_flywheel): if the well genuinely holds
+      // no card for this yet, ENGAGE — show the honest message + invite, and
+      // offer to capture the question so a real answer comes back. Don't bounce.
+      if(d && d.offer_followup){ nhNoMatch(q, d, box); }
+      else { box.innerHTML='<div class="rc"><div class="rs">'+nhEsc((d&&d.narration)||'Try a few words about what you are weighing.')+'</div></div>'; }
+      return false;
+    }
     var html='';
     steps.forEach(function(s){ var src=(s.source&&(s.source.label||s.source.author))||s.shelf||''; html+='<div class="rc"><div class="rt">'+nhEsc(s.title||'(untitled)')+'</div>'+(src?'<div class="rs">'+nhEsc(src)+'</div>':'')+'</div>'; });
     html+='<a class="rmore" href="/walk.html">See the full walk + the four gates &rarr;</a>';
@@ -267,6 +274,41 @@ async function nhRunWalk(q, box){
     box.innerHTML=html;
   }catch(e){ location.href='/walk.html'; }
   return false;
+}
+
+// The well holds no card for this yet — but a real question deserves a real
+// answer. Engage instead of bouncing: show the honest message + invite, and
+// offer to capture the question so we come back to them (the no-answer ladder,
+// project_wisdom_flywheel_2026-06-10). The asked question is stashed on the box.
+function nhNoMatch(q, d, box){
+  var inv=nhEsc((d&&d.invite)||'What were you weighing when this came to mind?');
+  var nar=nhEsc((d&&d.narration)||'');
+  var html=''
+    +'<div class="rc"><div class="rs" style="line-height:1.65">'+nar+'</div></div>'
+    +'<div id="nhTk" style="margin-top:12px">'
+    +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">'+inv+'</div>'
+    +'<textarea id="nhTkElab" rows="3" placeholder="Say a little more (optional)…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid var(--line,#333);border-radius:6px;color:inherit;font:inherit;padding:8px"></textarea>'
+    +'<div style="margin-top:8px">'
+    +'<button onclick="nhTicket()" style="padding:7px 16px;background:var(--accent);color:#1a1820;border:none;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;cursor:pointer">Get back to me &rarr;</button>'
+    +'<a href="/walk.html?q='+encodeURIComponent(q||'')+'" style="margin-left:10px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Walk it now</a>'
+    +'</div></div>';
+  box.innerHTML=html;
+  box.dataset.tkq=q||'';
+}
+
+// Capture the question as a ticket — the promise that a real answer comes back
+// (slice 1 backend: POST /tickets). On success we show the engine's own promise.
+async function nhTicket(){
+  var box=document.getElementById('drawResult'); if(!box) return;
+  var q=box.dataset.tkq||'';
+  var elabEl=document.getElementById('nhTkElab'); var elab=elabEl?elabEl.value:'';
+  var hh=(window.NHHousehold&&NHHousehold.id&&NHHousehold.id())||'home';
+  var tk=document.getElementById('nhTk'); if(tk) tk.innerHTML='<div class="rs">Capturing…</div>';
+  try{
+    var r=await fetch('/tickets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,elaboration:elab,source:'home',visitor_id:hh})});
+    var d=await r.json();
+    if(tk) tk.innerHTML='<div class="rs" style="line-height:1.65">'+nhEsc((d&&d.message)||'Captured — we will come back to you.')+'</div>';
+  }catch(e){ if(tk) tk.innerHTML='<div class="rs">Could not reach the well just now — try again in a moment.</div>'; }
 }
 
 // Chips fill the input and submit through the same funnel.
