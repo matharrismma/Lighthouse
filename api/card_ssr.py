@@ -128,19 +128,41 @@ def _render_card_html(c: dict) -> str:
         ld["citation"] = citations
     ld_str = json.dumps(ld, ensure_ascii=False)
 
-    # Render witnesses as visible list (crawler-readable)
-    witness_html = ""
-    if witnesses:
-        witness_html = '<section class="witnesses"><h2>Witnesses (Deuteronomy 19:15)</h2><ul>'
-        for w in witnesses:
+    # Render witnesses as a visible list (crawler-readable), but NEVER launder
+    # inherited/structural support as independent corroboration. The classifier
+    # (api.witness_view) is the one place that draws the Deuteronomy 19:15 line:
+    # only >=2 distinct INDEPENDENT classes establish; inherited/self do not.
+    from api import witness_view as _wv
+    wv = _wv.classify_witnesses(c)
+
+    def _witness_items(items):
+        rows = ""
+        for w in items:
             label = _esc(w.get("label") or w.get("ref") or "")
             wclass = _esc(w.get("class") or "")
             wurl = w.get("url") or ""
             if wurl:
-                witness_html += f'<li><span class="wclass">{wclass}:</span> <a href="{_esc(wurl)}" rel="nofollow">{label}</a></li>'
+                rows += f'<li><span class="wclass">{wclass}:</span> <a href="{_esc(wurl)}" rel="nofollow">{label}</a></li>'
             else:
-                witness_html += f'<li><span class="wclass">{wclass}:</span> {label}</li>'
-        witness_html += "</ul></section>"
+                rows += f'<li><span class="wclass">{wclass}:</span> {label}</li>'
+        return rows
+
+    witness_html = ""
+    if wv["independent"]:
+        if wv["established"]:
+            badge = (f'<span class="wbadge ok">established &middot; '
+                     f'{len(wv["distinct_independent_classes"])} independent classes</span>')
+        else:
+            badge = '<span class="wbadge wait">one independent class &middot; awaiting a second</span>'
+        witness_html += ('<section class="witnesses"><h2>Witnesses (Deuteronomy 19:15) '
+                         + badge + '</h2><ul>' + _witness_items(wv["independent"]) + '</ul></section>')
+    if wv["other"]:
+        witness_html += ('<section class="witnesses other"><h2>Other references</h2><ul>'
+                         + _witness_items(wv["other"]) + '</ul></section>')
+    if wv["structural"]:
+        witness_html += ('<section class="witnesses inherited"><h2>Inherited witness '
+                         '<span class="wnote">structural lineage, not independent corroboration</span>'
+                         '</h2><ul>' + _witness_items(wv["structural"]) + '</ul></section>')
 
     # Connections
     conn_html = ""
@@ -261,6 +283,12 @@ def _render_card_html(c: dict) -> str:
   .witnesses ul, .connections ul {{ list-style: none; padding-left: 0; }}
   .witnesses li, .connections li {{ padding: 0.3em 0; border-bottom: 1px dotted #d4c8a5; }}
   .wclass, .rel {{ font-family: 'Courier New', monospace; font-size: 0.78em; color: #806010; letter-spacing: 0.1em; text-transform: uppercase; margin-right: 0.5em; }}
+  .wbadge {{ font-family: 'Courier New', monospace; font-size: 0.62em; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.15em 0.5em; border-radius: 3px; vertical-align: middle; }}
+  .wbadge.ok {{ background: #e7f0e0; color: #3a6b2a; border: 1px solid #b6d3a3; }}
+  .wbadge.wait {{ background: #f4eede; color: #806010; border: 1px solid #d4c8a5; }}
+  .witnesses.inherited h2 {{ color: #8a7a4a; }}
+  .witnesses.inherited .wnote {{ font-family: 'Courier New', monospace; font-size: 0.62em; letter-spacing: 0.06em; text-transform: uppercase; color: #8a7a4a; margin-left: 0.5em; }}
+  .witnesses.other h2 {{ color: #6a5a3a; }}
   .interactive {{ margin-top: 2em; padding: 1em; background: #fffef7; border: 1px dashed #c9b48a; border-radius: 4px; text-align: center; }}
   .interactive a {{ color: #1a3a52; font-weight: 600; }}
   code {{ background: #f0ead0; padding: 0.1em 0.4em; border-radius: 2px; font-size: 0.9em; }}
