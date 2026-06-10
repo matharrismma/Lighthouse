@@ -178,6 +178,89 @@ def verify_rayleigh_diffraction(spec: Dict[str, Any]) -> VerifierResult:
                     data)
 
 
+# Exact SI-defined constants (2019 redefinition).
+_H = 6.62607015e-34   # Planck constant, J·s
+_C = 299792458.0      # speed of light, m/s
+
+
+def verify_double_slit(spec: Dict[str, Any]) -> VerifierResult:
+    """Young's double slit: fringe spacing Δy = λ·L / d (the WAVE signature of light)."""
+    name = "optics.double_slit"
+    lam = spec.get("wavelength_m"); d = spec.get("slit_separation_m")
+    L = spec.get("screen_distance_m"); claimed = spec.get("claimed_fringe_spacing_m")
+    if lam is None or d is None or L is None or claimed is None:
+        return na(name)
+    try:
+        lf, df, Lf, c = float(lam), float(d), float(L), float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "all inputs must be numeric")
+    if lf <= 0 or df <= 0 or Lf <= 0:
+        return error(name, "wavelength, slit separation, and screen distance must be positive")
+    actual = lf * Lf / df
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"wavelength_m": lf, "slit_separation_m": df, "screen_distance_m": Lf,
+            "actual_fringe_spacing_m": actual, "claimed_fringe_spacing_m": c, "formula": "Δy = λ·L/d"}
+    if abs(actual - c) <= max(1e-12, rel_tol * abs(actual)):
+        return confirm(name, f"Δy = λL/d = {actual:.3e} m (matches claim)", data)
+    return mismatch(name, f"Δy = {actual:.3e} m, claimed {c:.3e}", data)
+
+
+def verify_photon_energy(spec: Dict[str, Any]) -> VerifierResult:
+    """Photon energy E = h·c/λ = h·f (the PARTICLE quantum of light)."""
+    name = "optics.photon_energy"
+    lam = spec.get("wavelength_m"); freq = spec.get("frequency_hz")
+    claimed = spec.get("claimed_photon_energy_j")
+    if claimed is None or (lam is None and freq is None):
+        return na(name)
+    try:
+        c = float(claimed)
+        if lam is not None:
+            lf = float(lam)
+            if lf <= 0:
+                return error(name, "wavelength must be positive")
+            actual, basis = _H * _C / lf, f"hc/λ (λ={lf:.3g} m)"
+        else:
+            ff = float(freq)
+            if ff <= 0:
+                return error(name, "frequency must be positive")
+            actual, basis = _H * ff, f"hf (f={ff:.3g} Hz)"
+    except (TypeError, ValueError):
+        return error(name, "inputs must be numeric")
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"actual_photon_energy_j": actual, "claimed_photon_energy_j": c, "formula": "E = hc/λ = hf"}
+    if abs(actual - c) <= max(1e-30, rel_tol * abs(actual)):
+        return confirm(name, f"E = {basis} = {actual:.3e} J (matches claim)", data)
+    return mismatch(name, f"E = {actual:.3e} J, claimed {c:.3e}", data)
+
+
+def verify_de_broglie(spec: Dict[str, Any]) -> VerifierResult:
+    """Matter wave: λ = h / p — wave-particle duality (a particle has a wavelength)."""
+    name = "optics.de_broglie"
+    p = spec.get("momentum_kg_m_s"); mass = spec.get("mass_kg"); vel = spec.get("velocity_m_s")
+    claimed = spec.get("claimed_de_broglie_m")
+    if claimed is None:
+        return na(name)
+    try:
+        c = float(claimed)
+        if p is not None:
+            pf = float(p)
+        elif mass is not None and vel is not None:
+            pf = float(mass) * float(vel)
+        else:
+            return na(name)
+        if pf <= 0:
+            return error(name, "momentum must be positive")
+        actual = _H / pf
+    except (TypeError, ValueError):
+        return error(name, "inputs must be numeric")
+    rel_tol = float(spec.get("tolerance_relative", 1e-3))
+    data = {"momentum_kg_m_s": pf, "actual_de_broglie_m": actual,
+            "claimed_de_broglie_m": c, "formula": "λ = h/p"}
+    if abs(actual - c) <= max(1e-30, rel_tol * abs(actual)):
+        return confirm(name, f"λ = h/p = {actual:.3e} m (matches claim)", data)
+    return mismatch(name, f"λ = {actual:.3e} m, claimed {c:.3e}", data)
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     ov = packet.get("OPT_VERIFY") or {}
@@ -191,6 +274,14 @@ def run(packet: Dict[str, Any]) -> List[VerifierResult]:
         results.append(verify_magnification(ov))
     if all(ov.get(k) is not None for k in ("wavelength_m", "aperture_m", "claimed_diffraction_rad")):
         results.append(verify_rayleigh_diffraction(ov))
+    if all(ov.get(k) is not None for k in ("wavelength_m", "slit_separation_m",
+                                           "screen_distance_m", "claimed_fringe_spacing_m")):
+        results.append(verify_double_slit(ov))
+    if ov.get("claimed_photon_energy_j") is not None and \
+       (ov.get("wavelength_m") is not None or ov.get("frequency_hz") is not None):
+        results.append(verify_photon_energy(ov))
+    if ov.get("claimed_de_broglie_m") is not None:
+        results.append(verify_de_broglie(ov))
 
     if not results:
         results.append(na("optics", "no OPT_VERIFY artifacts present"))
