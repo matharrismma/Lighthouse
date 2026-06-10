@@ -103,6 +103,140 @@ def log_misalignment(
     return record["id"]
 
 
+# ── User-submitted disagreement ─────────────────────────────────────────
+# The engine's RED gate applied to the engine itself: be honest about
+# when a user thinks you got it wrong. Same substrate, different shape
+# than engine-detected misalignment.
+
+_USER_TARGET_KINDS = {
+    "almanac", "parable", "walk_verdict", "polymathic_verdict",
+    "archetype", "protocol", "fieldkit_card", "scripture_anchor", "other",
+}
+
+
+def log_user_disagreement(
+    *,
+    visitor_id: str,
+    target_kind: str,
+    target_id: str,
+    target_summary: str = "",
+    reason: str = "",
+    expected: str = "",
+    evidence_url: str = "",
+    ip_prefix: str = "",
+    lang: str = "en",
+    reason_original: Optional[str] = None,
+    expected_original: Optional[str] = None,
+    mt_provider: Optional[str] = None,
+) -> Optional[str]:
+    """A user has flagged a specific packet's verdict/content as wrong.
+
+    visitor_id is opaque (12-hex). target_kind names which lens/kind
+    they were looking at when they disagreed. target_id is the packet
+    id (almanac entry id, parable id, etc.). reason is required —
+    a flag without context is noise, not signal.
+
+    `lang` plus the `_original` and `mt_provider` kwargs carry the bilingual
+    audit trail when the writer's language was something other than English.
+    Engine reads `reason`/`expected` (English canonical); UI can show the
+    visitor's original words by reading `reason_original` if present.
+    """
+    visitor_id = (visitor_id or "").strip().lower()
+    target_kind = (target_kind or "").strip().lower()
+    target_id = (target_id or "").strip()
+    reason = (reason or "").strip()
+    if not visitor_id or not target_id or not reason:
+        return None
+    if target_kind not in _USER_TARGET_KINDS:
+        target_kind = "other"
+    now = int(time.time())
+    record = {
+        "id": "dis-" + _short_hash(f"{visitor_id}|{target_id}|{reason}|{now}"),
+        "logged_at": now,
+        "logged_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
+        "source": "user_disagreement",
+        "ip_prefix": ip_prefix or "",
+        "visitor_id": visitor_id,
+        "target_kind": target_kind,
+        "target_id": target_id,
+        "target_summary": (target_summary or "")[:400],
+        "reason": reason[:2000],
+        "expected": (expected or "")[:2000],
+        "evidence_url": (evidence_url or "")[:400],
+        "review_status": "pending",
+        "lang": (lang or "en").strip().lower() or "en",
+    }
+    if reason_original:
+        record["reason_original"] = reason_original[:2000]
+    if expected_original:
+        record["expected_original"] = expected_original[:2000]
+    if mt_provider:
+        record["mt_provider"] = mt_provider
+    try:
+        with _LOG_FILE.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except OSError:
+        return None
+    return record["id"]
+
+
+def list_user_disagreements(
+    *, visitor_id: str = "", limit: int = 100, include_local: bool = False
+) -> List[Dict[str, Any]]:
+    """Return user-submitted disagreements, newest first. If visitor_id
+    is supplied, filter to that visitor only."""
+    visitor_id = (visitor_id or "").strip().lower()
+    out: List[Dict[str, Any]] = []
+    if not _LOG_FILE.exists():
+        return out
+    state = _load_state()
+    decisions = (state.get("decisions") or {})
+    try:
+        for line in _LOG_FILE.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if rec.get("source") != "user_disagreement":
+                continue
+            if not include_local and _is_local(rec):
+                continue
+            if visitor_id and rec.get("visitor_id") != visitor_id:
+                continue
+            # Merge in decision state if any.
+            d = decisions.get(rec.get("id"))
+            if d:
+                rec["review_status"] = d.get("status", rec.get("review_status", "pending"))
+                rec["review_note"] = d.get("note", "")
+                rec["reviewed_at_iso"] = d.get("reviewed_at_iso", "")
+            out.append(rec)
+    except OSError:
+        return out
+    out.sort(key=lambda r: r.get("logged_at", 0), reverse=True)
+    if limit:
+        out = out[:limit]
+    return out
+
+
+def public_disagreement_view(rec: Dict[str, Any]) -> Dict[str, Any]:
+    """Anonymize a disagreement for the public feed — no visitor_id, no ip."""
+    return {
+        "id": rec.get("id"),
+        "logged_at_iso": rec.get("logged_at_iso", ""),
+        "target_kind": rec.get("target_kind", ""),
+        "target_id": rec.get("target_id", ""),
+        "target_summary": rec.get("target_summary", ""),
+        "reason": rec.get("reason", ""),
+        "expected": rec.get("expected", ""),
+        "evidence_url": rec.get("evidence_url", ""),
+        "review_status": rec.get("review_status", "pending"),
+        "review_note": rec.get("review_note", ""),
+    }
+
+
 # ── Read / state ────────────────────────────────────────────────────────
 
 def _load_state() -> Dict[str, Any]:
@@ -231,6 +365,9 @@ def review(
     claim_pattern: str = "",
     needed_math: str = "",
     needed_substrate: str = "",
+    routing_pattern: str = "",
+    routing_domain: str = "",
+    routing_spec_template: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Operator decision on a misalignment.
 
@@ -238,6 +375,10 @@ def review(
       - 'archive'  — the user was wrong; engine correctly didn't confirm
       - 'promote'  — gap in the tool; append to build queue
                      (claim_pattern + needed_math are required)
+                     Optionally, also adds a runtime NL→domain routing
+                     rule if `routing_pattern` + `routing_domain` given.
+                     This is how each promotion compounds routing
+                     accuracy without an engine restart.
       - 'bug'      — engine should have confirmed but a verifier misbehaved
       - 'pending'  — restore to unreviewed (undo)
     """
@@ -269,6 +410,26 @@ def review(
             why_not_now=(note.strip() or "Promoted from misalignment review.")[:500],
         )
         result["build_queue_id"] = bq["id"]
+
+        # Optional: add a runtime routing rule so the same shape of
+        # claim is dispatched correctly on subsequent calls. The
+        # operator names the pattern + target domain; we never guess.
+        if routing_pattern.strip() and routing_domain.strip():
+            try:
+                from concordance_engine.agent.runtime_rules import add_rule as _add_rt_rule
+                rt = _add_rt_rule(
+                    pattern=routing_pattern.strip()[:500],
+                    domain=routing_domain.strip()[:80],
+                    spec_template=routing_spec_template or {},
+                    source_misalignment_id=iid,
+                    notes=(note.strip() or "")[:500],
+                )
+                result["runtime_rule_id"] = rt["rule_id"]
+            except ValueError as exc:
+                # Routing rule rejected (e.g. bad regex). Don't fail the
+                # whole promotion — surface the reason so the operator
+                # can retry with a corrected pattern.
+                result["runtime_rule_error"] = str(exc)
 
     if s == "pending":
         # Undo: remove the decision entirely

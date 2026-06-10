@@ -51,6 +51,59 @@ _STOP = {
 _CACHE: Dict[str, Any] = {"mtime": 0.0, "entries": []}
 
 
+# ── Archetype-category → engine-axis map.
+# Same 7 axes as the engine's scaffold. When two recognized archetypes
+# share an axis, the engine surfaces the overlap as a structural blend
+# signature — what's true of BOTH along that axis is the "third pattern"
+# emerging from the pair.
+_CATEGORY_AXES: Dict[str, List[str]] = {
+    # Trust / authority categories (truth-keeping, witness, leadership)
+    "shepherd_leader":   ["authority_trust", "metabolism"],
+    "intercessor":       ["authority_trust", "time_sequence"],
+    "watchman":          ["authority_trust", "reasoning", "time_sequence"],
+    "lone_voice":        ["authority_trust", "reasoning"],
+    "faithful_exile":    ["authority_trust", "time_sequence"],
+    "loyal_friend":      ["authority_trust"],
+    "yielder":           ["authority_trust", "reasoning"],
+    "denier_restored":   ["authority_trust", "time_sequence"],
+    "betrayer":          ["authority_trust", "reasoning"],
+    "false_prophet":     ["authority_trust", "encoding", "reasoning"],
+    "vindicated":        ["authority_trust", "time_sequence"],
+    "proud_humbled":     ["authority_trust", "reasoning"],
+    # Reasoning / discernment categories
+    "wrestler":          ["reasoning", "authority_trust"],
+    "called_reluctant":  ["reasoning", "encoding", "authority_trust"],
+    "converted":         ["reasoning", "authority_trust", "time_sequence"],
+    "fleer":             ["reasoning", "time_sequence"],
+    "lukewarm":          ["reasoning", "metabolism"],
+    "disqualified":      ["reasoning", "authority_trust", "time_sequence"],
+    # Encoding / language / identity / calling
+    "type_of_christ":    ["encoding", "authority_trust", "time_sequence"],
+    "parable_figure":    ["encoding", "reasoning"],
+    "mother_in_promise": ["encoding", "metabolism", "time_sequence"],
+    "resurrected":       ["encoding", "physical_substance", "time_sequence"],
+    # Conservation / balance / building
+    "repairer":          ["conservation_balance", "physical_substance"],
+    "builder":           ["conservation_balance", "physical_substance", "time_sequence"],
+    "positioned":        ["conservation_balance", "authority_trust"],
+    # Time / sequence
+    "last_mercy":        ["time_sequence", "authority_trust"],
+    "encourager":        ["time_sequence", "authority_trust", "metabolism"],
+}
+
+# Readable labels for axis-overlap blends. When two archetypes share
+# an axis, this names the structural family they both live in.
+_AXIS_BLEND_LABELS: Dict[str, str] = {
+    "authority_trust":     "blended along authority and trust",
+    "reasoning":           "blended along reasoning and discernment",
+    "encoding":            "blended along calling and identity",
+    "physical_substance":  "blended along physical substance",
+    "metabolism":          "blended along growth and cost",
+    "conservation_balance":"blended along balance and stewardship",
+    "time_sequence":       "blended along timing and patience",
+}
+
+
 # Category-pair signatures. Order-independent: keyed by frozenset.
 # These are LOOKUPS — the engine doesn't generate phrases for unknown
 # pairs. If a combination isn't in this table, the engine surfaces the
@@ -338,10 +391,36 @@ def recognize(situation: str, top_k: int = 3) -> Dict[str, Any]:
         # "Jonah (0.55) + Saul (0.28) + Esther (0.17)"
         sig_summary = " + ".join(f"{n} ({w})" for n, w in zip(names, weights))
 
+    # ── Structural axis-overlap signature (the "third pattern" two
+    #    archetypes produce when they share an axis). Derived from
+    #    _CATEGORY_AXES — independent of the hand-curated pair table.
+    shared_axes: List[str] = []
+    axis_blend_signature: Optional[str] = None
+    if len(top_cats) >= 2:
+        ax_a = set(_CATEGORY_AXES.get(top_cats[0], []))
+        ax_b = set(_CATEGORY_AXES.get(top_cats[1], []))
+        shared_axes = sorted(ax_a & ax_b)
+        if shared_axes:
+            # Name only the deepest (first in priority list) overlap;
+            # surface the full list separately. Priority same as walk.py
+            priority = [
+                "authority_trust", "encoding", "metabolism",
+                "reasoning", "conservation_balance", "time_sequence",
+                "physical_substance",
+            ]
+            primary = next((a for a in priority if a in shared_axes), shared_axes[0])
+            label = _AXIS_BLEND_LABELS.get(primary, f"blended along {primary}")
+            # e.g. "Jonah × Saul — blended along authority and trust"
+            axis_blend_signature = (
+                f"{candidates[0]['name']} × {candidates[1]['name']} — {label}"
+            )
+
     combination = {
         "summary": sig_summary,
         "categories": top_cats,
         "signature": sig_label,  # may be None if pair not in lookup
+        "axis_blend_signature": axis_blend_signature,  # structural, never None when 2+ archetypes share an axis
+        "shared_axes": shared_axes,
         "dominant": candidates[0]["name"] if candidates else None,
         "is_blend": len([c for c in candidates if c["weight"] >= 0.20]) > 1,
     }

@@ -22,41 +22,50 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 from .base import VerifierResult, na, confirm, mismatch, error
 
-import sympy
-from sympy import sympify, simplify, Symbol
-from sympy.physics import units as u
-from sympy.physics.units.systems.si import SI
+# sympy (with sympy.physics.units) is a ~4s import. Only the dimensional-
+# consistency check needs it, so it loads on first use rather than at module
+# import — this keeps the engine's cold start fast.
+sympify = simplify = Symbol = u = None   # populated by _ensure_sympy()
+_UNIT_TABLE = None                       # built lazily (sympy unit objects)
 
 
-# Map common unit strings to sympy unit objects
-_UNIT_TABLE = {
-    # length
-    "m": u.meter, "meter": u.meter, "meters": u.meter,
-    "cm": u.centimeter, "mm": u.millimeter, "km": u.kilometer,
-    # mass
-    "kg": u.kilogram, "kilogram": u.kilogram, "kilograms": u.kilogram,
-    "g": u.gram, "gram": u.gram, "grams": u.gram,
-    # time
-    "s": u.second, "sec": u.second, "second": u.second, "seconds": u.second,
-    "ms": u.millisecond, "min": u.minute, "hr": u.hour, "h": u.hour,
-    # force/energy/power
-    "N": u.newton, "newton": u.newton, "newtons": u.newton,
-    "J": u.joule, "joule": u.joule, "joules": u.joule,
-    "W": u.watt, "watt": u.watt,
-    # charge / current
-    "C": u.coulomb, "coulomb": u.coulomb,
-    "A": u.ampere, "ampere": u.ampere,
-    # temperature
-    "K": u.kelvin, "kelvin": u.kelvin,
-    # pressure
-    "Pa": u.pascal, "pascal": u.pascal, "atm": u.atmosphere, "atmosphere": u.atmosphere,
-    # frequency
-    "Hz": u.hertz, "hertz": u.hertz,
-}
+def _ensure_sympy() -> None:
+    """Import sympy and build the unit table on first use. Idempotent."""
+    global sympify, simplify, Symbol, u, _UNIT_TABLE
+    if _UNIT_TABLE is not None:
+        return
+    from sympy import sympify as _sympify, simplify as _simplify, Symbol as _Symbol
+    from sympy.physics import units as _u
+    sympify, simplify, Symbol, u = _sympify, _simplify, _Symbol, _u
+    _UNIT_TABLE = {
+        # length
+        "m": u.meter, "meter": u.meter, "meters": u.meter,
+        "cm": u.centimeter, "mm": u.millimeter, "km": u.kilometer,
+        # mass
+        "kg": u.kilogram, "kilogram": u.kilogram, "kilograms": u.kilogram,
+        "g": u.gram, "gram": u.gram, "grams": u.gram,
+        # time
+        "s": u.second, "sec": u.second, "second": u.second, "seconds": u.second,
+        "ms": u.millisecond, "min": u.minute, "hr": u.hour, "h": u.hour,
+        # force/energy/power
+        "N": u.newton, "newton": u.newton, "newtons": u.newton,
+        "J": u.joule, "joule": u.joule, "joules": u.joule,
+        "W": u.watt, "watt": u.watt,
+        # charge / current
+        "C": u.coulomb, "coulomb": u.coulomb,
+        "A": u.ampere, "ampere": u.ampere,
+        # temperature
+        "K": u.kelvin, "kelvin": u.kelvin,
+        # pressure
+        "Pa": u.pascal, "pascal": u.pascal, "atm": u.atmosphere, "atmosphere": u.atmosphere,
+        # frequency
+        "Hz": u.hertz, "hertz": u.hertz,
+    }
 
 
 def _parse_unit(unit_str: str):
     """Parse 'meter/second**2' or 'kg*m/s**2' into a sympy units expression."""
+    _ensure_sympy()
     s = unit_str.replace("^", "**")
     # Replace bare unit tokens with sympify-friendly wrappers
     expr = sympify(s, locals=_UNIT_TABLE)
@@ -72,6 +81,7 @@ def verify_dimensional_consistency(
     Strategy: substitute each symbol with its unit expression, then convert
     both sides to a fixed set of SI base units and compare unit signatures.
     """
+    _ensure_sympy()
     if "=" not in equation:
         return error("physics.dimensional", f"no '=' in equation {equation!r}")
 

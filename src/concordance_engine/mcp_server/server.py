@@ -1675,6 +1675,617 @@ def _predict_axes_from_query(qlower: str) -> set:
     return predicted
 
 
+# ============================================================
+# Engine-substrate tools (close the parity gap with HTTP API)
+# ============================================================
+# Until this section, the MCP surface was 76 verifier tools — all
+# deterministic checks. Humans at /, /walk, /apothecary, /curriculum
+# have a much wider engine. These tools expose the rest of the engine
+# to agents so the dual-audience framing (humans + agents) is honest.
+#
+# Each tool calls the local HTTP engine at 127.0.0.1:8000 (or
+# CONCORDANCE_API_URL if set) and returns the JSON response. Same
+# behavior whether invoked via stdio or via /mcp HTTP.
+
+_LOCAL_API_BASE = (os.environ.get("CONCORDANCE_API_URL") or "http://127.0.0.1:8000").rstrip("/")
+
+
+def _engine_get(path: str, **params) -> Dict[str, Any]:
+    """GET an engine endpoint; defensive, returns {error: ...} on failure."""
+    import urllib.parse as _up
+    q = _up.urlencode({k: v for k, v in params.items() if v is not None and v != ""})
+    url = f"{_LOCAL_API_BASE}{path}"
+    if q:
+        url = f"{url}?{q}"
+    try:
+        req = urllib.request.Request(url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        return {"error": f"HTTP {e.code}", "url": url}
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}", "url": url}
+
+
+def _engine_post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    """POST JSON to an engine endpoint; defensive."""
+    url = f"{_LOCAL_API_BASE}{path}"
+    try:
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url, data=data,
+            headers={"Content-Type": "application/json", "Accept": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        return {"error": f"HTTP {e.code}", "url": url}
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}", "url": url}
+
+
+@mcp.tool()
+def apothecary_compound(condition: str, lang: str = "en") -> Dict[str, Any]:
+    """Compound a remedy for a stated condition from across the substrate.
+
+    For a condition (e.g. "anxiety", "I can't forgive my brother", "exhausted
+    and bitter"), the engine retrieves one packet of each ingredient kind —
+    a Scripture anchor, a protocol to walk, a mind practice, a parable, a
+    body insight, a philosopher's note, an almanac confirmation — and
+    returns the compounded card. The engine eliminates; it doesn't invent.
+    Each ingredient is a packet already in the keeping.
+
+    Args:
+        condition: Free-text condition the visitor is carrying.
+        lang: 2-letter language code for Scripture text (default 'en').
+            Supports en/es/zh/fr/pt/de/ko/ja/ar/ru/fa/vi/it/my/uk/nl/ro/ht/he/la/hi/sw.
+
+    Returns the full compound card with all ingredients."""
+    return _engine_get("/apothecary", condition=condition, lang=lang)
+
+
+@mcp.tool()
+def curriculum_list() -> Dict[str, Any]:
+    """Return every primary-education unit across all 8 tracks.
+
+    Tracks: phonics, math, reading, writing, science, social_studies,
+    bible_curriculum, workready. Returns grouped units with track totals.
+    Free K-2 curriculum — each unit has rule, examples, manipulative,
+    three modes, wedges, check, prerequisites, next."""
+    return _engine_get("/curriculum")
+
+
+@mcp.tool()
+def unit_get(unit_id: str) -> Dict[str, Any]:
+    """Fetch a single curriculum unit by id. The engine tries each track
+    until it finds the unit.
+
+    Args:
+        unit_id: e.g. 'phonics_short_a', 'math_counting_to_20',
+                 'bible_psalm_23', 'science_simple_machines'.
+
+    Returns the full record: rule, examples, manipulative, modes, wedges,
+    check (with answer + teaching_note), prerequisites, next, summary, and
+    any inline SVG diagrams."""
+    # Try each track in order — same logic the /unit.html page uses
+    for track in ["phonics", "math", "reading", "writing", "science",
+                  "bible_curriculum", "social_studies", "workready"]:
+        result = _engine_get(f"/{track}/{unit_id}")
+        if "error" not in result:
+            return result
+    return {"error": f"unit {unit_id!r} not found in any track"}
+
+
+@mcp.tool()
+def herb_get(herb_id: Optional[str] = None) -> Dict[str, Any]:
+    """Fetch herb monographs — botanical remedies with evidence-honest
+    verdicts (CONFIRMED / MIXED / DISCORDANT).
+
+    Args:
+        herb_id: Optional. If provided ('herb_ginger', 'herb_chamomile',
+                 etc.), returns that single monograph with all preparations,
+                 safety notes, evidence verdicts, growing instructions, and
+                 inline SVG. If omitted, returns the full list of 12 herbs.
+
+    Each verdict carries a note explaining the evidence. Folk claims that
+    don't hold up are marked DISCORDANT (e.g. ginger 'detox', raw elderberry,
+    honey for infants under 1)."""
+    if herb_id:
+        return _engine_get(f"/herbs/{herb_id}")
+    return _engine_get("/herbs")
+
+
+@mcp.tool()
+def packets_search(query: str, limit: int = 12, kinds: Optional[str] = None) -> Dict[str, Any]:
+    """Search the unified packet substrate across every lens.
+
+    Returns packets from: almanac, scripture (proverbs/psalms/sermon-on-mount/
+    ecclesiastes/james), Sermon on the Mount, philosophers (Aurelius/
+    La Rochefoucauld/Augustine/Imitation/Boethius/Pirkei Avot/Pilgrim's),
+    early Fathers (Didache/Clement/Polycarp/Barnabas/Ignatius/Martyrdom),
+    parables, body layers, mind practices, archetypes, fieldkit, protocols,
+    Easton's Bible Dictionary, Aesop's Fables, training, places, curriculum
+    units across 8 tracks, herb monographs, wedges, steward audit, receipts.
+
+    Args:
+        query: Free-text search; multi-word AND-matched.
+        limit: Max packets to return (default 12, max 500).
+        kinds: Optional comma-separated kinds filter (e.g. 'phonics_unit,herb_monograph').
+
+    Returns: {q, total, packets: [{kind, id, title, verdict, domains, axes, summary, permalink, score}]}"""
+    return _engine_get("/index/packets/search", q=query, limit=limit, kinds=kinds)
+
+
+@mcp.tool()
+def almanac_search(query: str, limit: int = 12) -> Dict[str, Any]:
+    """Search the almanac specifically — verified claims with CONFIRMED /
+    MIXED / MISMATCH / OBSOLETE / DISCORDANT verdicts.
+
+    The almanac is the engine's ledger of falsifiable claims. ~880+ entries
+    across weather, agriculture, scripture, health, finance, logic, biology,
+    sociology, and more.
+
+    Args:
+        query: Free-text search.
+        limit: Max entries (default 12).
+
+    Returns the matching almanac entries with their full verdict trails."""
+    return _engine_get("/index/packets/search", q=query, limit=limit, kinds="almanac")
+
+
+@mcp.tool()
+def polymathic_run(situation: str, visitor_id: str = "mcp_agent") -> Dict[str, Any]:
+    """Multi-domain synthesis — every applicable verifier fires in
+    parallel and returns a composite verdict.
+
+    Requires the engine to have an Anthropic API key configured for the
+    oracle classification step. If not configured, returns OUT_OF_SCOPE
+    honestly rather than fabricating.
+
+    Args:
+        situation: Free-text situation that spans multiple domains
+                   (e.g. "I'm building a wind turbine for off-grid power
+                    in a region prone to lightning storms").
+        visitor_id: Opaque hex (default 'mcp_agent'). Per-visitor history
+                    keeps the polymathic substrate auditable.
+
+    Returns the composite verdict + per-domain results."""
+    return _engine_post("/polymathic", {"situation": situation, "visitor_id": visitor_id})
+
+
+@mcp.tool()
+def walk_start(situation: str, visitor_id: str = "mcp_agent") -> Dict[str, Any]:
+    """Begin a four-gate walk with the Shepherd.
+
+    The Shepherd asks four gate questions in order (RED, FLOOR, BROTHERS,
+    GOD) about a hard decision the visitor is carrying. Each gate is the
+    visitor's own answer; the engine never decides for them.
+
+    Args:
+        situation: Free-text — what is the visitor carrying?
+        visitor_id: Opaque hex.
+
+    Returns the walk record with the first gate question. Subsequent
+    answers go through /coach/journal/answer (not yet MCP-wired)."""
+    return _engine_post("/coach/journal/start", {
+        "situation": situation,
+        "visitor_id": visitor_id,
+    })
+
+
+@mcp.tool()
+def scribe_submit(text: str, title: str = "", visitor_id: str = "mcp_agent",
+                  contributor_handle: str = "") -> Dict[str, Any]:
+    """Write something to the keeping. The Scribe captures it; the
+    keeping decides whether to promote it to the almanac. Operator-attended.
+
+    Args:
+        text: The writing to submit.
+        title: Optional short title.
+        visitor_id: Opaque hex.
+        contributor_handle: Optional handle for attribution (e.g. 'mharris').
+
+    Returns the writing's id, status, and view URL."""
+    return _engine_post("/scribe/intake", {
+        "text": text,
+        "title": title,
+        "visitor_id": visitor_id,
+        "contributor_handle": contributor_handle,
+    })
+
+
+@mcp.tool()
+def mastery_mark(visitor_id: str, unit_id: str, state: str = "mastered",
+                 note: str = "") -> Dict[str, Any]:
+    """Record that a visitor (or the visitor's learner) worked through a
+    curriculum unit. Append-only — the trail is preserved.
+
+    Args:
+        visitor_id: Opaque hex.
+        unit_id: Curriculum unit id.
+        state: 'working' | 'mastered' | 'set_aside' | 'reset' (default 'mastered').
+        note: Optional free-text observation.
+
+    Returns the recorded row. The visitor's full mastery state is at
+    /mastery/visitor?visitor_id=X."""
+    return _engine_post("/mastery/mark", {
+        "visitor_id": visitor_id,
+        "unit_id": unit_id,
+        "state": state,
+        "note": note,
+    })
+
+
+# ============================================================
+# Flow tools — composition over the engine's primitives
+# ============================================================
+# Flows are named, registered sequences of tool calls + branches +
+# state. Agents call flow_list to discover them, flow_run to execute.
+# Same semantics as the human-facing "What next?" cards.
+
+@mcp.tool()
+def flow_list(audience: str = "agent", starts_from: str = "") -> Dict[str, Any]:
+    """List every registered flow.
+
+    Args:
+        audience: 'human' | 'agent' | 'robot' (default 'agent'). Filters
+                  to flows whose audience array contains this value.
+        starts_from: optional filter by starts_from field ('walk',
+                     'apothecary', 'curriculum', 'any').
+
+    Returns: {flows: [{id, name, description, audience, starts_from,
+                       first_input, step_count, outputs}]}"""
+    params = {"audience": audience}
+    if starts_from:
+        params["starts_from"] = starts_from
+    return _engine_get("/flows", **params)
+
+
+@mcp.tool()
+def flow_run(flow_id: str, state: Optional[Dict[str, Any]] = None,
+             run_id: Optional[str] = None) -> Dict[str, Any]:
+    """Execute (or resume) a flow.
+
+    To start a new flow: pass flow_id and initial state including any
+    inputs the flow's first_input declares.
+
+    Example — start walk_to_keep:
+        flow_run("walk_to_keep", {"situation": "...", "visitor_id": "agent_X"})
+
+    The flow runs until it hits an `input` step (pauses) or completes.
+    On pause, returns {status: 'waiting_for_input', expects: <key>,
+    label: <prompt>, run_id: <id>}. The caller resumes by calling
+    flow_run again with the same run_id and the new input added to state.
+
+    On complete, returns {status: 'complete', state, outputs, run_id}.
+
+    Flow definitions live as data at /flows/<id> — call flow_list first
+    to discover what's available, or fetch one by id."""
+    payload = {"flow_id": flow_id}
+    if state:
+        payload["state"] = state
+    if run_id:
+        payload["run_id"] = run_id
+    return _engine_post("/flow/run", payload)
+
+
+# ============================================================
+# Card library tools — the substrate, walks, atlas, notes, stacks
+# Added 2026-05-19. The 11,000+ card library Matt built today is now
+# walkable by agents the same way humans walk it at /walks.html.
+# ============================================================
+
+@mcp.tool()
+def cards_walk(query: str, k: int = 7, asked_by: str = "mcp_agent") -> Dict[str, Any]:
+    """Ask Shepherd to pull cards for a query. The signature operation of the
+    card system.
+
+    Cache-first: same question previously asked → cached walk returned, no
+    re-search. Otherwise inverted-index lookup → score top-k candidates →
+    return cards with source, shelf, and Shepherd narration per step.
+
+    Use this when an agent wants the substrate's answer to a question.
+    Cards carry source + link-back; agents should cite the cards back to
+    the user, never present them as their own.
+
+    Args:
+        query: the question or topic. Plain English; Shepherd handles tokens.
+        k: how many cards to return (default 7, max 20).
+        asked_by: optional agent identifier for the replay log.
+
+    Returns: {query, step_count, steps: [...], narration, corpus_size,
+             cache_hit?, walk_card_id?}
+    """
+    return _engine_post("/cards/walk", {"query": query, "k": min(k, 20), "asked_by": asked_by})
+
+
+@mcp.tool()
+def card_get(card_id: str) -> Dict[str, Any]:
+    """Get a single card by id. Returns full content: title, body, source
+    (with authority_tier and link-back URL), shelf, box, bands, connections,
+    metrics, lifecycle_stage, volatility.
+
+    Card IDs look like `card_n_<hash>` (note), `card_c_<hash>` (connection),
+    `card_w_<hash>` (walk). Get them from cards_walk results, atlas_paths,
+    or cards_browse.
+    """
+    return _engine_get(f"/cards/{card_id}")
+
+
+@mcp.tool()
+def cards_browse(shelf: Optional[str] = None, box: Optional[str] = None,
+                 kind: Optional[str] = None, lifecycle: Optional[str] = None,
+                 limit: int = 50) -> Dict[str, Any]:
+    """List cards filtered by shelf, box, kind, lifecycle.
+
+    Common shelves: codex, classics, dictionary, patristics, hymns, recipes,
+    maker, animation, atlas, connections.
+
+    Common kinds: note (default content), connection (graph edges),
+    walk (curated paths), community_note, search, stack.
+
+    Lifecycle: public, featured, public_review, private, archived, quarantine.
+
+    Returns {count, total_matching, cards: [...]} — cards in this list are
+    summary objects; use card_get(id) for full content.
+    """
+    return _engine_get("/cards", shelf=shelf, box=box, kind=kind,
+                       lifecycle=lifecycle, limit=limit)
+
+
+@mcp.tool()
+def card_connections(card_id: str) -> Dict[str, Any]:
+    """Get a card's connections — outgoing (this card cites X) and inbound
+    (X cites this card). The graph is bidirectional: navigation works from
+    either end.
+
+    Use this to find: scripture proof texts for a catechism Q, related
+    creeds, the next section in a narrative work (Pilgrim's Progress,
+    Augustine Confessions), community notes annotating the card.
+
+    Returns {card_id, outgoing: [...], inbound: [...], outgoing_count, inbound_count}
+    """
+    return _engine_get(f"/cards/{card_id}/connections")
+
+
+@mcp.tool()
+def cards_stats() -> Dict[str, Any]:
+    """Substrate composition: total cards, breakdown by shelf / kind /
+    authority_tier / lifecycle_stage. Also returns working-set cache stats.
+
+    Useful when an agent needs to know what's in the library before deciding
+    whether to walk it. Numbers are live as of last call.
+    """
+    return _engine_get("/cards/stats")
+
+
+@mcp.tool()
+def shepherd_interview(query: str, interview_id: Optional[str] = None,
+                       skip_to_walk: bool = False,
+                       asked_by: str = "mcp_agent") -> Dict[str, Any]:
+    """Pre-flight conversational interview before walking the cards. Shepherd
+    asks up to 3 clarifying questions (audience / tradition lens / use intent /
+    specificity) before any expensive search fires.
+
+    Two-call pattern for new interview:
+      1. shepherd_interview(query="baptism")
+         → returns {state:"needs_followup", shepherd_says:"...", interview_id, ask_kind}
+      2. shepherd_interview(query="for my kids", interview_id=<id>)
+         → may converge to {state:"ready_to_walk", shaped_query} or ask another
+            follow-up
+
+    Pass skip_to_walk=true to converge immediately with whatever Shepherd
+    has inferred so far.
+
+    Once state="ready_to_walk", pass shaped_query into cards_walk.
+    """
+    return _engine_post("/shepherd/interview", {
+        "query": query, "interview_id": interview_id,
+        "skip_to_walk": skip_to_walk, "asked_by": asked_by,
+    })
+
+
+@mcp.tool()
+def atlas_paths(lifecycle: Optional[str] = None, limit: int = 100) -> Dict[str, Any]:
+    """List curated Atlas paths — walks the operator (or the community) has
+    canonized as recommended ways through the substrate.
+
+    Examples in the live library: "The Trinity in 4 cards", "A child's first
+    catechism walk", "How the Reformers read justification".
+
+    Filter by lifecycle: featured, public, public_review.
+    """
+    return _engine_get("/atlas/paths", lifecycle=lifecycle, limit=limit)
+
+
+@mcp.tool()
+def atlas_path(walk_card_id: str) -> Dict[str, Any]:
+    """Hydrate a single Atlas path: full card content for each step, with
+    per-step narration. Use this after atlas_paths() to read a walk end-to-end.
+
+    Returns {card_id, title, body, author, lifecycle_stage, step_count,
+             cards: [{card_id, title, body, source, narration}], query}
+    """
+    return _engine_get(f"/atlas/paths/{walk_card_id}")
+
+
+@mcp.tool()
+def daily_card(date: Optional[str] = None) -> Dict[str, Any]:
+    """Today's card. Deterministic worldwide: same date → same card. The pool
+    is restricted to permanent + public/featured cards from foundational
+    tiers (Words in Red, Scripture, Catechism, Creed, Father, Matt).
+
+    Args:
+        date: optional ISO date YYYY-MM-DD. Omit for today's card.
+
+    Returns {date, card: {id, title, body, source, shelf, box, url}, pool_size}
+    """
+    return _engine_get("/daily-card", **({"date": date} if date else {}))
+
+
+@mcp.tool()
+def card_notes(card_id: str, balance_only: bool = False) -> Dict[str, Any]:
+    """Community notes annotating a card. Notes never overwrite the card —
+    they surface alongside as "Balance" when raters from 2+ different
+    traditions agree (bridge-rating, not majority).
+
+    Args:
+        card_id: the card being annotated.
+        balance_only: if True, return only notes that crossed the bridge
+                      threshold; if False (default), return all notes
+                      including unsurfaced.
+
+    Returns {card_id, count, notes/balance_notes: [...]}
+    """
+    path = f"/notes/by_card/{card_id}/balance" if balance_only else f"/notes/by_card/{card_id}"
+    return _engine_get(path)
+
+
+@mcp.tool()
+def library_health() -> Dict[str, Any]:
+    """Card library operational health: total cards, breakdown by lifecycle
+    stage, total citations in the graph, flagged cards count, retracted
+    count, pending promotions in the operator queue, sum of metrics.
+
+    Use this to know the state of the substrate before committing to a
+    long walk or a large bulk operation.
+    """
+    return _engine_get("/promotion/health")
+
+
+@mcp.tool()
+def stack_get(household_id: str) -> Dict[str, Any]:
+    """Read a household's card stack: paperclipped cards, authored cards,
+    forked cards, shared-inbox, tip total.
+
+    Stacks are private by default — this endpoint returns the stack contents
+    only if the household_id is well-formed; agents should respect privacy
+    and not enumerate household IDs.
+
+    Returns {household_id, paperclipped_card_ids, authored_card_ids,
+             forked_card_ids, tip_total_usd, inbox, created_at, updated_at}
+    """
+    return _engine_get(f"/stacks/{household_id}")
+
+
+# ============================================================
+# Prompts — pre-built templates an agent can offer the user
+# ============================================================
+# MCP prompts are NOT actions. They're text templates an agent's user can
+# pick from a dropdown to insert into their prompt. These canonicalize the
+# engine's load-bearing flows so an agent client surfaces them as menu items.
+
+@mcp.prompt()
+def walk_this(situation: str) -> str:
+    """Walk a hard decision through the four gates (RED, FLOOR, BROTHERS, GOD)."""
+    return (
+        f"Walk this situation through the four gates with the Shepherd: {situation}\n\n"
+        f"For each gate, surface the relevant Scripture, settled wisdom from the "
+        f"keeping, and questions the visitor answers themselves. The engine never "
+        f"decides; it walks. Halt on first failure if any gate cannot be passed."
+    )
+
+
+@mcp.prompt()
+def walk_the_cards(question: str) -> str:
+    """Walk the card library to teach the user how to think through a question."""
+    return (
+        f"The user has asked: {question}\n\n"
+        f"First, call shepherd_interview to shape the question (audience, "
+        f"tradition lens, use intent) if the question is broad. If specific, "
+        f"call cards_walk directly.\n\n"
+        f"Then read the surfaced cards in order. Cite each by its source — "
+        f"never present a card's content as your own. The cards carry their "
+        f"own authority (scripture, catechism, creed, father, matt). Your "
+        f"job is to walk them with the user, point at the connections "
+        f"between them, and let the substrate teach.\n\n"
+        f"Never synthesize when a card already answers. Never paraphrase "
+        f"scripture or catechism — quote verbatim with the reference. The "
+        f"engine eliminates what is not the answer so the narrow path is "
+        f"illuminated by what survives."
+    )
+
+
+@mcp.prompt()
+def compound_this(condition: str) -> str:
+    """Compound a remedy from the substrate for a stated condition."""
+    return (
+        f"Compound a remedy for: {condition}\n\n"
+        f"Use the apothecary_compound tool. The engine retrieves one packet of "
+        f"each ingredient kind: Scripture anchor, protocol, mind practice, parable, "
+        f"body insight, philosopher's note, almanac confirmation. Read the trail."
+    )
+
+
+@mcp.prompt()
+def verify_this(claim: str) -> str:
+    """Verify a single claim through the appropriate domain verifier."""
+    return (
+        f"Verify this claim: {claim}\n\n"
+        f"Pick the appropriate verify_* tool based on domain (math, chemistry, "
+        f"biology, statistics, etc.). The verifier returns CONFIRMED / MIXED / "
+        f"MISMATCH / OBSOLETE / DISCORDANT with a reasoning trail. Read the trail."
+    )
+
+
+@mcp.prompt()
+def find_precedent(situation: str) -> str:
+    """Find precedent in the substrate for a stated situation."""
+    return (
+        f"Find precedent for: {situation}\n\n"
+        f"Use packets_search to walk the unified packet substrate across all "
+        f"lenses — almanac, scripture, philosophers, parables, fieldkit, training. "
+        f"Surface the closest precedent and overlay it on the situation."
+    )
+
+
+@mcp.prompt()
+def teach_a_child(topic: str) -> str:
+    """Find the curriculum unit to teach a child about a topic."""
+    return (
+        f"Help a parent teach a child about: {topic}\n\n"
+        f"Use curriculum_list to find the right track and unit_get to fetch the "
+        f"full record. Each unit has rule + examples + manipulative + three modes "
+        f"(coach reads · take turns · I read/solve) + wedges + check. Walk the "
+        f"parent through the modes in order."
+    )
+
+
+# ============================================================
+# Resources — read-only substrate exposed as MCP resources
+# ============================================================
+
+@mcp.resource("concordance://identity")
+def resource_identity() -> str:
+    """The full doctrinal statement — who the engine serves and how."""
+    result = _engine_get("/identity")
+    if "error" in result:
+        return _MCP_INSTRUCTIONS
+    return json.dumps(result, indent=2, ensure_ascii=False)
+
+
+@mcp.resource("concordance://curriculum")
+def resource_curriculum() -> str:
+    """The full primary curriculum — 8 tracks, ~66 units."""
+    return json.dumps(_engine_get("/curriculum"), indent=2, ensure_ascii=False)
+
+
+@mcp.resource("concordance://herbs")
+def resource_herbs() -> str:
+    """All herb monographs with evidence-honest verdicts."""
+    return json.dumps(_engine_get("/herbs"), indent=2, ensure_ascii=False)
+
+
+@mcp.resource("concordance://manifest")
+def resource_manifest() -> str:
+    """Engine manifest — endpoints, capabilities, doctrine link."""
+    result = _engine_get("/manifest")
+    if "error" in result:
+        result = _engine_get("/")  # fallback to homepage HTML
+    return json.dumps(result, indent=2, ensure_ascii=False) if isinstance(result, dict) else str(result)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()

@@ -12,18 +12,37 @@ Each check accepts string expressions parsed by sympy.
 from __future__ import annotations
 from typing import Any, Dict, List
 
-import sympy
-from sympy import (
-    sympify, simplify, diff, integrate, limit, solve, Symbol, oo, S, expand
-)
-from sympy.core.sympify import SympifyError as _SympifyError
-
 from .base import VerifierResult, na, confirm, mismatch, error
 
+# sympy is a ~4s import. It loads on first use (via _ensure_sympy) so the
+# engine's cold start stays fast — these verifiers only need it when a math
+# claim is actually checked.
+sympify = simplify = diff = integrate = limit = solve = None
+Symbol = oo = S = expand = _SympifyError = None
 # Exceptions that indicate the expression couldn't be parsed — the engine
-# abstains (NOT_APPLICABLE) rather than returning ERROR, so these don't
-# inflate the false-positive rate on legitimate but unrecognised syntax.
-_PARSE_ERRORS = (_SympifyError, SyntaxError, TypeError, ValueError, NotImplementedError)
+# abstains (NOT_APPLICABLE) rather than returning ERROR. Extended with
+# sympy's SympifyError once sympy has loaded.
+_PARSE_ERRORS = (SyntaxError, TypeError, ValueError, NotImplementedError)
+_sympy_loaded = False
+
+
+def _ensure_sympy() -> None:
+    """Import sympy on first use. Idempotent — every entrypoint calls it."""
+    global sympify, simplify, diff, integrate, limit, solve
+    global Symbol, oo, S, expand, _SympifyError, _PARSE_ERRORS, _sympy_loaded
+    if _sympy_loaded:
+        return
+    from sympy import (
+        sympify as _f, simplify as _s, diff as _d, integrate as _i,
+        limit as _l, solve as _so, Symbol as _Sy, oo as _oo, S as _S,
+        expand as _e,
+    )
+    from sympy.core.sympify import SympifyError as _SE
+    sympify, simplify, diff, integrate = _f, _s, _d, _i
+    limit, solve, Symbol, oo, S, expand = _l, _so, _Sy, _oo, _S, _e
+    _SympifyError = _SE
+    _PARSE_ERRORS = (_SE, SyntaxError, TypeError, ValueError, NotImplementedError)
+    _sympy_loaded = True
 
 import re as _re
 # Characters that are NOT part of any valid math expression string.
@@ -34,6 +53,7 @@ _INVALID_EXPR_RE = _re.compile(r"[#@!$%&\[\]\{\}\\|`]")
 
 
 def _parse(expr: str, var_names: List[str] = None):
+    _ensure_sympy()
     if _INVALID_EXPR_RE.search(str(expr)):
         raise _SympifyError(f"invalid characters in expression: {expr!r}")
     locals_ = {n: Symbol(n) for n in (var_names or [])}
@@ -44,6 +64,7 @@ def _parse(expr: str, var_names: List[str] = None):
 
 
 def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
+    _ensure_sympy()
     a = spec.get("expr_a")
     b = spec.get("expr_b")
     var_names = spec.get("variables", [])
@@ -66,6 +87,7 @@ def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
 
 
 def verify_derivative(spec: Dict[str, Any]) -> VerifierResult:
+    _ensure_sympy()
     f = spec.get("function")
     var = spec.get("variable", "x")
     claimed = spec.get("claimed_derivative")
@@ -89,6 +111,7 @@ def verify_derivative(spec: Dict[str, Any]) -> VerifierResult:
 
 
 def verify_integral(spec: Dict[str, Any]) -> VerifierResult:
+    _ensure_sympy()
     f = spec.get("integrand")
     var = spec.get("variable", "x")
     claimed = spec.get("claimed_antiderivative")
@@ -113,6 +136,7 @@ def verify_integral(spec: Dict[str, Any]) -> VerifierResult:
 
 
 def verify_limit(spec: Dict[str, Any]) -> VerifierResult:
+    _ensure_sympy()
     f = spec.get("function")
     var = spec.get("variable", "x")
     point = spec.get("point")
@@ -138,6 +162,7 @@ def verify_limit(spec: Dict[str, Any]) -> VerifierResult:
 
 
 def verify_solve(spec: Dict[str, Any]) -> VerifierResult:
+    _ensure_sympy()
     eq = spec.get("equation")
     var = spec.get("variable", "x")
     claimed = spec.get("claimed_solutions")

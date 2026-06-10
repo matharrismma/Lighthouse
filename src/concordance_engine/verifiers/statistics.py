@@ -20,10 +20,23 @@ from __future__ import annotations
 from typing import Any, Dict, List
 import math
 
-import numpy as np
-from scipy import stats as scistats
-
 from .base import VerifierResult, na, confirm, mismatch, error
+
+# numpy + scipy.stats are heavy imports (scipy.stats ~1.5s). They load on
+# first use (via _ensure_stats) so the engine's cold start stays fast.
+np = scistats = None
+_stats_loaded = False
+
+
+def _ensure_stats() -> None:
+    """Import numpy + scipy.stats on first use. Idempotent."""
+    global np, scistats, _stats_loaded
+    if _stats_loaded:
+        return
+    import numpy as _np
+    from scipy import stats as _scistats
+    np, scistats = _np, _scistats
+    _stats_loaded = True
 
 
 # Aliases accepted for the `tail` parameter. The canonical values returned
@@ -52,6 +65,7 @@ def _normalize_tail(t):
 
 def verify_pvalue_calibration(spec: Dict[str, Any]) -> VerifierResult:
     """Recompute p-value from supplied test inputs and verify the claim."""
+    _ensure_stats()
     test = spec.get("test", "").lower()
     claimed_p = spec.get("claimed_p")
     # Default tolerance raised from 1e-3 to 5e-3: published p-values are typically
@@ -315,6 +329,7 @@ def verify_effect_size_present(spec: Dict[str, Any]) -> VerifierResult:
 
 def verify_multiple_comparisons(spec: Dict[str, Any]) -> VerifierResult:
     """Given raw p-values and a correction method, recompute and verify."""
+    _ensure_stats()
     raw_p = spec.get("raw_p_values")
     method = (spec.get("method") or "").lower()
     alpha = spec.get("alpha", 0.05)
@@ -357,6 +372,7 @@ def verify_confidence_interval(spec: Dict[str, Any]) -> VerifierResult:
     optional ``df`` (default n-1). Compares the recomputed bounds to the
     claimed ci_low/ci_high within ``tolerance`` (default 1e-3).
     """
+    _ensure_stats()
     est = spec.get("estimate")
     lo = spec.get("ci_low")
     hi = spec.get("ci_high")

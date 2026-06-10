@@ -40,6 +40,11 @@ Agents are welcome to call this engine. The engine does not
 generate answers, render verdicts, or speak as authority.
 It categorizes, it surfaces precedent, it keeps. Read the
 elimination trail — the trail is the reasoning.
+
+The household keeps three offices — Shepherd, Scribe, Steward —
+under a single order, held by pattern and not by lineage. It
+claims no authority of its own. It keeps, and points past
+itself to Jesus Christ.
 """
 
 
