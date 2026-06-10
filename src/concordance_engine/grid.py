@@ -223,6 +223,18 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
 
     # Governance canonical name
     "governance_decision_packet": frozenset({"reasoning", "authority_trust", "time_sequence"}),
+
+    # ── Surfaced 2026-06-10: verifiers that existed but were never placed in the
+    # grid (the "we keep finding things" set). Mapped onto the EXISTING 7
+    # dimensions — no new dimension is invented here (proposed finer axes like
+    # continuity/discreteness/uncertainty remain operator-gated, ATLAS_AXIS_PROPOSAL.md).
+    "atomic":              frozenset({"physical_substance", "reasoning", "conservation_balance"}),
+    "ephemeris":           frozenset({"physical_substance", "time_sequence", "reasoning"}),
+    "layer_zero_grounding": frozenset({"encoding", "authority_trust", "reasoning"}),
+    "linear_algebra":      frozenset({"reasoning", "physical_substance"}),
+    "periodic_table":      frozenset({"physical_substance", "reasoning", "conservation_balance"}),
+    "physical_constants":  frozenset({"physical_substance", "conservation_balance", "reasoning"}),
+    "probability":         frozenset({"reasoning", "conservation_balance"}),
 }
 
 
