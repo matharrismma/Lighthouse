@@ -748,38 +748,24 @@ async def _access_log_middleware(request: Request, call_next):
             or (request.headers.get("x-forwarded-for", "").split(",")[0].strip())
             or (request.client.host if request.client else "")
         )
-        # Don't log operator IPs — they would inflate human-visit counts and
-        # obscure the actual outside-traffic picture. The /keep allowlist
-        # (env + file + localhost) is the operator definition.
-        if _is_operator_ip(client_ip):
-            return response
-        # Operator session cookie: residential WiFi rotates the IP, so a returning
-        # operator on a new IP would otherwise be counted as a visitor. The 90-day
-        # keep session cookie identifies the operator across IP changes — honour it
-        # for visit-logging too, not just the /keep gate. (Forgery-proof: the cookie
-        # is validated against the server-side session store.)
-        if _keep_session_valid(request):
-            return response
-        # Self / infra traffic: the box curling its own public hostname arrives as
-        # the box's own public IP, which is not a visitor.
-        if client_ip in _VISITLOG_EXCLUDE_IPS:
-            return response
-        # Operator dashboard self-traffic: the /keep dashboard polls many
-        # endpoints on a timer, each carrying referer=/keep.html. That's
-        # operator noise, not visitor traffic — exclude it regardless of IP,
-        # so a rotated operator IP that isn't re-allowlisted yet still can't
-        # pollute the visitor stats. /keep is operator-only (404 to others),
-        # so a /keep referer can only be the operator's own dashboard.
-        _ref = request.headers.get("referer", "")
-        if "/keep" in _ref:
-            return response
         ua = request.headers.get("user-agent", "")[:240]
-        # Internal traffic: our test suite + smoke probes run through
-        # Starlette's TestClient, which still passes this middleware but is
-        # not a real visitor. Its UA and client host are both "testclient".
-        if ua.strip().lower() == "testclient" or client_ip == "testclient":
-            return response
-        ref = request.headers.get("referer", "")[:240]
+        _ref = request.headers.get("referer", "")
+        # Categorize the ACTOR — track every type, drop nothing (Matt: "track all
+        # types, just categorized"). The category lets every surface separate real
+        # audience from operator/self downstream WITHOUT losing the data:
+        #   operator = Matt running the system (keep IP / 90-day cookie / dashboard referer)
+        #   self     = the engine's own box + the test client (Claude / infra self-tests)
+        #   visitor  = everyone else; ua_class then splits human / agent / crawler / scanner
+        # Audience metrics exclude operator+self (that's "don't count my/your clicks");
+        # the rows are still logged + labelled, so nothing is invisible.
+        if _is_operator_ip(client_ip) or _keep_session_valid(request) or "/keep" in _ref:
+            actor = "operator"
+        elif (client_ip in _VISITLOG_EXCLUDE_IPS
+              or ua.strip().lower() == "testclient" or client_ip == "testclient"):
+            actor = "self"
+        else:
+            actor = "visitor"
+        ref = _ref[:240]
         # Geo: cf-ipcountry header first for the country code (free if CF
         # proxies); then our cached lookup which gives city + lat/lon too
         # (cache-only, never blocks). Misses queue for tools/geo_enrich.py.
@@ -800,6 +786,7 @@ async def _access_log_middleware(request: Request, call_next):
             "ip_prefix": _ip_prefix(client_ip),
             "ua": ua,
             "ua_class": _ua_class,
+            "actor": actor,
             "intent": _classify_intent(_ua_class, request.method, path),
             "referer": ref,
             "country": country,
@@ -5166,6 +5153,9 @@ def stats_visitors():
     import collections as _collections
 
     def _counts(path: Path) -> "_collections.Counter":
+        """Track EVERY request, categorized: actor:<operator|self|visitor> for all,
+        plus kind:<ua_class> for visitors only. Rows logged before the actor field
+        existed had operator/self dropped already, so a missing actor = visitor."""
         c: "_collections.Counter" = _collections.Counter()
         if not path.exists():
             return c
@@ -5173,11 +5163,15 @@ def stats_visitors():
             ln = ln.strip()
             if not ln:
                 continue
-            c["total"] += 1
             try:
-                c[json.loads(ln).get("ua_class") or "other"] += 1
+                r = json.loads(ln)
             except Exception:
-                c["other"] += 1
+                continue
+            actor = r.get("actor") or "visitor"
+            c["total"] += 1
+            c["actor:" + actor] += 1
+            if actor == "visitor":
+                c["kind:" + (r.get("ua_class") or "other")] += 1
         return c
 
     today = _dt.now(_tz.utc).date()
@@ -5190,16 +5184,26 @@ def stats_visitors():
         for f in _VISITS_DIR_PATH.glob("access-*.jsonl"):
             ac += _counts(f)
 
+    def _aud(c) -> int:
+        return c.get("actor:visitor", 0)
+
     def _kinds(c) -> dict:
-        return {k: v for k, v in sorted(c.items()) if k != "total"}
+        return {k[5:]: v for k, v in sorted(c.items()) if k.startswith("kind:")}
+
+    def _actors(c) -> dict:
+        return {k[6:]: v for k, v in sorted(c.items()) if k.startswith("actor:")}
 
     return {"office": "scribe",
-            "today": tc.get("total", 0), "last_7_days": wc.get("total", 0), "all_time": ac.get("total", 0),
+            # headline = real AUDIENCE (actor=visitor; operator + self excluded — "don't
+            # count my/your clicks"). Every type is still tracked + categorized below.
+            "today": _aud(tc), "last_7_days": _aud(wc), "all_time": _aud(ac),
             "today_by_kind": _kinds(tc), "last_7_days_by_kind": _kinds(wc), "all_time_by_kind": _kinds(ac),
-            "note": "The engine serves humans AND agents/AI alike — every audience counted, none "
-                    "privileged. today/last_7_days/all_time = all audiences reached; *_by_kind splits "
-                    "human vs agent vs retrieval vs crawler vs scanner. Self (operator + the engine's "
-                    "own box/Claude self-tests) is excluded upstream — the only traffic not counted."}
+            "by_actor_all_time": _actors(ac),
+            "note": "Every request is tracked and categorized — nothing dropped. today/last_7_days/"
+                    "all_time = real AUDIENCE (actor=visitor); operator + self (the engine's own box / "
+                    "Claude self-tests) are tracked separately in by_actor and excluded from the "
+                    "audience count. *_by_kind splits the visitor audience by ua_class — humans AND "
+                    "agents/AI/crawlers are all first-class, none privileged."}
 
 
 # — Keep: visitor geography (operator surface) — where are they coming from? —
