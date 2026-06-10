@@ -920,6 +920,76 @@ def office_stats(days: int = 30) -> Dict[str, Any]:
                      "falls as the office-model AND the on-box mouth take over with use.")}
 
 
+def office_trend(office: str = "shepherd", days: int = 90) -> Dict[str, Any]:
+    """Reconstruct the oracle-dependence TRAJECTORY from the timestamped training
+    pairs — the same measure as office_stats(), evaluated at each active day. No
+    separate log to drift: the decision corpus IS the source of truth, and every
+    pair already carries an `at` timestamp, so the trend is BACKFILLED, not waited
+    for. Returns a per-day series with both the day's own ratio AND the
+    cumulative-to-date ratio (exactly what the all-time scoreboard would have read
+    on that day — a skeptic can verify it). Honest about sparsity: serving_total /
+    active_days are returned so the caller never plots a handful of points as a
+    triumphant curve. Read-only."""
+    cutoff = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=days)).isoformat()
+    f = _OFFICE_CORPUS / f"{office}.jsonl"
+    by_day_serv: Dict[str, int] = {}
+    by_day_paid: Dict[str, int] = {}
+    if f.exists():
+        for ln in f.read_text(encoding="utf-8", errors="replace").splitlines():
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                rec = json.loads(ln)
+            except Exception:
+                continue
+            at = rec.get("at") or ""
+            if at < cutoff:
+                continue
+            via = None
+            try:
+                via = json.loads(rec.get("completion") or "{}").get("via")
+            except Exception:
+                pass
+            via = via or (rec.get("meta") or {}).get("via") or "unknown"
+            if via == "teacher_distill":   # bootstrap synthetic, not a serving decision
+                continue
+            day = at[:10]
+            if not day:
+                continue
+            by_day_serv[day] = by_day_serv.get(day, 0) + 1
+            if via in _VIA_PAID:
+                by_day_paid[day] = by_day_paid.get(day, 0) + 1
+    series = []
+    cum_s = cum_p = 0
+    for day in sorted(by_day_serv):
+        s = by_day_serv[day]
+        p = by_day_paid.get(day, 0)
+        cum_s += s
+        cum_p += p
+        series.append({
+            "date": day,
+            "serving": s,
+            "paid": p,
+            "oracle_dep": round(p / s, 4) if s else None,
+            "cum_serving": cum_s,
+            "cum_paid": cum_p,
+            "cum_oracle_dep": round(cum_p / cum_s, 4) if cum_s else None,
+        })
+    return {
+        "office": office,
+        "serving_total": cum_s,
+        "paid_total": cum_p,
+        "active_days": len(series),
+        "first": series[0]["date"] if series else None,
+        "last": series[-1]["date"] if series else None,
+        "series": series,
+        "note": ("Each point is the oracle-dependence the scoreboard would have read "
+                 "that day. cum_oracle_dep is the verifiable all-time ratio; oracle_dep "
+                 "is the day's own. Sparse early data is shown plainly, not smoothed."),
+    }
+
+
 # ── The learning loop: fold live decisions back in, retrain, reload ──────────
 # Only HIGH-QUALITY live decisions become training data: the oracle's own calls
 # (via=shepherd) are gold ground truth, and deterministic keeps (via=keep) are

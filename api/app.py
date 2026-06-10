@@ -3475,7 +3475,8 @@ def build_queue_list():
 
 
 @app.get("/innovation", tags=["public"])
-def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
+def innovation_scoreboard(days: int = Query(30, ge=1, le=365),
+                          trend: int = Query(0, ge=0, le=1)):
     """The oracle-dependence scoreboard — the measurable claim of a different
     kind of computing: the engine's dependence on the statistical model SHRINKS
     with use. Every closed build-queue gap adds deterministic verifiers + an
@@ -3517,13 +3518,20 @@ def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
     # The offices' own oracle-dependence — the Shepherd shrinking with use,
     # measured from the minted training pairs (the same thesis, for the front door).
     offices = None
+    shepherd_trend = None
     try:
         from api import offices as _offices
         offices = _offices.office_stats(days=days)
+        # The trajectory of the Shepherd's oracle-dependence, backfilled from the
+        # timestamped decision corpus — requested explicitly to keep the default
+        # response lean. This is what powers the .org sparkline: a real line, not a
+        # promise to accumulate one.
+        if trend:
+            shepherd_trend = _offices.office_trend("shepherd", days=max(days, 90))
     except Exception as e:  # pragma: no cover
-        offices = {"error": str(e)[:200]}
+        offices = offices or {"error": str(e)[:200]}
 
-    return {
+    out = {
         "thesis": "The engine's dependence on the statistical model shrinks with use.",
         "oracle_dependence_ratio": odr,
         "deterministic_ratio": (dispatch.get("deterministic_ratio")
@@ -3537,6 +3545,9 @@ def innovation_scoreboard(days: int = Query(30, ge=1, le=365)):
                  "the floor widening, the borrowed mouth shrinking. `offices` is "
                  "the same measure for the Shepherd front door."),
     }
+    if trend:
+        out["shepherd_trend"] = shepherd_trend
+    return out
 
 
 # -- Misalignment review -------------------------------------------------

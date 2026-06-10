@@ -34,6 +34,13 @@
     .stat .v{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--brass);line-height:1;}
     .stat.good .v{color:var(--pass);}
     .stat .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:7px;}
+    /* oracle-dependence trajectory (backfilled from the timestamped decision corpus) */
+    .trend{background:var(--paper);border:1px solid var(--rule-strong);border-radius:8px;padding:14px 16px 12px;margin:0 0 26px;display:none;}
+    .trend.show{display:block;}
+    .trend .th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;}
+    .trend svg{display:block;width:100%;height:64px;overflow:visible;}
+    .trend .cap{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5;}
+    .trend .cap b{color:var(--ink-2);font-weight:600;}
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
     .wide{grid-column:1 / -1;}
     @media(max-width:560px){.grid{grid-template-columns:1fr;}}
@@ -58,6 +65,12 @@
       <div class="stat"><div class="v" id="odr">—</div><div class="l">Oracle dependence</div></div>
       <div class="stat good"><div class="v" id="closed">—</div><div class="l">Gaps closed</div></div>
       <div class="stat"><div class="v" id="rules">—</div><div class="l">Deterministic rules</div></div>
+    </div>
+
+    <div class="trend" id="trend">
+      <div class="th"><span>Shepherd oracle-dependence &middot; trajectory</span><span id="trend-span"></span></div>
+      <svg id="spark" viewBox="0 0 300 64" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="cap" id="trend-cap"></div>
     </div>
 
     <div class="grid">
@@ -106,13 +119,59 @@
   <script>
   (function(){
     function pct(x){ return (x==null) ? '—' : (Math.round(x*1000)/10)+'%'; }
-    fetch('/innovation?days=30').then(function(r){return r.json();}).then(function(d){
+    var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function fmtDay(iso){ if(!iso) return ''; var p=iso.split('-'); return MON[(+p[1]||1)-1]+' '+(+p[2]); }
+    // Honest sparkline: cumulative oracle-dependence on an ABSOLUTE 0..1 scale, so a
+    // flat line reads as "holding" and a real fall reads as a fall. No auto-zoom that
+    // would magnify noise into a story the data doesn't support.
+    function spark(t){
+      var s=(t&&t.series)||[];
+      var el=document.getElementById('trend');
+      if(s.length<2){ return; }              // one point is not a trajectory
+      var W=300,H=64,padX=4,padY=8,n=s.length;
+      function X(i){ return padX + (W-2*padX)*(n===1?0:i/(n-1)); }
+      function Y(v){ return padY + (H-2*padY)*(1-(v==null?0:v)); }  // 1.0 top, 0 bottom
+      var pts=s.map(function(p,i){ return X(i)+','+Y(p.cum_oracle_dep); });
+      var dots=s.map(function(p,i){
+        return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.cum_oracle_dep).toFixed(1)+'" r="2.4" fill="#9b7c3c"></circle>';
+      }).join('');
+      var mid=Y(0.5);
+      var svg=document.getElementById('spark');
+      svg.innerHTML=
+        '<line x1="0" y1="'+mid.toFixed(1)+'" x2="300" y2="'+mid.toFixed(1)+'" stroke="#b9ac82" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"></line>'+
+        '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#7a3a32" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>'+
+        dots;
+      document.getElementById('trend-span').textContent=fmtDay(t.first)+' – '+fmtDay(t.last);
+      // Honest caption built from the data, never hardcoded.
+      var first=s[0].cum_oracle_dep, last=s[s.length-1].cum_oracle_dep, latest=s[s.length-1];
+      var dir;
+      if(last<first-0.001) dir='down from '+pct(first)+' to '+pct(last);
+      else if(last>first+0.001) dir='up from '+pct(first)+' to '+pct(last)+' (early data)';
+      else dir='holding at '+pct(last);
+      var recent = (latest.paid===0)
+        ? 'the most recent active day ran <b>0 paid calls</b> — the on-box + salvage tiers carried it.'
+        : 'the most recent active day: '+latest.paid+'/'+latest.serving+' via the paid oracle.';
+      document.getElementById('trend-cap').innerHTML=
+        '<b>'+t.serving_total+'</b> serving decisions across <b>'+t.active_days+'</b> active days &middot; cumulative '+dir+'. '+recent+
+        ' Backfilled from the timestamped decision log — a real line, not a promise to accumulate one.';
+      el.classList.add('show');
+    }
+    fetch('/innovation?days=30&trend=1').then(function(r){return r.json();}).then(function(d){
       d = d || {};
       var odr = d.oracle_dependence_ratio;
       document.getElementById('odr').textContent = pct(odr);
       var gaps = d.gaps || {};
       if (gaps.closed != null) document.getElementById('closed').textContent = gaps.closed;
       if (d.runtime_rules != null) document.getElementById('rules').textContent = d.runtime_rules;
+      // The offices' own oracle-dependence is the live headline number for this door;
+      // prefer it when the dispatch-based odr is still null (no verifier traffic yet).
+      try{
+        var sh=(d.offices&&d.offices.offices&&d.offices.offices.shepherd)||null;
+        if(odr==null && sh && sh.oracle_dependence_ratio!=null){
+          document.getElementById('odr').textContent = pct(sh.oracle_dependence_ratio);
+        }
+      }catch(e){}
+      spark(d.shepherd_trend);
     }).catch(function(){ /* scoreboard fills once the engine is serving this host */ });
   })();
   </script>
