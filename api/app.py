@@ -5545,6 +5545,24 @@ def derivation_verify(body: _DerivationIn):
     return result
 
 
+class _DerivationProseIn(BaseModel):
+    problem: str
+
+
+@app.post("/derivation/solve", tags=["public"])
+def derivation_solve(body: _DerivationProseIn):
+    """Public: submit a math problem in PROSE. The oracle FORMALIZES it into
+    structured steps; the deterministic chain runner JUDGES them. The verdict is
+    the verifier's, never the oracle's — a wrong formalization shows as BROKEN/
+    INCOMPLETE. When the oracle is unprovisioned (no key / over budget) it returns
+    a hint; structured steps can always go straight to POST /derivation/verify."""
+    from api import derivation as _derivation
+    problem = (body.problem or "").strip()
+    if len(problem) < 3:
+        raise HTTPException(status_code=400, detail="provide a problem")
+    return _derivation.solve_prose(problem)
+
+
 # ── Wedges: pedagogical intervention catalog ─────────────────
 # Ported from Coach OS v1.0 (Repeat / Chunk / Echo / Phonics /
 # Context / Skip / Meaning / Praise). Phonics units reference

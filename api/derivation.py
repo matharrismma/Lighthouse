@@ -156,3 +156,118 @@ def verify_derivation(steps: List[Dict[str, Any]]) -> Dict[str, Any]:
                  "build only on confirmed prior steps. The engine verifies a "
                  "provided derivation; it does not generate the answer."),
     }
+
+
+# ── The bridge: prose -> structured steps (oracle STRUCTURES, verifier JUDGES) ──
+# The real bottleneck (project_academia_connection_atlas_2026-06-09) is turning a
+# natural-language problem into the structured specs the verifier stack can run.
+# This translator uses the paid oracle ONLY to FORMALIZE — never to decide truth.
+# Every value it proposes (including any intermediate it computes) is then checked
+# by the deterministic chain runner above; if the oracle mis-structures or proposes
+# a wrong value, the verdict is BROKEN/INCOMPLETE, honestly. Trust stays with the
+# verifier, never the oracle (the discovery-loop discipline; Principle B). Runs on
+# PROD only (no key locally) and is Steward-budget-gated — returns ok:False when
+# unprovisioned, so the structured-submission path (/derivation/verify) still works.
+
+# Supported domains the oracle may emit. V1 = the mathematics core (the calculus
+# the moat targets), each spec shape tested end-to-end through dispatch. Extend by
+# adding a domain's exact spec shape + example here (and confirming it dispatches).
+_BRIDGE_SYS = """You translate a mathematics problem or claim into STRUCTURED VERIFICATION STEPS for a deterministic verifier. You do NOT decide truth and you do NOT have the final say — a separate engine checks every step you produce. Your only job is to FORMALIZE.
+
+Rules:
+- Break the problem into the smallest independently-checkable steps.
+- Use ONLY the "mathematics" domain with one of these modes and EXACTLY these spec shapes:
+  derivative: {"mode":"derivative","params":{"function":"x**2","variable":"x","claimed_derivative":"2*x"}}
+  integral:   {"mode":"integral","params":{"integrand":"2*x","variable":"x","claimed_antiderivative":"x**2"}}
+  limit:      {"mode":"limit","params":{"function":"sin(x)/x","variable":"x","point":0,"claimed_limit":"1"}}
+  solve:      {"mode":"solve","params":{"equation":"2*x - 6","variable":"x","claimed_solutions":[3]}}
+  equality:   {"mode":"equality","params":{"expr_a":"(x+1)**2","expr_b":"x**2+2*x+1","variables":["x"]}}
+- Expressions use Python/SymPy syntax (** for power, * for multiply, sin/cos/exp/sqrt, oo for infinity). An equation spec is the expression set equal to zero (so "2x = 6" -> "2*x - 6").
+- If the user states an answer, put it in the claimed_ field. If they ask you to find it, compute the standard value and put it in the claimed_ field — the engine will check whether you got it right.
+- Each step: {"id":"s0","domain":"mathematics","spec":{...},"uses":["s_prior"...],"claim":"short human description"}. "uses" lists prior step ids this step builds on (may be empty).
+- Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
+
+
+def _extract_json_array(text: str):
+    """Pull the first top-level JSON array out of a model response."""
+    import json
+    s = (text or "").strip()
+    if s.startswith("```"):
+        s = s.strip("`")
+        nl = s.find("\n")
+        if nl != -1:
+            s = s[nl + 1:]
+    start = s.find("[")
+    end = s.rfind("]")
+    if start == -1 or end == -1 or end <= start:
+        return None
+    try:
+        out = json.loads(s[start:end + 1])
+        return out if isinstance(out, list) else None
+    except Exception:
+        return None
+
+
+def structure_prose(problem: str) -> Dict[str, Any]:
+    """Oracle-assisted: formalize a prose math problem into verifiable steps.
+
+    Returns {"ok": True, "steps": [...]} or {"ok": False, "error": "..."} when the
+    oracle is unavailable (no key / over budget / failure). NEVER raises — the
+    caller falls back to the structured-submission path."""
+    import os
+    problem = (problem or "").strip()
+    if not problem:
+        return {"ok": False, "error": "empty problem"}
+    if len(problem) > 4000:
+        problem = problem[:4000]
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return {"ok": False, "error": "oracle unavailable (no key) — submit structured steps to /derivation/verify"}
+    try:
+        from api.offices import steward_budget_remaining_usd, ledger_record
+    except Exception:
+        steward_budget_remaining_usd = lambda: 0.0  # noqa: E731
+        ledger_record = lambda *a, **k: None        # noqa: E731
+    try:
+        if steward_budget_remaining_usd() < 1.0:
+            return {"ok": False, "error": "oracle over budget — submit structured steps to /derivation/verify"}
+    except Exception:
+        pass
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"],
+                                     timeout=25.0, max_retries=1)
+        resp = client.messages.create(
+            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
+            max_tokens=1200, system=_BRIDGE_SYS,
+            messages=[{"role": "user", "content": problem}])
+        try:
+            ti = getattr(resp.usage, "input_tokens", 0) or 0
+            to = getattr(resp.usage, "output_tokens", 0) or 0
+            ledger_record("derivation_bridge", ti * 3e-6 + to * 15e-6)
+        except Exception:
+            pass
+        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        steps = _extract_json_array(raw)
+        if not steps:
+            return {"ok": False, "error": "oracle did not return parseable steps", "raw": raw[:400]}
+        return {"ok": True, "steps": steps}
+    except Exception as exc:
+        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"[:300]}
+
+
+def solve_prose(problem: str) -> Dict[str, Any]:
+    """Full bridge: structure a prose problem, then JUDGE it with the chain runner.
+    The oracle structured; the verdict below is the VERIFIER's, not the oracle's."""
+    structured = structure_prose(problem)
+    if not structured.get("ok"):
+        return {"ok": False, "structured": False, "problem": problem,
+                "message": structured.get("error", "could not structure the problem"),
+                "hint": "Submit structured steps directly to POST /derivation/verify."}
+    steps = structured["steps"]
+    result = verify_derivation(steps)
+    result.update({"ok": True, "structured": True, "problem": problem,
+                   "structured_steps": steps,
+                   "oracle_note": ("The oracle only FORMALIZED the prose into steps; the verdict and "
+                                   "trail above are the deterministic verifier's. A wrong formalization "
+                                   "shows up as BROKEN/INCOMPLETE — the oracle is never trusted.")})
+    return result
