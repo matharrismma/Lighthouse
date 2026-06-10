@@ -1291,14 +1291,26 @@ def get_router():
         # (homepage) routes a no-match to the four-gate walk, where the person
         # weighs it themselves — never a verdict on a contested claim.
         if not top:
+            # Never a dead-end (Matt's rule): we don't have a card yet, but a real
+            # question deserves a real answer. Don't launder something that only
+            # looks related — instead invite what they're weighing, and promise
+            # follow-through. The full ladder (Shepherd asks -> craft together ->
+            # ticket -> community -> Matt as last resort -> answer returned AND
+            # captured as a new card = the wisdom flywheel) is the next build; this
+            # response already carries that intent so the front door can engage,
+            # not bounce. See project_wisdom_flywheel_2026-06-10.
             return {
                 "query": payload.query,
                 "step_count": 0,
                 "steps": [],
                 "no_match": True,
                 "narration": ("The well doesn't hold a card that weighs this yet — "
-                              "rather than offer something that only looks related, "
-                              "walk it through the four gates yourself."),
+                              "but a real question deserves a real answer. Tell me "
+                              "what you're turning over and we'll work it through "
+                              "together; if it needs more, we'll research it and come "
+                              "back to you."),
+                "invite": "What were you weighing when this came to mind?",
+                "offer_followup": True,
                 "corpus_size": len(all_cards),
             }
         steps = []
