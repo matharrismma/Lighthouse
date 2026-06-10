@@ -27,7 +27,14 @@ for _p in (_REPO, os.path.join(_REPO, "src")):
         sys.path.insert(0, _p)
 
 _VDIR = os.path.join(_REPO, "src", "concordance_engine", "verifiers")
-_TAG = re.compile(r"""(?:confirm|error)\(\s*['"]([a-z_]+)\.([a-z_]+)['"]""")
+# Two tag forms in the wild: inline -- confirm("mathematics.equality") -- and
+# variable-assigned -- name = "formal_logic.tautology"; confirm(name, ...). The
+# second form is used by formal_logic/number_theory/combinatorics/geometry/
+# information_theory/quantum_computing; matching only the inline form under-counts
+# the real invariant inventory (~48 in the formal cluster, not 34). Match both.
+_TAG = re.compile(
+    r"""(?:(?:confirm|error|mismatch|na)\(\s*|name\s*=\s*)['"]([a-z_]+)\.([a-z_]+)['"]"""
+)
 
 
 def _domain_invariants():
