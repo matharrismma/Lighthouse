@@ -219,10 +219,36 @@ def _score_packet(packet: Dict[str, Any], cond_axes: Set[str], cond_lower: str) 
     return ax_score + kw_score
 
 
+def _has_topical_hit(packet: Dict[str, Any], cond_lower: str) -> bool:
+    """True if the condition's content words actually appear in the packet's
+    title / body / themes / triggers — genuine topical evidence, not mere axis
+    overlap. (Axis overlap alone surfaced a forgiveness protocol for 'loneliness'.)"""
+    tokens = [t for t in re.findall(r"[a-z]+", cond_lower) if len(t) >= 4]
+    if not tokens:
+        return False
+    hay = (_text_of(packet) + " " + str(packet.get("title") or packet.get("reference") or "")).lower()
+    hay += " " + " ".join(str(t).lower() for t in (packet.get("themes") or []))
+    raw_trig = packet.get("triggers")
+    if isinstance(raw_trig, list):
+        hay += " " + " ".join(str(t).lower() for t in raw_trig)
+    elif isinstance(raw_trig, dict):
+        hay += " " + " ".join(str(t).lower() for t in (raw_trig.get("keywords") or []))
+    return any(t in hay for t in tokens)
+
+
 def _best(packets: List[Dict[str, Any]], cond_axes: Set[str], cond_lower: str,
-          min_score: float = 0.05) -> Optional[Dict[str, Any]]:
+          min_score: float = 0.05, require_keyword: bool = False) -> Optional[Dict[str, Any]]:
     if not packets:
         return None
+    if require_keyword:
+        # Topical ingredient (protocol, fieldkit): require real keyword evidence,
+        # not just axis overlap. If nothing topically matches, return None (omit it)
+        # — NEVER hash-pick an arbitrary protocol, which mislabels the condition
+        # (e.g. "loneliness" -> a forgiveness protocol). An honest gap beats a
+        # confident mismatch. The other ingredients still fill the compound.
+        packets = [p for p in packets if _has_topical_hit(p, cond_lower)]
+        if not packets:
+            return None
     best = None
     best_score = -1.0
     for p in packets:
@@ -231,7 +257,9 @@ def _best(packets: List[Dict[str, Any]], cond_axes: Set[str], cond_lower: str,
             best = p
             best_score = s
     if best is None or best_score < min_score:
-        # Fall back to deterministic hash pick
+        if require_keyword:
+            return None  # topical ingredients are omitted, never hash-picked
+        # Fall back to deterministic hash pick (broadly-applicable wisdom only)
         import hashlib
         h = hashlib.sha256(cond_lower.encode("utf-8")).digest()
         idx = int.from_bytes(h[:8], "big") % max(1, len(packets))
@@ -369,8 +397,10 @@ def compound(condition: str, lang: str = "en") -> Dict[str, Any]:
         s, p, scripture_kind = scripture_candidates[0]
         scripture = p
 
-    # Protocol — exactly one
-    protocol = _best(items.get("protocol", []), cond_axes, cond_lower)
+    # Protocol — exactly one, and only if it TOPICALLY matches the condition
+    # (require_keyword): a protocol claims specific relevance, so axis overlap alone
+    # isn't enough. No topical protocol -> omit it rather than mislabel.
+    protocol = _best(items.get("protocol", []), cond_axes, cond_lower, require_keyword=True)
 
     # Training — NEW practical slot. Multi-week sequence the visitor can walk.
     # Lower threshold (axes overlap is the main signal; keyword may not hit
@@ -402,8 +432,9 @@ def compound(condition: str, lang: str = "en") -> Dict[str, Any]:
         # Fallback to the deterministic hash pick on engine parables
         parable = _best(items.get("parable", []), cond_axes, cond_lower)
 
-    # FieldKit — NEW pattern-name slot. The card that names the situation.
-    fieldkit = _best(items.get("fieldkit", []), cond_axes, cond_lower, min_score=0.06)
+    # FieldKit — NEW pattern-name slot. The card that names the situation. Topical
+    # (require_keyword): naming the wrong situation is worse than naming none.
+    fieldkit = _best(items.get("fieldkit", []), cond_axes, cond_lower, min_score=0.06, require_keyword=True)
 
     # Body layer — only if axes intersect
     body = None
