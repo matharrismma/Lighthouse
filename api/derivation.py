@@ -236,6 +236,11 @@ Rules:
     {"domain":"statistics","spec":{"confidence_interval":{"estimate":10.0,"ci_low":8.0,"ci_high":12.0}}}
     {"domain":"statistics","spec":{"multiple_comparisons":{"raw_p_values":[0.01,0.04,0.2],"method":"bonferroni","alpha":0.05}}}
 
+  physics_dimensional (check both sides of an equation share the same SI dimensions; the "equation" MUST keep a literal "=" with BOTH sides intact, e.g. "F = m*a" — do NOT move terms to one side or use the set-to-zero form (that is ONLY for the mathematics solve mode); "symbols" maps EACH variable to its SI unit as a sympy unit expression — newton, joule, kilogram, meter, second, watt, pascal, coulomb, volt, ampere, kelvin, combined with * / **; numeric coefficients like 1/2 are ignored):
+    {"domain":"physics_dimensional","spec":{"equation":"F = m*a","symbols":{"F":"newton","m":"kilogram","a":"meter/second**2"}}}
+    {"domain":"physics_dimensional","spec":{"equation":"E = m*c**2","symbols":{"E":"joule","m":"kilogram","c":"meter/second"}}}
+    {"domain":"physics_dimensional","spec":{"equation":"E = (1/2)*m*v**2","symbols":{"E":"joule","m":"kilogram","v":"meter/second"}}}
+
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
 
