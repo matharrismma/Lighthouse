@@ -644,6 +644,19 @@ GET  /ledger/{id}       — fetch a specific record
 GET  /ledger/verify     — verify chain integrity (SHA-256 link check)
 ```
 
+### Verify a claim & cite the proof (ground truth for agents)
+```
+POST /derivation/verify  — verify a multi-step derivation; body {steps:[{domain,spec,uses?,claim?}], seal:true}
+POST /derivation/solve   — state a claim in PROSE; the oracle formalizes it, the deterministic verifier JUDGES; body {problem, seal:true}
+GET  /seal/{ref}         — dereference a sealed proof by its permanent_ref (integrity re-verified; tamper-evident)
+GET  /capabilities       — the live verifier domains a claim can map to
+```
+The engine VERIFIES a provided derivation deterministically — it never
+generates the answer. A false claim returns BROKEN, not a plausible guess.
+With `seal:true` the response carries `receipt.cite_url`: a permanent,
+tamper-evident proof (no fabricated answer, by doctrine) you can cite. This
+is the tool-receipt surface — ask for ground truth, get a verdict and a link.
+
 ### Journal — the calibration tool / harvest surface
 ```
 POST /journal/write                  — capture a stream-of-consciousness seed

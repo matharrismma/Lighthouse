@@ -6517,6 +6517,48 @@ def robot_quickstart():
                 "returns": "witness_id + ts_iso (append-only, cannot retract)",
             },
         ],
+        "verify_and_cite": {
+            "what": "State any quantitative claim; the engine verifies it "
+                    "DETERMINISTICALLY and hands back a citable, tamper-evident "
+                    "proof. It verifies a PROVIDED derivation — it never "
+                    "generates the answer — and a false claim returns BROKEN, "
+                    "not a plausible guess. Built for agents that need ground "
+                    "truth they can cite.",
+            "structured": {
+                "method": "POST",
+                "url": f"{base}/derivation/verify",
+                "body_shape": {
+                    "steps": [{"domain": "<verifier_domain>",
+                               "spec": {"<verifier_kwargs>": "..."},
+                               "uses": ["<prior_step_id>"],
+                               "claim": "<plain description>"}],
+                    "seal": True,
+                },
+                "returns": "verdict (HOLDS|BROKEN|INCOMPLETE) + per-step trail; "
+                           "with seal=true, receipt{cite_url, permanent_ref}",
+            },
+            "from_prose": {
+                "method": "POST",
+                "url": f"{base}/derivation/solve",
+                "body_shape": {"problem": "<claim in plain language, e.g. 'is "
+                               "17 prime' or 'F=ma is dimensionally consistent'>",
+                               "seal": True},
+                "returns": "the oracle FORMALIZES the prose into steps; the "
+                           "deterministic verifier JUDGES; verdict + trail + "
+                           "receipt{cite_url}. The verdict is the verifier's, "
+                           "never the oracle's.",
+            },
+            "cite": {
+                "method": "GET",
+                "url": f"{base}/seal/{{ref}}",
+                "note": "Dereference a sealed proof by its permanent_ref. "
+                        "Integrity is re-verified (the content hash recomputes), "
+                        "so the proof is tamper-evident; by doctrine it carries "
+                        "no fabricated answer. Link this URL as your citation.",
+            },
+            "domains": f"GET {base}/capabilities lists the live verifier "
+                       "domains; a claim that maps to none is OMITTED, never guessed.",
+        },
         "risk_flags": risk_dict,
         "operator_review_url": f"{base}/keep.html",
         "audit_lookup_url_template": f"{base}/steward/audit?visitor_id=<your_robot_id>&limit=50",
