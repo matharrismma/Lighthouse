@@ -1653,9 +1653,45 @@ def visits_recent(limit: int = 50, days: int = 7):
     return {"count": len(rows), "days": days, "limit": limit, "entries": rows}
 
 
+# Named bots / agents / tools, matched on a lowercased user-agent substring.
+# The door is open to all of these — this list just lets us SEE who is reaching
+# for the engine (the AI agents and crawlers especially are the ones we want to
+# be the easiest tool for). Order matters: more specific markers first.
+_AGENT_MARKERS = (
+    ("ChatGPT", "chatgpt-user"), ("ChatGPT", "oai-searchbot"), ("GPTBot", "gptbot"), ("OpenAI", "openai"),
+    ("ClaudeBot", "claudebot"), ("Claude-User", "claude-user"), ("Anthropic", "anthropic-ai"),
+    ("PerplexityBot", "perplexitybot"), ("Perplexity-User", "perplexity-user"),
+    ("Gemini/Google-Extended", "google-extended"), ("Googlebot", "googlebot"), ("GoogleOther", "googleother"),
+    ("Bingbot", "bingbot"), ("Applebot", "applebot"), ("Amazonbot", "amazonbot"),
+    ("CCBot (CommonCrawl)", "ccbot"), ("Bytespider", "bytespider"), ("DuckDuckBot", "duckduckbot"),
+    ("YandexBot", "yandex"), ("Meta", "meta-externalagent"), ("Meta", "facebookexternalhit"),
+    ("AhrefsBot", "ahrefsbot"), ("SemrushBot", "semrushbot"), ("MJ12bot", "mj12bot"), ("DotBot", "dotbot"),
+    ("Slack", "slackbot"), ("Discord", "discordbot"), ("Telegram", "telegrambot"),
+    ("Twitter/X", "twitterbot"), ("WhatsApp", "whatsapp"), ("LinkedIn", "linkedinbot"),
+    ("UptimeRobot", "uptimerobot"), ("Pingdom", "pingdom"),
+    ("curl", "curl/"), ("wget", "wget"), ("python-requests", "python-requests"),
+    ("python-urllib", "python-urllib"), ("httpx", "httpx"), ("Go-http-client", "go-http-client"),
+)
+
+
+def _named_agent(ua: str) -> str:
+    """Friendly name for a known bot/agent/tool, or '' for an unrecognized UA."""
+    u = (ua or "").lower()
+    for name, marker in _AGENT_MARKERS:
+        if marker in u:
+            return name
+    return ""
+
+
 @app.get("/visits/stats", tags=["visits"])
 def visits_stats(days: int = 7):
-    """Aggregate counts by ua_class, country, path, and status."""
+    """Aggregate counts by ua_class, country, path, status, and named bot/agent.
+
+    The operator's own keep.html dashboard (timer-polled, tagged actor=operator
+    / refered from keep.html) is counted separately as operator_requests and
+    EXCLUDED from every breakdown below — so the numbers show who ELSE is
+    reaching the engine: humans, AI agents, search crawlers, and tools. The door
+    stays open to bots; this only makes visible who comes through it."""
     days = max(1, min(60, int(days)))
     rows = _read_visits_for_days(days=days)
     by_class: dict[str, int] = {}
@@ -1674,12 +1710,26 @@ def visits_stats(days: int = 7):
     retrieval_paths: dict[str, int] = {}
     unique_prefixes: set[str] = set()
     unique_external_prefixes: set[str] = set()
+    agents_by_name: dict[str, int] = {}  # named bots/agents/tools reaching us (GPTBot, ClaudeBot, Googlebot, ...)
+    operator_n = 0  # the operator's own keep.html dashboard (timer-polled) — counted separately, excluded below
     for r in rows:
+        # The operator's own dashboard polls many endpoints on a timer. Count it
+        # once and skip it, so every breakdown reflects who ELSE is reaching us.
+        if r.get("actor") == "operator" or "keep.html" in (r.get("referer") or ""):
+            operator_n += 1
+            continue
         # Re-derive both class and intent from the raw fields on every read.
         # Stored values are advisory — recomputing means an improved
         # classifier retroactively fixes historical rows.
         cls = _classify_ua(r.get("ua", ""), r.get("path", ""))
         intent = _classify_intent(cls, r.get("method", "GET"), r.get("path", ""))
+        # Name the bot/agent/tool when we recognize it; bucket unnamed non-humans
+        # by their class. Humans are not listed here (they are in by_ua_class).
+        nm = _named_agent(r.get("ua", ""))
+        if nm:
+            agents_by_name[nm] = agents_by_name.get(nm, 0) + 1
+        elif cls != "human":
+            agents_by_name[cls] = agents_by_name.get(cls, 0) + 1
         by_class[cls] = by_class.get(cls, 0) + 1
         by_intent[intent] = by_intent.get(intent, 0) + 1
         ctry = r.get("country") or "—"
@@ -1725,13 +1775,22 @@ def visits_stats(days: int = 7):
     def _top(d: dict, n: int = 15) -> list:
         return sorted(d.items(), key=lambda kv: kv[1], reverse=True)[:n]
 
-    # "Real" visitors exclude internal monitoring traffic.
+    # total_requests = everything (incl. the operator). operator_requests is the
+    # operator's own dashboard, broken out and excluded from all breakdowns.
+    # external_requests = everyone else reaching the engine — humans, AI agents,
+    # search crawlers, and tools, all of it. real_visitors kept as an alias of
+    # external_requests for the existing /keep panel. agents_by_name names the
+    # bots/agents/tools so we can see WHO is using us.
     monitor_n = by_class.get("monitor", 0)
+    external_n = len(rows) - operator_n
     return {
         "days": days,
         "total_requests": len(rows),
-        "real_visitors": len(rows) - monitor_n,
+        "operator_requests": operator_n,
+        "external_requests": external_n,
+        "real_visitors": external_n,
         "monitor_requests": monitor_n,
+        "agents_by_name": dict(sorted(agents_by_name.items(), key=lambda kv: kv[1], reverse=True)),
         "unique_ip_prefixes": len(unique_prefixes),
         "external_ip_prefixes": len(unique_external_prefixes),
         # Headline numbers — the ones that answer "is anything actually happening?"
