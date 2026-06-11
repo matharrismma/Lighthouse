@@ -67,6 +67,11 @@ def _collect_statuses(res: Any, acc: List) -> None:
             if isinstance(sub, list):
                 _collect_statuses(sub, acc)
                 return
+        # Umbrella wrappers (e.g. verify_statistics) return a dict KEYED by
+        # check-name whose VALUES are themselves status-dicts/lists. Walk them.
+        for v in res.values():
+            if isinstance(v, (dict, list)):
+                _collect_statuses(v, acc)
 
 
 def verify_step(domain: str, spec: Dict[str, Any]) -> Dict[str, str]:
@@ -224,6 +229,12 @@ Rules:
 
   molecular_geometry (VSEPR):
     {"domain":"molecular_geometry","spec":{"bonding_domains":4,"lone_pairs":0,"claimed_geometry":"tetrahedral","claimed_bond_angle_deg":109.47}}
+
+  statistics (umbrella — the spec carries ONE of pvalue / confidence_interval / multiple_comparisons; tail is "two"/"greater"/"less"; the p tolerance is loose, so use the published rounded p):
+    {"domain":"statistics","spec":{"pvalue":{"test":"z","z":1.96,"tail":"two","claimed_p":0.05}}}
+    {"domain":"statistics","spec":{"pvalue":{"test":"chi2","statistic":3.841,"df":1,"claimed_p":0.05}}}
+    {"domain":"statistics","spec":{"confidence_interval":{"estimate":10.0,"ci_low":8.0,"ci_high":12.0}}}
+    {"domain":"statistics","spec":{"multiple_comparisons":{"raw_p_values":[0.01,0.04,0.2],"method":"bonferroni","alpha":0.05}}}
 
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
