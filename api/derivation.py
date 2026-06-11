@@ -241,6 +241,10 @@ Rules:
     {"domain":"physics_dimensional","spec":{"equation":"E = m*c**2","symbols":{"E":"joule","m":"kilogram","c":"meter/second"}}}
     {"domain":"physics_dimensional","spec":{"equation":"E = (1/2)*m*v**2","symbols":{"E":"joule","m":"kilogram","v":"meter/second"}}}
 
+  chemistry (verify a chemical equation is balanced; use "->" for the arrow and " + " between species; coefficients are written as "2 H2O"; formulas keep inline subscripts like H2O / CO2 / C6H12O6 / Cu(OH)2; charges use ^ like Fe^3+):
+    {"domain":"chemistry","spec":{"equation":"2 H2 + O2 -> 2 H2O"}}
+    {"domain":"chemistry","spec":{"equation":"CH4 + 2 O2 -> CO2 + 2 H2O"}}
+
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
 
