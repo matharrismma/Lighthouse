@@ -1711,6 +1711,10 @@ def visits_stats(days: int = 7):
     unique_prefixes: set[str] = set()
     unique_external_prefixes: set[str] = set()
     agents_by_name: dict[str, int] = {}  # named bots/agents/tools reaching us (GPTBot, ClaudeBot, Googlebot, ...)
+    by_hour: dict[str, int] = {}          # external requests per hour ("YYYY-MM-DDTHH") across the window
+    day_cls: dict[str, dict] = {}         # per-day {ua_class: count}
+    day_agents: dict[str, dict] = {}      # per-day {named-agent: count}
+    day_ips: dict[str, set] = {}          # per-day distinct ip_prefixes
     operator_n = 0  # the operator's own keep.html dashboard (timer-polled) — counted separately, excluded below
     for r in rows:
         # The operator's own dashboard polls many endpoints on a timer. Count it
@@ -1748,6 +1752,18 @@ def visits_stats(days: int = 7):
             unique_prefixes.add(ipx)
             if not ipx.startswith("127.") and not ipx.startswith("0.0.0.0") and ipx not in ("::/32",):
                 unique_external_prefixes.add(ipx)
+        # Daily + hourly buckets for the cockpit's "Today & hourly" strip.
+        hr = (r.get("ts_iso") or "")[:13]
+        if hr:
+            by_hour[hr] = by_hour.get(hr, 0) + 1
+        if day:
+            dc = day_cls.setdefault(day, {}); dc[cls] = dc.get(cls, 0) + 1
+            if nm:
+                da = day_agents.setdefault(day, {}); da[nm] = da.get(nm, 0) + 1
+            elif cls != "human":
+                da = day_agents.setdefault(day, {}); da[cls] = da.get(cls, 0) + 1
+            if ipx:
+                day_ips.setdefault(day, set()).add(ipx)
         # Sub-aggregations for the submit + retrieval panels
         if intent == "submit":
             submit_paths[p] = submit_paths.get(p, 0) + 1
@@ -1783,6 +1799,18 @@ def visits_stats(days: int = 7):
     # bots/agents/tools so we can see WHO is using us.
     monitor_n = by_class.get("monitor", 0)
     external_n = len(rows) - operator_n
+    _days_sorted = sorted(by_day.keys())
+    _today = _days_sorted[-1] if _days_sorted else None
+    _yday = _days_sorted[-2] if len(_days_sorted) >= 2 else None
+    _today_block = None
+    if _today:
+        _today_block = {
+            "date": _today,
+            "requests": by_day.get(_today, 0),
+            "distinct_ips": len(day_ips.get(_today, set())),
+            "by_ua_class": day_cls.get(_today, {}),
+            "agents_by_name": dict(sorted(day_agents.get(_today, {}).items(), key=lambda kv: kv[1], reverse=True)),
+        }
     return {
         "days": days,
         "total_requests": len(rows),
@@ -1833,6 +1861,9 @@ def visits_stats(days: int = 7):
         "by_path_top": dict(_top(by_path, 25)),
         "by_status": by_status,
         "by_day": dict(sorted(by_day.items())),
+        "by_hour": dict(sorted(by_hour.items())),
+        "today": _today_block,
+        "yesterday_requests": (by_day.get(_yday, 0) if _yday else 0),
         "skipped_paths_note": "health pings + static assets + testclient are not logged",
     }
 

@@ -58,6 +58,12 @@
     .sub2{color:var(--faint);font-size:11.5px;margin-top:2px}
     .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:4px;background:var(--panel2);color:var(--dim);margin:2px 4px 2px 0}
     .err{color:var(--red);font-size:12px}
+    .trend{display:flex;align-items:flex-end;gap:2px;height:62px;margin:4px 0 2px}
+    .tcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:5px}
+    .tcol .b{width:100%;background:var(--blue);border-radius:2px 2px 0 0;min-height:2px}
+    .tcol .b.today{background:var(--green)}
+    .tcol .lab{font-size:9px;color:var(--faint);margin-top:3px;font-family:var(--mono);white-space:nowrap}
+    .delta.up{color:var(--green)} .delta.down{color:var(--amber)}
     .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
     .footer{color:var(--faint);font-size:11px;margin:18px 0 8px;text-align:center}
     .footer a{color:var(--faint)}
@@ -83,6 +89,8 @@
 
   <div id="headline" class="headline">…</div>
   <div id="queue" class="queue"></div>
+
+  <section class="panel" id="p-today" style="margin-top:10px"><h2>Today &amp; hourly</h2><div class="body">…</div></section>
 
   <div class="grid">
     <section class="panel" id="p-traffic"><h2>Who's reaching us · 7 days</h2><div class="body">…</div></section>
@@ -254,12 +262,54 @@ function renderContent(d){
   body('p-content').innerHTML=h;
 }
 
+function trendBars(map, opt){
+  opt=opt||{}; const ents=Object.entries(map);
+  if(!ents.length) return '<div class="sub2">no data yet</div>';
+  const top=Math.max(1,...ents.map(e=>e[1]));
+  return '<div class="trend">'+ents.map(([k,v])=>{
+    const lab=opt.label?opt.label(k):'';
+    const cls=(opt.todayKey&&k===opt.todayKey)?'b today':'b';
+    return `<div class="tcol" title="${esc(k)}: ${v}"><span class="${cls}" style="height:${Math.max(2,Math.round(100*v/top))}%"></span><span class="lab">${esc(lab)}</span></div>`;
+  }).join('')+'</div>';
+}
+function last24(by_hour){
+  const keys=Object.keys(by_hour||{}).sort(); if(!keys.length) return {};
+  const end=new Date(keys[keys.length-1]+':00:00Z'); const out={};
+  for(let i=23;i>=0;i--){ const k=new Date(end.getTime()-i*3600000).toISOString().slice(0,13); out[k]=by_hour[k]||0; }
+  return out;
+}
+function renderToday(d){
+  const s=d.stats; if(!s){ body('p-today').innerHTML='<div class="err">unavailable</div>'; return; }
+  const t=s.today||{}, yreq=s.yesterday_requests||0, treq=t.requests||0;
+  let delta='first day of data';
+  if(yreq>0){ const pct=Math.round(100*(treq-yreq)/yreq); delta=`<span class="delta ${pct>=0?'up':'down'}">${pct>=0?'▲':'▼'} ${Math.abs(pct)}% vs yesterday (${fmt(yreq)})</span>`; }
+  const cls=t.by_ua_class||{}, humans=cls.human||0;
+  const agents=Object.entries(cls).filter(([k])=>k!=='human').reduce((a,[,v])=>a+v,0);
+  const topAgent=Object.entries(t.agents_by_name||{})[0];
+  const hourly=last24(s.by_hour);
+  const busiest=Object.entries(hourly).sort((a,b)=>b[1]-a[1])[0];
+  const bd=s.by_day||{}, dk=Object.keys(bd).sort().slice(-14), dmap={}; dk.forEach(k=>dmap[k]=bd[k]);
+  let h=`<div class="stat-row">
+    <div class="stat"><div class="v">${fmt(treq)}</div><div class="k">today · reaching us</div></div>
+    <div class="stat"><div class="v">${fmt(humans)}</div><div class="k">humans</div></div>
+    <div class="stat"><div class="v">${fmt(agents)}</div><div class="k">bots/agents</div></div>
+    <div class="stat"><div class="v">${fmt(t.distinct_ips)}</div><div class="k">distinct IPs</div></div>
+  </div>
+  <div class="sub2">${delta}${topAgent?(' · top agent today: '+esc(topAgent[0])+' ('+fmt(topAgent[1])+')'):''}</div>`;
+  h+=`<div class="sub2" style="margin:12px 0 2px">Hourly · last 24h (UTC)${busiest&&busiest[1]?(' · busiest '+esc(busiest[0].slice(11))+':00 = '+fmt(busiest[1])):''}</div>`;
+  h+=trendBars(hourly,{label:k=>k.slice(11)});
+  h+=`<div class="sub2" style="margin:12px 0 2px">Daily · last ${dk.length} days <span style="color:var(--green)">(green = today)</span></div>`;
+  h+=trendBars(dmap,{label:k=>k.slice(5),todayKey:t.date});
+  body('p-today').innerHTML=h;
+}
+
 async function refresh(){
   const keys=Object.keys(EP);
   const results = await Promise.allSettled(keys.map(k=>j(EP[k])));
   const d={};
   results.forEach((r,i)=>{ d[keys[i]] = r.status==='fulfilled' ? r.value : null; });
   try{ renderQueue(d); }catch(e){ console.error('queue',e); }
+  try{ renderToday(d); }catch(e){ body('p-today').innerHTML='<div class="err">render error</div>'; }
   try{ renderTraffic(d); }catch(e){ body('p-traffic').innerHTML='<div class="err">render error</div>'; }
   try{ renderDoor(d); }catch(e){ body('p-door').innerHTML='<div class="err">render error</div>'; }
   try{ renderHealth(d); }catch(e){ body('p-health').innerHTML='<div class="err">render error</div>'; }
