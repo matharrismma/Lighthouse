@@ -291,6 +291,12 @@ Rules:
     {"domain":"music_theory","spec":{"freq_a":440,"freq_b":660,"claimed_interval":"fifth"}}
     {"domain":"music_theory","spec":{"midi_note":60,"claimed_frequency_hz":261.63}}
 
+  economics (financial literacy — pick the shape that matches; rates are decimals like 0.03, EXCEPT rate_percent which is a plain percent number):
+    {"domain":"economics","spec":{"nominal_value":1000,"inflation_rate":0.03,"years":10,"claimed_real_value":744.09}}
+    {"domain":"economics","spec":{"rate_percent":7,"claimed_doubling_years":10.3}}
+    {"domain":"economics","spec":{"principal":1000,"rate":0.05,"time_years":3,"claimed_simple_interest":150}}
+    {"domain":"economics","spec":{"principal":1000,"rate":0.05,"time_years":3,"compounding_periods":12,"claimed_compound_amount":1161.62}}
+
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
 
