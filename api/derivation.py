@@ -183,7 +183,7 @@ Rules:
 - Break it into the smallest independently-checkable steps. Each step:
   {"id":"s0","domain":"<domain>","spec":{...},"uses":["s_prior"...],"claim":"short human description"}
   "uses" lists prior step ids this step builds on (may be empty).
-- If the text states a value, put it in the claimed_ field. If it asks you to find one, compute the standard value and put it in the claimed_ field — the engine checks whether you got it right.
+- FAITHFULNESS (CRITICAL): encode the claim EXACTLY AS STATED. Copy the asserted value, label, interval name, coefficient, geometry, or category the text gives into the claimed_ field — EVEN IF YOU BELIEVE IT IS WRONG. Your only job is to FORMALIZE; you must NEVER "correct" the claim. The deterministic engine decides truth and will catch a false claim. Example: for "440 Hz and 880 Hz form a perfect fifth" you MUST set claimed_interval="fifth" (do NOT substitute "octave" because you think that's right) — let the engine break it. ONLY when the text explicitly ASKS you to find/compute an unstated value do you supply the standard one.
 - Use ONLY these domains, with EXACTLY these spec shapes:
 
   mathematics (SymPy syntax: ** power, * multiply, sin/cos/exp/sqrt, oo infinity; an "equation" is set equal to zero, so "2x=6" -> "2*x - 6"):
@@ -244,6 +244,11 @@ Rules:
   chemistry (verify a chemical equation is balanced; use "->" for the arrow and " + " between species; coefficients are written as "2 H2O"; formulas keep inline subscripts like H2O / CO2 / C6H12O6 / Cu(OH)2; charges use ^ like Fe^3+):
     {"domain":"chemistry","spec":{"equation":"2 H2 + O2 -> 2 H2O"}}
     {"domain":"chemistry","spec":{"equation":"CH4 + 2 O2 -> CO2 + 2 H2O"}}
+
+  music_theory (frequency ratios and equal-temperament pitch; interval names allowed: unison/octave/fifth/fourth/major_third/minor_third/major_sixth/minor_sixth/major_second/minor_second/major_seventh/minor_seventh; MIDI A4=69=440 Hz, middle C=60, each semitone +1):
+    {"domain":"music_theory","spec":{"freq_a":440,"freq_b":880,"claimed_interval":"octave"}}
+    {"domain":"music_theory","spec":{"freq_a":440,"freq_b":660,"claimed_interval":"fifth"}}
+    {"domain":"music_theory","spec":{"midi_note":60,"claimed_frequency_hz":261.63}}
 
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
