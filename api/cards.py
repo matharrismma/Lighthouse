@@ -303,6 +303,35 @@ def _validate_card(c: dict) -> None:
             raise HTTPException(400, f"Invalid relationship: {conn.get('relationship')}")
 
 
+def create_answer_card(question: str, answer: str, asked_by: Optional[str] = None) -> dict:
+    """Capture a resolved question's answer as a CARD — the wisdom flywheel
+    (project_wisdom_flywheel_2026-06-10): a ticket's answer becomes permanent,
+    findable wisdom the next person hits. Returns {"status": "created"|"exists", "card"}."""
+    now = _now()
+    title = (question or "").strip()[:200] or "Answered question"
+    body = (answer or "").strip()[:4000]
+    cid = _make_card_id("note", title + "::" + body[:200])
+    card = {
+        "id": cid, "kind": "note", "title": title, "body": body,
+        "source": {"label": "Resolved through the well", "url": "", "ref": "", "authority_tier": "matt"},
+        "shelf": "answers", "box": "resolved_questions",
+        "bands": ["answer", "resolved"], "connections": [],
+        "author": "matt", "created_at": now, "updated_at": now,
+        "visibility": "public", "lifecycle_stage": "public", "volatility": "stable",
+        "metrics": {"paperclips_count": 0, "helpful_count": 0, "not_helpful_count": 0,
+                    "cite_count": 0, "walks_through_count": 0, "flagged_count": 0},
+        "retracted": False,
+        "extra": {"asked_by": asked_by or "anon", "origin": "ticket_resolution"},
+    }
+    card["source_hash"] = _compute_source_hash(card)
+    _validate_card(card)
+    existing = _read_card(cid)
+    if existing is not None:
+        return {"status": "exists", "card": existing}
+    _save_card(card)
+    return {"status": "created", "card": card}
+
+
 # ---------- Substrate adapter ----------
 # Read-only view of existing substrate as cards. No data migration in LOOP 11;
 # this lets /card.html and /walk.html work against real content from day one.

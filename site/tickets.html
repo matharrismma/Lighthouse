@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Backlog · Operator</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .tk { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); padding:14px 16px; margin:12px 0; }
+    .tk-q { font-weight:600; font-size:15px; margin:0 0 4px; line-height:1.45; }
+    .tk-meta { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+    .tk-elab { color:var(--muted); font-size:13px; margin:0 0 10px; line-height:1.5; }
+    .tk-bump { color:var(--accent); font-weight:600; }
+    textarea.ans { width:100%; box-sizing:border-box; min-height:70px; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:var(--r-sm); color:inherit; font:inherit; padding:9px; }
+    button.res { margin-top:9px; padding:8px 16px; background:var(--accent); color:#1a1820; border:none; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; cursor:pointer; }
+    .done { color:#5cc88a; font-size:13px; }
+    .muted { color:var(--muted); }
+  </style>
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Operator · The Steward's bench</div>
+    <h1>The backlog</h1>
+    <p>Questions the well couldn't answer yet — captured, never dropped. Answer one and it becomes a <strong>card</strong>: permanent, findable wisdom the next person hits. Most-asked first.</p>
+  </div>
+</div>
+
+<section>
+  <div class="container" style="max-width:760px">
+    <div id="status" class="muted">Loading the backlog…</div>
+    <div id="list"></div>
+  </div>
+</section>
+
+<script>
+function esc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+async function load(){
+  var st=document.getElementById('status'), list=document.getElementById('list');
+  try{
+    var r=await fetch('/tickets?status=open&limit=200');
+    if(r.status===404){ st.innerHTML='<span class="muted">Operator only — open this from the keep.</span>'; return; }
+    var d=await r.json();
+    var items=d.items||[]; var stats=d.stats||{};
+    st.innerHTML='<span class="muted"><strong>'+(stats.open||items.length)+'</strong> open · '+(stats.by_status&&stats.by_status.answered||0)+' answered</span>';
+    if(!items.length){ list.innerHTML='<p class="muted" style="margin-top:18px">Nothing waiting. The well is keeping up.</p>'; return; }
+    list.innerHTML='';
+    items.forEach(function(t){
+      var c=document.createElement('div'); c.className='tk'; c.id='tk-'+t.id;
+      var bump = (t.also_asked>0) ? ' · <span class="tk-bump">asked '+(t.also_asked+1)+'×</span>' : '';
+      c.innerHTML='<div class="tk-q">'+esc(t.question)+'</div>'+
+        '<div class="tk-meta">'+esc(t.source||'walk')+' · '+esc((t.created_at||'').slice(0,10))+bump+'</div>'+
+        (t.elaboration?'<div class="tk-elab">'+esc(t.elaboration)+'</div>':'')+
+        '<textarea class="ans" id="ans-'+t.id+'" placeholder="Answer it — this becomes a card for everyone after…"></textarea>'+
+        '<div><button class="res" onclick="resolve(\''+t.id+'\')">Resolve &amp; capture as card &rarr;</button></div>';
+      list.appendChild(c);
+    });
+  }catch(e){ st.innerHTML='<span class="muted">Couldn\'t reach the engine.</span>'; }
+}
+async function resolve(id){
+  var ans=(document.getElementById('ans-'+id).value||'').trim();
+  if(ans.length<2){ alert('Write an answer first.'); return; }
+  var card=document.getElementById('tk-'+id);
+  card.innerHTML='<div class="muted">Capturing…</div>';
+  try{
+    var r=await fetch('/tickets/'+id+'/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answer:ans,status:'answered'})});
+    var d=await r.json();
+    if(d.ok){ card.innerHTML='<div class="done">✓ Answered'+(d.answer_card_id?' — captured as card <code>'+esc(d.answer_card_id)+'</code>':'')+'. The next person finds it.</div>'; }
+    else { card.innerHTML='<div class="muted">Could not resolve. '+esc(d.detail||'')+'</div>'; }
+  }catch(e){ card.innerHTML='<div class="muted">Engine unreachable.</div>'; }
+}
+load();
+</script>
+</body>
+</html>

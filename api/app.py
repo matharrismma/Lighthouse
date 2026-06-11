@@ -5487,21 +5487,44 @@ def tickets_list(request: Request, status: str = "open", limit: int = 100):
 
 @app.post("/tickets/{tid}/resolve", tags=["humans"])
 def tickets_resolve(tid: str, body: Dict[str, Any], request: Request):
-    """Operator: attach an answer + advance status (open->researching->answered
-    ->closed). Capturing the answer as a card is the next rung; this leaves
-    answer_card_id as the hook. Keep-gated."""
+    """Operator: attach an answer + advance status. SLICE 4: a resolved answer
+    becomes a CARD (the wisdom flywheel — findable by the next person) and the
+    ticket records its id. Keep-gated."""
     _keep_require_allowed(request)
     from api import tickets as _tickets
-    tk = _tickets.resolve_ticket(
-        tid,
-        answer=str(body.get("answer", "")),
-        answered_by=str(body.get("answered_by", "matt")),
-        status=str(body.get("status", "answered")),
-        answer_card_id=body.get("answer_card_id"),
-    )
+    answer = str(body.get("answer", "")).strip()
+    status = str(body.get("status", "answered"))
+    card_id = body.get("answer_card_id")
+    if answer and not card_id and status in ("answered", "closed"):
+        tk0 = _tickets.get_ticket(tid)
+        if tk0:
+            try:
+                from api import cards as _cards
+                res = _cards.create_answer_card(tk0.get("question", ""), answer, tk0.get("asked_by"))
+                card_id = (res.get("card") or {}).get("id")
+            except Exception:
+                card_id = None
+    tk = _tickets.resolve_ticket(tid, answer=answer,
+                                 answered_by=str(body.get("answered_by", "matt")),
+                                 status=status, answer_card_id=card_id)
     if tk is None:
         raise HTTPException(status_code=404, detail=f"ticket {tid!r} not found")
-    return {"ok": True, "ticket": tk}
+    return {"ok": True, "ticket": tk, "answer_card_id": card_id}
+
+
+@app.get("/tickets/mine", tags=["public"])
+def tickets_mine(visitor_id: str = ""):
+    """Public: a person's own questions + any answers — the pull-notify (until the
+    async-email rung). A returning asker sees what came back to them."""
+    from api import tickets as _tickets
+    vid = (visitor_id or "").strip()
+    if not vid:
+        return {"tickets": []}
+    mine = [t for t in _tickets.list_tickets(limit=500) if t.get("asked_by") == vid]
+    return {"tickets": [{"id": t.get("id"), "question": t.get("question"),
+                         "status": t.get("status"), "answer": t.get("answer"),
+                         "answer_card_id": t.get("answer_card_id"),
+                         "updated_at": t.get("updated_at")} for t in mine]}
 
 
 @app.post("/tickets/{tid}/tier", tags=["humans"])
