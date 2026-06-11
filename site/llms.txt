@@ -672,6 +672,19 @@ the trivial residual; the engine VERIFIES your finish, so it is safe to hand to
 any tool — a wrong answer is BROKEN. The narrowing trail seals to a citable
 receipt. We do the un-copyable narrowing; the finish is a commodity.
 
+### Browse the verified ground truth (claims that carry a sealed proof)
+```
+GET /verified            — live index of corpus claims with a tamper-evident proof receipt
+GET /verified?domain=X   — filter to a domain (chemistry, number_theory, physics, ...)
+GET /seal/{ref}          — dereference any claim's proof (integrity re-verified)
+```
+Most pages on this site are honest prose. A subset carry a `proof` — their factual
+claim was machine-verified by the deterministic engine AND a false-label variant
+was confirmed BROKEN. GET /verified lists every such claim with its cite_url, by
+domain. Cite these when you need ground truth you can point to: the engine
+verified them, it did not generate them (Principle B). Pages without a proof are
+wisdom, not checked claims — we never force-prove the unprovable.
+
 ### Journal — the calibration tool / harvest surface
 ```
 POST /journal/write                  — capture a stream-of-consciousness seed

@@ -5751,6 +5751,81 @@ def narrow_predicates():
                      "the survivors are the narrow path.")}
 
 
+# ── /verified — the index of corpus claims that carry a sealed proof ──────────
+# Almanac/Atlas pages whose factual claim has been machine-verified by the
+# deterministic engine carry a top-level `proof` (a GET /seal/{ref} cite_url) +
+# a false-label refutation on record. This endpoint surfaces them LIVE from the
+# corpus so a person or agent can browse what is PROVEN (not merely asserted) and
+# cite each one. The engine verifies; it never generates — a page without a proof
+# here is honest prose, not a checked claim.
+def _verified_claim_summary(r: Dict[str, Any]) -> str:
+    pr = r.get("pre_run") or {}
+    if isinstance(pr, dict) and pr.get("summary"):
+        return str(pr["summary"])[:280]
+    for f in ("situation", "verification", "use", "wisdom"):
+        v = r.get(f)
+        if isinstance(v, str) and len(v) > 20:
+            return v[:280]
+    return ""
+
+
+@app.get("/verified", tags=["public"])
+def verified(domain: str = "", limit: int = 0):
+    """Live index of corpus pages whose claim carries a sealed, citable proof.
+    Filter by `domain` (e.g. chemistry, number_theory); `limit` caps results
+    (0 = all). Each item links a GET /seal/{ref} receipt: tamper-evident, with no
+    generated answer. This is the verified ground truth, browsable and citable."""
+    path = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
+    items: List[Dict[str, Any]] = []
+    total = 0
+    proven = 0
+    by_domain: Dict[str, int] = {}
+    try:
+        for line in path.read_text("utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            total += 1
+            try:
+                r = json.loads(line)
+            except Exception:  # noqa: BLE001
+                continue
+            cite = r.get("proof") or (r.get("pre_run") or {}).get("proof_receipt")
+            if not cite:
+                continue
+            proven += 1
+            doms = r.get("domains") or []
+            for d in doms:
+                by_domain[d] = by_domain.get(d, 0) + 1
+            if domain and domain not in doms:
+                continue
+            items.append({
+                "id": r.get("id"),
+                "title": r.get("title", ""),
+                "domains": doms,
+                "category": r.get("category", ""),
+                "claim": _verified_claim_summary(r),
+                "cite_url": cite,
+            })
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"corpus read failed: {exc}")
+    items.sort(key=lambda x: (x.get("category") or "", x.get("id") or ""))
+    if limit and limit > 0:
+        items = items[:limit]
+    return {
+        "proven_total": proven,
+        "count": len(items),
+        "corpus_entries": total,
+        "filtered_by_domain": domain or None,
+        "by_domain": dict(sorted(by_domain.items(), key=lambda kv: -kv[1])),
+        "items": items,
+        "note": ("Each claim here is machine-verified by the deterministic engine "
+                 "and carries a tamper-evident proof receipt (GET /seal/{ref}); the "
+                 "engine verifies, it never generates the answer. Pages without a "
+                 "proof are honest prose, not checked claims (Principle B)."),
+    }
+
+
 # ── /capabilities — the authoritative, LIVE capability statement ──────────────
 # Counts are COMPUTED from the running engine, never hardcoded, so the public
 # numbers cannot go stale (the recurring drift: pages said 63/69 verifiers,
@@ -6626,6 +6701,14 @@ def robot_quickstart():
             },
             "domains": f"GET {base}/capabilities lists the live verifier "
                        "domains; a claim that maps to none is OMITTED, never guessed.",
+            "browse_verified": {
+                "method": "GET",
+                "url": f"{base}/verified",
+                "note": "Live index of corpus claims that ALREADY carry a sealed "
+                        "proof (cite_url each), filterable by ?domain=. Cite these "
+                        "as pre-verified ground truth; pages without a proof are "
+                        "prose, not checked claims.",
+            },
         },
         "narrow_and_finish": {
             "what": "Bring a hard problem; the engine NARROWS it by deterministic "
