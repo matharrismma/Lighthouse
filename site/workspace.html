@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Workspace · Narrow Highway</title>
-  <meta name="description" content="The workspace — multiple desks stacked, each laid out for its primary task: airlock, today, watch &amp; listen, family life, learn, workshop, free libraries, take part. Everything at hand.">
+  <meta name="description" content="The workspace — multiple desks stacked, each laid out for its primary task: the threshold, today, watch &amp; listen, family life, learn, workshop, free libraries, take part. Everything at hand.">
   <link rel="canonical" href="https://narrowhighway.com/workspace.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Narrow Highway">
@@ -267,7 +267,7 @@
   <!-- ═══ DESK 1 — THE AIRLOCK ═══ -->
   <section class="desk airlock" id="d-airlock">
     <div class="desk-head">
-      <div><span class="lbl">Airlock</span><h2>What's on your mind?</h2></div>
+      <div><span class="lbl">The Threshold</span><h2>What's on your mind?</h2></div>
     </div>
     <form class="row" id="alForm" onsubmit="return alSubmit(event)">
       <input id="alIn" type="text" autocomplete="off" placeholder="Type a thought, paste a verse, ask a question. The shepherd will know where to send it.">
@@ -527,7 +527,7 @@ $('alIn').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey
       (c.url ? ' · <a href="' + esc(c.url) + '" style="font-size:12px;">Open →</a>' : '');
   } catch (e) {
     $('tdT').textContent = 'The substrate is quiet today.';
-    $('tdB').textContent = 'No daily card surfaced. Type into the airlock above.';
+    $('tdB').textContent = 'No daily card surfaced. Type into the threshold above.';
   }
 })();
 
