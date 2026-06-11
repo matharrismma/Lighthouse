@@ -5683,6 +5683,74 @@ def derivation_solve(body: _DerivationProseIn):
     return result
 
 
+# ── The narrowing engine — eliminate to almost nothing, then hand off ─────────
+# The engine's identity as an API: "eliminates what is not the answer so the
+# narrow path is illuminated by what survives... the trail is the reasoning."
+# Run every deterministic eliminator over a candidate space; DELETE what cannot
+# be the answer; return the survivors (residual), the elimination trail, and a
+# finish-spec telling ANY tool what is left to do (often: return the one
+# survivor). We do the un-copyable narrowing; the finish is a commodity; the
+# engine verifies it (POST /narrow/verify). Never generates the answer
+# (Principle B; project_narrow_to_nothing_handoff).
+class _EliminateIn(BaseModel):
+    space: Dict[str, Any]                 # {"type":"range","lo":..,"hi":..} | {"type":"set","values":[...]}
+    constraints: List[Dict[str, Any]]     # [{"pred":"is_perfect_square"}, {"pred":"digit_sum_eq","k":16}, ...]
+    seal: bool = False                    # mint a citable, tamper-evident receipt of the trail
+    problem: str = ""                     # human description, recorded on the receipt
+
+
+@app.post("/narrow/eliminate", tags=["public"])
+def narrow_eliminate(body: _EliminateIn):
+    """Public: NARROW a candidate space by deterministic elimination. Each
+    constraint is a NAMED predicate from a fixed registry (GET /narrow/predicates)
+    — never arbitrary code. Returns the elimination trail (what died at each
+    step), the residual (what survived), and a finish-spec. When the residual is
+    a single survivor, ANY tool can finish; the engine verifies via
+    POST /narrow/verify. The engine eliminates what cannot be the answer — it
+    never generates the answer."""
+    from api import narrowing as _narrowing
+    if not body.constraints:
+        raise HTTPException(status_code=400, detail="provide at least one constraint")
+    if len(body.constraints) > 50:
+        raise HTTPException(status_code=400, detail="too many constraints (max 50)")
+    result = _narrowing.eliminate(body.space or {}, body.constraints)
+    if result.get("error"):
+        raise HTTPException(status_code=400, detail=result["error"])
+    if body.seal:
+        result["receipt"] = _narrowing.seal_elimination(result, body.problem or None)
+    return result
+
+
+class _NarrowVerifyIn(BaseModel):
+    answer: int
+    constraints: List[Dict[str, Any]]
+    residual: Optional[List[int]] = None  # optional: confirm membership in a prior residual
+
+
+@app.post("/narrow/verify", tags=["public"])
+def narrow_verify(body: _NarrowVerifyIn):
+    """Public: the VERIFY layer. Re-confirm a tool's claimed finish against the
+    SAME stated constraints, independently of the elimination pass. HOLDS only if
+    the answer satisfies every constraint (and is in the residual when one is
+    given). A wrong answer is BROKEN here — which is why the finish is safe to
+    hand to any tool, even one that hallucinates."""
+    from api import narrowing as _narrowing
+    if not body.constraints:
+        raise HTTPException(status_code=400, detail="provide the constraints")
+    res = {"residual": body.residual} if body.residual is not None else {}
+    return _narrowing.verify_finish(res, body.answer, body.constraints)
+
+
+@app.get("/narrow/predicates", tags=["public"])
+def narrow_predicates():
+    """The available eliminator names (the deterministic predicate registry)."""
+    from api import narrowing as _narrowing
+    return {"predicates": _narrowing.predicates(),
+            "note": ("Named, pure, deterministic eliminators. Compose them in "
+                     "POST /narrow/eliminate to delete what cannot be the answer; "
+                     "the survivors are the narrow path.")}
+
+
 # ── /capabilities — the authoritative, LIVE capability statement ──────────────
 # Counts are COMPUTED from the running engine, never hardcoded, so the public
 # numbers cannot go stale (the recurring drift: pages said 63/69 verifiers,
