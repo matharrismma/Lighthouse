@@ -1328,6 +1328,19 @@ def get_router():
             # captured as a new card = the wisdom flywheel) is the next build; this
             # response already carries that intent so the front door can engage,
             # not bounce. See project_wisdom_flywheel_2026-06-10.
+            # Slice 3: the SHEPHERD asks a real Socratic question (free local model
+            # -> paid oracle -> deterministic vetted stem), so the empty path engages
+            # with discernment rather than a canned line. Two purposes (Matt): gather
+            # for a better ticket AND guide the person to reach an answer now. Falls
+            # back to the canned invite if the Shepherd is unavailable.
+            invite = "What were you weighing when this came to mind?"
+            try:
+                from api import offices as _offices
+                _q, _ = _offices._shepherd_socratic(payload.query, [])
+                if _q and _q.strip().endswith("?"):
+                    invite = _q.strip()
+            except Exception:
+                pass
             return {
                 "query": payload.query,
                 "step_count": 0,
@@ -1338,7 +1351,7 @@ def get_router():
                               "what you're turning over and we'll work it through "
                               "together; if it needs more, we'll research it and come "
                               "back to you."),
-                "invite": "What were you weighing when this came to mind?",
+                "invite": invite,
                 "offer_followup": True,
                 "corpus_size": len(all_cards),
             }
