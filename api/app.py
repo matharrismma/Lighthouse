@@ -5637,6 +5637,7 @@ def tickets_set_tier(tid: str, body: Dict[str, Any], request: Request):
 class _DerivationIn(BaseModel):
     steps: List[Dict[str, Any]]
     title: str = ""
+    seal: bool = False  # also mint a citable, tamper-evident proof receipt
 
 
 @app.post("/derivation/verify", tags=["public"])
@@ -5655,11 +5656,14 @@ def derivation_verify(body: _DerivationIn):
     result = _derivation.verify_derivation(steps)
     if body.title:
         result["title"] = body.title[:200]
+    if body.seal and result.get("verdict") not in (None, "ERROR"):
+        result["receipt"] = _derivation.seal_receipt(result)
     return result
 
 
 class _DerivationProseIn(BaseModel):
     problem: str
+    seal: bool = False  # also mint a citable, tamper-evident proof receipt
 
 
 @app.post("/derivation/solve", tags=["public"])
@@ -5673,7 +5677,10 @@ def derivation_solve(body: _DerivationProseIn):
     problem = (body.problem or "").strip()
     if len(problem) < 3:
         raise HTTPException(status_code=400, detail="provide a problem")
-    return _derivation.solve_prose(problem)
+    result = _derivation.solve_prose(problem)
+    if body.seal and result.get("ok") and result.get("verdict") not in (None, "ERROR"):
+        result["receipt"] = _derivation.seal_receipt(result, problem)
+    return result
 
 
 # ── /capabilities — the authoritative, LIVE capability statement ──────────────

@@ -163,6 +163,47 @@ def verify_derivation(steps: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def seal_receipt(result: Dict[str, Any], problem: str = None) -> Dict[str, Any]:
+    """Mint a citable, tamper-evident proof receipt for a verified derivation.
+
+    Reuses the engine's existing receipt substrate (the content-addressed
+    store): the SHA-256 content hash IS the permanent reference and the
+    integrity proof — fetch it at GET /seal/{ref} and recompute to confirm it
+    was not altered. The receipt records the deterministic verifier VERDICT +
+    the full trail (the real proof) and, by doctrine, never a generated answer
+    — a BROKEN refutation is as citable as a HOLDS confirmation. Binds the
+    node's PUBLIC key for provenance when available; Ed25519 signing stays
+    optional (the hash is the integrity guarantee, no private key required).
+    """
+    rec: Dict[str, Any] = {"kind": "derivation_receipt", "engine": "concordance"}
+    if problem:
+        rec["problem"] = problem
+    for key in ("title", "verdict", "steps", "confirmed_steps", "broken_at",
+                "gap_at", "trail", "structured_steps"):
+        v = result.get(key)
+        if v is not None:
+            rec[key] = v
+    rec["note"] = result.get("note") or (
+        "The trail is the trust: each step is machine-verified by its domain "
+        "verifier; the engine verifies a provided derivation, it never "
+        "generates the answer.")
+    try:
+        from concordance_engine.user_identity import get_user_pubkey
+        pk = get_user_pubkey()
+        if pk:
+            rec["issuer_public_key"] = pk
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        from concordance_engine import cas as _cas
+        h = _cas.store(rec)
+        return {"permanent_ref": h, "content_hash": h,
+                "cite_url": "https://narrowhighway.com/seal/" + h,
+                "verdict": rec.get("verdict")}
+    except Exception as exc:  # noqa: BLE001
+        return {"error": "seal unavailable: " + str(exc)[:120]}
+
+
 # ── The bridge: prose -> structured steps (oracle STRUCTURES, verifier JUDGES) ──
 # The real bottleneck (project_academia_connection_atlas_2026-06-09) is turning a
 # natural-language problem into the structured specs the verifier stack can run.
