@@ -8411,6 +8411,47 @@ def confess(req: ConfessRequest):
 # source-hierarchy layer, and an optional closest-case overlay.
 # /validate keeps the legacy EngineResult shape for backward compat.
 
+@app.get("/seal/{ref}", tags=["seal"])
+def get_sealed_receipt(ref: str):
+    """Retrieve a sealed proof receipt by its permanent reference.
+
+    POST /seal mints a sealed WitnessRecord and returns its content hash as
+    the permanent_ref; this is the matching GET that makes that receipt
+    CITABLE — a stable URL anyone (human or agent) can dereference. The hash
+    is an unguessable SHA-256 capability, and the receipt is meant to be
+    public, so no auth: holding the ref is the permission. The response
+    re-verifies integrity (recomputes the hash from the content) so a citer
+    knows the record matches its address — tamper-evident by construction.
+    The receipt carries the four-gate verdicts + full verifier data and, by
+    doctrine, never a fabricated answer."""
+    import re as _re
+    if not _re.fullmatch(r"[0-9a-f]{64}", ref or ""):
+        raise HTTPException(status_code=404, detail="Not Found")
+    try:
+        from concordance_engine import cas as _cas
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503, detail=f"cas unavailable: {exc}")
+    rec = _cas.fetch(ref)
+    if rec is None:
+        raise HTTPException(status_code=404, detail="Not Found")
+    try:
+        ok, detail = _cas.verify(ref)
+    except Exception:  # noqa: BLE001
+        ok, detail = False, "verify failed"
+    return {
+        "content_hash": ref,
+        "permanent_ref": ref,
+        "cite_url": f"https://narrowhighway.com/seal/{ref}",
+        "integrity_verified": bool(ok),
+        "integrity_detail": detail,
+        "record": rec,
+        "note": "Sealed proof receipt: the four gates + verifier results, "
+                "bound to a key, with no fabricated answer by doctrine. The "
+                "content hash IS the address — fetch it anywhere and recompute "
+                "to confirm it was not altered.",
+    }
+
+
 @app.post("/seal")
 def seal(request: Request, req: SealRequest):
     """Run a packet through the four gates and return the sealed
