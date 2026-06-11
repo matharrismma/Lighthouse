@@ -297,6 +297,14 @@ Rules:
     {"domain":"economics","spec":{"principal":1000,"rate":0.05,"time_years":3,"claimed_simple_interest":150}}
     {"domain":"economics","spec":{"principal":1000,"rate":0.05,"time_years":3,"compounding_periods":12,"claimed_compound_amount":1161.62}}
 
+  quantum_computing (closed-form QM laws — no simulation; pick the shape that matches):
+    {"domain":"quantum_computing","spec":{"amplitudes":[0.6,0.8],"claimed_normalized":true}}   # state valid iff Σ|aᵢ|²=1; encode the CLAIMED label faithfully (a non-normalized set with claimed_normalized:true must BREAK)
+    {"domain":"quantum_computing","spec":{"n_items":64,"claimed_grover_iterations":6}}          # Grover optimal T=floor(π√N/4)
+    {"domain":"quantum_computing","spec":{"shor_a":2,"shor_N":15,"shor_r":4,"claimed_period_valid":true}}  # a^r≡1 mod N, r>0, r even
+    {"domain":"quantum_computing","spec":{"qber":0.09,"claimed_secure":true}}                   # BB84 secure iff QBER<0.11
+    {"domain":"quantum_computing","spec":{"density_eigenvalues":[0.5,0.5],"claimed_entropy_bits":1.0}}     # von Neumann S=−Σλlog₂λ
+    {"domain":"quantum_computing","spec":{"inner_product":0.7071,"claimed_fidelity":0.5}}        # fidelity F=|⟨ψ|φ⟩|²
+
 - If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
 

@@ -32,6 +32,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 # Bound the compute so a range can't wedge the single-worker engine.
 _MAX_SPACE = 200_000
+# A verifier eliminator dispatches per-candidate (real verifier work), so it runs
+# only on a SMALL set. This enforces the intended pattern: cheap predicates narrow
+# first, the un-copyable verifier confirms the survivors (the moat, on the residual).
+_MAX_VERIFY_CANDIDATES = 2_000
 # At or below this residual size the finish is "trivial" — any tool can close it.
 _RESIDUAL_TRIVIAL = 12
 # How many examples to show per trail step (the trail is evidence, not a dump).
@@ -127,18 +131,60 @@ def predicates() -> List[str]:
     return sorted(_PREDS)
 
 
+# ── verifier-backed eliminators: narrowing rides the 70 verifier domains ──────
+# A constraint {"verify":"<domain>", "spec_template":{...}, "inject":"<field>"}
+# dispatches each candidate to verify_<domain> and SURVIVES iff CONFIRMED. The
+# candidate is merged into the spec: a dict candidate updates spec_template; a
+# scalar candidate is placed at `inject`. This is the moat — elimination by the
+# un-copyable verified substrate (a quantum law, a primality proof, dimensional
+# analysis), not just a local predicate. Reuses derivation.verify_step (the same
+# dispatch + status collapse the derivation chain uses), so the verdict is the
+# deterministic verifier's, never generated.
+
+def _is_verify(c: Dict[str, Any]) -> bool:
+    return "verify" in c
+
+
+def _build_spec(candidate: Any, c: Dict[str, Any]) -> Dict[str, Any]:
+    spec = dict(c.get("spec_template") or {})
+    inject = c.get("inject")
+    if isinstance(candidate, dict) and inject is None:
+        spec.update(candidate)
+    elif inject is not None:
+        spec[str(inject)] = candidate
+    else:
+        # scalar with no inject field named — best effort: a lone "value"
+        spec["value"] = candidate
+    return spec
+
+
+def _verify_survives(candidate: Any, c: Dict[str, Any]) -> bool:
+    from api import derivation as _derivation  # reuse the chain's dispatch
+    spec = _build_spec(candidate, c)
+    res = _derivation.verify_step(str(c.get("verify", "")), spec)
+    return res.get("status") == "CONFIRMED"
+
+
 def _label(c: Dict[str, Any]) -> str:
+    if _is_verify(c):
+        dom = str(c.get("verify", ""))
+        inj = c.get("inject")
+        tmpl = c.get("spec_template") or {}
+        extra = (f" inject={inj}" if inj else "")
+        tdesc = (" " + ", ".join(f"{k}={v}" for k, v in tmpl.items())) if tmpl else ""
+        return f"verify:{dom}({tdesc.strip()}){extra}".replace("()", "")
     name = str(c.get("pred", ""))
     params = {k: v for k, v in c.items() if k != "pred"}
     return name + (("(" + ", ".join(f"{k}={v}" for k, v in params.items()) + ")")
                    if params else "")
 
 
-def _build_space(space: Dict[str, Any]) -> List[int]:
-    """Materialize the candidate space (integers). range or explicit set."""
+def _build_space(space: Dict[str, Any]) -> List[Any]:
+    """Materialize the candidate space. range -> integers; set -> values as given
+    (integers for predicate eliminators, or objects for verifier eliminators)."""
     t = str(space.get("type", "range"))
     if t == "set":
-        vals = [int(x) for x in space.get("values", [])]
+        vals = list(space.get("values", []))
         if len(vals) > _MAX_SPACE:
             raise ValueError(f"set too large ({len(vals)} > {_MAX_SPACE})")
         return vals
@@ -174,20 +220,34 @@ def eliminate(space: Dict[str, Any],
     trail: List[Dict[str, Any]] = []
 
     for c in constraints:
-        name = str(c.get("pred", ""))
-        fn = _PREDS.get(name)
-        if fn is None:
-            return {"error": f"unknown eliminator '{name}'. available: "
-                             + ", ".join(predicates())}
-        params = {k: v for k, v in c.items() if k != "pred"}
         before = len(survivors)
-        kept: List[int] = []
-        killed: List[int] = []
-        try:
-            for n in survivors:
-                (kept if fn(n, params) else killed).append(n)
-        except Exception as exc:  # noqa: BLE001
-            return {"error": f"eliminator '{name}' failed: {str(exc)[:140]}"}
+        kept: List[Any] = []
+        killed: List[Any] = []
+        if _is_verify(c):
+            dom = str(c.get("verify", ""))
+            if before > _MAX_VERIFY_CANDIDATES:
+                return {"error": (f"verifier eliminator 'verify:{dom}' would run on "
+                                  f"{before} candidates (max {_MAX_VERIFY_CANDIDATES}). "
+                                  "Narrow first with cheap predicate eliminators, then "
+                                  "confirm the survivors with the verifier (the moat "
+                                  "pattern).")}
+            try:
+                for n in survivors:
+                    (kept if _verify_survives(n, c) else killed).append(n)
+            except Exception as exc:  # noqa: BLE001
+                return {"error": f"verifier eliminator '{dom}' failed: {str(exc)[:140]}"}
+        else:
+            name = str(c.get("pred", ""))
+            fn = _PREDS.get(name)
+            if fn is None:
+                return {"error": f"unknown eliminator '{name}'. available: "
+                                 + ", ".join(predicates())}
+            params = {k: v for k, v in c.items() if k != "pred"}
+            try:
+                for n in survivors:
+                    (kept if fn(n, params) else killed).append(n)
+            except Exception as exc:  # noqa: BLE001
+                return {"error": f"eliminator '{name}' failed: {str(exc)[:140]}"}
         survivors = kept
         trail.append({
             "constraint": _label(c),
@@ -270,15 +330,21 @@ def verify_finish(result: Dict[str, Any], answer: int,
     checks: List[Dict[str, Any]] = []
     ok = True
     for c in constraints:
-        name = str(c.get("pred", ""))
-        fn = _PREDS.get(name)
-        if fn is None:
-            return {"verdict": "ERROR", "detail": f"unknown eliminator '{name}'"}
-        params = {k: v for k, v in c.items() if k != "pred"}
-        try:
-            passed = bool(fn(answer, params))
-        except Exception as exc:  # noqa: BLE001
-            return {"verdict": "ERROR", "detail": f"{name}: {str(exc)[:120]}"}
+        if _is_verify(c):
+            try:
+                passed = _verify_survives(answer, c)
+            except Exception as exc:  # noqa: BLE001
+                return {"verdict": "ERROR", "detail": f"verify:{c.get('verify')}: {str(exc)[:120]}"}
+        else:
+            name = str(c.get("pred", ""))
+            fn = _PREDS.get(name)
+            if fn is None:
+                return {"verdict": "ERROR", "detail": f"unknown eliminator '{name}'"}
+            params = {k: v for k, v in c.items() if k != "pred"}
+            try:
+                passed = bool(fn(answer, params))
+            except Exception as exc:  # noqa: BLE001
+                return {"verdict": "ERROR", "detail": f"{name}: {str(exc)[:120]}"}
         checks.append({"constraint": _label(c), "holds": passed})
         ok = ok and passed
     # also confirm membership in the originally-claimed residual when present

@@ -657,6 +657,21 @@ With `seal:true` the response carries `receipt.cite_url`: a permanent,
 tamper-evident proof (no fabricated answer, by doctrine) you can cite. This
 is the tool-receipt surface — ask for ground truth, get a verdict and a link.
 
+### Narrow a hard problem so any tool can finish
+```
+POST /narrow/eliminate   — delete what cannot be the answer; body {space:{type:range|set,...}, constraints:[{pred,...}|{verify,spec_template,inject}], seal:true}
+POST /narrow/verify      — re-confirm a finish against the constraints; body {answer, constraints, residual?}
+GET  /narrow/predicates  — the deterministic eliminator registry
+```
+The engine NARROWS by elimination — running every constraint over a candidate
+space and deleting everything that fails — until the residual is tiny (often one
+survivor). Constraints are cheap named predicates OR verifier-backed eliminators
+that route each candidate through one of the 70 verified domains (the moat: a
+quantum normalization law, a primality proof, dimensional analysis). YOU finish
+the trivial residual; the engine VERIFIES your finish, so it is safe to hand to
+any tool — a wrong answer is BROKEN. The narrowing trail seals to a citable
+receipt. We do the un-copyable narrowing; the finish is a commodity.
+
 ### Journal — the calibration tool / harvest surface
 ```
 POST /journal/write                  — capture a stream-of-consciousness seed

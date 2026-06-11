@@ -6627,6 +6627,43 @@ def robot_quickstart():
             "domains": f"GET {base}/capabilities lists the live verifier "
                        "domains; a claim that maps to none is OMITTED, never guessed.",
         },
+        "narrow_and_finish": {
+            "what": "Bring a hard problem; the engine NARROWS it by deterministic "
+                    "elimination — deleting everything that cannot be the answer — "
+                    "until the residual is tiny (often a single survivor). YOU "
+                    "finish the trivial residual; the engine VERIFIES your finish. "
+                    "Because it verifies, the finish is safe to hand to any tool, "
+                    "even one that hallucinates: a wrong answer is BROKEN. We do "
+                    "the un-copyable narrowing; the finish is yours.",
+            "narrow": {
+                "method": "POST",
+                "url": f"{base}/narrow/eliminate",
+                "body_shape": {
+                    "space": {"type": "range", "lo": 0, "hi": 0,
+                              "_or_": {"type": "set", "values": ["..."]}},
+                    "constraints": [
+                        {"pred": "<predicate from /narrow/predicates>", "_params_": "..."},
+                        {"verify": "<verifier_domain>",
+                         "spec_template": {"claimed_...": "..."},
+                         "inject": "<spec_field for the candidate>"},
+                    ],
+                    "seal": True,
+                },
+                "returns": "elimination trail (what died at each step) + residual + "
+                           "finish-spec; with seal=true, a citable receipt. Cheap "
+                           "predicate eliminators narrow first; verifier eliminators "
+                           "(the moat) confirm the survivors via the 70 domains.",
+            },
+            "verify_finish": {
+                "method": "POST",
+                "url": f"{base}/narrow/verify",
+                "body_shape": {"answer": 0, "constraints": ["<same constraints>"],
+                               "residual": ["<optional prior residual>"]},
+                "returns": "HOLDS iff the answer satisfies every constraint; a wrong "
+                           "finish is BROKEN. This is what makes the handoff safe.",
+            },
+            "predicates": f"GET {base}/narrow/predicates lists the eliminator registry.",
+        },
         "risk_flags": risk_dict,
         "operator_review_url": f"{base}/keep.html",
         "audit_lookup_url_template": f"{base}/steward/audit?visitor_id=<your_robot_id>&limit=50",
