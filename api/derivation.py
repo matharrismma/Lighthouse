@@ -207,10 +207,12 @@ Rules:
     {"domain":"geometry","spec":{"circle_radius":5,"claimed_circle_area":78.5398}}
     {"domain":"geometry","spec":{"coordination":"tetrahedral","claimed_central_angle_deg":109.47}}
 
-  optics (SI units, lengths in metres):
+  optics (SI units, lengths in metres; for refraction/TIR/NA set n_core = the DENSER medium the light starts in and n_cladding = the RARER medium it meets — air=1.00, water=1.33, typical glass=1.50; photon energy is ALWAYS in joules, so convert an eV claim by multiplying by 1.602176634e-19):
     {"domain":"optics","spec":{"wavelength_m":6.5e-7,"claimed_photon_energy_j":3.06e-19}}
     {"domain":"optics","spec":{"wavelength_m":6.5e-7,"slit_separation_m":1e-4,"screen_distance_m":2.0,"claimed_fringe_spacing_m":0.013}}
-    {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.46,"claimed_critical_angle_deg":76.74}}
+    {"domain":"optics","spec":{"n1":1.0,"n2":1.5,"theta1_deg":30,"claimed_theta2_deg":19.47}}
+    {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.0,"claimed_critical_angle_deg":41.81}}
+    {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.48,"claimed_numerical_aperture":0.2441}}
 
   atomic:
     {"domain":"atomic","spec":{"atomic_number":6,"claimed_configuration":"1s2 2s2 2p2"}}
