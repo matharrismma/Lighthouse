@@ -671,7 +671,23 @@ async function vfSubmit(ev) {
     const d = await r.json();
     const steps = (d && d.steps) || [];
     if (!steps.length) {
-      el.innerHTML = '<em>No steps surfaced. Open the workshop to walk it in full.</em> · <a href="/walk.html">Open →</a>';
+      // Never a dead-end: the Shepherd asks, and the question is captured if they want.
+      var inv = esc((d && d.invite) || 'What were you weighing when this came to mind?');
+      el.innerHTML = '<div style="line-height:1.6">' + esc((d && d.narration) || 'The well doesn\'t hold a card on this yet — but a real question deserves a real answer.') + '</div>' +
+        '<div style="margin-top:8px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)">' + inv + '</div>' +
+        '<textarea id="wsElab" rows="3" placeholder="Say a little more (optional)…" style="width:100%;box-sizing:border-box;margin-top:6px;font:inherit;padding:7px;border:1px solid var(--rule);border-radius:4px"></textarea>' +
+        '<div style="margin-top:6px"><button id="wsSend" style="padding:7px 14px;cursor:pointer;font:inherit">Get back to me &rarr;</button></div>';
+      var send = document.getElementById('wsSend');
+      send.onclick = async function(){
+        send.disabled = true; send.textContent = 'Capturing…';
+        try {
+          var elab = (document.getElementById('wsElab') || {}).value || '';
+          var hh = (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'home';
+          var rr = await fetch('/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question: q, elaboration: elab, source: 'workspace', visitor_id: hh})});
+          var dd = await rr.json();
+          el.innerHTML = '<div style="line-height:1.6">' + esc((dd && dd.message) || 'Captured — we\'ll come back to you.') + '</div>';
+        } catch(e) { send.textContent = 'Try again'; send.disabled = false; }
+      };
       return;
     }
     el.innerHTML = steps.slice(0, 3).map(s => {

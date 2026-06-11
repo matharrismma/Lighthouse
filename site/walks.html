@@ -387,9 +387,25 @@
       return;
     }
     if (!r || !r.steps || r.steps.length === 0) {
+      // Never a dead-end: the Shepherd asks a real question, and the promise of
+      // intake is REAL — the button actually captures the question as a ticket.
+      var inv = esc((r && r.invite) || 'What were you weighing when this came to mind?');
       $result.innerHTML =
-        '<div class="narration"><span class="shepherd-label">Shepherd</span>' + esc(r && r.narration ? r.narration : 'No cards yet.') + '</div>' +
-        '<div class="empty"><p>The library doesn\'t have cards on this one yet. Your question is on the intake list — the operator will see it.</p></div>';
+        '<div class="narration"><span class="shepherd-label">Shepherd</span>' + esc(r && r.narration ? r.narration : 'The library doesn\'t hold a card on this one yet — but a real question deserves a real answer.') + '</div>' +
+        '<div class="empty"><p>' + inv + '</p>' +
+        '<textarea id="wkElab" rows="3" placeholder="Say a little more (optional)…" style="width:100%;box-sizing:border-box;margin:6px 0;font:inherit;padding:8px"></textarea>' +
+        '<button id="wkSend" style="padding:8px 16px;cursor:pointer;font:inherit">Get back to me &rarr;</button></div>';
+      var send = document.getElementById('wkSend');
+      send.onclick = async function(){
+        send.disabled = true; send.textContent = 'Capturing…';
+        try {
+          var elab = (document.getElementById('wkElab') || {}).value || '';
+          var hh = (window.NHHousehold && NHHousehold.id && NHHousehold.id()) || 'anon';
+          var rr = await fetch('/tickets', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question: shapedQuery, elaboration: elab, source: 'walks', visitor_id: hh})});
+          var dd = await rr.json();
+          send.parentElement.innerHTML = '<p>' + esc((dd && dd.message) || 'Captured — a real question deserves a real answer; we\'ll come back to you.') + '</p>';
+        } catch(e) { send.textContent = 'Try again'; send.disabled = false; }
+      };
       return;
     }
 
