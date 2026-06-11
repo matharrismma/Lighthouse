@@ -213,6 +213,9 @@ Rules:
     {"domain":"optics","spec":{"n1":1.0,"n2":1.5,"theta1_deg":30,"claimed_theta2_deg":19.47}}
     {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.0,"claimed_critical_angle_deg":41.81}}
     {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.48,"claimed_numerical_aperture":0.2441}}
+    {"domain":"optics","spec":{"mass_kg":9.109e-31,"velocity_m_s":1e6,"claimed_de_broglie_m":7.27e-10}}
+    {"domain":"optics","spec":{"attenuation_db_per_km":0.2,"length_km":100,"claimed_loss_db":20}}
+    {"domain":"optics","spec":{"num_channels":80,"bitrate_per_channel_gbps":100,"claimed_total_gbps":8000}}
 
   atomic:
     {"domain":"atomic","spec":{"atomic_number":6,"claimed_configuration":"1s2 2s2 2p2"}}
