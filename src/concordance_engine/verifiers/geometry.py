@@ -372,9 +372,46 @@ def verify_cube_properties(spec: Dict[str, Any]) -> VerifierResult:
     return confirm(name, f"s={sf} V={actual_vol:.4f} A={actual_area:.4f} (matches claims)", data)
 
 
+# Ideal central (bond) angles of regular spatial arrangements — pure geometry,
+# independent of any chemistry. The tetrahedral angle is arccos(-1/3) = 109.47°.
+_COORD_ANGLES = {
+    "linear": 180.0,
+    "trigonal_planar": 120.0,
+    "tetrahedral": math.degrees(math.acos(-1.0 / 3.0)),
+    "octahedral": 90.0,
+    "square_planar": 90.0,
+}
+
+
+def verify_coordination_geometry(spec: Dict[str, Any]) -> VerifierResult:
+    """Central (bond) angle of a regular coordination geometry — e.g. the
+    tetrahedral angle arccos(-1/3) = 109.47 deg. Pure geometry; co-confirms
+    molecular_geometry.vsepr on the symmetry axis."""
+    name = "geometry.coordination_angle"
+    coord = spec.get("coordination")
+    claimed = spec.get("claimed_central_angle_deg")
+    if coord is None or claimed is None:
+        return na(name)
+    key = str(coord).strip().lower().replace(" ", "_").replace("-", "_")
+    ideal = _COORD_ANGLES.get(key)
+    if ideal is None:
+        return na(name, f"central angle not tabulated for {coord!r}")
+    try:
+        c = float(claimed)
+    except (TypeError, ValueError):
+        return error(name, "claimed_central_angle_deg must be numeric")
+    if abs(c - ideal) <= 0.1:
+        return confirm(name, f"{key} central angle = {ideal:.4f} deg (matches claim)",
+                       {"ideal_central_angle_deg": ideal})
+    return mismatch(name, f"{key} central angle = {ideal:.4f} deg, not {c}",
+                    {"ideal_central_angle_deg": ideal})
+
+
 def run(packet: Dict[str, Any]) -> List[VerifierResult]:
     results: List[VerifierResult] = []
     gv = packet.get("GEOM_VERIFY") or {}
+    if "coordination" in gv and "claimed_central_angle_deg" in gv:
+        results.append(verify_coordination_geometry(gv))
     if all(k in gv for k in ("tri_a", "tri_b", "tri_c", "claimed_valid_triangle")):
         results.append(verify_triangle_inequality(gv))
     if all(k in gv for k in ("pyth_a", "pyth_b", "pyth_c", "claimed_right_triangle")):

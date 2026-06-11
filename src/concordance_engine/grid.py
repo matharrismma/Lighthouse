@@ -235,6 +235,7 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     "periodic_table":      frozenset({"physical_substance", "reasoning", "conservation_balance"}),
     "physical_constants":  frozenset({"physical_substance", "conservation_balance", "reasoning"}),
     "probability":         frozenset({"reasoning", "conservation_balance"}),
+    "molecular_geometry":  frozenset({"physical_substance", "reasoning"}),
 }
 
 

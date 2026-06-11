@@ -75,6 +75,7 @@ from ..verifiers import architecture as _architecture
 from ..verifiers import oceanography as _oceanography
 from ..verifiers import phase as _phase
 from ..verifiers import atomic as _atomic
+from ..verifiers import molecular_geometry as _molecular_geometry
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -570,6 +571,11 @@ def verify_periodic_table(spec):
 def verify_atomic(spec):
     """Atomic structure: quantum-number validity (n,l,m_l,m_s), shell capacity (2n²), and ground-state electron configuration for Z=1-118 (Madelung order + the standard ground-state exceptions). The electron layer beneath chemistry, quantum, and the periodic table."""
     return {"checks": [_r(r) for r in _atomic.run({"ATOM_VERIFY": spec or {}})]}
+
+
+def verify_molecular_geometry(spec):
+    """VSEPR molecular geometry: bonding domains + lone pairs -> predicted shape and ideal bond angle (tetrahedral 109.47°, trigonal 120°, linear 180°, octahedral 90°). The atom's spatial face; co-confirms geometry on the symmetry axis."""
+    return {"checks": [_r(r) for r in _molecular_geometry.run({"VSEPR_VERIFY": spec or {}})]}
 
 
 def verify_ephemeris(spec):
@@ -1536,6 +1542,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_physical_constants": verify_physical_constants,
     "verify_periodic_table": verify_periodic_table,
     "verify_atomic": verify_atomic,
+    "verify_molecular_geometry": verify_molecular_geometry,
     "verify_ephemeris": verify_ephemeris,
     "verify_layer_zero_grounding": verify_layer_zero_grounding,
     "verify_linear_algebra": verify_linear_algebra,
