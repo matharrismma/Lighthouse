@@ -172,19 +172,55 @@ def verify_derivation(steps: List[Dict[str, Any]]) -> Dict[str, Any]:
 # Supported domains the oracle may emit. V1 = the mathematics core (the calculus
 # the moat targets), each spec shape tested end-to-end through dispatch. Extend by
 # adding a domain's exact spec shape + example here (and confirming it dispatches).
-_BRIDGE_SYS = """You translate a mathematics problem or claim into STRUCTURED VERIFICATION STEPS for a deterministic verifier. You do NOT decide truth and you do NOT have the final say — a separate engine checks every step you produce. Your only job is to FORMALIZE.
+_BRIDGE_SYS = """You translate a science or mathematics problem, claim, or THEORY into STRUCTURED VERIFICATION STEPS for a deterministic verifier. You do NOT decide truth and you do NOT have the final say — a separate engine checks every step you produce. Your only job is to FORMALIZE the verifiable, quantitative claims.
 
 Rules:
-- Break the problem into the smallest independently-checkable steps.
-- Use ONLY the "mathematics" domain with one of these modes and EXACTLY these spec shapes:
-  derivative: {"mode":"derivative","params":{"function":"x**2","variable":"x","claimed_derivative":"2*x"}}
-  integral:   {"mode":"integral","params":{"integrand":"2*x","variable":"x","claimed_antiderivative":"x**2"}}
-  limit:      {"mode":"limit","params":{"function":"sin(x)/x","variable":"x","point":0,"claimed_limit":"1"}}
-  solve:      {"mode":"solve","params":{"equation":"2*x - 6","variable":"x","claimed_solutions":[3]}}
-  equality:   {"mode":"equality","params":{"expr_a":"(x+1)**2","expr_b":"x**2+2*x+1","variables":["x"]}}
-- Expressions use Python/SymPy syntax (** for power, * for multiply, sin/cos/exp/sqrt, oo for infinity). An equation spec is the expression set equal to zero (so "2x = 6" -> "2*x - 6").
-- If the user states an answer, put it in the claimed_ field. If they ask you to find it, compute the standard value and put it in the claimed_ field — the engine will check whether you got it right.
-- Each step: {"id":"s0","domain":"mathematics","spec":{...},"uses":["s_prior"...],"claim":"short human description"}. "uses" lists prior step ids this step builds on (may be empty).
+- Break it into the smallest independently-checkable steps. Each step:
+  {"id":"s0","domain":"<domain>","spec":{...},"uses":["s_prior"...],"claim":"short human description"}
+  "uses" lists prior step ids this step builds on (may be empty).
+- If the text states a value, put it in the claimed_ field. If it asks you to find one, compute the standard value and put it in the claimed_ field — the engine checks whether you got it right.
+- Use ONLY these domains, with EXACTLY these spec shapes:
+
+  mathematics (SymPy syntax: ** power, * multiply, sin/cos/exp/sqrt, oo infinity; an "equation" is set equal to zero, so "2x=6" -> "2*x - 6"):
+    {"domain":"mathematics","spec":{"mode":"derivative","params":{"function":"x**2","variable":"x","claimed_derivative":"2*x"}}}
+    {"domain":"mathematics","spec":{"mode":"integral","params":{"integrand":"2*x","variable":"x","claimed_antiderivative":"x**2"}}}
+    {"domain":"mathematics","spec":{"mode":"limit","params":{"function":"sin(x)/x","variable":"x","point":0,"claimed_limit":"1"}}}
+    {"domain":"mathematics","spec":{"mode":"solve","params":{"equation":"2*x - 6","variable":"x","claimed_solutions":[3]}}}
+    {"domain":"mathematics","spec":{"mode":"equality","params":{"expr_a":"(x+1)**2","expr_b":"x**2+2*x+1","variables":["x"]}}}
+
+  number_theory:
+    {"domain":"number_theory","spec":{"factorial_n":5,"claimed_factorial":120}}
+    {"domain":"number_theory","spec":{"n_prime":17,"claimed_prime":true}}
+    {"domain":"number_theory","spec":{"gcd_a":12,"gcd_b":18,"claimed_gcd":6}}
+
+  combinatorics:
+    {"domain":"combinatorics","spec":{"perm_n":5,"perm_k":2,"claimed_permutations":20}}
+    {"domain":"combinatorics","spec":{"comb_n":5,"comb_k":2,"claimed_combinations":10}}
+
+  formal_logic (propositional: & and, | or, ~ not, >> implies):
+    {"domain":"formal_logic","spec":{"variables":["p","q"],"formula":"p | ~p","claimed_tautology":true}}
+    {"domain":"formal_logic","spec":{"variables":["p","q"],"formula":"p & ~p","claimed_contradiction":true}}
+
+  geometry:
+    {"domain":"geometry","spec":{"tri_a":3,"tri_b":4,"tri_c":5,"claimed_valid_triangle":true}}
+    {"domain":"geometry","spec":{"pyth_a":3,"pyth_b":4,"pyth_c":5,"claimed_right_triangle":true}}
+    {"domain":"geometry","spec":{"circle_radius":5,"claimed_circle_area":78.5398}}
+    {"domain":"geometry","spec":{"coordination":"tetrahedral","claimed_central_angle_deg":109.47}}
+
+  optics (SI units, lengths in metres):
+    {"domain":"optics","spec":{"wavelength_m":6.5e-7,"claimed_photon_energy_j":3.06e-19}}
+    {"domain":"optics","spec":{"wavelength_m":6.5e-7,"slit_separation_m":1e-4,"screen_distance_m":2.0,"claimed_fringe_spacing_m":0.013}}
+    {"domain":"optics","spec":{"n_core":1.5,"n_cladding":1.46,"claimed_critical_angle_deg":76.74}}
+
+  atomic:
+    {"domain":"atomic","spec":{"atomic_number":6,"claimed_configuration":"1s2 2s2 2p2"}}
+    {"domain":"atomic","spec":{"shell_n":3,"claimed_shell_capacity":18}}
+    {"domain":"atomic","spec":{"n":3,"l":2,"m_l":-1,"m_s":0.5}}
+
+  molecular_geometry (VSEPR):
+    {"domain":"molecular_geometry","spec":{"bonding_domains":4,"lone_pairs":0,"claimed_geometry":"tetrahedral","claimed_bond_angle_deg":109.47}}
+
+- If a claim does NOT fit any domain/spec above, OMIT it — do not invent a domain or spec. Fewer correct steps beat guesses.
 - Output ONLY a JSON array of steps. No prose, no markdown, no code fence."""
 
 
