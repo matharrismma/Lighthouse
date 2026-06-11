@@ -122,7 +122,8 @@ async function j(u){ const r=await fetch(u,{credentials:'include',cache:'no-stor
 const EP = {
   stats:'/visits/stats?days=7', tickets:'/tickets', mis:'/misalignments', inbox:'/inbox',
   scribe:'/scribe/recent', witness:'/api/witness/applications', cards:'/cards/stats',
-  cap:'/capabilities', health:'/health', insights:'/keep/insights', drecent:'/d/recent', seeds:'/seeds'
+  cap:'/capabilities', health:'/health', insights:'/keep/insights', drecent:'/d/recent', seeds:'/seeds',
+  verified:'/verified?limit=1'
 };
 
 function bars(obj, max, color){
@@ -159,6 +160,8 @@ function renderQueue(d){
     setChip('p-door', fmt(inbox), 'unread intake', inbox>0?'warn':'idle', 'p-door'),
     setChip('p-door', fmt(w), 'witness apps', w>0?'warn':'idle', 'p-door'),
     setChip('p-health', pct==null?'—':(pct.toFixed(0)+'%'), 'spend of cap', pct==null?'idle':(pct>=80?'bad':pct>=50?'warn':'ok'), 'p-health'),
+    `<div class="chip ok" title="Corpus claims carrying a sealed, citable proof" onclick="window.open('/verified','_blank')">
+      <div class="n">${d.verified?.proven_total!=null?fmt(d.verified.proven_total):'—'}</div><div class="l">verified proofs</div></div>`,
   ];
   $('#queue').innerHTML = chips.join('');
 }
