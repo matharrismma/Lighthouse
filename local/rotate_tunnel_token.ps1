@@ -27,13 +27,14 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $CloudflareApiToken,
 
-    # These defaults are pulled from your dashboard URL and the screenshot.
-    [string] $AccountId  = '87849e3849c1da6bcf1a70db3a020312',
+    # Account ID is read from the CF_ACCOUNT_ID environment variable so it stays out of source control.
+    [string] $AccountId  = $env:CF_ACCOUNT_ID,
     [string] $TunnelName = 'concordance',
     [string] $TokenFile  = 'C:\Concordance\tunnel.token'
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $AccountId) { throw "Set CF_ACCOUNT_ID (your Cloudflare account ID) in the environment before running this script." }
 $Cloudflared = 'C:\Concordance\cloudflared.exe'
 $Headers = @{
     Authorization  = "Bearer $CloudflareApiToken"
