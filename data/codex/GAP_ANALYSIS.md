@@ -86,6 +86,18 @@ On the first pass I called biology "under-mapped (3 cards)" from a narrow count 
 
 **Search-first scorecard (2026-06-12 round):** of 7 candidates, 4 were already done (CLT, marginal, music, compounding) — confirming the rule. Only the 3 biology frozen-noun slots were genuinely open; all 3 filled. The connection grid for the 6 canon domains is now densely covered; remaining open work is the normalization pass + Bayes (optional) + non-canon domains.
 
+## Per-canon audit log (frozen nouns vs the connection layer)
+
+**BIOLOGY (2026-06-12):** complete — GENOME/EXPRESSION/COMPARTMENT covered; FEEDBACK/FITNESS/POPULATION partial (assessments); PROTEOME/SIGNAL/METABOLISM filled this session.
+
+**CHEMISTRY (2026-06-12):** STOICHIOMETRY/MATTER covered (`chemical_balance`, `matter_keeps_its_books`, `metabolism_is_controlled_combustion`); ENTROPY/GIBBS covered (Prigogine, `uncertainty_entropy`). Filled 3 genuinely-open forms, each joining an existing family:
+- ACTIVITY/acid-base → `connection_ph_is_a_logarithm` (pH = -log[H+]; joins decibel/cents/Richter) — `c654f30b`
+- adsorption/catalysis → `connection_saturation_curve_is_one_hyperbola` (Langmuir = Michaelis-Menten = Hill n=1; joins the SIGNAL card) — `951a8176`
+- KINETICS/RATE → `connection_arrhenius_is_exponential` (k = A·exp(-Ea/RT); joins the exponential family) — `da35c3f8`
+Still open (low priority): chemical EQUILIBRIUM as mass-action / Le Chatelier; NERNST (same logarithm); polymers.
+
+**REMAINING CANONS TO AUDIT:** physics, computer_science, mathematics, statistics (one per tick).
+
 **New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
 Each fill, when sealed, nests to its cluster capstone → `connection_reality_is_mappable` → the one ground (Christ). Anything that will not attach to the vine is not filled — it is left as a marked **open slot** (a frontier note), which is itself valuable: *knowing what no theory yet covers.*
