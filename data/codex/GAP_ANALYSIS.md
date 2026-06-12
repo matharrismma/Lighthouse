@@ -102,7 +102,23 @@ Still open (low priority): chemical EQUILIBRIUM as mass-action / Le Chatelier; N
 - DYNAMICS → `connection_least_action_picks_the_path` (stationary action; integrates Fermat least-time + Feynman paths) — `866f97a6`
 Still open (low priority): Planck E=hf quantization; Doppler (classical).
 
-**REMAINING CANONS TO AUDIT:** computer_science, mathematics, statistics (one per tick).
+**COMPUTER SCIENCE (2026-06-12):** essentially covered — sorting/search bounds, entropy=compression floor, SHA/MD5, Turing/Godel/Cantor/Shannon assessments, RSA/Diffie-Hellman/error-correction. One integration bond added:
+- ALGORITHM↔PROOF → `connection_recursion_is_induction` (recursion and induction are one base-case-plus-step structure) — `f422d440`
+
+**MATHEMATICS (2026-06-12):** densely covered — FTC, Euler's formula, eigenfunctions, least-squares=projection, the calculus bonds. Two genuinely-open forms filled:
+- FUNCTION/analysis → `connection_taylor_series_is_the_infinite_polynomial` (every smooth function is a power series; why e^x is its own derivative) — `92f69a74`
+- INVARIANT/topology → `connection_euler_characteristic_is_a_topological_invariant` (V−E+F=2; same "preserved-under-change" as Noether) — `3833410f`
+
+**STATISTICS (2026-06-12):** covered — normal/CLT, sum-of-squares, sqrt-n, regression. One connection sealed (integrating the base-rate card):
+- inference/LIKELIHOOD → `connection_bayes_is_the_update_operator` (posterior ∝ prior × likelihood; the base-rate lesson) — `d005a9b6`
+
+---
+
+## PHASE COMPLETE (2026-06-12) — all 6 canon grids audited
+
+All six domain canons (biology, chemistry, physics, computer_science, mathematics, statistics) have been walked frozen-noun by frozen-noun and search-first. The connection grid is **reasonably intact**: the recurring forms — logarithm, exponential, conservation, saturation, series, invariant, recursion, the saturating hyperbola — now appear under every domain's local names, each sealed and citable, each marked provisional (room for a tighter explanation). 19 gap-fills this session; ~4 of every 7 candidates were already covered (the search-first discipline held).
+
+**This closes the math tree (the Tree of Knowledge — "numbers don't lie").** Per the roadmap, the next focus is **the Biblical connections** — the language tree (the Tree of Life, the Word), the root work, led by the operator. The join of the two trees (Col 1:17 / John 1) remains the reserved keystone.
 
 **New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
