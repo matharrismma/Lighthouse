@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time as _time
 import urllib.error
 import urllib.request
@@ -1273,6 +1274,171 @@ def _load_almanac_entries():
 
 
 _ALMANAC_ENTRIES = _load_almanac_entries()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# search / fetch — the two tools ChatGPT connectors and Deep Research
+# require by name. `search` returns a ranked list of {id, title, url};
+# `fetch` returns one document's full text by id. Both read the same
+# curated book (data/almanac/entries.jsonl), preferring pages that carry
+# a sealed, tamper-evident proof. This is what lets ChatGPT (and any
+# connector-capable agent) find and cite the verified corpus.
+# ──────────────────────────────────────────────────────────────────────
+def _entry_proof(e: Dict[str, Any]) -> Optional[str]:
+    return e.get("proof") or (e.get("pre_run") or {}).get("proof_receipt")
+
+
+def _entry_url(e: Dict[str, Any]) -> str:
+    return f"https://narrowhighway.com/almanac/{e.get('id', '')}"
+
+
+def _entry_blob(e: Dict[str, Any]) -> str:
+    parts = [
+        str(e.get("title", "")),
+        str(e.get("situation", "")),
+        str(e.get("use", "")),
+        str(e.get("verification", "")),
+        str(e.get("wisdom", "")),
+        " ".join(str(x) for x in (e.get("domains") or [])),
+        " ".join(str(x) for x in ((e.get("triggers") or {}).get("keywords") or [])),
+        str(e.get("category", "")),
+    ]
+    return " ".join(parts).lower()
+
+
+def _entry_text(e: Dict[str, Any]) -> str:
+    """Assemble one entry into a single readable document for fetch()."""
+    lines: List[str] = []
+    if e.get("title"):
+        lines.append(str(e["title"]))
+        lines.append("")
+    if e.get("situation"):
+        lines.append(str(e["situation"]))
+    if e.get("verification"):
+        lines.append(str(e["verification"]))
+    if e.get("use"):
+        lines.append("")
+        lines.append("USE: " + str(e["use"]))
+    pre = e.get("pre_run") or {}
+    if pre.get("summary"):
+        lines.append("")
+        lines.append("VERIFICATION: " + str(pre["summary"]))
+    for dr in (pre.get("domain_results") or []):
+        lines.append(
+            f"  - {dr.get('domain')}: {dr.get('verdict')} -- {dr.get('detail')}"
+        )
+    if e.get("wisdom"):
+        lines.append("")
+        lines.append(str(e["wisdom"]))
+    proof = _entry_proof(e)
+    if proof:
+        lines.append("")
+        lines.append("PROOF (tamper-evident receipt): " + str(proof))
+    doms = e.get("domains") or []
+    if doms:
+        lines.append("DOMAINS: " + ", ".join(str(d) for d in doms))
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def search(query: str, max_results: int = 10) -> Dict[str, Any]:
+    """Search the verified corpus and return ranked results.
+
+    This is the entry point ChatGPT connectors and Deep Research call.
+    It ranks the curated, engine-verified pages (cross-domain
+    connections, located results, and sayings) by keyword match against
+    the query, preferring pages that carry a sealed, citable proof.
+
+    Returns {"results": [{"id", "title", "url", "snippet"}]}. Pass an id
+    to fetch() to read the whole page and its proof receipt.
+    """
+    book = _ALMANAC_ENTRIES or []
+    q = (query or "").lower().strip()
+    tokens = [t for t in re.split(r"[^a-z0-9]+", q) if len(t) > 1]
+    scored: List[tuple] = []
+    for e in book:
+        if not e.get("id"):
+            continue
+        blob = _entry_blob(e)
+        title = str(e.get("title", "")).lower()
+        if tokens:
+            score = 0
+            for t in tokens:
+                score += blob.count(t)
+                if t in title:
+                    score += 5  # title hits weigh more
+            if score == 0:
+                continue
+        else:
+            score = 0  # empty query → table of contents (proven first)
+        if _entry_proof(e):
+            score += 3  # prefer pages with a sealed proof
+        scored.append((score, e))
+    scored.sort(key=lambda se: (-se[0], se[1].get("id") or ""))
+    results = []
+    for _score, e in scored[: max(1, min(max_results, 50))]:
+        snippet = str(e.get("situation") or e.get("verification") or e.get("use") or "")[:300]
+        proof = _entry_proof(e)
+        results.append({
+            "id": e.get("id"),
+            "title": e.get("title", ""),
+            "url": proof or _entry_url(e),
+            "snippet": snippet,
+        })
+    return {"results": results}
+
+
+@mcp.tool()
+def fetch(id: str) -> Dict[str, Any]:
+    """Fetch one verified page by id (the second tool ChatGPT connectors
+    require). Returns {"id", "title", "text", "url", "metadata"} where
+    `text` is the full page (situation, use, the per-domain verification
+    results, the wisdom, and the tamper-evident proof receipt) and
+    `metadata` carries domains, category, verdict, and the proof URL.
+
+    Accepts an entry id (e.g. "connection_rsa_is_modular_inverse_of_primes")
+    or a seal ref / cite_url; for a seal it points the reader to GET
+    /seal/{ref}, the permanent record.
+    """
+    book = _ALMANAC_ENTRIES or []
+    key = (id or "").strip()
+    # allow a full cite_url or bare seal ref to be fetched too
+    seal_ref = ""
+    if "/seal/" in key:
+        seal_ref = key.rsplit("/seal/", 1)[-1].strip("/ ")
+    match = next((e for e in book if e.get("id") == key), None)
+    if match is None and seal_ref:
+        match = next(
+            (e for e in book if (_entry_proof(e) or "").endswith(seal_ref)),
+            None,
+        )
+    if match is None:
+        return {
+            "id": key,
+            "title": "(not found)",
+            "text": (
+                "No verified page with that id. Call search(query) first to "
+                "get ids, or browse GET https://narrowhighway.com/verified."
+            ),
+            "url": "https://narrowhighway.com/verified",
+            "metadata": {"found": False},
+        }
+    proof = _entry_proof(match)
+    return {
+        "id": match.get("id"),
+        "title": match.get("title", ""),
+        "text": _entry_text(match),
+        "url": proof or _entry_url(match),
+        "metadata": {
+            "domains": match.get("domains") or [],
+            "category": match.get("category"),
+            "kind": match.get("kind", "protocol"),
+            "verdict": match.get("verdict"),
+            "proof": proof,
+            "canonical": _entry_url(match),
+            "found": True,
+        },
+    }
 
 
 @mcp.tool()
