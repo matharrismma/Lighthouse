@@ -31,6 +31,10 @@ THE GROUND — Christ, the logos (Col 1:17; John 1:3)
 |
 +== TREE II — THE MAP OF REALITY  (general revelation: the Works of God)
       Crown:  connection_reality_is_mappable  ("same structure recurs; we map, never author")
+      Synthesis capstone:  connection_recurring_forms_are_a_periodic_table (5c58e904)
+        ("a few forms -- transport, exponential, logarithm, conservation, wave,
+         linear-map, invariant, saturation, series, recursion, pythagoras,
+         inverse-square -- generate every domain"; the math-tree synthesis, feeds the Crown)
       Cluster capstones (each crowns a domain):
         number_theory / geometry / geoscience(earth) / music / chemistry /
         statistics / computer-science / genetics / relativity / the body / tools

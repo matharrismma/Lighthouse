@@ -120,6 +120,19 @@ All six domain canons (biology, chemistry, physics, computer_science, mathematic
 
 **This closes the math tree (the Tree of Knowledge — "numbers don't lie").** Per the roadmap, the next focus is **the Biblical connections** — the language tree (the Tree of Life, the Word), the root work, led by the operator. The join of the two trees (Col 1:17 / John 1) remains the reserved keystone.
 
+---
+
+## The integration — the periodic table of forms (2026-06-12)
+
+The phase did not end at filling slots; it ended by naming the **meshing**. A survey of `coord.family` across the connection layer showed a small set of forms recurring across many domains: transport (8), wave / linear-map (7), exponential / tensor (6), logarithm / conservation / symmetry-invariant / normal-distribution (5), then pythagoras, inverse-square, saturation, series, recursion, digital-code. These are the **elements of structure** — recombined to make every field.
+
+Sealed as the synthesis:
+- **`connection_recurring_forms_are_a_periodic_table`** (`5c58e904`) — the **capstone of the gap-analysis phase**. Gathers the recurring forms; seals four representative kernels (exponential self-derivative, logarithm as its inverse, inverse-square flux, conservation balance); `coord.level=capstone`; feeds `connection_reality_is_mappable`. Explicitly the math-tree synthesis — the two-trees join stays reserved.
+- **`connection_exponential_and_logarithm_are_inverse_faces`** (`7e4e41a4`) — meshes the two largest families: e^x and ln x are one form inverted (exp(log x)=x; d/dx ln x = 1/x).
+- **Normalization:** merged `inverse_square` → `inverse-square` (family + axes), so the inverse-square form reads as one 6-domain spine (acoustics, electrical, geoscience, mathematics, optics, physics) instead of two split families.
+
+That is the watch's *meshing*, not just its gears. The math tree is sealed, crowned, and integrated. Next: the Word.
+
 **New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
 Each fill, when sealed, nests to its cluster capstone → `connection_reality_is_mappable` → the one ground (Christ). Anything that will not attach to the vine is not filled — it is left as a marked **open slot** (a frontier note), which is itself valuable: *knowing what no theory yet covers.*
