@@ -26,9 +26,9 @@ This is the Mendeleev move. Once the matrices are dense enough, the *holes* beco
 | COMPARTMENT (membrane transport) | **covered** — `transport_law_four_readings` (Fick) now tagged biology |
 | FEEDBACK, FITNESS (systems_biology_control, evolution_ecology) | **partial** — Wiener (negative feedback), Friston, Darwin, Kauffman assessments touch these; no dedicated sealed connection |
 | POPULATION | **partial** — Hardy-Weinberg example exists (`examples/sample_packet_biology_hardy_weinberg.json`); not sealed as a connection |
-| **PROTEOME** | **OPEN** — no sealed connection (most-likely fill: sequence→structure→function as an information map) |
-| **METABOLISM** (biochemistry_metabolism) | **OPEN in the connection layer** — almanac calorie cards exist, but no sealed connection (most-likely: ATP/redox ledger = conservation; glycolysis flux = balance) |
-| **SIGNAL** (transduction) | **OPEN** — most-likely: signaling cascade = gain/threshold (same control form as Wiener) |
+| **PROTEOME** | **FILLED** 2026-06-12 — `connection_proteome_is_a_combinatorial_alphabet` (20-letter sequence space; 20^100 > 10^80) |
+| **METABOLISM** (biochemistry_metabolism) | **FILLED** 2026-06-12 — `connection_metabolism_is_controlled_combustion` (respiration = balanced combustion; conservation; bonds `chemical_balance`) |
+| **SIGNAL** (transduction) | **FILLED** 2026-06-12 — `connection_signal_transduction_is_gain_and_threshold` (cascade gain 100^3=10^6 + Hill half-saturation; same control form as Wiener) |
 
 *Every one of these must still pass STEP-0 SEARCH-FIRST before sealing — and now also: read the relevant canon module first.*
 
@@ -76,12 +76,15 @@ On the first pass I called biology "under-mapped (3 cards)" from a narrow count 
 1. ~~statistics: least-squares = projection~~ **(sealed, inst. 1; linked to gauss-thread)**
 2. ~~finance: geometric series = perpetuity PV~~ **(sealed, inst. 1; linked to almanac_present_value_money)**
 3. ~~biology: Fick's law~~ **REMOVED — duplicate of `transport_law_four_readings`; integrated as a biology tag instead.**
-4. statistics: normal distribution from the CLT *(verify no dup first)*
-5. statistics: Bayes' theorem as the update operator *(verify no dup first)*
-6. music: overtone series = integer harmonics — *check music capstone first (likely already covered)*
-7. finance: compounding = the exponential form; (1+r/n)^n → e^r
-8. economics: marginal = derivative (the `limit` form enters economics)
-9. normalization: merge `inverse-square` / `inverse_square` (connector pass)
+4. ~~statistics: normal distribution from CLT~~ **ALREADY DONE** — `connection_normal_distribution_prob_stats`, `galton_board_is_the_bell_curve`, `sqrt_n_law_of_aggregation`, `rayleigh_pdf_is_2d_gaussian`.
+5. statistics: Bayes' theorem as the update operator *(verify no dup first — `probability` verifier covers Bayes)*
+6. ~~music: overtone series~~ **ALREADY DONE** — 62 music cards incl. `overtones_are_eigenfunctions`, `major_triad_is_overtone_ratios`, `harmonic_series_diverges_logarithmically`.
+7. ~~finance: compounding = exponential~~ **mostly covered** — `almanac_rule_of_72_doubling`, `almanac_inflation_erodes_cash`. (A dedicated continuous-compounding connection is optional, low priority.)
+8. ~~economics: marginal = derivative~~ **ALREADY DONE** — `connection_marginal_is_rate_of_change`.
+9. **biology PROTEOME / SIGNAL / METABOLISM** — **FILLED 2026-06-12** (see table above; the three genuinely-open canon slots this round).
+10. normalization: merge `inverse-square` / `inverse_square` (connector pass) — still open.
+
+**Search-first scorecard (2026-06-12 round):** of 7 candidates, 4 were already done (CLT, marginal, music, compounding) — confirming the rule. Only the 3 biology frozen-noun slots were genuinely open; all 3 filled. The connection grid for the 6 canon domains is now densely covered; remaining open work is the normalization pass + Bayes (optional) + non-canon domains.
 
 **New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
