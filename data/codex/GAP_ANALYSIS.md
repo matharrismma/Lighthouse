@@ -96,7 +96,13 @@ On the first pass I called biology "under-mapped (3 cards)" from a narrow count 
 - KINETICS/RATE → `connection_arrhenius_is_exponential` (k = A·exp(-Ea/RT); joins the exponential family) — `da35c3f8`
 Still open (low priority): chemical EQUILIBRIUM as mass-action / Le Chatelier; NERNST (same logarithm); polymers.
 
-**REMAINING CANONS TO AUDIT:** physics, computer_science, mathematics, statistics (one per tick).
+**PHYSICS (2026-06-12):** densest domain — time-dilation, eigenfunctions, Fourier, uncertainty, Maxwell, inverse-square, Boltzmann-factor all already covered. Filled 3 genuinely-open deep forms:
+- SYMMETRY+INVARIANT → `connection_noether_symmetry_is_conservation` (every symmetry is a conservation law; p=∂L/∂v, ∂L/∂q=0) — `ea870624`
+- thermodynamics → `connection_carnot_efficiency_is_the_second_law` (η = 1−Tc/Th; the second law as a ceiling) — `a3a36d6d`
+- DYNAMICS → `connection_least_action_picks_the_path` (stationary action; integrates Fermat least-time + Feynman paths) — `866f97a6`
+Still open (low priority): Planck E=hf quantization; Doppler (classical).
+
+**REMAINING CANONS TO AUDIT:** computer_science, mathematics, statistics (one per tick).
 
 **New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
