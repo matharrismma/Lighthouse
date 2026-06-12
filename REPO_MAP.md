@@ -11,6 +11,20 @@
 
 ---
 
+## Where it lives — the five surfaces (routing)
+
+One engine, several faces; each surface has one job. Public GitHub holds code + a taste, **never the full corpus** — the moat is the live system + trust, not the static data. "Can't get lost" is answered by `.org` (verified truth, permanent + citable) plus a private backup of the full substrate — not by putting the corpus on public GitHub.
+
+| Surface | Role | What's there |
+|---|---|---|
+| **narrowhighway.com** | the app | the verifier in use, the MCP for agents, decision/walk surfaces — the operator's & agents' working tool |
+| **narrowhighway.org** | core / authority / registry | the unchanging reference: `/identity`, `/verified` (sealed proofs), `/atlas` (the map), the codex, the canons. Where verified truth lives permanently. **LIVE.** |
+| **narrowhighway.tv** | gift / sprawl | TV & radio for the whole family, the Almanac (human face), channels, games, home-economics. Free, curated, given. **LIVE.** |
+| **GitHub (public)** `matharrismma/Lighthouse` | open foundation | code, canons, docs, REPO_MAP, the wedge — *how it works + a taste*. NOT the 52MB `data/cards`. |
+| **Private backup** (Cloudflare R2) | insurance | encrypted tarball of the full substrate (`data/cards` + seals/ledger), closing the node single-point-of-failure. `local/backup_to_r2.sh`. |
+
+Rule: `.com` = the working tool · `.org` = the authority you cite · `.tv` = the gift you give · GitHub = how it works · R2 = the vault.
+
 ## Top-level layout (1,417 tracked files + untracked data)
 
 | Dir | Files | What it is |
