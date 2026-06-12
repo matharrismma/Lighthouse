@@ -51,6 +51,21 @@ The two trees stay two — the Word and the Works, special and general revelatio
 
 The single keystone that names this ground explicitly — `connection_reality_is_mappable` rooted into Col 1:17 / John 1, and the redemptive-epochs arc — is **reserved for Phase 3 (the Jesus focus)**, authored with the most care. It is not a graft that makes the trees one; it is the confession of the ground that already holds them both.
 
+## The two trees, named (Matt 2026-06-12): Life = Language, Knowledge = Math
+
+Matt named which tree is which — *"I think math and language are the two trees,"* then *"Speak life and knowledge of good and evil. Numbers don't lie,"* and on the synthesis: *"That's it."*
+
+- **TREE I = the Tree of LIFE = LANGUAGE / the Word.** Life is *spoken* — *"Death and life are in the power of the tongue"* (Prov 18:21); *"In him was life, and the life was the light of men"* (John 1:4). This is the codex, Scripture, the named and the said — the **Almanac's human face**. Its root is *frozen*: the original-language **word-parts** (the one frozen thing — only Scripture is frozen).
+- **TREE II = the Tree of the KNOWLEDGE of Good and Evil = MATH / Number.** Knowledge *discerns* — it separates true from false, holds from breaks. *"Numbers don't lie"*: the verifier returns a verdict that cannot be flattered (the oracle can lie; the number cannot). This is the map of reality, the verified forms — the **Atlas's technical face**. The verifier moat is the tree whose fruit does not lie.
+
+**One ground = the Logos** — *logos* means both *word* and *ratio/reason* (John 1:1); Christ is the single root where language and number are one (Col 1:17).
+
+**The asymmetry (do not flatten it).** Equal as revelation — both trees show God — but unequal in authority. The language tree is *frozen-rooted* (the word-parts); the math tree is the *living, provisional* witness, its forms always open to a tighter account (math = servant constraint-language). **The Word judges the map; number witnesses to the Word.** Genesis fixes the order: God *says* "let there be," and the mathematical lawfulness is the grammar of what the saying made. (So the canon "frozen_nouns" are math-tree provisionals, not frozen.)
+
+**Eden re-ordered.** The tree of knowledge brought death (Gen 2:17) — not because the knowledge was false (numbers don't lie) but because it was eaten *apart from life*, grasped autonomously (the Romans-1 fork: knowing the structure, refusing the Person). Numbers don't lie, but they don't raise the dead — only the Word does. So the engine keeps **knowledge under life** (math serves the Word): the tree that once brought death now serves the tree that gives it. Genesis separates the two (the fall); Revelation restores the one Tree of Life, *"and the leaves of the tree were for the healing of the nations"* (Rev 22:2). **That healing — the two trees made one in the Logos — is the join, and the join is the reserved keystone (Phase 3). It is set by the operator; this document names only the frame.**
+
+*Honest edge: the number does not lie, but our reading of which number and what it means still can — which is why the witness and the trail exist. Life governs the reading of the knowledge, so it stays true* and *gives life.*
+
 ## The nesting rule (every card gets a home)
 
 Every card must resolve to a path: **root -> branch -> (tier | capstone) -> box/family -> card.** Resolve in this order:
