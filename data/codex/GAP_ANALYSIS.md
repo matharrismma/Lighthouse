@@ -24,8 +24,8 @@ Each clean, sealable form should recur wherever its structure governs. Where it 
 
 | Form (axis) | Present in | Predicted missing slot → most likely fill |
 |---|---|---|
-| `series` | math, number_theory | **finance** → geometric series = present value of a perpetuity/annuity *(sealed, inst. 1)* |
-| `transport` | geoscience, math, physics | **biology** → Fick's law of diffusion = Fourier's law of heat (same operator) *(sealed, inst. 1)* |
+| `series` | math, number_theory | **finance** → geometric series = present value of a perpetuity/annuity *(sealed, inst. 1; linked to pre-existing `almanac_present_value_money`)* |
+| `transport` | geoscience, math, physics | ~~biology → Fick's law~~ **ALREADY MAPPED** — `connection_transport_law_four_readings` already names Fick's law alongside Ohm/Darcy/Fourier. The only real gap was the missing biology *tag*; **fixed** by adding `biology` to that card, not by a new one. *(My duplicate fill was removed — see Correction.)* |
 | `harmonics` | acoustics, geoscience, physics | **music** → overtone series fₙ = n·f₁ (likely a tagging gap; draw the explicit bond) |
 | `optimization` | econ, materials, math, physics | **biology** → fitness as an extremum (dF/dt ≥ 0); **operations_research** |
 | `limit` | math, physics | **economics** (marginal = derivative); **CS** (asymptotic complexity) |
@@ -35,28 +35,31 @@ Each clean, sealable form should recur wherever its structure governs. Where it 
 ### C. A normalization gap (cheap, real)
 `inverse-square` and `inverse_square` are the **same form under two spellings** — the grid double-counts it (one at 4 domains, one at 3), and bonds across the split don't connect. **Fix:** normalize to one axis key so the inverse-square family reads as one ~6-domain spine (gravity, Coulomb, sound, light, flux, geoscience). Low effort, raises coherence. *(Queued for the connector pass; not a content card.)*
 
-### D. Under-mapped domains — verifier exists, connections don't (≤3 connection cards)
-The engine can *verify* these domains but the grid hasn't *connected* them. Highest-value, most-likely fills:
-- **finance** (3) → series/PV, compounding = exponential, risk = √n diversification.
-- **biology** (3) → transport (Fick), optimization (allometry/foraging), logistic growth = saturating exponential.
-- **thermodynamics** (2) / **nuclear_physics** (2) → already have decay/entropy forms elsewhere; draw the bonds in.
-- **formal_logic** (3) → Boolean = GF(2) and inference-rules already sealed; connect them as a block.
-- **materials_science** (3), **networking** (2), **nutrition** (2) → conservation + rate + geometry forms.
+### D. Under-mapped domains — verifier exists, connections don't (≤3 *connection* cards)
+**Caution (learned 2026-06-12):** a low *connection-card* count is NOT the same as low coverage. Count total content, not just `connection_*` cards, before calling a domain a gap (see Correction). Genuinely thin in the **connection** layer:
+- **finance** → series/PV *(now linked)*, compounding = exponential, risk = √n diversification. (Note: `almanac_present_value_money` already existed.)
+- **thermodynamics** / **nuclear_physics** → already have decay/entropy forms elsewhere; draw the bonds in.
+- **formal_logic** → Boolean = GF(2) and inference-rules already sealed; connect them as a block.
+- ~~biology~~ — **NOT a gap.** Biology is one of the richest domains: 706/1,415 corpus rows touch it; a full genetics cluster, the transport law (Fick included), 10 thinker-assessments, 12 herb monographs (`data/herbs`), 5 body-system layers (`data/body/layers.jsonl`), apothecary compounds, and 384 dictionary cards on scriptural flora/fauna.
+
+### Correction — the biology miscount (the value of looking first)
+On the first pass I called biology "under-mapped (3 cards)" from a narrow count of `connection_*` cards in one file, and sealed a Fick's-law fill. **Matt flagged it** ("I had a lot on biology — search to make sure you found everything"). A full search showed biology is richly covered, and that the transport law **already** named Fick's diffusion. The fill was a duplicate; it was **removed**, and `biology` was added as a tag to the existing four-readings card instead. The lesson (standing): *count all content, search `data/cards` and the data subdirs, and check the connection layer for the form before filling — the gap may already be filled under another name.*
 
 ---
 
 ## The fill queue (most likely options, in priority order — all provisional)
 
-1. ~~statistics: least-squares = projection~~ **(sealed, inst. 1)**
-2. ~~finance: geometric series = perpetuity PV~~ **(sealed, inst. 1)**
-3. ~~biology: Fick's law = Fourier's law (transport)~~ **(sealed, inst. 1)**
-4. statistics: normal distribution from the CLT
-5. statistics: Bayes' theorem as the update operator
-6. music: overtone series = integer harmonics (draw the bond)
+1. ~~statistics: least-squares = projection~~ **(sealed, inst. 1; linked to gauss-thread)**
+2. ~~finance: geometric series = perpetuity PV~~ **(sealed, inst. 1; linked to almanac_present_value_money)**
+3. ~~biology: Fick's law~~ **REMOVED — duplicate of `transport_law_four_readings`; integrated as a biology tag instead.**
+4. statistics: normal distribution from the CLT *(verify no dup first)*
+5. statistics: Bayes' theorem as the update operator *(verify no dup first)*
+6. music: overtone series = integer harmonics — *check music capstone first (likely already covered)*
 7. finance: compounding = the exponential form; (1+r/n)^n → e^r
-8. biology: logistic growth = saturating exponential / carrying-capacity limit
-9. economics: marginal = derivative (the `limit` form enters economics)
-10. normalization: merge `inverse-square` / `inverse_square` (connector pass)
+8. economics: marginal = derivative (the `limit` form enters economics)
+9. normalization: merge `inverse-square` / `inverse_square` (connector pass)
+
+**New step 0 for every fill (standing): SEARCH FIRST** — count total content (not just `connection_*`), grep `data/cards` + data subdirs + the connection layer for the form. Fill only a genuinely empty slot; otherwise integrate (tag/link) the card that already holds it.
 
 Each fill, when sealed, nests to its cluster capstone → `connection_reality_is_mappable` → the one ground (Christ). Anything that will not attach to the vine is not filled — it is left as a marked **open slot** (a frontier note), which is itself valuable: *knowing what no theory yet covers.*
 
