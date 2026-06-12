@@ -1,0 +1,61 @@
+{
+  "id": "card_c_6edeedd3074d",
+  "kind": "connection",
+  "title": "Easton: Claudius cites James",
+  "body": "Card references James. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_james",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "james"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f1d1a72d85aa",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_94b8d7f43e37",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:22.023788+00:00",
+  "updated_at": "2026-05-19T19:49:25.173258+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f1d1a72d85aa",
+    "right_card_id": "card_n_94b8d7f43e37",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: James named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "26e552aa08f5d0e59e2bccd47a012eb7056b547a431d3bfa8900242b0243b114",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f1d1a72d85aa,card_n_94b8d7f43e37"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

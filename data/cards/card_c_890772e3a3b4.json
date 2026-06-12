@@ -1,0 +1,59 @@
+{
+  "id": "card_c_890772e3a3b4",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §265: Neither wil → Pilgrim's Progress §266: Then Christ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_de99ca939171",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c4a939105388",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.209696+00:00",
+  "updated_at": "2026-05-19T13:58:41.209701+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_de99ca939171",
+    "right_card_id": "card_n_c4a939105388",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "ec3e455b4e460bb5ae3035ec722e2579d60a9057a800d8a9b209fb87d55227d8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_de99ca939171,card_n_c4a939105388"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_5a0edfe95dd2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §59: CHR. → Pilgrim's Progress §60: \"He that wil",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_30712cd61b27",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_06500baac3c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.051700+00:00",
+  "updated_at": "2026-05-19T13:58:41.051709+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_30712cd61b27",
+    "right_card_id": "card_n_06500baac3c0",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "8d95db50a2389b2e55c1e65279e33412a094c12e57efb07a75052d2bbd11aed8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_30712cd61b27,card_n_06500baac3c0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

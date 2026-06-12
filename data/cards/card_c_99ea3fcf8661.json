@@ -1,0 +1,61 @@
+{
+  "id": "card_c_99ea3fcf8661",
+  "kind": "connection",
+  "title": "Easton: Redemption cites Titus",
+  "body": "Card references Titus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_titus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_81bd3c3606cb",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:07.170262+00:00",
+  "updated_at": "2026-05-19T19:49:26.134593+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_81bd3c3606cb",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Titus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "9b43916e3cde7e8dd6811ac13d9e08bf10275f7e9ada0596dfd29f1924af3084",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_81bd3c3606cb,card_n_17f4e723f672"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

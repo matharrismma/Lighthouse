@@ -1,0 +1,59 @@
+{
+  "id": "card_c_64a54783ad5d",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §310: When Christ → Pilgrim's Progress §309: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ea00f01e179c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b9f6b9712c3c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.240236+00:00",
+  "updated_at": "2026-05-19T13:58:41.240246+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ea00f01e179c",
+    "right_card_id": "card_n_b9f6b9712c3c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "dddecbf2d3e61b8f1a243d7b80e2c5cddd67802c2e4020ac03374c85126cccd8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ea00f01e179c,card_n_b9f6b9712c3c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_eef0e6734e43",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_03: Rabbi Shimo → Pirkei Avot §avot_03_02: Rabbi Hanin",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5ee2cdae3f55",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7ebc4edb4ae4",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.331665+00:00",
+  "updated_at": "2026-05-19T13:58:41.331669+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5ee2cdae3f55",
+    "right_card_id": "card_n_7ebc4edb4ae4",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "c74d8ada5d6aac8e69ee6549d07e4bf10f206991b11326b719ebc2179fb427b3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5ee2cdae3f55,card_n_7ebc4edb4ae4"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

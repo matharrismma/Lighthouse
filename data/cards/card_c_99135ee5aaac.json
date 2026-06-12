@@ -1,0 +1,59 @@
+{
+  "id": "card_c_99135ee5aaac",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XIX → Ignatius to the Ephesians XXI",
+  "body": "Sequential next in ignatius_ephesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_ephesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_ephesians",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_49c8e02ac69b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_2dd977fbe2e2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.195364+00:00",
+  "updated_at": "2026-05-19T13:58:42.195369+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_49c8e02ac69b",
+    "right_card_id": "card_n_2dd977fbe2e2",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "8254c03c4ce9e2d898b0ab8305ce7c3fd49fc2c04e4a8d09e2831d33402ec273",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_49c8e02ac69b,card_n_2dd977fbe2e2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

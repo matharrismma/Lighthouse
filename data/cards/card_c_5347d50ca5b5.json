@@ -1,0 +1,59 @@
+{
+  "id": "card_c_5347d50ca5b5",
+  "kind": "connection",
+  "title": "Ignatius to the Philadelphians X → Ignatius to the Philadelphians XI",
+  "body": "Sequential next in ignatius_philadelphians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_philadelphians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_philadelphians",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_philadelphians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a536e0056156",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1d1413cb29b1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.023725+00:00",
+  "updated_at": "2026-05-19T13:58:42.023729+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a536e0056156",
+    "right_card_id": "card_n_1d1413cb29b1",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e845901b1cf4a007436d94d6ffecf75fbf337dd936ae68960b0c25e2b46d8aca",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a536e0056156,card_n_1d1413cb29b1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

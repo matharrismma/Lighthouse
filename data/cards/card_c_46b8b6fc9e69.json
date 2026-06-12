@@ -1,0 +1,61 @@
+{
+  "id": "card_c_46b8b6fc9e69",
+  "kind": "connection",
+  "title": "Easton: Fenced cities cites Hebrews",
+  "body": "Card references Hebrews. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hebrews",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6bd16e73d103",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:05.180985+00:00",
+  "updated_at": "2026-05-19T19:49:24.157161+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6bd16e73d103",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hebrews named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "e760eaff3c7aa070cef7df29e3281a6931d18027d76b6d75545994c5e1631c34",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6bd16e73d103,card_n_5d2061b70fa6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

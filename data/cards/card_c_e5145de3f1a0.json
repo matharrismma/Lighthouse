@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e5145de3f1a0",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §286: HOPE. → Pilgrim's Progress §287: Well, towar",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f97de10dc952",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0bbab201366d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.222980+00:00",
+  "updated_at": "2026-05-19T13:58:41.222990+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f97de10dc952",
+    "right_card_id": "card_n_0bbab201366d",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "ffd011d95b382dda3c42c0c6f5ee6652cc8d936e404afa12431394ff107abec8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f97de10dc952,card_n_0bbab201366d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

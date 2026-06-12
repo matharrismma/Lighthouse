@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0f40e4f036e1",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §23: CHR. → Pilgrim's Progress §22: OBST.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9109a9594daf",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_451460898810",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.029902+00:00",
+  "updated_at": "2026-05-19T13:58:41.029910+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9109a9594daf",
+    "right_card_id": "card_n_451460898810",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "f878534352f752fe18a6bd42113520ac10c2cb2526a90e7aceb4c9646a334e68",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9109a9594daf,card_n_451460898810"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

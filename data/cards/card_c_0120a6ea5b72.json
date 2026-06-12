@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0120a6ea5b72",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §404: The Conclus → Pilgrim's Progress §403: Now while I",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b338f50eaf62",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c92345e93f03",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.309451+00:00",
+  "updated_at": "2026-05-19T13:58:41.309455+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b338f50eaf62",
+    "right_card_id": "card_n_c92345e93f03",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "5d1a0f576ca430fba3e59c3c2fa9b1df3ac109bdff0066dea666a51be6699ff3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b338f50eaf62,card_n_c92345e93f03"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_29544b6d7441",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §164: Then he was → Pilgrim's Progress §162: One thing I",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_97b22bdcb724",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0134c13412bf",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.141141+00:00",
+  "updated_at": "2026-05-19T13:58:41.141149+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_97b22bdcb724",
+    "right_card_id": "card_n_0134c13412bf",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "fcc0ba44fb5d8f078e2ca1a67fa0be7f1b9810d55843ee57897fc42dbec4cd95",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_97b22bdcb724,card_n_0134c13412bf"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

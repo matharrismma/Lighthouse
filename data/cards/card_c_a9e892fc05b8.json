@@ -1,0 +1,61 @@
+{
+  "id": "card_c_a9e892fc05b8",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians XIV cites Acts",
+  "body": "Patristic text references Acts. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_acts",
+  "bands": [
+    "cites",
+    "patristics",
+    "acts",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_41fbb4a583bc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.712058+00:00",
+  "updated_at": "2026-05-19T19:50:03.324195+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_41fbb4a583bc",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Acts named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "bab5e6aa63fcd352574e62cb7fca8e51325dcc80abea68b76e070c6d1b429e7f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_41fbb4a583bc,card_n_b051cea86e39"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_01f432c5e26d",
+  "kind": "connection",
+  "title": "Easton: Poetry cites Ecclesiastes",
+  "body": "Card references Ecclesiastes. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_ecclesiastes",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "ecclesiastes"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_683b72cdbc78",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_68a0ddb52c77",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:04.850350+00:00",
+  "updated_at": "2026-05-19T19:49:22.397637+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_683b72cdbc78",
+    "right_card_id": "card_n_68a0ddb52c77",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ecclesiastes named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "258a3d3e13a90c95c2d612e4a40d2caaf2b553a7ad5fb71ce5e358f4d7d11621",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_683b72cdbc78,card_n_68a0ddb52c77"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

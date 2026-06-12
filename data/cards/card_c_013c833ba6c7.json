@@ -1,0 +1,59 @@
+{
+  "id": "card_c_013c833ba6c7",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_13: Rabbi Shimo → Pirkei Avot §avot_02_14: Rabbi Elaza",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_92071c38d58f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_42563f5804dc",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.327046+00:00",
+  "updated_at": "2026-05-19T13:58:41.327051+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_92071c38d58f",
+    "right_card_id": "card_n_42563f5804dc",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "0274a3e892fc0949f1bc25d51fe055cfe40c5275c7620dda249c19212ac56f8e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_92071c38d58f,card_n_42563f5804dc"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

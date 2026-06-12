@@ -1,0 +1,61 @@
+{
+  "id": "card_c_1f1ddda66973",
+  "kind": "connection",
+  "title": "Easton: Deaconess cites Titus",
+  "body": "Card references Titus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_titus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_aa52cee81e3f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:12.215169+00:00",
+  "updated_at": "2026-05-19T19:49:23.087188+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_aa52cee81e3f",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Titus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6422d06dae6ece5432f53337bb62f13436a284ac33bb0210afc8ebb1897ad119",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_aa52cee81e3f,card_n_17f4e723f672"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

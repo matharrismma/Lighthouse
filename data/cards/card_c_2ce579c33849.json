@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2ce579c33849",
+  "kind": "connection",
+  "title": "Easton: Ezekiel cites Jeremiah",
+  "body": "Card references Jeremiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jeremiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jeremiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8ce4e9af1826",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bd88880279be",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:08.874253+00:00",
+  "updated_at": "2026-05-19T19:49:23.437614+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8ce4e9af1826",
+    "right_card_id": "card_n_bd88880279be",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jeremiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "5a4af1a58b773acc8b8ebc372f577f58f1c8f0bb4108ef38f1c86254f8e18b9e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8ce4e9af1826,card_n_bd88880279be"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

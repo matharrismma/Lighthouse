@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2237459278aa",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §253: BY-ENDS. → Pilgrim's Progress §252: HOLD-THE-WO",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b6031c44947d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_adbf9250d154",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.205095+00:00",
+  "updated_at": "2026-05-19T13:58:41.205100+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b6031c44947d",
+    "right_card_id": "card_n_adbf9250d154",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "73f3fc96dd9bbb40f9f67605878b45be3c554bfa2fc884a08a0ea03f75a57fa8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b6031c44947d,card_n_adbf9250d154"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

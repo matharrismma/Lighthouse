@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e05416d913ad",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §169: Now, as Chr → Pilgrim's Progress §168: So I saw th",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c19201015c9f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b64f2d0d31af",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.146892+00:00",
+  "updated_at": "2026-05-19T13:58:41.146897+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c19201015c9f",
+    "right_card_id": "card_n_b64f2d0d31af",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "3065b16462c40a1b3d4a09011cae60124983e2107a2fe83dbf6fd4e467b9c7e2",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c19201015c9f,card_n_b64f2d0d31af"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

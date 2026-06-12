@@ -1,0 +1,61 @@
+{
+  "id": "card_c_b674c76ecc60",
+  "kind": "connection",
+  "title": "Easton: Love cites Jonah",
+  "body": "Card references Jonah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jonah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jonah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2133c346ee9b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_384d7e8590f7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:57.599111+00:00",
+  "updated_at": "2026-05-19T19:49:27.152148+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2133c346ee9b",
+    "right_card_id": "card_n_384d7e8590f7",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jonah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "8ea1be692095f9c55772825114a5002ba4dcecb45b6337b0379a44010dc1a61a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2133c346ee9b,card_n_384d7e8590f7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

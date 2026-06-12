@@ -1,0 +1,61 @@
+{
+  "id": "card_c_fdd329f5b4f4",
+  "kind": "connection",
+  "title": "Easton: Ephesians, Epistle to cites Colossians",
+  "body": "Card references Colossians. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_colossians",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "colossians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_4c70970fb72d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ed5cb393ee3d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:01.972472+00:00",
+  "updated_at": "2026-05-19T19:49:29.074292+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_4c70970fb72d",
+    "right_card_id": "card_n_ed5cb393ee3d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Colossians named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "785178a6eef2a6f046675012469956d8e3055931e187f31f30cfeb96ecca3b7c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_4c70970fb72d,card_n_ed5cb393ee3d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

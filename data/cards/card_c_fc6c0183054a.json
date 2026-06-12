@@ -1,0 +1,61 @@
+{
+  "id": "card_c_fc6c0183054a",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_47: “My Son cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_496fea540c92",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:05.278495+00:00",
+  "updated_at": "2026-05-19T19:49:59.411258+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_496fea540c92",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "2818686e85aa8765a03ceb989465cfa09c18c173f99902db18af0233066db002",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_496fea540c92,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

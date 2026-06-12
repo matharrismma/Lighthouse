@@ -1,0 +1,59 @@
+{
+  "id": "card_c_9133cf359ad2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §98: CHR. → Pilgrim's Progress §99: FORM.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6415f5139ccd",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e7b1a53ccbdf",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.073671+00:00",
+  "updated_at": "2026-05-19T13:58:41.073679+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6415f5139ccd",
+    "right_card_id": "card_n_e7b1a53ccbdf",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "547492eac98051519b583aa0f3cb0a938c2dff85472411d4e4b298db197aa469",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6415f5139ccd,card_n_e7b1a53ccbdf"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

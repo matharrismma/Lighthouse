@@ -1,0 +1,59 @@
+{
+  "id": "card_c_788d126933d2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §372: CHR. → Pilgrim's Progress §370: HOPE.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7db21d2e6721",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bf0953a65b16",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.286872+00:00",
+  "updated_at": "2026-05-19T13:58:41.286879+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7db21d2e6721",
+    "right_card_id": "card_n_bf0953a65b16",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "c85132c8a95f980680d50b4b343915ffb823add4d8fd03d47524f5f28a2261f7",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7db21d2e6721,card_n_bf0953a65b16"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

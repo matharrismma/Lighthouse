@@ -1,0 +1,85 @@
+{
+  "id": "card_c_5d0b3425e81b",
+  "kind": "connection",
+  "title": "WSC Q36 ↔ 1 John",
+  "body": "Westminster Q36 cites 1 John: 1 John 5:13.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "1 John 5:13",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "1_john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_36166748f8de",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c46da56beeb5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:41.839361+00:00",
+  "updated_at": "2026-05-19T19:50:09.763089+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_36166748f8de",
+    "right_card_id": "card_n_c46da56beeb5",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q36 cites 1 John: 1 John 5:13.",
+    "bidirectional": true,
+    "verse_refs": [
+      "1 John 5:13"
+    ]
+  },
+  "source_hash": "d93ce4c65e3164e1ca290bea1493e19aa99dc1097f5f85aa232392f0b196c073",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

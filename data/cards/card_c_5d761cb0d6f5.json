@@ -1,0 +1,59 @@
+{
+  "id": "card_c_5d761cb0d6f5",
+  "kind": "connection",
+  "title": "Aurelius, Meditations §aur_06_xi: Ho → Aurelius, Meditations §aur_06_l: Wil",
+  "body": "Sequential prev in aurelius_meditations.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "aurelius_meditations",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_aurelius_meditations",
+  "bands": [
+    "sequence",
+    "prev",
+    "aurelius_meditations"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5c4c6e729a7c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5b481f4b8fe2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.546251+00:00",
+  "updated_at": "2026-05-19T13:58:40.546255+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5c4c6e729a7c",
+    "right_card_id": "card_n_5b481f4b8fe2",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "e3f0153f4c51edf9b11ee7f13235efce9e6a4765e49e1dc72b911d7fbcd7ed67",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5c4c6e729a7c,card_n_5b481f4b8fe2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

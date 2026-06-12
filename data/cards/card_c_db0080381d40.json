@@ -1,0 +1,86 @@
+{
+  "id": "card_c_db0080381d40",
+  "kind": "connection",
+  "title": "Sermon on the Mount §som_10_giving_in_secret: \"Be careful th ↔ Matthew 6",
+  "body": "The Sermon on the Mount giving-in-secret unit is contained within Matthew 6. Same passage, different granularity: the SOM card holds the specific saying; the Matt 6 card holds the whole chapter context.",
+  "source": {
+    "label": "Connection authored by matt",
+    "url": "",
+    "ref": "",
+    "authority_tier": "matt"
+  },
+  "shelf": "connections",
+  "box": "illuminates",
+  "bands": [
+    "illuminates",
+    "codex",
+    "codex"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_02e55d9aa46a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8947b78f5a5b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "matt",
+  "created_at": "2026-05-19T19:57:10.161060+00:00",
+  "updated_at": "2026-05-19T19:57:10.161060+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_02e55d9aa46a",
+    "right_card_id": "card_n_8947b78f5a5b",
+    "relationship_kind": "illuminates",
+    "explanation": "The Sermon on the Mount giving-in-secret unit is contained within Matthew 6. Same passage, different granularity: the SOM card holds the specific saying; the Matt 6 card holds the whole chapter context.",
+    "bidirectional": true
+  },
+  "source_hash": "bf8a5887aeb918fcab51fdc75488fcc31cc99d15ecb1d1dc5042e81daf904607",
+  "witnesses": [
+    {
+      "class": "operator_signature",
+      "label": "Operator signature — Matt Harris",
+      "ref": "operator"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Rufinus of Aquileia, Commentary on the Apostles' Creed (c. AD 404)",
+      "ref": "Rufinus-Comm"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Pirminius, De singulis libris canonicis scarapsus (c. AD 750) — earliest received form",
+      "ref": "Pirminius-750"
+    },
+    {
+      "class": "translation",
+      "label": "Latin (Symbolum Apostolicum) — Western Church",
+      "ref": "Apostles-LA"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Cited by every major catechism since 8th century",
+      "ref": "universal-citation"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Creeds of Christendom (Schaff)",
+      "url": "https://www.ccel.org/ccel/schaff/creeds1.html",
+      "ref": "CCEL-Schaff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "operator + 5 registry witnesses, 5 distinct classes"
+}

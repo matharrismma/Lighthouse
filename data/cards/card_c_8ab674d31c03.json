@@ -1,0 +1,61 @@
+{
+  "id": "card_c_8ab674d31c03",
+  "kind": "connection",
+  "title": "1 Clement LIX cites Acts",
+  "body": "Patristic text references Acts. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_acts",
+  "bands": [
+    "cites",
+    "patristics",
+    "acts",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_887e2b0dda61",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.295363+00:00",
+  "updated_at": "2026-05-19T19:50:03.065297+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_887e2b0dda61",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Acts named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "6d0afb76e9bc2f0f11d924d4560eccf225d596ca9f79123b877327f3be12226d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_887e2b0dda61,card_n_b051cea86e39"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

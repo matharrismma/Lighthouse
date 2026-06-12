@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e3873022247a",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_10: There are f → Pirkei Avot §avot_05_09: Wild beasts",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f0efed2e3f54",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7c318469147b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.369404+00:00",
+  "updated_at": "2026-05-19T13:58:41.369415+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f0efed2e3f54",
+    "right_card_id": "card_n_7c318469147b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "02df715d33338d20b84e027688bc6c2492674734216ea905c9cd2dbb39d9d655",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f0efed2e3f54,card_n_7c318469147b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

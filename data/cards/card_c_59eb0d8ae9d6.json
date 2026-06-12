@@ -1,0 +1,59 @@
+{
+  "id": "card_c_59eb0d8ae9d6",
+  "kind": "connection",
+  "title": "Barnabas XV → Barnabas XVI",
+  "body": "Sequential next in barnabas.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "barnabas",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_barnabas",
+  "bands": [
+    "sequence",
+    "next",
+    "barnabas"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b6769bdb81c1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7ee22f16235b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.441530+00:00",
+  "updated_at": "2026-05-19T13:58:41.441539+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b6769bdb81c1",
+    "right_card_id": "card_n_7ee22f16235b",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "492a64794a15ec4c71bb3357db637f0c17c9666cb8ad352982492c0a27742b40",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b6769bdb81c1,card_n_7ee22f16235b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

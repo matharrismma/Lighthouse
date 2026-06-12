@@ -1,0 +1,61 @@
+{
+  "id": "card_c_56c5b135ec19",
+  "kind": "connection",
+  "title": "Easton: Anoint cites John",
+  "body": "Card references John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d6b233804fb3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59aff31da66d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:18.723541+00:00",
+  "updated_at": "2026-05-19T19:49:24.649397+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d6b233804fb3",
+    "right_card_id": "card_n_59aff31da66d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "28e3284ce34c3fa3fb59bc7ccadd7d3d4645b4cdf9b0cb8a2b7548c54075548a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d6b233804fb3,card_n_59aff31da66d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

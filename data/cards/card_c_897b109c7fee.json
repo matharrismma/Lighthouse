@@ -1,0 +1,59 @@
+{
+  "id": "card_c_897b109c7fee",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_06: Ten things  → Pirkei Avot §avot_05_05: Ten wonders",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8a7790228c1d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ea802b50f758",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.363630+00:00",
+  "updated_at": "2026-05-19T13:58:41.363634+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8a7790228c1d",
+    "right_card_id": "card_n_ea802b50f758",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "f05896a71a840d3e663fd35dac119f13b1d1362846f4e6ccd09c1fe79688c824",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8a7790228c1d,card_n_ea802b50f758"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

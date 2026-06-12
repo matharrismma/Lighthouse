@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d4fbcb793089",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §155: Now, at the → Pilgrim's Progress §154: Then there ",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_67ae646e6c3f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_421dbbb6001b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.131916+00:00",
+  "updated_at": "2026-05-19T13:58:41.131923+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_67ae646e6c3f",
+    "right_card_id": "card_n_421dbbb6001b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "fc7482b62846982be249771fb41f33528f36d631c4ffd619daec0f84eb915615",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_67ae646e6c3f,card_n_421dbbb6001b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

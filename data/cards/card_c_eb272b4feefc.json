@@ -1,0 +1,59 @@
+{
+  "id": "card_c_eb272b4feefc",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_08: Rabbi Shimo → Pirkei Avot §avot_06_07: Great is To",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7cbd6b555121",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f555183374fe",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.399130+00:00",
+  "updated_at": "2026-05-19T13:58:41.399138+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7cbd6b555121",
+    "right_card_id": "card_n_f555183374fe",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "160aff8e3429f29f32b39e58d35915c3f39211616985389fe1eb29f588ddf3ab",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7cbd6b555121,card_n_f555183374fe"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

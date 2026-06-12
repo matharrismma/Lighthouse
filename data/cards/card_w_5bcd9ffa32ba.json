@@ -1,0 +1,117 @@
+{
+  "id": "card_w_5bcd9ffa32ba",
+  "kind": "walk",
+  "title": "The Trinity in 4 cards",
+  "body": "The doctrine of the Trinity in the order the tradition taught it. The Athanasian Creed says it sharpest. The Nicene says it most beautifully. The catechism puts it for memorization. The hymn sings it.",
+  "source": {
+    "label": "Operator-curated Atlas path",
+    "url": "",
+    "ref": "",
+    "authority_tier": "matt"
+  },
+  "shelf": "atlas",
+  "box": "doctrine",
+  "bands": [
+    "trinity",
+    "doctrine",
+    "canonical"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3d413df1fa33",
+      "relationship": "cites"
+    },
+    {
+      "to_card_id": "card_n_ebf734c6d3cc",
+      "relationship": "cites"
+    },
+    {
+      "to_card_id": "card_n_a003c42207cf",
+      "relationship": "cites"
+    },
+    {
+      "to_card_id": "card_c_8e7c57ab7f59",
+      "relationship": "cites"
+    }
+  ],
+  "author": "matt",
+  "created_at": "2026-05-19T12:04:18.507473+00:00",
+  "updated_at": "2026-05-19T12:04:18.937085+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 1,
+    "flagged_count": 0
+  },
+  "extra": {
+    "query": "The Trinity in 4 cards",
+    "asked_by": "matt",
+    "walk_steps": [
+      {
+        "card_id": "card_n_3d413df1fa33",
+        "narration": "Athanasius drew the line at Arius. Read this and the language of the Trinity is yours."
+      },
+      {
+        "card_id": "card_n_ebf734c6d3cc",
+        "narration": "The Nicene Creed, the universal church's confession. Same faith, set to liturgy."
+      },
+      {
+        "card_id": "card_n_a003c42207cf",
+        "narration": "Westminster Q6 sets the doctrine in two sentences children can memorize."
+      },
+      {
+        "card_id": "card_c_8e7c57ab7f59",
+        "narration": "And the saints sing it. Reginald Heber wrote it; the church sings it every Trinity Sunday."
+      }
+    ],
+    "walk_total_steps": 4,
+    "cards_surfaced": [
+      "card_n_3d413df1fa33",
+      "card_n_ebf734c6d3cc",
+      "card_n_a003c42207cf",
+      "card_c_8e7c57ab7f59"
+    ],
+    "curated": true
+  },
+  "source_hash": "987db0b09495fb68354b9d4c5b71945095d6bb2d7f59868ffc4ede6d68ae9052",
+  "witnesses": [
+    {
+      "class": "operator_signature",
+      "label": "Operator signature — Matt Harris",
+      "ref": "operator"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Rufinus of Aquileia, Commentary on the Apostles' Creed (c. AD 404)",
+      "ref": "Rufinus-Comm"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Pirminius, De singulis libris canonicis scarapsus (c. AD 750) — earliest received form",
+      "ref": "Pirminius-750"
+    },
+    {
+      "class": "translation",
+      "label": "Latin (Symbolum Apostolicum) — Western Church",
+      "ref": "Apostles-LA"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Cited by every major catechism since 8th century",
+      "ref": "universal-citation"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Creeds of Christendom (Schaff)",
+      "url": "https://www.ccel.org/ccel/schaff/creeds1.html",
+      "ref": "CCEL-Schaff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "operator + 5 registry witnesses, 5 distinct classes"
+}

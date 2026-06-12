@@ -1,0 +1,59 @@
+{
+  "id": "card_c_58839b0f210e",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §243: But as for  → Pilgrim's Progress §244: Now I saw i",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f14ec788901a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_69ffa7398d2d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.192064+00:00",
+  "updated_at": "2026-05-19T13:58:41.192069+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f14ec788901a",
+    "right_card_id": "card_n_69ffa7398d2d",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "8b5a35009206ce7d655dcf0c1bff91aef9a20d69e8bd048686a52d4060b93e61",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f14ec788901a,card_n_69ffa7398d2d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

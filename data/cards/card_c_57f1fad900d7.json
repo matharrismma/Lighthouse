@@ -1,0 +1,59 @@
+{
+  "id": "card_c_57f1fad900d7",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §301: The Shepher → Pilgrim's Progress §302: Then I saw ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b0edcad586f7",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a33a1eefd306",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.234690+00:00",
+  "updated_at": "2026-05-19T13:58:41.234695+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b0edcad586f7",
+    "right_card_id": "card_n_a33a1eefd306",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "87ee546964254d35a249b572f4915000510660211139d96d4a5442e4826a4b25",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b0edcad586f7,card_n_a33a1eefd306"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

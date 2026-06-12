@@ -1,0 +1,59 @@
+{
+  "id": "card_c_c313ed9f1155",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §223: One chanced → Pilgrim's Progress §224: There, ther",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_66196645a2a9",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7660d89a69f9",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.181713+00:00",
+  "updated_at": "2026-05-19T13:58:41.181725+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_66196645a2a9",
+    "right_card_id": "card_n_7660d89a69f9",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "3acdd4296ba2711ab9cf38d9022d51fa5fed034eb95e1318c74c3ecc9262eecf",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_66196645a2a9,card_n_7660d89a69f9"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

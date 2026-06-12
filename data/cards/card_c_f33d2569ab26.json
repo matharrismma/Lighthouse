@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f33d2569ab26",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §400: Now I saw i → Pilgrim's Progress §403: Now while I",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_163f5cbbf02e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c92345e93f03",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.307539+00:00",
+  "updated_at": "2026-05-19T13:58:41.307544+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_163f5cbbf02e",
+    "right_card_id": "card_n_c92345e93f03",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "646e04e9733acf9b1beb8c3b522ca099e68b1e506e0ba7cb5803acc91728cfc0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_163f5cbbf02e,card_n_c92345e93f03"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

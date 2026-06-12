@@ -1,0 +1,59 @@
+{
+  "id": "card_c_39e10042419a",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §2: Neither did I → Pilgrim's Progress §3: For, thought ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ff82ec983970",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_22d3e98c9be8",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.009692+00:00",
+  "updated_at": "2026-05-19T13:58:41.009700+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ff82ec983970",
+    "right_card_id": "card_n_22d3e98c9be8",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e2238abb67938e3dadabcd783d369ddd80825ffbdaf9a794675fd1054d69b99f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ff82ec983970,card_n_22d3e98c9be8"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

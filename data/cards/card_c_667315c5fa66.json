@@ -1,0 +1,59 @@
+{
+  "id": "card_c_667315c5fa66",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §212: EVAN. → Pilgrim's Progress §210: EVAN.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ac431df2f39c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c241a6eb0146",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.176663+00:00",
+  "updated_at": "2026-05-19T13:58:41.176668+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ac431df2f39c",
+    "right_card_id": "card_n_c241a6eb0146",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "5a3a495e329c7fd89836e152f855b17fe69c435bdd33199e8286908540bd813e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ac431df2f39c,card_n_c241a6eb0146"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

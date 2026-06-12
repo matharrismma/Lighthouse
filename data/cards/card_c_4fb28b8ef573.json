@@ -1,0 +1,85 @@
+{
+  "id": "card_c_4fb28b8ef573",
+  "kind": "connection",
+  "title": "WSC Q44 ↔ Luke",
+  "body": "Westminster Q44 cites Luke: Luke 1:74-75.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Luke 1:74-75",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_078ff4d7d396",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:42.277259+00:00",
+  "updated_at": "2026-05-19T19:50:09.537771+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_078ff4d7d396",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q44 cites Luke: Luke 1:74-75.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Luke 1:74-75"
+    ]
+  },
+  "source_hash": "bd5becca5835e03791a7d00655f1a95ba8beef579ccaecb60e35cc2d4d0da766",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

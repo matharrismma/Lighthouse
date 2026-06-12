@@ -1,0 +1,59 @@
+{
+  "id": "card_c_34b479388245",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §122: Then Pruden → Pilgrim's Progress §121: PIETY.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bcb49a0165c0",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_67a26d7234af",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.096813+00:00",
+  "updated_at": "2026-05-19T13:58:41.096821+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bcb49a0165c0",
+    "right_card_id": "card_n_67a26d7234af",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "ef7e7084d6685f930b8006daf354ea46b1e7dd616453f69e866383c606d15753",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bcb49a0165c0,card_n_67a26d7234af"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

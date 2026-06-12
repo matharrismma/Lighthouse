@@ -1,0 +1,59 @@
+{
+  "id": "card_c_71eed3f92761",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_01_06: Joshua ben  → Pirkei Avot §avot_01_05: Yose ben Yo",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f00b068573bc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ae161fdabe30",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.313397+00:00",
+  "updated_at": "2026-05-19T13:58:41.313401+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f00b068573bc",
+    "right_card_id": "card_n_ae161fdabe30",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "4d6f97bc4b81689ab9b48c01f11b9ba88e9a489ca8c23fe38055141e6116c8fe",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f00b068573bc,card_n_ae161fdabe30"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

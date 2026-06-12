@@ -1,0 +1,61 @@
+{
+  "id": "card_c_6f741ced7532",
+  "kind": "connection",
+  "title": "Easton: Muth-labben cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_psalms",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_4213af7bc4b1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:00.806136+00:00",
+  "updated_at": "2026-05-19T19:49:25.201738+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_4213af7bc4b1",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "48b3279fc9f3c107de6521d4bf64efc2e3cfa6169e667a6e092b0d75a1fb4568",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_4213af7bc4b1,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

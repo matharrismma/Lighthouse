@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2da5fd991d28",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §199: FAITH. → Pilgrim's Progress §200: FAITH.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9e1636576505",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8923db647398",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.168068+00:00",
+  "updated_at": "2026-05-19T13:58:41.168072+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9e1636576505",
+    "right_card_id": "card_n_8923db647398",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "163d02f77c01ffdf132e9eded3e2d34d04f118e4f5c63b7fb4a611a121330491",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9e1636576505,card_n_8923db647398"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

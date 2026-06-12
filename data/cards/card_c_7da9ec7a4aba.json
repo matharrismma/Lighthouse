@@ -1,0 +1,61 @@
+{
+  "id": "card_c_7da9ec7a4aba",
+  "kind": "connection",
+  "title": "Easton: Ox cites Luke",
+  "body": "Card references Luke. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_luke",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_082360c0950b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:54.759157+00:00",
+  "updated_at": "2026-05-19T19:49:25.639820+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_082360c0950b",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Luke named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "c59373e9a7105a7a0bf513fa1d85ddbd74456bc52e1cfda84ca1de2b7ef0472d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_082360c0950b,card_n_ee545b228696"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

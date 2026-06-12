@@ -1,0 +1,61 @@
+{
+  "id": "card_c_7a1fa03d89b0",
+  "kind": "connection",
+  "title": "Easton: Witchcraft cites Micah",
+  "body": "Card references Micah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_micah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "micah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d9ce8058d054",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_18b623038843",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:18.987518+00:00",
+  "updated_at": "2026-05-19T19:49:25.544042+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d9ce8058d054",
+    "right_card_id": "card_n_18b623038843",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Micah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "71175f6572c35dfbbef26f72e29253438389bfaec350a2eb117501216075b22c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d9ce8058d054,card_n_18b623038843"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

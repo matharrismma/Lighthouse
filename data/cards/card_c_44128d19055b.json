@@ -1,0 +1,61 @@
+{
+  "id": "card_c_44128d19055b",
+  "kind": "connection",
+  "title": "Easton: Philip cites Luke",
+  "body": "Card references Luke. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_luke",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7d9956a4576e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:06.547194+00:00",
+  "updated_at": "2026-05-19T19:49:24.103169+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7d9956a4576e",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Luke named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "f39528928105e795455abd9296cbf959328e03ca25fbbe42424c0086e3c48b68",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7d9956a4576e,card_n_ee545b228696"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

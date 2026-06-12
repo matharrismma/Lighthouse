@@ -1,0 +1,61 @@
+{
+  "id": "card_c_71465fb86808",
+  "kind": "connection",
+  "title": "Easton: On cites Isaiah",
+  "body": "Card references Isaiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_isaiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "isaiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_876ff200d814",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_de6be72e6b25",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:08.174205+00:00",
+  "updated_at": "2026-05-19T19:49:25.221269+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_876ff200d814",
+    "right_card_id": "card_n_de6be72e6b25",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Isaiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "1922019c7c0dccd091ef510c9ef7b32e900287ebb69ad56d4caa13cffaa1e505",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_876ff200d814,card_n_de6be72e6b25"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

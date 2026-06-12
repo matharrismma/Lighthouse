@@ -1,0 +1,59 @@
+{
+  "id": "card_c_bc335ce83cc4",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §128: Now I saw i → Pilgrim's Progress §127: Christian's",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7329e73d0243",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_fa19a683a4df",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.104783+00:00",
+  "updated_at": "2026-05-19T13:58:41.104792+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7329e73d0243",
+    "right_card_id": "card_n_fa19a683a4df",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "b4ec4136300c3d0047c5819e2050c4edb5feb189881348c72e2db30c39811189",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7329e73d0243,card_n_fa19a683a4df"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,86 @@
+{
+  "id": "card_c_b664c74b6646",
+  "kind": "connection",
+  "title": "Westminster Shorter Q21 ↔ Hebrews",
+  "body": "Westminster Q21 on Christ as Redeemer — Hebrews bears it.",
+  "source": {
+    "label": "Operator-authored canonical connection",
+    "url": "",
+    "ref": "",
+    "authority_tier": "matt"
+  },
+  "shelf": "connections",
+  "box": "proof_text_other",
+  "bands": [
+    "proof_text",
+    "canonical"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_11a2d0cbb906",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "matt",
+  "created_at": "2026-05-19T11:52:48.311260+00:00",
+  "updated_at": "2026-05-19T19:50:11.191555+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0,
+    "trust_weighted_score": 0.0
+  },
+  "extra": {
+    "left_card_id": "card_n_11a2d0cbb906",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q21 on Christ as Redeemer — Hebrews bears it.",
+    "bidirectional": true
+  },
+  "source_hash": "c311bf8a0073e8a436e44fd4cf1bf35aaceee5dafe350b5bc51b23378ee0ad52",
+  "witnesses": [
+    {
+      "class": "operator_signature",
+      "label": "Operator signature — Matt Harris",
+      "ref": "operator"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Rufinus of Aquileia, Commentary on the Apostles' Creed (c. AD 404)",
+      "ref": "Rufinus-Comm"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Pirminius, De singulis libris canonicis scarapsus (c. AD 750) — earliest received form",
+      "ref": "Pirminius-750"
+    },
+    {
+      "class": "translation",
+      "label": "Latin (Symbolum Apostolicum) — Western Church",
+      "ref": "Apostles-LA"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Cited by every major catechism since 8th century",
+      "ref": "universal-citation"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Creeds of Christendom (Schaff)",
+      "url": "https://www.ccel.org/ccel/schaff/creeds1.html",
+      "ref": "CCEL-Schaff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "operator + 5 registry witnesses, 5 distinct classes"
+}

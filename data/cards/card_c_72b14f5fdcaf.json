@@ -1,0 +1,85 @@
+{
+  "id": "card_c_72b14f5fdcaf",
+  "kind": "connection",
+  "title": "WSC Q80 ↔ Hebrews",
+  "body": "Westminster Q80 cites Hebrews: Heb 13:5.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Heb 13:5",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ca3acaeca2a5",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:44.397990+00:00",
+  "updated_at": "2026-05-19T19:50:10.068550+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ca3acaeca2a5",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q80 cites Hebrews: Heb 13:5.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Heb 13:5"
+    ]
+  },
+  "source_hash": "648f61f8c46259b1bc9525d1a01f17a807830009babbb1925f3b7087fb5487ea",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

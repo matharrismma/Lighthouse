@@ -1,0 +1,59 @@
+{
+  "id": "card_c_bb5410da0f39",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §397: This done,  → Pilgrim's Progress §396: Now while t",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_61bff7847701",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a53a658e1bf3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.306037+00:00",
+  "updated_at": "2026-05-19T13:58:41.306041+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_61bff7847701",
+    "right_card_id": "card_n_a53a658e1bf3",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "a4822e341ee0bed935e103bc15fa825dd8c7b9438239a1a09587a03ccb2990a3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_61bff7847701,card_n_a53a658e1bf3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

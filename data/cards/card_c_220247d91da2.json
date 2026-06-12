@@ -1,0 +1,61 @@
+{
+  "id": "card_c_220247d91da2",
+  "kind": "connection",
+  "title": "Easton: Accad cites Genesis",
+  "body": "Card references Genesis. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_genesis",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "genesis"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_55817537d555",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3537b1964287",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:02.817503+00:00",
+  "updated_at": "2026-05-19T19:49:23.160985+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_55817537d555",
+    "right_card_id": "card_n_3537b1964287",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Genesis named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "df40ca6d39582c70b939f9fcc60ca206b9481abf3a5b65e62c848cbd6427736c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_55817537d555,card_n_3537b1964287"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

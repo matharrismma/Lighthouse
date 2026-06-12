@@ -1,0 +1,59 @@
+{
+  "id": "card_c_54e9e98130ee",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §36: Now, I saw i → Pilgrim's Progress §34: It is not th",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_337f2a90f8ff",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1c93f47496a1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.038219+00:00",
+  "updated_at": "2026-05-19T13:58:41.038224+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_337f2a90f8ff",
+    "right_card_id": "card_n_1c93f47496a1",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "c62fc7ca0fd410da38816ff67756e439482fd74873be610ce2cd21bb0af6d6f8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_337f2a90f8ff,card_n_1c93f47496a1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

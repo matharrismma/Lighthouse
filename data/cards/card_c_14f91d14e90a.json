@@ -1,0 +1,61 @@
+{
+  "id": "card_c_14f91d14e90a",
+  "kind": "connection",
+  "title": "Easton: Gomer cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d7e0c13e10de",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:18.843381+00:00",
+  "updated_at": "2026-05-19T19:49:22.893526+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d7e0c13e10de",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "c8463528e0a5d49b23c5d3a670ba4907a9aaf758e3f2e890c9fbc5a922eb7e02",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d7e0c13e10de,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

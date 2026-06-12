@@ -1,0 +1,61 @@
+{
+  "id": "card_c_dba8a7a423df",
+  "kind": "connection",
+  "title": "Easton: Nahor cites Luke",
+  "body": "Card references Luke. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_luke",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ef77668566cf",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:21.771082+00:00",
+  "updated_at": "2026-05-19T19:49:28.178064+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ef77668566cf",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Luke named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "efd98ccf5d57264abcdf7236804a317a9a29774f8932c59bd224b5e9ae2b91a1",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ef77668566cf,card_n_ee545b228696"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_3aa1b290ea07",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §63: CHR. → Pilgrim's Progress §64: CHR.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8633ec96cedb",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_d0003e29a8a7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.053673+00:00",
+  "updated_at": "2026-05-19T13:58:41.053681+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8633ec96cedb",
+    "right_card_id": "card_n_d0003e29a8a7",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c38cbe65b043ae045b0419c1cce1748f18ffefa9910710d2eb972e891f0f732e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8633ec96cedb,card_n_d0003e29a8a7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

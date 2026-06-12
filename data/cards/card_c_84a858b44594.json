@@ -1,0 +1,61 @@
+{
+  "id": "card_c_84a858b44594",
+  "kind": "connection",
+  "title": "Easton: Transfiguration, the cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0d2f53030164",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:55.309673+00:00",
+  "updated_at": "2026-05-19T19:49:25.775113+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0d2f53030164",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "3953e553d5d75779bda6edb4a529672af3733554fcf2ec3d356c7f0c6e7a65a5",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0d2f53030164,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

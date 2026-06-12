@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a39e02bb1ee2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §311: So they bot → Pilgrim's Progress §312: HOPE.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0d34d799091f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e530a1ee7b18",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.241037+00:00",
+  "updated_at": "2026-05-19T13:58:41.241045+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0d34d799091f",
+    "right_card_id": "card_n_e530a1ee7b18",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "12017d68a3b43563eb240fe738b34db9ffabca0e40138d103c714421bf23eb2a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0d34d799091f,card_n_e530a1ee7b18"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

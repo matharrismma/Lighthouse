@@ -1,0 +1,61 @@
+{
+  "id": "card_c_8decce383fc1",
+  "kind": "connection",
+  "title": "Easton: Holiness cites Titus",
+  "body": "Card references Titus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_titus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_157107011548",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:56.262965+00:00",
+  "updated_at": "2026-05-19T19:49:25.941422+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_157107011548",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Titus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "554ba3814394edb571e7ea1021bc2b06160cd274baef6c7d2ed7e687c6aceec9",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_157107011548,card_n_17f4e723f672"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

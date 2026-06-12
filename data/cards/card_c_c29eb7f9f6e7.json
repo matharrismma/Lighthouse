@@ -1,0 +1,59 @@
+{
+  "id": "card_c_c29eb7f9f6e7",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §158: MEN. → Pilgrim's Progress §157: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e2d17695863a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_2af27d3e8f71",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.134892+00:00",
+  "updated_at": "2026-05-19T13:58:41.134899+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e2d17695863a",
+    "right_card_id": "card_n_2af27d3e8f71",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "c072e3490394992e288b517e5cf67ddc6ad6d32bd52b3d2091a8429d7a531921",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e2d17695863a,card_n_2af27d3e8f71"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

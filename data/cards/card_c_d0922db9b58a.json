@@ -1,0 +1,61 @@
+{
+  "id": "card_c_d0922db9b58a",
+  "kind": "connection",
+  "title": "Easton: Haggai cites Zechariah",
+  "body": "Card references Zechariah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_zechariah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "zechariah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b06e6547700c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1ada5527d349",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:13.436073+00:00",
+  "updated_at": "2026-05-19T19:49:27.955314+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b06e6547700c",
+    "right_card_id": "card_n_1ada5527d349",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Zechariah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "66cadc83ae6f5d2451f335d6e493dbadcdd98f682dc0bd40fd9074e28dcc489a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b06e6547700c,card_n_1ada5527d349"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_57581f5d063a",
+  "kind": "connection",
+  "title": "Easton: Kir cites Isaiah",
+  "body": "Card references Isaiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_isaiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "isaiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f8813b0656fe",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_de6be72e6b25",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:22.796493+00:00",
+  "updated_at": "2026-05-19T19:49:24.653216+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f8813b0656fe",
+    "right_card_id": "card_n_de6be72e6b25",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Isaiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "9a4bc2ff4631ab90c737b55ded2a537f100a3e7216ca6373934072caab5f7d2b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f8813b0656fe,card_n_de6be72e6b25"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

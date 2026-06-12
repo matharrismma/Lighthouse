@@ -1,0 +1,61 @@
+{
+  "id": "card_c_e07817e38381",
+  "kind": "connection",
+  "title": "Easton: Elnathan cites Jeremiah",
+  "body": "Card references Jeremiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jeremiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jeremiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6ad77e3c9b38",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bd88880279be",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:05.074077+00:00",
+  "updated_at": "2026-05-19T19:49:28.363212+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6ad77e3c9b38",
+    "right_card_id": "card_n_bd88880279be",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jeremiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "3a7a2be8e0267819fb6b1692f685838cd944045bb6b9849bb1f4d6aecb9ae8ac",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6ad77e3c9b38,card_n_bd88880279be"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

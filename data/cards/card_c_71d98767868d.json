@@ -1,0 +1,59 @@
+{
+  "id": "card_c_71d98767868d",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §161: About the m → Pilgrim's Progress §162: One thing I",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6dfe0a76e1d2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0134c13412bf",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.137187+00:00",
+  "updated_at": "2026-05-19T13:58:41.137195+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6dfe0a76e1d2",
+    "right_card_id": "card_n_0134c13412bf",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e435765a4dbe63e1dd8b1376605797f8189f423be43cdf4461a4a425fc9a38fa",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6dfe0a76e1d2,card_n_0134c13412bf"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_caf933d16fa9",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §30: PLI. → Pilgrim's Progress §31: Wherefore Ch",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d6398d4f90d6",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3ddba3331131",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.034422+00:00",
+  "updated_at": "2026-05-19T13:58:41.034429+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d6398d4f90d6",
+    "right_card_id": "card_n_3ddba3331131",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "493438ede22d84c7f3914f850cd3ea60a83b20b8d21b5d40464ffbe528bf4362",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d6398d4f90d6,card_n_3ddba3331131"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

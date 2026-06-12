@@ -1,0 +1,61 @@
+{
+  "id": "card_c_484aa18d1b65",
+  "kind": "connection",
+  "title": "Easton: Martyr cites 1 John",
+  "body": "Card references 1 John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_1_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "1_john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e44556ff7b1a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c46da56beeb5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:20.567176+00:00",
+  "updated_at": "2026-05-19T19:49:24.226164+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e44556ff7b1a",
+    "right_card_id": "card_n_c46da56beeb5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: 1 John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "5195dc28eb8322d4b9930674ad84a11c67d7084b6be9ec9b49f89daad5f388ed",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e44556ff7b1a,card_n_c46da56beeb5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

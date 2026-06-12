@@ -1,0 +1,59 @@
+{
+  "id": "card_c_8d07f1fce042",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §97: Yet was he t → Pilgrim's Progress §98: CHR.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f15dbf3e0897",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6415f5139ccd",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.072087+00:00",
+  "updated_at": "2026-05-19T13:58:41.072097+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f15dbf3e0897",
+    "right_card_id": "card_n_6415f5139ccd",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c609b7ba22f8de8952259239e0cff836e95f1bc80fe3150d1847a8d0a77bc63c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f15dbf3e0897,card_n_6415f5139ccd"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

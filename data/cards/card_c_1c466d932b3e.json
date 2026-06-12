@@ -1,0 +1,90 @@
+{
+  "id": "card_c_1c466d932b3e",
+  "kind": "connection",
+  "title": "Heidelberg Q32 ↔ Ephesians",
+  "body": "Heidelberg Q32 cites Ephesians: Eph 6:11.",
+  "source": {
+    "label": "Heidelberg Catechism, 1563, Zacharias Ursinus and Caspar Olevianus, Elector Frederick III of the Palatinate",
+    "url": "",
+    "ref": "Eph 6:11",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_hc",
+  "bands": [
+    "proof_text",
+    "heidelberg",
+    "ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8822cf90b458",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "heidelberg_assembly",
+  "created_at": "2026-05-19T12:56:57.263790+00:00",
+  "updated_at": "2026-05-19T19:50:08.545720+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8822cf90b458",
+    "right_card_id": "card_n_6e218f8125c0",
+    "relationship_kind": "proof_text",
+    "explanation": "Heidelberg Q32 → Ephesians",
+    "bidirectional": true,
+    "verse_refs": [
+      "Eph 6:11"
+    ]
+  },
+  "source_hash": "a0178bd3c95619e30fa106e0df108685d4fc993e084d4d0a09a87d2ce6d70aba",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Original German 1563 — Ursinus & Olevianus, Elector Frederick III",
+      "ref": "HC-DE-1563"
+    },
+    {
+      "class": "translation",
+      "label": "Original Latin 1563 — published alongside German",
+      "ref": "HC-LA-1563"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Heidelberg Catechism — critical edition with proof texts",
+      "ref": "HC-critical"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Heidelberg Catechism",
+      "url": "https://www.ccel.org/creeds/heidelberg-cat.html",
+      "ref": "CCEL-HC"
+    },
+    {
+      "class": "republication",
+      "label": "CRCNA / RCA — Heidelberg Catechism with Q&A numbering",
+      "url": "https://www.crcna.org/welcome/beliefs/confessions/heidelberg-catechism",
+      "ref": "CRCNA-HC"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts in the original 1563 edition",
+      "ref": "HC-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "6 witnesses across 5 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication', 'translation']"
+}

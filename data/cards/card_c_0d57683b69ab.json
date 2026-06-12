@@ -1,0 +1,61 @@
+{
+  "id": "card_c_0d57683b69ab",
+  "kind": "connection",
+  "title": "Ignatius to the Romans I cites Romans",
+  "body": "Patristic text references Romans. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_romans",
+  "bands": [
+    "cites",
+    "patristics",
+    "romans",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a9faf2bd2c2b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.752195+00:00",
+  "updated_at": "2026-05-19T19:50:01.790392+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a9faf2bd2c2b",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "ee3fce36041d1e53a3cbe95e1aea8f87a5bdb1415a328a7757d9efb72b758995",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a9faf2bd2c2b,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

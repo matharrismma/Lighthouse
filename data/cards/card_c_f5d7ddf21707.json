@@ -1,0 +1,61 @@
+{
+  "id": "card_c_f5d7ddf21707",
+  "kind": "connection",
+  "title": "Easton: Gog cites Revelation",
+  "body": "Card references Revelation. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_revelation",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "revelation"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b10c5206da6e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_afc9d52e2059",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:13.477674+00:00",
+  "updated_at": "2026-05-19T19:49:28.872920+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b10c5206da6e",
+    "right_card_id": "card_n_afc9d52e2059",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Revelation named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "e6c9fc52ce0c20cac16e906c0a82653a531b5d5769b4086e6488d6156243307a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b10c5206da6e,card_n_afc9d52e2059"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

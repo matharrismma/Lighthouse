@@ -1,0 +1,61 @@
+{
+  "id": "card_c_959badc6534f",
+  "kind": "connection",
+  "title": "Easton: Lamp cites Hebrews",
+  "body": "Card references Hebrews. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hebrews",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bc0cf9f15d01",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.407223+00:00",
+  "updated_at": "2026-05-19T19:49:26.076555+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bc0cf9f15d01",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hebrews named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "0840fa56b4e6b0949203e6b9559943eff9bee99774404daf58f79799cde17677",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bc0cf9f15d01,card_n_5d2061b70fa6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

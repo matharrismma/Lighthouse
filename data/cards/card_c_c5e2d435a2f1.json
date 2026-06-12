@@ -1,0 +1,61 @@
+{
+  "id": "card_c_c5e2d435a2f1",
+  "kind": "connection",
+  "title": "Easton: Governor cites John",
+  "body": "Card references John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b6a3590fe3f2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59aff31da66d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:14.687992+00:00",
+  "updated_at": "2026-05-19T19:49:27.612341+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b6a3590fe3f2",
+    "right_card_id": "card_n_59aff31da66d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "15d0f32cf7cac36a22207c7760063b472d88922a1ee7045e60151a2218d10ec0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b6a3590fe3f2,card_n_59aff31da66d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

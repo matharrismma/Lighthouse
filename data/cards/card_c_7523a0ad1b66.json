@@ -1,0 +1,59 @@
+{
+  "id": "card_c_7523a0ad1b66",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §165: Now morning → Pilgrim's Progress §164: Then he was",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b72feff4d4eb",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_97b22bdcb724",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.142554+00:00",
+  "updated_at": "2026-05-19T13:58:41.142562+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b72feff4d4eb",
+    "right_card_id": "card_n_97b22bdcb724",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "82d1a0777cf50e2dcf0145f71d9434325e645afc11465e41844e038de1abae12",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b72feff4d4eb,card_n_97b22bdcb724"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

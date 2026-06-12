@@ -1,0 +1,61 @@
+{
+  "id": "card_c_d6a76be37fed",
+  "kind": "connection",
+  "title": "Easton: Benjamin cites Jeremiah",
+  "body": "Card references Jeremiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jeremiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jeremiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_cc1a489c9c38",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bd88880279be",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:17.360712+00:00",
+  "updated_at": "2026-05-19T19:49:28.095797+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_cc1a489c9c38",
+    "right_card_id": "card_n_bd88880279be",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jeremiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "980233d3806dbda5f5f224dd7a73eccabe9d04680de76a88d78f0d2d860b7434",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_cc1a489c9c38,card_n_bd88880279be"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

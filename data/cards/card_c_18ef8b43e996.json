@@ -1,0 +1,59 @@
+{
+  "id": "card_c_18ef8b43e996",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §89: So he took C → Pilgrim's Progress §88: MAN.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1af3d35a52d2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_2003de1ae6e0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.068952+00:00",
+  "updated_at": "2026-05-19T13:58:41.068956+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1af3d35a52d2",
+    "right_card_id": "card_n_2003de1ae6e0",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "00960265500d256de0e584ac9d91622a4409c9dd17a8836e026b162b10b28516",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1af3d35a52d2,card_n_2003de1ae6e0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

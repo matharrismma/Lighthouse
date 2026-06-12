@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2666907870c8",
+  "kind": "connection",
+  "title": "Easton: Clean cites Hebrews",
+  "body": "Card references Hebrews. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hebrews",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_229285a68ebb",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:57.693391+00:00",
+  "updated_at": "2026-05-19T19:49:23.229892+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_229285a68ebb",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hebrews named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "a333e33a070b4ee4591010037a8c0e6ac45c597195c963475791eba3bd4faa41",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_229285a68ebb,card_n_5d2061b70fa6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

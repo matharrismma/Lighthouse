@@ -1,0 +1,61 @@
+{
+  "id": "card_c_125054af82a0",
+  "kind": "connection",
+  "title": "Easton: Comforter cites 1 John",
+  "body": "Card references 1 John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_1_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "1_john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bba889543f24",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c46da56beeb5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.270537+00:00",
+  "updated_at": "2026-05-19T19:49:22.829366+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bba889543f24",
+    "right_card_id": "card_n_c46da56beeb5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: 1 John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "b11e02d6dfd20017a7de178aaaa8892437b1e2cc33f577b4a15867469a0a94e0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bba889543f24,card_n_c46da56beeb5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

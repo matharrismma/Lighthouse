@@ -1,0 +1,59 @@
+{
+  "id": "card_c_b9af6bb080fc",
+  "kind": "connection",
+  "title": "1 Clement XV → 1 Clement XVI",
+  "body": "Sequential next in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "next",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d36992c2f273",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_87533691fea2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.077251+00:00",
+  "updated_at": "2026-05-19T13:58:42.077256+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d36992c2f273",
+    "right_card_id": "card_n_87533691fea2",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "ef286ef070db4b06ac5f13e7716cd90c67c9f5d14bd848c35262d9813bc8b4b5",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d36992c2f273,card_n_87533691fea2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

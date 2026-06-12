@@ -1,0 +1,61 @@
+{
+  "id": "card_c_75c1522737d8",
+  "kind": "connection",
+  "title": "Easton: Apostle cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b428a2a3bda7",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:13.940014+00:00",
+  "updated_at": "2026-05-19T19:49:25.338821+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b428a2a3bda7",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "e6826cc7a78b25fb2a63a74367476b4556b4bbf4dac241e9b29fb0a77286c25f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b428a2a3bda7,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

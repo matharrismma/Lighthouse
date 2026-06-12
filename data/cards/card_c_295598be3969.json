@@ -1,0 +1,90 @@
+{
+  "id": "card_c_295598be3969",
+  "kind": "connection",
+  "title": "Heidelberg Q85 ↔ 2 Corinthians",
+  "body": "Heidelberg Q85 cites 2 Corinthians: 2 Cor 2:6-11.",
+  "source": {
+    "label": "Heidelberg Catechism, 1563, Zacharias Ursinus and Caspar Olevianus, Elector Frederick III of the Palatinate",
+    "url": "",
+    "ref": "2 Cor 2:6-11",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_hc",
+  "bands": [
+    "proof_text",
+    "heidelberg",
+    "2_corinthians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_85445958a802",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4d9594a28d75",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "heidelberg_assembly",
+  "created_at": "2026-05-19T13:19:22.970786+00:00",
+  "updated_at": "2026-05-19T19:50:08.799543+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_85445958a802",
+    "right_card_id": "card_n_4d9594a28d75",
+    "relationship_kind": "proof_text",
+    "explanation": "Heidelberg Q85 → 2 Corinthians",
+    "bidirectional": true,
+    "verse_refs": [
+      "2 Cor 2:6-11"
+    ]
+  },
+  "source_hash": "77c9c115e5edb75599a4c2b892954379df8bee53d005826bd9a60c2673ad9df0",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Original German 1563 — Ursinus & Olevianus, Elector Frederick III",
+      "ref": "HC-DE-1563"
+    },
+    {
+      "class": "translation",
+      "label": "Original Latin 1563 — published alongside German",
+      "ref": "HC-LA-1563"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Heidelberg Catechism — critical edition with proof texts",
+      "ref": "HC-critical"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Heidelberg Catechism",
+      "url": "https://www.ccel.org/creeds/heidelberg-cat.html",
+      "ref": "CCEL-HC"
+    },
+    {
+      "class": "republication",
+      "label": "CRCNA / RCA — Heidelberg Catechism with Q&A numbering",
+      "url": "https://www.crcna.org/welcome/beliefs/confessions/heidelberg-catechism",
+      "ref": "CRCNA-HC"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts in the original 1563 edition",
+      "ref": "HC-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "6 witnesses across 5 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication', 'translation']"
+}

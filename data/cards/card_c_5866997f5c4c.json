@@ -1,0 +1,61 @@
+{
+  "id": "card_c_5866997f5c4c",
+  "kind": "connection",
+  "title": "Easton: Host cites Luke",
+  "body": "Card references Luke. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_luke",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7021e41a3c90",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:05.502279+00:00",
+  "updated_at": "2026-05-19T19:49:24.673856+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7021e41a3c90",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Luke named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "f80e8dd315ef35635f2381d166734d6b3d64ed0f2c7e96e5b223ff88b7e3807e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7021e41a3c90,card_n_ee545b228696"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

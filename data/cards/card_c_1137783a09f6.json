@@ -1,0 +1,61 @@
+{
+  "id": "card_c_1137783a09f6",
+  "kind": "connection",
+  "title": "Easton: Alms cites John",
+  "body": "Card references John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_20db105b14a4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59aff31da66d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:57.524646+00:00",
+  "updated_at": "2026-05-19T19:49:22.794882+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_20db105b14a4",
+    "right_card_id": "card_n_59aff31da66d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "eb3a72df1d27b3d0ab7c4226a9278596c747d23c92b29b1826a7f0ea09790c36",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_20db105b14a4,card_n_59aff31da66d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

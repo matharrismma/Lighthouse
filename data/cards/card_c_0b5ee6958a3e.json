@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0b5ee6958a3e",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_04_14: Rabbi Nehor → Pirkei Avot §avot_04_13: Rabbi Judah",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_608e5af93110",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8552f42aac6d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.351706+00:00",
+  "updated_at": "2026-05-19T13:58:41.351712+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_608e5af93110",
+    "right_card_id": "card_n_8552f42aac6d",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "35b0c928389ec99284452f6f7c3e766691ca4d0a027e1f0772dee9db03875ef0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_608e5af93110,card_n_8552f42aac6d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

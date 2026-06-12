@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f06065ea9994",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_04_09: Rabbi Jonat → Pirkei Avot §avot_04_07: Rabbi Ishma",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f8664b01050e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8b76ecf4db5a",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.346173+00:00",
+  "updated_at": "2026-05-19T13:58:41.346177+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f8664b01050e",
+    "right_card_id": "card_n_8b76ecf4db5a",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "ff1480b6974218deccba85af9b381766db12e85d3ef5348056ed344a8bb6a61b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f8664b01050e,card_n_8b76ecf4db5a"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

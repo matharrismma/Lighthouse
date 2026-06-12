@@ -1,0 +1,59 @@
+{
+  "id": "card_c_76740bea2a03",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_38: “My → Imitation of Christ §imit_03_39: “My",
+  "body": "Sequential next in imitation_of_christ.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "imitation_of_christ",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_imitation_of_christ",
+  "bands": [
+    "sequence",
+    "next",
+    "imitation_of_christ"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1b8f3bcc8246",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e70a7ac28424",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.945525+00:00",
+  "updated_at": "2026-05-19T13:58:40.945533+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1b8f3bcc8246",
+    "right_card_id": "card_n_e70a7ac28424",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c6bfa4ae184a5bf4d26446dcbe728dc90eaf2aa49111958495e216b5a94cd956",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1b8f3bcc8246,card_n_e70a7ac28424"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

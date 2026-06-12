@@ -1,0 +1,61 @@
+{
+  "id": "card_c_1b39ae635ef5",
+  "kind": "connection",
+  "title": "Easton: Alphaeus cites Luke",
+  "body": "Card references Luke. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_luke",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "luke"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_289eee839607",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ee545b228696",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:58.399342+00:00",
+  "updated_at": "2026-05-19T19:49:23.027144+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_289eee839607",
+    "right_card_id": "card_n_ee545b228696",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Luke named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "019079f94033017a4aa629c26a4bb487548d484ce98e130887711d35b9166cb6",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_289eee839607,card_n_ee545b228696"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

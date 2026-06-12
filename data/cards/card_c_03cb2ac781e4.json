@@ -1,0 +1,61 @@
+{
+  "id": "card_c_03cb2ac781e4",
+  "kind": "connection",
+  "title": "Easton: Greece cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_45c76ed549cc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:01.045793+00:00",
+  "updated_at": "2026-05-19T19:49:22.442131+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_45c76ed549cc",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "efc7a960ee9075b1d3dcfc288319fd35d7130d28cd6a538b2593a7f0098d69b1",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_45c76ed549cc,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

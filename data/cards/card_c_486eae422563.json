@@ -1,0 +1,59 @@
+{
+  "id": "card_c_486eae422563",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §107: CHR. → Pilgrim's Progress §109: Now, by thi",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5ff3c6a62b38",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bdc7fc546140",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.082892+00:00",
+  "updated_at": "2026-05-19T13:58:41.082897+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5ff3c6a62b38",
+    "right_card_id": "card_n_bdc7fc546140",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c4f5be22d522a5049da448d38c5c775ff97c6f9f31887140f862de534bb0cfdb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5ff3c6a62b38,card_n_bdc7fc546140"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

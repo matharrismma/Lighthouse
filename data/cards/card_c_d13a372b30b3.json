@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d13a372b30b3",
+  "kind": "connection",
+  "title": "1 Clement XII → 1 Clement XI",
+  "body": "Sequential prev in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "prev",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_47f9e9751fee",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0eb457bcb53a",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.074536+00:00",
+  "updated_at": "2026-05-19T13:58:42.074544+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_47f9e9751fee",
+    "right_card_id": "card_n_0eb457bcb53a",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "dc4568a3ac6c35a1a189ae68b2857e24328d63466e15b7b3fd8a4e1beeb053fc",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_47f9e9751fee,card_n_0eb457bcb53a"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

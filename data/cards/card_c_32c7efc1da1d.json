@@ -1,0 +1,85 @@
+{
+  "id": "card_c_32c7efc1da1d",
+  "kind": "connection",
+  "title": "WSC Q54 ↔ Malachi",
+  "body": "Westminster Q54 cites Malachi: Mal 1:11, 14.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Mal 1:11, 14",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "malachi"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c164d32a281f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6bde9b1164eb",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:42.785125+00:00",
+  "updated_at": "2026-05-19T19:50:09.003330+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c164d32a281f",
+    "right_card_id": "card_n_6bde9b1164eb",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q54 cites Malachi: Mal 1:11, 14.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Mal 1:11, 14"
+    ]
+  },
+  "source_hash": "8c0647988ac25502dfbb4a22de1124465f619aaf1b29da9a2dde7f6b02f8d9b8",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

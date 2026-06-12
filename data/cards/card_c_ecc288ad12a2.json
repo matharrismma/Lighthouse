@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ecc288ad12a2",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_01_13: He [also] u → Pirkei Avot §avot_01_17: Shimon, his",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6500e8b9f831",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_46ad88afeb84",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.315884+00:00",
+  "updated_at": "2026-05-19T13:58:41.315889+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6500e8b9f831",
+    "right_card_id": "card_n_46ad88afeb84",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "7eb80f60cead50b759a9fced67f5bbcaa3535b7f3370de3b3474b402bb78c7b3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6500e8b9f831,card_n_46ad88afeb84"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

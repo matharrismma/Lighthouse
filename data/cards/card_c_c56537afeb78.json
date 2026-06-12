@@ -1,0 +1,59 @@
+{
+  "id": "card_c_c56537afeb78",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_09: Rabbi Hanin → Pirkei Avot §avot_03_08: Rabbi Dosta",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c2a61d615c0a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b0935bb84dcd",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.335685+00:00",
+  "updated_at": "2026-05-19T13:58:41.335690+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c2a61d615c0a",
+    "right_card_id": "card_n_b0935bb84dcd",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "161671d399c01f17c98b3c1a27445c7f7b095094f34421e3693f68f6cab2ee16",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c2a61d615c0a,card_n_b0935bb84dcd"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

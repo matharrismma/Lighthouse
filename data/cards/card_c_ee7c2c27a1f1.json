@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ee7c2c27a1f1",
+  "kind": "connection",
+  "title": "Ignatius to the Trallians V → Ignatius to the Trallians VI",
+  "body": "Sequential next in ignatius_trallians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_trallians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_trallians",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_trallians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_cf8a15768d58",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6794599fc493",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.408407+00:00",
+  "updated_at": "2026-05-19T13:58:41.408415+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_cf8a15768d58",
+    "right_card_id": "card_n_6794599fc493",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "30cb40c792ef46fe5bdd1718a12965ba82fb5e1b986f90588dbe0ff81ac3ed47",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_cf8a15768d58,card_n_6794599fc493"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

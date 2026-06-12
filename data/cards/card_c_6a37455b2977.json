@@ -1,0 +1,59 @@
+{
+  "id": "card_c_6a37455b2977",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §327: I, for my p → Pilgrim's Progress §324: But for suc",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_dc90dec880f1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_075c6b219aa1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.253923+00:00",
+  "updated_at": "2026-05-19T13:58:41.253927+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_dc90dec880f1",
+    "right_card_id": "card_n_075c6b219aa1",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "63bd221e53ba7ec574dc22bc58785bc62e059d4e6024c88868e62d3336bfaec0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_dc90dec880f1,card_n_075c6b219aa1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

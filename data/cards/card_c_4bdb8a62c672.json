@@ -1,0 +1,61 @@
+{
+  "id": "card_c_4bdb8a62c672",
+  "kind": "connection",
+  "title": "Sermon: The Raven and the Dove cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "codex_cites_scripture",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "codex",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_91dc28d5681a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:33.520390+00:00",
+  "updated_at": "2026-05-19T13:35:33.520395+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_91dc28d5681a",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in codex body.",
+    "bidirectional": true
+  },
+  "source_hash": "56874ea11956681acc4c72efb2318e16b8cadcdd934c73f9aaf02ae283be8beb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_91dc28d5681a,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 7 classes"
+}

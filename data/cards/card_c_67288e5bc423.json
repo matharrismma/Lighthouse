@@ -1,0 +1,59 @@
+{
+  "id": "card_c_67288e5bc423",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §327: I, for my p → Pilgrim's Progress §328: So they wen",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_dc90dec880f1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a667ab65d655",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.253559+00:00",
+  "updated_at": "2026-05-19T13:58:41.253565+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_dc90dec880f1",
+    "right_card_id": "card_n_a667ab65d655",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "932b47651ea2aa20c3359e2f6e29a5fc622d3559cb1a14f52cd952af6a88e977",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_dc90dec880f1,card_n_a667ab65d655"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

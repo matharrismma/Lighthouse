@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d243e7f66e6f",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §376: Though the  → Pilgrim's Progress §374: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_4fa28b01ac25",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0c9ff7e7a6df",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.289462+00:00",
+  "updated_at": "2026-05-19T13:58:41.289466+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_4fa28b01ac25",
+    "right_card_id": "card_n_0c9ff7e7a6df",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "b021918530d6a31833e0d45365df76befdf8698c2f217aafeaada7738ba20241",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_4fa28b01ac25,card_n_0c9ff7e7a6df"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

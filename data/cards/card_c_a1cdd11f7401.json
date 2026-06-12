@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a1cdd11f7401",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §109: Now, by thi → Pilgrim's Progress §110: So I saw in",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bdc7fc546140",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a043cefb928d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.083760+00:00",
+  "updated_at": "2026-05-19T13:58:41.083765+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bdc7fc546140",
+    "right_card_id": "card_n_a043cefb928d",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "3dfe33d3861c90d26f6ce9b32269fd46981a279387dba5fbb41a966532052e12",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bdc7fc546140,card_n_a043cefb928d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

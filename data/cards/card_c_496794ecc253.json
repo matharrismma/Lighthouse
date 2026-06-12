@@ -1,0 +1,61 @@
+{
+  "id": "card_c_496794ecc253",
+  "kind": "connection",
+  "title": "1 Clement LIX cites Ezekiel",
+  "body": "Patristic text references Ezekiel. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ezekiel",
+  "bands": [
+    "cites",
+    "patristics",
+    "ezekiel",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_887e2b0dda61",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.319967+00:00",
+  "updated_at": "2026-05-19T19:50:02.420323+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_887e2b0dda61",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "8d52d896d6de537793bf613f0d303ccb7c3175dc132a653b3424a277dea3cb26",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_887e2b0dda61,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

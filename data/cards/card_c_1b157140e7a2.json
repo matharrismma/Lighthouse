@@ -1,0 +1,59 @@
+{
+  "id": "card_c_1b157140e7a2",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_18: Whoever cau → Pirkei Avot §avot_05_17: Every dispu",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b487d6767744",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a3ffd0a488fd",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.382549+00:00",
+  "updated_at": "2026-05-19T13:58:41.382556+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b487d6767744",
+    "right_card_id": "card_n_a3ffd0a488fd",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "40c164418bfbc5a039c4ad5ca767678c2005dc0937bd8d3120180f0a89d32447",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b487d6767744,card_n_a3ffd0a488fd"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

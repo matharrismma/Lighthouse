@@ -1,0 +1,61 @@
+{
+  "id": "card_c_b754588975e7",
+  "kind": "connection",
+  "title": "Easton: Dragon cites Micah",
+  "body": "Card references Micah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_micah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "micah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_19a082b7ff79",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_18b623038843",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:56.693242+00:00",
+  "updated_at": "2026-05-19T19:49:27.194358+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_19a082b7ff79",
+    "right_card_id": "card_n_18b623038843",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Micah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "c6964ae433652b24329731484124aceced4c3e42f615611801739fe60462794e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_19a082b7ff79,card_n_18b623038843"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

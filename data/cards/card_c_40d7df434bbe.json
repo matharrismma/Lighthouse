@@ -1,0 +1,61 @@
+{
+  "id": "card_c_40d7df434bbe",
+  "kind": "connection",
+  "title": "Easton: Taxes cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2a0709414d64",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:58.594114+00:00",
+  "updated_at": "2026-05-19T19:49:23.975386+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2a0709414d64",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6416df1d5b718c3b10f8481d5a1b2504001644a4cb95291159f0c60833d9917a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2a0709414d64,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_740396f31af8",
+  "kind": "connection",
+  "title": "Ignatius to Polycarp VI → Ignatius to Polycarp VII",
+  "body": "Sequential next in ignatius_to_polycarp.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_to_polycarp",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_to_polycarp",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_to_polycarp"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_661b5dad1af4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_501861f299e5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.207118+00:00",
+  "updated_at": "2026-05-19T13:58:42.207123+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_661b5dad1af4",
+    "right_card_id": "card_n_501861f299e5",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "0fb75a3fe8969bf98f41f84ef9ede36922d825bc2fd2cc054599f7ebe61517b8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_661b5dad1af4,card_n_501861f299e5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

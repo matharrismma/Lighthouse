@@ -1,0 +1,61 @@
+{
+  "id": "card_c_bc350058b2c7",
+  "kind": "connection",
+  "title": "Easton: Galatians, Epistle to cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c11c336c7bf0",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.930763+00:00",
+  "updated_at": "2026-05-19T19:49:27.381183+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c11c336c7bf0",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6299937fe4bf20d65f04cf8af08594bfe4a6658f8ca1a99b08f9ddccf245554d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c11c336c7bf0,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

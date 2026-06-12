@@ -1,0 +1,61 @@
+{
+  "id": "card_c_20c1e7af1b28",
+  "kind": "connection",
+  "title": "Easton: Mesopotamia cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_89b77586ed79",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:08.442472+00:00",
+  "updated_at": "2026-05-19T19:49:23.140746+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_89b77586ed79",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "06619094da1a70b3ae27874257bd507e3c23ca793bb15c9657022f4c01d1e764",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_89b77586ed79,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2376d483cf53",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §75: CHR. → Pilgrim's Progress §77: I saw, moreo",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3b95d43dbbd3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_69d3740d8c15",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.060209+00:00",
+  "updated_at": "2026-05-19T13:58:41.060214+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3b95d43dbbd3",
+    "right_card_id": "card_n_69d3740d8c15",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "8d9b6fee6cceafea0929e71a6cef12406abff8d495e474f44fad5b8a374b5091",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3b95d43dbbd3,card_n_69d3740d8c15"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

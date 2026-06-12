@@ -1,0 +1,61 @@
+{
+  "id": "card_c_72571ccb8751",
+  "kind": "connection",
+  "title": "Easton: Abieezer cites Exodus",
+  "body": "Card references Exodus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_exodus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "exodus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b64df635f4b8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_649a778d8d86",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:14.567571+00:00",
+  "updated_at": "2026-05-19T19:49:25.235698+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b64df635f4b8",
+    "right_card_id": "card_n_649a778d8d86",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Exodus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "243154b6a2a5376b2aa411098feb0aa600b6b1856814f2ce483b03d17c4c1ec0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b64df635f4b8,card_n_649a778d8d86"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

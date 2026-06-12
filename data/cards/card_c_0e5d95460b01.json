@@ -1,0 +1,61 @@
+{
+  "id": "card_c_0e5d95460b01",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_52: O Lord, cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_psalms",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a0aa367c2f8c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:06.560852+00:00",
+  "updated_at": "2026-05-19T19:49:33.098784+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a0aa367c2f8c",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "d7784bb739da66ef156896439dbe1e254eeac4c0a05fa92ce4a2a0791f07c780",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a0aa367c2f8c,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

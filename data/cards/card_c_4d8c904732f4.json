@@ -1,0 +1,61 @@
+{
+  "id": "card_c_4d8c904732f4",
+  "kind": "connection",
+  "title": "Easton: Belly cites Titus",
+  "body": "Card references Titus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_titus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_80f078bfa309",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:07.029290+00:00",
+  "updated_at": "2026-05-19T19:49:24.339828+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_80f078bfa309",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Titus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "1d4c6b84b6a03bc5443e446a391a30ec8a8566d43e3d8e82888b9412274f0b54",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_80f078bfa309,card_n_17f4e723f672"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_f2c47329f4d1",
+  "kind": "connection",
+  "title": "Easton: Kneading-trough cites Exodus",
+  "body": "Card references Exodus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_exodus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "exodus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_42fb5218d469",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_649a778d8d86",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:00.874599+00:00",
+  "updated_at": "2026-05-19T19:49:28.744080+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_42fb5218d469",
+    "right_card_id": "card_n_649a778d8d86",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Exodus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "8861a7b1d365c6e230d703cdb3f67c61d04936801433e72cc06d7cdd99144b0f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_42fb5218d469,card_n_649a778d8d86"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

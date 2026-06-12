@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a498c7b41566",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §7: Come, let my  → Pilgrim's Progress §8: I find not th",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fdfab2502b42",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_48096a61cb84",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.018098+00:00",
+  "updated_at": "2026-05-19T13:58:41.018109+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fdfab2502b42",
+    "right_card_id": "card_n_48096a61cb84",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "18cd5dee028cd25a9f10a290fdc1ef753704b0a1ca971d7531d30e01208e1efb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fdfab2502b42,card_n_48096a61cb84"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

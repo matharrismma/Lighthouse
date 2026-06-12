@@ -1,0 +1,73 @@
+{
+  "id": "card_n_6b2e07ec4a62",
+  "kind": "note",
+  "title": "Ignatius to the Magnesians XV",
+  "body": "The Ephesians from Smyrna (whence I also write to you), who are here for the glory of God, as ye also are, who have in all things refreshed me, salute you, along with Polycarp, the bishop of the Smyrnæans. The rest of the churches, in honour of Jesus Christ, also salute you. Fare ye well in the harmony of God, ye who have obtained the inseparable Spirit, who is Jesus Christ.",
+  "source": {
+    "label": "Ignatius to the Magnesians (shorter recension; trans. Roberts-Donaldson, 1885)",
+    "url": "/canon.html?ref=ignatius_magnesians_ch15",
+    "ref": "Ignatius to the Magnesians XV",
+    "authority_tier": "father"
+  },
+  "shelf": "patristics",
+  "box": "ignatius_magnesians",
+  "bands": [
+    "ignatius_magnesians",
+    "apostolic_fathers",
+    "authority_trust",
+    "metabolism"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "cites",
+      "via_connection_card_id": "card_c_76f41aa8c8a4"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "cites",
+      "via_connection_card_id": "card_c_fe079566e16c"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:41:21.239065+00:00",
+  "updated_at": "2026-05-19T19:57:55.352411+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 6,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "source_hash": "66c42b4201127a92d45c17cea62401f4fc7eb91cd8018cb5ffa10a9fb055e32a",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Middle Recension — Codex Mediceus Laurentianus 57.7 (10-11th cent)",
+      "ref": "Mediceus"
+    },
+    {
+      "class": "translation",
+      "label": "Lightfoot, Apostolic Fathers Part II (1885)",
+      "url": "https://www.ccel.org/ccel/lightfoot/fathers/",
+      "ref": "Lightfoot-Ignatius"
+    },
+    {
+      "class": "translation",
+      "label": "Roberts-Donaldson Ante-Nicene Fathers vol. 1",
+      "url": "https://www.ccel.org/ccel/schaff/anf01.html",
+      "ref": "ANF-1-Ignatius"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Polycarp, Letter to the Philippians — cites Ignatius's letters by name",
+      "ref": "Polycarp-Phil"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "4 witnesses across 3 independence classes: ['citation_tradition', 'manuscript_tradition', 'translation']"
+}

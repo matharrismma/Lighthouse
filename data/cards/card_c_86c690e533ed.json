@@ -1,0 +1,91 @@
+{
+  "id": "card_c_86c690e533ed",
+  "kind": "connection",
+  "title": "Heidelberg Q73 ↔ Revelation",
+  "body": "Heidelberg Q73 cites Revelation: Rev 1:5; Rev 7:14.",
+  "source": {
+    "label": "Heidelberg Catechism, 1563, Zacharias Ursinus and Caspar Olevianus, Elector Frederick III of the Palatinate",
+    "url": "",
+    "ref": "Rev 1:5; Rev 7:14",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_hc",
+  "bands": [
+    "proof_text",
+    "heidelberg",
+    "revelation"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_49cc2dc9ae09",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_afc9d52e2059",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "heidelberg_assembly",
+  "created_at": "2026-05-19T13:19:22.076973+00:00",
+  "updated_at": "2026-05-19T19:50:10.417919+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_49cc2dc9ae09",
+    "right_card_id": "card_n_afc9d52e2059",
+    "relationship_kind": "proof_text",
+    "explanation": "Heidelberg Q73 → Revelation",
+    "bidirectional": true,
+    "verse_refs": [
+      "Rev 1:5",
+      "Rev 7:14"
+    ]
+  },
+  "source_hash": "dc2a5a57d71fcebf4d70c250fe70748e839e2247729e0544484b176da25c7eea",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Original German 1563 — Ursinus & Olevianus, Elector Frederick III",
+      "ref": "HC-DE-1563"
+    },
+    {
+      "class": "translation",
+      "label": "Original Latin 1563 — published alongside German",
+      "ref": "HC-LA-1563"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Heidelberg Catechism — critical edition with proof texts",
+      "ref": "HC-critical"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Heidelberg Catechism",
+      "url": "https://www.ccel.org/creeds/heidelberg-cat.html",
+      "ref": "CCEL-HC"
+    },
+    {
+      "class": "republication",
+      "label": "CRCNA / RCA — Heidelberg Catechism with Q&A numbering",
+      "url": "https://www.crcna.org/welcome/beliefs/confessions/heidelberg-catechism",
+      "ref": "CRCNA-HC"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts in the original 1563 edition",
+      "ref": "HC-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "6 witnesses across 5 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication', 'translation']"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ab8f92082089",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §94: Then was Chr → Pilgrim's Progress §96: Christian th",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5daab8d5b083",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_811700e753e5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.070191+00:00",
+  "updated_at": "2026-05-19T13:58:41.070196+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5daab8d5b083",
+    "right_card_id": "card_n_811700e753e5",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e394ce076028864affdbe436889361d52229a09049328342b03179841aa7f87c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5daab8d5b083,card_n_811700e753e5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

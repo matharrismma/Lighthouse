@@ -1,0 +1,59 @@
+{
+  "id": "card_c_cfea3efb5dc2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §160: The pathway → Pilgrim's Progress §158: MEN.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_10709bbc68dc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e2d17695863a",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.136270+00:00",
+  "updated_at": "2026-05-19T13:58:41.136278+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_10709bbc68dc",
+    "right_card_id": "card_n_e2d17695863a",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "80022053e3e97bcbc6597335d916005f35f427814aa7b8b3f6f2b875665b3fa1",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_10709bbc68dc,card_n_e2d17695863a"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

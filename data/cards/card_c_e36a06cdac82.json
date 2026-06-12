@@ -1,0 +1,61 @@
+{
+  "id": "card_c_e36a06cdac82",
+  "kind": "connection",
+  "title": "Easton: Revelation of Christ cites James",
+  "body": "Card references James. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_james",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "james"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ceb655cfccfc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_94b8d7f43e37",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:17.655913+00:00",
+  "updated_at": "2026-05-19T19:49:28.450909+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ceb655cfccfc",
+    "right_card_id": "card_n_94b8d7f43e37",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: James named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "4d5128c8353d87798f01a93ed68c1b89acafed220303f6329f88f861e18d71a1",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ceb655cfccfc,card_n_94b8d7f43e37"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

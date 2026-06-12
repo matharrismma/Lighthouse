@@ -1,0 +1,59 @@
+{
+  "id": "card_c_433e450bcdda",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §223: One chanced → Pilgrim's Progress §218: Now, as I s",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_66196645a2a9",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_54e3f98be926",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.182432+00:00",
+  "updated_at": "2026-05-19T13:58:41.182439+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_66196645a2a9",
+    "right_card_id": "card_n_54e3f98be926",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "1b9099935826652220d81a48c287d2ac76330083e5a8829514fd67d135d92644",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_66196645a2a9,card_n_54e3f98be926"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

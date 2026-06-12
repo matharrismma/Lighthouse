@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d94aaf5044f9",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians XI → Polycarp to the Philippians IX",
+  "body": "Sequential prev in polycarp_philippians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "polycarp_philippians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_polycarp_philippians",
+  "bands": [
+    "sequence",
+    "prev",
+    "polycarp_philippians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9020bfa8475b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f84034134f64",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.034344+00:00",
+  "updated_at": "2026-05-19T13:58:42.034348+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9020bfa8475b",
+    "right_card_id": "card_n_f84034134f64",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "a335712ab80534bf4fa246a788279bf00893c1e5974e5a6d8c4d8a581754b974",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9020bfa8475b,card_n_f84034134f64"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 2 classes"
+}

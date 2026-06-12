@@ -1,0 +1,59 @@
+{
+  "id": "card_c_1ddbcc5453f8",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §172: CHR. → Pilgrim's Progress §173: CHR.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3e8d5f477e96",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_70a3fda93bb4",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.149213+00:00",
+  "updated_at": "2026-05-19T13:58:41.149220+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3e8d5f477e96",
+    "right_card_id": "card_n_70a3fda93bb4",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "de4c0842474672f4c2187e9899baf3547b88d43814416f90eead8527fb8b628c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3e8d5f477e96,card_n_70a3fda93bb4"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

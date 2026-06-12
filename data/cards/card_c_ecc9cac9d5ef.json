@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ecc9cac9d5ef",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §84: Now, said Ch → Pilgrim's Progress §83: Then the Int",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bf764f334b50",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0ae03ccbda7e",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.065940+00:00",
+  "updated_at": "2026-05-19T13:58:41.065945+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bf764f334b50",
+    "right_card_id": "card_n_0ae03ccbda7e",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "905b13917a55ef60147f895a91c6109e928f9b1f30213d559ad0c7fcfd17b997",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bf764f334b50,card_n_0ae03ccbda7e"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

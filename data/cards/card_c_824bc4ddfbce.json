@@ -1,0 +1,61 @@
+{
+  "id": "card_c_824bc4ddfbce",
+  "kind": "connection",
+  "title": "Easton: Essenes cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_846f4a2a582a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:07.672563+00:00",
+  "updated_at": "2026-05-19T19:49:25.734385+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_846f4a2a582a",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "bfe3dcc90a137a241bce747087ca5a4e2c2274408a9771bee2c35368628b8932",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_846f4a2a582a,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

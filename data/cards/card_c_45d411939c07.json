@@ -1,0 +1,59 @@
+{
+  "id": "card_c_45d411939c07",
+  "kind": "connection",
+  "title": "Ignatius to the Magnesians XI → Ignatius to the Magnesians XII",
+  "body": "Sequential next in ignatius_magnesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_magnesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_magnesians",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_magnesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_db19fe773c48",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ce2ef16b19f6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.154220+00:00",
+  "updated_at": "2026-05-19T13:58:42.154224+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_db19fe773c48",
+    "right_card_id": "card_n_ce2ef16b19f6",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "9256f93f593f870a99acef49cde9a81b57ddbee85b0024a8f944041750b6d94f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_db19fe773c48,card_n_ce2ef16b19f6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

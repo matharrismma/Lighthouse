@@ -1,0 +1,59 @@
+{
+  "id": "card_c_fc6ab0b1b572",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_01: The sages t → Pirkei Avot §avot_06_02: Rabbi Joshu",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_247becdb1217",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_056c9c995576",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.386933+00:00",
+  "updated_at": "2026-05-19T13:58:41.386942+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_247becdb1217",
+    "right_card_id": "card_n_056c9c995576",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "85c1d1c8fff8763eae5b3e111c0447aed9f5ace228e8b3462db3f315b45be76e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_247becdb1217,card_n_056c9c995576"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

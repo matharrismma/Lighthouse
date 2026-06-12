@@ -1,0 +1,61 @@
+{
+  "id": "card_c_80ac3f9923aa",
+  "kind": "connection",
+  "title": "Easton: Jeroboam cites Hosea",
+  "body": "Card references Hosea. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hosea",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hosea"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0667b6bec0dd",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f79f15ea0fe3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:54.284847+00:00",
+  "updated_at": "2026-05-19T19:49:25.702135+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0667b6bec0dd",
+    "right_card_id": "card_n_f79f15ea0fe3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hosea named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "4192a37d2b3136ab815c1ffcf9724b3f97c34a328801699394981bf031825a6f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0667b6bec0dd,card_n_f79f15ea0fe3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

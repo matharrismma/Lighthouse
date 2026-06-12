@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ffa0b6de2784",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §124: PRUD. → Pilgrim's Progress §123: PRUD.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ebccdc9e6877",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0c27a480e54a",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.099967+00:00",
+  "updated_at": "2026-05-19T13:58:41.099973+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ebccdc9e6877",
+    "right_card_id": "card_n_0c27a480e54a",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "bcf38447216dad413048be1ca977b80602f3bba4a399cfe6563e7f695fa2dfc0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ebccdc9e6877,card_n_0c27a480e54a"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

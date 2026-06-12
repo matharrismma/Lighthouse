@@ -1,0 +1,61 @@
+{
+  "id": "card_c_56b7fbc85943",
+  "kind": "connection",
+  "title": "1 Clement XLV cites Daniel",
+  "body": "Patristic text references Daniel. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_daniel",
+  "bands": [
+    "cites",
+    "patristics",
+    "daniel",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2f813da02637",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7c2477b34229",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.529978+00:00",
+  "updated_at": "2026-05-19T19:50:02.549397+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2f813da02637",
+    "right_card_id": "card_n_7c2477b34229",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Daniel named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "3fe796c6da94d70a78b8caa15fc425833d3cd555ebfea58d8f0942c50d299e7e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2f813da02637,card_n_7c2477b34229"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

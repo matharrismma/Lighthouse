@@ -1,12 +1,12 @@
 {
-  "generated": "2026-06-07T12:34:55.595336+00:00",
+  "generated": "2026-06-12T17:47:24.270700+00:00",
   "stats": {
-    "verified_structural": 141,
-    "verified_structural_pairs": 50,
+    "verified_structural": 211,
+    "verified_structural_pairs": 81,
     "verified_hubs": 139,
     "verified_sources": 332,
     "candidate_pairs": 1269,
-    "raw_grid_edges": 13991,
+    "raw_grid_edges": 14371,
     "domains": 60
   },
   "verified_structural": [
@@ -112,6 +112,158 @@
           "domain": "labor",
           "verdict": "CONFIRMED",
           "detail": "gross pay = $740.00 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "connection_reality_is_mappable",
+      "title": "Reality is mappable: the same verified structure recurs across every domain",
+      "domains": [
+        "genetics",
+        "geometry",
+        "mathematics",
+        "music_theory",
+        "number_theory"
+      ],
+      "domain_count": 5,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Across this whole moat -- physics, computer science, music, genetics -- the engine kept finding the SAME structures wearing different clothes, and this grand capstone confirms it by drawing witnesses from FIVE independent domain verifiers in one chain. geometry confirmed the 3-4-5 right triangle (the shape behind relat",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "3-4-5 right triangle (the shape behind relativity)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3^2+4^2=5^2 (Pythagoras as number); 4^3=64 (digital alphabet, same as bits)"
+        },
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "gcd(7,12)=1 (Euclid/RSA coprimality AND the circle of fifths)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "the perfect fifth is the ratio 3:2"
+        },
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "revcomp(GCAT)=ATGC -- complementation is an involution, like XOR/two-complement"
+        }
+      ]
+    },
+    {
+      "id": "connection_logarithmic_scales_two_witnesses",
+      "title": "Decibels and star magnitudes: one logarithm, two senses",
+      "domains": [
+        "acoustics",
+        "astronomy",
+        "mathematics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "How loud a sound is and how bright a star is are measured on scales that look unrelated, yet two independent verifiers found the same machinery underneath. The acoustics verifier confirmed that a 10x jump in sound power is +10 decibels (dB = 10*log10 of the power ratio). The astronomy verifier confirmed the distance-mo",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "decibel: 10*log10(10/1) = 10 dB (multiplicative ratio -> additive scale)"
+        },
+        {
+          "domain": "astronomy",
+          "verdict": "CONFIRMED",
+          "detail": "distance modulus: m-M = 5*log10(d) - 5; m-M=5 -> d=100 pc"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "shared operation: log10(100) = 2"
+        }
+      ]
+    },
+    {
+      "id": "connection_inverse_square_two_witnesses",
+      "title": "The inverse-square law: gravity and sound spread the same way",
+      "domains": [
+        "acoustics",
+        "astronomy",
+        "mathematics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Move twice as far from a star and from a speaker, and two independent verifiers report the same drop. The astronomy verifier confirmed Newton's gravitation F = G*m1*m2/r^2: at distance r the pull was 66.7 N, and at 2r it was 16.7 N -- exactly one QUARTER. The acoustics verifier confirmed that sound intensity at twice t",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "astronomy",
+          "verdict": "CONFIRMED",
+          "detail": "gravity F=G m1 m2/r^2: 66.7 N at r -> 16.7 N at 2r (factor 1/4)"
+        },
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "sound intensity at 2r = 1/4 = -6 dB"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "shared factor: 1/2^2 = 1/4 (sphere area ~ r^2)"
+        }
+      ]
+    },
+    {
+      "id": "connection_major_triad_is_overtone_ratios",
+      "title": "The major chord is built into sound: harmonics 4:5:6 are the major triad",
+      "domains": [
+        "acoustics",
+        "mathematics",
+        "music_theory"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The major chord is not a human invention but a fact of physics that the engine confirmed across three domains. Any vibrating string or air column sounds a fundamental plus a series of harmonics at whole-number multiples of its frequency. acoustics confirmed that for a 100 Hz fundamental the 4th, 5th, and 6th harmonics ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "harmonics 4,5,6 of 100 Hz = 400, 500, 600 Hz (the triad, free from any vibrating body)"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "400:500 major third (5:4); 500:600 minor third (6:5); 400:600 fifth (3:2)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "5/4 * 6/5 = 3/2 -- major third + minor third compose to the fifth"
         }
       ]
     },
@@ -654,6 +806,42 @@
       ]
     },
     {
+      "id": "connection_average_rate_is_one_idea",
+      "title": "The average rate of change over an interval is one idea, read in many sciences",
+      "domains": [
+        "chemistry",
+        "mathematics",
+        "physics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "time_sequence",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The rate of change of a function over an interval -- the slope of the straight line joining its endpoints, (f(b)-f(a))/(b-a) -- is a single arithmetic that wears different names in different fields. In pure mathematics it is the secant slope; the engine confirmed it for f(x)=x^2 on [1,3] (slope 4) and proved the genera",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "secant slope of x^2 on [1,3] = 4; (b^2-a^2)/(b-a) = a+b identically"
+        },
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "same quotient = average velocity: free-fall 4.9t^2 over [1,3] s = 19.6 m/s"
+        },
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "same quotient = average reaction rate: 8->2 over 3 s = 2 units/s"
+        }
+      ]
+    },
+    {
       "id": "review_magnesium_form_matters",
       "title": "Magnesium \u2014 CONFIRMED for deficiency; form matters (glycinate/citrate >> oxide for absorption)",
       "domains": [
@@ -1162,6 +1350,76 @@
       ]
     },
     {
+      "id": "connection_growth_is_decay_two_witnesses",
+      "title": "Growth and decay are one law, run in opposite directions",
+      "domains": [
+        "economics",
+        "mathematics",
+        "nuclear_physics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "time_sequence",
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Money compounding upward and a radioactive sample dwindling downward feel like opposites, but two independent verifiers found them on the same curve. The nuclear_physics verifier confirmed that after one half-life a sample is at 50% (e^(-lambda*t)). The economics verifier confirmed that money at 7%/year doubles in abou",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "nuclear_physics",
+          "verdict": "CONFIRMED",
+          "detail": "decay: after 1 half-life, 50% remain (e^(-lambda*t), characteristic time ln2/lambda)"
+        },
+        {
+          "domain": "economics",
+          "verdict": "CONFIRMED",
+          "detail": "growth: 7%/yr doubles in ~10.3 yr (72/r ~ ln2/r)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "shared hinge: e^(-ln2) = 1/2 (halving; doubling is its inverse)"
+        }
+      ]
+    },
+    {
+      "id": "connection_exponential_decay_two_witnesses",
+      "title": "Exponential decay is one law: a nucleus and a capacitor agree",
+      "domains": [
+        "electrical",
+        "mathematics",
+        "nuclear_physics"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A radioactive sample and a charging capacitor have nothing physically to do with each other -- one is the strong force inside a nucleus, the other is charge flowing onto a plate. Yet two independent verifiers found them obeying the SAME curve. The nuclear_physics verifier confirmed that after 2 half-lives a sample has ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "nuclear_physics",
+          "verdict": "CONFIRMED",
+          "detail": "N0*e^(-lambda*t): after 2 half-lives, 25% of nuclei remain"
+        },
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "RC charging e^(-t/RC): after t=RC*ln4 the voltage gap is 25% (75% charged)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "the shared value: e^(-ln 4) = 1/4 (both at t/tau = ln 4)"
+        }
+      ]
+    },
+    {
       "id": "seebeck_thermoelectric_generator",
       "title": "Seebeck effect \u2014 heat-driven electricity without moving parts",
       "domains": [
@@ -1194,6 +1452,140 @@
           "domain": "thermodynamics",
           "verdict": "CONFIRMED",
           "detail": "Subject to Carnot limit. The 5-8% practical efficiency reflects irreversibilities in finite-time conduction, not a violation of conservation."
+        }
+      ]
+    },
+    {
+      "id": "connection_bernoulli_is_energy_conservation",
+      "title": "Bernoulli is energy conservation for a flowing fluid",
+      "domains": [
+        "hydrology",
+        "mathematics",
+        "physics_conservation"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "conservation_balance",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A column of water 10 m high, at rest, carries a total head of 10 m -- all of it elevation. Send that same water to the bottom and put it under 98.1 kPa of pressure, and the hydrology verifier confirms the total head is STILL 10 m -- now all pressure. The head did not vanish; it changed form. The physics_conservation ve",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Bernoulli total head = 10 m at rest (elevation) and under 98.1 kPa (pressure): head converts, conserved"
+        },
+        {
+          "domain": "physics_conservation",
+          "verdict": "CONFIRMED",
+          "detail": "mechanics: PE 10 -> KE 10, total energy conserved"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "pressure head p/(rho g) = 98100/(1000*9.81) = 10 m"
+        }
+      ]
+    },
+    {
+      "id": "connection_independence_multiplies_information_adds",
+      "title": "Independence multiplies probability but adds information",
+      "domains": [
+        "information_theory",
+        "mathematics",
+        "probability"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "encoding",
+        "uncertainty"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Flip two fair coins. The probability verifier confirmed that independent events MULTIPLY: P(A and B) = 0.5 x 0.5 = 0.25. The information_theory verifier confirmed that one fair coin carries 1 bit and two independent coins carry 2 bits -- information ADDS (1 + 1). Two unrelated-looking rules, but they are the SAME fact ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "probability",
+          "verdict": "CONFIRMED",
+          "detail": "independent events multiply: P(A and B)=0.5x0.5=0.25"
+        },
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "1 fair coin=1 bit; 2 independent fair coins=2 bits (entropy adds)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "the bridge: -log2(0.5x0.5)=log2(4)=2=1+1"
+        }
+      ]
+    },
+    {
+      "id": "narrow_to_nothing_handoff_demonstrated",
+      "title": "Narrow it to almost nothing, then any tool can finish",
+      "domains": [
+        "mathematics",
+        "narrowing",
+        "narrowing_verify"
+      ],
+      "domain_count": 3,
+      "axes": [
+        "discreteness",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A problem with 90,000 candidates: which 5-digit number is a perfect square, a palindrome, and has digits summing to 25? The engine did not search for the answer. It DELETED what could not be the answer. is_perfect_square removed 89,783 (90,000 -> 217). is_palindrome removed 210 more (217 -> 7). digit_sum=25 removed 6 (",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "narrowing",
+          "verdict": "CONFIRMED",
+          "detail": "90000 candidates narrowed to 1 (44944) by three deterministic eliminators; trail sealed"
+        },
+        {
+          "domain": "narrowing_verify",
+          "verdict": "CONFIRMED",
+          "detail": "claimed finish 44944 re-confirmed HOLDS on every constraint; wrong finish 12321 refused BROKEN"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "212**2 == 44944 simplifies to zero (SymPy, derivation chain)"
+        }
+      ]
+    },
+    {
+      "id": "connection_harmonics_are_intervals_two_witnesses",
+      "title": "Why music is consonant: the overtone series is the scale",
+      "domains": [
+        "acoustics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The reason a perfect fifth sounds sweet is not taste -- it is the physics of a vibrating string, and two independent verifiers show it. The acoustics verifier confirmed the overtone series: a 220 Hz string also rings at integer multiples -- 2x = 440 Hz, 3x = 660 Hz. The music_theory verifier confirmed that 220 -> 440 i",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "overtones: f_2 = 2x220 = 440 Hz, f_3 = 3x220 = 660 Hz"
+        },
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "220->440 = octave (2:1); 440->660 = perfect fifth (3:2)"
         }
       ]
     },
@@ -1349,6 +1741,36 @@
           "domain": "music_theory",
           "verdict": "CONFIRMED",
           "detail": "D3 \u2192 D4 = 12 semitones (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "photon_double_slit",
+      "title": "The photon double-slit \u2014 light is particle and wave; light and vibration are one",
+      "domains": [
+        "acoustics",
+        "optics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "time_sequence",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Light claims to be both particle and wave: a 650 nm photon carries E=hc/lambda=3.06e-19 J (particle), the same light through two slits interferes at 1.3 cm fringe spacing dy=lambda*L/d (wave), an electron carries a wavelength lambda=h/p=7.27e-10 m (matter wave), and the same relation v=f*lambda governs both light (c=f*",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "optics",
+          "verdict": "CONFIRMED",
+          "detail": "photon energy, fringe spacing, de Broglie wavelength match"
+        },
+        {
+          "domain": "acoustics",
+          "verdict": "CONFIRMED",
+          "detail": "v=f*lambda confirmed for sound and for light"
         }
       ]
     },
@@ -2758,6 +3180,34 @@
       ]
     },
     {
+      "id": "connection_conservation_two_witnesses",
+      "title": "Conservation is one principle: atoms and energy both balance",
+      "domains": [
+        "chemistry",
+        "physics_conservation"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Two domains were asked, separately, whether a total survives a change. The chemistry verifier confirmed that in 2 H2 + O2 -> 2 H2O every element is balanced -- the atoms present before the reaction are exactly the atoms present after (Lavoisier, 1789). The physics_conservation verifier confirmed that in a collision whe",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "chemistry",
+          "verdict": "CONFIRMED",
+          "detail": "2 H2 + O2 -> 2 H2O: every element conserved (atoms before = after)"
+        },
+        {
+          "domain": "physics_conservation",
+          "verdict": "CONFIRMED",
+          "detail": "energy: KE+PE total 15 before = 15 after (kinetic<->potential trade)"
+        }
+      ]
+    },
+    {
       "id": "review_fish_oil_omega3",
       "title": "Fish oil (EPA/DHA) \u2014 MIXED for general cardiovascular; CONFIRMED for hypertriglyceridemia at prescription dose",
       "domains": [
@@ -2844,6 +3294,121 @@
           "domain": "chemistry",
           "verdict": "CONFIRMED",
           "detail": "J-tube combustion temperatures >800\u00b0C \u2192 complete oxidation of CO and volatiles \u2192 near-zero PM2.5 emissions"
+        }
+      ]
+    },
+    {
+      "id": "connection_pairs_are_triangular_numbers",
+      "title": "Counting pairs is summing 1..n: handshakes are triangular numbers",
+      "domains": [
+        "combinatorics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "discreteness",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Ask how many handshakes happen among 10 people and the combinatorics verifier answers C(10,2) = 45. Ask for the sum 1 + 2 + ... + 9 and the mathematics verifier answers 9*10/2 = 45 -- the same number, and not by accident. Choosing 2 from n is exactly the (n-1)th TRIANGULAR number, n(n-1)/2: the first person shakes n-1 ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(10,2)=45, C(5,2)=10 (number of pairs)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "10*9/2=45 = 1+...+9 (Gauss); 5*4/2=10: the triangular numbers"
+        }
+      ]
+    },
+    {
+      "id": "discreteness_factorial_coconfirm",
+      "title": "Counting is one structure \u2014 arithmetic and combinatorics co-confirm it",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "5! = 120 (number theory, the arithmetic factorial) and the number of ways to arrange 5 items, P(5,5) = 120 (combinatorics, pure counting) \u2014 the SAME value confirmed by two independent domains.",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "5! = 120"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "P(5,5) = 120"
+        }
+      ]
+    },
+    {
+      "id": "located_binomial_factorial_verified",
+      "title": "Located and verified \u2014 binomial coefficients & factorials (combinatorics)",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning",
+        "discreteness"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Five located combinatorics claims were machine-verified: C(6,2)=15, 7!=5040, C(10,5)=252, P(4,4)=24, C(7,3)=35. The false claim 8!=40000 was caught and BROKEN -- the true value is 40320.",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "C(6,2)=15, C(10,5)=252, P(4,4)=24, C(7,3)=35"
+        },
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "7!=5040 confirmed; 8!=40000 rejected (true 40320)"
+        }
+      ]
+    },
+    {
+      "id": "connection_discreteness_counting",
+      "title": "Verified connection \u2014 counting is one structure (number theory + combinatorics)",
+      "domains": [
+        "combinatorics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "discreteness",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Two independent domains reach the SAME count by different definitions: number theory computes 5! = 120; combinatorics computes the permutations of 5 distinct things, P(5,5) = 120. Both confirmed; the arrangements of five items are one structure seen two ways. This is the DISCRETENESS axis, established by two witnesses ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "5! = 120"
+        },
+        {
+          "domain": "combinatorics",
+          "verdict": "CONFIRMED",
+          "detail": "P(5,5) = 120"
         }
       ]
     },
@@ -2989,6 +3554,122 @@
           "domain": "combinatorics",
           "verdict": "CONFIRMED",
           "detail": "C(23,3) = 1771 (matches claim)"
+        }
+      ]
+    },
+    {
+      "id": "located_twos_complement_is_mod_2n",
+      "title": "Two-complement is arithmetic mod 2^n: the wheel of fixed-width integers",
+      "domains": [
+        "computer_science",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Every integer in a computer lives on a wheel of fixed size, and signed arithmetic is just counting around it -- arithmetic mod 2^n. mathematics confirmed the pieces on an 8-bit wheel (mod 256): -1 is stored as 255 = 0xFF, all ones, because -1 mod 256 = 255; negation is the complement, since any a plus (256 - a) is 0 mo",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Mod(-1,256)=255; 73+(256-73)=0 mod 256; 127+1=128 mod 256; 200+100=44 mod 256"
+        },
+        {
+          "domain": "computer_science",
+          "verdict": "CONFIRMED",
+          "detail": "one adder serves signed+unsigned; subtraction = add complement; overflow wraps the wheel"
+        }
+      ]
+    },
+    {
+      "id": "connection_sha256_avalanche_is_measurable",
+      "title": "SHA-256 avalanche: one letter changes half the output bits, and you can count them",
+      "domains": [
+        "cryptography",
+        "information_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A cryptographic hash is supposed to scramble its input so thoroughly that the tiniest change produces a totally different fingerprint. This proof MEASURES that property instead of asserting it. The cryptography verifier confirmed two real digests: SHA-256(hello) = 2cf24dba...9824 and SHA-256(hellp) = fdd7585e...4ce7 --",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "cryptography",
+          "verdict": "CONFIRMED",
+          "detail": "SHA-256(hello)=2cf24dba...9824; SHA-256(hellp)=fdd7585e...4ce7 (1-letter change); sha256 strong"
+        },
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "Hamming distance 131/256 between the two digests -- ~51 percent of bits flipped (avalanche)"
+        }
+      ]
+    },
+    {
+      "id": "connection_birthday_bound_halves_hash_security",
+      "title": "Pigeonhole and the birthday bound: why a 256-bit hash gives only 128-bit collision resistance",
+      "domains": [
+        "cryptography",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A hash maps unlimited inputs to a fixed set of outputs, so collisions are not just possible -- they are guaranteed, and they come sooner than intuition says. mathematics confirmed the pigeonhole half: 366 people in 365 birthday-boxes forces some box to hold at least ceil(366/365) = 2; whenever inputs outnumber outputs ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "pigeonhole ceil(366/365)=2; sqrt(2^256)=2^128; sqrt(2^128)=2^64 -- collisions inevitable, found at ~sqrt(N)"
+        },
+        {
+          "domain": "cryptography",
+          "verdict": "CONFIRMED",
+          "detail": "SHA-256 strong -- 2^128 collision resistance still infeasible"
+        }
+      ]
+    },
+    {
+      "id": "connection_checksum_is_modular_arithmetic",
+      "title": "A checksum is modular arithmetic: validity is a remainder of zero",
+      "domains": [
+        "document_validation",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Every ISBN on a book, every credit-card and IMEI number, every barcode carries a check digit whose only job is to catch a typo. Two independent verifiers confirmed that this everyday machinery IS pure modular arithmetic. The document_validation verifier confirmed the ISBN-10 0306406152 is valid; the mathematics verifie",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "document_validation",
+          "verdict": "CONFIRMED",
+          "detail": "ISBN-10 0306406152 valid (mod-11 checksum); Luhn 79927398713 valid (mod-10 checksum)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "ISBN weighted sum 132 = 0 (mod 11); Luhn total 70 = 0 (mod 10) -- validity is remainder zero"
         }
       ]
     },
@@ -3177,6 +3858,35 @@
       ]
     },
     {
+      "id": "connection_transport_law_ohm_darcy",
+      "title": "One transport law: electric current and groundwater flow",
+      "domains": [
+        "electrical",
+        "hydrology"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Electricity through a wire and water through soil look like different worlds, but two independent verifiers found them obeying the same shape of law. The electrical verifier confirmed Ohm's law: current = voltage / resistance (I = V/R; 12 V across 6 ohm gives 2 A). The hydrology verifier confirmed Darcy's law: flux = c",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "electrical",
+          "verdict": "CONFIRMED",
+          "detail": "Ohm: I = V/R, 12 V / 6 ohm = 2 A (flux = gradient / resistance)"
+        },
+        {
+          "domain": "hydrology",
+          "verdict": "CONFIRMED",
+          "detail": "Darcy: q = K*i, 5e-4 m/s * 0.02 = 1e-5 m/s (flux = conductivity * gradient)"
+        }
+      ]
+    },
+    {
       "id": "patent_crystal_radio",
       "title": "Crystal radio \u2014 AM reception with zero external power",
       "domains": [
@@ -3296,6 +4006,35 @@
       ]
     },
     {
+      "id": "connection_boolean_is_arithmetic_gf2",
+      "title": "Boolean algebra is arithmetic in GF(2): every logic gate is a polynomial",
+      "domains": [
+        "formal_logic",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The logic of true and false is not merely LIKE arithmetic -- it IS arithmetic, in the two-element field GF(2) where the only numbers are 0 and 1. Two verifiers confirmed the correspondence from both sides. mathematics confirmed the gate-to-arithmetic dictionary: XOR is addition mod 2 (1+1=0, the carry dropped), AND is ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "XOR=add mod 2 (1+1=0); AND=mult mod 2 (1*1=1); NOT=1-x; 1*(1+0)=1*1+1*0 mod 2"
+        },
+        {
+          "domain": "formal_logic",
+          "verdict": "CONFIRMED",
+          "detail": "~~A=A; A&(B|C)=(A&B)|(A&C) (distributivity); (A&~B)|(~A&B) != (A|B) (XOR is not OR)"
+        }
+      ]
+    },
+    {
       "id": "almanac_codon_redundancy_phenylalanine",
       "title": "TTT and TTC both code for phenylalanine \u2014 synonymous codons (wobble base)",
       "domains": [
@@ -3321,6 +4060,180 @@
           "domain": "information_theory",
           "verdict": "CONFIRMED",
           "detail": "Redundant code: 64 codewords mapping to 21 outputs (20 amino acids + stop), surplus = 43 redundant codons."
+        }
+      ]
+    },
+    {
+      "id": "connection_genetic_code_is_redundant",
+      "title": "The genetic code is a redundant digital code: 64 codons, far fewer meanings",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Life stores its instructions as a DIGITAL code, and the engine confirmed both its size and its built-in redundancy. mathematics confirmed the codon space: a 4-letter alphabet (A, C, G, T) read three at a time gives 4^3 = 64 possible codons. genetics confirmed those 64 codons map onto only about 21 meanings (20 amino ac",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "4^3 = 64 codons (4-symbol alphabet, length-3 words)"
+        },
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "ATG=M (start); TTA,CTT,CTC all =L (redundant); CTT/CTC differ only 3rd base (silent); TGG = only Trp codon"
+        }
+      ]
+    },
+    {
+      "id": "connection_watson_crick_is_reversible_code",
+      "title": "Watson-Crick complementarity is a reversible code: each strand backs up the other",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "DNA is a double strand for a deep reason: each strand is the exact complement of the other, so the molecule carries its own backup. genetics confirmed the base-pairing -- the complement of ATGCAATTC is TACGTTAAG, A pairing with T and G with C. It confirmed the reverse complement (the antiparallel partner strand): revco",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "complement ATGCAATTC=TACGTTAAG; revcomp(ATGC)=GCAT, revcomp(GCAT)=ATGC (involution); GC fraction 1/3 preserved"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3/9 = 1/3 (GC fraction exact)"
+        }
+      ]
+    },
+    {
+      "id": "connection_dna_palindrome_is_restriction_site",
+      "title": "A DNA palindrome is its own reverse complement: why restriction enzymes cut there",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A DNA palindrome is not a sequence that reads the same backward letter-for-letter, but one whose REVERSE COMPLEMENT equals itself -- and the engine confirmed this is the signature of where restriction enzymes cut. genetics confirmed the famous sites: EcoRI GAATTC has reverse complement GAATTC; BamHI GGATCC has reverse ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "GAATTC, GGATCC, AAGCTT each = own reverse complement (EcoRI/BamHI/HindIII); GAATTG revcomp=CAATTC (not a palindrome)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "a self-reverse-complement palindrome has even length: Mod(6,2)=0"
+        }
+      ]
+    },
+    {
+      "id": "connection_reading_frame_is_triplet_code",
+      "title": "The central dogma reads in frame: a gene is non-overlapping triplets from start to stop",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A gene is read like a sentence with no spaces, three letters at a time, and WHERE you start reading is everything. genetics confirmed the translation: ATG-AAA-TTT-TAA becomes the protein MKF* (Methionine-Lysine-Phenylalanine-Stop), and on a different gene ATG-TGG-TGC-TAA becomes MWC*. The start codon ATG codes for Meth",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "ATGAAATTTTAA->MKF*; ATGTGGTGCTAA->MWC*; ATG=M (start/frame); AAA=K; 11-base ORF refused (not multiple of 3)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Mod(12,3)=0 -- a complete coding sequence is a whole number of codons"
+        }
+      ]
+    },
+    {
+      "id": "connection_transcription_is_complementary_copy",
+      "title": "Transcription is a faithful copy: DNA to mRNA preserves the message",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The first arrow of the central dogma -- DNA to RNA -- changes the medium but not the message, and the engine confirmed it. genetics confirmed the DNA coding strand ATGAAATTTTAA translates to the protein MKF* (Met-Lys-Phe-Stop). It then confirmed that the messenger RNA AUGAAAUUUUAA -- the same letters but with URACIL re",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "DNA ATGAAATTTTAA->MKF*; mRNA AUGAAAUUUUAA->MKF* (U for T, same protein); AUG=M"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Mod(12,3)=0 -- one-to-one, frame-preserving copy (12 bases = 4 codons)"
+        }
+      ]
+    },
+    {
+      "id": "connection_life_is_a_digital_code",
+      "title": "Life is a digital error-managing code: the DNA cluster is one idea",
+      "domains": [
+        "genetics",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Six sealed genetics findings turn out to be one statement: the molecule of heredity is a DIGITAL error-managing code, and this capstone proves the shared core in a single chain. mathematics confirmed the code is digital -- a 4-letter alphabet in 3-letter words, 4^3 = 64 codons -- and that it is read in a fixed triplet ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "4^3=64 (digital alphabet, 4 bases x 3 positions); Mod(12,3)=0 (triplet frame)"
+        },
+        {
+          "domain": "genetics",
+          "verdict": "CONFIRMED",
+          "detail": "ATG=M (reads); CTT=CTC=L (redundant, error-tolerant); revcomp(GCAT)=ATGC (involution, error-correctable)"
         }
       ]
     },
@@ -3764,6 +4677,325 @@
       ]
     },
     {
+      "id": "order_triangle_coconfirm",
+      "title": "Order is one structure \u2014 geometry and arithmetic co-confirm it",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Sides 3, 4, 5 form a valid triangle because 3+4 > 5 (geometry, the triangle inequality), and 3+4 > 5 holds as a pure inequality (mathematics) \u2014 the SAME order relation confirmed by two independent domains.",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "3,4,5 valid triangle"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3+4 > 5"
+        }
+      ]
+    },
+    {
+      "id": "connection_pythagoras_shape_and_number",
+      "title": "Verified connection \u2014 Pythagoras joins shape and number (geometry + arithmetic)",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "order",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A right triangle and an arithmetic identity are the same truth seen two ways. The engine confirmed, by two INDEPENDENT routes, three Pythagorean triples: geometry tested 3-4-5, 5-12-13, and 8-15-17 as right triangles, and arithmetic independently confirmed 3^2+4^2=5^2, 5^2+12^2=13^2, 8^2+15^2=17^2. Six steps, all HOLD.",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "3-4-5, 5-12-13, 8-15-17 are right triangles"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3^2+4^2=5^2, 5^2+12^2=13^2, 8^2+15^2=17^2"
+        }
+      ]
+    },
+    {
+      "id": "connection_time_dilation_is_pythagoras",
+      "title": "Time dilation is the 3-4-5 triangle: relativity from Pythagoras",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Einstein time dilation looks exotic, but it falls out of a right triangle. Picture a light-clock -- a photon bouncing between two mirrors. To a moving observer the photon travels a DIAGONAL: while it covers the vertical distance c*t (one tick at rest), the clock has slid sideways by v*t, and light covers the hypotenuse",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "light-clock right triangle 3-4-5 at v=0.6c (vt, ct_rest, ct_moving)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Lorentz gamma=1/sqrt(1-(v/c)^2)=5/4 at 0.6c; =2 at v=sqrt3/2 c"
+        }
+      ]
+    },
+    {
+      "id": "connection_spacetime_is_pythagoras_sign_flipped",
+      "title": "Spacetime is Pythagoras with one sign flipped",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning",
+        "time_sequence"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Ordinary distance ADDS: across 3 and up 4 puts you 5 away, 3^2+4^2=5^2 -- the geometry verifier confirms the 3-4-5 right triangle and the mathematics verifier confirms the sum. Einstein spacetime does almost the same thing, but SUBTRACTS the space part: the interval is s^2 = (ct)^2 - x^2, and the mathematics verifier c",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "Euclidean distance: 3-4-5 right triangle (space ADDS)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Pythagoras 3^2+4^2=5^2 (plus) vs Minkowski 5^2-4^2=3^2 (minus); light ray 5^2-5^2=0"
+        }
+      ]
+    },
+    {
+      "id": "connection_energy_momentum_is_pythagoras",
+      "title": "Energy and momentum form a right triangle: E^2=(pc)^2+(mc^2)^2",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Relativity bundles a particle total energy and momentum into one right triangle. The relation is E^2 = (pc)^2 + (mc^2)^2 -- rest energy mc^2 and momentum-energy pc are the two LEGS, total energy E is the HYPOTENUSE. The geometry verifier confirmed the cleanest case is a 3-4-5 triangle (mc^2=3, pc=4, E=5); the mathemati",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "energy-momentum right triangle 3-4-5: legs mc^2=3, pc=4; hypotenuse E=5"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3^2+4^2=5^2 (E^2=(mc^2)^2+(pc)^2); gamma=E/mc^2=5/3=1/sqrt(1-(4/5)^2)"
+        }
+      ]
+    },
+    {
+      "id": "connection_length_contraction_is_reciprocal_of_dilation",
+      "title": "Length contraction is the exact reciprocal of time dilation",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A moving clock runs slow and a moving ruler runs short -- and the two effects are exact reciprocals. At v=3/5 c the geometry verifier confirmed the light clock is a 3-4-5 right triangle (velocity leg 3, proper leg 4, light path 5), and the mathematics verifier confirmed two things from it: length contracts by sqrt(1-(v",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "light clock at v=3/5 c is a 3-4-5 right triangle: velocity leg 3, proper leg 4, light path 5"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "sqrt(1-(3/5)^2)=4/5 (length x4/5); gamma=5/4 (time x5/4); (5/4)*(4/5)=1 exactly -- reciprocals"
+        }
+      ]
+    },
+    {
+      "id": "connection_relativity_is_geometry",
+      "title": "Relativity is geometry: one 3-4-5 triangle, read four ways",
+      "domains": [
+        "geometry",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Across eight sealed results this engine kept arriving at the SAME figure: the 3-4-5 right triangle. This capstone verifies, in one chain, that this single triangle generates all four headline quantities of relativity. The geometry verifier confirmed the 3-4-5 triangle; the mathematics verifier confirmed its four readin",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "3-4-5 right triangle -- the single generating figure"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Euclidean 3^2+4^2=5^2 (energy-momentum); Minkowski 5^2-4^2=3^2 (spacetime interval); gamma=5/4 (dilation); 4/5 (contraction)"
+        }
+      ]
+    },
+    {
+      "id": "symmetry_tetrahedral_coconfirm",
+      "title": "Shape is one structure \u2014 chemistry and geometry co-confirm it",
+      "domains": [
+        "geometry",
+        "molecular_geometry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "physical_substance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Methane (4 bonding domains, 0 lone pairs) is tetrahedral with bond angle 109.47 deg (VSEPR, chemistry) and a regular tetrahedron's central angle is arccos(-1/3) = 109.47 deg (pure geometry) \u2014 the SAME angle confirmed by two independent domains.",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "molecular_geometry",
+          "verdict": "CONFIRMED",
+          "detail": "methane is tetrahedral, 109.47 deg"
+        },
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "regular tetrahedron central angle 109.47 deg"
+        }
+      ]
+    },
+    {
+      "id": "connection_tetrahedral_chain_verified",
+      "title": "Verified cross-domain chain \u2014 the tetrahedral 109.47 deg, two independent witnesses",
+      "domains": [
+        "geometry",
+        "molecular_geometry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "symmetry",
+        "order"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The tetrahedral angle 109.47 deg is arrived at independently by TWO domains and verified as a LINKED chain: step 0 (coordination geometry) confirms a tetrahedral coordination has central angle 109.47 deg; step 1 (VSEPR molecular geometry) confirms methane (4 bonding domains, 0 lone pairs) is tetrahedral at 109.47 deg, ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "coordination tetrahedral -> 109.47 deg = arccos(-1/3)"
+        },
+        {
+          "domain": "molecular_geometry",
+          "verdict": "CONFIRMED",
+          "detail": "VSEPR 4 bonding/0 lone -> tetrahedral 109.47 deg; builds on the geometry step"
+        }
+      ]
+    },
+    {
+      "id": "connection_symmetry_tetrahedral",
+      "title": "Verified connection \u2014 the tetrahedral angle, two independent witnesses (geometry + molecular geometry)",
+      "domains": [
+        "geometry",
+        "molecular_geometry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "symmetry",
+        "order"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Pure coordination geometry says a tetrahedral arrangement has a central angle of 109.47 degrees (arccos of -1/3); VSEPR molecular geometry, counting four bonding pairs and no lone pairs, independently gives the same 109.47 degrees. Both confirmed. The SYMMETRY axis, established by two witnesses (Deut 19:15) and now sea",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "tetrahedral central angle = 109.47 = arccos(-1/3)"
+        },
+        {
+          "domain": "molecular_geometry",
+          "verdict": "CONFIRMED",
+          "detail": "VSEPR 4 bonding/0 lone -> tetrahedral 109.47"
+        }
+      ]
+    },
+    {
+      "id": "connection_molecular_shape_is_geometry",
+      "title": "Verified connection \u2014 molecular shape IS geometry (chemistry + geometry)",
+      "domains": [
+        "geometry",
+        "molecular_geometry"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "symmetry",
+        "order"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A molecule's bond angles are not chemistry's invention; they are the pure coordination-geometry angles. The engine confirmed all four by TWO independent routes -- coordination geometry (a points-on-a-sphere argument) and VSEPR (counting bonding and lone electron pairs): linear 180 deg (2 bonds), trigonal planar 120 deg",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "geometry",
+          "verdict": "CONFIRMED",
+          "detail": "linear 180, trigonal 120, tetrahedral 109.47, octahedral 90 (coordination angles)"
+        },
+        {
+          "domain": "molecular_geometry",
+          "verdict": "CONFIRMED",
+          "detail": "VSEPR 2/3/4/6 bonding -> same four angles"
+        }
+      ]
+    },
+    {
       "id": "gen_square_garden_4eda7fce9d",
       "title": "Square garden, prime side 11ft = 121 sq ft",
       "domains": [
@@ -4162,6 +5394,209 @@
       ]
     },
     {
+      "id": "connection_error_correction_minimum_distance",
+      "title": "Error-correcting codes: the minimum distance decides how many errors you can fix",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A code can repair errors only because its valid words are spread apart, and EXACTLY how far apart decides how much damage it survives. This proof seals that law on the simplest code, the threefold repetition {000, 111}. information_theory confirmed the minimum Hamming distance between the two codewords is d=3. mathemat",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "d(000,111)=3; 010 is dist 1 from 000, 2 from 111 (unique decode); 011 is dist 1 from 111 (2-error mis-decode)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "t=floor((d-1)/2): d=3 -> t=1; d=5 -> t=2 -- the correction capacity"
+        }
+      ]
+    },
+    {
+      "id": "connection_entropy_is_thermodynamic",
+      "title": "Shannon entropy and thermodynamic entropy are the same quantity",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The entropy of a message and the entropy of a gas are not analogies -- they are one formula. information_theory confirmed Shannon entropy numerically: a fair coin carries 1 bit, four equal outcomes carry 2 bits, eight carry 3, and a biased coin (0.9, 0.1) carries only ~0.469 bits because order reduces uncertainty. math",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "Shannon H: 1 bit (fair coin), 2 bits (4 equal), 3 bits (8 equal), 0.469 bits (0.9,0.1)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "-sum p log p = log W (Gibbs->Boltzmann); log2(8)=3; ln(W)=ln(2)*log2(W) units bridge"
+        }
+      ]
+    },
+    {
+      "id": "connection_entropy_is_compression_floor",
+      "title": "Entropy is the floor on compression: no code beats -sum p log p",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Shannon source-coding theorem says the entropy of a source is the hard floor on lossless compression -- you can reach it but never go below it. This proof seals that on a concrete source. information_theory confirmed the source with probabilities (1/2, 1/4, 1/8, 1/8) has entropy H = 1.75 bits per symbol. mathematics co",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "H(1/2,1/4,1/8,1/8)=1.75 bits; H(uniform 4)=2 bits -- the compression floor"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "Huffman avg length 1/2*1+1/4*2+1/8*3+1/8*3 = 7/4 = H; uniform 2-bit code = 2 = H"
+        }
+      ]
+    },
+    {
+      "id": "connection_binary_search_is_information_bound",
+      "title": "Binary search is logarithmic because locating one item is log2(n) bits",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Why can you find a name in a million-entry phone book in 20 steps? Because locating one item among n is an information problem, and binary search spends exactly the information it must. information_theory confirmed the cost: pinpointing one of 8 equally-likely positions carries log2(8) = 3 bits. mathematics confirmed b",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "H(8 uniform positions) = 3 bits -- the information to pinpoint one item"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "ceil(log2 n) probes: 3 (n=8), 10 (n=1000), 20 (n=1e6) -- one bit per comparison"
+        }
+      ]
+    },
+    {
+      "id": "connection_kraft_inequality_bounds_codes",
+      "title": "Kraft inequality: which codeword lengths a prefix code can have",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Before you can build a prefix code (one where no codeword is the start of another, so a stream decodes instantly), the codeword LENGTHS must be affordable -- the Kraft inequality says sum of 2^(-length) must be at most 1, with equality only when the code is complete (every branch of the binary tree used). mathematics c",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "sum 2^-len: (1,2,3,3)=1 (complete); (2,2,2)=3/4 (slack); (1,1,1)=3/2 (>1 impossible)"
+        },
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "the complete lengths achieve source entropy H=1.75 bits -- existence (Kraft) meets optimality (entropy)"
+        }
+      ]
+    },
+    {
+      "id": "connection_information_has_a_price",
+      "title": "Information has a price: the computer-science cluster is one quantity, the bit",
+      "domains": [
+        "information_theory",
+        "mathematics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Across this whole cluster the engine kept measuring the same thing in different disguises -- and this capstone proves they are one quantity. For a space of N equally-likely outcomes, the information needed is log2(N) bits, and that single number shows up everywhere. information_theory confirmed the ENTROPY of 8 outcome",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "entropy of 8 equally-likely outcomes = 3 bits"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "ceil(log2 8)=3 (search); log2(8)=3 (count); 2^3=8 (inverse); log2(2)=1 (atom); ceil(log2 4!)=5 (ordering)"
+        }
+      ]
+    },
+    {
+      "id": "uncertainty_entropy_coconfirm",
+      "title": "Quantum entropy is Shannon entropy of the eigenvalue spectrum",
+      "domains": [
+        "information_theory",
+        "quantum_computing"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Two independent domains were asked the same question and gave the same answer. The quantum_computing verifier computes the von Neumann entropy of a density matrix, S(rho) = -Sum lambda*log2(lambda) over its eigenvalues. The information_theory verifier computes the Shannon entropy of a probability distribution, H = -Sum",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "quantum_computing",
+          "verdict": "CONFIRMED",
+          "detail": "von Neumann S for {0.5,0.5}/{0.25x4}/{0.1,0.9}/{1.0} = 1/2/0.4690/0 bits"
+        },
+        {
+          "domain": "information_theory",
+          "verdict": "CONFIRMED",
+          "detail": "Shannon H for the same four distributions = 1/2/0.4690/0 bits (identical)"
+        }
+      ]
+    },
+    {
       "id": "gen_workers_day_2244c7daaf",
       "title": "Laborer's day: $720 pay, BMI 22.9, +200 kcal",
       "domains": [
@@ -4437,6 +5872,650 @@
       ]
     },
     {
+      "id": "connection_pythagorean_comma",
+      "title": "The Pythagorean comma: twelve pure fifths overshoot seven octaves",
+      "domains": [
+        "mathematics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Climb the circle of fifths twelve times -- C, G, D, A, E, B, F#, C#, G#, D#, A#, E#, and back toward C -- and you should land seven octaves above where you began. You do not, and the engine pins the gap exactly. music_theory confirmed the pure fifth is the ratio 3:2 (200 Hz to 300 Hz). mathematics confirmed that twelve",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "the pure (just) perfect fifth is the frequency ratio 3:2"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "(3/2)^12=531441/4096 vs 2^7=128; comma=(3/2)^12/2^7=531441/524288~1.0136"
+        }
+      ]
+    },
+    {
+      "id": "connection_syntonic_comma",
+      "title": "The syntonic comma: the pure third and the Pythagorean third disagree by 81:80",
+      "domains": [
+        "mathematics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Music has TWO ways to build a major third, and they do not match. music_theory confirmed the pure (just) major third is the simple ratio 5:4 (64 Hz to 80 Hz) -- the one nature gives in the overtone series (connection_major_triad_is_overtone_ratios). mathematics confirmed the OTHER way: stack four perfect fifths and dro",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "the pure (just) major third is the ratio 5:4 (64:80)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "5/4=80/64; (3/2)^4/2^2=81/64 (Pythagorean third); (81/64)/(5/4)=81/80 syntonic comma"
+        }
+      ]
+    },
+    {
+      "id": "connection_cents_are_logarithmic",
+      "title": "Cents are logarithmic: pitch ratios multiply, but intervals add",
+      "domains": [
+        "mathematics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Pitch is multiplicative -- you go UP an octave by DOUBLING frequency, up two octaves by quadrupling -- yet musicians count intervals by ADDING (a fifth plus a fourth makes an octave). The cent reconciles them, and the engine shows it is exactly a logarithm. music_theory confirmed the octave is the ratio 2:1. mathematic",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "an octave is the frequency ratio 2:1"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "cent=1200*log2(ratio): octave 1200, semitone 100, fifth 700; fifth*fourth -> 700+500=1200 (ratios multiply, cents add)"
+        }
+      ]
+    },
+    {
+      "id": "located_midi_to_frequency",
+      "title": "MIDI note to frequency: every key is a power of the twelfth root of two from A440",
+      "domains": [
+        "mathematics",
+        "music_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Every note a synthesizer or piano can play is a single exact frequency, pinned by one anchor and one formula. music_theory confirmed the map on the standard scale: MIDI note 69 (the A above middle C) is exactly 440 Hz; MIDI 60 (middle C) is about 261.63 Hz; MIDI 81 is 880 Hz and MIDI 57 is 220 Hz -- a twelve-semitone s",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "music_theory",
+          "verdict": "CONFIRMED",
+          "detail": "MIDI 69=440 Hz; 60=261.63 (middle C); 81=880; 57=220 -- octave doubles/halves"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "f=440*2^((n-69)/12): 440*2^(12/12)=880; 440*2^(-12/12)=220 (twelfth root of two per semitone)"
+        }
+      ]
+    },
+    {
+      "id": "located_goldbach_conjecture_verified",
+      "title": "Goldbach's conjecture \u2014 verified where we can reach, open where we cannot",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "discreteness",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Goldbach conjectured in 1742 that every even number greater than 2 is the sum of two primes. It is still UNPROVEN. The engine verified it for a ladder of even numbers, each as a genuine prime-pair decomposition: 100 = 3 + 97, 1,000 = 3 + 997, 10,000 = 59 + 9,941, 100,000 = 11 + 99,989, and 1,000,000 = 17 + 999,983 -- 1",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "3,97,997,59,9941,11,99989,17,999983 all prime"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3+97=100, 3+997=1000, 59+9941=10000, 11+99989=100000, 17+999983=1000000"
+        }
+      ]
+    },
+    {
+      "id": "connection_rsa_is_modular_inverse_of_primes",
+      "title": "RSA, end to end: the private key is the modular inverse of the public key, mod (p-1)(q-1)",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "RSA -- the cipher behind HTTPS, signed software, and secure email -- is built entirely from two prime numbers and one modular inverse. This proof walks the whole machine on a toy key (p=61, q=53) and seals every joint. number_theory confirmed p=61 and q=53 are prime; mathematics confirmed the PUBLIC modulus n=p*q=3233 ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "p=61,q=53 prime; gcd(e=17,phi=3120)=1; d=2753 is 17^-1 mod 3120 (the private key)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "n=3233; phi=3120; 17*2753=1 mod 3120; decrypt(encrypt(m))=m for m=65 and m=2790 (correctness)"
+        }
+      ]
+    },
+    {
+      "id": "connection_diffie_hellman_shared_secret",
+      "title": "Diffie-Hellman: two strangers compute one shared secret over an open line",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Two people who have never met, shouting across a room everyone can hear, can still agree on a secret number that the listeners cannot learn. This proof walks the whole exchange on a toy modulus and seals each step. number_theory confirmed the public modulus p=23 is prime. mathematics confirmed Alice, holding secret a=6",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "public modulus p=23 is prime"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "A=5^6 mod 23=8; B=5^15 mod 23=19; 19^6 mod 23 = 8^15 mod 23 = g^(ab) mod 23 = 2 -- both reach the same secret"
+        }
+      ]
+    },
+    {
+      "id": "connection_sorting_is_information_bound",
+      "title": "Sorting needs at least log2(n!) comparisons: an information lower bound",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "There is a hard floor on how fast anything can sort by comparing pairs, and it comes straight from counting. number_theory confirmed how many orderings must be told apart: 3 items have 3!=6 arrangements, 4 have 4!=24, 5 have 5!=120. mathematics confirmed the bound that follows: since each comparison answers one yes/no ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "3!=6, 4!=24, 5!=120 -- the orderings a sort must distinguish"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "ceil(log2(n!)) comparisons: 3 (n=3), 5 (n=4), 7 (n=5) -- one bit per comparison"
+        }
+      ]
+    },
+    {
+      "id": "located_modular_exponentiation_trapdoor",
+      "title": "The modular-exponentiation trapdoor: fast one way, hard the other",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Public-key cryptography needs an operation that is easy to do and ruinous to undo -- and modular exponentiation is it. mathematics confirmed the FAST direction by square-and-multiply: because 13 is 1101 in binary, 5^13 = 5^8 * 5^4 * 5^1, and that product mod 23 equals 5^13 mod 23 (=21) computed directly. The work is LO",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "5^8*5^4*5^1 = 5^13 mod 23; floor(log2 13)=3 squarings; 7^64*7^32*7^4 = 7^100 mod 101 = 1 (Fermat)"
+        },
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "modulus 101 is prime (as DH/Fermat require)"
+        }
+      ]
+    },
+    {
+      "id": "connection_euclid_gcd_is_remainder_recursion",
+      "title": "Euclid algorithm: the greatest common divisor is the last nonzero remainder",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The oldest algorithm still in daily use -- Euclid, around 300 BC -- finds the greatest common divisor by nothing but repeated remainders. number_theory confirmed gcd(48, 18) = 6. mathematics confirmed how the algorithm reaches it: 48 mod 18 = 12, then 18 mod 12 = 6, then 12 mod 6 = 0 -- the moment a remainder vanishes,",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "gcd(48,18)=6; gcd(17,3120)=1 (RSA e coprime to phi -> inverse exists)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "48 mod 18=12, 18 mod 12=6, 12 mod 6=0 (last nonzero=gcd); Bezout 48*(-1)+18*3=6"
+        }
+      ]
+    },
+    {
+      "id": "connection_chinese_remainder_is_residue_reconstruction",
+      "title": "The Chinese Remainder Theorem: a number is uniquely its residues",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A number can be cut into its remainders against several coprime moduli and then rebuilt exactly from those pieces -- the Chinese Remainder Theorem, known since the 3rd-century Sunzi Suanjing. number_theory confirmed the moduli 3, 5, 7 are pairwise coprime (gcd(3,5)=gcd(5,7)=gcd(3,7)=1) -- the condition that guarantees ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "gcd(3,5)=gcd(5,7)=gcd(3,7)=1 -- pairwise coprime moduli"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "23 = (2,3,2) mod (3,5,7); product 105; 128=23+105 same residues -> unique mod 105"
+        }
+      ]
+    },
+    {
+      "id": "connection_fermat_little_theorem_and_primality",
+      "title": "Fermat little theorem and the primality test -- with its Carmichael blind spot",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Raise any base to the power one-less-than a prime and reduce modulo that prime, and you always land on 1 -- Fermat little theorem. number_theory confirmed 17 and 11 are prime; mathematics confirmed 3^16 = 1 mod 17 and 2^10 = 1 mod 11. Run the rule backward and it becomes a fast primality TEST: if a^(n-1) is NOT 1 mod n",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "17,11 prime; 15 composite; 561=3*11*17 composite (Carmichael)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "3^16=1 mod 17; 2^10=1 mod 11; 2^14=4 mod 15 (witness); 2^560=1 mod 561 (pseudoprime fools test)"
+        }
+      ]
+    },
+    {
+      "id": "connection_euclid_euler_perfect_numbers",
+      "title": "Euclid-Euler: every even perfect number is a Mersenne prime times a power of two",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A perfect number equals the sum of its own proper divisors -- 6 = 1+2+3, 28 = 1+2+4+7+14 -- and Euclid (Book IX) plus Euler proved exactly where they come from: every even perfect number is 2^(p-1) * (2^p - 1) where 2^p - 1 is a Mersenne prime. number_theory confirmed 6, 28, 496 are perfect; mathematics confirmed the f",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "6,28,496 perfect; 2^5-1=31 prime; 2^4-1=15 composite (so 120 not perfect)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "6=2^1*(2^2-1); 28=2^2*(2^3-1); 496=2^4*(2^5-1) -- the Euclid form"
+        }
+      ]
+    },
+    {
+      "id": "connection_circle_of_fifths_is_coprimality",
+      "title": "The circle of fifths is a circle because gcd(7,12)=1",
+      "domains": [
+        "mathematics",
+        "number_theory"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Why does going up by fifths -- C, G, D, A, E, B, F#, C#, G#, D#, A#, F -- pass through every one of the twelve notes and return exactly to C, making a closed CIRCLE? The engine shows it is a fact of number theory. number_theory confirmed a fifth is 7 semitones and gcd(7,12) = 1: the step size is coprime to the twelve-n",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "gcd(7,12)=1 (fifth generates all 12 pitch classes); gcd(3,12)=3 (minor third closes after 4)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "7k mod 12 hits 0,7,2,9,4,11,6,1,8,3,10,5 then returns at k=12; 3k mod 12 closes at k=4"
+        }
+      ]
+    },
+    {
+      "id": "connection_thin_lens_is_reciprocal_addition",
+      "title": "A lens, parallel resistors, and the harmonic mean: reciprocals add",
+      "domains": [
+        "mathematics",
+        "optics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "reasoning",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Put an object 3 m in front of a lens of focal length 2 m and the optics verifier confirms the image forms at 6 m -- because the thin-lens equation is 1/f = 1/do + 1/di, here 1/2 = 1/3 + 1/6. The mathematics verifier confirms that very identity: 1/3 + 1/6 = 1/2. The point is the SHAPE of the law -- not the quantities ad",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "optics",
+          "verdict": "CONFIRMED",
+          "detail": "thin lens 1/f=1/do+1/di: f=2 m, do=3 m, di=6 m (1/2=1/3+1/6)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "reciprocal-addition identity 1/3+1/6=1/2"
+        }
+      ]
+    },
+    {
+      "id": "located_velocity_addition_light_invariant",
+      "title": "Light plus light equals light: relativistic velocity addition",
+      "domains": [
+        "mathematics",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "In everyday life speeds add: walk 3 mph on a 50 mph train and the ground sees 53. Relativity replaces that with w = (u+v)/(1 + u*v/c^2), and the mathematics verifier confirmed three exact consequences (working in units of c, so c=1): (1) half light-speed plus half light-speed is NOT c but 4/5 c -- (1/2+1/2)/(1+1/4)=4/5",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "(1/2+1/2)/(1+1/4)=4/5; (3/5+3/5)/(1+9/25)=15/17; (1+1)/(1+1)=1 -- c is the fixed point"
+        },
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "velocity composition keeps every frame under c and pins light at c in all frames (special relativity)"
+        }
+      ]
+    },
+    {
+      "id": "located_relativistic_doppler_reciprocal",
+      "title": "Relativistic Doppler: approaching light doubles, receding halves, the product is one",
+      "domains": [
+        "mathematics",
+        "physics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONFIRMED",
+      "situation": "Move toward a light source and its frequency rises (blueshift); move away and it falls (redshift). Relativity sets the exact factor at sqrt((1+b)/(1-b)) with b=v/c. The mathematics verifier confirmed three exact facts at b=3/5: approaching, the factor is sqrt((8/5)/(2/5))=sqrt(4)=2 -- the frequency DOUBLES; receding, i",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "sqrt((1+3/5)/(1-3/5))=2; sqrt((1-3/5)/(1+3/5))=1/2; product=1; gamma*(1+b)=5/4*8/5=2"
+        },
+        {
+          "domain": "physics",
+          "verdict": "CONFIRMED",
+          "detail": "relativistic Doppler: blueshift approaching, redshift receding, with the extra gamma factor of special relativity"
+        }
+      ]
+    },
+    {
+      "id": "connection_emc2_mass_is_bound_energy",
+      "title": "E=mc^2: matter is frozen energy, confirmed two ways",
+      "domains": [
+        "mathematics",
+        "physics_dimensional"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "physical_substance"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "The most famous equation says mass and energy are the same thing in different clothes, and two independent verifiers agree. The physics_dimensional verifier confirmed that E = m*c^2 is genuinely an ENERGY -- joule = kilogram*(meter/second)^2, the units balance. The mathematics verifier confirmed the staggering NUMBER i",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "physics_dimensional",
+          "verdict": "CONFIRMED",
+          "detail": "E=m*c^2: both sides reduce to kg*m^2/s^2 (joule) - dimensionally an energy"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "1 g -> 9x10^13 J; 1 kg -> 9x10^16 J (c~3x10^8)"
+        }
+      ]
+    },
+    {
+      "id": "connection_schwarzschild_horizon_set_by_mass",
+      "title": "The Schwarzschild radius: every mass has a horizon, set only by its mass",
+      "domains": [
+        "mathematics",
+        "physics_dimensional"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "General relativity says that if you compress any mass M inside a radius r_s = 2GM/c^2, not even light escapes -- a black hole. Two independent verifiers confirmed the structure of that formula. The physics_dimensional verifier confirmed r_s = 2GM/c^2 is dimensionally a LENGTH (both sides reduce to meters), so the formu",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "physics_dimensional",
+          "verdict": "CONFIRMED",
+          "detail": "r_s = 2*G*M/c**2: both sides reduce to meter (the formula is a radius)"
+        },
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "r_s(Sun)/r_s(Earth) = M(Sun)/M(Earth) exactly (2G/c^2 cancels) -- horizon proportional to mass"
+        }
+      ]
+    },
+    {
+      "id": "connection_mendelian_ratio_is_probability",
+      "title": "Mendel ratios are probability: 3:1 is 3/4 vs 1/4, and 9:3:3:1 is independence squared",
+      "domains": [
+        "mathematics",
+        "probability"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation_balance",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Mendel famous ratios are not biological mysteries but plain probability, and the engine confirmed it. mathematics confirmed the monohybrid law: cross two hybrids (Aa x Aa) and the four equally likely offspring are 1 AA, 2 Aa, 1 aa, so the chance of the DOMINANT phenotype is 1/4 + 1/2 = 3/4 and the recessive is 1/4 -- t",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "mathematics",
+          "verdict": "CONFIRMED",
+          "detail": "P(dominant)=1/4+1/2=3/4 (3:1); (3/4)^2=9/16; 9+3+3+1=16"
+        },
+        {
+          "domain": "probability",
+          "verdict": "CONFIRMED",
+          "detail": "two traits independent (3/4 each, joint 9/16) -- Mendel independent assortment"
+        }
+      ]
+    },
+    {
+      "id": "almanac_quantum_shor_factoring",
+      "title": "Shor factors 15 -- the quantum result, checked in two domains",
+      "domains": [
+        "number_theory",
+        "quantum_computing"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "discreteness",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "15 was the first number ever factored on a quantum computer (IBM, 2001), by Shor's algorithm. The engine verified the whole result end to end. Shor reduces factoring to PERIOD-FINDING (the quantum part) plus a GCD (pure number theory). Pick a=2: the order of 2 modulo 15 is r=4, because 2^4 = 16 = 1 (mod 15), and r is e",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "quantum_computing",
+          "verdict": "CONFIRMED",
+          "detail": "order of 2 mod 15 is r=4 (2^4=16=1 mod 15, even): valid Shor period; extraction gives factors 3,5"
+        },
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "gcd(3,15)=3, gcd(5,15)=5, 3 and 5 prime -> 15 = 3 x 5"
+        }
+      ]
+    },
+    {
+      "id": "quantum_narrowed_and_verified",
+      "title": "Quantum, narrowed and verified -- the moat rides a physical law",
+      "domains": [
+        "number_theory",
+        "quantum_computing"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "conservation",
+        "encoding",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "Eight proposed qubit states were put to the engine. It did not guess which were real. It applied a LAW -- a valid quantum state must have amplitudes whose squared magnitudes sum to exactly 1 -- through the quantum_computing verifier, and deleted the seven that broke it. One survived: [0.6, 0.8] (0.36 + 0.64 = 1). This ",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "quantum_computing",
+          "verdict": "CONFIRMED",
+          "detail": "8 candidate states narrowed to 1 ([0.6,0.8], norm 1) by the normalization law; trail sealed"
+        },
+        {
+          "domain": "quantum_computing",
+          "verdict": "CONFIRMED",
+          "detail": "3-step quantum derivation HOLDS 3/3 (normalization, S=1 bit, Grover T=6); false label [0.6,0.6] BROKE"
+        },
+        {
+          "domain": "number_theory",
+          "verdict": "CONFIRMED",
+          "detail": "verifier-backed primality eliminator: 199->27->10->1 (191), primality decided by the number_theory verifier"
+        }
+      ]
+    },
+    {
       "id": "review_multivitamin_general",
       "title": "Multivitamin (general daily) \u2014 modest cancer signal, null cardiovascular, healthy diet still primary",
       "domains": [
@@ -4492,6 +6571,35 @@
           "domain": "thermodynamics",
           "verdict": "CONFIRMED",
           "detail": "1 m\u00b2 \u00d7 800 W/m\u00b2 \u00d7 50% optical efficiency \u00f7 small focal area \u2192 cooking temperatures"
+        }
+      ]
+    },
+    {
+      "id": "connection_normal_distribution_prob_stats",
+      "title": "Verified connection \u2014 the bell curve joins probability and statistics",
+      "domains": [
+        "probability",
+        "statistics"
+      ],
+      "domain_count": 2,
+      "axes": [
+        "uncertainty",
+        "reasoning"
+      ],
+      "verdict": "CONCORDANT",
+      "situation": "A p-value and a cumulative probability are the same standard normal curve, read two ways. The engine confirmed it by two INDEPENDENT routes: statistics computed that a two-sided z of 1.96 gives p = 0.05 (and z = 2.576 gives p = 0.01), while probability independently computed the normal CDF Phi(1.96) = 0.975 and Phi(2.5",
+      "tier": "verified-structural",
+      "generated": false,
+      "trail": [
+        {
+          "domain": "statistics",
+          "verdict": "CONFIRMED",
+          "detail": "z=1.96 two-sided p=0.05; z=2.576 p=0.01"
+        },
+        {
+          "domain": "probability",
+          "verdict": "CONFIRMED",
+          "detail": "Phi(1.96)=0.975; Phi(2.576)=0.995"
         }
       ]
     }
@@ -6095,7 +8203,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6117,7 +8225,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6139,7 +8247,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6161,7 +8269,7 @@
         "time_sequence"
       ],
       "axis_count": 5,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 100,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6182,7 +8290,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 249,
+      "edge_count": 259,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6203,7 +8311,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6224,7 +8332,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6245,7 +8353,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6266,7 +8374,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6287,7 +8395,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 252,
+      "edge_count": 262,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6308,7 +8416,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6329,7 +8437,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6350,7 +8458,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6371,7 +8479,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6392,7 +8500,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6413,7 +8521,7 @@
         "time_sequence"
       ],
       "axis_count": 4,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 90,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6433,7 +8541,7 @@
         "time_sequence"
       ],
       "axis_count": 3,
-      "edge_count": 249,
+      "edge_count": 259,
       "score": 80,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6453,7 +8561,7 @@
         "time_sequence"
       ],
       "axis_count": 3,
-      "edge_count": 249,
+      "edge_count": 259,
       "score": 80,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6516,7 +8624,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6535,7 +8643,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6554,7 +8662,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6573,7 +8681,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6592,7 +8700,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6611,7 +8719,7 @@
         "time_sequence"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6630,7 +8738,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 207,
+      "edge_count": 217,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6649,7 +8757,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 252,
+      "edge_count": 262,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6668,7 +8776,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6687,7 +8795,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6706,7 +8814,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6725,7 +8833,7 @@
         "reasoning"
       ],
       "axis_count": 2,
-      "edge_count": 256,
+      "edge_count": 266,
       "score": 70,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6883,7 +8991,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6901,7 +9009,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 208,
+      "edge_count": 218,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6919,7 +9027,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6937,7 +9045,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6955,7 +9063,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 208,
+      "edge_count": 218,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6973,7 +9081,7 @@
         "time_sequence"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -6991,7 +9099,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",
@@ -7009,7 +9117,7 @@
         "physical_substance"
       ],
       "axis_count": 1,
-      "edge_count": 248,
+      "edge_count": 258,
       "score": 60,
       "tier": "candidate",
       "note": "resonance (shared axes) \u2014 NOT a verified connection",

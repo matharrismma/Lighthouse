@@ -1,0 +1,59 @@
+{
+  "id": "card_c_41d9499d14d4",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §177: FAITH. → Pilgrim's Progress §178: CHR.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b3e48dbcac65",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_89ae6e000ea6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.153418+00:00",
+  "updated_at": "2026-05-19T13:58:41.153422+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b3e48dbcac65",
+    "right_card_id": "card_n_89ae6e000ea6",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "839ae974eea9179ecc7a6383d6c88bdb8adbf4b368e66c7fe043b26326c58c3e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b3e48dbcac65,card_n_89ae6e000ea6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

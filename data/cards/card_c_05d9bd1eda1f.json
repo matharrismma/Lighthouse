@@ -1,0 +1,59 @@
+{
+  "id": "card_c_05d9bd1eda1f",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_15: There are f → Pirkei Avot §avot_05_16: All love th",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7c15ef0f1c37",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cbeb2134e224",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.376751+00:00",
+  "updated_at": "2026-05-19T13:58:41.376758+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7c15ef0f1c37",
+    "right_card_id": "card_n_cbeb2134e224",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "be703fbf70a1fbc68fa36d6fdac355bac64eaa64158007daef40ba858d650f30",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7c15ef0f1c37,card_n_cbeb2134e224"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

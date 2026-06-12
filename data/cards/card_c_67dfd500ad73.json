@@ -1,0 +1,59 @@
+{
+  "id": "card_c_67dfd500ad73",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §30: PLI. → Pilgrim's Progress §28: PLI.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d6398d4f90d6",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5047b0fe5f14",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.034805+00:00",
+  "updated_at": "2026-05-19T13:58:41.034810+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d6398d4f90d6",
+    "right_card_id": "card_n_5047b0fe5f14",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "df31272061066eb3b6d37fefbe6830094bc4e959ccc098e4ca98ceef426c9081",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d6398d4f90d6,card_n_5047b0fe5f14"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

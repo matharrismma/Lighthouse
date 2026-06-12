@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f28c75ff943b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §10: As I walked  → Pilgrim's Progress §9: It shows, too",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3ae7773407d8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e5edaf616ce3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.023595+00:00",
+  "updated_at": "2026-05-19T13:58:41.023603+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3ae7773407d8",
+    "right_card_id": "card_n_e5edaf616ce3",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "cb5039540269d9357486f0227dd7aa00951d61d73f5852a0d4c2dc841c915bf4",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3ae7773407d8,card_n_e5edaf616ce3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

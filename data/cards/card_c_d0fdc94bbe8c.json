@@ -1,0 +1,61 @@
+{
+  "id": "card_c_d0fdc94bbe8c",
+  "kind": "connection",
+  "title": "Easton: Corinth cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_65c045a22277",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:04.546489+00:00",
+  "updated_at": "2026-05-19T19:49:27.976957+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_65c045a22277",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6ae7e2cdb4b03024302e1174a5831c82d1740d2bc1d2ab1cd52a1b5f1d6acb5b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_65c045a22277,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

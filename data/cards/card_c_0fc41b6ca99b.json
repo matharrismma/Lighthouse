@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0fc41b6ca99b",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_01: With ten ut → Pirkei Avot §avot_05_02: [There were",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_317dc63804ba",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ccec9fb01fe8",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.358788+00:00",
+  "updated_at": "2026-05-19T13:58:41.358797+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_317dc63804ba",
+    "right_card_id": "card_n_ccec9fb01fe8",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "cce49b9eb11192bedc9dda73d18472bf19bc6809f77342bde714616466328f36",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_317dc63804ba,card_n_ccec9fb01fe8"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

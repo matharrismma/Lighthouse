@@ -1,0 +1,61 @@
+{
+  "id": "card_c_bbd5e41e74e8",
+  "kind": "connection",
+  "title": "Easton: Fever cites John",
+  "body": "Card references John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b2715ef51662",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59aff31da66d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:13.576344+00:00",
+  "updated_at": "2026-05-19T19:49:27.361265+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b2715ef51662",
+    "right_card_id": "card_n_59aff31da66d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "34caa6f05b6fadfc14ffb7628cad595cdfdb402cfd89c465b30ad7514fe20fab",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b2715ef51662,card_n_59aff31da66d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

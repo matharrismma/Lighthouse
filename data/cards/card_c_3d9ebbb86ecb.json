@@ -1,0 +1,61 @@
+{
+  "id": "card_c_3d9ebbb86ecb",
+  "kind": "connection",
+  "title": "1 Clement XVII cites Ezekiel",
+  "body": "Patristic text references Ezekiel. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ezekiel",
+  "bands": [
+    "cites",
+    "patristics",
+    "ezekiel",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_755f02d741cf",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.175531+00:00",
+  "updated_at": "2026-05-19T19:50:02.305321+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_755f02d741cf",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "e1263a95b8d288ba44d3d79e8bb0ccb89b36d7f286bde99cfbec9231b1d87147",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_755f02d741cf,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

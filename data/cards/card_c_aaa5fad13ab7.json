@@ -1,0 +1,59 @@
+{
+  "id": "card_c_aaa5fad13ab7",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §103: I beheld, t → Pilgrim's Progress §101: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1daa056bc81d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3f1117ca7163",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.078192+00:00",
+  "updated_at": "2026-05-19T13:58:41.078196+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1daa056bc81d",
+    "right_card_id": "card_n_3f1117ca7163",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "55a4bf0eeba6124b863d0521fffc9d7b61f9d282ff93a0dcbb99a35149d9d5c5",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1daa056bc81d,card_n_3f1117ca7163"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_4ac65279b4ad",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §213: CHR. → Pilgrim's Progress §214: He that sha",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b20bc576288a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0fb681e3ce3b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.176998+00:00",
+  "updated_at": "2026-05-19T13:58:41.177002+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b20bc576288a",
+    "right_card_id": "card_n_0fb681e3ce3b",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "1523aa1de7a2d1584d1aae34386e348233f11bde3cb4afb797ae04f37f099ce1",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b20bc576288a,card_n_0fb681e3ce3b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

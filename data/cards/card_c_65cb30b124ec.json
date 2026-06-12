@@ -1,0 +1,59 @@
+{
+  "id": "card_c_65cb30b124ec",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_18: Rabbi Eliez → Pirkei Avot §avot_04_01: Ben Zoma sa",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_248bb6f6654b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_eb823cfbdfd7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.340773+00:00",
+  "updated_at": "2026-05-19T13:58:41.340778+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_248bb6f6654b",
+    "right_card_id": "card_n_eb823cfbdfd7",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "2a030be7f64ec4bb613203bc30bcd1fbf0c7a8a0d474bb4e4022eda0602c7338",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_248bb6f6654b,card_n_eb823cfbdfd7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

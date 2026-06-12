@@ -1,0 +1,59 @@
+{
+  "id": "card_c_df8b88e4c46f",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §91: Then said th → Pilgrim's Progress §89: So he took C",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_cad0977ef229",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1af3d35a52d2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.069655+00:00",
+  "updated_at": "2026-05-19T13:58:41.069659+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_cad0977ef229",
+    "right_card_id": "card_n_1af3d35a52d2",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "b984ea2fd0336ce92fec3deb4b8ddebff1615519ef5a0ac5c03efa951bc68ab7",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_cad0977ef229,card_n_1af3d35a52d2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

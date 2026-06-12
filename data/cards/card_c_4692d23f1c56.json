@@ -1,0 +1,59 @@
+{
+  "id": "card_c_4692d23f1c56",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §37: Now, as Chri → Pilgrim's Progress §36: Now, I saw i",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_aaba4175ef31",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_337f2a90f8ff",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.038928+00:00",
+  "updated_at": "2026-05-19T13:58:41.038932+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_aaba4175ef31",
+    "right_card_id": "card_n_337f2a90f8ff",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "8864928306cbd12e3dcf20a2eb8636cf01a16c13aef2911d0b02dd7731562d3e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_aaba4175ef31,card_n_337f2a90f8ff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

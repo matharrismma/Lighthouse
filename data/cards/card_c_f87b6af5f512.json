@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f87b6af5f512",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_13: Rabbi Shimo → Pirkei Avot §avot_02_12: Rabbi Yose ",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_92071c38d58f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_517b1d2bd49c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.327384+00:00",
+  "updated_at": "2026-05-19T13:58:41.327389+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_92071c38d58f",
+    "right_card_id": "card_n_517b1d2bd49c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6bc8f12b256cf9611a0e4bc54b3f5701e9787df32f773d8d2bee21aca9838bf8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_92071c38d58f,card_n_517b1d2bd49c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

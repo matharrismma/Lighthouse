@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2687c6766b42",
+  "kind": "connection",
+  "title": "Easton: Gift cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_52bf2278f05b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:02.612431+00:00",
+  "updated_at": "2026-05-19T19:49:23.239587+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_52bf2278f05b",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "0dcf7e96377dd3c30cca719afce60eb7ca3ed95b4f0f7cf16e80b8c275f92976",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_52bf2278f05b,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

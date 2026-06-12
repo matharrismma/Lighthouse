@@ -1,0 +1,61 @@
+{
+  "id": "card_c_5a2945c797c3",
+  "kind": "connection",
+  "title": "Easton: Cook cites Hebrews",
+  "body": "Card references Hebrews. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hebrews",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7ea51c666d30",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:06.772901+00:00",
+  "updated_at": "2026-05-19T19:49:24.708721+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7ea51c666d30",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hebrews named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "a43bb532a629db1405d2414e34b35b547b9ac7f2be5733c17b538daee2842fe9",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7ea51c666d30,card_n_5d2061b70fa6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

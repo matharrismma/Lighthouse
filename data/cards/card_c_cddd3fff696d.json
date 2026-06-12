@@ -1,0 +1,59 @@
+{
+  "id": "card_c_cddd3fff696d",
+  "kind": "connection",
+  "title": "1 Clement XIV → 1 Clement XIII",
+  "body": "Sequential prev in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "prev",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_29f9f8958790",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0cd03a08d2bf",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.076858+00:00",
+  "updated_at": "2026-05-19T13:58:42.076864+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_29f9f8958790",
+    "right_card_id": "card_n_0cd03a08d2bf",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "97ad6ed07e2963d5931dbe62cc8a562d82c3fc04ac9482bd2c951011cbb8552d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_29f9f8958790,card_n_0cd03a08d2bf"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

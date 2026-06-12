@@ -1,0 +1,59 @@
+{
+  "id": "card_c_7b8bf783fc39",
+  "kind": "connection",
+  "title": "Didache 15 → Didache 16",
+  "body": "Sequential next in didache.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "didache",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_didache",
+  "bands": [
+    "sequence",
+    "next",
+    "didache"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9503d6de1987",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9542fd56af12",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.172445+00:00",
+  "updated_at": "2026-05-19T13:58:42.172456+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9503d6de1987",
+    "right_card_id": "card_n_9542fd56af12",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "f5be0e54d3397eb4554e1d7feae2236279ceddcf18be9f220a487b59b2a80667",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9503d6de1987,card_n_9542fd56af12"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

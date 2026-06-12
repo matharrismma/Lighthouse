@@ -1,0 +1,61 @@
+{
+  "id": "card_c_b2b18d86d75a",
+  "kind": "connection",
+  "title": "Easton: Habakkuk, Prophecies of cites Habakkuk",
+  "body": "Card references Habakkuk. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_habakkuk",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "habakkuk"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c6b09e6f09b6",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_23864a064b8d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:16.660742+00:00",
+  "updated_at": "2026-05-19T19:49:26.965783+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c6b09e6f09b6",
+    "right_card_id": "card_n_23864a064b8d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Habakkuk named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "7a15ffb540d3b916bd6562b074bf0517a6b468f07b5d0cf5e66a347aff587840",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c6b09e6f09b6,card_n_23864a064b8d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

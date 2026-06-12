@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2d2b24798820",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_02_10: Why → Imitation of Christ §imit_02_11: Jes",
+  "body": "Sequential next in imitation_of_christ.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "imitation_of_christ",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_imitation_of_christ",
+  "bands": [
+    "sequence",
+    "next",
+    "imitation_of_christ"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d3713f9f17e9",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3009c2596c0f",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.901389+00:00",
+  "updated_at": "2026-05-19T13:58:40.901393+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d3713f9f17e9",
+    "right_card_id": "card_n_3009c2596c0f",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "0b2487a399219aeb03dc5538c05342c374a86e6c6abb42a6a3cb8d9cce0ec5b4",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d3713f9f17e9,card_n_3009c2596c0f"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

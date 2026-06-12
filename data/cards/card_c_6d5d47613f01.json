@@ -1,0 +1,59 @@
+{
+  "id": "card_c_6d5d47613f01",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §296: SHEP. → Pilgrim's Progress §295: They went t",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8ab2dc2dd048",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ea3df3a1bcf1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.232684+00:00",
+  "updated_at": "2026-05-19T13:58:41.232688+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8ab2dc2dd048",
+    "right_card_id": "card_n_ea3df3a1bcf1",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "aeac435f07aaf024b04da706f2af756c16a9637375ad521049f626df04f40233",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8ab2dc2dd048,card_n_ea3df3a1bcf1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

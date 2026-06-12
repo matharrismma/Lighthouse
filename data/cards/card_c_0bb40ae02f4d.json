@@ -1,0 +1,85 @@
+{
+  "id": "card_c_0bb40ae02f4d",
+  "kind": "connection",
+  "title": "WSC Q77 ↔ Zechariah",
+  "body": "Westminster Q77 cites Zechariah: Zech 8:16.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Zech 8:16",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "zechariah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8b627153deaa",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1ada5527d349",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:44.259840+00:00",
+  "updated_at": "2026-05-19T19:50:08.005493+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8b627153deaa",
+    "right_card_id": "card_n_1ada5527d349",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q77 cites Zechariah: Zech 8:16.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Zech 8:16"
+    ]
+  },
+  "source_hash": "d68ed05bea111146c920f791a4da686a87037244ac65dcfe3246cba2ca6395d3",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

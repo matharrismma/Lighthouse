@@ -1,0 +1,61 @@
+{
+  "id": "card_c_651f184c826f",
+  "kind": "connection",
+  "title": "Easton: Malchus cites John",
+  "body": "Card references John. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_john",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "john"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b5974b5050f2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59aff31da66d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:14.451849+00:00",
+  "updated_at": "2026-05-19T19:49:24.925091+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b5974b5050f2",
+    "right_card_id": "card_n_59aff31da66d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: John named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "de4720b22bf56526c136aae133e5949d86ff325a7ea2af122728761615e35700",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b5974b5050f2,card_n_59aff31da66d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

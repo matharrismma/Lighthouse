@@ -1,0 +1,59 @@
+{
+  "id": "card_c_4475fdcfeee9",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §217: And as in o → Pilgrim's Progress §216: This fair i",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a9951991a7c6",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5e4308b9c628",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.180200+00:00",
+  "updated_at": "2026-05-19T13:58:41.180203+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a9951991a7c6",
+    "right_card_id": "card_n_5e4308b9c628",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "bf9da03eb2854214adbd05f37914d69390d6462ab2decb91099c47f991df8c91",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a9951991a7c6,card_n_5e4308b9c628"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

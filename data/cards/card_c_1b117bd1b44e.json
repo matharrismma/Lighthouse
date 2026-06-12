@@ -1,0 +1,61 @@
+{
+  "id": "card_c_1b117bd1b44e",
+  "kind": "connection",
+  "title": "Easton: Poetry cites Habakkuk",
+  "body": "Card references Habakkuk. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_habakkuk",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "habakkuk"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_683b72cdbc78",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_23864a064b8d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:04.821592+00:00",
+  "updated_at": "2026-05-19T19:49:23.024350+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_683b72cdbc78",
+    "right_card_id": "card_n_23864a064b8d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Habakkuk named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "ac671a8d3baed1ca8a4de0303f54c4b2a7a48920ec5c8acffada5df47a8e15cb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_683b72cdbc78,card_n_23864a064b8d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

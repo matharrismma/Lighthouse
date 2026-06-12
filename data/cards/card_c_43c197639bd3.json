@@ -1,0 +1,61 @@
+{
+  "id": "card_c_43c197639bd3",
+  "kind": "connection",
+  "title": "Easton: Samaria cites Micah",
+  "body": "Card references Micah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_micah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "micah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_479179735a5e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_18b623038843",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:01.165504+00:00",
+  "updated_at": "2026-05-19T19:49:24.091415+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_479179735a5e",
+    "right_card_id": "card_n_18b623038843",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Micah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "7fbacfc3d6ac2015ffa055723f1782b060269acf1b8f288e73a16eb750d7078a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_479179735a5e,card_n_18b623038843"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

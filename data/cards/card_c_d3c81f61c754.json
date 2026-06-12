@@ -1,0 +1,61 @@
+{
+  "id": "card_c_d3c81f61c754",
+  "kind": "connection",
+  "title": "Easton: Jonas cites Jonah",
+  "body": "Card references Jonah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jonah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jonah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c96a43ccb3b1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_384d7e8590f7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:17.068772+00:00",
+  "updated_at": "2026-05-19T19:49:28.032185+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c96a43ccb3b1",
+    "right_card_id": "card_n_384d7e8590f7",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jonah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "a899fae090687277503be2d95d6a14af792084d9f2947708bc02a857ef415632",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c96a43ccb3b1,card_n_384d7e8590f7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_17bd58be9456",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_18: Rabbi Eliez → Pirkei Avot §avot_03_17: Rabbi Elaza",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_248bb6f6654b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_27586fd6114c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.341123+00:00",
+  "updated_at": "2026-05-19T13:58:41.341128+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_248bb6f6654b",
+    "right_card_id": "card_n_27586fd6114c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "cdb697aece259c3f1908f7245b728689890845b15a96984a3cebee2bdb651b60",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_248bb6f6654b,card_n_27586fd6114c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

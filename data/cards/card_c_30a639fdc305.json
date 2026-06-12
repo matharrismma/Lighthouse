@@ -1,0 +1,59 @@
+{
+  "id": "card_c_30a639fdc305",
+  "kind": "connection",
+  "title": "Barnabas III → Barnabas IV",
+  "body": "Sequential next in barnabas.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "barnabas",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_barnabas",
+  "bands": [
+    "sequence",
+    "next",
+    "barnabas"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3c10c1b68891",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_70cff2e4f02e",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.422570+00:00",
+  "updated_at": "2026-05-19T13:58:41.422579+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3c10c1b68891",
+    "right_card_id": "card_n_70cff2e4f02e",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c1c188a87c133d122afd344c7328c05e520dadd48cf7a25cf97671f6fac313b4",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3c10c1b68891,card_n_70cff2e4f02e"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

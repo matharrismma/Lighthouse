@@ -1,0 +1,61 @@
+{
+  "id": "card_c_188400ca4bfa",
+  "kind": "connection",
+  "title": "Easton: Ephesus cites Revelation",
+  "body": "Card references Revelation. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_revelation",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "revelation"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_12f0fa95e7f5",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_afc9d52e2059",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:55.877453+00:00",
+  "updated_at": "2026-05-19T19:49:22.978542+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_12f0fa95e7f5",
+    "right_card_id": "card_n_afc9d52e2059",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Revelation named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "ad32aab4813ea0bd5c2a55475e31a415b7a0e8b0f20fdb3cb03b9d9411b547ee",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_12f0fa95e7f5,card_n_afc9d52e2059"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_71b1cf0e7571",
+  "kind": "connection",
+  "title": "Easton: Zoar cites Jeremiah",
+  "body": "Card references Jeremiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_jeremiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "jeremiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_53a5c57d31cc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bd88880279be",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:02.681628+00:00",
+  "updated_at": "2026-05-19T19:49:25.223856+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_53a5c57d31cc",
+    "right_card_id": "card_n_bd88880279be",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Jeremiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "3b2a7538f63f7aae685e073606521e145a3c0995c331882398570df1aff0038b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_53a5c57d31cc,card_n_bd88880279be"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

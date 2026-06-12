@@ -1,0 +1,85 @@
+{
+  "id": "card_c_81bfaae8963f",
+  "kind": "connection",
+  "title": "WSC Q92 ↔ Genesis",
+  "body": "Westminster Q92 cites Genesis: Gen 17:7, 10.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Gen 17:7, 10",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "genesis"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_06d4b101601d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3537b1964287",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:45.914497+00:00",
+  "updated_at": "2026-05-19T19:50:10.318200+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_06d4b101601d",
+    "right_card_id": "card_n_3537b1964287",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q92 cites Genesis: Gen 17:7, 10.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Gen 17:7, 10"
+    ]
+  },
+  "source_hash": "2b8953bed9203dfbe266cd6a025a21b8f4ee68346f449f09da33a3e4a26c91fd",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_27b8c18b202a",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §271: By this tim → Pilgrim's Progress §269: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a1e50bac9949",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17fff7a8cd59",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.213191+00:00",
+  "updated_at": "2026-05-19T13:58:41.213195+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a1e50bac9949",
+    "right_card_id": "card_n_17fff7a8cd59",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "cc9d61b5f370beb2c02533fbf1b732074fdde84104988ceaa97431f46c9629c0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a1e50bac9949,card_n_17fff7a8cd59"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

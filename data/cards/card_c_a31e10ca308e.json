@@ -1,0 +1,61 @@
+{
+  "id": "card_c_a31e10ca308e",
+  "kind": "connection",
+  "title": "Easton: Oil cites James",
+  "body": "Card references James. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_james",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "james"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c27693894058",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_94b8d7f43e37",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:16.062604+00:00",
+  "updated_at": "2026-05-19T19:49:26.386942+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c27693894058",
+    "right_card_id": "card_n_94b8d7f43e37",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: James named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "87a593bd0f7f412c17d985b8cdd34c2d350f9b0e8e0b3fd0e0631543b8267d1f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c27693894058,card_n_94b8d7f43e37"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

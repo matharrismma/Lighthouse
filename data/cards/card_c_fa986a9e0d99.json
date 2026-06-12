@@ -1,0 +1,59 @@
+{
+  "id": "card_c_fa986a9e0d99",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_05: He used to  → Pirkei Avot §avot_02_07: He used to ",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9a4cc0b70a9f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4c8242a045ca",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.321696+00:00",
+  "updated_at": "2026-05-19T13:58:41.321700+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9a4cc0b70a9f",
+    "right_card_id": "card_n_4c8242a045ca",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "fd5cb675448b2e5b2fcfcf1f055f24e9681fe1ff70af69d799d333a9669788fd",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9a4cc0b70a9f,card_n_4c8242a045ca"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

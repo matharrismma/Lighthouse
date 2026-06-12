@@ -1,0 +1,59 @@
+{
+  "id": "card_c_58f895b8835f",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §261: Heathens; f → Pilgrim's Progress §260: This answer",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_efbd4a8bc00a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_21c014a862c2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.209188+00:00",
+  "updated_at": "2026-05-19T13:58:41.209192+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_efbd4a8bc00a",
+    "right_card_id": "card_n_21c014a862c2",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "87947f07af04e1b4dd53c617ff8064b856675299dc72872bb081859069aa6e54",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_efbd4a8bc00a,card_n_21c014a862c2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

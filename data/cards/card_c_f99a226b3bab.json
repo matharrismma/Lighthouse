@@ -1,0 +1,61 @@
+{
+  "id": "card_c_f99a226b3bab",
+  "kind": "connection",
+  "title": "Easton: Grape cites Micah",
+  "body": "Card references Micah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_micah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "micah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_4b593d086166",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_18b623038843",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:01.842461+00:00",
+  "updated_at": "2026-05-19T19:49:29.001873+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_4b593d086166",
+    "right_card_id": "card_n_18b623038843",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Micah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "2f700d0791f4878fd11fc50eeaabfce604c10abf00add5ea28b5a451a7027469",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_4b593d086166,card_n_18b623038843"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

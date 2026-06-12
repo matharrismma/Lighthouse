@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2cf40b9a841d",
+  "kind": "connection",
+  "title": "Easton: Light cites James",
+  "body": "Card references James. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_james",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "james"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1670095015e5",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_94b8d7f43e37",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:56.400264+00:00",
+  "updated_at": "2026-05-19T19:49:23.440901+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1670095015e5",
+    "right_card_id": "card_n_94b8d7f43e37",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: James named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "39fe24843bc1730971a01360f2f5af6f21bc0abd32dcc1492c1112d8c45ef8d7",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1670095015e5,card_n_94b8d7f43e37"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

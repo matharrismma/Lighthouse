@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d76ea421fbbc",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_04: Such is the → Pirkei Avot §avot_06_05: Do not seek",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e1915478514f",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b1aa5d07d03c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.391965+00:00",
+  "updated_at": "2026-05-19T13:58:41.391975+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e1915478514f",
+    "right_card_id": "card_n_b1aa5d07d03c",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "20e75fbd696dee4ebbed40952241fe0e5533cc5e3f39cdf22ea19f799c2e54fa",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e1915478514f,card_n_b1aa5d07d03c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

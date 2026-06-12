@@ -1,0 +1,59 @@
+{
+  "id": "card_c_b2961b732249",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_02: Rabban Gama → Pirkei Avot §avot_02_01: Rabbi said:",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fec284098094",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_508b818e869e",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.319576+00:00",
+  "updated_at": "2026-05-19T13:58:41.319581+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fec284098094",
+    "right_card_id": "card_n_508b818e869e",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6fda2bdc0f480dca43f8388867031a180cc11c0a39edd9724c953e057bf0921b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fec284098094,card_n_508b818e869e"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

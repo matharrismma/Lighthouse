@@ -1,0 +1,59 @@
+{
+  "id": "card_c_eb8a7b9bb667",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §111: Then I saw  → Pilgrim's Progress §110: So I saw in",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d14d5f2f1907",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a043cefb928d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.086929+00:00",
+  "updated_at": "2026-05-19T13:58:41.086934+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d14d5f2f1907",
+    "right_card_id": "card_n_a043cefb928d",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "10a7f4ad79340fbcadeddce743bfb1b166d7d2d3576d4cf1179d5ae9513b76cc",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d14d5f2f1907,card_n_a043cefb928d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

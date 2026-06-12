@@ -1,0 +1,85 @@
+{
+  "id": "card_c_123edc77a87a",
+  "kind": "connection",
+  "title": "WSC Q52 ↔ Exodus",
+  "body": "Westminster Q52 cites Exodus: Ex 34:13-14.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Ex 34:13-14",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "exodus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f84020393fee",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_649a778d8d86",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:42.678781+00:00",
+  "updated_at": "2026-05-19T19:50:08.284263+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f84020393fee",
+    "right_card_id": "card_n_649a778d8d86",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q52 cites Exodus: Ex 34:13-14.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Ex 34:13-14"
+    ]
+  },
+  "source_hash": "c9ec1d50c25560aec0d4c30c6f9e215cd5809a2fae5434e2e991781db4a9cbe9",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

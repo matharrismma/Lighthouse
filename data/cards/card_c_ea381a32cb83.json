@@ -1,0 +1,61 @@
+{
+  "id": "card_c_ea381a32cb83",
+  "kind": "connection",
+  "title": "Easton: Glass cites James",
+  "body": "Card references James. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_james",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "james"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fde8e823f7f7",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_94b8d7f43e37",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:23.510203+00:00",
+  "updated_at": "2026-05-19T19:49:28.561084+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fde8e823f7f7",
+    "right_card_id": "card_n_94b8d7f43e37",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: James named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6b4bc128e47dc2a23244e0d948a4f688574d6cfd47d4716fc7fbdf593e1ceaaa",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fde8e823f7f7,card_n_94b8d7f43e37"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

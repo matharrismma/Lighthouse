@@ -1,0 +1,84 @@
+{
+  "id": "card_n_e11a2069654c",
+  "kind": "note",
+  "title": "Heidelberg Q42",
+  "body": "Since then Christ died for us, why must we also die?\n\nOur death is not a satisfaction for our sins, but only an abolishing of sin, and a passage into eternal life.",
+  "source": {
+    "label": "Heidelberg Catechism (1563)",
+    "url": "/codex.html#hc-q42",
+    "ref": "Q42 · Lord's Day 16",
+    "authority_tier": "catechism"
+  },
+  "shelf": "codex",
+  "box": "catechism_heidelberg",
+  "bands": [
+    "heidelberg",
+    "german_reformed",
+    "lords_day_16",
+    "Phil 1:23",
+    "Rom 7:24"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "proof_text",
+      "via_connection_card_id": "card_c_0aec606412fa"
+    },
+    {
+      "to_card_id": "card_n_5c3f598f3de3",
+      "relationship": "proof_text",
+      "via_connection_card_id": "card_c_a7799ab3fd88"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T00:00:00Z",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 4,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "updated_at": "2026-05-19T13:00:17.940660+00:00",
+  "source_hash": "af6e5304aaded48391c5bf9e80c86965edcd15cbb1a8848ab143c77b213387a9",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Original German 1563 — Ursinus & Olevianus, Elector Frederick III",
+      "ref": "HC-DE-1563"
+    },
+    {
+      "class": "translation",
+      "label": "Original Latin 1563 — published alongside German",
+      "ref": "HC-LA-1563"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Heidelberg Catechism — critical edition with proof texts",
+      "ref": "HC-critical"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Heidelberg Catechism",
+      "url": "https://www.ccel.org/creeds/heidelberg-cat.html",
+      "ref": "CCEL-HC"
+    },
+    {
+      "class": "republication",
+      "label": "CRCNA / RCA — Heidelberg Catechism with Q&A numbering",
+      "url": "https://www.crcna.org/welcome/beliefs/confessions/heidelberg-catechism",
+      "ref": "CRCNA-HC"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts in the original 1563 edition",
+      "ref": "HC-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "6 witnesses across 5 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication', 'translation']"
+}

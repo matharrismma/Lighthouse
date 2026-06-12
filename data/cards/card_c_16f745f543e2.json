@@ -1,0 +1,59 @@
+{
+  "id": "card_c_16f745f543e2",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XIII → Ignatius to the Ephesians XIV",
+  "body": "Sequential next in ignatius_ephesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_ephesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_ephesians",
+  "bands": [
+    "sequence",
+    "next",
+    "ignatius_ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a81af80cfb59",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_470e55bb77ed",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.188876+00:00",
+  "updated_at": "2026-05-19T13:58:42.188885+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a81af80cfb59",
+    "right_card_id": "card_n_470e55bb77ed",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "c6409796c8015900d3b4f1ce45514c926bff56b26cdc95e94fb563949c9387de",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a81af80cfb59,card_n_470e55bb77ed"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

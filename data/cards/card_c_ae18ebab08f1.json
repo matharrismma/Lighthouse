@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ae18ebab08f1",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §238: There was a → Pilgrim's Progress §232: Then was Pi",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e44d29ee3677",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_74fe8de824a9",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.189442+00:00",
+  "updated_at": "2026-05-19T13:58:41.189447+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e44d29ee3677",
+    "right_card_id": "card_n_74fe8de824a9",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "171bc00738d5f825bec690e2a886ddad874c5540c375b34424bfde9df47e1227",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e44d29ee3677,card_n_74fe8de824a9"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

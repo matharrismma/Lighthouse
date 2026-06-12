@@ -1,0 +1,61 @@
+{
+  "id": "card_c_f5b38d542d32",
+  "kind": "connection",
+  "title": "La Rochefoucauld §laroch_054: The contem cites Romans",
+  "body": "Card references Romans. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_romans",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_297c492faedd",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:04.866528+00:00",
+  "updated_at": "2026-05-19T19:49:58.771157+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_297c492faedd",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Romans named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "77e41adce50c01dea6add7ba3539e8da0568de5c9505b9c1e681d56527524382",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_297c492faedd,card_n_8dcfe3d99ed5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

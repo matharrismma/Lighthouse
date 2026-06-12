@@ -1,0 +1,85 @@
+{
+  "id": "card_c_180e2898b24f",
+  "kind": "connection",
+  "title": "WSC Q74 ↔ Deuteronomy",
+  "body": "Westminster Q74 cites Deuteronomy: Deut 22:1-5.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Deut 22:1-5",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "deuteronomy"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_81503c3a44f1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_59dbb33eb2f6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:44.019662+00:00",
+  "updated_at": "2026-05-19T19:50:08.456929+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_81503c3a44f1",
+    "right_card_id": "card_n_59dbb33eb2f6",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q74 cites Deuteronomy: Deut 22:1-5.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Deut 22:1-5"
+    ]
+  },
+  "source_hash": "62a7783639dcde14e13e70bf48dde3592c4881ace366fd0c3be171c8f1e0d987",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

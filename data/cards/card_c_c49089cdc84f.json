@@ -1,0 +1,59 @@
+{
+  "id": "card_c_c49089cdc84f",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_04_02: Ben Azzai s → Pirkei Avot §avot_04_01: Ben Zoma sa",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_76b88321d1d3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_eb823cfbdfd7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.342960+00:00",
+  "updated_at": "2026-05-19T13:58:41.342965+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_76b88321d1d3",
+    "right_card_id": "card_n_eb823cfbdfd7",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "3bad1c2bb70bbc47f42ac51045bf68b00ed963fcd826e98602b3421fe34fa916",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_76b88321d1d3,card_n_eb823cfbdfd7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

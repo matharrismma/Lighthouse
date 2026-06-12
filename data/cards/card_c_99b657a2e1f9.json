@@ -1,0 +1,59 @@
+{
+  "id": "card_c_99b657a2e1f9",
+  "kind": "connection",
+  "title": "Martyrdom of Polycarp XIV → Martyrdom of Polycarp XIII",
+  "body": "Sequential prev in martyrdom_polycarp.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "martyrdom_polycarp",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_martyrdom_polycarp",
+  "bands": [
+    "sequence",
+    "prev",
+    "martyrdom_polycarp"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2318f18778f0",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4c7dd8e6878b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.051273+00:00",
+  "updated_at": "2026-05-19T13:58:42.051278+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2318f18778f0",
+    "right_card_id": "card_n_4c7dd8e6878b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "f2c08efb0eba466e3a71d47340471df6c84a41ec4a53b9b668b16cf3dfd2edad",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2318f18778f0,card_n_4c7dd8e6878b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 2 classes"
+}

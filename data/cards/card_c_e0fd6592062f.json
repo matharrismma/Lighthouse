@@ -1,0 +1,61 @@
+{
+  "id": "card_c_e0fd6592062f",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians VIII cites Ephesians",
+  "body": "Patristic text references Ephesians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ephesians",
+  "bands": [
+    "cites",
+    "patristics",
+    "ephesians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8785a835dead",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.254607+00:00",
+  "updated_at": "2026-05-19T19:50:04.199926+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8785a835dead",
+    "right_card_id": "card_n_6e218f8125c0",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ephesians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "b0fcc42fe204f107235e915fbad7c6996d746306cac48aa1a7758b660a6d4537",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8785a835dead,card_n_6e218f8125c0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

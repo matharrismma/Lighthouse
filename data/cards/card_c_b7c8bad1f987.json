@@ -1,0 +1,85 @@
+{
+  "id": "card_c_b7c8bad1f987",
+  "kind": "connection",
+  "title": "1689 LBCF ch. 1: Of the Holy Scriptures ↔ 2 Peter",
+  "body": "1689 LBCF ch. 1: Of the Holy Scriptures cites 2 Peter: 2 Pet 1:19-21.",
+  "source": {
+    "label": "Second London Baptist Confession of Faith, 1689, Particular Baptists",
+    "url": "",
+    "ref": "2 Pet 1:19-21",
+    "authority_tier": "creed"
+  },
+  "shelf": "connections",
+  "box": "proof_text_lbcf",
+  "bands": [
+    "proof_text",
+    "1689_baptist",
+    "2_peter"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d59cb7439465",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5aaf155f9e80",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "particular_baptists_1689",
+  "created_at": "2026-05-19T12:57:07.271945+00:00",
+  "updated_at": "2026-05-19T19:50:11.209894+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d59cb7439465",
+    "right_card_id": "card_n_5aaf155f9e80",
+    "relationship_kind": "proof_text",
+    "explanation": "1689 LBCF ch. 1: Of the Holy Scriptures → 2 Peter",
+    "bidirectional": true,
+    "verse_refs": [
+      "2 Pet 1:19-21"
+    ]
+  },
+  "source_hash": "bd784a9f12d7f3af6e56c9ed908636e7e9421e94647bc1dcc88dcc9f027500dc",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "1689 original printing — Particular Baptists",
+      "ref": "LBCF-1689"
+    },
+    {
+      "class": "republication",
+      "label": "Reformed Baptist Network — 1689 LBCF",
+      "url": "https://founders.org/library/1689-confession/",
+      "ref": "Founders-1689"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — London Baptist Confession",
+      "url": "https://www.ccel.org/creeds/london.txt",
+      "ref": "CCEL-LBCF"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Derived from Westminster Confession (1647) — same articles 90%+",
+      "ref": "WCF-base"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts in the 1689 edition",
+      "ref": "LBCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['citation_tradition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

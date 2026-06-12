@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a4d86d57e31c",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §390: The Pilgrim → Pilgrim's Progress §392: Christian's",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_faa13f862804",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_64c6f26ab0c9",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.299923+00:00",
+  "updated_at": "2026-05-19T13:58:41.299929+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_faa13f862804",
+    "right_card_id": "card_n_64c6f26ab0c9",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "17f376a7d58977ab7394b219a7d8b953be7d702f8ecf300f297adb9fa07f723d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_faa13f862804,card_n_64c6f26ab0c9"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_070100663818",
+  "kind": "connection",
+  "title": "Easton: Coin cites Hebrews",
+  "body": "Card references Hebrews. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hebrews",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fa9c188fee47",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:22.977318+00:00",
+  "updated_at": "2026-05-19T19:49:22.496421+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fa9c188fee47",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hebrews named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "dd67273ff108ee02c188b8ba91c89a59e16558b763b06c63cc15d92e664760cb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fa9c188fee47,card_n_5d2061b70fa6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

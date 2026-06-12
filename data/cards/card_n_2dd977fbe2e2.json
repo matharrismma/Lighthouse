@@ -1,0 +1,73 @@
+{
+  "id": "card_n_2dd977fbe2e2",
+  "kind": "note",
+  "title": "Ignatius to the Ephesians XXI",
+  "body": "My soul be for yours and theirs whom, for the honour of God, ye have sent to Smyrna; whence also I write to you, giving thanks unto the Lord, and loving Polycarp even as I do you. Remember me, as Jesus Christ also remembered you. Pray ye for the church which is in Syria, whence I am led bound to Rome, being the last of the faithful who are there, even as I have been thought worthy to be chosen to show forth the honour of God. Farewell in God the Father, and in Jesus Christ, our common hope.",
+  "source": {
+    "label": "Ignatius to the Ephesians (shorter recension; trans. Roberts-Donaldson, 1885)",
+    "url": "/canon.html?ref=ignatius_ephesians_ch21",
+    "ref": "Ignatius to the Ephesians XXI",
+    "authority_tier": "father"
+  },
+  "shelf": "patristics",
+  "box": "ignatius_ephesians",
+  "bands": [
+    "ignatius_ephesians",
+    "apostolic_fathers",
+    "family",
+    "authority_trust"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "cites",
+      "via_connection_card_id": "card_c_cd5c0ce6923b"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "cites",
+      "via_connection_card_id": "card_c_c3009bce4406"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:41:21.205662+00:00",
+  "updated_at": "2026-05-19T19:57:55.659715+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 6,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "source_hash": "132cc6f35b6db8bac21bd0b8eebb1d217292d391b404febe3eba62c714c452a5",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Middle Recension — Codex Mediceus Laurentianus 57.7 (10-11th cent)",
+      "ref": "Mediceus"
+    },
+    {
+      "class": "translation",
+      "label": "Lightfoot, Apostolic Fathers Part II (1885)",
+      "url": "https://www.ccel.org/ccel/lightfoot/fathers/",
+      "ref": "Lightfoot-Ignatius"
+    },
+    {
+      "class": "translation",
+      "label": "Roberts-Donaldson Ante-Nicene Fathers vol. 1",
+      "url": "https://www.ccel.org/ccel/schaff/anf01.html",
+      "ref": "ANF-1-Ignatius"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Polycarp, Letter to the Philippians — cites Ignatius's letters by name",
+      "ref": "Polycarp-Phil"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "4 witnesses across 3 independence classes: ['citation_tradition', 'manuscript_tradition', 'translation']"
+}

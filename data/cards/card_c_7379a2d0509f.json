@@ -1,0 +1,61 @@
+{
+  "id": "card_c_7379a2d0509f",
+  "kind": "connection",
+  "title": "Easton: Corinthians, Second Epistle to t cites 1 Corinthians",
+  "body": "Card references 1 Corinthians. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_1_corinthians",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "1_corinthians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b85b00d05fcb",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_41ea132b102b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:14.894175+00:00",
+  "updated_at": "2026-05-19T19:49:25.255464+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b85b00d05fcb",
+    "right_card_id": "card_n_41ea132b102b",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: 1 Corinthians named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "8a39b30a9112dc238ae2949e1294fa227fa9fe22f2095b5f9e4165de89f592cc",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b85b00d05fcb,card_n_41ea132b102b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a973a522c851",
+  "kind": "connection",
+  "title": "Augustine, Confessions §aug_conf_13_ → Augustine, Confessions §aug_conf_13_",
+  "body": "Sequential next in augustine_confessions.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "augustine_confessions",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_augustine_confessions",
+  "bands": [
+    "sequence",
+    "next",
+    "augustine_confessions"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5c5443043503",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5079c2a4bf5b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.963000+00:00",
+  "updated_at": "2026-05-19T13:58:41.963009+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5c5443043503",
+    "right_card_id": "card_n_5079c2a4bf5b",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "aad9bc5386d038bb54ea40d1e5f15a546a10df88763b2ae1bc656ca38dd61d69",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5c5443043503,card_n_5079c2a4bf5b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

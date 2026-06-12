@@ -1,0 +1,59 @@
+{
+  "id": "card_c_91c853927530",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §34: It is not th → Pilgrim's Progress §33: Then I stepp",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1c93f47496a1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_acda3b3ff0a2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.037166+00:00",
+  "updated_at": "2026-05-19T13:58:41.037170+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1c93f47496a1",
+    "right_card_id": "card_n_acda3b3ff0a2",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "9c056624f563c026ff54c7be0c89e7fd25ff495c767c370e5fab57f8376b8fc0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1c93f47496a1,card_n_acda3b3ff0a2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

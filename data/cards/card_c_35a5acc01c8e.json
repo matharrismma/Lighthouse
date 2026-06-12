@@ -1,0 +1,61 @@
+{
+  "id": "card_c_35a5acc01c8e",
+  "kind": "connection",
+  "title": "Devotional: Reflection on Psalm 117:1–2 cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "codex_cites_scripture",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "codex",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f157633186e4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:33.673483+00:00",
+  "updated_at": "2026-05-19T13:35:33.673492+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f157633186e4",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in codex body.",
+    "bidirectional": true
+  },
+  "source_hash": "e6dc0aa69d3a8bd24742a5323ef67d758fe220ba0e30f0864f435ee5c2dc37d8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f157633186e4,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

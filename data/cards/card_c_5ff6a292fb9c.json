@@ -1,0 +1,59 @@
+{
+  "id": "card_c_5ff6a292fb9c",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_04_20: Elisha ben  → Pirkei Avot §avot_04_18: Rabbi Shimo",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_545c586d5e16",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0178b8a41638",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.356982+00:00",
+  "updated_at": "2026-05-19T13:58:41.356989+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_545c586d5e16",
+    "right_card_id": "card_n_0178b8a41638",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "adb7ff3a190a7effea78b89f7ca02441d7bb67936598f5098f74f3beb8d1d61a",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_545c586d5e16,card_n_0178b8a41638"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

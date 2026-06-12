@@ -1,0 +1,85 @@
+{
+  "id": "card_c_5c4444d7a983",
+  "kind": "connection",
+  "title": "WSC Q88 ↔ Acts",
+  "body": "Westminster Q88 cites Acts: Acts 2:42, 46-47.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Acts 2:42, 46-47",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "acts"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5c2c55ddb032",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:45.466624+00:00",
+  "updated_at": "2026-05-19T19:50:09.743816+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5c2c55ddb032",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q88 cites Acts: Acts 2:42, 46-47.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Acts 2:42, 46-47"
+    ]
+  },
+  "source_hash": "30c33ee8db8c6ba830c82fddd5445c4401f7345f8ad2fca24bd6d0d6ff553755",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

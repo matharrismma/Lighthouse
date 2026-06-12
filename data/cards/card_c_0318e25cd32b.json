@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0318e25cd32b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §366: IGNOR. → Pilgrim's Progress §367: IGNOR.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d427e58209f8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ad905e322f16",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.280125+00:00",
+  "updated_at": "2026-05-19T13:58:41.280133+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d427e58209f8",
+    "right_card_id": "card_n_ad905e322f16",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e9e7a88eb606eddc00154dc493d4f8acb22976a6158f8b82b5f31bea151261cd",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d427e58209f8,card_n_ad905e322f16"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

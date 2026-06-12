@@ -1,0 +1,59 @@
+{
+  "id": "card_c_8ca420941491",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §54: First, Thou  → Pilgrim's Progress §53: Then Evangel",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c3203934b80d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4dec497c8052",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.048352+00:00",
+  "updated_at": "2026-05-19T13:58:41.048356+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c3203934b80d",
+    "right_card_id": "card_n_4dec497c8052",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6cfd737020cf4bc6360ea49aeeec1a47b697959f9d661fbf16632acda53dc33e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c3203934b80d,card_n_4dec497c8052"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

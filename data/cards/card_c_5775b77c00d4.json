@@ -1,0 +1,61 @@
+{
+  "id": "card_c_5775b77c00d4",
+  "kind": "connection",
+  "title": "Easton: Kirjathaim cites Ezekiel",
+  "body": "Card references Ezekiel. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_ezekiel",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "ezekiel"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b974f3b647ea",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.034380+00:00",
+  "updated_at": "2026-05-19T19:49:24.654664+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b974f3b647ea",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "bd1d3b0bd592ef8d01717a35faec90542ea04cb0643bb6d2213d7d82b43b1eee",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b974f3b647ea,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

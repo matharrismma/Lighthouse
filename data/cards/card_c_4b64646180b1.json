@@ -1,0 +1,61 @@
+{
+  "id": "card_c_4b64646180b1",
+  "kind": "connection",
+  "title": "Easton: Joshua, The Book of cites Acts",
+  "body": "Card references Acts. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_acts",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "acts"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_734bcd21be45",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:05.774566+00:00",
+  "updated_at": "2026-05-19T19:49:24.285901+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_734bcd21be45",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Acts named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "02c481a47a8319173ba04b46e226d80c2089feefad904b92c46fd9ce04434d4b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_734bcd21be45,card_n_b051cea86e39"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

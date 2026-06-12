@@ -1,0 +1,59 @@
+{
+  "id": "card_c_94e977336159",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §330: Then I saw  → Pilgrim's Progress §329: CHR.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6fbc5691aee5",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8fe7e8fc0fb6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.257199+00:00",
+  "updated_at": "2026-05-19T13:58:41.257208+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6fbc5691aee5",
+    "right_card_id": "card_n_8fe7e8fc0fb6",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "ec7abd4f4ee9902bc8d382dd63757f42f462cf918d8a091a5ca9be4470eb60e6",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_6fbc5691aee5,card_n_8fe7e8fc0fb6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2bc6cea346b3",
+  "kind": "connection",
+  "title": "Augustine, Confessions §aug_conf_12_035: cites Genesis",
+  "body": "Card references Genesis. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_genesis",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "genesis"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ccacee0e5831",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3537b1964287",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:07.164444+00:00",
+  "updated_at": "2026-05-19T19:49:37.903010+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ccacee0e5831",
+    "right_card_id": "card_n_3537b1964287",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Genesis named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "ae60966045caeb8abf7f30adce923cf061f628a6d51914b8afaa0baf4806b0ca",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ccacee0e5831,card_n_3537b1964287"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

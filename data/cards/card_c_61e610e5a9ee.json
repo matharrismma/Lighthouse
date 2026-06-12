@@ -1,0 +1,59 @@
+{
+  "id": "card_c_61e610e5a9ee",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §324: But for suc → Pilgrim's Progress §323: Leviathan's",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_075c6b219aa1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e5c6211c6d1b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.253076+00:00",
+  "updated_at": "2026-05-19T13:58:41.253085+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_075c6b219aa1",
+    "right_card_id": "card_n_e5c6211c6d1b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "1b61e6cc740181d03a542cdddbe9b869070d0bee5a63098d3e423fc3ac7a102f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_075c6b219aa1,card_n_e5c6211c6d1b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

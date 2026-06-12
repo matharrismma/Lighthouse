@@ -1,0 +1,61 @@
+{
+  "id": "card_c_f0bf8aa549e1",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians V cites Ephesians",
+  "body": "Patristic text references Ephesians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ephesians",
+  "bands": [
+    "cites",
+    "patristics",
+    "ephesians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_629215d497c4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.963268+00:00",
+  "updated_at": "2026-05-19T19:50:04.911336+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_629215d497c4",
+    "right_card_id": "card_n_6e218f8125c0",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ephesians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "0da45aa8cd7b90862b9d53dfa4c088bcac468f61c3b034bdd26a7758e031fd6c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_629215d497c4,card_n_6e218f8125c0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

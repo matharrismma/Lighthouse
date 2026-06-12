@@ -1,0 +1,61 @@
+{
+  "id": "card_c_c175fe3e052c",
+  "kind": "connection",
+  "title": "Easton: Hosea, Prophecies of cites Hosea",
+  "body": "Card references Hosea. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hosea",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hosea"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a02cbfe45d37",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f79f15ea0fe3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:11.383217+00:00",
+  "updated_at": "2026-05-19T19:49:27.515704+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a02cbfe45d37",
+    "right_card_id": "card_n_f79f15ea0fe3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hosea named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6376d39533e20fcb5efd5a67ca1836513a93f21b5c910f58f251ca1a6165fd34",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a02cbfe45d37,card_n_f79f15ea0fe3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

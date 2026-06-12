@@ -1,0 +1,59 @@
+{
+  "id": "card_c_797f8c7019e8",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §11: In this plig → Pilgrim's Progress §19: The neighbou",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5ad964b9a051",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ecab0b284515",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.024595+00:00",
+  "updated_at": "2026-05-19T13:58:41.024603+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5ad964b9a051",
+    "right_card_id": "card_n_ecab0b284515",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "da01eb93c6ba3a20f82b8ecf31a4b36eeda3738ffbcc58d4d64774e026948a6b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5ad964b9a051,card_n_ecab0b284515"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

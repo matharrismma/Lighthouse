@@ -1,0 +1,61 @@
+{
+  "id": "card_c_483bef740452",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians III cites Philippians",
+  "body": "Patristic text references Philippians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_philippians",
+  "bands": [
+    "cites",
+    "patristics",
+    "philippians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_053323150006",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5c3f598f3de3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.378956+00:00",
+  "updated_at": "2026-05-19T19:50:02.414219+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_053323150006",
+    "right_card_id": "card_n_5c3f598f3de3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Philippians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "c72da9165a643b0e5fcbff64eb121b27c7dbd57de1c1ad71e1da0d5b823ff0cb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_053323150006,card_n_5c3f598f3de3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

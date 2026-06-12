@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f0c17b850a4b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §367: IGNOR. → Pilgrim's Progress §368: So I saw in",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ad905e322f16",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8af67a5187ad",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.281574+00:00",
+  "updated_at": "2026-05-19T13:58:41.281582+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ad905e322f16",
+    "right_card_id": "card_n_8af67a5187ad",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "4915e3e875913af81e932948b484d88b00c6863b297d07db49a690f7f4fb9611",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ad905e322f16,card_n_8af67a5187ad"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

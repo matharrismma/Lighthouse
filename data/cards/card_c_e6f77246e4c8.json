@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e6f77246e4c8",
+  "kind": "connection",
+  "title": "1 Clement LIII → 1 Clement LIV",
+  "body": "Sequential next in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "next",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5f6c51696c5e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_07e3c8152037",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.124319+00:00",
+  "updated_at": "2026-05-19T13:58:42.124326+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5f6c51696c5e",
+    "right_card_id": "card_n_07e3c8152037",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "ff021a44b66d47b1e0a0b4040aed53da2a0fa90a4783bffa8077e5b069be0ea6",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5f6c51696c5e,card_n_07e3c8152037"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

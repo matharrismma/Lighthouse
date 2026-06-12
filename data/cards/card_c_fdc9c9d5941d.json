@@ -1,0 +1,59 @@
+{
+  "id": "card_c_fdc9c9d5941d",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_05: Rabbi Nehun → Pirkei Avot §avot_03_03: Rabbi Shimo",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ecf9bf7a0524",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5ee2cdae3f55",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.332305+00:00",
+  "updated_at": "2026-05-19T13:58:41.332309+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ecf9bf7a0524",
+    "right_card_id": "card_n_5ee2cdae3f55",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "e4cd3e6573130efe8393d1f03fcf36d98e85d7bf01e30854ce576e8808e6d73e",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ecf9bf7a0524,card_n_5ee2cdae3f55"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_754e08929f2b",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_07: Rabbi Elaza → Pirkei Avot §avot_03_06: Rabbi Halaf",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_56fba228f5c8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a1433e3177ff",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.333966+00:00",
+  "updated_at": "2026-05-19T13:58:41.333970+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_56fba228f5c8",
+    "right_card_id": "card_n_a1433e3177ff",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "4be972246225ed832267ab95d1ca91e0e9ef7350ffd4c65521ed6486a515661d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_56fba228f5c8,card_n_a1433e3177ff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

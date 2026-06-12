@@ -1,0 +1,59 @@
+{
+  "id": "card_c_9acbf8ecdd99",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_03_08: Rabbi Dosta → Pirkei Avot §avot_03_07: Rabbi Elaza",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b0935bb84dcd",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_56fba228f5c8",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.335019+00:00",
+  "updated_at": "2026-05-19T13:58:41.335023+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b0935bb84dcd",
+    "right_card_id": "card_n_56fba228f5c8",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "60f5fafa446b9ce075fad45faa422f76cfa02c9318d9cfa00115b7e0242f52ae",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b0935bb84dcd,card_n_56fba228f5c8"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

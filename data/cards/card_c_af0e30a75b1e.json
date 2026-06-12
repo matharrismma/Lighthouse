@@ -1,0 +1,59 @@
+{
+  "id": "card_c_af0e30a75b1e",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_06: Greater is  → Pirkei Avot §avot_06_05: Do not seek",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e369afd05213",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b1aa5d07d03c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.395782+00:00",
+  "updated_at": "2026-05-19T13:58:41.395789+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e369afd05213",
+    "right_card_id": "card_n_b1aa5d07d03c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "02c01083514bfa2acf689fcb9d46d9d5970f05e07b6ce6aba73d9d647d8a97eb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e369afd05213,card_n_b1aa5d07d03c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

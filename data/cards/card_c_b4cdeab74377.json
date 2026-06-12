@@ -1,0 +1,61 @@
+{
+  "id": "card_c_b4cdeab74377",
+  "kind": "connection",
+  "title": "Easton: Manasseh cites Isaiah",
+  "body": "Card references Isaiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_isaiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "isaiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f47042634e52",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_de6be72e6b25",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:22.322874+00:00",
+  "updated_at": "2026-05-19T19:49:27.083177+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f47042634e52",
+    "right_card_id": "card_n_de6be72e6b25",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Isaiah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "a431cc27aca876f0778a1f7169766294cbec14300f65fdb8eeb01dc69f97f6eb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f47042634e52,card_n_de6be72e6b25"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

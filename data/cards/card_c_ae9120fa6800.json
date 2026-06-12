@@ -1,0 +1,61 @@
+{
+  "id": "card_c_ae9120fa6800",
+  "kind": "connection",
+  "title": "Augustine, Confessions §aug_conf_09_008: cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_psalms",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1a167f13593c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:04.708852+00:00",
+  "updated_at": "2026-05-19T19:49:51.198364+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1a167f13593c",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "dce1d3d5d2479b15153296213cf3cbd75191e1596078c41a2e4ebed59dfc9891",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1a167f13593c,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

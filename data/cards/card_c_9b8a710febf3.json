@@ -1,0 +1,85 @@
+{
+  "id": "card_c_9b8a710febf3",
+  "kind": "connection",
+  "title": "WSC Q94 ↔ Galatians",
+  "body": "Westminster Q94 cites Galatians: Gal 3:27.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Gal 3:27",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "galatians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7a66259b4897",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c7a67fca4141",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:45.992717+00:00",
+  "updated_at": "2026-05-19T19:50:10.746995+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7a66259b4897",
+    "right_card_id": "card_n_c7a67fca4141",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q94 cites Galatians: Gal 3:27.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Gal 3:27"
+    ]
+  },
+  "source_hash": "7d28aa94097db4738b0216850f5d6c1efc7c0323562bdda63c2d4a17177059ec",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

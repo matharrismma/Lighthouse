@@ -1,0 +1,59 @@
+{
+  "id": "card_c_de41c120eb15",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_01_11: Abtalion us → Pirkei Avot §avot_01_08: Judah ben T",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_176a9e5ed1fe",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ab8bc19a913d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.315265+00:00",
+  "updated_at": "2026-05-19T13:58:41.315270+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_176a9e5ed1fe",
+    "right_card_id": "card_n_ab8bc19a913d",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "9360865dfc8b29b21b9bc6d86f64b945f6bc80769d85dc2abfa46757c6325069",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_176a9e5ed1fe,card_n_ab8bc19a913d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_bdfda13e1c35",
+  "kind": "connection",
+  "title": "Easton: Sinai cites Leviticus",
+  "body": "Card references Leviticus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_leviticus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "leviticus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5dad79052507",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c181882b21b8",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:03.635702+00:00",
+  "updated_at": "2026-05-19T19:49:27.433263+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5dad79052507",
+    "right_card_id": "card_n_c181882b21b8",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Leviticus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "be8e487be376bd81e4993dfb565b9a1e00886abd26ba041c926ac7e3600fb621",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5dad79052507,card_n_c181882b21b8"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

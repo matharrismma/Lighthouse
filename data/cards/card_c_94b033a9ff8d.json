@@ -1,0 +1,59 @@
+{
+  "id": "card_c_94b033a9ff8d",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §31: Wherefore Ch → Pilgrim's Progress §33: Then I stepp",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3ddba3331131",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_acda3b3ff0a2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.035160+00:00",
+  "updated_at": "2026-05-19T13:58:41.035165+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3ddba3331131",
+    "right_card_id": "card_n_acda3b3ff0a2",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "944ded49273cfcfe04cd02db1ae4302f864c545b3b1542583b9899fc8c3e13c3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3ddba3331131,card_n_acda3b3ff0a2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

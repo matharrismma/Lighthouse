@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2eca32c2b54c",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §6: Be not too fo → Pilgrim's Progress §5: 'Well, yet I ",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f9a6de051980",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5ab5b38b6c18",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.017074+00:00",
+  "updated_at": "2026-05-19T13:58:41.017082+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f9a6de051980",
+    "right_card_id": "card_n_5ab5b38b6c18",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "5e3089bb5962f9613520c21d717d7f5895feeb58488b4bb1d3c51a37e0f0454f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f9a6de051980,card_n_5ab5b38b6c18"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_86d3ccca769f",
+  "kind": "connection",
+  "title": "Martyrdom of Polycarp VIII → Martyrdom of Polycarp IX",
+  "body": "Sequential next in martyrdom_polycarp.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "martyrdom_polycarp",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_martyrdom_polycarp",
+  "bands": [
+    "sequence",
+    "next",
+    "martyrdom_polycarp"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9250e82d0802",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_e7a5baf10712",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.043080+00:00",
+  "updated_at": "2026-05-19T13:58:42.043085+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9250e82d0802",
+    "right_card_id": "card_n_e7a5baf10712",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "7e716c8b5ef03f8a1b0d7418c2c37dea3ea5a648acee409d92172bb25a8e8a94",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9250e82d0802,card_n_e7a5baf10712"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 2 classes"
+}

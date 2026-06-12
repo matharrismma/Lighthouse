@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ac514b811818",
+  "kind": "connection",
+  "title": "1 Clement XXXIV → 1 Clement XXXIII",
+  "body": "Sequential prev in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "prev",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1cc79e319920",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_c80c8646b8f6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.101442+00:00",
+  "updated_at": "2026-05-19T13:58:42.101449+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1cc79e319920",
+    "right_card_id": "card_n_c80c8646b8f6",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "248a26975ae0d361037d00447f356312edd7d44ad5bc788eb6fae5350ac1ab22",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1cc79e319920,card_n_c80c8646b8f6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_33d739f09214",
+  "kind": "connection",
+  "title": "Easton: Habakkuk cites Habakkuk",
+  "body": "Card references Habakkuk. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_habakkuk",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "habakkuk"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_67ae1c0e49bc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_23864a064b8d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:04.794729+00:00",
+  "updated_at": "2026-05-19T19:49:23.624903+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_67ae1c0e49bc",
+    "right_card_id": "card_n_23864a064b8d",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Habakkuk named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "e418bf45d62d0b1dc8fc68f6a2a9fffae6f4654adb8ae59b030b2789f83db1db",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_67ae1c0e49bc,card_n_23864a064b8d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

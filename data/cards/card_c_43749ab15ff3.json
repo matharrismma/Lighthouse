@@ -1,0 +1,59 @@
+{
+  "id": "card_c_43749ab15ff3",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §206: CHR. → Pilgrim's Progress §205: FAITH.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b1b20a08b47b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3dc28cc556d5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.174112+00:00",
+  "updated_at": "2026-05-19T13:58:41.174116+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b1b20a08b47b",
+    "right_card_id": "card_n_3dc28cc556d5",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "9b263cc1888cf94f289ed6079fc74f29e824b3de2062fd8d7a0bf255d4d74392",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b1b20a08b47b,card_n_3dc28cc556d5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_dc518050bab9",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_05_12: There are f → Pirkei Avot §avot_05_11: There are f",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_4b92f30444d3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f9e1ee260e5e",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.372960+00:00",
+  "updated_at": "2026-05-19T13:58:41.372970+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_4b92f30444d3",
+    "right_card_id": "card_n_f9e1ee260e5e",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "50698eead1f1e0047db98ea937f57b58ee3064d8d48221aad2223b7ec6b55907",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_4b92f30444d3,card_n_f9e1ee260e5e"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

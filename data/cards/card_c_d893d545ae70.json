@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d893d545ae70",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_02: Rabbi Joshu → Pirkei Avot §avot_06_03: One who lea",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_056c9c995576",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8166dbd286f4",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.388464+00:00",
+  "updated_at": "2026-05-19T13:58:41.388473+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_056c9c995576",
+    "right_card_id": "card_n_8166dbd286f4",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "f945ea277db2dfaae65fcb20030a2e5e2dd1ec05ce33eecf33037c6d3df58d3f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_056c9c995576,card_n_8166dbd286f4"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

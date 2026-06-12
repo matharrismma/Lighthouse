@@ -1,0 +1,61 @@
+{
+  "id": "card_c_663e0d9d5f2b",
+  "kind": "connection",
+  "title": "Didache 16 cites Acts",
+  "body": "Patristic text references Acts. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_acts",
+  "bands": [
+    "cites",
+    "patristics",
+    "acts",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9542fd56af12",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.460780+00:00",
+  "updated_at": "2026-05-19T19:50:02.638578+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9542fd56af12",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Acts named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "df117a9b0f58e41c99dd7b709040094aefb642689564c9dba9ee4f0564dd3e9f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9542fd56af12,card_n_b051cea86e39"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

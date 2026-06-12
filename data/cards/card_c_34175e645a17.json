@@ -1,0 +1,61 @@
+{
+  "id": "card_c_34175e645a17",
+  "kind": "connection",
+  "title": "Easton: Gog cites Ezekiel",
+  "body": "Card references Ezekiel. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_ezekiel",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "ezekiel"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b10c5206da6e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:13.479897+00:00",
+  "updated_at": "2026-05-19T19:49:23.629445+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b10c5206da6e",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "3ab2a11811caca6dc7a7c70582c89f6f50e31c3773a9b9ddc7c137d729f5266d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b10c5206da6e,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,85 @@
+{
+  "id": "card_c_4b5d37458e96",
+  "kind": "connection",
+  "title": "WSC Q29 ↔ Titus",
+  "body": "Westminster Q29 cites Titus: Titus 3:5-6.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Titus 3:5-6",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8eab0e7c0a27",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:41.280597+00:00",
+  "updated_at": "2026-05-19T19:50:09.469354+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8eab0e7c0a27",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q29 cites Titus: Titus 3:5-6.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Titus 3:5-6"
+    ]
+  },
+  "source_hash": "da3eaa9952f5b49d3bb334373b699f51934144c4a68ab31dc8bff74921eb4bc8",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

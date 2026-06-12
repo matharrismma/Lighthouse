@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0dd3081b9ebc",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_09: He [Rabban  → Pirkei Avot §avot_02_08: Rabban Yoha",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fd479429e947",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7373bb0a07a1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.325060+00:00",
+  "updated_at": "2026-05-19T13:58:41.325065+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fd479429e947",
+    "right_card_id": "card_n_7373bb0a07a1",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "75432bac727c9c77e77bf42c73775c8878cfe5e79973e6a8dcc12ba016195f44",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fd479429e947,card_n_7373bb0a07a1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f9e9ff68a95e",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §101: CHR. → Pilgrim's Progress §100: To this the",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3f1117ca7163",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_d53ef910a6a3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.077557+00:00",
+  "updated_at": "2026-05-19T13:58:41.077561+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3f1117ca7163",
+    "right_card_id": "card_n_d53ef910a6a3",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6d1c6f57e399f7ddade7430eccc06868dfc4b6b02cbcb94b894ed277c2c6c083",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3f1117ca7163,card_n_d53ef910a6a3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

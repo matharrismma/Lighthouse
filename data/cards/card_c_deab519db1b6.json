@@ -1,0 +1,61 @@
+{
+  "id": "card_c_deab519db1b6",
+  "kind": "connection",
+  "title": "Easton: Rabbah cites Ezekiel",
+  "body": "Card references Ezekiel. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_ezekiel",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "ezekiel"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0e26c67f02b1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:55.465276+00:00",
+  "updated_at": "2026-05-19T19:49:28.241638+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0e26c67f02b1",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "70a884054ac6b70cd34b9324fd37b54d6aae95c8adad8ffeac91bfba999ab142",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0e26c67f02b1,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

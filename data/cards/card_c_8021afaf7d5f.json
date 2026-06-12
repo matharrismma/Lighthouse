@@ -1,0 +1,59 @@
+{
+  "id": "card_c_8021afaf7d5f",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XI → Ignatius to the Ephesians X",
+  "body": "Sequential prev in ignatius_ephesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_ephesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_ephesians",
+  "bands": [
+    "sequence",
+    "prev",
+    "ignatius_ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c4f3d5078791",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b538a63e756f",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.186561+00:00",
+  "updated_at": "2026-05-19T13:58:42.186567+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c4f3d5078791",
+    "right_card_id": "card_n_b538a63e756f",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "1011df3b4345a529ba9ae2156897f8b7a8742d5a1b62cb3951261e21c8adbf58",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c4f3d5078791,card_n_b538a63e756f"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

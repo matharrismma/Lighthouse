@@ -1,0 +1,59 @@
+{
+  "id": "card_c_601d386a69dc",
+  "kind": "connection",
+  "title": "Ignatius to the Romans VI → Ignatius to the Romans V",
+  "body": "Sequential prev in ignatius_romans.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_romans",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_romans",
+  "bands": [
+    "sequence",
+    "prev",
+    "ignatius_romans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f923a4197dec",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6d84b3e17744",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.201870+00:00",
+  "updated_at": "2026-05-19T13:58:42.201874+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f923a4197dec",
+    "right_card_id": "card_n_6d84b3e17744",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "ce06ea46b717ba87861d26b953a116fc66ac8669684a44e47dd15db34bb99409",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f923a4197dec,card_n_6d84b3e17744"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

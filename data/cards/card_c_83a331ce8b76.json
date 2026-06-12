@@ -1,0 +1,59 @@
+{
+  "id": "card_c_83a331ce8b76",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §152: In this com → Pilgrim's Progress §151: Then Apolly",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_529352b41193",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_03436d19eaf2",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.127172+00:00",
+  "updated_at": "2026-05-19T13:58:41.127180+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_529352b41193",
+    "right_card_id": "card_n_03436d19eaf2",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "d54d2fdbda95b7c11bfb90162f84c6ec74004be8fa7df1daeb8da6e79edda754",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_529352b41193,card_n_03436d19eaf2"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

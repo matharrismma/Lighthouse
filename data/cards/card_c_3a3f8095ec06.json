@@ -1,0 +1,59 @@
+{
+  "id": "card_c_3a3f8095ec06",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §246: CHR. → Pilgrim's Progress §247: Then Christ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_b44bd65d11a8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8b7c3f7445f0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.197083+00:00",
+  "updated_at": "2026-05-19T13:58:41.197095+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_b44bd65d11a8",
+    "right_card_id": "card_n_8b7c3f7445f0",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "2dc09ee0e9908a25e876d468917359f566ba05d1aefffe8c74b8162a4167c210",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_b44bd65d11a8,card_n_8b7c3f7445f0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

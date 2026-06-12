@@ -1,0 +1,59 @@
+{
+  "id": "card_c_1b513b7b0e50",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §40: WORLD. → Pilgrim's Progress §43: WORLD.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_64f8a45075f2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9b8c7669b01d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.041472+00:00",
+  "updated_at": "2026-05-19T13:58:41.041478+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_64f8a45075f2",
+    "right_card_id": "card_n_9b8c7669b01d",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "747a2f92594d54256bb8f5940f5b6301d017d3113ac7e8109003ecd4e38dd384",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_64f8a45075f2,card_n_9b8c7669b01d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

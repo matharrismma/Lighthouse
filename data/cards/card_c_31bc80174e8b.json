@@ -1,0 +1,59 @@
+{
+  "id": "card_c_31bc80174e8b",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_09: Rabbi Yose  → Pirkei Avot §avot_06_10: Five posses",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ffeeceec3561",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_893e8b955095",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.399922+00:00",
+  "updated_at": "2026-05-19T13:58:41.399928+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ffeeceec3561",
+    "right_card_id": "card_n_893e8b955095",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "1453a5f967b40414b438c5da1bcd8534211b676deb867441f13b1acea175f609",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_ffeeceec3561,card_n_893e8b955095"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

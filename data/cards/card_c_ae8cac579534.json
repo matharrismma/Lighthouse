@@ -1,0 +1,61 @@
+{
+  "id": "card_c_ae8cac579534",
+  "kind": "connection",
+  "title": "Barnabas XII cites Isaiah",
+  "body": "Patristic text references Isaiah. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_isaiah",
+  "bands": [
+    "cites",
+    "patristics",
+    "isaiah",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8caf4ba1d131",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_de6be72e6b25",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.401427+00:00",
+  "updated_at": "2026-05-19T19:50:03.360079+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8caf4ba1d131",
+    "right_card_id": "card_n_de6be72e6b25",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Isaiah named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "09ec18e0d6e141e1a36c3402f9c7da4f5c1e3d6d1da7a53686aabd03083bb642",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8caf4ba1d131,card_n_de6be72e6b25"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

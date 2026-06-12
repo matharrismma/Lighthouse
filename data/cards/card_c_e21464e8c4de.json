@@ -1,0 +1,61 @@
+{
+  "id": "card_c_e21464e8c4de",
+  "kind": "connection",
+  "title": "Easton: Ransom cites Titus",
+  "body": "Card references Titus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_titus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "titus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d46250e36e08",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_17f4e723f672",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:18.407869+00:00",
+  "updated_at": "2026-05-19T19:49:28.414094+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_d46250e36e08",
+    "right_card_id": "card_n_17f4e723f672",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Titus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "6104376762bdb0cf5ce960d30a2ae94a963f669aa3753c144e5136f7b597ebd0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_d46250e36e08,card_n_17f4e723f672"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

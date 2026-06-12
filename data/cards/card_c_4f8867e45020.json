@@ -1,0 +1,61 @@
+{
+  "id": "card_c_4f8867e45020",
+  "kind": "connection",
+  "title": "Easton: Pentateuch cites Genesis",
+  "body": "Card references Genesis. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_genesis",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "genesis"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8d4a34825837",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_3537b1964287",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:09.089010+00:00",
+  "updated_at": "2026-05-19T19:49:24.445171+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8d4a34825837",
+    "right_card_id": "card_n_3537b1964287",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Genesis named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "aa46d85a1aeda9bafa6e37b70c34b4004a032def358c71e6106c3ea5fd4548f9",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8d4a34825837,card_n_3537b1964287"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

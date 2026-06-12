@@ -1,0 +1,59 @@
+{
+  "id": "card_c_936588d4cc2b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §252: HOLD-THE-WO → Pilgrim's Progress §251: SAVE-ALL.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_adbf9250d154",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_0acab3e8e1d7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.204364+00:00",
+  "updated_at": "2026-05-19T13:58:41.204370+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_adbf9250d154",
+    "right_card_id": "card_n_0acab3e8e1d7",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "d4751c35e586bfada4b234fdc7810a02401b63ffca928b2404f56375641cd097",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_adbf9250d154,card_n_0acab3e8e1d7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

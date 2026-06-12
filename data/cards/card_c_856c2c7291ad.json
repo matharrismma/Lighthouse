@@ -1,0 +1,59 @@
+{
+  "id": "card_c_856c2c7291ad",
+  "kind": "connection",
+  "title": "Ignatius to the Smyrnaeans V → Ignatius to the Smyrnaeans IV",
+  "body": "Sequential prev in ignatius_smyrnaeans.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_smyrnaeans",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_smyrnaeans",
+  "bands": [
+    "sequence",
+    "prev",
+    "ignatius_smyrnaeans"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5429c9df496b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_60db5adf706b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.135491+00:00",
+  "updated_at": "2026-05-19T13:58:42.135495+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5429c9df496b",
+    "right_card_id": "card_n_60db5adf706b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "eedcdeee37b8463bc7d21740a4df7afac38ad09c39336eb7146f782a62978577",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5429c9df496b,card_n_60db5adf706b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

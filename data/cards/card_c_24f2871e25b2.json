@@ -1,0 +1,59 @@
+{
+  "id": "card_c_24f2871e25b2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §320: HOPE. → Pilgrim's Progress §319: But, consid",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0ef65ac1c2c1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_99e312e28bfc",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.248187+00:00",
+  "updated_at": "2026-05-19T13:58:41.248191+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0ef65ac1c2c1",
+    "right_card_id": "card_n_99e312e28bfc",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6294d9e2ee3c145d72085022b5291ca4ea30ba5c0af22c036c6355342770cfe8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0ef65ac1c2c1,card_n_99e312e28bfc"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

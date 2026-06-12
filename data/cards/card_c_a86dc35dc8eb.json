@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a86dc35dc8eb",
+  "kind": "connection",
+  "title": "1 Clement IX → 1 Clement VIII",
+  "body": "Sequential prev in clement_first.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "clement_first",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_clement_first",
+  "bands": [
+    "sequence",
+    "prev",
+    "clement_first"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c85005c8c8a4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f1a159a0b744",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.070089+00:00",
+  "updated_at": "2026-05-19T13:58:42.070093+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c85005c8c8a4",
+    "right_card_id": "card_n_f1a159a0b744",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "aa2594d7dbd7fbbcf957f27fb9a1bb139bcfef18c5a048832244cf66c55548d6",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c85005c8c8a4,card_n_f1a159a0b744"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

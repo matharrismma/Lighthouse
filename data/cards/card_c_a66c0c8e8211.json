@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a66c0c8e8211",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §331: Now, after  → Pilgrim's Progress §333: ATHEIST.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_1af2ceebbc95",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bf4e916937f7",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.257931+00:00",
+  "updated_at": "2026-05-19T13:58:41.257940+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_1af2ceebbc95",
+    "right_card_id": "card_n_bf4e916937f7",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "88ef2b3c65aab8e7a8334d69c6b81f842a0f152606d251dae7a990d72afdf657",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_1af2ceebbc95,card_n_bf4e916937f7"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_282174154c3d",
+  "kind": "connection",
+  "title": "Sermon: Between the Shortest and the Lon cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "codex_cites_scripture",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "codex",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fb71205ce8c4",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:33.697577+00:00",
+  "updated_at": "2026-05-19T13:35:33.697586+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fb71205ce8c4",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in codex body.",
+    "bidirectional": true
+  },
+  "source_hash": "d27468e29c3330e23bd6a3db4a6b87ea6c1693de283e3590e6245564224272c2",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fb71205ce8c4,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 7 classes"
+}

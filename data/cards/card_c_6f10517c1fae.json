@@ -1,0 +1,59 @@
+{
+  "id": "card_c_6f10517c1fae",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §377: Another rea → Pilgrim's Progress §379: Guilt, and ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_30557f9e9ca2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9be157545af3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.290260+00:00",
+  "updated_at": "2026-05-19T13:58:41.290269+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_30557f9e9ca2",
+    "right_card_id": "card_n_9be157545af3",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "dfce9ad3bbec1cc921f19b2bf5b081d17fb3986e8ac9003936103ad7f2ca1f82",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_30557f9e9ca2,card_n_9be157545af3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

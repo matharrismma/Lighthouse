@@ -1,0 +1,59 @@
+{
+  "id": "card_c_dc51e4de7321",
+  "kind": "connection",
+  "title": "Barnabas IX → Barnabas VIII",
+  "body": "Sequential prev in barnabas.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "barnabas",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_barnabas",
+  "bands": [
+    "sequence",
+    "prev",
+    "barnabas"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_cab55f030475",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_1c110bca64f3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.432721+00:00",
+  "updated_at": "2026-05-19T13:58:41.432729+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_cab55f030475",
+    "right_card_id": "card_n_1c110bca64f3",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "925830297b892c54c93cb4f98c37a9036c249fa0c0424bbb6142b8cbc6a04fc2",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_cab55f030475,card_n_1c110bca64f3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

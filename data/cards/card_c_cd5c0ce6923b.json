@@ -1,0 +1,61 @@
+{
+  "id": "card_c_cd5c0ce6923b",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XXI cites Ephesians",
+  "body": "Patristic text references Ephesians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ephesians",
+  "bands": [
+    "cites",
+    "patristics",
+    "ephesians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2dd977fbe2e2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.506894+00:00",
+  "updated_at": "2026-05-19T19:50:03.668678+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2dd977fbe2e2",
+    "right_card_id": "card_n_6e218f8125c0",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ephesians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "a2af907b05531f3cb7ab618dba1881d83df863323b9dbad59049d15675704561",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2dd977fbe2e2,card_n_6e218f8125c0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

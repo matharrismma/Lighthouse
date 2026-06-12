@@ -1,0 +1,59 @@
+{
+  "id": "card_c_1d4c5a0e3f30",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §97: Yet was he t → Pilgrim's Progress §96: Christian th",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f15dbf3e0897",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_811700e753e5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.072908+00:00",
+  "updated_at": "2026-05-19T13:58:41.072917+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f15dbf3e0897",
+    "right_card_id": "card_n_811700e753e5",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "b03f886a8076c58433aff56d710e15b175865f863bfea06086a331ea56e12371",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f15dbf3e0897,card_n_811700e753e5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

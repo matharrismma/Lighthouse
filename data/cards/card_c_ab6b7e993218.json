@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ab6b7e993218",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §294: Now, when t → Pilgrim's Progress §295: They went t",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2dcbb58b9426",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ea3df3a1bcf1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.230813+00:00",
+  "updated_at": "2026-05-19T13:58:41.230818+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2dcbb58b9426",
+    "right_card_id": "card_n_ea3df3a1bcf1",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "0a095152ad38177b3a1f70486e6ff21fa1400ad063576f935227adb08d9bc333",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2dcbb58b9426,card_n_ea3df3a1bcf1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

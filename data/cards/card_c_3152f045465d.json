@@ -1,0 +1,61 @@
+{
+  "id": "card_c_3152f045465d",
+  "kind": "connection",
+  "title": "Easton: Lo-ammi cites Hosea",
+  "body": "Card references Hosea. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_hosea",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "hosea"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_7a60450370ea",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f79f15ea0fe3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:06.402089+00:00",
+  "updated_at": "2026-05-19T19:49:23.575721+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_7a60450370ea",
+    "right_card_id": "card_n_f79f15ea0fe3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Hosea named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "90b46883fca3f44c4b8ed2842bd2bdd48ef841b74fd8a3c0a6c8781db1dfc946",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_7a60450370ea,card_n_f79f15ea0fe3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

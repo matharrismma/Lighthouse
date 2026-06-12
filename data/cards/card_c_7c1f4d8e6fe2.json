@@ -1,0 +1,59 @@
+{
+  "id": "card_c_7c1f4d8e6fe2",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §383: Now as they → Pilgrim's Progress §382: Now I saw i",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a908c776ccb9",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_fa3a2528e0c6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.298255+00:00",
+  "updated_at": "2026-05-19T13:58:41.298260+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a908c776ccb9",
+    "right_card_id": "card_n_fa3a2528e0c6",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "6d096e69f1cff54ffcca24238079503001965feb1dd4bdaf1a345aa500e04e9f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a908c776ccb9,card_n_fa3a2528e0c6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

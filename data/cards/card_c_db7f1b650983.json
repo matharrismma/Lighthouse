@@ -1,0 +1,59 @@
+{
+  "id": "card_c_db7f1b650983",
+  "kind": "connection",
+  "title": "Boethius, Consolation §boe_02_04: Th → Boethius, Consolation §boe_02_05: 'B",
+  "body": "Sequential next in boethius_consolation.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "boethius_consolation",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_boethius_consolation",
+  "bands": [
+    "sequence",
+    "next",
+    "boethius_consolation"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3fceee0a4338",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_298f670070e5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.833021+00:00",
+  "updated_at": "2026-05-19T13:58:40.833026+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3fceee0a4338",
+    "right_card_id": "card_n_298f670070e5",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "19b8f924038025c2681eed75e569be32f8adec321d571d107f9802ba91688cb7",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3fceee0a4338,card_n_298f670070e5"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

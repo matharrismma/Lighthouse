@@ -1,0 +1,61 @@
+{
+  "id": "card_c_6f1f003258ae",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians VIII cites Philippians",
+  "body": "Patristic text references Philippians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_philippians",
+  "bands": [
+    "cites",
+    "patristics",
+    "philippians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fa0acd9a1b33",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5c3f598f3de3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:15.252059+00:00",
+  "updated_at": "2026-05-19T19:50:02.756405+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fa0acd9a1b33",
+    "right_card_id": "card_n_5c3f598f3de3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Philippians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "8c76f2327df4c9b0f7174fff728c95f1a6919202cea994e38ee5e9443e068d24",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fa0acd9a1b33,card_n_5c3f598f3de3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

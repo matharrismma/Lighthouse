@@ -1,0 +1,61 @@
+{
+  "id": "card_c_2f71812b0879",
+  "kind": "connection",
+  "title": "Didache 16 cites Matthew",
+  "body": "Card references Matthew. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_matthew",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "patristics",
+    "matthew"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9542fd56af12",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b3d286d98c09",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:30.578851+00:00",
+  "updated_at": "2026-05-19T19:50:02.115436+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9542fd56af12",
+    "right_card_id": "card_n_b3d286d98c09",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Matthew named in patristics body.",
+    "bidirectional": true
+  },
+  "source_hash": "7ec75a2e2ca2c6cdad22f18611df983a9f4f4e20b8a0974239e1be585f7682cb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9542fd56af12,card_n_b3d286d98c09"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "card_c_edf4dda7ac84",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_34: Behold, cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_psalms",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_47395057728c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:05.231738+00:00",
+  "updated_at": "2026-05-19T19:49:58.085018+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_47395057728c",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "4b9664107a809db992563ecf33a669c6affda838406ad5108339c550b64dcad9",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_47395057728c,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

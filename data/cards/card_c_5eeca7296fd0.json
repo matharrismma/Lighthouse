@@ -1,0 +1,85 @@
+{
+  "id": "card_c_5eeca7296fd0",
+  "kind": "connection",
+  "title": "WSC Q86 ↔ Hebrews",
+  "body": "Westminster Q86 cites Hebrews: Heb 10:39.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "Heb 10:39",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "hebrews"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_ee14e75a12e1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5d2061b70fa6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:45.304443+00:00",
+  "updated_at": "2026-05-19T19:50:09.772506+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_ee14e75a12e1",
+    "right_card_id": "card_n_5d2061b70fa6",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q86 cites Hebrews: Heb 10:39.",
+    "bidirectional": true,
+    "verse_refs": [
+      "Heb 10:39"
+    ]
+  },
+  "source_hash": "ca268cae4411712fb05e6050057fde62a6acaf004ba919a5d9aefe8824889e10",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

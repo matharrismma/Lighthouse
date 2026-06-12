@@ -1,0 +1,61 @@
+{
+  "id": "card_c_4eafaec52478",
+  "kind": "connection",
+  "title": "Easton: Drink, strong cites Micah",
+  "body": "Card references Micah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_micah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "micah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bbe1c8cc6aad",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_18b623038843",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.343189+00:00",
+  "updated_at": "2026-05-19T19:49:24.389617+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bbe1c8cc6aad",
+    "right_card_id": "card_n_18b623038843",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Micah named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "51c840aa36afd6905c9bd9781ef9fb808542ce92f1579912635097237806a464",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bbe1c8cc6aad,card_n_18b623038843"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

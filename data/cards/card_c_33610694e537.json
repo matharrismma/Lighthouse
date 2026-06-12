@@ -1,0 +1,61 @@
+{
+  "id": "card_c_33610694e537",
+  "kind": "connection",
+  "title": "Easton: Bible cites Acts",
+  "body": "Card references Acts. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_acts",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "acts"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_071a7af4a84a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b051cea86e39",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:33:54.447800+00:00",
+  "updated_at": "2026-05-19T19:49:23.618855+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_071a7af4a84a",
+    "right_card_id": "card_n_b051cea86e39",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Acts named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "9a31daf5c03fa60654f3dc4482b0056c6b2c318451e09f1e48d45f2fbe5bc927",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_071a7af4a84a,card_n_b051cea86e39"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

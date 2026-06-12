@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2821dca853ed",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_06_11: Whatever th → Pirkei Avot §avot_06_10: Five posses",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_930b50e7d991",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_893e8b955095",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.401986+00:00",
+  "updated_at": "2026-05-19T13:58:41.401995+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_930b50e7d991",
+    "right_card_id": "card_n_893e8b955095",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "f33757fa84f386e4dc227e420e1d1339f9df5fc2964eee25a03b209335388314",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_930b50e7d991,card_n_893e8b955095"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

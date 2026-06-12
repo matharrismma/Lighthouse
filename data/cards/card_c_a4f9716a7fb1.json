@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a4f9716a7fb1",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §149: APOL. → Pilgrim's Progress §150: And with th",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8142d5fb2dd6",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_d4ce3f9e1ddf",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.121797+00:00",
+  "updated_at": "2026-05-19T13:58:41.121805+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8142d5fb2dd6",
+    "right_card_id": "card_n_d4ce3f9e1ddf",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e451cf42a8ec814d01b8d4a90d554f955d026511423aa9d4817bec90eb7d948c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8142d5fb2dd6,card_n_d4ce3f9e1ddf"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

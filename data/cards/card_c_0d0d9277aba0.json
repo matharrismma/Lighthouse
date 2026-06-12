@@ -1,0 +1,85 @@
+{
+  "id": "card_c_0d0d9277aba0",
+  "kind": "connection",
+  "title": "WSC Q97 ↔ 2 Corinthians",
+  "body": "Westminster Q97 cites 2 Corinthians: 2 Cor 13:5.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "2 Cor 13:5",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "2_corinthians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_de5a36cb5cd3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4d9594a28d75",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:46.149999+00:00",
+  "updated_at": "2026-05-19T19:50:08.037746+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_de5a36cb5cd3",
+    "right_card_id": "card_n_4d9594a28d75",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q97 cites 2 Corinthians: 2 Cor 13:5.",
+    "bidirectional": true,
+    "verse_refs": [
+      "2 Cor 13:5"
+    ]
+  },
+  "source_hash": "e1eb90880516697281c9108861a795127ed84fe70dc12af2b908afa27b70e433",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

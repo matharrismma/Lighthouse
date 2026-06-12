@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f96b55afd2c5",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §393: Then I saw  → Pilgrim's Progress §392: Christian's",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5a07e048275c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_64c6f26ab0c9",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.302075+00:00",
+  "updated_at": "2026-05-19T13:58:41.302079+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5a07e048275c",
+    "right_card_id": "card_n_64c6f26ab0c9",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "809d44905f0d7ad93b111d0a11b01ab1cda6380b3175d7e5d38105f74691e114",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5a07e048275c,card_n_64c6f26ab0c9"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

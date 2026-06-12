@@ -1,0 +1,59 @@
+{
+  "id": "card_c_125d1b12e6cd",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §3: For, thought  → Pilgrim's Progress §4: May I not wri",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_22d3e98c9be8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_eb934acbad16",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.011418+00:00",
+  "updated_at": "2026-05-19T13:58:41.011427+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_22d3e98c9be8",
+    "right_card_id": "card_n_eb934acbad16",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "ead8605d08e044929af9520d2aa0ca251bc12b55527e85a5b77ee3d322fbed70",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_22d3e98c9be8,card_n_eb934acbad16"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

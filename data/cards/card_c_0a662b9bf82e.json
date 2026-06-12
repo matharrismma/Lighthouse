@@ -1,0 +1,59 @@
+{
+  "id": "card_c_0a662b9bf82e",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §105: I looked, t → Pilgrim's Progress §104: The other t",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f30c812154b2",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f71dcef7634b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.081318+00:00",
+  "updated_at": "2026-05-19T13:58:41.081329+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f30c812154b2",
+    "right_card_id": "card_n_f71dcef7634b",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "45f755337743157022519be3e2fa395ffd6e26e81fd5ebde0d60408dfc25aad7",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f30c812154b2,card_n_f71dcef7634b"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "card_c_42afbf721f33",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_02_03: Fir → Imitation of Christ §imit_02_02: Mak",
+  "body": "Sequential prev in imitation_of_christ.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "imitation_of_christ",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_imitation_of_christ",
+  "bands": [
+    "sequence",
+    "prev",
+    "imitation_of_christ"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2773c91c04b3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_b652be011ed1",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.894003+00:00",
+  "updated_at": "2026-05-19T13:58:40.894023+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2773c91c04b3",
+    "right_card_id": "card_n_b652be011ed1",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "12c85e540d526f36686614c1d5d38c02abb8bddfe410a9c2b8164b3e00c3965b",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2773c91c04b3,card_n_b652be011ed1"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

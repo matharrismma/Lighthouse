@@ -1,0 +1,59 @@
+{
+  "id": "card_c_a563a503911a",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §85: CHR. → Pilgrim's Progress §84: Now, said Ch",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_2cf9d143bcc5",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_bf764f334b50",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.066578+00:00",
+  "updated_at": "2026-05-19T13:58:41.066582+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_2cf9d143bcc5",
+    "right_card_id": "card_n_bf764f334b50",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "a47d4d96b7e20989ed51a7c3039f2666b42666c4de04ea6d8ac7a00497ceea93",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_2cf9d143bcc5,card_n_bf764f334b50"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

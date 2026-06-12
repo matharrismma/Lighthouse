@@ -1,0 +1,86 @@
+{
+  "id": "card_c_ffc035e98300",
+  "kind": "connection",
+  "title": "Westminster Shorter Q33 ↔ Romans",
+  "body": "Westminster Q33 on justification — Romans is the primary text.",
+  "source": {
+    "label": "Operator-authored canonical connection",
+    "url": "",
+    "ref": "",
+    "authority_tier": "matt"
+  },
+  "shelf": "connections",
+  "box": "proof_text_other",
+  "bands": [
+    "proof_text",
+    "canonical"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_d50de24295e1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_8dcfe3d99ed5",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "matt",
+  "created_at": "2026-05-19T11:52:48.286419+00:00",
+  "updated_at": "2026-05-19T19:50:12.361708+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0,
+    "trust_weighted_score": 0.0
+  },
+  "extra": {
+    "left_card_id": "card_n_d50de24295e1",
+    "right_card_id": "card_n_8dcfe3d99ed5",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q33 on justification — Romans is the primary text.",
+    "bidirectional": true
+  },
+  "source_hash": "8af0881a95a45da34841243b9387500d2fbffae0ae159bbc6453ab7f9d7210b6",
+  "witnesses": [
+    {
+      "class": "operator_signature",
+      "label": "Operator signature — Matt Harris",
+      "ref": "operator"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Rufinus of Aquileia, Commentary on the Apostles' Creed (c. AD 404)",
+      "ref": "Rufinus-Comm"
+    },
+    {
+      "class": "manuscript_tradition",
+      "label": "Pirminius, De singulis libris canonicis scarapsus (c. AD 750) — earliest received form",
+      "ref": "Pirminius-750"
+    },
+    {
+      "class": "translation",
+      "label": "Latin (Symbolum Apostolicum) — Western Church",
+      "ref": "Apostles-LA"
+    },
+    {
+      "class": "citation_tradition",
+      "label": "Cited by every major catechism since 8th century",
+      "ref": "universal-citation"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Creeds of Christendom (Schaff)",
+      "url": "https://www.ccel.org/ccel/schaff/creeds1.html",
+      "ref": "CCEL-Schaff"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "operator + 5 registry witnesses, 5 distinct classes"
+}

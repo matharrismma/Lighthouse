@@ -1,0 +1,61 @@
+{
+  "id": "card_c_cb97475a57cc",
+  "kind": "connection",
+  "title": "Barnabas IV cites Daniel",
+  "body": "Patristic text references Daniel. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_daniel",
+  "bands": [
+    "cites",
+    "patristics",
+    "daniel",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_70cff2e4f02e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_7c2477b34229",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:14.120555+00:00",
+  "updated_at": "2026-05-19T19:50:03.646133+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_70cff2e4f02e",
+    "right_card_id": "card_n_7c2477b34229",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Daniel named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "ae4e3adacf3f1ec8fb33c6351dbf16662916eedfc5a1d37596da91e4c53aa43d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_70cff2e4f02e,card_n_7c2477b34229"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

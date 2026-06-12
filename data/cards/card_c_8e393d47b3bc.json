@@ -1,0 +1,61 @@
+{
+  "id": "card_c_8e393d47b3bc",
+  "kind": "connection",
+  "title": "Easton: Hail cites Ezekiel",
+  "body": "Card references Ezekiel. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_ezekiel",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "ezekiel"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_90191220465e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9ec03cc6c734",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:09.494396+00:00",
+  "updated_at": "2026-05-19T19:49:25.945690+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_90191220465e",
+    "right_card_id": "card_n_9ec03cc6c734",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ezekiel named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "e01198b5a6ae77f6bdd871f542ea8a35ddb2f5107259ca71adb455c2f66672d2",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_90191220465e,card_n_9ec03cc6c734"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

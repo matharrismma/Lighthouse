@@ -1,0 +1,59 @@
+{
+  "id": "card_c_b55b80044087",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §312: HOPE. → Pilgrim's Progress §314: HOPE.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_e530a1ee7b18",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_2cdfeaf2c643",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.242551+00:00",
+  "updated_at": "2026-05-19T13:58:41.242557+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_e530a1ee7b18",
+    "right_card_id": "card_n_2cdfeaf2c643",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "cffd712e535b1e6325d143df1c3ebe03239c58b5fecb4699d0e42b0473cad135",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_e530a1ee7b18,card_n_2cdfeaf2c643"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

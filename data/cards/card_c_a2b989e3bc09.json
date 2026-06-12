@@ -1,0 +1,61 @@
+{
+  "id": "card_c_a2b989e3bc09",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_46: “My Son cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_psalms",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f0a363b79c87",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:07.675509+00:00",
+  "updated_at": "2026-05-19T19:49:50.257220+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f0a363b79c87",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "0d8c23f6eda3ff1624f74fb5d34d5316d2375a7d3b7e8e18b482b7e9c34e24a6",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f0a363b79c87,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

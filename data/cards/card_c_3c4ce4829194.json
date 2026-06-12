@@ -1,0 +1,59 @@
+{
+  "id": "card_c_3c4ce4829194",
+  "kind": "connection",
+  "title": "Aurelius, Meditations §aur_08_xxxii: → Aurelius, Meditations §aur_03_vi: To",
+  "body": "Sequential next in aurelius_meditations.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "aurelius_meditations",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_aurelius_meditations",
+  "bands": [
+    "sequence",
+    "next",
+    "aurelius_meditations"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_9d1ce3755a11",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9e89d5637050",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:40.655493+00:00",
+  "updated_at": "2026-05-19T13:58:40.655501+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_9d1ce3755a11",
+    "right_card_id": "card_n_9e89d5637050",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "336dabadc0ca21a8a82cac1af7cfeb5163dfcaa1735d7a1abf1e4dfcf60f1681",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_9d1ce3755a11,card_n_9e89d5637050"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

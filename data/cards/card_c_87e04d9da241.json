@@ -1,0 +1,59 @@
+{
+  "id": "card_c_87e04d9da241",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §167: In this lig → Pilgrim's Progress §166: Now was Chr",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_991c145ba1d1",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_53896f8be23c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.145162+00:00",
+  "updated_at": "2026-05-19T13:58:41.145167+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_991c145ba1d1",
+    "right_card_id": "card_n_53896f8be23c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "b1d4556666d2d79896855e8569e9f5c6b6ecdb0f66f73a8191ae8be8d15e1fe8",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_991c145ba1d1,card_n_53896f8be23c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

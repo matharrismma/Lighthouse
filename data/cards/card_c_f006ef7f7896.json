@@ -1,0 +1,59 @@
+{
+  "id": "card_c_f006ef7f7896",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_01_06: Joshua ben  → Pirkei Avot §avot_01_08: Judah ben T",
+  "body": "Sequential next in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "next",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f00b068573bc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_ab8bc19a913d",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.313061+00:00",
+  "updated_at": "2026-05-19T13:58:41.313065+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f00b068573bc",
+    "right_card_id": "card_n_ab8bc19a913d",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "85d4a14f1b25805af006869cb997c513315b1c4b73ff16e1a1519d7edd2d4283",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f00b068573bc,card_n_ab8bc19a913d"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

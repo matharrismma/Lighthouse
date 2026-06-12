@@ -1,0 +1,59 @@
+{
+  "id": "card_c_fc5273a9a558",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §118: PIETY. → Pilgrim's Progress §120: PIETY.",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_3e363b34eac3",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_2c4f1da7451f",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.091580+00:00",
+  "updated_at": "2026-05-19T13:58:41.091589+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_3e363b34eac3",
+    "right_card_id": "card_n_2c4f1da7451f",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "70e03eb7dd881dd0635940a2467a3aedc3fb1549d3e084726779a0204bc07e2c",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_3e363b34eac3,card_n_2c4f1da7451f"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

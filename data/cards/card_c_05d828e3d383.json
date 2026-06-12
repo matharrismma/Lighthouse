@@ -1,0 +1,59 @@
+{
+  "id": "card_c_05d828e3d383",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §83: Then the Int → Pilgrim's Progress §82: The Interpre",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_0ae03ccbda7e",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_9c48877af2a6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.065003+00:00",
+  "updated_at": "2026-05-19T13:58:41.065008+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_0ae03ccbda7e",
+    "right_card_id": "card_n_9c48877af2a6",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "48ede4db362fe8da870ef16bd99ddc6cf98e86e120f94821dd0535655d0037dd",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_0ae03ccbda7e,card_n_9c48877af2a6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

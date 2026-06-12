@@ -1,0 +1,61 @@
+{
+  "id": "card_c_bfdec723fce3",
+  "kind": "connection",
+  "title": "Devotional: Reflection: Between the Shor cites Psalms",
+  "body": "Card references Psalms. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "codex_cites_scripture",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "codex",
+    "psalms"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_da3fcc4964a7",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cff8cca96453",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:33.636870+00:00",
+  "updated_at": "2026-05-19T13:35:33.636880+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_da3fcc4964a7",
+    "right_card_id": "card_n_cff8cca96453",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Psalms named in codex body.",
+    "bidirectional": true
+  },
+  "source_hash": "f318b0d664829ea35bacca58c7b6e60116889274e9b377528a378a6675434e17",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_da3fcc4964a7,card_n_cff8cca96453"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

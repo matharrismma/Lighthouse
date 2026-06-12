@@ -1,0 +1,61 @@
+{
+  "id": "card_c_475888d7cc6b",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XIX cites Ephesians",
+  "body": "Patristic text references Ephesians. Detected via name match in the chapter body.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_ephesians",
+  "bands": [
+    "cites",
+    "patristics",
+    "ephesians",
+    "auto_detected"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_49c8e02ac69b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_6e218f8125c0",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T12:49:13.833071+00:00",
+  "updated_at": "2026-05-19T19:50:02.400510+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_49c8e02ac69b",
+    "right_card_id": "card_n_6e218f8125c0",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Ephesians named in patristic body.",
+    "bidirectional": true
+  },
+  "source_hash": "9b552224b3a0ea93b275de3d31e7b8f81945791be6de9f832a2aa1eac4148628",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_49c8e02ac69b,card_n_6e218f8125c0"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 6 classes"
+}

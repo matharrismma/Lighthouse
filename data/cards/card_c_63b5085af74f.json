@@ -1,0 +1,61 @@
+{
+  "id": "card_c_63b5085af74f",
+  "kind": "connection",
+  "title": "Easton: Edom cites Exodus",
+  "body": "Card references Exodus. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_exodus",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "exodus"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_52296cf95ea8",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_649a778d8d86",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:02.533960+00:00",
+  "updated_at": "2026-05-19T19:49:24.866730+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_52296cf95ea8",
+    "right_card_id": "card_n_649a778d8d86",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Exodus named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "42de3cb29ce2a1dbc0cd136bbb34afb1da9164507a33cb09d045d8fc4ec37845",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_52296cf95ea8,card_n_649a778d8d86"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

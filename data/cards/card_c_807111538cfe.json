@@ -1,0 +1,61 @@
+{
+  "id": "card_c_807111538cfe",
+  "kind": "connection",
+  "title": "Easton: Adoni-zedec cites Joshua",
+  "body": "Card references Joshua. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "dictionary_cites_joshua",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "dictionary",
+    "joshua"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_bf06f027e6db",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_aa2c4042ed43",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:34:15.718156+00:00",
+  "updated_at": "2026-05-19T19:49:25.698427+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_bf06f027e6db",
+    "right_card_id": "card_n_aa2c4042ed43",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Joshua named in dictionary body.",
+    "bidirectional": true
+  },
+  "source_hash": "1299086d58cf49cc1723b33325dda04924a94e64e4b12006fb977ea0eb6f5377",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_bf06f027e6db,card_n_aa2c4042ed43"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

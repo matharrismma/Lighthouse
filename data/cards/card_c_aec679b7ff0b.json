@@ -1,0 +1,61 @@
+{
+  "id": "card_c_aec679b7ff0b",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians IX cites Philippians",
+  "body": "Card references Philippians. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_philippians",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "patristics",
+    "philippians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_f84034134f64",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5c3f598f3de3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:31.102624+00:00",
+  "updated_at": "2026-05-19T19:50:03.377301+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_f84034134f64",
+    "right_card_id": "card_n_5c3f598f3de3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Philippians named in patristics body.",
+    "bidirectional": true
+  },
+  "source_hash": "4ec0ba5101b8adf6048cd9303c6008e9a645174d6d1c76aea142e39692b4a7c0",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_f84034134f64,card_n_5c3f598f3de3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

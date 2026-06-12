@@ -1,0 +1,61 @@
+{
+  "id": "card_c_0e9e0f125a6a",
+  "kind": "connection",
+  "title": "Polycarp to the Philippians XIV cites Philippians",
+  "body": "Card references Philippians. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "patristics_cites_philippians",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "patristics",
+    "philippians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_41fbb4a583bc",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_5c3f598f3de3",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:30.186110+00:00",
+  "updated_at": "2026-05-19T19:50:01.816444+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_41fbb4a583bc",
+    "right_card_id": "card_n_5c3f598f3de3",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Philippians named in patristics body.",
+    "bidirectional": true
+  },
+  "source_hash": "345bd13efadfcfab9491e53b1e6f0f5fa3c0327466877c7be28ce97e90510736",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_41fbb4a583bc,card_n_5c3f598f3de3"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

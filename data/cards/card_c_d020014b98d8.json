@@ -1,0 +1,59 @@
+{
+  "id": "card_c_d020014b98d8",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §94: Then was Chr → Pilgrim's Progress §91: Then said th",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5daab8d5b083",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_cad0977ef229",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.070530+00:00",
+  "updated_at": "2026-05-19T13:58:41.070534+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5daab8d5b083",
+    "right_card_id": "card_n_cad0977ef229",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "4238e25fc4ee753eb0996b3531ae4326d88fc3e1f613d22f20a3c507d156287d",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5daab8d5b083,card_n_cad0977ef229"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

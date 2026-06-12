@@ -1,0 +1,59 @@
+{
+  "id": "card_c_11c287cf5cf1",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §271: By this tim → Pilgrim's Progress §272: Now I saw t",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a1e50bac9949",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_4bd1fd64a638",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.212857+00:00",
+  "updated_at": "2026-05-19T13:58:41.212861+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a1e50bac9949",
+    "right_card_id": "card_n_4bd1fd64a638",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "e00082ad9108df89b612de7e46d683cc1c5f4380876750cb0e3b555451427e34",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a1e50bac9949,card_n_4bd1fd64a638"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

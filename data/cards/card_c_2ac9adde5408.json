@@ -1,0 +1,59 @@
+{
+  "id": "card_c_2ac9adde5408",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §283: Neither cou → Pilgrim's Progress §284: Now, Giant ",
+  "body": "Sequential next in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "next",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_adf5b85c9e3d",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_69350d3a4e72",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.220966+00:00",
+  "updated_at": "2026-05-19T13:58:41.220972+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_adf5b85c9e3d",
+    "right_card_id": "card_n_69350d3a4e72",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "04bf74a78d6999470a4f50d5cb06521ae2ac1def49f5597e2f0a131c96b348c3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_adf5b85c9e3d,card_n_69350d3a4e72"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

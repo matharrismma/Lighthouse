@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ad61fb37e9ea",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians XVIII → Ignatius to the Ephesians XVII",
+  "body": "Sequential prev in ignatius_ephesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_ephesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_ephesians",
+  "bands": [
+    "sequence",
+    "prev",
+    "ignatius_ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8b0670067058",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_d64a1d5d312c",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.194980+00:00",
+  "updated_at": "2026-05-19T13:58:42.194985+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8b0670067058",
+    "right_card_id": "card_n_d64a1d5d312c",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "5ef2aa9300ef6587a46b0af4ab3163890d4083a1f806a3a7ce015ad42b79ede3",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8b0670067058,card_n_d64a1d5d312c"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

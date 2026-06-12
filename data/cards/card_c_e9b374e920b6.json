@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e9b374e920b6",
+  "kind": "connection",
+  "title": "Barnabas XVIII → Barnabas XIX",
+  "body": "Sequential next in barnabas.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "barnabas",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_barnabas",
+  "bands": [
+    "sequence",
+    "next",
+    "barnabas"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_a1a99b719056",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f714d80cbfb6",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.446005+00:00",
+  "updated_at": "2026-05-19T13:58:41.446009+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_a1a99b719056",
+    "right_card_id": "card_n_f714d80cbfb6",
+    "relationship_kind": "see_also",
+    "direction": "next"
+  },
+  "source_hash": "8e7ee67115b2bba35344d7f264489a237b9077a5487446e4f80be02bde83521f",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_a1a99b719056,card_n_f714d80cbfb6"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

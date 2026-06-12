@@ -1,0 +1,85 @@
+{
+  "id": "card_c_843a6783bd3b",
+  "kind": "connection",
+  "title": "WSC Q95 ↔ 1 Corinthians",
+  "body": "Westminster Q95 cites 1 Corinthians: 1 Cor 7:14.",
+  "source": {
+    "label": "Westminster Assembly 1647 proof text",
+    "url": "",
+    "ref": "1 Cor 7:14",
+    "authority_tier": "catechism"
+  },
+  "shelf": "connections",
+  "box": "proof_text_wsc",
+  "bands": [
+    "proof_text",
+    "westminster_shorter",
+    "1_corinthians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_6d554d990a7a",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_41ea132b102b",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "westminster_assembly",
+  "created_at": "2026-05-19T12:28:46.025382+00:00",
+  "updated_at": "2026-05-19T19:50:10.349512+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_6d554d990a7a",
+    "right_card_id": "card_n_41ea132b102b",
+    "relationship_kind": "proof_text",
+    "explanation": "Westminster Q95 cites 1 Corinthians: 1 Cor 7:14.",
+    "bidirectional": true,
+    "verse_refs": [
+      "1 Cor 7:14"
+    ]
+  },
+  "source_hash": "bea28cd2358af290f605a86496270db25c12702724674417cd32320ec37da3e8",
+  "witnesses": [
+    {
+      "class": "manuscript_tradition",
+      "label": "Westminster Assembly minutes (Mitchell & Struthers, 1874)",
+      "ref": "WAM-1874"
+    },
+    {
+      "class": "critical_edition",
+      "label": "Westminster Confession of Faith — modern critical editions",
+      "ref": "WCF-modern"
+    },
+    {
+      "class": "republication",
+      "label": "CCEL — Westminster Confession",
+      "url": "https://www.ccel.org/creeds/westminster-conf-of-faith.html",
+      "ref": "CCEL-WCF"
+    },
+    {
+      "class": "republication",
+      "label": "OPC — Westminster Confession with proof texts",
+      "url": "https://www.opc.org/wcf.html",
+      "ref": "OPC-WCF"
+    },
+    {
+      "class": "proof_text",
+      "label": "Scripture proof texts assembled by Westminster Assembly",
+      "ref": "WCF-proofs"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "5 witnesses across 4 independence classes: ['critical_edition', 'manuscript_tradition', 'proof_text', 'republication']"
+}

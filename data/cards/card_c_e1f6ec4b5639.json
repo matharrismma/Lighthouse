@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e1f6ec4b5639",
+  "kind": "connection",
+  "title": "Ignatius to the Ephesians VIII → Ignatius to the Ephesians VII",
+  "body": "Sequential prev in ignatius_ephesians.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "ignatius_ephesians",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_ignatius_ephesians",
+  "bands": [
+    "sequence",
+    "prev",
+    "ignatius_ephesians"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_8785a835dead",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_a4ecb8204f30",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:42.184079+00:00",
+  "updated_at": "2026-05-19T13:58:42.184083+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_8785a835dead",
+    "right_card_id": "card_n_a4ecb8204f30",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "0de2e3818ab45d83906d79d80128ad5401c48761a2dd1bbf2bf47c3492c62f70",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_8785a835dead,card_n_a4ecb8204f30"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 3 classes"
+}

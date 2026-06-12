@@ -1,0 +1,61 @@
+{
+  "id": "card_c_76a448887209",
+  "kind": "connection",
+  "title": "Imitation of Christ §imit_03_23: “My Son cites Isaiah",
+  "body": "Card references Isaiah. Auto-detected via book-name match.",
+  "source": {
+    "label": "Auto-detected citation",
+    "url": "",
+    "ref": "",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "classics_cites_isaiah",
+  "bands": [
+    "cites",
+    "auto_detected",
+    "classics",
+    "isaiah"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_cfce263dfe3c",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_de6be72e6b25",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:35:07.226590+00:00",
+  "updated_at": "2026-05-19T19:49:45.260503+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "stable",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_cfce263dfe3c",
+    "right_card_id": "card_n_de6be72e6b25",
+    "relationship_kind": "cites",
+    "explanation": "Auto-detected: Isaiah named in classics body.",
+    "bidirectional": true
+  },
+  "source_hash": "80e316ecef7a88062922c87f5d3e440c927c8afa081c57e8ac15266df2396e57",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_cfce263dfe3c,card_n_de6be72e6b25"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

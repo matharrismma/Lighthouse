@@ -1,0 +1,59 @@
+{
+  "id": "card_c_e1f44aa1083b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §147: APOL. → Pilgrim's Progress §145: APOL.",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_c9ada838f57b",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_98a062846f56",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.119291+00:00",
+  "updated_at": "2026-05-19T13:58:41.119299+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_c9ada838f57b",
+    "right_card_id": "card_n_98a062846f56",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "e735e09735411db950df4cb4b1c8311e3677bfa69b6d11c9df63758b620de1bb",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_c9ada838f57b,card_n_98a062846f56"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

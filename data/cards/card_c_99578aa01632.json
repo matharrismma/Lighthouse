@@ -1,0 +1,59 @@
+{
+  "id": "card_c_99578aa01632",
+  "kind": "connection",
+  "title": "Pirkei Avot §avot_02_03: Be careful  → Pirkei Avot §avot_02_02: Rabban Gama",
+  "body": "Sequential prev in pirkei_avot.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pirkei_avot",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pirkei_avot",
+  "bands": [
+    "sequence",
+    "prev",
+    "pirkei_avot"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_df0a048b6418",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_fec284098094",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.320247+00:00",
+  "updated_at": "2026-05-19T13:58:41.320252+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_df0a048b6418",
+    "right_card_id": "card_n_fec284098094",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "ef7e7e4837c180d05eda1db72665318f8e60f9d7341e994b386678ed44266c96",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_df0a048b6418,card_n_fec284098094"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 4 classes"
+}

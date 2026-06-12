@@ -1,0 +1,59 @@
+{
+  "id": "card_c_ab924db4fba4",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §7: Come, let my  → Pilgrim's Progress §6: Be not too fo",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_fdfab2502b42",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f9a6de051980",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.018903+00:00",
+  "updated_at": "2026-05-19T13:58:41.018912+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_fdfab2502b42",
+    "right_card_id": "card_n_f9a6de051980",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "22538f89092ec8cff20836f7dca51cdea787b2deae1d3c64dd0aa358577ae024",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_fdfab2502b42,card_n_f9a6de051980"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}

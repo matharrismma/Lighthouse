@@ -1,0 +1,59 @@
+{
+  "id": "card_c_16772207b57b",
+  "kind": "connection",
+  "title": "Pilgrim's Progress §308: IGNOR. → Pilgrim's Progress §305: Then they e",
+  "body": "Sequential prev in pilgrims_progress.",
+  "source": {
+    "label": "Sequential ordering within work",
+    "url": "",
+    "ref": "pilgrims_progress",
+    "authority_tier": "engine_derived"
+  },
+  "shelf": "connections",
+  "box": "sequence_pilgrims_progress",
+  "bands": [
+    "sequence",
+    "prev",
+    "pilgrims_progress"
+  ],
+  "connections": [
+    {
+      "to_card_id": "card_n_5eec328f0690",
+      "relationship": "see_also"
+    },
+    {
+      "to_card_id": "card_n_f1b4f34a8614",
+      "relationship": "see_also"
+    }
+  ],
+  "author": "engine",
+  "created_at": "2026-05-19T13:58:41.238402+00:00",
+  "updated_at": "2026-05-19T13:58:41.238408+00:00",
+  "visibility": "public",
+  "lifecycle_stage": "public",
+  "volatility": "permanent",
+  "metrics": {
+    "paperclips_count": 0,
+    "helpful_count": 0,
+    "not_helpful_count": 0,
+    "cite_count": 0,
+    "walks_through_count": 0,
+    "flagged_count": 0
+  },
+  "extra": {
+    "left_card_id": "card_n_5eec328f0690",
+    "right_card_id": "card_n_f1b4f34a8614",
+    "relationship_kind": "see_also",
+    "direction": "prev"
+  },
+  "source_hash": "48faec5948e3073e3181552b2e5897a9ab0982cec7cbb78b3544f80dccdcfd13",
+  "witnesses": [
+    {
+      "class": "inherited",
+      "label": "inherited from 2 parent cards",
+      "ref": "card_n_5eec328f0690,card_n_f1b4f34a8614"
+    }
+  ],
+  "witness_status": "passed",
+  "witness_status_reason": "inherits from 2 passed parents across 5 classes"
+}
