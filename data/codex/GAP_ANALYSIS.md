@@ -10,6 +10,30 @@ This is the Mendeleev move. Once the matrices are dense enough, the *holes* beco
 
 ---
 
+## The authoritative grid is the CANONS (`lw/02_canons/`) — not the almanac counts
+
+**Matt 2026-06-12: "github should have most."** He was right. The repo already carries six formal **domain canons** — `lw/02_canons/{biology, chemistry_full, computer_science, mathematics, physics, statistics}` — each a constraints-first YAML knowledge base with a parallel structural validator (`tools/validator_<domain>.py`) and an engine verifier. **These canons ARE the periodic grid.** Each defines:
+- **frozen nouns** — the domain primitives (biology's ten: CELL, COMPARTMENT, GENOME, EXPRESSION, PROTEOME, METABOLISM, SIGNAL, FEEDBACK, FITNESS, POPULATION). *These are the slots.*
+- **modules** — the blocks, each with trigger words (biology: molecular_cell · biochemistry_metabolism · genetics_inheritance · systems_biology_control · evolution_ecology).
+- the **hierarchy** RED → FLOOR → WAY → Execution and validation gates RED/FLOOR/BROTHERS/GOD.
+
+**So the gap analysis runs against the canon, not against ad-hoc card counts.** A slot is "filled" when its frozen noun / module concept has a *verified connection* sealed in the corpus. A slot is "open" when the canon names it but no sealed connection reaches it yet. (Domains with no canon yet — geoscience, music, economics… — are a second, coarser layer.)
+
+### Biology gaps, grounded in its own frozen nouns (corrected, canon-driven)
+| Frozen noun / module | Verified-connection status |
+|---|---|
+| GENOME, EXPRESSION (genetics_inheritance, molecular_cell) | **well covered** — genetic code is digital/redundant, Watson-Crick reversible, palindrome=restriction site, reading-frame=triplet, transcription=complementary copy |
+| COMPARTMENT (membrane transport) | **covered** — `transport_law_four_readings` (Fick) now tagged biology |
+| FEEDBACK, FITNESS (systems_biology_control, evolution_ecology) | **partial** — Wiener (negative feedback), Friston, Darwin, Kauffman assessments touch these; no dedicated sealed connection |
+| POPULATION | **partial** — Hardy-Weinberg example exists (`examples/sample_packet_biology_hardy_weinberg.json`); not sealed as a connection |
+| **PROTEOME** | **OPEN** — no sealed connection (most-likely fill: sequence→structure→function as an information map) |
+| **METABOLISM** (biochemistry_metabolism) | **OPEN in the connection layer** — almanac calorie cards exist, but no sealed connection (most-likely: ATP/redox ledger = conservation; glycolysis flux = balance) |
+| **SIGNAL** (transduction) | **OPEN** — most-likely: signaling cascade = gain/threshold (same control form as Wiener) |
+
+*Every one of these must still pass STEP-0 SEARCH-FIRST before sealing — and now also: read the relevant canon module first.*
+
+---
+
 ## What the survey found (2026-06-12, corpus 1,412)
 
 ### A. The thinnest region — the statistical block (4 cards vs 37 continuous, 12 geometric, 11 discrete)
