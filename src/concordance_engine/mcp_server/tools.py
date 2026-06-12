@@ -185,15 +185,55 @@ def walkthrough_packet(
     return render_walkthrough(rec, expand_traces=expand_traces)
 
 
-def verify_chemistry(equation, temperature_K=None):
-    out = {}
-    eq_r = chemistry.verify_equation(equation, balance_if_unbalanced=True)
-    out["equation"] = _r(eq_r)
-    if eq_r.status == "MISMATCH" and eq_r.data and "balanced_lhs" in eq_r.data:
-        out["balanced_form"] = f"{eq_r.data['balanced_lhs']} -> {eq_r.data['balanced_rhs']}"
-        out["balanced_coefficients"] = eq_r.data.get("balanced_coefficients")
+# Map a chemistry VerifierResult.name -> the short output key, preserving the
+# legacy keys ("equation"/"temperature") that existing callers/tests rely on.
+_CHEM_RESULT_KEY = {
+    "chemistry.equation": "equation",
+    "chemistry.temperature_K": "temperature",
+    "chemistry.pH_classification": "pH_classification",
+    "chemistry.thermodynamic_feasibility": "thermodynamic_feasibility",
+    "chemistry": "chemistry",
+}
+
+
+def verify_chemistry(equation=None, temperature_K=None, **spec):
+    """Verify chemistry claims by routing a CHEM_VERIFY packet through chemistry.run().
+
+    Three independent artifacts are recognised; any subset may be supplied:
+      * equation balance     — equation="2 H2 + O2 -> 2 H2O"  (+ optional temperature_K)
+      * pH classification    — pH=3, claimed_classification="acid"  (+ optional neutral_tolerance)
+      * thermodynamic feasibility — delta_H_kJ_mol, delta_S_J_mol_K, temperature_K,
+                                    claimed_spontaneous  (ΔG = ΔH - TΔS)
+
+    Output is a dict keyed by check name, each value {"status","detail","data"} —
+    backward compatible with the equation/temperature path (keys "equation",
+    "balanced_form", "balanced_coefficients", "temperature").
+    """
+    # Build the CHEM_VERIFY packet from whatever the caller supplied. The dispatch
+    # convention (agent_manifest.dispatch) calls this as verify_chemistry(**spec),
+    # so pH / thermodynamic keys arrive in **spec; equation / temperature_K stay
+    # positional for the legacy signature.
+    chem_verify: Dict[str, Any] = {}
+    if equation is not None:
+        chem_verify["equation"] = equation
     if temperature_K is not None:
-        out["temperature"] = _r(chemistry.verify_temperature(temperature_K))
+        chem_verify["temperature_K"] = temperature_K
+    for k in ("pH", "claimed_classification", "neutral_tolerance",
+              "delta_H_kJ_mol", "delta_S_J_mol_K", "claimed_spontaneous"):
+        v = spec.get(k)
+        if v is not None:
+            chem_verify[k] = v
+    # temperature_K may also ride in via the spec (e.g. a thermodynamic spec).
+    if chem_verify.get("temperature_K") is None and spec.get("temperature_K") is not None:
+        chem_verify["temperature_K"] = spec["temperature_K"]
+
+    out: Dict[str, Any] = {}
+    for r in chemistry.run({"CHEM_VERIFY": chem_verify}):
+        out[_CHEM_RESULT_KEY.get(r.name, r.name)] = _r(r)
+        if r.name == "chemistry.equation" and r.status == "MISMATCH" \
+                and r.data and "balanced_lhs" in r.data:
+            out["balanced_form"] = f"{r.data['balanced_lhs']} -> {r.data['balanced_rhs']}"
+            out["balanced_coefficients"] = r.data.get("balanced_coefficients")
     return out
 
 

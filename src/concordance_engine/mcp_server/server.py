@@ -200,15 +200,40 @@ def walkthrough_packet(
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def verify_chemistry(equation: str, temperature_K: Optional[float] = None) -> Dict[str, Any]:
-    """Verify a chemical equation balances (atoms and charge) and optionally
-    that the temperature is physical (positive Kelvin).
+def verify_chemistry(
+    equation: Optional[str] = None,
+    temperature_K: Optional[float] = None,
+    pH: Optional[float] = None,
+    claimed_classification: Optional[str] = None,
+    neutral_tolerance: Optional[float] = None,
+    delta_H_kJ_mol: Optional[float] = None,
+    delta_S_J_mol_K: Optional[float] = None,
+    claimed_spontaneous: Optional[bool] = None,
+) -> Dict[str, Any]:
+    """Verify chemistry claims. Three independent checks, any subset may be supplied.
 
-    Equation format: '2 H2 + O2 -> 2 H2O'. Supports nested groups (Cu(OH)2),
-    charges (Fe^2+, MnO4^-), and ionic forms. On MISMATCH, returns the
-    correctly balanced coefficients in data.balanced_lhs / balanced_rhs.
+    1. Equation balance (atoms and charge) + optional physical temperature:
+       equation='2 H2 + O2 -> 2 H2O', temperature_K=298. Supports nested groups
+       (Cu(OH)2), charges (Fe^2+, MnO4^-), and ionic forms. On MISMATCH, returns
+       the correctly balanced coefficients in data.balanced_lhs / balanced_rhs.
+    2. pH classification: pH=3, claimed_classification='acid'|'base'|'neutral'
+       (optional neutral_tolerance, default 0.5 around pH 7).
+    3. Thermodynamic feasibility (Gibbs ΔG = ΔH - TΔS): delta_H_kJ_mol,
+       delta_S_J_mol_K, temperature_K, claimed_spontaneous (a reaction is
+       spontaneous iff ΔG < 0).
+
+    Returns a dict keyed by check name, each value carrying status/detail/data.
     """
-    return tools.verify_chemistry(equation, temperature_K)
+    return tools.verify_chemistry(
+        equation,
+        temperature_K,
+        pH=pH,
+        claimed_classification=claimed_classification,
+        neutral_tolerance=neutral_tolerance,
+        delta_H_kJ_mol=delta_H_kJ_mol,
+        delta_S_J_mol_K=delta_S_J_mol_K,
+        claimed_spontaneous=claimed_spontaneous,
+    )
 
 
 # ---------------------------------------------------------------------------
