@@ -11,15 +11,15 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1613,
-  "edges": 860,
+  "nodes": 1614,
+  "edges": 862,
   "kin": 1584,
-  "braces": 2444,
+  "braces": 2446,
   "vine_validity": 1.0,
-  "reach_source": 1613,
+  "reach_source": 1614,
   "rigidity_ratio": 0.758,
   "language": 1249,
-  "math": 311,
+  "math": 312,
   "axis": 53
  },
  "nodes": [
@@ -19378,6 +19378,18 @@
    "level": "connection",
    "kind": "almanac",
    "title": "Von Neumann's dual-use description prefigures DNA -- the self-reproducing automa"
+  },
+  {
+   "id": "connection_minimax_theorem_zero_sum_value",
+   "tree": "math",
+   "t": 0.4256,
+   "layer": 0.5,
+   "hue": 9,
+   "x": 676.3,
+   "y": 579.0,
+   "level": "connection",
+   "kind": "almanac",
+   "title": "Von Neumann's minimax theorem -- every finite two-person zero-sum game has a val"
   }
  ],
  "edges": [
@@ -22819,6 +22831,14 @@
   ],
   [
    "connection_von_neumann_dual_use_description_predicts_dna",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_minimax_theorem_zero_sum_value",
+   "prisoners_dilemma"
+  ],
+  [
+   "connection_minimax_theorem_zero_sum_value",
    "connection_reality_is_mappable"
   ]
  ],
