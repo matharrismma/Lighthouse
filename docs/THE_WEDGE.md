@@ -19,6 +19,8 @@ The one move: **be the verification floor for AI agents, and let one stunning, c
 
 Verifiable claims forward themselves: *"don't trust me — check the seal."* The hook is a connection that surprises (time dilation is a triangle; pH and decibels are one logarithm) wrapped around a receipt anyone can open. Delight (a true surprise) plus relief (something that doesn't lie). That is the tell-a-friend artifact, and it is the same un-copyable corpus that is the moat.
 
+Two shareable surfaces exist: [`site/ten-second-proof.html`](../site/ten-second-proof.html) (one stunning proof in ten seconds) and [`site/proof-bridges.html`](../site/proof-bridges.html) — the **full wall of word-to-form bridges**, every teaching of Christ bonded to a verified form, each with its live `/seal` link. That second page is the deepest, most un-copyable thing the project shows: anyone has commentary, anyone has math, no one ties them with a receipt underneath. The center of it — the join where the Word and the form are one (Col 1:17) — is deliberately left open, the one stone reserved for the operator.
+
 ## What this is not
 
 Not a chatbot, not a search engine, not another AI that answers. It is the thing that tells you whether an answer is true — and proves it. The rest of the site (codex, almanac, games, tools) is the gift you give once someone arrives; this is the wedge that gets them there.
