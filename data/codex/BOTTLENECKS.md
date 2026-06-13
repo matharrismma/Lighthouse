@@ -37,5 +37,15 @@ Probed the LIVE surfaces instead of assuming. Findings:
 
 NET: the served surfaces are already substantial -> the binding constraint is even more clearly **visibility/traffic + a few concrete GATED fixes**, NOT missing docs. The safe-build runway is largely spent; remaining levers are operator-gated.
 
+## BUILD ALL IN PRIORITY (Matt 2026-06-13: "build all in priority")
+Building every artifact to the EDGE of its gate; live switches stay Matt's (account/registration, live deploys, engine/route/security changes). Web server is NOT in this repo's src/ (live deploy) -> route/security items are review artifacts, not code changes.
+- **P1 ChatGPT Action / Custom GPT** (biggest agent-visibility lever) -- BUILT: `docs/CHATGPT_ACTION_SETUP.md` (exact steps + GPT name/description/instructions + smoke tests) + `site/privacy.html` (DRAFT privacy policy, REQUIRED for a public GPT Action, flagged for operator verification). GATED: serve focused `openapi.json` at a public URL (the 471-path auto-spec is too big for Actions); create+publish the GPT (Matt's ChatGPT account); serve `/privacy`.
+- **P2 Pre-traffic SECURITY gate** -- BUILT: `docs/PRE_TRAFFIC_SECURITY.md` (parser safety / size+compute limits / rate-limit incl. stricter on seal / scoped CORS / seal signing / observability). Review checklist for the operator; items 1-3 are must-haves before promotion. GATED (live server).
+- **P3 .org = notary/registry** (future trust layer) -- BUILT: `docs/ORG_NOTARY_REGISTRY.md` (seal-lookup + public ledger + the standard + issuer transparency; reuses existing /seal + /capabilities). GATED (routing).
+- **P4 deploy corrected site/llms.txt** (moat-first) -- READY; GATED switch.
+- **P5 SEO** (walk-up visibility) -- TODO next tick: JSON-LD SoftwareApplication + meta description + canonical on the key landing pages (build LOCAL, deploy gated). VERIFY served pages first.
+- **P6 /atlas + /atlas-map 404** -- TODO: diagnose precisely (page site/atlas-map.html exists; /atlas/paths is an engine endpoint per mcp_server; the public route is missing) -> write the exact route fix as a review note. GATED (engine route).
+- **P7 homepage -> /mcp on-ramp** -- snippet provided in CHATGPT_ACTION_SETUP.md "also worth doing"; exact footer-link diff = small; GATED (live homepage edit).
+
 ## LOOP ORDER
 Build A (#1 done -> #2 -> #3 -> #4) one per tick; then prep + SURFACE B/C with concrete diffs. After each safe build: commit explicit paths, SURFACE the deploy, short report. When the safe queue is exhausted, SURFACE the gated bundle for Matt and idle.

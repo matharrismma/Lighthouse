@@ -1,0 +1,57 @@
+<!--
+  DRAFT privacy policy -- OPERATOR MUST VERIFY before publishing.
+  This page makes public claims about data handling. Confirm each claim against the actual
+  server behavior (logging, IP/header retention, third-party processors, retention windows)
+  and adjust before serving at https://narrowhighway.com/privacy. Built to satisfy the
+  ChatGPT Action privacy-policy requirement (see docs/CHATGPT_ACTION_SETUP.md).
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy -- Narrow Highway / Concordance Engine</title>
+<meta name="description" content="How the Concordance Engine verification service handles what you submit.">
+<style>
+  body{max-width:46rem;margin:2.5rem auto;padding:0 1.2rem;font:16px/1.6 system-ui,sans-serif;color:#222}
+  h1{font-size:1.5rem} h2{font-size:1.1rem;margin-top:1.8rem} code{background:#f3f3f3;padding:.1em .3em;border-radius:3px}
+  .note{background:#fffbe6;border:1px solid #e8d98a;padding:.8rem 1rem;border-radius:6px;font-size:.93rem}
+  a{color:#1a5fb4}
+</style>
+</head>
+<body>
+<h1>Privacy</h1>
+<p>The Concordance Engine (<a href="https://narrowhighway.com">narrowhighway.com</a>) is a
+verification service: you submit a derivation or computational claim, and it checks the claim
+against fixed external standards and returns a verdict. It does not require an account and does
+not ask for personal information.</p>
+
+<h2>What you submit</h2>
+<p>The verification endpoints accept the claim itself -- for example, a mathematical expression to
+check. <strong>Do not submit personal, confidential, or sensitive information</strong> as part of a
+claim; the service is for computational and logical statements, not personal data.</p>
+
+<h2>Seals are permanent and public</h2>
+<p>If you ask the engine to <em>seal</em> a result (<code>seal: true</code>), it mints a permanent,
+content-addressed receipt at <code>https://narrowhighway.com/seal/&lt;hash&gt;</code>. That receipt
+is <strong>public and intended to be permanent</strong> so that anyone can independently re-check
+the verdict. Only seal claims you are willing to publish. If you do not set <code>seal: true</code>,
+no receipt is created.</p>
+
+<h2>What we do not do</h2>
+<p>The service does not sell your submissions and does not use them to build advertising profiles.
+It is a conduit that verifies and records; it does not generate answers or act as an authority.</p>
+
+<h2>Operational data</h2>
+<p>Like most web services, requests may be logged for reliability, security, and abuse prevention.
+[OPERATOR: state here exactly what is logged and for how long -- e.g. request metadata, IP
+addresses, rate-limit counters -- and any third-party infrastructure providers. Do not leave this
+bracket in the published version.]</p>
+
+<h2>Contact</h2>
+<p>Questions: [OPERATOR: contact email or form].</p>
+
+<p class="note">This is a draft for review. The operator must confirm the operational-data and
+contact sections reflect actual practice before this page is published.</p>
+</body>
+</html>
