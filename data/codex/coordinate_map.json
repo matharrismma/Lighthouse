@@ -11,15 +11,15 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1616,
-  "edges": 873,
+  "nodes": 1617,
+  "edges": 878,
   "kin": 1584,
-  "braces": 2457,
+  "braces": 2462,
   "vine_validity": 1.0,
-  "reach_source": 1616,
-  "rigidity_ratio": 0.761,
+  "reach_source": 1617,
+  "rigidity_ratio": 0.762,
   "language": 1250,
-  "math": 313,
+  "math": 314,
   "axis": 53
  },
  "nodes": [
@@ -19414,9 +19414,25 @@
    "level": "connection",
    "kind": "almanac",
    "title": "Birkhoff-von Neumann quantum logic (1936) -- the lattice of physical proposition"
+  },
+  {
+   "id": "connection_chess_smallest_complete_matrix_system",
+   "tree": "math",
+   "t": 0.4534,
+   "layer": 0.5,
+   "hue": 351,
+   "x": 807.4,
+   "y": 555.1,
+   "level": "connection",
+   "kind": "almanac",
+   "title": "Chess -- a finite, deterministic, fully closed world, strictly determined since "
   }
  ],
  "edges": [
+  [
+   "uncertainty_entropy_coconfirm",
+   "connection_von_neumann_dual_use_description_predicts_dna"
+  ],
   [
    "assessment_galilei_book_of_nature",
    "connection_reality_is_mappable"
@@ -22907,6 +22923,22 @@
   ],
   [
    "connection_quantum_logic_nondistributive_birkhoff_von_neumann_1936",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_chess_smallest_complete_matrix_system",
+   "connection_minimax_theorem_zero_sum_value"
+  ],
+  [
+   "connection_chess_smallest_complete_matrix_system",
+   "connection_number_from_emptyset_von_neumann_ordinals"
+  ],
+  [
+   "connection_chess_smallest_complete_matrix_system",
+   "connection_quantum_logic_nondistributive_birkhoff_von_neumann_1936"
+  ],
+  [
+   "connection_chess_smallest_complete_matrix_system",
    "connection_reality_is_mappable"
   ]
  ],
