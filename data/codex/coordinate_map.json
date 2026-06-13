@@ -11,13 +11,13 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1542,
-  "edges": 534,
+  "nodes": 1550,
+  "edges": 566,
   "kin": 367,
-  "braces": 901,
-  "rigidity_ratio": 0.292,
+  "braces": 933,
+  "rigidity_ratio": 0.301,
   "language": 1200,
-  "math": 301,
+  "math": 309,
   "axis": 41
  },
  "nodes": [
@@ -18524,6 +18524,102 @@
    "level": "bridge",
    "kind": "protocol",
    "title": "Maxwell's rule: the body fitly joined IS the rigid frame -- and our model must b"
+  },
+  {
+   "id": "connection_thurston_geometry_e3",
+   "tree": "math",
+   "t": 0.4955,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 619.9,
+   "y": 553.9,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "Euclidean E3 -- flat, zero-curvature space; the geometry of the six flat closed "
+  },
+  {
+   "id": "connection_thurston_geometry_s3",
+   "tree": "math",
+   "t": 0.495,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 617.7,
+   "y": 554.3,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "Spherical S^3: the finite, constant-positive-curvature 3-sphere whose quotients "
+  },
+  {
+   "id": "connection_thurston_geometry_h3",
+   "tree": "math",
+   "t": 0.5079,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 677.8,
+   "y": 543.2,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "Hyperbolic H^3: constant negative curvature, the generic geometry of 3-manifolds"
+  },
+  {
+   "id": "connection_thurston_geometry_s2xr",
+   "tree": "math",
+   "t": 0.4966,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 625.3,
+   "y": 552.9,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "S^2 x R -- the round sphere swept along a line; the one reducible, non-isotropic"
+  },
+  {
+   "id": "connection_thurston_geometry_h2xr",
+   "tree": "math",
+   "t": 0.4761,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 528.9,
+   "y": 570.6,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "H^2 x R: the hyperbolic plane riding a straight line -- a non-isotropic product "
+  },
+  {
+   "id": "connection_thurston_geometry_sl2r",
+   "tree": "math",
+   "t": 0.5178,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 723.8,
+   "y": 534.7,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "SL2R: the twisted line over the hyperbolic plane -- the unit tangent bundle of a"
+  },
+  {
+   "id": "connection_thurston_geometry_nil",
+   "tree": "math",
+   "t": 0.4929,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 607.9,
+   "y": 556.1,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "Nil geometry: the twisted Heisenberg-group geometry, a line bundle over the flat"
+  },
+  {
+   "id": "connection_thurston_geometry_sol",
+   "tree": "math",
+   "t": 0.478,
+   "layer": 0.0,
+   "hue": 44,
+   "x": 537.7,
+   "y": 568.9,
+   "level": "connection",
+   "kind": "protocol",
+   "title": "Sol -- the solvable-group geometry: stretch one way, shrink the other; least sym"
   }
  ],
  "edges": [
@@ -20662,6 +20758,134 @@
   [
    "connection_maxwell_rule_the_body_fitly_joined_is_the_rigid_frame",
    "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_e3",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_e3",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_e3",
+   "connection_thurston_geometry_sol"
+  ],
+  [
+   "connection_thurston_geometry_e3",
+   "connection_thurston_geometry_s3"
+  ],
+  [
+   "connection_thurston_geometry_s3",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_s3",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_s3",
+   "connection_thurston_geometry_e3"
+  ],
+  [
+   "connection_thurston_geometry_s3",
+   "connection_thurston_geometry_h3"
+  ],
+  [
+   "connection_thurston_geometry_h3",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_h3",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_h3",
+   "connection_thurston_geometry_s3"
+  ],
+  [
+   "connection_thurston_geometry_h3",
+   "connection_thurston_geometry_s2xr"
+  ],
+  [
+   "connection_thurston_geometry_s2xr",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_s2xr",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_s2xr",
+   "connection_thurston_geometry_h3"
+  ],
+  [
+   "connection_thurston_geometry_s2xr",
+   "connection_thurston_geometry_h2xr"
+  ],
+  [
+   "connection_thurston_geometry_h2xr",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_h2xr",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_h2xr",
+   "connection_thurston_geometry_s2xr"
+  ],
+  [
+   "connection_thurston_geometry_h2xr",
+   "connection_thurston_geometry_sl2r"
+  ],
+  [
+   "connection_thurston_geometry_sl2r",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_sl2r",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_sl2r",
+   "connection_thurston_geometry_h2xr"
+  ],
+  [
+   "connection_thurston_geometry_sl2r",
+   "connection_thurston_geometry_nil"
+  ],
+  [
+   "connection_thurston_geometry_nil",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_nil",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_nil",
+   "connection_thurston_geometry_sl2r"
+  ],
+  [
+   "connection_thurston_geometry_nil",
+   "connection_thurston_geometry_sol"
+  ],
+  [
+   "connection_thurston_geometry_sol",
+   "connection_thurston_the_shape_of_space_is_a_few_forms"
+  ],
+  [
+   "connection_thurston_geometry_sol",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_thurston_geometry_sol",
+   "connection_thurston_geometry_nil"
+  ],
+  [
+   "connection_thurston_geometry_sol",
+   "connection_thurston_geometry_e3"
   ]
  ],
  "kin": [
