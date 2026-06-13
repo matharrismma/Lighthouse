@@ -5653,6 +5653,20 @@ def derivation_verify(body: _DerivationIn):
         raise HTTPException(status_code=400, detail="provide at least one step")
     if len(steps) > 100:
         raise HTTPException(status_code=400, detail="too many steps (max 100)")
+    # Bound each expression string (cheap DoS guard; complements the step cap and the
+    # verifier's character/locals whitelist + no-eval parsing). A single huge string is
+    # otherwise unbounded by the step count.
+    for _st in steps:
+        if not isinstance(_st, dict):
+            continue
+        _sp = _st.get("spec") or {}
+        _vals = list((_sp.get("params") or {}).values()) if isinstance(_sp, dict) else []
+        if isinstance(_sp, dict):
+            _vals += [_sp.get("function"), _sp.get("expr_a"), _sp.get("expr_b"),
+                      _sp.get("lhs"), _sp.get("rhs"), _sp.get("claimed_derivative")]
+        for _v in _vals:
+            if isinstance(_v, str) and len(_v) > 2000:
+                raise HTTPException(status_code=400, detail="expression too long (max 2000 chars)")
     result = _derivation.verify_derivation(steps)
     if body.title:
         result["title"] = body.title[:200]
