@@ -1122,9 +1122,11 @@
       });
       const tallyEl = document.getElementById('almVerdictTally');
       if (tallyEl) {
-        const order = ['CONFIRMED', 'CONCORDANT', 'MIXED', 'MISMATCH', 'OBSOLETE', 'DISCOVERED'];
+        const order = ['CONFIRMED', 'HOLDS', 'STRUCTURAL', 'CONCORDANT', 'MIXED', 'MISMATCH', 'OBSOLETE', 'DISCOVERED'];
         const meaning = {
           CONFIRMED:  'verified true',
+          HOLDS:      'math kernel machine-verified -- the form, not the meaning',
+          STRUCTURAL: 'a structural/canonical parallel, not a proof',
           CONCORDANT: 'multi-domain agree',
           MIXED:      'true with caveats',
           MISMATCH:   'popularly believed but wrong',
