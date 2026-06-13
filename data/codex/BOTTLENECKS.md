@@ -22,5 +22,10 @@ LOOP RULE: the loop BUILDS the safe fixes (local files/code/content) and SURFACE
 - **#11 'Concordance of Reality' in /identity.**
 - **#12 SECURITY -- the pre-adoption gate (load-bearing).** Before driving agent traffic to a public sympy-backed endpoint: confirm the parser is safe (no arbitrary eval; parse_expr/sympify with safe settings), expression-size + compute limits (DoS guard), rate-limiting, scoped CORS (read-only, not a write surface). Do NOT probe/attack live endpoints -- this is a review item for the operator, but it gates pouring traffic in.
 
+## DONE LOG (this phase)
+- **#1 llms.txt front door** rewritten (hosted path + one-call + permanent seal + 70+ coverage); verified live; per-receipt-hash inaccuracy corrected. Committed+pushed. LIVE DEPLOY gated.
+- **Fresh PUBLIC-ENDPOINT BENCHMARK** (Matt: "maybe we do a new set of benchmarks") -- `tools/benchmark_public_verify.py` (re-runnable) + `BENCHMARK_PUBLIC_VERIFY.md`: 52 ground-truth claims (26 true / 26 deliberately false) against the LIVE `/derivation/verify`; **52/52 correct, 0 false seals, 0 rejected truths** (2026-06-13). The load-bearing credibility number (no false-positives) on the exact surface agents call. Surfaced on the README front door + llms.txt. A VISIBILITY/credibility asset. Extensible (add to CLAIMS). Committed+pushed.
+- **README front door** fixed: added "## Try it in one call (hosted, zero install)" near the top (curl + seal + /mcp + benchmark) -- the hosted moat was previously absent from the 413-line README (only `/submit` was mentioned).
+
 ## LOOP ORDER
 Build A (#1 done -> #2 -> #3 -> #4) one per tick; then prep + SURFACE B/C with concrete diffs. After each safe build: commit explicit paths, SURFACE the deploy, short report. When the safe queue is exhausted, SURFACE the gated bundle for Matt and idle.
