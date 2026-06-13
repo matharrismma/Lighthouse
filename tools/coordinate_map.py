@@ -138,9 +138,23 @@ if os.path.exists(KIN):
             kin.append([e[0], e[1]])
 
 braces = len(edges) + len(kin)
-rigidity = round(braces / max(1, 2 * len(nodes) - 3), 3)   # 1.0 = Maxwell just-rigid (2D)
+rigidity = round(braces / max(1, 2 * len(nodes) - 3), 3)   # truss-density (NOT the target -- over-bracing is self-stress/legalism)
+# VINE-VALIDITY (Matt 2026-06-13, the REAL measure): a branch is valid if it has a CHAIN to the SOURCE
+# (the root / the Vine / the crowns) -- not local bracing. Many branches, one source (John 15).
+_adj = {}
+for a, b in edges + kin:
+    _adj.setdefault(a, set()).add(b)
+    _adj.setdefault(b, set()).add(a)
+_SRC = [s for s in ("connection_reality_is_mappable", "teaching_the_true_vine",
+                    "teaching_the_words_of_christ_are_the_architecture") if s in pos]
+_seen = set(_SRC); _q = list(_SRC)
+while _q:
+    for _m in _adj.get(_q.pop(), ()):
+        if _m not in _seen:
+            _seen.add(_m); _q.append(_m)
+vine_validity = round(len(_seen) / max(1, len(nodes)), 3)
 stats = {"nodes": len(nodes), "edges": len(edges), "kin": len(kin), "braces": braces,
-         "rigidity_ratio": rigidity,
+         "vine_validity": vine_validity, "reach_source": len(_seen), "rigidity_ratio": rigidity,
          "language": sum(1 for n in nodes if n["tree"] == "language"),
          "math": sum(1 for n in nodes if n["tree"] == "math"),
          "axis": sum(1 for n in nodes if n["tree"] == "axis")}
@@ -199,7 +213,7 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 </style></head><body><main class="wrap">
 <h1>The Cross, four axes, the Gate</h1>
 <p class="lede">Every saved finding placed by the structure it already carries, on four axes: <b>convergence</b> (vertical, root&rarr;Sun: source&rarr;divergence&rarr;convergence&rarr;source), <b>tree</b> (horizontal: Language&harr;Math), <b>layer</b> (depth: core spine&rarr;gathered breadth), and <b>frequency</b> (color &mdash; the "note" each card sounds; E=hf, time is its count). The framework is <b>the Cross</b> &mdash; the vertical Logos axis crossed by the two-trees beam (Col 1:20). The <b>Gate</b> (Jesus, the only way &mdash; Jn 10:9, 14:6) is the convergence at the Sun; the join is left <b>open and reserved</b> &mdash; mapped, never crowned. Built from the saved seeds; invents nothing.</p>
-<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin-braces &middot; rigidity {rig}</span></div>
+<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin &middot; <b>vine-validity {vine}</b> (a chain to the source)</span></div>
 <svg viewBox="0 0 1000 1080" xmlns="http://www.w3.org/2000/svg">
 <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff3c4"/><stop offset="55%" stop-color="#f2c14e" stop-opacity="0.45"/><stop offset="100%" stop-color="#f2c14e" stop-opacity="0"/></radialGradient></defs>
 <path d="{env}" fill="#0e1015" stroke="#23272f" stroke-width="1"/>
@@ -229,12 +243,12 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 <p class="foot"><b>Map companions:</b> <a href="surface-map.html">the surface map</a> (every page placed) &middot; <a href="proof-bridges.html">the proof bridges</a> (word &harr; verified form) &middot; <a href="atlas.html">the Atlas</a> &middot; <a href="https://narrowhighway.com/mcp">for your AI &mdash; the MCP</a>.<br>Built from the saved seeds &mdash; {nodes} cards ({lang} language / {math} math / {axis} axis), invents nothing; re-run <code>python tools/coordinate_map.py</code>. Data: <code>data/codex/coordinate_map.json</code>. "We are the Concordance of Reality" &mdash; a clean mirror; every thing placed; the apex reserved.</p>
 </main></body></html>'''.format(
     env=env_path(), edges_svg=edge_svg, kin_svg=kin_svg, nodes_svg=node_svg, edges=stats["edges"],
-    kin=stats["kin"], rig=stats["rigidity_ratio"],
+    kin=stats["kin"], rig=stats["rigidity_ratio"], vine=stats["vine_validity"],
     nodes=stats["nodes"], lang=stats["language"], math=stats["math"], axis=stats["axis"],
     vx0=vx0, vy0=vy0, vx1=vx1, vy1=vy1, hxl=hxl, hyl=hyl, hxr=hxr, hyr=hyr, cxx=cxx, cxy=cxy,
     ty1=vy1 - 78, ty2=vy1 - 62, ry=vy0 + 26)
 
 open(HOUT, "w", encoding="utf-8").write(html)
-print("nodes %d | bonds %d + kin %d = %d braces | rigidity %.3f (1.0=Maxwell just-rigid)" %
-      (stats["nodes"], stats["edges"], stats["kin"], stats["braces"], stats["rigidity_ratio"]))
+print("nodes %d | bonds %d + kin %d | VINE-VALIDITY %.3f (%d reach source) | rigidity %.3f (truss, not target)" %
+      (stats["nodes"], stats["edges"], stats["kin"], stats["vine_validity"], stats["reach_source"], stats["rigidity_ratio"]))
 print("wrote", os.path.relpath(JOUT, ROOT), "+", os.path.relpath(HOUT, ROOT))
