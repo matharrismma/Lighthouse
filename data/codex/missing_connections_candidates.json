@@ -1,0 +1,411 @@
+{
+ "meta": "find-missing-connections harvest (w8qdfu7gy); CANDIDATES -- verify-before-create; built ones removed/marked as the loop works through them",
+ "total": 40,
+ "built": [
+  "bridge_yes_be_yes_is_the_bit",
+  "bridge_laborers_vineyard_is_the_constant_function",
+  "bridge_render_to_caesar_is_partition_by_image"
+ ],
+ "candidates": [
+  {
+   "title": "'Let your Yes be Yes and your No, No' (Mt 5:37) IS the bit -- the law of excluded middle, no third value",
+   "connects": "a teaching of Christ (SOM oaths, som_07) <-> Boolean algebra / GF(2) (already sealed as connection_boolean_is_gf2)",
+   "shared_form": "Two-valued logic / idempotence. Christ forbids the graded oath-ladder (swear by heaven, by earth, by Jerusalem) and collapses speech to two states: assertion or denial, 'anything beyond these is of evil.' That is exactly the bit: a variable over {0,1} with no admissible middle. In GF(2) every element is its own square (x^2 = x for x in {0,1}), the algebraic face of excluded-middle -- a yes that is fully yes, a no that is fully no, nothing in between to hedge with.",
+   "verifiable_kernel": "In GF(2): 0^2 = 0 and 1^2 = 1, i.e. x^2 = x for all x in {0,1}; equivalently x*(x-1) = 0 has only the two roots 0 and 1 (no third value). Sealable as an identity over GF(2).",
+   "word_first_anchor": "Matthew 5:37 -- 'Let your Yes be Yes and your No, No; whatever is more than these is of the evil one.' (Greek: esto de ho logos hymon nai nai, ou ou)",
+   "relates_to_existing": "teaching_som_oaths (exists, unbridged to a form); connection_boolean_is_gf2 / 'Boolean algebra is arithmetic in GF(2)' (sealed math form); kin to the dragnet binary-partition bridge already on the wall",
+   "honesty_note": "Math is fully verifiable and trivially sealable; the existing teaching_som_oaths card already does the Greek. The form-match is genuine (two states, no middle), not a numerology stretch -- but the bond is a structural ANALOGY (CONCORDANT), never a claim that logic proves the verse. Existing Boolean=GF(2) form card is the bond target.",
+   "confidence": "high"
+  },
+  {
+   "title": "'Render to Caesar... whose image (eikon) is this' (Mt 22:20-21) IS partition by preimage of a labeling map",
+   "connects": "a teaching of Christ (render to Caesar) <-> set theory / functions: the inverse-image partition f^-1, AND Genesis 1:27 (man bears God's eikon)",
+   "shared_form": "Sorting by the stamp it bears. Jesus asks for the coin's eikon and epigraphe (image and inscription) and rules: what bears Caesar's stamp is Caesar's, what bears God's stamp (the imago Dei, Gen 1:27, same word eikon in LXX) is God's. Structurally this is a labeling function f: things -> owners, which partitions everything into disjoint, exhaustive preimages f^-1(Caesar) and f^-1(God). The criterion is intrinsic (the image carried), not external claim -- exactly how a preimage partition works.",
+   "verifiable_kernel": "For any function f: X -> L, the preimages {f^-1(l) : l in L} form a partition of X -- pairwise disjoint and covering: union over l of f^-1(l) = X, and f^-1(a) intersect f^-1(b) = empty for a != b. Sealable as a set-theory identity.",
+   "word_first_anchor": "Matthew 22:20-21 -- 'Whose image (eikon) and inscription is this'... 'Render therefore to Caesar the things that are Caesar's, and to God the things that are God's.' Bond to Genesis 1:27 / LXX kat' eikona theou.",
+   "relates_to_existing": "teaching_render_to_caesar (exists, unbridged); kin to the dragnet/sheep-and-goats binary-partition bridge -- this generalizes partition from 2 classes to label-by-stamp",
+   "honesty_note": "The function/preimage form is standard and cleanly sealable. The eikon link to Gen 1:27 is a real Greek-word bridge (LXX uses eikon) and is strong, but OT-Hebrew (tselem) wiring is noted as not-yet-complete in the corpus -- flag the LXX vs Hebrew layer honestly. Verdict CONCORDANT, not a proof the verse predicts set theory.",
+   "confidence": "high"
+  },
+  {
+   "title": "'Before Abraham was, I AM' (Jn 8:58, ego eimi) IS the identity element -- the one e with e*x = x, fixed under every operation",
+   "connects": "a teaching of Christ (the divine Name / ego eimi) <-> group theory: the unique identity element; sharper than the existing loose tie to Noether symmetry",
+   "shared_form": "The neutral ground every operation returns. The seven 'I am' (ego eimi) predicates (bread, light, door, shepherd, way, resurrection, vine) all hang on the bare 'I AM' of John 8:58 -- the Name (Ex 3:14 LXX ego eimi ho on) that grounds them. In a group there is exactly one element e such that e*x = x*e = x for every x: the identity, the fixed point of composition, presupposed by and unchanged by every other element. 'Before Abraham was' (past) 'I AM' (present, not 'I was') = the timeless invariant the seven predicates are measured from.",
+   "verifiable_kernel": "Group axiom + uniqueness theorem: there exists e with e*x = x*e = x for all x, and it is unique (if e and e' are both identities then e = e*e' = e'). Sealable as a group-theory proof.",
+   "word_first_anchor": "John 8:58 -- 'Before Abraham was, I AM' (prin Abraam genesthai ego eimi); ground = Exodus 3:14 (LXX ego eimi ho on).",
+   "relates_to_existing": "teaching_ego_eimi_the_name, teaching_seven_i_am_sayings (exist); connection_noether_symmetry_is_conservation (already loosely edged -- refine, don't repeat); teaching_rev_alpha_and_omega (kin: first-and-last = the bracketing invariant)",
+   "honesty_note": "Identity-element math is fully sealable. The corpus already loosely links teaching_ego_eimi_the_name to Noether-symmetry/invariant; THIS candidate is sharper and distinct -- the IDENTITY ELEMENT (neutral, unique, fixed) rather than generic invariance, and it explains WHY the seven 'I am' sayings nest under the one 'I AM' (they are predicates resolved against the identity). Bond, do not duplicate. CONCORDANT analogy, the join (Col 1:17) stays reserved.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The laborers in the vineyard -- the same denarius for every hour (Mt 20:1-16) IS the constant function (output independent of input)",
+   "connects": "a teaching of Christ (parable of the laborers) <-> calculus/analysis: the constant function f(x)=c and its zero derivative",
+   "shared_form": "Grace as a flat output. Workers hired at the first hour, third, sixth, ninth, eleventh all receive one denarius -- the wage does NOT scale with hours worked. The grumble ('you made them equal to us') is precisely the human expectation of a proportional (linear) function, f(hours) = rate*hours; the householder instead pays a CONSTANT function, f(x) = c, whose value is the same for every input and whose rate of change is zero. Grace is not earned per-unit; it is the level gift. (This is the structural OPPOSITE of the talents' doubling-by-use and the 'faithful in little/much' proportionality already on the wall -- a deliberate, instructive contrast.)",
+   "verifiable_kernel": "f(x) = c implies f'(x) = 0 for all x (the derivative of a constant is zero); equivalently f(a) = f(b) for all a,b. Sealable as a one-line calculus identity.",
+   "word_first_anchor": "Matthew 20:9-15 -- each received a denarius (ana denarion); 'Is your eye evil because I am good' (Greek: ophthalmos poneros / ego agathos).",
+   "relates_to_existing": "teaching_parable_laborers_vineyard (exists, unbridged); contrasts with the sealed 'faithful in little IS scale invariance' and 'talents ARE doubling by use' -- worth bonding as the constant-vs-linear pair",
+   "honesty_note": "Constant-function/zero-derivative is trivially verifiable and sealable. The match is genuine and notably ILLUMINATING because it contrasts cleanly with the already-sealed proportional/multiplicative bridges (talents, faithful-in-little) -- grace is the constant, merit is the linear. CONCORDANT analogy only; no claim the parable teaches calculus.",
+   "confidence": "high"
+  },
+  {
+   "title": "'By their fruits you will know them -- a good tree cannot bear bad fruit' (Mt 7:16-20) IS identification by output (extensional, not nominal)",
+   "connects": "a teaching of Christ (SOM, false prophets / the fruit test) <-> the project's own verifier form: a thing is determined by what it OUTPUTS, not by its label",
+   "shared_form": "Judge the map by the territory it produces. Christ refuses the label ('Lord, Lord') and the claim, and fixes identity on output: ek ton karpon auton epignosesthe -- 'by their fruits.' 'Every good tree bears good fruit, a corrupt tree bad fruit; a good tree CANNOT (ou dynatai) bear bad fruit.' Structurally this is extensional identity: a function/object is known by the set of its outputs, not by its name -- two things with the same name but different fruit are different; the type is recovered from the range, and the mapping output->type is total (no good tree maps to bad fruit). This is the fruit test the whole engine runs on (Mt 7:16 IS the verifier).",
+   "verifiable_kernel": "Extensional equality / functional determination: f is identified by {f(x) : x in domain}; and the constraint 'good-tree -> good-fruit only' is a total well-defined map type(tree) determined by fruit, with no element of the good class mapping into the bad range (a partition with empty cross-image). Partially sealable as a function/relation statement; the deeper 'cannot' is a constraint, not a numeric equality.",
+   "word_first_anchor": "Matthew 7:16-20 -- 'By their fruits you will know them' (apo ton karpon auton epignosesthe autous); 'a good tree cannot bear bad fruit' (ou dynatai dendron agathon karpous ponerous poiein).",
+   "relates_to_existing": "teaching_som_false_prophets (exists, titled 'By Their Fruits: the Fruit Test Is the Verifier' -- unbridged to a form); kin to teaching_parable_two_sons ('fruit outranks the word'); ties to the standing fruit-test memory and connection_reality_is_mappable",
+   "honesty_note": "This is the LEAST cleanly sealable of the five -- 'identification by output' is a real and load-bearing structural form (and it is literally the engine's fruit-test, Mt 7:16, already named in teaching_som_false_prophets), but the verifiable kernel is a relation/extensionality statement, not a crisp equality or derivative. Flag as medium verifiability: seal the partition/totality fragment, keep the rest as attributed structural resonance (CONCORDANT). High value because it bonds a teaching to the engine's own foundation; low on clean-kernel sharpness.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The fixed point is one form: contraction, Newton's method, and Markov equilibrium all converge to x = f(x)",
+   "connects": "calculus/analysis (Banach contraction, Newton iteration) <-> probability (Markov stationary eigenvector) <-> economics (market equilibrium) <-> dynamical-systems steady state",
+   "shared_form": "fixed point: a map f that pulls points closer (contraction, |f(x)-f(y)| <= L|x-y| with L<1) drives every starting point to a UNIQUE invariant point x* where x* = f(x*). Newton's method, Markov stationary distribution, equilibrium, and steady state are all the SAME fixed-point/contraction form; the existing Markov-eigenvector and persistent-widow-convergence cards are special cases, never unified.",
+   "verifiable_kernel": "fixed point of cos: x* = cos(x*) is unique with x* ~= 0.7390851; iterating x_{n+1}=cos(x_n) from any real x_0 converges to it (verify via limit/solve, or seal the Banach inequality |cos a - cos b| <= |a-b| since |sin| <= 1, i.e. cos is non-expansive and a contraction on a neighborhood). Cleaner sealable equality: the iteration's error e_{n+1} <= L e_n with L = |f'(x*)| < 1.",
+   "word_first_anchor": "John 15:4 (meno, G3306 -- 'abide in me, and I in you'); verified in word_study G3306, John 15:10. Abiding IS the fixed point: the relation that maps to itself and so does not drift; 'my words will not pass away' is the L=0 limiting case already drawn (bridge_my_words_remain_is_the_invariant).",
+   "relates_to_existing": "connection_markov_chain_is_eigenvector_equilibrium, bridge_persistent_widow_is_convergence, bridge_my_words_remain_is_the_invariant, saying_paradigms_turn_around_a_fixed_point -- this would be the PARENT form that bonds all four; feeds connection_reality_is_mappable.",
+   "honesty_note": "The contraction math is fully verifiable/sealable. The Word-first anchor (abiding = self-map) is genuine structural resonance and must be ATTRIBUTED as resonance, never claimed as proof; abiding is a person, not a number. Verdict CONCORDANT, never HOLDS. The persistent-widow card already touches convergence, so guard against duplication -- this is the broader fixed-point/contraction form, distinct from monotone convergence.",
+   "confidence": "high"
+  },
+  {
+   "title": "Euler's characteristic V - E + F = 2 is topological invariance: the count that survives every continuous deformation",
+   "connects": "topology/geometry (polyhedra, planar graphs) <-> the recurring INVARIANT form (Noether conservation, 'my words remain', determinant, winding number)",
+   "shared_form": "invariance under transformation. V - E + F is unchanged by any continuous reshaping of a surface (= 2 for the sphere, 0 for the torus); it is the topological cousin of a conserved quantity. The corpus has invariance via Noether (symmetry->conservation) and the zero-rate-of-change invariant, but the purely TOPOLOGICAL invariant -- a whole number that no stretching can move -- is undrawn.",
+   "verifiable_kernel": "V - E + F = 2 for every convex polyhedron: cube (8-12+6=2), tetrahedron (4-6+4=2), octahedron (6-12+8=2), dodecahedron (20-30+12=2). Seal as four exact integer equalities; generalize to chi = 2 - 2g (genus g).",
+   "word_first_anchor": "none -- do not force a verse onto a topological invariant; the invariance form is already Word-bridged via bridge_my_words_remain_is_the_invariant, and forcing a second verse here would launder.",
+   "relates_to_existing": "connection_noether_symmetry_is_conservation, bridge_my_words_remain_is_the_invariant, connection_thurston_geometry_* (which use curvature/genus but never state the V-E+F invariant). Would bond geometry's three Thurston cards to the conservation/invariant family.",
+   "honesty_note": "Fully verifiable as integer arithmetic; the deeper claim (chi is a homotopy invariant) is a real theorem citable, not engine-provable in full -- seal only the concrete polyhedron equalities and the genus formula, attribute the general theorem. No theology claimed (correctly word_first_anchor=none).",
+   "confidence": "high"
+  },
+  {
+   "title": "Inclusion-exclusion is the dragnet sort made exact: add the parts, subtract the double-counted overlap",
+   "connects": "combinatorics/set theory (|A u B| = |A| + |B| - |A n B|) <-> probability (P(A u B)) <-> measure theory (additivity with overlap correction) <-> the partition/sorting form",
+   "shared_form": "exhaustive accounting with overlap correction. The corpus has the exhaustive BINARY partition (bridge_the_sort_is_an_exhaustive_partition: dragnet, sheep/goats) and independence-multiplies-probability, but NOT inclusion-exclusion -- the precise law for counting a union when the pieces overlap, which is the same identity in counting, probability, and measure. It is the quantitative refinement of 'gather all, then sort'.",
+   "verifiable_kernel": "|A u B| = |A| + |B| - |A n B|, exact for finite sets and a probability identity P(A u B) = P(A)+P(B)-P(A n B); seal the 3-set form |A u B u C| = sum singles - sum pairs + triple as an algebraic equality, and a concrete count (e.g. derangements D(n) = n! sum_{k=0}^n (-1)^k/k! follows by inclusion-exclusion -- combinatorics verifier supports derangements D(n)).",
+   "word_first_anchor": "none for the count itself -- the Word-first sorting bridge (dragnet/sheep-and-goats) is already drawn as the BINARY partition; inclusion-exclusion is the math refinement of that same parable form, so attach it to the existing bridge rather than forcing a new verse.",
+   "relates_to_existing": "bridge_the_sort_is_an_exhaustive_partition, connection_independence_multiplies_information_adds, connection_discreteness_counting, connection_normal_distribution_prob_stats -- bonds combinatorics<->probability<->measure under one counting identity.",
+   "honesty_note": "Set/probability identity is fully sealable; the derangement closed form is verifiable with the existing combinatorics verifier (D(n) mode). Resonance with the dragnet is real but is the SAME form already bridged -- present as deepening, not a new teaching, to avoid laundering a second verse onto it.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The triangle inequality is the law of every distance: the straight way is never longer than the detour",
+   "connects": "geometry (Euclidean distance) <-> analysis (metric spaces, norms) <-> probability (total-variation / L1 distance) <-> information theory (a metric on codes, Hamming distance) <-> the 'way' / shortest-path form",
+   "shared_form": "the metric axiom d(a,c) <= d(a,b) + d(b,c). It is the single structural property that makes 'distance', 'shortest path', and 'nearness' mean the same thing across Euclidean space, function spaces, probability distributions, and codeword space (Hamming). The corpus has Pythagoras (connection_pythagoras_shape_and_number, time-dilation triangle) and error-correction minimum DISTANCE, but never the triangle inequality as the unifying definition of distance itself.",
+   "verifiable_kernel": "Seal the Euclidean instance |a+b| <= |a| + |b| as an inequality (or the equivalent (x1+x2)^2 <= 2(x1^2+x2^2) Cauchy-Schwarz step), plus a concrete numeric check: with a=(3,0), b=(0,4): d=5 <= 3+4=7. For Hamming: d(000,111)=3 <= d(000,101)+d(101,111)=2+1. Seal as exact integer/real inequalities.",
+   "word_first_anchor": "John 14:6 ('I am the way' -- he hodos, G3598) -- candidate only: 'the way' as the path between points resonates with the geodesic/shortest-path reading of the metric, and John 14:6 is already the RED gate in the corpus. Use with great care: the verse is about the Person who is the Way, not Euclidean distance; attach as resonance, NOT as the seal. If it cannot be held cleanly, set anchor to none.",
+   "relates_to_existing": "connection_pythagoras_shape_and_number, connection_error_correction_minimum_distance, connection_time_dilation_is_pythagoras, connection_metric/distance nodes -- the triangle inequality is the axiom UNDER all of these; would be a foundational bond.",
+   "honesty_note": "The inequality is fully verifiable and sealable in several spaces. The John 14:6 anchor is the riskiest of my candidates -- it is genuine resonance (the Way as the path) but easy to over-claim; flag explicitly that the math is the seal and the verse is reserved/attributed, or drop the verse entirely. Verdict on the form HOLDS; on the bridge CONCORDANT at most.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Self-similarity is one law of growth: the branching tree, the power law, and 'faithful in little is faithful in much' share scale invariance f(ax) = a^D f(x)",
+   "connects": "geometry/fractals (fractal dimension, dendritic branching) <-> number/analysis (power laws, Zipf) <-> physics (Murray's law, allometric scaling) <-> the scale-invariance form",
+   "shared_form": "scale invariance / power-law self-similarity: f(ax) = a^D f(x), the only functional form invariant under rescaling, with non-integer fractal dimension D. The corpus has Mandelbrot self-similarity (assessment, not sealed), Zipf's power law (node), bridge_faithful_in_little_is_scale_invariance, and the dendritic/Murray's-law note -- but these are NOT bonded into one sealed scale-invariance connection, and the clean kernel (power law is the unique self-similar function) is undrawn.",
+   "verifiable_kernel": "The functional equation f(ax)=a^D f(x) for all a>0 forces f(x)=c x^D (power law) -- seal via: if f(x)=x^D then f(ax)=(ax)^D=a^D x^D=a^D f(x) (verify_mathematics equality, variables a,x,D). Also seal a fractal-dimension instance: Sierpinski triangle D = log 3 / log 2 ~= 1.585 (3 copies at half scale), Koch curve D = log 4 / log 3 ~= 1.262 -- exact log-ratio equalities.",
+   "word_first_anchor": "Luke 16:10 ('faithful in the least is faithful in much') -- already bridged as scale invariance (bridge_faithful_in_little_is_scale_invariance). Start there; this candidate would SEAL the math kernel under that existing bridge rather than open a new verse.",
+   "relates_to_existing": "bridge_faithful_in_little_is_scale_invariance, assessment_mandelbrot_self_similar_scaling, zipfs_law, golden_ratio, and the dendritic/Murray's-law memory note -- would convert the scattered self-similarity material into one sealed connection feeding reality_is_mappable.",
+   "honesty_note": "The functional-equation -> power-law derivation and the fractal-dimension log ratios are fully verifiable/sealable. The Word-first link (Luke 16:10) is already drawn as a bridge, so this is consolidation + a real new sealed kernel, not a forced verse. Constructal/allometric scaling (Bejan, Murray) must stay attributed, not engine-doctrine.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Fermat's principle of least time IS the optical case of least-action -- and Snell's law is what 'the narrow way' looks like as a path that minimizes",
+   "connects": "Optics (Fermat least-time / Snell refraction) <-> Mechanics (Hamilton's principle of stationary action) <-> a teaching of Christ (the narrow gate / strait way)",
+   "shared_form": "least-action / variational stationarity. Light bends at an interface because it takes the path of least time; a mechanical system evolves along the path of stationary action. Refraction (n1 sin t1 = n2 sin t2) is EXACTLY the first-order condition d/dx[ time(x) ] = 0 of Fermat's integral -- the same Euler-Lagrange machinery that yields F=ma from least action. One variational principle, two domains. The Word-first resonance: of all conceivable paths, reality selects the single extremal one -- structurally 'narrow' (few survive, the rest are eliminated), which is the elimination-engine's own signature.",
+   "verifiable_kernel": "n1*sin(theta1) = n2*sin(theta2) derived as the stationarity condition d/dx of [ n1*sqrt(a^2+x^2) + n2*sqrt(b^2+(d-x)^2) ] = 0; Snell instance CONFIRMED by verify_optics (n1=1,t1=30,n2=1.5 -> t2=19.471 deg). Seal the optics instance HOLDS; seal the variational-derivation step as the bond.",
+   "word_first_anchor": "Matthew 7:13-14 (enter by the narrow gate / strait is the way) -- attributed RESONANCE only, never proof; the math HOLDS, the bridge to the teaching is CONCORDANT.",
+   "relates_to_existing": "Likely relates to a least-action card if one exists, and to narrow_road / narrowing cards. Memory lists least-action as a named recurring form but I found no sealed Fermat<->action bridge; the teaching bridge is almost certainly undrawn.",
+   "honesty_note": "Math is fully verifiable (Snell confirmed; the variational derivation is standard and sealable). The teaching link is an ATTRIBUTED resonance, NOT a deductive consequence -- flag as CONCORDANT, never math HOLDS. Do not launder 'least path' into 'the narrow gate' as proof.",
+   "confidence": "high"
+  },
+  {
+   "title": "Thermodynamic entropy and Shannon information entropy are the SAME functional (S = -k sum p ln p) -- the bridge between physics' arrow of time and information theory",
+   "connects": "Thermodynamics (Boltzmann/Gibbs entropy) <-> Information theory (Shannon entropy) <-> Computer science (data compression limit)",
+   "shared_form": "S = -k * sum_i p_i * ln(p_i). Gibbs entropy of a physical microstate distribution and Shannon entropy of a message-symbol distribution are the identical functional; k just sets units (k_B in J/K vs 1/ln2 for bits). The second law (entropy non-decreasing) and the source-coding theorem (you cannot compress below H bits/symbol) are the same statement: disorder/uncertainty is conserved-or-grows and sets a hard floor. Landauer's principle (erasing 1 bit costs >= k_B T ln 2 of heat) is the literal welding seam between the two.",
+   "verifiable_kernel": "For a fair coin: H = -(0.5*log2(0.5) + 0.5*log2(0.5)) = 1 bit, and S = k_B*ln(2) per equivalent two-state physical system; Landauer minimum heat at T=300K = k_B*300*ln2 = 2.87e-21 J. Each is a clean equality sealable via verify_information_theory and verify_thermodynamics (entropy change DS=Q/T form available).",
+   "word_first_anchor": "none -- do NOT force a verse; this is a pure cross-domain form-recurrence.",
+   "relates_to_existing": "Memory shows CS cluster (SHA-256, error-correction, RSA) and a P-vs-NP card (solve-vs-verify). An entropy<->information bond is the natural missing keystone between the thermodynamics capstone and the CS capstone; I saw no sign it is drawn.",
+   "honesty_note": "The functional identity is rigorous and verifiable. Landauer's principle is experimentally confirmed (Berut et al. 2012) -- cite as VERIFIED-empirical, distinct from the pure-math identity. Keep 'entropy = information' scoped to the functional; avoid over-claiming metaphysical equivalence.",
+   "confidence": "high"
+  },
+  {
+   "title": "The Boltzmann factor exp(-E/kT) is the SAME exponential law as radioactive decay, the barometric/atmospheric pressure law, and Arrhenius reaction rates -- one exponential-of-a-ratio generating four domains",
+   "connects": "Statistical mechanics (Boltzmann distribution) <-> atmospheric physics (barometric law) <-> chemistry (Arrhenius rate) <-> nuclear physics (decay), all under the exponential block",
+   "shared_form": "exp(-(something)/(scale)). p ~ exp(-E/kT): probability of a state falls exponentially in its energy measured in units of thermal energy. The barometric law p=p0*exp(-mgh/kT) is literally the Boltzmann factor with E=mgh. Arrhenius rate k=A*exp(-Ea/kT) is the same factor as the fraction of molecules clearing an energy barrier. Radioactive decay N=N0*exp(-t/tau) is the same dy/dx=-ky solution. The unifying form is the exponential that memory already names 'most generative'.",
+   "verifiable_kernel": "Barometric law dimensional check CONFIRMED via verify_physics (both sides reduce to pascal; exponent m*g*h/(k*T) dimensionless). Seal: exponent dimensionless => same functional family; and the shared ODE d(something)/d(driver) = -k*(something) whose solution is exp. Decay/compound-interest already sealed -- this EXTENDS that family into stat-mech + atmosphere.",
+   "word_first_anchor": "none -- pure form-recurrence; do not force a verse.",
+   "relates_to_existing": "Directly extends the sealed exponential block and the decay/conservation cards (memory: 27f65524 bond, decay sealed). The specific welding of Boltzmann<->barometric<->Arrhenius under one exponent looks undrawn.",
+   "honesty_note": "Fully verifiable -- each instance is a standard, dimensionally-confirmed law and the shared ODE is exact. Honest boundary: these share FORM, not a single physical cause; the bond is 'same functional family / same generating ODE', not 'same phenomenon'.",
+   "confidence": "high"
+  },
+  {
+   "title": "Noether's theorem: every conservation law in physics IS a symmetry -- the deep WHY behind the conservation form that already recurs everywhere in the corpus",
+   "connects": "Mechanics/field theory (Noether's theorem) <-> the corpus-wide 'conservation' form (energy, momentum, charge) <-> 'symmetry' as a named generating form",
+   "shared_form": "continuous symmetry <-> conserved quantity (bijective). Time-translation symmetry => energy conservation; space-translation => momentum; rotation => angular momentum; U(1) gauge phase symmetry => electric charge. The corpus already treats 'conservation' and 'symmetry' as TWO separate recurring forms; Noether's theorem is the sealed proof that they are ONE form viewed two ways. This is the missing bond that unifies two of the eight named generating forms.",
+   "verifiable_kernel": "Sealable as the Euler-Lagrange identity: if dL/dq = 0 (Lagrangian invariant under shift in coordinate q) then d/dt(dL/dqdot) = 0, i.e. the conjugate momentum is conserved. Clean symbolic equality; the energy instance is checkable via verify_physics conservation (before/after balance) and the dimensional form via verify_physics_dimensional.",
+   "word_first_anchor": "none -- resist forcing 'the same yesterday, today, and forever' (Heb 13:8) onto time-symmetry; that would be laundering. Leave as none.",
+   "relates_to_existing": "Memory lists 'conservation' and 'symmetry' as distinct generating forms and many conservation cards (transport, Bernoulli, conservation bonds). I found no Noether bond welding symmetry<->conservation. This is likely the single highest-value missing inter-form bond in the physics slice.",
+   "honesty_note": "Noether's theorem is a proven theorem (1918) for continuous symmetries of an action -- fully rigorous. Honest scope: it applies to differentiable symmetries of a Lagrangian system; not every conservation in the corpus is Noetherian (some are topological). State the hypotheses when sealing.",
+   "confidence": "high"
+  },
+  {
+   "title": "Resonance / eigenvalue structure is one form across a vibrating string, an atom's energy levels, a bridge, and the Schumann cavity -- 'standing wave => discrete spectrum' welds quantum to classical acoustics",
+   "connects": "Quantum mechanics (quantized energy levels / particle-in-a-box) <-> classical acoustics (vibrating string, organ pipe) <-> structural mechanics (resonant modes) <-> geoscience (Schumann resonance, already sealed)",
+   "shared_form": "boundary-value eigenproblem: a wave confined by boundary conditions admits only a discrete set of standing modes (eigenvalues). Particle-in-a-box gives E_n = n^2*h^2/(8mL^2); a string of length L gives f_n = n*v/(2L); both are 'only whole numbers of half-wavelengths fit'. The SAME quantization-by-confinement produces atomic spectra, musical harmonics, and the Schumann modes (f_n ~ sqrt(n(n+1))). Quantization is not mystical -- it is the eigenvalue discreteness of a confined wave.",
+   "verifiable_kernel": "Particle-in-a-box: E_n = n^2 h^2/(8 m L^2) -- clean closed form, dimensionally sealable (energy) via verify_physics_dimensional; string f_n = n*v/(2L) sealable via verify_acoustics. Bond kernel: both are the boundary condition sin(kL)=0 => kL = n*pi => discrete spectrum. The boundary equation is the shared verifiable seam.",
+   "word_first_anchor": "none -- pure form-recurrence; do not force a verse.",
+   "relates_to_existing": "Memory: harmonics (vibrating string) sealed; Schumann resonance sealed and explicitly likened to an organ pipe; music capstone exists. The missing weld is to QUANTUM energy levels -- showing atomic quantization is the SAME eigenproblem as the already-sealed acoustic harmonics. That quantum<->acoustic bond appears undrawn.",
+   "honesty_note": "Both closed forms are exact and standard; the shared boundary-condition kernel sin(kL)=0 is rigorous. Honest boundary: real atoms (hydrogen) use the 1/r Coulomb potential, not an infinite square well, so the EXACT spectrum differs (E_n ~ -1/n^2) -- the shared form is 'confinement => discrete eigenvalues', not identical formulas. Seal the box/string identity cleanly; treat hydrogen as the same FORM, different potential.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Arrhenius rate law is the same exponential as radioactive decay: e^(-E/kT) governs both chemistry and the nucleus",
+   "connects": "chemistry (reaction rate / Boltzmann factor) <-> nuclear_physics (radioactive decay e^(-lambda t)) <-> mathematics (the e^x family already crowned)",
+   "shared_form": "exponential. k = A*e^(-Ea/RT) (Arrhenius) and N = N0*e^(-lambda*t) (decay) are the SAME functional form -- a rate set by an exponential of a single ratio. The Boltzmann factor e^(-E/kT) is the population-fraction kernel underneath BOTH chemical kinetics and thermal activation in materials (creep, diffusion, conductivity).",
+   "verifiable_kernel": "k(T2)/k(T1) = e^(-(Ea/R)*(1/T2 - 1/T1)); e.g. Ea=50 kJ/mol, T1=300K, T2=310K gives ratio ~1.95 (the '10-degree rule, rate roughly doubles'). Decay side already seals via N0*e^(-lambda t) on the nuclear verifier (confirmed: N0=1e9, 2 half-lives -> 2.5e8). Both reduce to e^(-x).",
+   "word_first_anchor": "none",
+   "relates_to_existing": "connection_exponential_decay_two_witnesses and connection_growth_is_decay_two_witnesses (extends them to chemistry/materials); feeds the e^x crown family",
+   "honesty_note": "Math is fully verifiable and deterministic; the nuclear verifier already confirms the identical e^(-x) kernel. The corpus exponential-bridge currently spans nucleus + RC capacitor + compound interest but NOT chemistry's Arrhenius -- this is the single biggest unbridged exponential in my slice. High confidence the form is genuinely shared; no theology forced.",
+   "confidence": "high"
+  },
+  {
+   "title": "Hooke's law for materials is the same linear restoring form as the vibrating string: stress=E*strain meets the harmonic series",
+   "connects": "materials_science (elastic stress sigma = E*epsilon) <-> acoustics/music_theory (vibrating string / SHM restoring force F = -kx) <-> physics (simple harmonic oscillator)",
+   "shared_form": "linear restoring force / Hooke proportionality. Material elasticity (sigma = E*epsilon) and the string's F = -kx are the SAME law; that linear restoring force is exactly what makes the harmonic/overtone series (already heavily mapped in the music cluster) exist. Elasticity is WHY materials ring at definite frequencies.",
+   "verifiable_kernel": "sigma = E*epsilon (materials verifier CONFIRMED: 2e11 Pa * 0.001 = 2e8 Pa) AND f = (1/2L)*sqrt(T/mu) for the string; both follow from a linear restoring constant. Sealable two-witness: materials_science + acoustics/music_theory.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "the overtone-series / consonance music cards and the harmonics cluster; would add the materials-side witness they currently lack",
+   "honesty_note": "Both kernels are deterministic and already verifiable (materials verifier confirmed Hooke; music verifiers already exist for the harmonic series). The bridge from MATERIAL elasticity to the existing acoustic-harmonic cluster appears undrawn. Genuine shared form, not superficial. No verse forced.",
+   "confidence": "high"
+  },
+  {
+   "title": "Le Chatelier's principle is negative feedback: chemical equilibrium restores itself the same way Lenz's law and a governor do",
+   "connects": "chemistry (Le Chatelier equilibrium shift) <-> physics/electrical (Lenz's law: induced current opposes the change) <-> control/biology (homeostasis, negative feedback)",
+   "shared_form": "restoring / negative-feedback structure -- a perturbed system responds in the direction that opposes the perturbation. Q vs K in chemistry, induced EMF opposing flux change in Lenz, and a feedback loop with negative loop gain are one structural pattern: stable equilibrium = the response opposes the displacement.",
+   "verifiable_kernel": "reaction quotient Q vs equilibrium constant K: if a reactant is added, Q<K, so net reaction proceeds forward until Q=K again (sealable as a numeric Q/K comparison via chemistry/thermodynamics: dG = RT*ln(Q/K), sign of dG sets the restoring direction). Lenz side: sign of induced EMF = -d(flux)/dt.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "conservation cluster and the Seebeck/electrical cards; would be a new 'restoring/feedback' form card",
+   "honesty_note": "The chemistry numeric (Q vs K, sign of dG) is cleanly verifiable. The deeper 'one restoring form across chemistry + electromagnetism + biology' is a real structural recurrence but the cross-domain seal rests on sign/direction agreement, not a single shared equation -- flag as medium until the exact shared kernel (sign of a restoring response) is pinned. Do NOT force a verse; a stewardship/correction teaching could be explored later but only Word-first, not retrofitted.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Nernst equation is the same logarithm as pH, decibels, and entropy: electrochemical potential is log of a ratio",
+   "connects": "chemistry/electrochemistry (Nernst E = E0 - (RT/nF)*ln(Q)) <-> acoustics (decibels) / chemistry (pH = -log[H+]) <-> information_theory (entropy -sum p log p), all already in the logarithm cluster",
+   "shared_form": "logarithm of a ratio. Cell voltage depends on ln(concentration ratio); pH is -log of activity; decibels and star magnitudes are log of a ratio (already sealed). The Nernst/pH electrochemical pair is the chemistry instance of the same log-of-ratio law the corpus already bridges in sound and astronomy.",
+   "verifiable_kernel": "Nernst at 298K: E = E0 - (0.0592/n)*log10(Q). For a concentration cell with 10:1 ratio, n=1: shift = 0.0592 V (one decade -> ~59 mV), exactly parallel to '+1 pH unit = 10x [H+]' and '+10 dB = 10x power'. Cleanly sealable: chemistry/electrical + the existing log verifier.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "the 'Decibels and star magnitudes: one logarithm' card and connection_entropy_is_compression_floor; extends the log family into chemistry",
+   "honesty_note": "Fully verifiable arithmetic (the 59 mV per decade is exact at 298K). The logarithm cluster exists (decibels/magnitudes, cents, entropy) but the ELECTROCHEMICAL log (Nernst/pH) does not appear bridged into it -- a real gap. High confidence on form; no theology involved.",
+   "confidence": "high"
+  },
+  {
+   "title": "Beer-Lambert absorption is exponential decay in space: light through a solution dims like a nucleus and a shielded gamma ray",
+   "connects": "chemistry/optics (Beer-Lambert I = I0*e^(-epsilon*c*l)) <-> nuclear_physics (radiation shielding I = I0*e^(-mu*x)) <-> the e^x crown family",
+   "shared_form": "exponential, in SPACE rather than time. Each thin layer removes a fixed FRACTION of what enters it, so intensity falls as e^(-(coefficient)*(path)). Beer-Lambert (chemistry spectroscopy), gamma-ray shielding (nuclear), and optical depth (astronomy/atmosphere) are the same law -- the spatial twin of radioactive decay.",
+   "verifiable_kernel": "I/I0 = e^(-epsilon*c*l): two absorbing path-lengths halve twice -> 25% transmitted at 2 half-value layers, identical numerics to '2 half-lives -> 25%' (nuclear verifier confirmed 2.5e8/1e9). Sealable two-witness: chemistry + nuclear_physics (or optics), both reduce to e^(-x).",
+   "word_first_anchor": "none",
+   "relates_to_existing": "connection_exponential_decay_two_witnesses (sibling: time-decay vs space-decay); e^x crown family",
+   "honesty_note": "Math is exact and the identical e^(-x) kernel is already verifier-confirmed on the nuclear side. Distinct from the existing time-decay card because it is SPATIAL attenuation (per-distance, not per-time) and lives in chemistry/optics -- a genuinely separate witness, not a restatement. High confidence; no verse forced (a 'light' teaching is tempting but would be retrofitting, so anchor=none).",
+   "confidence": "high"
+  },
+  {
+   "title": "The mustard seed -> least to greatest is the logistic (S-curve) of bounded growth",
+   "connects": "Teaching of Christ (mustard seed / leaven) <-> ecology's logistic population growth N(t)=K/(1+((K-N0)/N0)e^(-rt))",
+   "shared_form": "Bounded autocatalytic growth: a vanishingly small start, an accelerating exponential phase, then saturation at a carrying capacity. The kingdom 'smallest of seeds -> greatest of shrubs' and leaven 'hidden in three measures till all was leavened' are exactly the S-curve: imperceptible onset, self-driven spread, full saturation of the medium. This is the same form as logistic growth, epidemic spread (SIR), and technology adoption.",
+   "verifiable_kernel": "N(t) = K / (1 + ((K-N0)/N0) e^(-rt)); confirmed computable by verify_ecology (e.g. K=1000,N0=100,r=0.5,t=5 -> N=575.12). Seal the equation + the inflection point at N=K/2 (max growth rate).",
+   "word_first_anchor": "Matthew 13:31-33 (mustard seed AND leaven, paired by Christ); Greek 'zume' (leaven) hidden 'enekrupsen' until 'holon' (the whole) is leavened = saturation at K.",
+   "relates_to_existing": "Likely bonds to the existing 'exponential = most generative form' crown and any sower/seed/leaven Easton cards (Easton: Leaven, Mustard, Grain). Distinct from pure-exponential cards because the LIFE form is BOUNDED (carrying capacity)  that boundedness is the un-drawn piece.",
+   "honesty_note": "Math is fully verifiable and sealable (verifier exists). The teaching<->form match is a structural resonance, ATTRIBUTED as illustration, NOT a claim that Christ taught a differential equation; verdict CONCORDANT not HOLDS. Christ's emphasis is also on hiddenness/inevitability, which the curve depicts but does not exhaust.",
+   "confidence": "high"
+  },
+  {
+   "title": "Murray's law (branching vessels/trees) = least-action optimum, the same form as river networks and lightning",
+   "connects": "Biology/physiology (blood vessels, bronchi, plant xylem, leaf veins) <-> physics least-action / minimization, AND <-> hydrology (river networks) and electrical discharge (lightning)",
+   "shared_form": "Optimal dendritic branching: a conserved flux splits at bifurcations so that the parent radius cubed equals the sum of daughter radii cubed (r_parent^3 = sum r_daughter^3), the unique minimizer of pumping power + maintenance cost. The SAME branch-and-converge geometry recurs in arteries, lungs, tree roots/canopy, river basins, and lightning  a least-action signature of distribution networks.",
+   "verifiable_kernel": "Murray's law: r0^3 = r1^3 + r2^3, derived as the minimum of total cost W = (viscous pumping) + (metabolic upkeep) wrt radius. Clean algebraic/calculus seal (set dW/dr=0). Also yields conserved wall-shear-stress across generations.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Memory references a 'dendritic forms / cross=framework' cluster and the cruciform coordinate map; this would supply the missing sealed math kernel. Bonds to any river-network or lightning cards and to the least-action / minimization family on the math (Atlas) side.",
+   "honesty_note": "Murray's law and its least-action derivation are rigorously verifiable (seal the cube law + the dW/dr=0 optimization). MEMORY asserts this was already 'VERIFIED/HOLDS', but a corpus scan found NO card encoding Murray's law or allometry  so the CONNECTION card is missing even if a verifier note exists. Constructal-law framing (Bejan) should stay credited/attributed, not stated as engine doctrine. No verse forced  this is a pure form-recurrence.",
+   "confidence": "high"
+  },
+  {
+   "title": "Kleiber's law: metabolism scales as mass^(3/4) -- a power law shared with allometry, and the dual of Murray branching",
+   "connects": "Biology (whole-organism metabolic rate vs body mass, across ~27 orders of magnitude) <-> the power-law/scaling form that also governs allometry, fractal surface-area exponents, and network supply geometry",
+   "shared_form": "Quarter-power allometric scaling: B = a*M^(3/4), and many biological rates/times scale as M^(1/4) or M^(-1/4). The 3/4 exponent (not the naive 2/3 surface law) arises from space-filling fractal distribution networks  the SAME branching optimum as Murray's law. Power-law self-similarity is the recurring 'scale-free' form (linear on a log-log plot).",
+   "verifiable_kernel": "log B = log a + (3/4) log M (linear regression slope = 3/4 is the seal; verify_statistics can check the fit). Plus the WBC-model derivation linking exponent 3/4 to a fractal space-filling network. Seal the log-log linearity + slope.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Tightly bonds to the Murray's-law candidate (both are the branching-network optimum) and to the logarithm/power-law family on the Atlas side. Memory notes 'exponential = most generative form'; power-law scaling is its log-log cousin and appears un-dug in life sciences.",
+   "honesty_note": "The empirical 3/4 power law is robustly verifiable (slope on log-log data  sealable via the statistics verifier). The MECHANISTIC West-Brown-Enquist derivation is a strong model but contested in the literature; flag it as attributed/model, not proven. The clean kernel to seal is the empirical exponent, NOT the causal claim. No verse forced.",
+   "confidence": "high"
+  },
+  {
+   "title": "Hardy-Weinberg equilibrium = the binomial/conservation form; allele frequencies are conserved like momentum",
+   "connects": "Genetics (allele and genotype frequencies in a population) <-> the binomial-square algebraic identity AND the conservation-law form from physics",
+   "shared_form": "Conservation under closure: with no selection/mutation/migration/drift, allele frequencies p,q stay constant generation to generation, and genotypes distribute as (p+q)^2 = p^2 + 2pq + q^2 = 1. This is (a) the binomial expansion / partition of unity and (b) a CONSERVATION law (a quantity invariant under the system's dynamics)  the genetic analogue of conserved momentum/energy. Departure from it is the genetic 'force' (selection) just as a force breaks momentum conservation.",
+   "verifiable_kernel": "p^2 + 2pq + q^2 = (p+q)^2 = 1 with p+q=1; chi-square goodness-of-fit of observed vs expected genotype counts (sealable via verify_statistics_pvalue / verify_mathematics). Clean equality + statistical test.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Bonds to the conservation family (memory's FTC-rate<->conservation, transport<->conservation bonds) and to the binomial/partition and statistics capstones. Genetics verifier exists but corpus scan shows NO Hardy-Weinberg card  a clear empty slot.",
+   "honesty_note": "Fully verifiable: the identity is pure algebra; the equilibrium claim is a theorem under stated null assumptions; the empirical test is a standard chi-square. Honest boundary: HW is an idealized null model (real populations violate it)  seal the identity and the test, label the 'conservation' framing as a structural analogy (CONCORDANT). No verse forced.",
+   "confidence": "high"
+  },
+  {
+   "title": "Enzyme saturation (Michaelis-Menten) is the same hyperbola as nutrient uptake, drug receptor binding, and diminishing returns",
+   "connects": "Biochemistry/medicine (enzyme kinetics, ligand-receptor binding, crop yield vs fertilizer) <-> the saturating rectangular-hyperbola / Langmuir form that recurs across uptake, adsorption, and economic diminishing returns",
+   "shared_form": "Saturable binding kinetics: v = Vmax*[S]/(Km+[S]) -- linear at low substrate, asymptotic to Vmax at high substrate, half-max at [S]=Km. The IDENTICAL rectangular hyperbola governs Michaelis-Menten enzymes, Langmuir adsorption (soil nutrient binding), Monod microbial growth, receptor occupancy / drug dose-response (Hill n=1), and the law of diminishing returns in agronomy. One saturation form across biology, chemistry, medicine, and economics.",
+   "verifiable_kernel": "v = Vmax*[S]/(Km+[S]); equivalently the Lineweaver-Burk linearization 1/v = (Km/Vmax)(1/[S]) + 1/Vmax (slope/intercept seal). Verify the half-saturation point v=Vmax/2 at [S]=Km. Clean algebraic seal; verify_mathematics can check.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Could bond to the diminishing-returns / economics bridges and to a chemistry adsorption card if one exists. 'Easton: Hook' was the only 'michaelis' false-positive in the scan  the actual enzyme form is absent. Distinct from the logistic candidate: hyperbolic saturation vs sigmoidal growth.",
+   "honesty_note": "The equation and its linearization are fully verifiable/sealable. Honest boundary: MM assumes quasi-steady-state and a single binding site (Hill n=1); cooperative binding (sigmoid) is a different form  keep the claim to the n=1 hyperbola. The cross-domain identity (enzyme = adsorption = receptor = diminishing returns) is a genuine shared algebraic form, not a forced analogy. No verse forced.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The wind blows where it wills (John 3:8) <-> deterministic-but-unpredictable atmospheric flow (sensitive dependence / Lorenz)",
+   "connects": "Teaching of Christ (John 3:8, pneuma) <-> meteorology / dynamical-systems chaos",
+   "shared_form": "Observable effect with a FIXED governing law yet an origin/trajectory opaque to the observer. The wind's law is deterministic (Navier-Stokes), but the flow is practically unknowable to us because of sensitive dependence on initial conditions: two nearby states diverge as d(t)=d0*e^(lambda*t) (positive Lyapunov exponent). You hear the sound, you cannot trace the path. Jesus makes the wind's hidden origin/destination the very figure for the Spirit's sovereign, real-yet-untraceable movement.",
+   "verifiable_kernel": "d/dt(d0*e^(lambda*t)) = lambda*d0*e^(lambda*t) (exponential separation under a positive Lyapunov exponent; CONFIRMED by math verifier)",
+   "word_first_anchor": "John 3:8 -- 'The wind (pneuma) blows where it wishes, and you hear its sound, but you do not know where it comes from or where it goes; so is everyone born of the Spirit.' Anchor word verified: pneuma (G4151), from pneo (G4154, 'to blow') = breath/breeze/Spirit (Strong's, word_study confirmed; 159 occurrences).",
+   "relates_to_existing": "Likely relates to the exponential-form crown (most generative form) and any existing chaos/weather cards; new in that it bridges a TEACHING of Christ to the chaos form, not just a form-to-form link.",
+   "honesty_note": "The math (exponential divergence, positive Lyapunov exponent in Lorenz) is fully verifiable and sealable. The theology is RESONANCE, attributed -- Jesus' chosen figure, NOT a proof that the Spirit IS atmospheric chaos. pneuma's dual sense (wind/Spirit) is attested, so the figure is grounded in the text, not laundered onto it. Verdict ceiling: CONCORDANT, never math HOLDS.",
+   "confidence": "high"
+  },
+  {
+   "title": "Streamflow recession = atmospheric pressure-with-altitude = radioactive decay -- one exponential-relaxation form across hydrology, meteorology, and geology",
+   "connects": "Hydrology (linear-reservoir hydrograph recession) <-> meteorology (barometric/hypsometric law) <-> geology (radiometric decay) -- three earth-and-sky domains on one form",
+   "shared_form": "First-order linear relaxation: dQ/dt = -k*Q. A basin draining with no new rain empties as Q=Q0*e^(-kt); atmospheric pressure falls with height as dP/dz = -(1/H)*P giving P=P0*e^(-z/H); radioactive nuclei decay as N=N0*e^(-lambda*t). Same ODE, same solution, three different physical substances (water storage, air column, unstable nuclei). The approach-to-equilibrium variant (recharge minus drainage) is H0/lam*(1-e^(-lam*t)), identical to Newton cooling and RC capacitor charging.",
+   "verifiable_kernel": "d/dz(P0*e^(-z/H)) = -(1/H)*P0*e^(-z/H) AND d/dt(H0/lam*(1-e^(-lam*t))) = H0*e^(-lam*t) -- both CONFIRMED by math verifier; radiometric N=N0*e^(-lambda*t) already in the geology verifier",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Builds directly on the exponential crown and the existing geology radiometric-decay verifier. The hydrology recession and barometric law are probably NOT yet drawn into the exponential family -- that is the gap.",
+   "honesty_note": "Fully verifiable and sealable -- these are textbook first-order ODEs with the same closed form. Honest boundary: real basins/atmospheres are only approximately linear-reservoir / isothermal-exponential (the constant k or scale-height H drifts), so seal the IDEAL form and flag the empirical fit as approximate, not exact.",
+   "confidence": "high"
+  },
+  {
+   "title": "Ocean-wave dispersion collapses to shallow-water speed -- the same tanh small-argument limit as a finite transmission line",
+   "connects": "Oceanography (surface gravity waves) <-> electrical engineering (transmission-line / telegrapher's equation) via a shared tanh dispersion relation",
+   "shared_form": "Surface gravity waves obey c = sqrt( (gL/2pi) * tanh(2*pi*h/L) ). As depth/wavelength -> 0, tanh(x)/x -> 1, so the dispersive deep-water speed collapses to the non-dispersive shallow-water speed c = sqrt(g*h) -- which is why tsunamis (huge wavelength vs depth) travel at sqrt(g*h) and slow/steepen as they shoal. The SAME tanh-of-(length/scale) form governs a finite transmission line's input impedance Z_in = Z0*tanh(gamma*l), collapsing to a simple limit for short lines. tanh-dispersion is a recurring bridge between a bounded continuous medium and its small-argument limit.",
+   "verifiable_kernel": "lim_{x->0} tanh(x)/x = 1 AND sqrt((gL/2pi)*(2*pi*h/L)) = sqrt(g*h) -- both CONFIRMED by math verifier (shallow-water limit of the dispersion relation)",
+   "word_first_anchor": "none",
+   "relates_to_existing": "May relate to existing wave-equation and Smith-chart=Mobius (transmission-line) cards. The genuinely new piece is the tanh small-argument limit as the SHARED structural bridge between ocean waves and transmission lines, plus the tsunami-shoaling consequence.",
+   "honesty_note": "The dispersion relation and its shallow-water limit are exact, derivable, and sealable (linear inviscid theory). Boundary: real shoaling involves nonlinearity and breaking the linear theory does not capture -- seal the linear dispersion limit, flag breaking as outside the kernel. The transmission-line analogy is a genuine shared tanh form, not a claim the physics is identical.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Logarithmic intensity scales -- Richter (seismic) = decibel (acoustics) = stellar magnitude (astronomy) = pH, one log-ratio form",
+   "connects": "Geology (Richter/seismic) <-> astronomy (stellar magnitude) <-> acoustics (decibel) <-> chemistry (pH) -- two of these are squarely in the earth-and-sky slice",
+   "shared_form": "Human-meaningful scales of enormously ranging physical intensities are all log10 of a ratio to a reference. Richter: M = log10(A/A0), so two magnitude units = 100x amplitude. Stellar (Pogson) magnitude: m - M = 5*log10(d/10pc) and a 5-magnitude step = exactly 100x flux. Decibel: 10*log10(I/I0). pH: -log10[H+]. The recurring form is: perception/comparison is multiplicative, so the natural measure is the logarithm of the ratio (Weber-Fechner kinship). Seismic and stellar scales both bury a factor of 100-per-step in the same log structure.",
+   "verifiable_kernel": "Richter amplitude ratio 10^(M_a - M_b): for M_a=7, M_b=5 the amplitude ratio = 100 (geology verifier) AND distance-modulus identity m - M = 5*log10(d/10) with a 5-mag step = 100x flux (astronomy verifier) -- both sealable as log-ratio identities",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Likely relates to an existing logarithm form-card and possibly slide-rule=logarithm. The earth-and-sky-specific gap is bonding Richter and stellar-magnitude into the SAME log-ratio family and naming the shared 100x-per-step structure.",
+   "honesty_note": "Pure, fully verifiable algebraic identities -- the cleanest sealable kernel here. Honest boundary: the scales share mathematical FORM (log of a ratio) but measure unrelated physics; the connection is structural, not causal. No theology forced -- word_first_anchor stays none.",
+   "confidence": "high"
+  },
+  {
+   "title": "River drainage networks, deltas, lightning, and lung/leaf veins share one branch-and-converge (dendritic) optimal-transport form",
+   "connects": "Hydrology/geology (drainage basins and deltas) <-> meteorology (lightning channels) <-> biology (vascular trees) -- earth, sky, and body on one branching form",
+   "shared_form": "Systems that must move a conserved flux between a point and a distributed area, minimizing resistance/dissipation, all grow the same self-similar dendritic tree: tributaries converge to a trunk (watershed), a trunk diverges to a delta, a leader steps and forks into a lightning channel, arteries branch to capillaries. The optimality is captured by Murray's law (parent radius^3 = sum of daughter radii^3, from minimizing pumping+maintenance cost) and the constructal principle (Bejan). Hack's law (stream length ~ area^h) and Horton's bifurcation ratios are the geomorphic fingerprints of the same branching optimum.",
+   "verifiable_kernel": "Murray's law r_parent^3 = r_d1^3 + r_d2^3 (already VERIFIED/HOLDS per corpus); a clean earth-side kernel to seal: Horton bifurcation ratio R_b = N_i / N_(i+1) constant across stream orders (geometric self-similarity), or Hack's law exponent",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Strongly relates to the existing Murray's-law card and the 'reality is dendritic / two-trees converging' coordinate-map note. The gap: explicitly bonding river-network self-similarity (Horton/Hack) and lightning channels INTO the Murray/constructal branching family as earth-and-sky witnesses, not just biology.",
+   "honesty_note": "Murray's law and Horton ratios are verifiable and the cross-domain recurrence is real and well-documented. Boundary: constructal law (Bejan) is a credited PRINCIPLE/heuristic, not a sealed theorem -- attribute it, do not claim it HOLDS. The dendritic form is genuine shared structure; resist any leap to 'therefore designed' inside the math -- keep that as separate, reserved.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The Fourier basis is the one shared eigenbasis: ear, heat, and quantum state all decompose the same way",
+   "connects": "acoustics/music (a chord = sum of sine partials, what the cochlea and a spectrum analyzer do) <-> heat conduction (the heat equation's normal modes) <-> quantum mechanics (a state = superposition of energy eigenstates) <-> signal compression (MP3/JPEG keep the big Fourier/cosine coefficients)",
+   "shared_form": "Fourier decomposition / superposition: sinusoids are the eigenfunctions of the second-derivative (translation-invariant) operator, so the SAME basis diagonalizes the wave equation, the heat equation, and the Schrodinger Hamiltonian. The corpus has Fourier as two isolated single-domain applications (connection_tide_machine_is_fourier_synthesis = synthesis with gears; connection_geothermal_gradient_is_fourier_conduction = heat), and has almanac_quantum_superposition standing alone -- but NOT the unifying claim that one decomposition underlies all of them. This is the master form of the whole wave/signal slice and it is undrawn.",
+   "verifiable_kernel": "For f(x)=sin(k*pi*x/L): d^2f/dx^2 = -(k*pi/L)^2 f (sinusoid is an eigenfunction of d^2/dx^2 with eigenvalue -(k*pi/L)^2); and the heat/wave/Schrodinger PDEs all separate into this same eigenvalue equation. Symbolically sealable via the mathematics verifier (verify the derivative identity) and cross-cited to acoustics (v=f*lambda) and the existing quantum-superposition card.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Bonds connection_tide_machine_is_fourier_synthesis, connection_geothermal_gradient_is_fourier_conduction, almanac_quantum_superposition, the photon double-slit card, and the harmonics/overtone-series cards; would sit as a same-form keystone above them. Feeds reality_is_mappable.",
+   "honesty_note": "The eigenfunction derivative identity and the separation-of-variables step are fully verifiable math (HOLDS). The claim is a real, standard, deep shared structure -- not a stretch. Boundary: must NOT overstate into 'everything is a wave'; the precise, defensible claim is that sinusoids diagonalize translation-invariant linear operators, which is why the same basis recurs. No theology; word_first_anchor is honestly none -- do not force a verse onto a pure-form keystone.",
+   "confidence": "high"
+  },
+  {
+   "title": "One Doppler shift: a passing siren and a receding galaxy bend frequency by the same law",
+   "connects": "acoustics (siren/train horn pitch drop, sonar, medical/obstetric ultrasound, weather radar) <-> optics/astronomy (redshift, the existing relativistic-Doppler card)",
+   "shared_form": "Relative motion shifts observed frequency: f_obs = f_src * (v +/- v_obs)/(v -/+ v_src) for sound in a medium, reducing to the same proportional shift for light (which has no medium, hence the relativistic gamma correction the existing card already seals). The corpus has located_relativistic_doppler_reciprocal for LIGHT only; the CLASSICAL acoustic Doppler -- and the bridge that they are one frequency-shift form differing only by 'has a medium / has none' -- is entirely undrawn, even though the acoustics verifier explicitly supports the Doppler kernel.",
+   "verifiable_kernel": "Acoustic Doppler, source approaching, observer still: f_obs = f_src * v/(v - v_s). E.g. f_src=500 Hz, v=343 m/s, v_s=30 m/s -> f_obs = 500*343/313 = 547.9 Hz. Sealable on the acoustics verifier (Doppler is a listed check); cross-cite the relativistic-Doppler card for the light side.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Directly bonds located_relativistic_doppler_reciprocal; sits near the inverse-square 'gravity and sound spread the same way' card as another sound<->light same-form pair.",
+   "honesty_note": "Both sides are exactly computable (HOLDS). The honest boundary: acoustic Doppler is asymmetric in source vs observer motion (because the medium picks a rest frame) while relativistic optical Doppler depends only on relative velocity -- the connection must PRESERVE that difference, not launder it away. The shared form is the frequency-shift-from-relative-motion structure, genuinely the same idea. No verse.",
+   "confidence": "high"
+  },
+  {
+   "title": "Whispered in the ear, proclaimed on the housetops: a message is conserved no matter the amplitude",
+   "connects": "a teaching of Christ (nothing hidden stays hidden; what is whispered will be shouted) <-> information theory (the message/entropy content of a signal is independent of its amplitude or power; a faithful channel preserves it; it can be recovered and re-broadcast)",
+   "shared_form": "Information is carried in the PATTERN, not the power: scaling a signal's amplitude (whisper vs shout) leaves its information content -- the symbol probabilities and thus the Shannon entropy H = -sum p log p -- unchanged; and a noiseless/faithful channel transmits the message in full so it can be re-emitted at any volume. Structural match: amplitude is not the message; the message is conserved and recoverable. The corpus seals the information forms (Shannon entropy, entropy=compression floor, Watson-Crick reversibility as a backup code) but has NO teaching<->information bridge.",
+   "verifiable_kernel": "Amplitude-invariance of entropy: for a source with symbol probabilities p, multiplying every sample by a constant gain leaves p (and hence H = -sum p_i log2 p_i) unchanged. Concrete check: p=[0.5,0.5] -> H=1.000 bit (CONFIRMED on the information_theory verifier); the same H holds whether the carrier is loud or soft. Sealable kernel = the entropy value plus the invariance statement.",
+   "word_first_anchor": "Luke 12:2-3 (also Matt 10:26-27, Mark 4:22)",
+   "relates_to_existing": "Would bond the Shannon-entropy and entropy=compression-floor cards and the Watson-Crick reversible-code card into the language tree; first teaching-bridge into the information slice.",
+   "honesty_note": "WORD-FIRST and honest: the Greek (Luke 12:3, pros to ous, 'to the ear' -- a whisper) genuinely contrasts amplitude (whisper) with reach (housetops), which is a real structural match to amplitude-vs-message. Verdict must be CONCORDANT (resonance), NEVER 'math proves the teaching' -- information theory does not prove Scripture and Scripture did not predict Shannon. The entropy math HOLDS; the bridge is attributed resonance only. The join stays reserved.",
+   "confidence": "medium"
+  },
+  {
+   "title": "Resonance is one form: an organ pipe, an LC radio tank, and a pushed swing all answer one frequency",
+   "connects": "acoustics (organ pipe / Helmholtz resonator / the existing Schumann cavity card) <-> electrical (LC tank, the existing crystal-radio f=1/(2*pi*sqrt(LC)) card) <-> mechanics (driven pendulum/mass-spring; bridge sway)",
+   "shared_form": "Driven damped harmonic oscillator: every resonator obeys the same second-order equation and peaks where the drive frequency matches the natural frequency omega_0 = sqrt(restoring/inertia) (sqrt(k/m), 1/sqrt(LC), and the pipe/cavity geometric analogue). The corpus has the pieces -- the crystal-radio LC card and the Schumann-resonance acoustic-cavity card -- but they are flagged 'resonance (shared axes) -- NOT a verified connection' rather than bonded by the one oscillator form. The honest, sealable bond is missing.",
+   "verifiable_kernel": "omega_0 = 1/sqrt(L*C) for the LC tank and omega_0 = sqrt(k/m) for the mass-spring are the SAME equation under the substitution L<->m, 1/C<->k. Verify both natural-frequency formulas (electrical + physics verifiers) and the algebraic isomorphism of the two ODEs (mathematics verifier). E.g. L=240 uH, C=365 pF -> f0 = 1/(2*pi*sqrt(LC)) = 537 kHz.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Bonds the crystal-radio card, the Schumann-resonance card, and the many 'resonance (shared axes) -- NOT verified' candidate notes; promotes a flagged non-connection into a verified one.",
+   "honesty_note": "The two natural-frequency formulas and their ODE isomorphism are fully verifiable (HOLDS). Honest boundary: the acoustic side (organ pipe, Schumann cavity) is a distributed/standing-wave resonator, NOT a single lumped L-C-style oscillator, so the bond holds rigorously between lumped oscillators (LC <-> mass-spring) and only by ANALOGY to the cavity modes -- that distinction must be kept, not blurred. No verse.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The diffraction limit and the time-bandwidth limit are the same inequality as Heisenberg",
+   "connects": "optics (Rayleigh resolution / aperture diffraction -- the optics verifier's Rayleigh criterion) <-> signal processing (a short pulse must occupy a wide band: time-bandwidth product delta_t * delta_f >= 1/(4*pi)) <-> quantum mechanics (Heisenberg delta_x * delta_p >= hbar/2)",
+   "shared_form": "Fourier-conjugate uncertainty: any quantity and its Fourier transform cannot both be arbitrarily localized -- the spread-product is bounded below. Aperture-vs-angle (diffraction), time-vs-frequency (signals), and position-vs-momentum (QM) are three instances of the SAME mathematical inequality, because momentum is the Fourier conjugate of position just as frequency is of time. The corpus has uncertainty_entropy_coconfirm (quantum entropy = Shannon entropy) but does NOT draw the Fourier-uncertainty inequality that unifies optical resolution, signal pulses, and Heisenberg.",
+   "verifiable_kernel": "For a Gaussian, the time-bandwidth product reaches its floor: delta_t * delta_f = 1/(4*pi) ~= 0.0796; and Rayleigh resolution theta ~= 1.22*lambda/D both follow from the same Fourier-transform variance inequality. Sealable: verify the Rayleigh angle on the optics verifier (e.g. lambda=550 nm, D=0.1 m -> theta=6.7 microrad) and the Gaussian time-bandwidth equality on the mathematics verifier; state the shared variance-product inequality.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Bonds the optics/diffraction cards, the Fourier keystone proposed above, and uncertainty_entropy_coconfirm / almanac_quantum_superposition; strengthens the wave-particle (double-slit) cluster.",
+   "honesty_note": "The Rayleigh formula and the Gaussian time-bandwidth equality are verifiable (HOLDS); the unifying inequality is a standard, real theorem (Fourier uncertainty), not a stretch. Honest boundary: the three constants differ (1.22, 1/(4*pi), hbar/2) by convention/normalization -- the connection is the shared FORM (a lower-bounded conjugate-spread product), which must be stated as such rather than as numerically identical. Heisenberg here is the math inequality, not a metaphysical claim. No verse.",
+   "confidence": "medium"
+  },
+  {
+   "title": "No-arbitrage is a conservation law: a closed loop of trades nets to zero or money is created from nothing",
+   "connects": "economics/finance (no-arbitrage pricing, the law of one price) <-> physics conservation (a closed path integral nets to zero; a conservative field has no free-energy loop)",
+   "shared_form": "conservation / closed-loop invariant: summing a quantity around any closed cycle must return zero. In finance the cycle is a sequence of trades returning to the start currency; if the product of exchange rates around the loop != 1, riskless profit exists (a perpetual-motion machine). The no-arbitrage condition IS the statement that the 'price field' is conservative (path-independent), exactly as a force field with zero closed-loop work integral. This is the same structure as the existing 'Conservation is one principle' and 'Bernoulli is energy conservation' cards, but the finance/economics witness is NOT yet bridged in.",
+   "verifiable_kernel": "For exchange rates r_ij around a closed loop i->j->k->i, no-arbitrage <=> product of rates = 1 <=> sum of log-rates around the loop = 0. Verifiable: given a rate matrix, check whether any cycle has product != 1 (a Bellman-Ford negative-log-cycle detection); seal a concrete 3-currency example where product=1 (no arb) vs product>1 (arb exists).",
+   "word_first_anchor": "none",
+   "relates_to_existing": "Conservation is one principle: atoms and energy both balance; Bernoulli is energy conservation for a flowing fluid; Independence multiplies probability but adds information. Would extend the conservation form-family into economics/finance, which currently only appears via interest/inflation arithmetic.",
+   "honesty_note": "The math is fully verifiable and deterministic (cycle product / negative-cycle detection is standard). Boundary: real markets have frictions (spreads, fees) so exact equality is idealized; seal it as the frictionless invariant, noting transaction costs widen the no-arb band. No theology forced.",
+   "confidence": "high"
+  },
+  {
+   "title": "Bayes' theorem is the universal update operator: every witness multiplies the prior, exactly as independent evidence adds information",
+   "connects": "statistics (Bayesian updating: posterior proportional to prior x likelihood) <-> information theory / witness (each independent observation adds log-evidence; the engine's own two-witness verification rule)",
+   "shared_form": "multiplicative update / additive log-evidence: posterior odds = prior odds x likelihood ratio, so log-odds ADD as independent evidence accumulates. This is the SAME multiply-becomes-add structure already sealed in 'Independence multiplies probability but adds information' and 'Cents are logarithmic' -- but Bayesian inference itself is absent from the verified set despite being the spine of statistics and the formal model of how a witness changes belief. The engine's two-independent-sources floor is literally a likelihood-ratio threshold.",
+   "verifiable_kernel": "posterior_odds = prior_odds * (P(E|H)/P(E|notH)); equivalently log-posterior-odds = log-prior-odds + sum_i log(LR_i) for independent evidence. Verifiable with a concrete base-rate example (e.g. a 1%-prevalence test at 95% sensitivity / 95% specificity yields ~16% posterior) -- recompute and CONFIRM against the claimed posterior.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "",
+   "honesty_note": "Theorem, fully verifiable arithmetic; the base-rate example is deterministic. Boundary: the log-evidence ADDITIVITY requires conditional independence of witnesses -- flag that correlated witnesses do not simply add (this is exactly why the engine demands INDEPENDENT sources). State that honestly rather than overclaiming additivity. No verse forced; if later bridged to 'two or three witnesses' (Dt 19:15 / Mt 18:16) that must be Word-first and attributed, not proof.",
+   "confidence": "high"
+  },
+  {
+   "title": "The unforgiving servant: sin is a ledger and forgiveness cancels the balance -- the accounting/conservation form, in Christ's own words",
+   "connects": "a teaching of Christ (Mt 18:23-35 unforgiving servant; Mt 6:12 Lord's Prayer 'forgive us our debts') <-> conservation / double-entry accounting invariant (every debit has a credit; a balance is carried until it is settled or cancelled)",
+   "shared_form": "conserved-balance / ledger: Christ models moral obligation as a literally quantified debt (opheilo G3784 = 'to owe pecuniarily', opheilema = the debt owed; the servant owes 'ten thousand talents'). A debt is a conserved quantity carried on a ledger until either PAID (settled) or FORGIVEN (cancelled by the creditor). This is the exact double-entry / conservation invariant -- a balance does not vanish on its own; it must be discharged. Forgiveness is the creditor zeroing the account. The structure of the parable mirrors the accounting identity, and the bridge is unbuilt.",
+   "verifiable_kernel": "Double-entry invariant: sum(debits) = sum(credits), so total balance is conserved across any transaction; a 'forgiveness' entry is creditor-side write-off that returns the debtor balance to 0 while the creditor absorbs the loss (conservation across the two ledgers). Sealable as the bookkeeping identity assets = liabilities + equity holding before and after a write-off. The Greek (opheilo = owe pecuniarily) is verifiable via word_study (G3784, confirmed).",
+   "word_first_anchor": "Mt6:12 (then Mt18:23-35)",
+   "relates_to_existing": "Conservation form-family (atoms/energy balance); the labor/wage/balance-sheet three-domain cards; would be the first Word-first bridge from a parable into the conservation form.",
+   "honesty_note": "WORD-FIRST and well-grounded: the debt language is in the Greek text itself, not imposed -- opheilo literally means pecuniary owing, confirmed via the word-study tool, and Mt 18:24 names 'ten thousand talents'. The accounting/conservation math is verifiable. BOUNDARY: the verdict is CONCORDANT resonance (Christ CHOSE an economic metaphor and it matches the conservation form), NOT a mathematical proof of a doctrine; the atonement is theology, attributed, never engine-sealed. Do not launder the metaphor into a claim that forgiveness is 'just' bookkeeping.",
+   "confidence": "high"
+  },
+  {
+   "title": "Nash equilibrium is a fixed point: stable strategy = a point the best-response map sends to itself",
+   "connects": "game theory / economics (Nash equilibrium, the prisoner's dilemma) <-> the fixed-point / contraction form (Brouwer's theorem; f(x*)=x*; iteration that stops changing)",
+   "shared_form": "fixed point of a self-map: a Nash equilibrium is precisely a strategy profile that is a fixed point of the best-response correspondence -- no player can improve by deviating, i.e. best_response(s*) = s*. Existence follows from Brouwer/Kakutani fixed-point theorems. The SAME fixed-point structure governs iterative solvers (Newton, value iteration), PageRank's dominant eigenvector, and the engine's own elimination loop reaching a stable surviving set. 'Fixed point', 'equilibrium', 'contraction', 'iteration' are all ABSENT from the verified set -- this is a whole missing primal form in my slice.",
+   "verifiable_kernel": "In a 2x2 game, verify a claimed mixed-strategy Nash by checking the indifference / no-profitable-deviation condition: for the proposed (p,q), each player's expected payoff is invariant to unilateral change. Concrete sealable case: matching-pennies mixed equilibrium p=q=1/2, or a contraction map x_{n+1}=cos(x) converging to the Dottie fixed point ~0.739 (|f'|<1). Both deterministically checkable.",
+   "word_first_anchor": "none",
+   "relates_to_existing": "candidate pair 'computer_science + governance_decision_packet' (reasoning+time_sequence) and 'finance/economics + operations_research'; would seed a new fixed-point/iteration primal-form family that currently has zero verified members.",
+   "honesty_note": "The fixed-point math (contraction mapping, 2x2 Nash verification) is fully verifiable. BOUNDARY: Brouwer/Kakutani EXISTENCE is a deep theorem we cite, not re-prove with a verifier; what we SEAL is the no-deviation check for a SPECIFIC equilibrium and a concrete contraction's convergence. Do not claim the verifier proves general existence. No verse -- do NOT force one.",
+   "confidence": "medium"
+  },
+  {
+   "title": "The narrow gate is a decision boundary: most inputs are eliminated, few survive -- the engine's own narrowing, named by Christ",
+   "connects": "a teaching of Christ (Mt 7:13-14 narrow gate / wide road; the two ways) <-> classification / elimination-search form (a decision boundary partitions a space; pruning a search tree leaves few surviving paths) AND the engine's existing 'Narrow it to almost nothing' card",
+   "shared_form": "asymmetric partition / elimination to a small surviving set: a binary decision boundary splits a space into two regions of very unequal measure -- 'many' enter the wide region, 'few' the narrow one. This is the structure of pruned search (most branches eliminated), of a low-acceptance classifier, and of the engine's verify-then-eliminate loop that narrows candidates to almost nothing. The sealed card 'Narrow it to almost nothing, then any tool can finish' encodes this form but is NOT bonded to Mt 7:13-14, which states the SAME asymmetry as a teaching.",
+   "verifiable_kernel": "Combinatorial elimination: a sequence of k independent binary filters each passing fraction f leaves f^k of inputs (exponential pruning); seal a concrete count (e.g. 10 filters at f=0.5 leave 1/1024 ~ 0.1%) -- 'few there be that find it' as the surviving fraction. Verifiable via combinatorics/CS verifier as an exponential-decay-of-survivors count.",
+   "word_first_anchor": "Mt7:13 (then Mt7:14)",
+   "relates_to_existing": "connection 'Narrow it to almost nothing, then any tool can finish'; the narrow_road / John 14:6=RED gate cards in the language-tree (MEMORY). This would explicitly BOND the existing engineering card to the teaching it was named after.",
+   "honesty_note": "WORD-FIRST: start from the gate teaching; the asymmetry ('wide... many', 'narrow... few') is explicit in the text. The exponential-pruning math is verifiable. STRONG BOUNDARY: verdict is CONCORDANT (the teaching's shape matches the elimination form and matches what the engine actually does), NOT proof that salvation is an algorithm -- that would be laundering. The narrowing-to-the-Gate (Jn 10:9, 14:6) and the join stay RESERVED. Present the math as illustrating the form Christ named, never as deriving the doctrine.",
+   "confidence": "medium"
+  }
+ ]
+}
