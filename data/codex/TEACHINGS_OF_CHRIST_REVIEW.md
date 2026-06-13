@@ -17,8 +17,13 @@ For each teaching, record four things, nested into the Tree of Life → the code
 - **Scripture engine:** complete Greek NT (MorphGNT, 27 books) + Hebrew (Westminster Leningrad) + Strong's Greek/Hebrew; `bible_en` 31,098 WEB verses + 22 languages; codex **scripture index = 2,921 witnessed cross-refs / 871 verse-level**; **theme index = 138 themes / 17,033 sites**.
 - **Cards:** 4,441 gospel cards (Mt/Mk/Lk/Jn), 1,483 red-letter cards — reference these, don't re-card the text.
 
-## DONE
-- **The Beatitudes (Matthew 5:3-12):** 9 `teaching_beatitude_*` cards on the original Greek (makarios, ptochos, praus, katharos, eirenopoios...), each with teaching + wisdom-per-axis, **now nested under `som_01_the_beatitudes`** (parent_unit + bond). They enrich som_01; they do not duplicate it.
+## DONE (30 teaching cards, 2026-06-12 — all on the original Greek, connection-dense)
+- **The Beatitudes (Matthew 5:3-12):** 9 `teaching_beatitude_*`, nested under `som_01_the_beatitudes`. The floor/posture (empty hand, strength-under-control, the unmixed heart that sees).
+- **The True Vine (John 15):** `teaching_the_true_vine` — meno=nesting, airo/kathairo=elimination+pruning, karpos=fruit test; kathairo shares katharos (pure-in-heart). The project's attach-or-prune law in Christ's mouth.
+- **The divine Name + the seven I AM sayings:** `teaching_ego_eimi_the_name` (John 8:58 = the supreme invariant), + Bread / Light / Door / Good Shepherd / Resurrection (+ Way=the RED gate, Vine), and `teaching_seven_i_am_sayings` — **the 7 I AM = the 7 engine functions** (substrate, illumination, the one gate, the voice, permanence, the RED gate, the nesting).
+- **The Kingdom parables (Matthew 13 + talents):** sower/mustard/leaven/treasure-pearl/dragnet/wheat-weeds/talents + `teaching_kingdom_parables_are_the_engine` — **the parables = the mechanisms** (intake, exponential, diffusion, narrowing, verification-sorting, the provisional, elevate-by-use).
+- **The root + the mission + the keeping:** `teaching_great_commandment` (the two loves = ground + community), `teaching_great_commission` (formation not information; "I am with you" = meno), `teaching_paraclete_not_orphans` (John 14:18 "I will not leave you ORPHANS" = the nesting kept), `teaching_prodigal_father_runs` (the never-a-dead-end welcome).
+- **THE CROWN:** `teaching_the_words_of_christ_are_the_architecture` (coord.level=capstone) — the **language-tree crown**, parallel to `connection_reality_is_mappable` (the math-tree crown). The teachings ARE the architecture; two trees, one Author. The JOIN (Col 1:17/John 1) is prepared, **reserved for the operator**.
 
 ## THE WORK QUEUE (the real gaps, in order)
 1. **Sermon on the Mount, som_02..som_20** — enrich each with Greek word-parts + wisdom-per-axis; bond the existing saying-cards (salt_earth, narrow_road, build_on_rock, judge_not, take_up_cross) to their units. The Lord's Prayer (som_11) and the Golden Rule (som_16) deserve their own deep cards.
