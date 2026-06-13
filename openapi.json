@@ -1,0 +1,229 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Concordance Engine",
+    "version": "1.0.0",
+    "description": "Machine-check a derivation step by step and, if every step holds, get a permanent, independently-checkable receipt (a 'seal'). The engine does not generate answers -- it eliminates steps that cannot be true and seals what survives. Use it to catch hallucinated math or logic and to give the user proof an answer holds that they can re-check without trusting you. Adversarial check (2026-06-13): 52/52 ground-truth claims (26 true, 26 deliberately false) decided correctly on the live endpoint, with zero false seals. Conduit, not source.",
+    "license": { "name": "Apache-2.0" }
+  },
+  "servers": [
+    { "url": "https://narrowhighway.com", "description": "Live public engine" }
+  ],
+  "paths": {
+    "/derivation/verify": {
+      "post": {
+        "operationId": "verifyDerivation",
+        "summary": "Verify a derivation and optionally mint a permanent seal",
+        "description": "Checks each step deterministically. The whole derivation HOLDS only if every step holds and each builds on confirmed prior steps. Set seal=true to mint a permanent receipt (cite_url).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VerifyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verdict and trail (plus a receipt when seal=true).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/VerifyResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/seal/{hash}": {
+      "get": {
+        "operationId": "getSeal",
+        "summary": "Fetch a permanent seal record by its content hash",
+        "description": "Returns the content-addressed seal record. Anyone can open it to confirm the verdict, independent of trusting the caller or the service.",
+        "parameters": [
+          {
+            "name": "hash",
+            "in": "path",
+            "required": true,
+            "description": "The seal content hash (the <hash> in a cite_url).",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The seal record.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SealRecord" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/identity": {
+      "get": {
+        "operationId": "getIdentity",
+        "summary": "Who the engine serves and what it is",
+        "responses": {
+          "200": {
+            "description": "Identity statement.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Identity" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/capabilities": {
+      "get": {
+        "operationId": "getCapabilities",
+        "summary": "Verifier counts, domains, and substrate sizes",
+        "responses": {
+          "200": {
+            "description": "Capability summary.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Capabilities" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VerifyRequest": {
+        "type": "object",
+        "required": ["steps"],
+        "properties": {
+          "steps": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Step" },
+            "description": "Ordered derivation steps. Later steps may build on confirmed earlier ones."
+          },
+          "seal": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true and the derivation HOLDS, mint a permanent receipt (cite_url)."
+          }
+        }
+      },
+      "Step": {
+        "type": "object",
+        "required": ["id", "domain", "spec"],
+        "properties": {
+          "id": { "type": "string", "description": "Caller-chosen step id." },
+          "domain": { "type": "string", "example": "mathematics", "description": "Verifier domain (e.g. mathematics)." },
+          "spec": { "$ref": "#/components/schemas/Spec" }
+        }
+      },
+      "Spec": {
+        "type": "object",
+        "required": ["mode", "params"],
+        "description": "One check. The fields used in params depend on mode: equality uses {expr_a, expr_b, variables}; inequality uses {lhs, rhs, op, variables}; derivative uses {function, variable, claimed_derivative}.",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": ["equality", "inequality", "derivative"],
+            "description": "equality: expr_a == expr_b (passes if expr_a-expr_b simplifies to zero). inequality: lhs op rhs. derivative: d/d(variable) of function equals claimed_derivative."
+          },
+          "params": { "$ref": "#/components/schemas/Params" }
+        }
+      },
+      "Params": {
+        "type": "object",
+        "description": "Use the fields for the chosen mode; leave the rest unset.",
+        "properties": {
+          "expr_a": { "type": "string", "description": "equality: left expression." },
+          "expr_b": { "type": "string", "description": "equality: right expression." },
+          "lhs": { "type": "string", "description": "inequality: left-hand side." },
+          "rhs": { "type": "string", "description": "inequality: right-hand side." },
+          "op": { "type": "string", "enum": [">", "<", ">=", "<=", "=="], "description": "inequality: comparison operator." },
+          "function": { "type": "string", "description": "derivative: the function to differentiate." },
+          "variable": { "type": "string", "description": "derivative: the variable to differentiate with respect to." },
+          "claimed_derivative": { "type": "string", "description": "derivative: the asserted derivative." },
+          "variables": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional symbol declarations/substitutions; usually {}."
+          }
+        }
+      },
+      "VerifyResponse": {
+        "type": "object",
+        "properties": {
+          "verdict": { "type": "string", "description": "HOLDS if every step confirmed; otherwise BROKEN (or GAP).", "example": "HOLDS" },
+          "steps": { "type": "integer", "description": "Number of steps submitted." },
+          "confirmed_steps": { "type": "integer", "description": "Number of steps confirmed." },
+          "broken_at": { "type": "string", "nullable": true, "description": "Id of the first broken step, or null." },
+          "gap_at": { "type": "string", "nullable": true, "description": "Id of the first unsupported step, or null." },
+          "trail": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TrailItem" },
+            "description": "Per-step result -- the trail is the trust."
+          },
+          "note": { "type": "string" },
+          "receipt": { "$ref": "#/components/schemas/Receipt" }
+        }
+      },
+      "TrailItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "domain": { "type": "string" },
+          "claim": { "type": "string" },
+          "uses": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "description": "CONFIRMED / MISMATCH / ERROR / NOT_APPLICABLE." },
+          "detail": { "type": "string", "description": "Human-readable reason (e.g. the true value when a claim is false)." },
+          "link_ok": { "type": "boolean" }
+        }
+      },
+      "Receipt": {
+        "type": "object",
+        "nullable": true,
+        "description": "Present when seal=true and the derivation HOLDS.",
+        "properties": {
+          "permanent_ref": { "type": "string" },
+          "content_hash": { "type": "string" },
+          "cite_url": { "type": "string", "description": "Permanent, content-addressed page anyone can open to confirm the verdict." },
+          "verdict": { "type": "string" }
+        }
+      },
+      "SealRecord": {
+        "type": "object",
+        "properties": {
+          "content_hash": { "type": "string" },
+          "permanent_ref": { "type": "string" },
+          "cite_url": { "type": "string" },
+          "integrity_verified": { "type": "boolean" },
+          "integrity_detail": { "type": "string" },
+          "record": { "type": "object", "additionalProperties": true, "description": "The sealed derivation record (steps, hashes, engine, issuer key)." }
+        }
+      },
+      "Identity": {
+        "type": "object",
+        "properties": {
+          "serves": { "type": "string" },
+          "short": { "type": "string" },
+          "statement": { "type": "string" }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "properties": {
+          "deterministic_verifiers": { "type": "integer" },
+          "engine_tools_total": { "type": "integer" },
+          "verifier_domains": { "type": "integer" },
+          "grid_axes": { "type": "integer" },
+          "mcp_tools": { "type": "integer" },
+          "substrate": { "type": "object", "additionalProperties": true },
+          "capabilities": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
