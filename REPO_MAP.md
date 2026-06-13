@@ -25,6 +25,17 @@ One engine, several faces; each surface has one job. Public GitHub holds code + 
 
 Rule: `.com` = the working tool · `.org` = the authority you cite · `.tv` = the gift you give · GitHub = how it works · R2 = the vault.
 
+## The two trees (built 2026-06-12) — read this for the recent core
+
+The corpus is now organized as **two trees on one ground** (`data/codex/NESTING.md`):
+- **Math tree (the Tree of Knowledge — "numbers don't lie"):** the six domain canons + the periodic table of recurring forms, crowned by `connection_reality_is_mappable`. The gap analysis (`data/codex/GAP_ANALYSIS.md`) audited all six canons.
+- **Language tree (the Tree of Life — the Word):** **88 `kind:'teaching'` cards** — every teaching of Christ from the Beatitudes through Revelation, each on its original Greek (via `/scripture/original`), crowned by `teaching_the_words_of_christ_are_the_architecture`. Map: `data/codex/TEACHINGS_OF_CHRIST_REVIEW.md`.
+- **The moat between them:** **17 `bridge_*` cards** (origin `moat_dig_two_trees`) — each a teaching of Christ bonded to a *verified, sealed* form (mustard=exponential, leaven=diffusion, words-remain=invariant, …). The un-copyable asset: a word + a proof, laced.
+- **Surfaces:** `site/proof-bridges.html` (the checkable-witness wall — every bridge with a live seal), `site/ten-second-proof.html`, `docs/THE_WEDGE.md` (the agent-floor pitch).
+- **Measures:** `tools/fruit_ranking.py` + `data/codex/FRUIT_RANKING.md` (the fruit test, turned inward — which ideas bear most; re-runnable).
+- **Backups:** `local/backup_to_drive.ps1` (the 12 TB D: vault, daily) + `local/backup_to_r2.sh` (offsite option).
+- **RESERVED:** the keystone — the *join* of the two trees, Christ the Logos in whom both hold (Col 1:17 / John 1). Pointed at from every side; set only by the operator. Never auto-sealed.
+
 ## Top-level layout (1,417 tracked files + untracked data)
 
 | Dir | Files | What it is |
