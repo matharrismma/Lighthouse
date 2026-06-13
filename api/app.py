@@ -5641,12 +5641,13 @@ class _DerivationIn(BaseModel):
 
 
 @app.post("/derivation/verify", tags=["public"])
-def derivation_verify(body: _DerivationIn):
+def derivation_verify(request: Request, body: _DerivationIn):
     """Public: verify a multi-step derivation. Each step = {domain, spec, uses?,
     claim?}; `spec` is the structured kwargs the domain's verifier wants. The
     chain HOLDS iff every step CONFIRMED and every `uses` points to a confirmed
     prior step; BROKEN names the first failing step; INCOMPLETE flags a step the
     verifier couldn't run (the prose->spec bridge gap). The trail is the trust."""
+    _rate_check(request, "derivation")
     from api import derivation as _derivation
     steps = body.steps or []
     if not steps:
@@ -5681,12 +5682,13 @@ class _DerivationProseIn(BaseModel):
 
 
 @app.post("/derivation/solve", tags=["public"])
-def derivation_solve(body: _DerivationProseIn):
+def derivation_solve(request: Request, body: _DerivationProseIn):
     """Public: submit a math problem in PROSE. The oracle FORMALIZES it into
     structured steps; the deterministic chain runner JUDGES them. The verdict is
     the verifier's, never the oracle's — a wrong formalization shows as BROKEN/
     INCOMPLETE. When the oracle is unprovisioned (no key / over budget) it returns
     a hint; structured steps can always go straight to POST /derivation/verify."""
+    _rate_check(request, "derivation_solve")
     from api import derivation as _derivation
     problem = (body.problem or "").strip()
     if len(problem) < 3:
@@ -13519,6 +13521,8 @@ _RATE_LIMITS: Dict[str, tuple] = {
     "walk":      (20, 20.0 / 60),     # 20/min — Coach OS walk (archetypes + Layer 0)
     "queue":     (30, 30.0 / 60),     # 30/min — offline queue submits
     "verify":    (60, 60.0 / 60),     # 60/min — generic verifier dispatch
+    "derivation": (120, 120.0 / 60),  # 120/min — public /derivation/verify; cheap (compute-DoS-guarded), permissive for legit batch verification
+    "derivation_solve": (12, 12.0 / 60),  # 12/min — /derivation/solve uses the paid oracle
     "ingest":    (10, 10.0 / 60),     # 10/min — drive ingest is expensive
     # Community participation
     "register":  (3,  3.0 / 60),      # 3/min — handle creation is cheap but spammable

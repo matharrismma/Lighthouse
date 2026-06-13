@@ -45,17 +45,61 @@ def _ensure_sympy() -> None:
     _sympy_loaded = True
 
 import re as _re
+import ast as _ast
 # Characters that are NOT part of any valid math expression string.
 # SymPy's sympify treats '#' as a Python-style comment, silently dropping
 # the rest of the string, which can cause strings like "INVALID###" to parse
 # successfully as a bare symbol.  We reject such inputs early.
 _INVALID_EXPR_RE = _re.compile(r"[#@!$%&\[\]\{\}\\|`]")
 
+# Compute-DoS guard thresholds: a short input like 9**9**9 expands to a ~369M-digit
+# bignum that stalls the single worker. Reject giant/tower exponents and over-large or
+# over-deep expressions BEFORE sympify evaluates them. Tuned well above any legitimate
+# expression (the benchmark + corpus kernels are tiny).
+_MAX_POW_EXP = 10000
+_MAX_AST_NODES = 2000
+_MAX_AST_DEPTH = 60
+
+
+def _ast_compute_guard(expr: str):
+    """Reject pathological inputs (giant literal exponents, power towers like 9**9**9,
+    oversized or too-deeply-nested expressions) before SymPy evaluates them. Raises
+    _SympifyError on rejection. Silent (returns None) for non-Python-AST strings -- the
+    existing parse path handles those."""
+    try:
+        tree = _ast.parse(str(expr), mode="eval")
+    except SyntaxError:
+        return
+    n = 0
+    for node in _ast.walk(tree):
+        n += 1
+        if n > _MAX_AST_NODES:
+            raise _SympifyError("expression too large")
+        if isinstance(node, _ast.BinOp) and isinstance(node.op, _ast.Pow):
+            ex = node.right
+            val = None
+            if isinstance(ex, _ast.Constant) and isinstance(ex.value, (int, float)):
+                val = ex.value
+            elif isinstance(ex, _ast.UnaryOp) and isinstance(ex.operand, _ast.Constant) \
+                    and isinstance(ex.operand.value, (int, float)):
+                val = ex.operand.value
+            if val is not None and abs(val) > _MAX_POW_EXP:
+                raise _SympifyError("exponent too large")
+            for sub in _ast.walk(ex):
+                if isinstance(sub, _ast.BinOp) and isinstance(sub.op, _ast.Pow):
+                    raise _SympifyError("nested power tower not allowed")
+
+    def _depth(nd):
+        return 1 + max((_depth(c) for c in _ast.iter_child_nodes(nd)), default=0)
+    if _depth(tree) > _MAX_AST_DEPTH:
+        raise _SympifyError("expression too deeply nested")
+
 
 def _parse(expr: str, var_names: List[str] = None):
     _ensure_sympy()
     if _INVALID_EXPR_RE.search(str(expr)):
         raise _SympifyError(f"invalid characters in expression: {expr!r}")
+    _ast_compute_guard(expr)
     locals_ = {n: Symbol(n) for n in (var_names or [])}
     # Allow common aliases
     locals_.setdefault("oo", oo)
