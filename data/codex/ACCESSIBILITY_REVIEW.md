@@ -83,3 +83,15 @@ Corpus 1577; vine-validity 1.000; bonds 650 -> 658. NEXT: more world-religion si
 - **signpost_zoroaster_saoshyant_savior_and_dualism** (MIXED) -- securely pre-Christian: asha-vs-druj moral order, frashokereti (renovation), resurrection + judgment. HARD DATING CAVEAT (load-bearing): the Christ-like specifics (Saoshyant virgin birth, detailed resurrection) are in LATER Pahlavi texts (~9th c. AD), direction of influence uncertain -- NOT claimable as independent pre-Christian witness. Securely-attested bridge: the Magi (Matt 2) -- Persian sky-watchers who actually came to Christ. Dualism contradicts monotheism; longing concordant.
 - **signpost_flood_myths_common_memory_not_borrowing** (CONCORDANT) -- worldwide flood traditions (Gilgamesh/Atrahasis/Ziusudra/Manu/Deucalion); honest BOTH ways: the 'Genesis copied Gilgamesh' claim overreaches (theology differs sharply -- noisy-humanity-vs-moral-evil, gods 'like flies' vs God's covenant rainbow) AND the parallels don't make Genesis mere myth (a real remembered catastrophe refracted). Type: 1 Pet 3:20-21 (saved through water) + Matt 24:37 (days of Noah). The ark points to salvation carried through judgment in Christ.
 World-religion signposts now 12. Corpus 1579; vine-validity 1.000; bonds 658 -> 665. NEXT: Prometheus / Norse Baldr (shadow only) then LAYERS.md.
+
+## LAYERS.md BUILT (the depth axis, 2026-06-13)
+Built data/codex/LAYERS.md -- the LAYER/depth axis (3rd of the 4 cruciform axes), placing EVERY gathered category by depth on one trunk, integrating NESTING.md (two trees, one ground) + surface_map.json (.com 123 / .org 11 / .tv 17) + the 4 axes. NOTHING destructive -- a MAP doc, not a move; relocate-not-discard. The depth stack (L0 deepest -> L7 outer):
+- **L0 GROUND/ROOT** -- Christ the Logos (Col 1:17), the Gate (Jn 14:6), the reserved keystone/join/ODTBT (never crowned).
+- **L1 / L1'** -- the two co-rooted tree-roots: THE WORD (frozen: Words in Red, original-language word-parts, /scripture/original) | THE VERIFIER (living: 70+ domain verifiers, the seal engine).
+- **L2 FRUIT** -- connections/moat bridges/prophet signposts(13)/world-religion signposts(12)/capstones (where the /loop builds).
+- **L3 MAPS & INDEXES** -- coordinate/surface/atlas maps, proof-bridges, codex xref.
+- **L4 TWO FACES** -- Almanac (human) | Atlas (technical), same substrate.
+- **L5 CARDS SUBSTRATE** -- ~11,085 data-cards + 1,579 almanac rows (0 orphans).
+- **L6 PRACTICAL LEAVES** -- recipes/apothecary/maker/hearth/calendar.
+- **L7 OUTER LEAVES** -- GIFT (.tv: channels/media/kids/hymns/serials) + COMMUNITY/AUTHORITY (.org: assembly/registry/witness/marketplace) -- periphery placed in its true outer ring, not discarded.
+Honest edge: depth = authority+permanence (deeper=more frozen/load-bearing; outer=more provisional/gift); the periphery routes outward to .org/.tv WITHOUT being thrown away ('a place for everything because it is all in reality'). L0 reserved for the operator. NEXT: resume world-religion scan (Prometheus/Baldr -- shadow only) or genuinely-new connections.
