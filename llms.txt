@@ -43,6 +43,10 @@ wrong and get caught, or be right and prove it. Safe inside tool loops: verifier
 raise exceptions and always return structured output
 (CONFIRMED / MISMATCH / ERROR / NOT_APPLICABLE).
 
+Adversarial check (2026-06-13): run against 52 ground-truth claims -- 26 true, 26 deliberately
+false -- the live endpoint decided 52/52 correctly, with zero false seals and zero rejected
+truths. Reproduce: `python tools/benchmark_public_verify.py`.
+
 ## Coverage
 
 70+ domain verifiers, including: mathematics (symbolic equality, derivative, integral,

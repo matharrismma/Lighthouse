@@ -6,6 +6,31 @@ Lighthouse runs every decision through four checkpoints: is it honest, is it saf
 
 It is built to run as software — an AI agent or a small device — so the checks cannot be skipped, the hierarchy cannot be inverted under pressure, and the underlying claims (math, chemistry, statistics, code, governance) are *computationally* verified rather than merely attested.
 
+## Try it in one call (hosted, zero install)
+
+The engine is live and publicly reachable. Verify a derivation and get a permanent,
+independently-checkable receipt -- no install:
+
+```bash
+curl -s https://narrowhighway.com/derivation/verify \
+  -H 'content-type: application/json' \
+  -d '{"steps":[{"id":"s1","domain":"mathematics","spec":{"mode":"equality",
+       "params":{"expr_a":"sin(x)**2 + cos(x)**2","expr_b":"1","variables":{}}}}],
+       "seal":true}'
+```
+
+Returns `verdict: HOLDS` and a `receipt.cite_url` (e.g. `https://narrowhighway.com/seal/<hash>`)
+-- a content-addressed page anyone can open to confirm the verdict, independent of trusting you
+or this service. MCP server (zero install): `https://narrowhighway.com/mcp`. Agent quickstart:
+[`llms.txt`](llms.txt).
+
+**Live-endpoint adversarial check (2026-06-13):** the public endpoint was run against a 52-claim
+ground-truth set -- 26 true claims (should hold) and **26 deliberately false** ones (should be
+caught) across equality, inequality, and derivative checks. Result: **52 / 52 decided correctly,
+zero false seals, zero rejected truths.** Reproduce: `python tools/benchmark_public_verify.py`.
+Full record: [`BENCHMARK_PUBLIC_VERIFY.md`](BENCHMARK_PUBLIC_VERIFY.md). (Complements the
+722-claim local-domain benchmark below.)
+
 ## Verified at scale — 722-claim benchmark
 
 Independent of unit tests, the engine has been evaluated against a
