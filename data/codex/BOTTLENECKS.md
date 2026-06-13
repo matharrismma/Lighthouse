@@ -57,5 +57,11 @@ Deploy mechanism discovered: Caddy reverse-proxies ALL of .com/.org/.tv -> FastA
 => BOTH ChatGPT-Action prerequisites (spec + privacy) are now LIVE. The ONLY remaining step is creating the GPT in Matt's ChatGPT account (guide: docs/CHATGPT_ACTION_SETUP.md, prerequisites now show LIVE).
 NOT auto-deployed (correctly held): P2 SECURITY hardening (engine CODE change, not a static file -- guide PRE_TRAFFIC_SECURITY.md; do with Matt); homepage->/mcp on-ramp (the family homepage -- surface the exact snippet for Matt's ok); .org notary view (a real build/route, not a file drop); /atlas clean-URL redirect (sitewide .html convention -- cosmetic).
 
+## NOTARY / SEAL-LOOKUP PAGE -- BUILT + DEPLOYED LIVE (realizes ORG_NOTARY_REGISTRY.md)
+- **site/verify-seal.html -> LIVE /verify-seal.html** (serves 200): paste a seal hash or cite_url -> same-origin fetch GET /seal/<hash> -> renders verdict / signature (integrity_verified) / steps / the derivation trail / the permanent cite_url. Auto-demos a real known-good seal on load. Fields match the real /seal JSON exactly (verified: content_hash, integrity_verified, integrity_detail, record{verdict, confirmed_steps, steps, engine, issuer_public_key, kind, trail[{status,domain,claim,detail}]}). Same-origin so no CORS. (Local preview can't exercise the success path -- the relative /seal only resolves on narrowhighway.com; verified shape+serving+mapping instead.)
+- **Linked** from ten-second-proof.html footer ("Check any seal yourself: verify-seal") -> deployed live so it is not an orphan.
+- GATED (surface): route .org -> /verify-seal.html (the notary face); optionally add the same link to proof-bridges.html + (with Matt's nod) the homepage.
+NET: all non-registration DEPLOYS are done. Remaining = Matt's: (1) create the ChatGPT GPT [his account; guide ready, both prereqs LIVE]; (2) harden /derivation/verify [engine code -- do WITH Matt]; (3) homepage->/mcp on-ramp [his nod]; (4) route .org to the notary view. IDLE until Matt triggers one or gives a new pointer.
+
 ## LOOP ORDER
 Build A (#1 done -> #2 -> #3 -> #4) one per tick; then prep + SURFACE B/C with concrete diffs. After each safe build: commit explicit paths, SURFACE the deploy, short report. When the safe queue is exhausted, SURFACE the gated bundle for Matt and idle.

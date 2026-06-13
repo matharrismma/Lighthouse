@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check a seal -- Concordance Engine</title>
+<meta name="description" content="Paste a Concordance seal hash or cite_url and independently confirm the verdict, signature, and derivation trail.">
+<link rel="canonical" href="https://narrowhighway.com/verify-seal.html">
+<style>
+  :root{--ink:#1c1c1c;--mut:#666;--line:#e3e3e3;--ok:#1a7f37;--bad:#b3261e;--bg:#fafafa}
+  *{box-sizing:border-box}
+  body{max-width:46rem;margin:2.2rem auto;padding:0 1.1rem;font:16px/1.6 system-ui,sans-serif;color:var(--ink)}
+  h1{font-size:1.5rem;margin:.2rem 0} .sub{color:var(--mut);margin:.2rem 0 1.4rem}
+  .row{display:flex;gap:.5rem;flex-wrap:wrap}
+  input{flex:1;min-width:14rem;padding:.6rem .7rem;border:1px solid var(--line);border-radius:7px;font:inherit}
+  button{padding:.6rem 1.1rem;border:0;border-radius:7px;background:var(--ink);color:#fff;font:inherit;cursor:pointer}
+  .card{margin-top:1.4rem;border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;background:var(--bg);display:none}
+  .verdict{font-size:1.6rem;font-weight:700} .verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+  .meta{color:var(--mut);font-size:.92rem;margin:.3rem 0 .8rem}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem;font-size:.93rem;margin:.5rem 0}
+  .kv b{color:var(--mut);font-weight:600}
+  .trail{margin:.8rem 0 0;padding:0;list-style:none}
+  .trail li{border-top:1px solid var(--line);padding:.5rem 0;font-size:.93rem}
+  .st{font-weight:700} .st.ok{color:var(--ok)} .st.bad{color:var(--bad)}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;word-break:break-all}
+  a{color:#1a5fb4} .err{color:var(--bad)} .foot{color:var(--mut);font-size:.86rem;margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}
+</style>
+</head>
+<body>
+<h1>Check a seal</h1>
+<p class="sub">A Concordance seal is a permanent, content-addressed receipt that a derivation was
+machine-verified. Paste a seal hash or a <span class="mono">/seal/&lt;hash&gt;</span> link below and
+confirm it for yourself -- no account, no trust required.</p>
+
+<div class="row">
+  <input id="q" placeholder="paste a seal hash or cite_url" autocomplete="off" spellcheck="false">
+  <button id="go">Check</button>
+</div>
+<p id="msg" class="err" role="status"></p>
+
+<div id="card" class="card">
+  <div id="verdict" class="verdict"></div>
+  <div id="integ" class="meta"></div>
+  <div class="kv" id="kv"></div>
+  <ul id="trail" class="trail"></ul>
+  <div class="meta" style="margin-top:.8rem"><a id="raw" href="#" rel="noopener">open the raw seal JSON</a></div>
+</div>
+
+<p class="foot">The seal records that the math is sound against fixed external standards -- nothing
+more, which is exactly its trustworthy modesty. The engine eliminates and seals; it is a conduit,
+not the author of the truth it records.</p>
+
+<script>
+(function(){
+  var q=document.getElementById('q'), msg=document.getElementById('msg'), card=document.getElementById('card');
+  function hashFrom(s){ s=(s||'').trim(); var m=s.match(/[0-9a-fA-F]{64}/); return m?m[0]:''; }
+  function esc(x){ return String(x==null?'':x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function show(d){
+    var rec=d.record||{}, verdict=rec.verdict||'(unknown)', ok=(verdict==='HOLDS');
+    var v=document.getElementById('verdict'); v.textContent=verdict; v.className='verdict '+(ok?'ok':'bad');
+    document.getElementById('integ').innerHTML = (d.integrity_verified?'signature verified':'signature NOT verified')
+      + ' &middot; ' + esc(d.integrity_detail||'') + ' &middot; engine: ' + esc(rec.engine||'');
+    var kv=document.getElementById('kv'); kv.innerHTML='';
+    var pairs=[['steps confirmed',(rec.confirmed_steps!=null?rec.confirmed_steps:'?')+' / '+(rec.steps!=null?rec.steps:'?')],
+               ['kind',rec.kind||''],['content hash',d.content_hash||''],
+               ['issuer key',(rec.issuer_public_key||'').slice(0,24)+((rec.issuer_public_key||'').length>24?'...':'')]];
+    pairs.forEach(function(p){ kv.innerHTML+='<b>'+esc(p[0])+'</b><span class="mono">'+esc(p[1])+'</span>'; });
+    var ul=document.getElementById('trail'); ul.innerHTML='';
+    (rec.trail||[]).forEach(function(t){
+      var sok=(t.status==='CONFIRMED');
+      ul.innerHTML+='<li><span class="st '+(sok?'ok':'bad')+'">'+esc(t.status||'')+'</span> &middot; '
+        + esc(t.domain||'') + '<br><span class="mono">'+esc(t.detail||t.claim||'')+'</span></li>';
+    });
+    var raw=document.getElementById('raw'); raw.href=(d.cite_url||('/seal/'+d.content_hash));
+    card.style.display='block';
+  }
+  function check(){
+    var h=hashFrom(q.value); card.style.display='none'; msg.textContent='';
+    if(!h){ msg.textContent='Paste a 64-character seal hash or a /seal/<hash> link.'; return; }
+    msg.textContent='checking...';
+    fetch('/seal/'+h).then(function(r){ if(!r.ok) throw new Error('not found'); return r.json(); })
+      .then(function(d){ msg.textContent=''; show(d); })
+      .catch(function(){ msg.textContent='No seal found for that reference (it may be mistyped).'; });
+  }
+  document.getElementById('go').addEventListener('click',check);
+  q.addEventListener('keydown',function(e){ if(e.key==='Enter') check(); });
+  // demo on load: a real known-good seal
+  q.value='3abf4d475a354981998481a91cc15621f851396b45dd29b3628f27581e59bfec';
+  check();
+})();
+</script>
+</body>
+</html>
