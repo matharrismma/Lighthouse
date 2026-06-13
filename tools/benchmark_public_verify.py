@@ -46,6 +46,15 @@ CLAIMS = [
     (False, eq("1+2+3+4+5+6+7+8+9+10", "50"), "sum 1..10 wrong"),
     (False, eq("cos(2*x)", "1-sin(x)**2"), "double-angle wrong"),
     (False, eq("exp(I*pi)+1", "1"), "Euler identity wrong"),
+    # removable-singularity / pole cases: true only off a measure-zero set, so NOT an
+    # unconditional identity -- must NOT seal as HOLDS (regression guard for the moat crack)
+    (False, eq("x/x", "1"), "x/x=1 (undefined at x=0)"),
+    (False, eq("(x**2-1)/(x-1)", "x+1"), "(x^2-1)/(x-1)=x+1 (pole at x=1)"),
+    (False, eq("x*(1/x)", "1"), "x*(1/x)=1 (undefined at x=0)"),
+    (False, eq("sin(x)/sin(x)", "1"), "sin/sin=1 (pole where sin=0)"),
+    (False, eq("log(x)/log(x)", "1"), "log/log=1 (pole where log=0)"),
+    # symmetric rational identity (same domain on both sides) -- MUST still hold
+    (True, eq("(x+1)/(x-1)", "1+2/(x-1)"), "symmetric rational identity"),
     # --- INEQUALITY: TRUE ---
     (True,  iq("3", "2", ">"), "3>2"),
     (True,  iq("2**10", "1000", ">"), "2^10>1000"),

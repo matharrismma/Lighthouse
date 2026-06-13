@@ -63,6 +63,44 @@ def _parse(expr: str, var_names: List[str] = None):
     return sympify(expr, locals=locals_)
 
 
+def _pole_bases(expr):
+    """Bases of NEGATIVE powers in a RAW (un-cancelled) sympy expression -- the
+    sub-expressions whose vanishing makes expr undefined. Used to detect removable
+    singularities that simplify() would otherwise silently cancel."""
+    from sympy import Pow
+    poles = set()
+    try:
+        for sub in expr.atoms(Pow):
+            base, exp_ = sub.as_base_exp()
+            if exp_.is_number and exp_.is_negative and getattr(base, "free_symbols", set()):
+                poles.add(base)
+    except Exception:
+        pass
+    return poles
+
+
+def _domain_mismatch(a_str, b_str, var_names):
+    """If expr_a and expr_b have DIFFERENT poles (one side is undefined where the other is
+    defined), an equality that simplifies to zero is true only OFF that singular set --
+    NOT an unconditional identity, and must not be sealed as a clean HOLDS. Returns a short
+    description of the differing poles, or None when the domains match (clean). Re-parses
+    the raw strings with evaluate=False so a pattern like x/x is not auto-reduced to 1
+    before its pole can be seen."""
+    try:
+        locals_ = {n: Symbol(n) for n in (var_names or [])}
+        locals_.setdefault("oo", oo)
+        locals_.setdefault("inf", oo)
+        ra = sympify(a_str, locals=locals_, evaluate=False)
+        rb = sympify(b_str, locals=locals_, evaluate=False)
+    except Exception:
+        return None
+    pa, pb = _pole_bases(ra), _pole_bases(rb)
+    if pa == pb:
+        return None
+    diff = pa.symmetric_difference(pb)
+    return ", ".join(sorted(str(p) for p in diff)) if diff else None
+
+
 def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
     _ensure_sympy()
     a = spec.get("expr_a")
@@ -74,10 +112,20 @@ def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
         ea = _parse(a, var_names)
         eb = _parse(b, var_names)
         diff_ = simplify(ea - eb)
+        _dm = _domain_mismatch(a, b, var_names)
         if diff_ == 0:
+            if _dm:
+                return mismatch("mathematics.equality",
+                    f"{a} == {b} holds only off the singular set (denominator vanishes at: "
+                    f"{_dm}); a removable singularity makes this NOT an unconditional "
+                    f"identity (e.g. x/x is undefined at x=0)")
             return confirm("mathematics.equality", f"{a} == {b} simplifies to zero")
         # Try expand in case simplify didn't normalize
         if expand(ea - eb) == 0:
+            if _dm:
+                return mismatch("mathematics.equality",
+                    f"{a} == {b} holds only off the singular set (denominator vanishes at: "
+                    f"{_dm}); not an unconditional identity")
             return confirm("mathematics.equality", f"{a} == {b} after expand")
         return mismatch("mathematics.equality", f"{a} - ({b}) simplifies to {diff_}")
     except _PARSE_ERRORS as e:
