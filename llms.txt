@@ -27,10 +27,11 @@ curl -s https://narrowhighway.com/derivation/verify \
        "seal":true}'
 ```
 
-Returns `verdict: HOLDS` and a `receipt.cite_url`. (This exact identity is sealed at
-`https://narrowhighway.com/seal/e392836d3820b85fec2191788e8a7f2fb1c8d6fc491373a2a16b9a8380369a9f`.)
-A multi-step derivation passes only if EVERY step holds and each builds on confirmed prior
-steps -- the trail is the trust. Other modes: `inequality` (`lhs`,`rhs`,`op`),
+Returns `verdict: HOLDS` and a `receipt.cite_url` -- a permanent page (for example
+`https://narrowhighway.com/seal/3abf4d475a354981998481a91cc15621f851396b45dd29b3628f27581e59bfec`)
+that anyone can open to confirm the verdict. Each successful seal mints its own permanent
+receipt. A multi-step derivation passes only if EVERY step holds and each builds on confirmed
+prior steps -- the trail is the trust. Other modes: `inequality` (`lhs`,`rhs`,`op`),
 `derivative` (`function`,`variable`,`claimed_derivative`).
 
 ## Why this is worth a tool call
