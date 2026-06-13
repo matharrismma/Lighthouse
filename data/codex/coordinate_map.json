@@ -11,15 +11,15 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1620,
-  "edges": 893,
+  "nodes": 1621,
+  "edges": 898,
   "kin": 1584,
-  "braces": 2477,
+  "braces": 2482,
   "vine_validity": 1.0,
-  "reach_source": 1620,
-  "rigidity_ratio": 0.765,
+  "reach_source": 1621,
+  "rigidity_ratio": 0.766,
   "language": 1252,
-  "math": 315,
+  "math": 316,
   "axis": 53
  },
  "nodes": [
@@ -19462,6 +19462,18 @@
    "level": "connection",
    "kind": "almanac",
    "title": "Play captures the force -- the most power transfers at the match (R_L = R_s), no"
+  },
+  {
+   "id": "connection_dynamo_is_faraday_emf_rotation_projected",
+   "tree": "math",
+   "t": 0.4146,
+   "layer": 0.5,
+   "hue": 116,
+   "x": 625.6,
+   "y": 588.4,
+   "level": "connection",
+   "kind": "almanac",
+   "title": "The dynamo harnesses rotation into electricity -- Faraday's EMF = -dPhi/dt: the "
   }
  ],
  "edges": [
@@ -23035,6 +23047,26 @@
   ],
   [
    "connection_play_captures_force_impedance_match",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "connection_dynamo_is_faraday_emf_rotation_projected",
+   "connection_the_rotary_motor_of_life_atp_synthase_and_the_flagellum"
+  ],
+  [
+   "connection_dynamo_is_faraday_emf_rotation_projected",
+   "connection_unit_circle_is_the_master_trig_form"
+  ],
+  [
+   "connection_dynamo_is_faraday_emf_rotation_projected",
+   "energy_conservation"
+  ],
+  [
+   "connection_dynamo_is_faraday_emf_rotation_projected",
+   "ac_dc_grid"
+  ],
+  [
+   "connection_dynamo_is_faraday_emf_rotation_projected",
    "connection_reality_is_mappable"
   ]
  ],
