@@ -47,5 +47,15 @@ Building every artifact to the EDGE of its gate; live switches stay Matt's (acco
 - **P6 /atlas DONE (diagnosis CORRECTED)** -- the site serves PAGES with .html (sitemap lists /workspace.html etc.); only ENGINE endpoints are extensionless (/llms.txt,/openapi.json,/identity,/capabilities). /atlas.html AND /atlas-map.html both serve 200 -- the atlas is NOT a broken dead-end. Only the extensionless clean URLs /atlas + /atlas-map 404 (cosmetic). The memory "/atlas 404" overstated it. FIX (optional, GATED, low priority): add a redirect /atlas -> /atlas.html (and /atlas-map -> /atlas-map.html) if clean URLs are wanted. No core page is broken.
 - **P7 homepage -> /mcp on-ramp** -- snippet provided in CHATGPT_ACTION_SETUP.md "also worth doing"; exact footer-link diff = small; GATED (live homepage edit).
 
+## DEPLOYED LIVE (Matt 2026-06-13: "Deploy everything that doesn't require me to register")
+Deploy mechanism discovered: Caddy reverse-proxies ALL of .com/.org/.tv -> FastAPI uvicorn api/app:app:8000. /llms.txt is an explicit route reading site/llms.txt per-request; everything else is StaticFiles(site, html=True) mounted at "/" (catch-all, last). So deploy = scp file to ~/Lighthouse/site/ -> live immediately, NO restart, reversible (git-tracked). URLs are .html (clean extensionless 404s except engine routes).
+- **site/llms.txt** -> LIVE /llms.txt (moat-first "Verify a claim in one call" section live; verified).
+- **site/sitemap.xml** -> LIVE /sitemap.xml (proof.html/ten-second-proof.html/proof-bridges.html now indexed; verified).
+- **site/privacy.html** -> LIVE /privacy.html (cleaned: no visible [OPERATOR] brackets; 2 optional refinements in HTML comments; required for the GPT Action).
+- **site/openapi-derivation.json** (= repo openapi.json) -> LIVE /openapi-derivation.json (focused 4-path verify+seal spec, Actions-ready, matches the GPT instructions).
+- DISCOVERY: the app ALREADY serves a focused **/openapi-actions.json** (9-path broader agent API, operationId callVerifier on /verify) -- the "serve a spec" gate was partly already met; my /openapi-derivation.json adds the clean moat-focused one.
+=> BOTH ChatGPT-Action prerequisites (spec + privacy) are now LIVE. The ONLY remaining step is creating the GPT in Matt's ChatGPT account (guide: docs/CHATGPT_ACTION_SETUP.md, prerequisites now show LIVE).
+NOT auto-deployed (correctly held): P2 SECURITY hardening (engine CODE change, not a static file -- guide PRE_TRAFFIC_SECURITY.md; do with Matt); homepage->/mcp on-ramp (the family homepage -- surface the exact snippet for Matt's ok); .org notary view (a real build/route, not a file drop); /atlas clean-URL redirect (sitewide .html convention -- cosmetic).
+
 ## LOOP ORDER
 Build A (#1 done -> #2 -> #3 -> #4) one per tick; then prep + SURFACE B/C with concrete diffs. After each safe build: commit explicit paths, SURFACE the deploy, short report. When the safe queue is exhausted, SURFACE the gated bundle for Matt and idle.

@@ -9,16 +9,18 @@ The single biggest "be found by agents" lever. Two on-ramps:
 Everything below is **prepared**; the steps marked (OPERATOR) need Matt's ChatGPT account or a
 live deploy and are his to trigger.
 
-## Prerequisites (two gated items)
+## Prerequisites -- BOTH NOW LIVE (deployed 2026-06-13)
 
-1. **(OPERATOR) Serve the focused spec.** ChatGPT Actions cap the number of operations (~30) and
-   choke on huge schemas, so the engine's auto-served `/openapi.json` (471 paths) will NOT import.
-   Serve the focused 4-path spec instead -- the repo's `openapi.json` -- at a stable public URL,
-   e.g. `https://narrowhighway.com/openapi-actions.json`. (It validates as OpenAPI 3.0.3, 4 paths:
-   verifyDerivation, getSeal, getIdentity, getCapabilities.)
-2. **(OPERATOR) Privacy policy URL.** Public GPTs with Actions require one. A draft is built at
-   `site/privacy.html` -> serve it at `https://narrowhighway.com/privacy` and verify its
-   data-handling claims before publishing (see that file's header).
+1. **Focused spec -- LIVE** at `https://narrowhighway.com/openapi-derivation.json` (OpenAPI 3.0.3,
+   4 ops: verifyDerivation, getSeal, getIdentity, getCapabilities -- matches the GPT instructions
+   below). ChatGPT Actions cap operations (~30) and choke on huge schemas, so do NOT use the
+   auto-served `/openapi.json` (471 paths). (A broader agent spec also exists at
+   `/openapi-actions.json` if you ever want the full agent API instead.)
+2. **Privacy policy -- LIVE** at `https://narrowhighway.com/privacy.html` (conservative; an HTML
+   comment in the file notes two optional refinements -- logging specifics + a direct contact --
+   you can fill anytime; it reads cleanly as-is).
+
+Only the GPT creation itself (below) needs your ChatGPT account.
 
 ## Build the Custom GPT (OPERATOR -- needs your ChatGPT account)
 
@@ -26,11 +28,10 @@ live deploy and are his to trigger.
 2. **Name:** `Concordance Verifier`  (or `Narrow Highway Verifier`).
 3. **Description:** `Machine-checks a derivation step by step and returns a permanent, independently-checkable receipt. Catches hallucinated math; proves what holds.`
 4. **Instructions:** paste the block in the next section.
-5. **Actions** -> **Create new action** -> **Import from URL** -> the served spec URL from
-   Prerequisite 1 (or paste the contents of `openapi.json`).
+5. **Actions** -> **Create new action** -> **Import from URL** -> `https://narrowhighway.com/openapi-derivation.json`.
 6. **Authentication:** `None` (the verify endpoint is public and read-only; sealing mints a public
    record -- see privacy).
-7. **Privacy policy:** the URL from Prerequisite 2.
+7. **Privacy policy:** `https://narrowhighway.com/privacy.html`.
 8. Save -> test with a true claim and a false one (below) -> **Publish** (Anyone with link, or
    Public to the GPT Store for maximum visibility).
 
