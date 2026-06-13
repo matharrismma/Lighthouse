@@ -1,0 +1,773 @@
+{
+ "meta": {
+  "purpose": "every surface gets a map/visual location; periphery->.org/.tv routing PLAN (moves are operator-gated)",
+  "domains": {
+   ".com": "core app/engine",
+   ".org": "authority/registry/community",
+   ".tv": "gift/family content"
+  }
+ },
+ "counts": {
+  ".com": 123,
+  ".tv": 17,
+  ".org": 11
+ },
+ "total": 151,
+ "surfaces": [
+  {
+   "page": "404.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "about.html",
+   "domain": ".com",
+   "category": "explain"
+  },
+  {
+   "page": "agents.html",
+   "domain": ".com",
+   "category": "agent"
+  },
+  {
+   "page": "almanac.html",
+   "domain": ".com",
+   "category": "almanac"
+  },
+  {
+   "page": "apokalypsis.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "apothecary.html",
+   "domain": ".com",
+   "category": "practical"
+  },
+  {
+   "page": "archetypes.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "assembly.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "atlas-map.html",
+   "domain": ".com",
+   "category": "maps"
+  },
+  {
+   "page": "atlas.html",
+   "domain": ".com",
+   "category": "atlas"
+  },
+  {
+   "page": "benchmark.html",
+   "domain": ".com",
+   "category": "proof"
+  },
+  {
+   "page": "bible-trivia.html",
+   "domain": ".tv",
+   "category": "scripture"
+  },
+  {
+   "page": "bibles.html",
+   "domain": ".com",
+   "category": "scripture"
+  },
+  {
+   "page": "calendar.html",
+   "domain": ".com",
+   "category": "practical"
+  },
+  {
+   "page": "canon.html",
+   "domain": ".com",
+   "category": "scripture"
+  },
+  {
+   "page": "card.html",
+   "domain": ".com",
+   "category": "cards"
+  },
+  {
+   "page": "cards-dev.html",
+   "domain": ".com",
+   "category": "cards"
+  },
+  {
+   "page": "channels.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "characters.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "chronicle.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "church-streams.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "codex-connections.html",
+   "domain": ".org",
+   "category": "codex"
+  },
+  {
+   "page": "codex-deep.html",
+   "domain": ".com",
+   "category": "codex"
+  },
+  {
+   "page": "codex-seal.html",
+   "domain": ".com",
+   "category": "codex"
+  },
+  {
+   "page": "codex-themes.html",
+   "domain": ".com",
+   "category": "codex"
+  },
+  {
+   "page": "codex-xref.html",
+   "domain": ".com",
+   "category": "codex"
+  },
+  {
+   "page": "codex.html",
+   "domain": ".com",
+   "category": "codex"
+  },
+  {
+   "page": "common-book.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "connect.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "contact.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "coordinate-map.html",
+   "domain": ".com",
+   "category": "maps"
+  },
+  {
+   "page": "curate.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "curriculum.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "dade.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "daily.html",
+   "domain": ".com",
+   "category": "cards"
+  },
+  {
+   "page": "dashboard.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "deposit.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "desk.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "discern-teaching.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "door-org.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "door-tv.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "encyclopedia.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "engine-queue.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "family.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "fieldkit.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "funnel.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "games.html",
+   "domain": ".tv",
+   "category": "kids"
+  },
+  {
+   "page": "gaps.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "gates.html",
+   "domain": ".com",
+   "category": "scripture"
+  },
+  {
+   "page": "giving.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "grid.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "guidance.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "handoff.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "health.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "hearth.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "household.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "how-it-works.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "hymns.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "inbox.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "index.html",
+   "domain": ".com",
+   "category": "explain"
+  },
+  {
+   "page": "innovation.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "install.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "keep.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "kids.html",
+   "domain": ".tv",
+   "category": "kids"
+  },
+  {
+   "page": "learn-deep.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "learn.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "letters.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "library.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "listen.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "live.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "maker.html",
+   "domain": ".com",
+   "category": "practical"
+  },
+  {
+   "page": "map.html",
+   "domain": ".com",
+   "category": "maps"
+  },
+  {
+   "page": "marketplace.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "mcp.html",
+   "domain": ".com",
+   "category": "agent"
+  },
+  {
+   "page": "media-center.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "misalignments.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "molasses.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "nfc.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "odysseus.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "offline.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "operator.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "organic-design.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "outreach.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "packets.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "parable.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "paths.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "pilots.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "pitch.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "places.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "podcast-theatre.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "podcast.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "poly.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "prayer.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "profile.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "proof-bridges.html",
+   "domain": ".com",
+   "category": "proof"
+  },
+  {
+   "page": "proof.html",
+   "domain": ".com",
+   "category": "proof"
+  },
+  {
+   "page": "publish.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "pyodide.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "radio.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "reach.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "reading-room.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "reading.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "receipts.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "recipes.html",
+   "domain": ".tv",
+   "category": "practical"
+  },
+  {
+   "page": "refuge.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "registry.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "residue.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "roadmap.html",
+   "domain": ".com",
+   "category": "maps"
+  },
+  {
+   "page": "robots.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "run.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "schedule.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "scribe.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "search.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "seeds.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "setup.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "share.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "shelves.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "shepherd-room.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "sponsors.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "stack.html",
+   "domain": ".com",
+   "category": "cards"
+  },
+  {
+   "page": "steward.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "submit-content.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "submit-curriculum.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "submit-recipe.html",
+   "domain": ".tv",
+   "category": "practical"
+  },
+  {
+   "page": "support.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "take-part.html",
+   "domain": ".tv",
+   "category": "media"
+  },
+  {
+   "page": "tasks.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "ten-second-proof.html",
+   "domain": ".com",
+   "category": "proof"
+  },
+  {
+   "page": "testimony.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "theory.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "tickets.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "today.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "tools.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "tradition.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "training.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "try.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "unit.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "verifiers.html",
+   "domain": ".com",
+   "category": "proof"
+  },
+  {
+   "page": "walk.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "walks.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "wallet-help.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "wallet-transparency.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "watch-listen.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "watch.html",
+   "domain": ".tv",
+   "category": "channels"
+  },
+  {
+   "page": "welcome.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "witness.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "witnesses.html",
+   "domain": ".org",
+   "category": "community"
+  },
+  {
+   "page": "works.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "workshop.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "workspace.html",
+   "domain": ".com",
+   "category": "other"
+  },
+  {
+   "page": "you.html",
+   "domain": ".com",
+   "category": "other"
+  }
+ ]
+}

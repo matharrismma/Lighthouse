@@ -48,3 +48,6 @@ The working doc for this loop. Each 60s tick takes ONE queue item: build the SAF
 - Security: confirm verify-endpoint parser safety + CORS + rate-limit + size limits; check rotate_tunnel_token.ps1; keep-page lockout.
 - Routing: the live .org/.tv DNS/deploy moves of periphery content.
 - Deploys of public pages (proof-bridges.html, coordinate-map.html, the surface map); reflect "Concordance of Reality" in /identity.
+
+## DONE -- Surface map (tick 2)
+Built `tools/surface_map.py` (re-runnable) -> `data/codex/surface_map.json` + `site/surface-map.html`. **All 151 surfaces now have a visual/map location**, placed by domain: **.com 123** (core -- the Concordance), **.org 11** (authority/registry/community), **.tv 17** (gift/family content). The page is the **routing PLAN** (periphery -> .org/.tv so the core stays lean); the actual DNS/deploy MOVES are operator-gated. Companion to coordinate-map.html (cards) -- now both cards AND surfaces are mapped; nothing lacks a place. NEXT (tick 3): ease-of-use (index -> core path); classification is heuristic -- refine .com=123 (many defaulted) into finer core/tool/periphery as the project settles.
