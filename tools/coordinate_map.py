@@ -226,7 +226,7 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 <text x="{vx0:.1f}" y="{ry:.1f}" fill="#cdb98a" font-size="13" text-anchor="middle" font-weight="600">ONE ROOT &mdash; source</text>
 <text x="40" y="960" fill="#777" font-size="11">source</text><text x="40" y="560" fill="#777" font-size="11">&mdash; widest (divergence/convergence) &mdash;</text><text x="40" y="180" fill="#777" font-size="11">source</text>
 </svg>
-<p class="foot">Built from the saved seeds &mdash; {nodes} cards ({lang} language / {math} math / {axis} axis), invents nothing; re-run <code>python tools/coordinate_map.py</code>. Data: <code>data/codex/coordinate_map.json</code>. "We are the Concordance of Reality" &mdash; a clean mirror; every thing placed; the apex reserved.</p>
+<p class="foot"><b>Map companions:</b> <a href="surface-map.html">the surface map</a> (every page placed) &middot; <a href="proof-bridges.html">the proof bridges</a> (word &harr; verified form) &middot; <a href="atlas.html">the Atlas</a> &middot; <a href="https://narrowhighway.com/mcp">for your AI &mdash; the MCP</a>.<br>Built from the saved seeds &mdash; {nodes} cards ({lang} language / {math} math / {axis} axis), invents nothing; re-run <code>python tools/coordinate_map.py</code>. Data: <code>data/codex/coordinate_map.json</code>. "We are the Concordance of Reality" &mdash; a clean mirror; every thing placed; the apex reserved.</p>
 </main></body></html>'''.format(
     env=env_path(), edges_svg=edge_svg, kin_svg=kin_svg, nodes_svg=node_svg, edges=stats["edges"],
     kin=stats["kin"], rig=stats["rigidity_ratio"],
