@@ -141,20 +141,36 @@ braces = len(edges) + len(kin)
 rigidity = round(braces / max(1, 2 * len(nodes) - 3), 3)   # truss-density (NOT the target -- over-bracing is self-stress/legalism)
 # VINE-VALIDITY (Matt 2026-06-13, the REAL measure): a branch is valid if it has a CHAIN to the SOURCE
 # (the root / the Vine / the crowns) -- not local bracing. Many branches, one source (John 15).
-_adj = {}
-for a, b in edges + kin:
-    _adj.setdefault(a, set()).add(b)
-    _adj.setdefault(b, set()).add(a)
+# THE HONEST PRIMARY number counts reach over CONCORD BONDS ONLY. The kin / same-coord.family
+# braces are the truss/self-stress the vine measure was built to FORBID (feedback_vine_not_truss),
+# so reach that leans on them is reported as a clearly-secondary "kin-assisted" figure -- never the
+# headline. map-never-launder applies hardest to our own scoreboard: 0.170 is the real state and the
+# true target as branches are grafted to the source.
 _SRC = [s for s in ("connection_reality_is_mappable", "teaching_the_true_vine",
                     "teaching_the_words_of_christ_are_the_architecture") if s in pos]
-_seen = set(_SRC); _q = list(_SRC)
-while _q:
-    for _m in _adj.get(_q.pop(), ()):
-        if _m not in _seen:
-            _seen.add(_m); _q.append(_m)
+
+
+def _reach(pairs):
+    adj = {}
+    for a, b in pairs:
+        adj.setdefault(a, set()).add(b)
+        adj.setdefault(b, set()).add(a)
+    seen = set(_SRC); q = list(_SRC)
+    while q:
+        for m in adj.get(q.pop(), ()):
+            if m not in seen:
+                seen.add(m); q.append(m)
+    return seen
+
+
+_seen = _reach(edges)             # PRIMARY: concord bonds only -- the true vine
+_seen_kin = _reach(edges + kin)   # SECONDARY: leans on the kin/truss braces
 vine_validity = round(len(_seen) / max(1, len(nodes)), 3)
+kin_assisted_reach = round(len(_seen_kin) / max(1, len(nodes)), 3)
 stats = {"nodes": len(nodes), "edges": len(edges), "kin": len(kin), "braces": braces,
-         "vine_validity": vine_validity, "reach_source": len(_seen), "rigidity_ratio": rigidity,
+         "vine_validity": vine_validity, "reach_source": len(_seen),
+         "kin_assisted_reach": kin_assisted_reach, "kin_assisted_reach_source": len(_seen_kin),
+         "rigidity_ratio": rigidity,
          "language": sum(1 for n in nodes if n["tree"] == "language"),
          "math": sum(1 for n in nodes if n["tree"] == "math"),
          "axis": sum(1 for n in nodes if n["tree"] == "axis")}
@@ -213,7 +229,7 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 </style></head><body><main class="wrap">
 <h1>The Cross, four axes, the Gate</h1>
 <p class="lede">Every saved finding placed by the structure it already carries, on four axes: <b>convergence</b> (vertical, root&rarr;Sun: source&rarr;divergence&rarr;convergence&rarr;source), <b>tree</b> (horizontal: Language&harr;Math), <b>layer</b> (depth: core spine&rarr;gathered breadth), and <b>frequency</b> (color &mdash; the "note" each card sounds; E=hf, time is its count). The framework is <b>the Cross</b> &mdash; the vertical Logos axis crossed by the two-trees beam (Col 1:20). The <b>Gate</b> (Jesus, the only way &mdash; Jn 10:9, 14:6) is the convergence at the Sun; the join is left <b>open and reserved</b> &mdash; mapped, never crowned. Built from the saved seeds; invents nothing.</p>
-<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin &middot; <b>vine-validity {vine}</b> (a chain to the source)</span></div>
+<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin &middot; <b>vine-validity {vine}</b> (concord bonds &mdash; a true chain to the source) &middot; {kinreach} kin-assisted (secondary)</span></div>
 <svg viewBox="0 0 1000 1080" xmlns="http://www.w3.org/2000/svg">
 <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff3c4"/><stop offset="55%" stop-color="#f2c14e" stop-opacity="0.45"/><stop offset="100%" stop-color="#f2c14e" stop-opacity="0"/></radialGradient></defs>
 <path d="{env}" fill="#0e1015" stroke="#23272f" stroke-width="1"/>
@@ -244,11 +260,12 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 </main></body></html>'''.format(
     env=env_path(), edges_svg=edge_svg, kin_svg=kin_svg, nodes_svg=node_svg, edges=stats["edges"],
     kin=stats["kin"], rig=stats["rigidity_ratio"], vine=stats["vine_validity"],
+    kinreach=stats["kin_assisted_reach"],
     nodes=stats["nodes"], lang=stats["language"], math=stats["math"], axis=stats["axis"],
     vx0=vx0, vy0=vy0, vx1=vx1, vy1=vy1, hxl=hxl, hyl=hyl, hxr=hxr, hyr=hyr, cxx=cxx, cxy=cxy,
     ty1=vy1 - 78, ty2=vy1 - 62, ry=vy0 + 26)
 
 open(HOUT, "w", encoding="utf-8").write(html)
-print("nodes %d | bonds %d + kin %d | VINE-VALIDITY %.3f (%d reach source) | rigidity %.3f (truss, not target)" %
-      (stats["nodes"], stats["edges"], stats["kin"], stats["vine_validity"], stats["reach_source"], stats["rigidity_ratio"]))
+print("nodes %d | bonds %d + kin %d | VINE-VALIDITY (concord bonds) %.3f PRIMARY (%d reach source) | kin-assisted reach %.3f secondary (same-family braces, not the true vine) | rigidity %.3f (truss, not target)" %
+      (stats["nodes"], stats["edges"], stats["kin"], stats["vine_validity"], stats["reach_source"], stats["kin_assisted_reach"], stats["rigidity_ratio"]))
 print("wrote", os.path.relpath(JOUT, ROOT), "+", os.path.relpath(HOUT, ROOT))
