@@ -128,8 +128,19 @@ for r in rows:
 pos = {n["id"]: n for n in nodes}
 edges = [[r.get("id"), b] for r in rows for b in (r.get("bonds") or [])
          if r.get("id") in pos and b in pos]
+# structural KIN braces (same coord.family) -- honest same-form relations, faint,
+# kept DISTINCT from concord bonds; develop-to-accuracy / Maxwell-rigidity (data/codex/kin_edges.json)
+KIN = os.path.join(ROOT, "data/codex/kin_edges.json")
+kin = []
+if os.path.exists(KIN):
+    for e in json.load(open(KIN, encoding="utf-8")).get("edges", []):
+        if len(e) >= 2 and e[0] in pos and e[1] in pos:
+            kin.append([e[0], e[1]])
 
-stats = {"nodes": len(nodes), "edges": len(edges),
+braces = len(edges) + len(kin)
+rigidity = round(braces / max(1, 2 * len(nodes) - 3), 3)   # 1.0 = Maxwell just-rigid (2D)
+stats = {"nodes": len(nodes), "edges": len(edges), "kin": len(kin), "braces": braces,
+         "rigidity_ratio": rigidity,
          "language": sum(1 for n in nodes if n["tree"] == "language"),
          "math": sum(1 for n in nodes if n["tree"] == "math"),
          "axis": sum(1 for n in nodes if n["tree"] == "axis")}
@@ -139,7 +150,7 @@ json.dump({"meta": {"axes": ["convergence(root<->Sun)", "tree(Language<->Math)",
                     "framework": "the Cross (vertical Logos axis x horizontal two-trees beam, Col 1:20)",
                     "gate": "Jesus, the only way (Jn 10:9/14:6), at the convergence apex -- mapped, never crowned",
                     "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"},
-           "stats": stats, "nodes": nodes, "edges": edges},
+           "stats": stats, "nodes": nodes, "edges": edges, "kin": kin},
           open(JOUT, "w", encoding="utf-8"), indent=1)
 
 # render (static isometric 3D cruciform) -------------------------------------
@@ -159,6 +170,9 @@ edge_svg = "\n".join(
         (pos[a]["x"] + pos[b]["x"]) / 2 + (pos[b]["y"] - pos[a]["y"]) * 0.05,
         (pos[a]["y"] + pos[b]["y"]) / 2,
         pos[b]["x"], pos[b]["y"]) for a, b in edges)
+kin_svg = "\n".join(
+    '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f"/>' % (
+        pos[a]["x"], pos[a]["y"], pos[b]["x"], pos[b]["y"]) for a, b in kin)
 
 node_svg = "\n".join(
     '<circle cx="%.1f" cy="%.1f" r="%.1f" fill="hsl(%d,70%%,62%%)" fill-opacity="%.2f"><title>%s</title></circle>' % (
@@ -185,10 +199,13 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 </style></head><body><main class="wrap">
 <h1>The Cross, four axes, the Gate</h1>
 <p class="lede">Every saved finding placed by the structure it already carries, on four axes: <b>convergence</b> (vertical, root&rarr;Sun: source&rarr;divergence&rarr;convergence&rarr;source), <b>tree</b> (horizontal: Language&harr;Math), <b>layer</b> (depth: core spine&rarr;gathered breadth), and <b>frequency</b> (color &mdash; the "note" each card sounds; E=hf, time is its count). The framework is <b>the Cross</b> &mdash; the vertical Logos axis crossed by the two-trees beam (Col 1:20). The <b>Gate</b> (Jesus, the only way &mdash; Jn 10:9, 14:6) is the convergence at the Sun; the join is left <b>open and reserved</b> &mdash; mapped, never crowned. Built from the saved seeds; invents nothing.</p>
-<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds</span></div>
+<div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin-braces &middot; rigidity {rig}</span></div>
 <svg viewBox="0 0 1000 1080" xmlns="http://www.w3.org/2000/svg">
 <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff3c4"/><stop offset="55%" stop-color="#f2c14e" stop-opacity="0.45"/><stop offset="100%" stop-color="#f2c14e" stop-opacity="0"/></radialGradient></defs>
 <path d="{env}" fill="#0e1015" stroke="#23272f" stroke-width="1"/>
+<g stroke="#3a3f48" stroke-width="0.3" opacity="0.12">
+{kin_svg}
+</g>
 <g stroke="#525a68" stroke-width="0.4" fill="none" opacity="0.22">
 {edges_svg}
 </g>
@@ -211,12 +228,13 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 </svg>
 <p class="foot">Built from the saved seeds &mdash; {nodes} cards ({lang} language / {math} math / {axis} axis), invents nothing; re-run <code>python tools/coordinate_map.py</code>. Data: <code>data/codex/coordinate_map.json</code>. "We are the Concordance of Reality" &mdash; a clean mirror; every thing placed; the apex reserved.</p>
 </main></body></html>'''.format(
-    env=env_path(), edges_svg=edge_svg, nodes_svg=node_svg, edges=stats["edges"],
+    env=env_path(), edges_svg=edge_svg, kin_svg=kin_svg, nodes_svg=node_svg, edges=stats["edges"],
+    kin=stats["kin"], rig=stats["rigidity_ratio"],
     nodes=stats["nodes"], lang=stats["language"], math=stats["math"], axis=stats["axis"],
     vx0=vx0, vy0=vy0, vx1=vx1, vy1=vy1, hxl=hxl, hyl=hyl, hxr=hxr, hyr=hyr, cxx=cxx, cxy=cxy,
     ty1=vy1 - 78, ty2=vy1 - 62, ry=vy0 + 26)
 
 open(HOUT, "w", encoding="utf-8").write(html)
-print("nodes %d (lang %d / math %d / axis %d) | edges %d | 4 axes: convergence/tree/layer/frequency" %
-      (stats["nodes"], stats["language"], stats["math"], stats["axis"], stats["edges"]))
+print("nodes %d | bonds %d + kin %d = %d braces | rigidity %.3f (1.0=Maxwell just-rigid)" %
+      (stats["nodes"], stats["edges"], stats["kin"], stats["braces"], stats["rigidity_ratio"]))
 print("wrote", os.path.relpath(JOUT, ROOT), "+", os.path.relpath(HOUT, ROOT))

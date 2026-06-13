@@ -51,3 +51,9 @@ The working doc for this loop. Each 60s tick takes ONE queue item: build the SAF
 
 ## DONE -- Surface map (tick 2)
 Built `tools/surface_map.py` (re-runnable) -> `data/codex/surface_map.json` + `site/surface-map.html`. **All 151 surfaces now have a visual/map location**, placed by domain: **.com 123** (core -- the Concordance), **.org 11** (authority/registry/community), **.tv 17** (gift/family content). The page is the **routing PLAN** (periphery -> .org/.tv so the core stays lean); the actual DNS/deploy MOVES are operator-gated. Companion to coordinate-map.html (cards) -- now both cards AND surfaces are mapped; nothing lacks a place. NEXT (tick 3): ease-of-use (index -> core path); classification is heuristic -- refine .com=123 (many defaulted) into finer core/tool/periphery as the project settles.
+
+## DEVELOP-TO-ACCURACY -- stiffen toward Maxwell-rigidity (Matt + Maxwell's rule)
+The model is a framework; Maxwell's rule (bars = 2j-3) is its accuracy measure. **Rigidity ratio (1.0 = just-rigid) is the tracked number; climb it ONLY with TRUE braces -- never a faked edge (map-never-launder).** Braces are stored separately in `data/codex/kin_edges.json` (reversible; each carries its reason), DISTINCT from concord `bonds`; coordinate_map.py renders kin faint.
+- Baseline: 534 concord bonds, ~1408 floppy (zero-bond) cards -> rigidity **0.21**.
+- **Batch 1 (coord.family kin):** +367 braces, 228 floppy family-cards connected (same coord.family = same FORM = a true relation) -> rigidity **0.292**.
+- NEXT batches (honest signals only): shared scripture-ref / scripture_anchors co-citers (the cross-ref web); domain-cluster anchoring (sparingly); axis/topic kin. Goal: every joint supplies (Eph 4:16), no floppy orphans, NOT over-braced (elegant, just-rigid), every brace a real relation.
