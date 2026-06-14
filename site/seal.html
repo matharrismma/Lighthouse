@@ -1,6 +1,15 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sealed proof &mdash; Narrow Highway</title>
-<meta name="description" content="A machine-checked proof you can read and re-check yourself. The page's address is the hash of its content.">
+<meta name="description" content="A machine-checked proof you can read and re-check yourself. Each step shown in real notation; the page's address is the hash of its content.">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false },
+  loader: { load: [] }
+};
+</script>
+<script src="/vendor/mathjax/tex-svg.js" id="MathJax-script" async></script>
 <style>
 :root{--bg:#0a0b0e;--card:#14161c;--tx:#e9eaee;--mut:#9aa0ad;--line:#23262d;--ok:#56d364;--bad:#f25c54;--amber:#f2c14e;--accent:#cdb98a}
 *{box-sizing:border-box}
@@ -14,15 +23,22 @@ a{color:var(--accent)}
 .verdict.other{color:var(--amber);border-color:#6b5a1f;background:#1b170d}
 h1{font-size:1.35rem;font-weight:650;margin:.9rem 0 .2rem;line-height:1.3}
 .lede{color:var(--mut);font-size:.95rem;margin:.2rem 0 1.4rem}
-.step{background:var(--card);border:1px solid var(--line);border-radius:.7rem;padding:1rem 1.1rem;margin:.8rem 0}
-.step .top{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.chain{position:relative}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:.7rem;padding:.95rem 1.1rem;margin:0 0 .85rem}
+.step .top{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:.45rem}
+.step .lhs{display:flex;align-items:center;gap:.55rem}
+.step .num{display:inline-flex;align-items:center;justify-content:center;min-width:1.5rem;height:1.5rem;border-radius:50%;background:#0c0e13;border:1px solid var(--line);font-size:.8rem;color:var(--mut)}
 .step .domain{font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .step .status{font-size:.74rem;font-weight:700;color:var(--ok)}
 .step .status.no{color:var(--bad)}
-.claim{font-size:1.02rem;margin:.1rem 0 .55rem}
-.math{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:1.08rem;background:#0c0e13;border:1px solid var(--line);border-radius:.45rem;padding:.7rem .85rem;overflow-x:auto;color:#f4f5f8}
-.math sup{font-size:.72em}
-.method{font-size:.82rem;color:var(--mut);margin-top:.5rem}
+.claim{font-size:1.0rem;margin:.15rem 0 .5rem}
+.math{font-size:1.12rem;background:#0c0e13;border:1px solid var(--line);border-radius:.45rem;padding:.6rem .85rem;overflow-x:auto;color:#f4f5f8;text-align:center}
+.math.plain{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:1.04rem;text-align:left}
+.math.plain sup{font-size:.72em}
+.method{font-size:.84rem;color:var(--mut);margin-top:.5rem}
+.uses{font-size:.74rem;color:var(--mut);margin-top:.5rem;border-top:1px dashed var(--line);padding-top:.45rem}
+.uses b{color:var(--accent);font-weight:600}
+.connector{height:.85rem;width:2px;background:linear-gradient(var(--line),var(--line));margin:-.85rem auto .0;position:relative;left:0}
 .sec{margin-top:2rem;border-top:1px solid var(--line);padding-top:1.3rem}
 .sec h2{font-size:.95rem;font-weight:650;margin:0 0 .5rem}
 .sec p{font-size:.9rem;color:var(--mut);margin:.35rem 0}
@@ -36,6 +52,7 @@ h1{font-size:1.35rem;font-weight:650;margin:.9rem 0 .2rem;line-height:1.3}
 .lookup input{flex:1;background:#0c0e13;border:1px solid var(--line);border-radius:.45rem;color:var(--tx);padding:.55rem .7rem;font-family:ui-monospace,monospace;font-size:.82rem}
 .lookup button{background:var(--accent);color:#1a1206;border:0;border-radius:.45rem;padding:.55rem 1rem;font-weight:650;cursor:pointer}
 .muted{color:var(--mut)}
+mjx-container{margin:0 !important}
 </style></head>
 <body><main class="wrap">
 <div class="crumb"><a href="/">Narrow Highway</a> &rsaquo; sealed proof</div>
@@ -43,7 +60,6 @@ h1{font-size:1.35rem;font-weight:650;margin:.9rem 0 .2rem;line-height:1.3}
 <p class="foot" id="foot"></p>
 </main>
 <script>
-// ---- read the hash: ?h=<hash>, #<hash>, or /seal.html/<hash> ----
 function getHash(){
   var u=new URL(window.location.href);
   var h=u.searchParams.get('h')||u.searchParams.get('hash')||(u.hash||'').replace(/^#/,'');
@@ -51,36 +67,90 @@ function getHash(){
   return (h||'').trim().toLowerCase();
 }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-// ---- prettify a Python-ish expression for human reading (honest: raw also shown on the API) ----
-function prettyExpr(s){
-  s=esc(s);
-  // a**b -> a<sup>b</sup> (exponent = number, or parenthesised group, or single token)
-  s=s.replace(/\*\*\s*\(([^()]*)\)/g,'<sup>$1</sup>');
-  s=s.replace(/\*\*\s*([A-Za-z0-9_.]+)/g,'<sup>$1</sup>');
-  s=s.replace(/\*/g,'&middot;');
-  s=s.replace(/\bsqrt\b/g,'&radic;');
-  s=s.replace(/<=/g,'&le;').replace(/>=/g,'&ge;');
-  return s;
+
+/* ---- sympy-string -> TeX (recursive descent; throws -> caller shows plain text, never wrong math) ---- */
+var TEX_CONSTS={pi:'\\pi',oo:'\\infty',inf:'\\infty',E:'e',I:'i'};
+var TEX_FUNCS={sin:'\\sin',cos:'\\cos',tan:'\\tan',cot:'\\cot',sec:'\\sec',csc:'\\csc',
+ log:'\\log',ln:'\\ln',exp:'\\exp',asin:'\\arcsin',acos:'\\arccos',atan:'\\arctan',
+ sinh:'\\sinh',cosh:'\\cosh',tanh:'\\tanh'};
+function texTokenize(s){
+  var re=/(\*\*|<=|>=|!=|==|[A-Za-z_]\w*|\d+\.?\d*|[+\-*\/(),=<>^])/y;
+  var toks=[],i=0;
+  while(i<s.length){
+    if(/\s/.test(s[i])){i++;continue;}
+    re.lastIndex=i; var m=re.exec(s);
+    if(!m||m.index!==i) throw new Error('badchar');
+    toks.push(m[1]); i=re.lastIndex;
+  }
+  return toks;
 }
-// turn a detail string into {statement, method}, robust across verifier formats.
-function renderDetail(detail){
+function toTex(s){
+  var toks=texTokenize(s),pos=0;
+  function peek(){return pos<toks.length?toks[pos]:null;}
+  function eat(t){var c=peek(); if(t!=null&&c!==t)throw new Error('exp '+t); pos++; return c;}
+  function expr(){var n=term(); while(peek()==='+'||peek()==='-'){var op=eat(); n=n+' '+op+' '+term();} return n;}
+  function term(){var n=factor();
+    while(peek()==='*'||peek()==='/'){var op=eat(); var r=factor();
+      if(op==='/') n='\\frac{'+n+'}{'+r+'}';
+      else{var lc=n.slice(-1),rc=r.charAt(0); n=n+((/\d/.test(lc)&&/\d/.test(rc))?' \\cdot ':' ')+r;}}
+    return n;}
+  function factor(){var n=unary(); if(peek()==='**'||peek()==='^'){eat(); n=n+'^{'+factor()+'}';} return n;}
+  function unary(){if(peek()==='-'){eat(); return '-'+unary();} if(peek()==='+'){eat(); return unary();} return atom();}
+  function atom(){var t=peek();
+    if(t==null) throw new Error('end');
+    if(t==='('){eat('('); var inr=expr(); eat(')'); return '\\left('+inr+'\\right)';}
+    if(/^\d+\.?\d*$/.test(t)){eat(); return t;}
+    if(/^[A-Za-z_]\w*$/.test(t)){eat();
+      if(peek()==='('){eat('('); var arg=expr(); eat(')');
+        if(t==='sqrt') return '\\sqrt{'+arg+'}';
+        if(t==='Abs') return '\\left|'+arg+'\\right|';
+        return (TEX_FUNCS[t]||('\\operatorname{'+t+'}'))+'\\left('+arg+'\\right)';}
+      if(TEX_CONSTS[t]) return TEX_CONSTS[t];
+      if(t.length>1) return '\\mathrm{'+t+'}';
+      return t;}
+    throw new Error('tok '+t);}
+  var out=expr();
+  if(pos!==toks.length) throw new Error('trailing');
+  return out;
+}
+function tryTex(s){try{return toTex(s);}catch(e){return null;}}
+
+/* prettify plain (fallback when not clean math): ** -> sup, * -> middot */
+function prettyPlain(s){s=esc(s);
+  s=s.replace(/\*\*\s*\(([^()]*)\)/g,'<sup>$1</sup>').replace(/\*\*\s*([A-Za-z0-9_.]+)/g,'<sup>$1</sup>');
+  s=s.replace(/\*/g,'&middot;').replace(/<=/g,'&le;').replace(/>=/g,'&ge;');
+  return s;}
+
+/* turn one trail item's detail into {tex, plain, caption} -- math when confidently parseable, else plain prose */
+function parseDetail(detail){
   var d=String(detail||'').trim();
-  // worked equality: "A = B; both sides reduce to C"  /  "...; the two sides are equal -- ..."
-  var semi=d.indexOf('; ');
-  if(semi>0 && d.slice(0,semi).indexOf(' = ')>-1){
-    return {statement:prettyExpr(d.slice(0,semi)), method:prettyExpr(d.slice(semi+2))};
+  // worked equality: "LHS = RHS; <prose...reduce(s) to CANON...>"
+  var mEq=d.match(/^(.+?)\s=\s(.+?);\s*(.*)$/);
+  if(mEq){
+    var L=tryTex(mEq[1]), R=tryTex(mEq[2]);
+    if(L&&R){
+      var caption=mEq[3];
+      // inline-mathify a trailing canonical expression after "reduce to"/"reduces to"/"each reduces to"
+      caption=caption.replace(/((?:reduces? to|each reduces? to)\s)([^,;]+)/,function(_,p,ex){
+        var t=tryTex(ex.trim()); return p+(t?('\\('+t+'\\)'):esc(ex));});
+      return {tex:L+' = '+R, caption:caption};
+    }
   }
-  // legacy seals: "A == B simplifies to zero" / "A == B after expand"
-  var m=d.match(/^(.*?)\s*==\s*(.*?)\s+(simplifies to zero|after expand)\s*$/);
-  if(m){
-    return {statement:prettyExpr(m[1])+' &nbsp;=&nbsp; '+prettyExpr(m[2]),
-            method:'Verified: the two sides differ by an expression that simplifies to&nbsp;0.'};
-  }
-  // derivative / limit / integral: "d/dx of x**2 = 2*x, matches 2*x" -> statement + method
-  var mm=d.match(/^(.*?),\s*((?:matches|but claimed|expected|claimed)\b.*)$/);
-  if(mm){ return {statement:prettyExpr(mm[1]), method:prettyExpr(mm[2])}; }
-  // generic (chemistry, etc.): show prettified, no fabricated structure
-  return {statement:prettyExpr(d), method:''};
+  // legacy equality: "LHS == RHS simplifies to zero" / "after expand"
+  var mLeg=d.match(/^(.+?)\s==\s(.+?)\s+(?:simplifies to zero|after expand)\s*$/);
+  if(mLeg){var L2=tryTex(mLeg[1]),R2=tryTex(mLeg[2]);
+    if(L2&&R2) return {tex:L2+' = '+R2, caption:'the two sides are equal &mdash; their difference simplifies to 0'};}
+  // derivative: "d/dvar of F = ACTUAL, matches CLAIMED"
+  var mD=d.match(/^d\/d(\w+) of (.+?) = (.+?)(?:, matches (.+))?$/);
+  if(mD){var f=tryTex(mD[2]),a=tryTex(mD[3]);
+    if(f&&a) return {tex:'\\frac{d}{d'+esc(mD[1])+'}\\left('+f+'\\right) = '+a,
+                     caption:mD[4]?'matches the claimed derivative':''};}
+  // limit: "lim_{x->p} F = ACTUAL, matches CLAIMED"
+  var mL=d.match(/^lim_\{(\w+)->(.+?)\} (.+?) = (.+?)(?:, matches .+)?$/);
+  if(mL){var lf=tryTex(mL[3]),la=tryTex(mL[4]),lp=tryTex(mL[2]);
+    if(lf&&la) return {tex:'\\lim_{'+esc(mL[1])+'\\to '+(lp||esc(mL[2]))+'} '+lf+' = '+la, caption:''};}
+  // generic (chemistry, prose): show prettified plain, no fabricated math
+  return {plain:prettyPlain(d), caption:''};
 }
 function verdictClass(v){v=(v||'').toUpperCase(); if(v==='HOLDS')return'holds'; if(v==='BROKEN')return'broken'; return'other';}
 
@@ -93,24 +163,34 @@ function render(payload){
   var integ=!!payload.integrity_verified;
   var steps=rec.steps||trail.length;
   var confirmed=(rec.confirmed_steps!=null)?rec.confirmed_steps:trail.filter(function(t){return (t.status||'')==='CONFIRMED';}).length;
+  var idIndex={}; trail.forEach(function(t,i){ if(t.id) idIndex[t.id]=i+1; });
 
   var html='';
   html+='<div class="verdict '+verdictClass(verdict)+'">'+(verdict==='HOLDS'?'&#10003; ':'')+esc(verdict||'SEALED')+'</div>';
   html+='<h1>'+(title?esc(title):'A machine-checked proof')+'</h1>';
-  html+='<p class="lede">Every step below was checked deterministically by the engine. '+
+  html+='<p class="lede">Each step was checked deterministically by the engine, and may build only on steps already confirmed. '+
         '<span class="muted">'+esc(confirmed)+' of '+esc(steps)+' step'+(steps==1?'':'s')+' confirmed.</span></p>';
 
+  html+='<div class="chain">';
   trail.forEach(function(t,i){
+    if(i>0) html+='<div class="connector"></div>';
     var ok=(t.status||'')==='CONFIRMED';
-    var det=renderDetail(t.detail);
+    var p=parseDetail(t.detail);
     html+='<div class="step">';
-    html+='<div class="top"><span class="domain">'+esc(t.domain||'check')+(t.id?' &middot; '+esc(t.id):'')+'</span>'+
+    html+='<div class="top"><span class="lhs"><span class="num">'+(i+1)+'</span>'+
+          '<span class="domain">'+esc(t.domain||'check')+'</span></span>'+
           '<span class="status'+(ok?'':' no')+'">'+(ok?'&#10003; CONFIRMED':esc(t.status||''))+'</span></div>';
     if(t.claim) html+='<div class="claim">'+esc(t.claim)+'</div>';
-    if(det.statement) html+='<div class="math">'+det.statement+'</div>';
-    if(det.method) html+='<div class="method">'+det.method+'</div>';
+    if(p.tex) html+='<div class="math">\\['+p.tex+'\\]</div>';
+    else if(p.plain) html+='<div class="math plain">'+p.plain+'</div>';
+    if(p.caption) html+='<div class="method">'+p.caption+'</div>';
+    if(t.uses&&t.uses.length){
+      var refs=t.uses.map(function(u){return idIndex[u]?('step&nbsp;'+idIndex[u]):esc(u);}).join(', ');
+      html+='<div class="uses">builds on <b>'+refs+'</b></div>';
+    }
     html+='</div>';
   });
+  html+='</div>';
 
   html+='<div class="sec"><h2>Why you can trust this without trusting us</h2>';
   html+='<p><span class="pill'+(integ?' ok':'')+'">'+(integ?'&#10003; integrity verified':'integrity unverified')+'</span>'+
@@ -125,15 +205,21 @@ function render(payload){
         '<div class="lookup"><input id="hin" placeholder="64-character seal hash" value="'+esc(chash)+'">'+
         '<button onclick="go()">Open</button></div></div>';
 
-  document.getElementById('app').innerHTML=html;
+  var app=document.getElementById('app');
+  app.innerHTML=html;
+  typeset(app);
   document.getElementById('foot').innerHTML=
     '<a href="/identity">Who this serves</a><a href="/verify-seal.html">Notary &amp; lookup</a><a href="/atlas.html">The Atlas</a><a href="/mcp">For your AI</a>';
+}
+function typeset(el){
+  if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){
+    MathJax.startup.promise.then(function(){MathJax.typesetPromise([el]);}).catch(function(){});
+  } else { setTimeout(function(){typeset(el);},150); }
 }
 function go(){var v=(document.getElementById('hin').value||'').trim().toLowerCase();var m=v.match(/[0-9a-f]{64}/);if(m)window.location.href='/seal.html?h='+m[0];}
 
 (function(){
-  var h=getHash();
-  var app=document.getElementById('app');
+  var h=getHash(); var app=document.getElementById('app');
   if(!/^[0-9a-f]{64}$/.test(h)){
     app.innerHTML='<h1>Open a sealed proof</h1><p class="muted">Paste a 64-character seal hash (the part after <code>/seal/</code> in a cite link).</p>'+
       '<div class="lookup"><input id="hin" placeholder="64-character seal hash"><button onclick="go()">Open</button></div>';
