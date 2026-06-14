@@ -333,6 +333,46 @@ def verify_mathematics(mode, params):
                                      "solve", "matrix", "inequality", "series", "ode"]}}
 
 
+def check(claim=None, steps=None, mode=None, params=None, domain="mathematics", seal=True):
+    """THE one verification tool. Routes any kind of check through the derivation
+    runner (the same path the HTTP API uses) so the result ALWAYS carries the worked
+    math (the trail, step by step) and -- when it HOLDS -- a permanent, re-checkable
+    seal (cite_url). The engine verifies a PROVIDED claim; it never generates the
+    answer. The trail is the proof.
+
+    Give exactly one of:
+      - steps:  a multi-step derivation, list of
+                {id, domain, spec, uses?, claim?} where spec is that domain's
+                structured claim (math spec is {mode, params}).
+      - mode + params (+ domain):  a single claim. For math, mode is one of
+                equality|derivative|integral|limit|solve|matrix|inequality|series|ode
+                and params is e.g. {expr_a, expr_b, variables} for equality.
+      - claim:  a plain-language statement; the oracle structures it, the engine judges.
+
+    Returns: {verdict (HOLDS/BROKEN/INCOMPLETE), steps, confirmed_steps,
+              trail:[{id, domain, status, detail<-THE WORKED MATH, uses}],
+              seal:{cite_url, content_hash}}.
+    """
+    from api import derivation as _d  # lazy import: avoids the tools<->derivation cycle
+    if steps:
+        result = _d.verify_derivation(list(steps))
+    elif mode and params is not None:
+        result = _d.verify_derivation(
+            [{"id": "s1", "domain": domain or "mathematics",
+              "spec": {"mode": mode, "params": params}}])
+    elif claim:
+        result = _d.solve_prose(str(claim))
+    else:
+        return {"error": "Provide one of: steps[], (mode + params [+ domain]), or claim (prose)."}
+    if seal and isinstance(result, dict) and result.get("verdict") not in (None, "ERROR"):
+        try:
+            result.setdefault(
+                "seal", _d.seal_receipt(result, claim if isinstance(claim, str) else None))
+        except Exception as e:  # noqa: BLE001
+            result["seal_error"] = str(e)[:200]
+    return result
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1514,6 +1554,7 @@ def call_tool(name, arguments):
 
 
 ALL_TOOLS: Dict[str, Any] = {
+    "check": check,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

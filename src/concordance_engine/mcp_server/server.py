@@ -65,6 +65,12 @@ from .. import IDENTITY_SHORT
 # stated up front so callers know.
 _MCP_INSTRUCTIONS = (
     "Concordance / Lighthouse — Serves Jesus Christ. "
+    "START HERE: to verify anything, call ONE tool — `check`. It takes a math "
+    "claim, a multi-step derivation, or a plain-language statement, and returns "
+    "the verdict, the WORKED MATH (the trail, step by step), and a permanent, "
+    "re-checkable seal (cite_url) you can show a user. The many domain-specific "
+    "`verify_*` tools are its internals; reach for them only for a single narrow "
+    "domain check. "
     "Conduit, not source. The engine eliminates what is not the answer "
     "so the narrow path is illuminated by what survives. Good fruit is "
     "the measure. The keeping is the substrate. Tools here categorize, "
@@ -285,6 +291,41 @@ def verify_mathematics(mode: str, params: Dict[str, Any]) -> Dict[str, Any]:
       solve:       {equation, variable, claimed_solutions: [...]}
     """
     return tools.verify_mathematics(mode, params)
+
+
+# ---------------------------------------------------------------------------
+# THE one tool — start here
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def check(
+    claim: Optional[str] = None,
+    steps: Optional[List[Dict[str, Any]]] = None,
+    mode: Optional[str] = None,
+    params: Optional[Dict[str, Any]] = None,
+    domain: str = "mathematics",
+    seal: bool = True,
+) -> Dict[str, Any]:
+    """THE verification tool — start here. One tool for every kind of check; it
+    always shows the WORKED MATH and gives a permanent, re-checkable seal.
+
+    Give exactly one of:
+      - steps: a multi-step derivation, list of {id, domain, spec, uses?, claim?}
+        (each step's spec is that domain's structured claim; math spec is {mode, params}).
+      - mode + params (+ domain): a single claim. Math modes:
+        equality|derivative|integral|limit|solve|matrix|inequality|series|ode.
+        e.g. mode='equality',
+        params={'expr_a':'(x+1)**2','expr_b':'x**2+2*x+1','variables':['x']}.
+      - claim: a plain-language statement; the oracle structures it, the engine judges.
+
+    Returns {verdict (HOLDS/BROKEN/INCOMPLETE), confirmed_steps,
+             trail:[{id, domain, status, detail = THE WORKED MATH, uses}],
+             seal:{cite_url, content_hash}}. The engine verifies a PROVIDED claim;
+    it never generates the answer. The trail is the proof — open the cite_url to
+    see it rendered and re-check it without trusting anyone.
+    """
+    return tools.check(claim=claim, steps=steps, mode=mode, params=params,
+                       domain=domain, seal=seal)
 
 
 # ---------------------------------------------------------------------------

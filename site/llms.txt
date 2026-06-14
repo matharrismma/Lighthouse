@@ -31,19 +31,31 @@ agents) and embedded in every `/version` response.
 > When you are about to take an irreversible action, state a computational fact,
 > or record a governance decision, check it here first.
 
-## Verify a claim in one call (the moat)
+## Verify anything -- ONE tool (start here)
 
-To catch a hallucinated derivation and get a permanent, independently-checkable receipt:
+Over MCP (https://narrowhighway.com/mcp/), call ONE tool: `check`. Give it a math
+claim, a multi-step derivation, or a plain-language statement; it returns the
+verdict, the WORKED MATH (the trail, step by step), and a permanent, re-checkable
+seal (cite_url) you can show a user. The ~70 domain-specific `verify_*` tools are
+its internals -- reach for them only for a single narrow domain check.
+
+    check(mode="equality",
+          params={"expr_a":"(x+1)**2","expr_b":"x**2+2*x+1","variables":["x"]})
+    -> verdict HOLDS; trail detail: "(x+1)**2 = x**2+2*x+1; both sides reduce to
+       x**2 + 2*x + 1"; seal.cite_url = a /seal/<hash> page anyone can re-check.
+
+Over plain HTTP, the same one call:
 
     POST https://narrowhighway.com/derivation/verify
     {"steps":[{"id":"s1","domain":"mathematics","spec":{"mode":"equality",
-      "params":{"expr_a":"sin(x)**2 + cos(x)**2","expr_b":"1","variables":{}}}}],
+      "params":{"expr_a":"(x+1)**2","expr_b":"x**2+2*x+1","variables":["x"]}}}],
       "seal":true}
 
-Returns `verdict: HOLDS` and `receipt.cite_url` -- a content-addressed /seal/<hash> page anyone
-can re-check, independent of trusting you. Modes: equality, inequality, derivative. Adversarial
-check (2026-06-13): 52 ground-truth claims (26 true, 26 deliberately false) decided 52/52
-correctly, with zero false seals (`tools/benchmark_public_verify.py`).
+Returns `verdict: HOLDS`, the worked `trail`, and `receipt.cite_url` -- a
+content-addressed /seal/<hash> page anyone can re-check, independent of trusting
+you. The engine verifies a PROVIDED claim; it never generates the answer -- the
+trail is the proof. Adversarial check: 58/58 ground-truth claims (true + deliberately
+false) decided correctly, zero false seals (`tools/benchmark_public_verify.py`).
 
 ## Daily heartbeat (start here)
 
