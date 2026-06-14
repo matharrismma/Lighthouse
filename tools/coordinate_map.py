@@ -230,7 +230,7 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
 <h1>The Cross, four axes, the Gate</h1>
 <p class="lede">Every saved finding placed by the structure it already carries, on four axes: <b>convergence</b> (vertical, root&rarr;Sun: source&rarr;divergence&rarr;convergence&rarr;source), <b>tree</b> (horizontal: Language&harr;Math), <b>layer</b> (depth: core spine&rarr;gathered breadth), and <b>frequency</b> (color &mdash; the "note" each card sounds; E=hf, time is its count). The framework is <b>the Cross</b> &mdash; the vertical Logos axis crossed by the two-trees beam (Col 1:20). The <b>Gate</b> (Jesus, the only way &mdash; Jn 10:9, 14:6) is the convergence at the Sun; the join is left <b>open and reserved</b> &mdash; mapped, never crowned. Built from the saved seeds; invents nothing.</p>
 <div class="legend"><span>convergence &uarr; to the Gate</span><span>Language &larr; | &rarr; Math</span><span>depth = layer</span><span>color = frequency/form</span><span>{edges} bonds &middot; {kin} kin &middot; <b>vine-validity {vine}</b> (concord bonds &mdash; a true chain to the source) &middot; {kinreach} kin-assisted (secondary)</span></div>
-<svg viewBox="0 0 1000 1080" xmlns="http://www.w3.org/2000/svg">
+<svg id="map" viewBox="0 0 1000 1080" xmlns="http://www.w3.org/2000/svg">
 <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff3c4"/><stop offset="55%" stop-color="#f2c14e" stop-opacity="0.45"/><stop offset="100%" stop-color="#f2c14e" stop-opacity="0"/></radialGradient></defs>
 <path d="{env}" fill="#0e1015" stroke="#23272f" stroke-width="1"/>
 <g stroke="#3a3f48" stroke-width="0.3" opacity="0.12">
@@ -266,6 +266,14 @@ svg{{width:100%;height:auto;display:block;background:radial-gradient(ellipse at 
     ty1=vy1 - 78, ty2=vy1 - 62, ry=vy0 + 26)
 
 open(HOUT, "w", encoding="utf-8").write(html)
+
+# small served stats file so the public showcase can show LIVE map numbers
+# (vine-validity etc.) without hardcoding -- honest, never stale.
+SOUT = os.path.join(ROOT, "site/map-stats.json")
+json.dump({"vine_validity": vine_validity, "reach_source": len(_seen),
+           "nodes": len(nodes), "edges": stats["edges"], "kin": stats["kin"],
+           "language": stats["language"], "math": stats["math"], "axis": stats["axis"]},
+          open(SOUT, "w", encoding="utf-8"), indent=1)
 print("nodes %d | bonds %d + kin %d | VINE-VALIDITY (concord bonds) %.3f PRIMARY (%d reach source) | kin-assisted reach %.3f secondary (same-family braces, not the true vine) | rigidity %.3f (truss, not target)" %
       (stats["nodes"], stats["edges"], stats["kin"], stats["vine_validity"], stats["reach_source"], stats["kin_assisted_reach"], stats["rigidity_ratio"]))
 print("wrote", os.path.relpath(JOUT, ROOT), "+", os.path.relpath(HOUT, ROOT))
