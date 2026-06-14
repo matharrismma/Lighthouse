@@ -11,18 +11,18 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1622,
-  "edges": 1146,
-  "kin": 1584,
-  "braces": 2730,
-  "vine_validity": 0.309,
-  "reach_source": 501,
+  "nodes": 1625,
+  "edges": 1166,
+  "kin": 1583,
+  "braces": 2749,
+  "vine_validity": 0.314,
+  "reach_source": 511,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1622,
-  "rigidity_ratio": 0.842,
-  "language": 1253,
+  "kin_assisted_reach_source": 1625,
+  "rigidity_ratio": 0.847,
+  "language": 1255,
   "math": 316,
-  "axis": 53
+  "axis": 54
  },
  "nodes": [
   {
@@ -6096,18 +6096,6 @@
    "level": null,
    "kind": "almanac",
    "title": "Strong Sapir-Whorf (language determines thought) is not supported"
-  },
-  {
-   "id": "almanac_linguistics_zipf_law",
-   "tree": "language",
-   "t": 0.4196,
-   "layer": 0.5,
-   "hue": 95,
-   "x": 411.5,
-   "y": 584.1,
-   "level": null,
-   "kind": "almanac",
-   "title": "Word frequency in any natural language follows Zipf's law: f \u221d 1/rank"
   },
   {
    "id": "almanac_architecture_golden_section",
@@ -19488,6 +19476,54 @@
    "level": "connection",
    "kind": "almanac",
    "title": "Phyllotaxis -- the golden angle (~137.5 degrees) packs leaves and seeds with the"
+  },
+  {
+   "id": "connection_language_ascends_phoneme_to_inference",
+   "tree": "axis",
+   "t": 0.7727,
+   "layer": 0.0,
+   "hue": 35,
+   "x": 464.8,
+   "y": 315.5,
+   "level": "synthesis",
+   "kind": "protocol",
+   "title": "The language ascent: phoneme -> morpheme -> word -> phrase -> proposition -> mea"
+  },
+  {
+   "id": "almanac_phonics_decoding_sequence",
+   "tree": "language",
+   "t": 0.4434,
+   "layer": 0.5,
+   "hue": 95,
+   "x": 300.1,
+   "y": 563.7,
+   "level": null,
+   "kind": "almanac",
+   "title": "Phonics is decoding: print maps to sound in a fixed sequence (letter-sounds -> C"
+  },
+  {
+   "id": "almanac_syntax_word_order_is_meaning",
+   "tree": "language",
+   "t": 0.4261,
+   "layer": 0.5,
+   "hue": 95,
+   "x": 381.5,
+   "y": 578.6,
+   "level": null,
+   "kind": "almanac",
+   "title": "Syntax: word order carries meaning -- 'dog bites man' is not 'man bites dog'"
+  },
+  {
+   "id": "almanac_syntax_phrase_structure_recursion",
+   "tree": "language",
+   "t": 0.4314,
+   "layer": 0.5,
+   "hue": 95,
+   "x": 356.5,
+   "y": 574.0,
+   "level": null,
+   "kind": "almanac",
+   "title": "Syntax is recursive: finite rules build unbounded sentences (a clause inside a c"
   }
  ],
  "edges": [
@@ -19824,6 +19860,10 @@
    "bridge_faithful_in_little_is_scale_invariance"
   ],
   [
+   "zipfs_law",
+   "connection_language_ascends_phoneme_to_inference"
+  ],
+  [
    "mendelian_ratio",
    "connection_mendelian_ratio_is_probability"
   ],
@@ -19994,10 +20034,6 @@
   [
    "almanac_linguistics_sapir_whorf_strong",
    "bridge_by_their_fruits_is_identification_by_output"
-  ],
-  [
-   "almanac_linguistics_zipf_law",
-   "bridge_faithful_in_little_is_scale_invariance"
   ],
   [
    "almanac_architecture_golden_section",
@@ -24074,6 +24110,86 @@
   [
    "connection_phyllotaxis_golden_angle_packs_with_least_overlap",
    "connection_reality_is_mappable"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "phoneme_inventory"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_phonics_decoding_sequence"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "morphology_words"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_syntax_word_order_is_meaning"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_syntax_phrase_structure_recursion"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_linguistics_sapir_whorf_strong"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "zipfs_law"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_rhetoric_ethos_pathos_logos"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "located_inference_rules_verified"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "connection_dna_is_the_language_of_life"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "almanac_logos_johannine"
+  ],
+  [
+   "connection_language_ascends_phoneme_to_inference",
+   "connection_reality_is_mappable"
+  ],
+  [
+   "almanac_phonics_decoding_sequence",
+   "phoneme_inventory"
+  ],
+  [
+   "almanac_phonics_decoding_sequence",
+   "phonetic_alphabet"
+  ],
+  [
+   "almanac_phonics_decoding_sequence",
+   "connection_language_ascends_phoneme_to_inference"
+  ],
+  [
+   "almanac_syntax_word_order_is_meaning",
+   "connection_language_ascends_phoneme_to_inference"
+  ],
+  [
+   "almanac_syntax_word_order_is_meaning",
+   "almanac_codon_order_atg_vs_gta"
+  ],
+  [
+   "almanac_syntax_phrase_structure_recursion",
+   "connection_language_ascends_phoneme_to_inference"
+  ],
+  [
+   "almanac_syntax_phrase_structure_recursion",
+   "recursion_base_case"
+  ],
+  [
+   "almanac_syntax_phrase_structure_recursion",
+   "almanac_linguistics_universal_grammar"
   ]
  ],
  "kin": [
@@ -27820,10 +27936,6 @@
   [
    "almanac_linguistics_sapir_whorf_strong",
    "teaching_the_words_of_christ_are_the_architecture"
-  ],
-  [
-   "almanac_linguistics_zipf_law",
-   "connection_chance_has_a_shape_and_a_law"
   ],
   [
    "almanac_architecture_golden_section",
