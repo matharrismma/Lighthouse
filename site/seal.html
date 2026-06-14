@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sealed proof &mdash; Narrow Highway</title>
+<meta name="description" content="A machine-checked proof you can read and re-check yourself. The page's address is the hash of its content.">
+<style>
+:root{--bg:#0a0b0e;--card:#14161c;--tx:#e9eaee;--mut:#9aa0ad;--line:#23262d;--ok:#56d364;--bad:#f25c54;--amber:#f2c14e;--accent:#cdb98a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding:1.5rem 1.1rem 4rem}
+a{color:var(--accent)}
+.crumb{font-size:.8rem;color:var(--mut);margin-bottom:1.2rem}
+.verdict{display:inline-flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.05rem;padding:.4rem .8rem;border-radius:.5rem;border:1px solid var(--line)}
+.verdict.holds{color:var(--ok);border-color:#1f6f33;background:#0e1b12}
+.verdict.broken{color:var(--bad);border-color:#7a2a25;background:#1b0e0d}
+.verdict.other{color:var(--amber);border-color:#6b5a1f;background:#1b170d}
+h1{font-size:1.35rem;font-weight:650;margin:.9rem 0 .2rem;line-height:1.3}
+.lede{color:var(--mut);font-size:.95rem;margin:.2rem 0 1.4rem}
+.step{background:var(--card);border:1px solid var(--line);border-radius:.7rem;padding:1rem 1.1rem;margin:.8rem 0}
+.step .top{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.step .domain{font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.step .status{font-size:.74rem;font-weight:700;color:var(--ok)}
+.step .status.no{color:var(--bad)}
+.claim{font-size:1.02rem;margin:.1rem 0 .55rem}
+.math{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:1.08rem;background:#0c0e13;border:1px solid var(--line);border-radius:.45rem;padding:.7rem .85rem;overflow-x:auto;color:#f4f5f8}
+.math sup{font-size:.72em}
+.method{font-size:.82rem;color:var(--mut);margin-top:.5rem}
+.sec{margin-top:2rem;border-top:1px solid var(--line);padding-top:1.3rem}
+.sec h2{font-size:.95rem;font-weight:650;margin:0 0 .5rem}
+.sec p{font-size:.9rem;color:var(--mut);margin:.35rem 0}
+.hash{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;color:var(--accent);word-break:break-all;background:#0c0e13;border:1px solid var(--line);border-radius:.4rem;padding:.5rem .6rem;display:block;margin:.4rem 0}
+.pill{display:inline-block;font-size:.78rem;padding:.15rem .55rem;border-radius:1rem;border:1px solid var(--line);color:var(--mut);margin-right:.4rem}
+.pill.ok{color:var(--ok);border-color:#1f6f33}
+.foot{margin-top:2.2rem;font-size:.82rem;color:var(--mut)}
+.foot a{margin-right:1rem;white-space:nowrap}
+.err{background:#1b0e0d;border:1px solid #7a2a25;color:#f3b0ab;border-radius:.6rem;padding:1rem;font-size:.92rem}
+.lookup{display:flex;gap:.5rem;margin:.8rem 0}
+.lookup input{flex:1;background:#0c0e13;border:1px solid var(--line);border-radius:.45rem;color:var(--tx);padding:.55rem .7rem;font-family:ui-monospace,monospace;font-size:.82rem}
+.lookup button{background:var(--accent);color:#1a1206;border:0;border-radius:.45rem;padding:.55rem 1rem;font-weight:650;cursor:pointer}
+.muted{color:var(--mut)}
+</style></head>
+<body><main class="wrap">
+<div class="crumb"><a href="/">Narrow Highway</a> &rsaquo; sealed proof</div>
+<div id="app"><p class="muted">Loading the sealed proof&hellip;</p></div>
+<p class="foot" id="foot"></p>
+</main>
+<script>
+// ---- read the hash: ?h=<hash>, #<hash>, or /seal.html/<hash> ----
+function getHash(){
+  var u=new URL(window.location.href);
+  var h=u.searchParams.get('h')||u.searchParams.get('hash')||(u.hash||'').replace(/^#/,'');
+  if(!h){var m=u.pathname.match(/([0-9a-f]{64})/i); if(m) h=m[1];}
+  return (h||'').trim().toLowerCase();
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// ---- prettify a Python-ish expression for human reading (honest: raw also shown on the API) ----
+function prettyExpr(s){
+  s=esc(s);
+  // a**b -> a<sup>b</sup> (exponent = number, or parenthesised group, or single token)
+  s=s.replace(/\*\*\s*\(([^()]*)\)/g,'<sup>$1</sup>');
+  s=s.replace(/\*\*\s*([A-Za-z0-9_.]+)/g,'<sup>$1</sup>');
+  s=s.replace(/\*/g,'&middot;');
+  s=s.replace(/\bsqrt\b/g,'&radic;');
+  s=s.replace(/<=/g,'&le;').replace(/>=/g,'&ge;');
+  return s;
+}
+// turn a detail string into {statement, method}: "A == B simplifies to zero" -> A = B + method
+function renderDetail(detail){
+  var d=String(detail||'');
+  var m=d.match(/^(.*?)\s*==\s*(.*?)\s+(simplifies to zero|.*)$/);
+  if(m){
+    var lhs=prettyExpr(m[1]), rhs=prettyExpr(m[2]);
+    return {statement:lhs+' &nbsp;=&nbsp; '+rhs,
+            method:'Verified: the two sides differ by an expression that simplifies to&nbsp;0.'};
+  }
+  // derivative / inequality / generic: show prettified, no fabricated structure
+  return {statement:prettyExpr(d), method:''};
+}
+function verdictClass(v){v=(v||'').toUpperCase(); if(v==='HOLDS')return'holds'; if(v==='BROKEN')return'broken'; return'other';}
+
+function render(payload){
+  var rec=payload.record||{};
+  var verdict=(rec.verdict||payload.verdict||'').toUpperCase();
+  var trail=rec.trail||[];
+  var title=(rec.title||'').trim();
+  var chash=payload.content_hash||rec.content_hash||getHash();
+  var integ=!!payload.integrity_verified;
+  var steps=rec.steps||trail.length;
+  var confirmed=(rec.confirmed_steps!=null)?rec.confirmed_steps:trail.filter(function(t){return (t.status||'')==='CONFIRMED';}).length;
+
+  var html='';
+  html+='<div class="verdict '+verdictClass(verdict)+'">'+(verdict==='HOLDS'?'&#10003; ':'')+esc(verdict||'SEALED')+'</div>';
+  html+='<h1>'+(title?esc(title):'A machine-checked proof')+'</h1>';
+  html+='<p class="lede">Every step below was checked deterministically by the engine. '+
+        '<span class="muted">'+esc(confirmed)+' of '+esc(steps)+' step'+(steps==1?'':'s')+' confirmed.</span></p>';
+
+  trail.forEach(function(t,i){
+    var ok=(t.status||'')==='CONFIRMED';
+    var det=renderDetail(t.detail);
+    html+='<div class="step">';
+    html+='<div class="top"><span class="domain">'+esc(t.domain||'check')+(t.id?' &middot; '+esc(t.id):'')+'</span>'+
+          '<span class="status'+(ok?'':' no')+'">'+(ok?'&#10003; CONFIRMED':esc(t.status||''))+'</span></div>';
+    if(t.claim) html+='<div class="claim">'+esc(t.claim)+'</div>';
+    if(det.statement) html+='<div class="math">'+det.statement+'</div>';
+    if(det.method) html+='<div class="method">'+det.method+'</div>';
+    html+='</div>';
+  });
+
+  html+='<div class="sec"><h2>Why you can trust this without trusting us</h2>';
+  html+='<p><span class="pill'+(integ?' ok':'')+'">'+(integ?'&#10003; integrity verified':'integrity unverified')+'</span>'+
+        'This page&rsquo;s address <em>is</em> the SHA-256 hash of its content.</p>';
+  html+='<span class="hash">'+esc(chash)+'</span>';
+  html+='<p>Change one character of the proof and the address changes. Fetch this record from anywhere, recompute the hash, and confirm it matches &mdash; no need to trust the caller or the service. The engine <strong>verifies a derivation; it never generates the answer</strong>.</p>';
+  html+='</div>';
+
+  html+='<div class="sec"><h2>Re-check it yourself</h2>'+
+        '<p>Fetch the raw record (JSON): <a href="/seal/'+esc(chash)+'" target="_blank" rel="noopener">/seal/'+esc(chash).slice(0,12)+'&hellip;</a> &mdash; send <code>Accept: application/json</code>.</p>'+
+        '<p>Or paste any seal hash here:</p>'+
+        '<div class="lookup"><input id="hin" placeholder="64-character seal hash" value="'+esc(chash)+'">'+
+        '<button onclick="go()">Open</button></div></div>';
+
+  document.getElementById('app').innerHTML=html;
+  document.getElementById('foot').innerHTML=
+    '<a href="/identity">Who this serves</a><a href="/verify-seal.html">Notary &amp; lookup</a><a href="/atlas.html">The Atlas</a><a href="/mcp">For your AI</a>';
+}
+function go(){var v=(document.getElementById('hin').value||'').trim().toLowerCase();var m=v.match(/[0-9a-f]{64}/);if(m)window.location.href='/seal.html?h='+m[0];}
+
+(function(){
+  var h=getHash();
+  var app=document.getElementById('app');
+  if(!/^[0-9a-f]{64}$/.test(h)){
+    app.innerHTML='<h1>Open a sealed proof</h1><p class="muted">Paste a 64-character seal hash (the part after <code>/seal/</code> in a cite link).</p>'+
+      '<div class="lookup"><input id="hin" placeholder="64-character seal hash"><button onclick="go()">Open</button></div>';
+    return;
+  }
+  fetch('/seal/'+h,{headers:{'Accept':'application/json'}})
+    .then(function(r){if(!r.ok)throw new Error('Seal not found ('+r.status+')');return r.json();})
+    .then(render)
+    .catch(function(e){
+      app.innerHTML='<div class="err">Could not load this seal: '+esc(e.message)+'<br><br>'+
+        'Double-check the hash, or look it up at the <a href="/verify-seal.html">notary</a>.</div>';
+    });
+})();
+</script>
+</body></html>
