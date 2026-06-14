@@ -8665,7 +8665,7 @@ def confess(req: ConfessRequest):
 # /validate keeps the legacy EngineResult shape for backward compat.
 
 @app.get("/seal/{ref}", tags=["seal"])
-def get_sealed_receipt(ref: str):
+def get_sealed_receipt(ref: str, request: Request):
     """Retrieve a sealed proof receipt by its permanent reference.
 
     POST /seal mints a sealed WitnessRecord and returns its content hash as
@@ -8687,6 +8687,13 @@ def get_sealed_receipt(ref: str):
     rec = _cas.fetch(ref)
     if rec is None:
         raise HTTPException(status_code=404, detail="Not Found")
+    # Content negotiation: a browser (Accept: text/html) gets the human-readable
+    # proof viewer; agents and explicit JSON callers get the raw record at the same
+    # URL. The cite_url stays canonical -- only the rendering differs by Accept.
+    _accept = (request.headers.get("accept") or "").lower()
+    if "text/html" in _accept and "application/json" not in _accept:
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=f"/seal.html?h={ref}", status_code=302)
     try:
         ok, detail = _cas.verify(ref)
     except Exception:  # noqa: BLE001

@@ -145,6 +145,25 @@ def _domain_mismatch(a_str, b_str, var_names):
     return ", ".join(sorted(str(p) for p in diff)) if diff else None
 
 
+def _worked_equality(a, b, ea, eb):
+    """A human-readable detail that SHOWS the work behind a confirmed equality:
+    the canonical form both sides reduce to (not just "simplifies to zero"). So a
+    reader -- human or agent -- can SEE the actual math. Honest: every form here is
+    computed by sympy, never fabricated; falls back to the plain statement on error."""
+    try:
+        ca, cb = expand(ea), expand(eb)
+        if ca == cb:
+            return f"{a} = {b}; both sides reduce to {ca}"
+    except Exception:
+        pass
+    try:
+        sa = simplify(ea)
+        return (f"{a} = {b}; the two sides are equal -- each reduces to {sa}, "
+                f"so their difference simplifies to 0")
+    except Exception:
+        return f"{a} = {b}; the difference simplifies to 0"
+
+
 def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
     _ensure_sympy()
     a = spec.get("expr_a")
@@ -163,14 +182,14 @@ def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
                     f"{a} == {b} holds only off the singular set (denominator vanishes at: "
                     f"{_dm}); a removable singularity makes this NOT an unconditional "
                     f"identity (e.g. x/x is undefined at x=0)")
-            return confirm("mathematics.equality", f"{a} == {b} simplifies to zero")
+            return confirm("mathematics.equality", _worked_equality(a, b, ea, eb))
         # Try expand in case simplify didn't normalize
         if expand(ea - eb) == 0:
             if _dm:
                 return mismatch("mathematics.equality",
                     f"{a} == {b} holds only off the singular set (denominator vanishes at: "
                     f"{_dm}); not an unconditional identity")
-            return confirm("mathematics.equality", f"{a} == {b} after expand")
+            return confirm("mathematics.equality", _worked_equality(a, b, ea, eb))
         return mismatch("mathematics.equality", f"{a} - ({b}) simplifies to {diff_}")
     except _PARSE_ERRORS as e:
         return na("mathematics.equality", f"cannot parse expression: {e}")

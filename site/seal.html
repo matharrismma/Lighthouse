@@ -62,16 +62,24 @@ function prettyExpr(s){
   s=s.replace(/<=/g,'&le;').replace(/>=/g,'&ge;');
   return s;
 }
-// turn a detail string into {statement, method}: "A == B simplifies to zero" -> A = B + method
+// turn a detail string into {statement, method}, robust across verifier formats.
 function renderDetail(detail){
-  var d=String(detail||'');
-  var m=d.match(/^(.*?)\s*==\s*(.*?)\s+(simplifies to zero|.*)$/);
+  var d=String(detail||'').trim();
+  // worked equality: "A = B; both sides reduce to C"  /  "...; the two sides are equal -- ..."
+  var semi=d.indexOf('; ');
+  if(semi>0 && d.slice(0,semi).indexOf(' = ')>-1){
+    return {statement:prettyExpr(d.slice(0,semi)), method:prettyExpr(d.slice(semi+2))};
+  }
+  // legacy seals: "A == B simplifies to zero" / "A == B after expand"
+  var m=d.match(/^(.*?)\s*==\s*(.*?)\s+(simplifies to zero|after expand)\s*$/);
   if(m){
-    var lhs=prettyExpr(m[1]), rhs=prettyExpr(m[2]);
-    return {statement:lhs+' &nbsp;=&nbsp; '+rhs,
+    return {statement:prettyExpr(m[1])+' &nbsp;=&nbsp; '+prettyExpr(m[2]),
             method:'Verified: the two sides differ by an expression that simplifies to&nbsp;0.'};
   }
-  // derivative / inequality / generic: show prettified, no fabricated structure
+  // derivative / limit / integral: "d/dx of x**2 = 2*x, matches 2*x" -> statement + method
+  var mm=d.match(/^(.*?),\s*((?:matches|but claimed|expected|claimed)\b.*)$/);
+  if(mm){ return {statement:prettyExpr(mm[1]), method:prettyExpr(mm[2])}; }
+  // generic (chemistry, etc.): show prettified, no fabricated structure
   return {statement:prettyExpr(d), method:''};
 }
 function verdictClass(v){v=(v||'').toUpperCase(); if(v==='HOLDS')return'holds'; if(v==='BROKEN')return'broken'; return'other';}
