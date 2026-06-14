@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narrow Highway &mdash; the daily journal</title>
+<meta name="description" content="A daily journal and a curated set of tools for the home -- weighed for truth, made beautiful. The good ole days, the way we always meant them to be.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poiret+One&family=Cinzel:wght@400;600&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a1620; --ink2:#0e1d29; --panel:#10212e; --panel2:#142838;
+  --gold:#c9a84c; --gold-hi:#e7cd78; --gold-dim:#9a8138;
+  --cream:#f2e9cf; --cream-dim:#cdbf98; --jade:#5fae93; --line:#2b3f4f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:
+   radial-gradient(ellipse at 50% -8%, #163142 0%, var(--ink) 60%) fixed,
+   var(--ink);
+   color:var(--cream);font-family:'EB Garamond',Georgia,serif;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100dvh}
+a{color:var(--gold-hi);text-decoration:none}
+.wrap{max-width:1000px;margin:0 auto;padding:0 1.1rem 4rem}
+
+/* ---------- masthead: a sunburst, symmetry, a gold rule ---------- */
+.mast{text-align:center;padding:2.4rem 0 1.2rem;position:relative;overflow:hidden}
+.mast .burst{position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:520px;max-width:120%;opacity:.5;pointer-events:none}
+.eyebrow{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;position:relative}
+.title{font-family:'Poiret One',sans-serif;font-size:clamp(2.5rem,7vw,4.4rem);letter-spacing:.18em;color:var(--cream);line-height:1;text-transform:uppercase;position:relative}
+.title b{font-weight:400;color:var(--gold-hi)}
+.subtitle{font-style:italic;color:var(--cream-dim);font-size:clamp(1rem,2.2vw,1.2rem);margin-top:.6rem;position:relative}
+.rule{display:flex;align-items:center;justify-content:center;gap:.7rem;margin:1.1rem auto .2rem;max-width:520px;color:var(--gold)}
+.rule .l{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim))}
+.rule .r{flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent)}
+.rule .d{width:9px;height:9px;transform:rotate(45deg);border:1px solid var(--gold);background:var(--ink)}
+.date{font-family:'Cinzel',serif;letter-spacing:.24em;text-transform:uppercase;font-size:.8rem;color:var(--gold);margin-top:.8rem}
+
+/* ---------- the today anchor ---------- */
+.anchor{background:linear-gradient(180deg,var(--panel),var(--ink2));border:1px solid var(--line);
+  border-top:2px solid var(--gold-dim);border-radius:3px;padding:1.6rem 1.5rem 1.4rem;margin:1.6rem 0;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);position:relative}
+.anchor::before,.anchor::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--gold-dim)}
+.anchor::before{top:7px;left:7px;border-right:0;border-bottom:0}
+.anchor::after{bottom:7px;right:7px;border-left:0;border-top:0}
+.anchor h2{font-family:'Cinzel',serif;font-size:.74rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:.9rem}
+.verse{font-size:clamp(1.15rem,2.6vw,1.5rem);font-style:italic;text-align:center;color:var(--cream);max-width:46ch;margin:0 auto .35rem;line-height:1.45}
+.verse .ref{display:block;font-style:normal;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dim);margin-top:.6rem}
+.jrow{display:flex;gap:.6rem;margin:1.3rem auto 0;max-width:620px}
+.jrow textarea{flex:1;background:#0a151e;border:1px solid var(--line);border-radius:2px;color:var(--cream);
+  font-family:'EB Garamond',serif;font-size:1.05rem;padding:.7rem .85rem;resize:vertical;min-height:2.7rem}
+.jrow textarea:focus{outline:none;border-color:var(--gold-dim);box-shadow:0 0 0 3px rgba(201,168,76,.15)}
+.jrow button{background:var(--gold);color:#1a1408;border:0;border-radius:2px;padding:0 1.2rem;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;white-space:nowrap}
+.jrow button:hover{background:var(--gold-hi)}
+.jprompt{text-align:center;font-style:italic;color:var(--cream-dim);font-size:.95rem;margin-top:1.1rem}
+.entries{max-width:620px;margin:.9rem auto 0}
+.entry{border-left:2px solid var(--gold-dim);padding:.25rem .8rem;margin:.5rem 0;color:var(--cream-dim);font-size:.98rem}
+.entry .when{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-dim);display:block;margin-bottom:.15rem}
+
+/* ---------- the tools, curated ---------- */
+.sec-h{display:flex;align-items:center;gap:.9rem;margin:2.6rem 0 1.1rem;color:var(--gold)}
+.sec-h .l,.sec-h .r{flex:1;height:1px;background:var(--gold-dim);opacity:.5}
+.sec-h span{font-family:'Cinzel',serif;font-size:.74rem;letter-spacing:.3em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem}
+@media(max-width:780px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.grid{grid-template-columns:1fr}}
+.tile{display:block;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+  border-radius:2px;padding:1.1rem 1rem 1rem;text-align:center;transition:transform .1s,border-color .12s,box-shadow .12s;position:relative}
+.tile:hover{transform:translateY(-3px);border-color:var(--gold-dim);box-shadow:0 12px 28px rgba(0,0,0,.4)}
+.tile .ico{width:42px;height:42px;margin:0 auto .6rem;display:block}
+.tile .t{font-family:'Poiret One',sans-serif;font-size:1.18rem;letter-spacing:.06em;color:var(--cream)}
+.tile .d{font-size:.86rem;color:var(--cream-dim);font-style:italic;margin-top:.2rem;line-height:1.4}
+
+/* ---------- the trust band ---------- */
+.trust{margin:2.8rem 0 0;text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.5rem 1rem;background:linear-gradient(180deg,rgba(95,174,147,.05),transparent)}
+.trust .k{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--jade);margin-bottom:.5rem}
+.trust p{max-width:60ch;margin:0 auto;color:var(--cream);font-size:1.05rem}
+.trust a{border-bottom:1px solid rgba(231,205,120,.4)}
+
+.foot{text-align:center;margin-top:2.4rem;color:var(--cream-dim);font-size:.85rem;font-family:'Cinzel',serif;letter-spacing:.12em}
+.foot a{margin:0 .6rem;white-space:nowrap}
+.foot .serves{display:block;margin-top:.8rem;font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dim)}
+</style></head>
+<body><div class="wrap">
+
+<header class="mast">
+  <svg class="burst" viewBox="0 0 520 260" aria-hidden="true"><g stroke="#c9a84c" stroke-width="1" fill="none" opacity="0.9">
+    <!-- sunburst rays -->
+    <g id="rays"></g>
+    <circle cx="260" cy="130" r="44" stroke="#e7cd78"/>
+    <circle cx="260" cy="130" r="58" stroke="#9a8138"/>
+  </g></svg>
+  <div class="eyebrow">Curated &middot; weighed for truth &middot; for the home</div>
+  <div class="title">Narrow <b>Highway</b></div>
+  <div class="subtitle">The good ole days &mdash; the way we always meant them to be.</div>
+  <div class="rule"><span class="l"></span><span class="d"></span><span class="r"></span></div>
+  <div class="date" id="today">&mdash;</div>
+</header>
+
+<section class="anchor">
+  <h2>Today</h2>
+  <p class="verse" id="verse">&mdash;<span class="ref" id="verseref"></span></p>
+  <div class="jprompt">A line for the day &mdash; kept on your device, yours alone.</div>
+  <div class="jrow">
+    <textarea id="jinput" rows="1" placeholder="Today, I am thankful for&hellip;"></textarea>
+    <button onclick="saveEntry()">Keep</button>
+  </div>
+  <div class="entries" id="entries"></div>
+</section>
+
+<div class="sec-h"><span class="l"></span><span>The tools, gathered</span><span class="r"></span></div>
+<nav class="grid" id="tiles"></nav>
+
+<div class="trust">
+  <div class="k">Why you can trust it</div>
+  <p>Everything here is weighed against Scripture and what has stood the test of time &mdash; and the whole undercarriage is laid open. You can <a href="https://narrowhighway.org/">see for yourself that it's true</a>. We take the best so you don't have to wade through the rest.</p>
+</div>
+
+<div class="foot">
+  <a href="https://narrowhighway.org/">.org &mdash; under the hood</a>
+  <a href="https://narrowhighway.tv/">.tv &mdash; the channel</a>
+  <a href="/identity">who we serve</a>
+  <span class="serves">Serves Jesus Christ</span>
+</div>
+
+</div>
+<script>
+// --- sunburst rays (Art Deco) ---
+(function(){
+  var g=document.getElementById('rays'), cx=260, cy=130, html='';
+  for(var i=0;i<48;i++){ var a=(i/48)*Math.PI*2, r1=60, r2=(i%2?122:148);
+    html+='<line x1="'+(cx+Math.cos(a)*r1).toFixed(1)+'" y1="'+(cy+Math.sin(a)*r1).toFixed(1)+
+          '" x2="'+(cx+Math.cos(a)*r2).toFixed(1)+'" y2="'+(cy+Math.sin(a)*r2).toFixed(1)+'" opacity="'+(i%2?0.5:0.85)+'"/>'; }
+  g.innerHTML=html;
+})();
+
+// --- the date ---
+var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DAY=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var now=new Date();
+document.getElementById('today').textContent=DAY[now.getDay()]+' · '+MON[now.getMonth()]+' '+now.getDate()+' · '+now.getFullYear();
+
+// --- a verse for the day (rotates) ---
+var VERSES=[
+ ["This is the day that the Lord has made; let us rejoice and be glad in it.","Psalm 118:24"],
+ ["Whatever is true, whatever is honorable, whatever is just, whatever is lovely — think on these things.","Philippians 4:8"],
+ ["Give us this day our daily bread.","Matthew 6:11"],
+ ["Let all that you do be done in love.","1 Corinthians 16:14"],
+ ["She looks well to the ways of her household and does not eat the bread of idleness.","Proverbs 31:27"],
+ ["The heavens declare the glory of God; the skies proclaim the work of his hands.","Psalm 19:1"],
+ ["Come to me, all who labor and are heavy laden, and I will give you rest.","Matthew 11:28"]
+];
+var doy=Math.floor((now-new Date(now.getFullYear(),0,0))/864e5);
+var v=VERSES[doy%VERSES.length];
+document.getElementById('verse').childNodes[0].nodeValue='“'+v[0]+'” ';
+document.getElementById('verseref').textContent=v[1];
+
+// --- the journal (device-local, yours alone) ---
+var JKEY='nh_journal_v1';
+function load(){try{return JSON.parse(localStorage.getItem(JKEY)||'[]')}catch(e){return[]}}
+function render(){
+  var a=load(), box=document.getElementById('entries'), h='';
+  a.slice(0,5).forEach(function(e){
+    var d=new Date(e.t);
+    h+='<div class="entry"><span class="when">'+MON[d.getMonth()].slice(0,3)+' '+d.getDate()+'</span>'+
+       String(e.x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})+'</div>';
+  });
+  box.innerHTML=h;
+}
+function saveEntry(){
+  var el=document.getElementById('jinput'), x=(el.value||'').trim(); if(!x)return;
+  var a=load(); a.unshift({t:Date.now(),x:x}); localStorage.setItem(JKEY,JSON.stringify(a.slice(0,100)));
+  el.value=''; render();
+}
+render();
+
+// --- the tools, curated (integrate the existing rooms) ---
+function ico(paths){return '<svg class="ico" viewBox="0 0 48 48" fill="none" stroke="#c9a84c" stroke-width="1.3">'+paths+'</svg>';}
+var SUN='<circle cx="24" cy="24" r="8"/><g stroke-linecap="round">'+
+  [0,45,90,135,180,225,270,315].map(function(a){var r=a*Math.PI/180;return '<line x1="'+(24+Math.cos(r)*13)+'" y1="'+(24+Math.sin(r)*13)+'" x2="'+(24+Math.cos(r)*18)+'" y2="'+(24+Math.sin(r)*18)+'"/>'}).join('')+'</g>';
+var TOOLS=[
+ {t:"The Well",d:"Bring a worry, a verse, a question.",u:"/walk.html",i:'<path d="M14 18h20l-3 18H17z"/><path d="M12 18h24"/><path d="M24 8v10"/>'},
+ {t:"Today",d:"The day’s verse, hymn, and reading.",u:"/today.html",i:SUN},
+ {t:"The Almanac",d:"Weather, seasons, and tested wisdom.",u:"/almanac.html",i:'<path d="M10 12h28v24H10z"/><path d="M10 20h28"/><path d="M18 12v24"/>'},
+ {t:"The Apothecary",d:"Remedies, weighed for truth.",u:"/apothecary.html",i:'<path d="M20 8h8v8l6 14a4 4 0 01-4 6H18a4 4 0 01-4-6l6-14z"/><path d="M16 26h16"/>'},
+ {t:"The Table",d:"Recipes worth keeping.",u:"/almanac.html?category=recipes",i:'<circle cx="24" cy="24" r="12"/><circle cx="24" cy="24" r="5"/>'},
+ {t:"The Hymnal",d:"Music for the home.",u:"/bibles.html",i:'<path d="M18 34V14l14-3v20"/><circle cx="16" cy="34" r="3"/><circle cx="30" cy="31" r="3"/>'},
+ {t:"The Channel",d:"Good ole days, on screen.",u:"https://narrowhighway.tv/",i:'<path d="M10 14h28v18H10z"/><path d="M20 38h8"/><path d="M21 20l8 3-8 3z"/>'},
+ {t:"The Map",d:"See that it’s all true.",u:"https://narrowhighway.org/",i:'<path d="M24 6v36"/><path d="M10 18h28"/><circle cx="24" cy="13" r="4"/>'}
+];
+document.getElementById('tiles').innerHTML=TOOLS.map(function(o){
+  return '<a class="tile" href="'+o.u+'">'+ico(o.i)+'<div class="t">'+o.t+'</div><div class="d">'+o.d+'</div></a>';
+}).join('');
+</script>
+</body></html>
