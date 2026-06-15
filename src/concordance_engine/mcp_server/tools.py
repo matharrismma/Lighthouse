@@ -562,6 +562,35 @@ def wikidata(query):
         return {"status": "error", "detail": "wikidata query failed: " + str(e)[:160]}
 
 
+# ── Layer-0 source: Princeton WordNet 3.1 (offline lexical semantics, SQLite) ──
+def word_meaning(word):
+    """English lexical semantics from the offline WordNet 3.1 database (external
+    Layer-0 source, attributed). word -> senses, each {pos, definition, synonyms,
+    hypernyms (the is-a parents)}. Deepens the language tree's semantics level.
+    Queried from a SQLite db (low memory); 147,478 lemmas, offline/ownable."""
+    import json as _json
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "wordnet" / "wordnet.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "WordNet db not provisioned"}
+    q = str(word or "").strip().lower()
+    if not q:
+        return {"status": "error", "detail": "provide a word"}
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        row = con.execute("SELECT data FROM senses WHERE lemma=?", (q,)).fetchone()
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "wordnet lookup failed: " + str(e)[:140]}
+    if not row:
+        return {"status": "not_found", "query": word,
+                "source": meta.get("source", "Princeton WordNet 3.1")}
+    return {"status": "ok", "word": q, "senses": _json.loads(row[0]),
+            "source": meta.get("source"), "license": meta.get("license")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1295,6 +1324,15 @@ TOOLS: List[Dict[str, Any]] = [
      ),
      "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
      "fn": lambda a: wikidata(a["query"])},
+    {"name": "word_meaning",
+     "description": (
+         "English lexical semantics from the offline WordNet 3.1 database. word -> senses, "
+         "each {pos, definition, synonyms, hypernyms (is-a parents)}. The semantics level of "
+         "the language tree -- pairs with word_study (original Greek/Hebrew) and language_data "
+         "(phonemes). 147k lemmas, offline."
+     ),
+     "inputSchema": {"type": "object", "properties": {"word": {"type": "string"}}, "required": ["word"]},
+     "fn": lambda a: word_meaning(a["word"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1774,6 +1812,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "verify_giving": verify_giving,
     "language_data": language_data,
     "wikidata": wikidata,
+    "word_meaning": word_meaning,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

@@ -379,6 +379,19 @@ def wikidata(query: str) -> Dict[str, Any]:
     return tools.wikidata(query)
 
 
+@mcp.tool()
+def word_meaning(word: str) -> Dict[str, Any]:
+    """English lexical semantics from the offline Princeton WordNet 3.1 database
+    (external Layer-0 source, attributed).
+
+    word -> {senses: [{pos, definition, synonyms[], hypernyms[]}]}. The hypernyms
+    are the is-a parents (the semantic 'tree'). This is the SEMANTICS level of the
+    language tree -- it pairs with word_study (original Greek/Hebrew morphology) and
+    language_data (phoneme inventories). 147,478 lemmas, queried offline from SQLite.
+    """
+    return tools.word_meaning(word)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
