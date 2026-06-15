@@ -11,16 +11,16 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1647,
-  "edges": 1672,
+  "nodes": 1650,
+  "edges": 1675,
   "kin": 1583,
-  "braces": 3255,
-  "vine_validity": 0.61,
-  "reach_source": 1005,
+  "braces": 3258,
+  "vine_validity": 0.611,
+  "reach_source": 1008,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1647,
-  "rigidity_ratio": 0.989,
-  "language": 1263,
+  "kin_assisted_reach_source": 1650,
+  "rigidity_ratio": 0.988,
+  "language": 1266,
   "math": 329,
   "axis": 55
  },
@@ -19788,6 +19788,42 @@
    "level": "foundational",
    "kind": "assessment",
    "title": "Nietzsche -- the true diagnosis of nihilism, the sharpest fork in the cluster: h"
+  },
+  {
+   "id": "assessment_boethius_eternity_is_tota_simul",
+   "tree": "language",
+   "t": 0.1701,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 455.0,
+   "y": 763.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Boethius -- eternity is the whole of life possessed at once, and Fortune's wheel"
+  },
+  {
+   "id": "assessment_maimonides_negative_theology_guards_transcendence",
+   "tree": "language",
+   "t": 0.1562,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 495.9,
+   "y": 775.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Maimonides -- the via negativa guards God's transcendence, and the Guide reconci"
+  },
+  {
+   "id": "assessment_ockham_the_razor_and_nominalism",
+   "tree": "language",
+   "t": 0.1632,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 475.9,
+   "y": 769.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Ockham -- the razor is a true method, nominalism cuts too deep: parsimony kept, "
   }
  ],
  "edges": [
@@ -26477,6 +26513,18 @@
   ],
   [
    "assessment_nietzsche_diagnosed_the_disease_prescribed_the_poison",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_boethius_eternity_is_tota_simul",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_maimonides_negative_theology_guards_transcendence",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_ockham_the_razor_and_nominalism",
    "connection_the_thinker_assessment_keeps_kernel_names_fork"
   ]
  ],
