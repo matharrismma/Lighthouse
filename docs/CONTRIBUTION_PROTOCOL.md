@@ -67,9 +67,7 @@ The canonical Layer 0 source is the World English Bible, Westminster Leningrad C
 
 ## License compatibility
 
-The engine and all contributions are released under Apache 2.0 (see `LICENSE`). Contributions that are themselves under a non-compatible license (GPL, AGPL, proprietary) cannot be accepted into the core repo. The contribution must either be Apache-2.0-compatible or live in a separate repository with a clean integration boundary.
-
-Note: an earlier draft of the project README named MIT; the LICENSE file and pyproject have been Apache 2.0 since v1.0.6 (2026-04-29). All contributions are Apache 2.0.
+The code is released under the **GNU AGPL-3.0-or-later** and the authored content under **CC BY-SA 4.0** (see `LICENSE`, `LICENSE-CONTENT`, and `LICENSING.md`). Because the project is *also* offered under a commercial license (see `COMMERCIAL.md`), the maintainer must be able to relicense contributions. Until a formal contributor agreement (CLA/DCO) is in place, please open an issue to discuss before sending code, so provenance stays clean and contributions can be carried under both the open and commercial terms. Contributions that carry an incompatible upstream license should live in a separate repository with a clean integration boundary.
 
 ---
 

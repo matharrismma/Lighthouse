@@ -435,4 +435,20 @@ Optional: `jsonschema>=4.21.0` (full schema validation), `mcp>=1.0.0` (MCP serve
 
 ## License
 
-Apache 2.0 (see `LICENSE` for the full text).
+Given freely, and built to stay free. Two licenses, one principle — you can
+use, copy, run, and replicate all of it; you just can't *enclose* it.
+
+- **Code** — [GNU AGPL-3.0-or-later](LICENSE). Free to use, modify, and run.
+  If you run a modified version as a network service, publish your changes.
+- **Content** (the corpus, cards, map, and seals we author) —
+  [Creative Commons BY-SA 4.0](LICENSE-CONTENT). Free to share and adapt, with
+  attribution, keeping it under the same license.
+- **Third-party data** in `lw/00_source/` keeps its own upstream license and
+  attribution (see [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) and `NOTICE`).
+- **Commercial use** — free for individuals, families, churches, nonprofits, the
+  community, and AI agents serving people. A company that wants to use it
+  *without* the share-alike terms (embed it in a closed product, run a modified
+  private service) needs a commercial license; every commercial dollar is
+  earmarked for giving. See [`COMMERCIAL.md`](COMMERCIAL.md).
+
+Full explanation in [`LICENSING.md`](LICENSING.md).
