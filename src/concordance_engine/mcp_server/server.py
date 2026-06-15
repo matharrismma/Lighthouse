@@ -366,6 +366,19 @@ def language_data(query: str) -> Dict[str, Any]:
     return tools.language_data(query)
 
 
+@mcp.tool()
+def wikidata(query: str) -> Dict[str, Any]:
+    """Look up an entity on Wikidata (CC0 public domain) by label and return key facts.
+
+    query = an entity label ("Photosynthesis", "Mount Everest", "Koine Greek").
+    Returns {qid, label, description, instance_of[], facts:[{property, value}], url}.
+    Live SPARQL/API query, cached offline so common lookups survive without a network.
+    External Layer-0 -- attributed, crowd-sourced (CONCORDANT-grade, NOT a HOLDS): a
+    starting reference to verify against the deterministic sources, never proof itself.
+    """
+    return tools.wikidata(query)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

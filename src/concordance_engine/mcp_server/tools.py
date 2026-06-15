@@ -435,6 +435,133 @@ def language_data(query):
     return out
 
 
+# ── Layer-0 source: Wikidata (CC0) -- live SPARQL lookup with an offline cache ──
+_WD_CACHE = None
+_WD_UA = ("NarrowHighway-Concordance/1.0 (https://narrowhighway.com; "
+          "verification engine; conduit, not source)")
+
+
+def _wd_cache_path():
+    from pathlib import Path as _Path
+    return _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "wikidata" / "cache.json"
+
+
+def _wd_load_cache():
+    global _WD_CACHE
+    if _WD_CACHE is None:
+        import json as _json
+        try:
+            _WD_CACHE = _json.loads(_wd_cache_path().read_text(encoding="utf-8"))
+        except Exception:
+            _WD_CACHE = {}
+    return _WD_CACHE
+
+
+def _wd_save_cache():
+    import json as _json
+    try:
+        p = _wd_cache_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(_json.dumps(_WD_CACHE, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def _wd_get(url):
+    import json as _json
+    import urllib.request as _u
+    req = _u.Request(url, headers={"User-Agent": _WD_UA, "Accept": "application/json"})
+    with _u.urlopen(req, timeout=15) as r:
+        return _json.loads(r.read().decode("utf-8", "replace"))
+
+
+def wikidata(query):
+    """Look up an entity on Wikidata (CC0 public domain) by label and return key
+    facts. Live SPARQL/API query, cached offline so common ones survive without a
+    network. External Layer-0 -- attributed, crowd-sourced (CONCORDANT-grade, never
+    a HOLDS); a starting reference to verify against the harder sources, not proof."""
+    import urllib.parse as _up
+    q = str(query or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide an entity label"}
+    cache = _wd_load_cache()
+    ck = q.lower()
+    if ck in cache:
+        out = dict(cache[ck]); out["cached"] = True
+        return out
+    try:
+        # 1. resolve the label to a QID (forgiving search)
+        s = _wd_get("https://www.wikidata.org/w/api.php?" + _up.urlencode({
+            "action": "wbsearchentities", "search": q, "language": "en",
+            "format": "json", "limit": 1}))
+        hits = s.get("search") or []
+        if not hits:
+            return {"status": "not_found", "query": query,
+                    "source": "Wikidata (CC0 public domain)"}
+        qid = hits[0]["id"]
+        label = hits[0].get("label", q)
+        desc = hits[0].get("description", "")
+        # 2. claims via the action API (avoids the rate-limited WDQS SPARQL endpoint)
+        api = "https://www.wikidata.org/w/api.php?"
+        ent = _wd_get(api + _up.urlencode({
+            "action": "wbgetentities", "ids": qid, "props": "claims", "format": "json"}))
+        claims = (ent.get("entities", {}).get(qid, {}) or {}).get("claims", {}) or {}
+        rows, idset = [], set()
+        for pid, stmts in claims.items():
+            for st in (stmts or [])[:2]:
+                dv = (st.get("mainsnak", {}) or {}).get("datavalue", {}) or {}
+                t, v = dv.get("type"), dv.get("value")
+                if t == "wikibase-entityid" and isinstance(v, dict):
+                    qv = v.get("id"); idset.add(qv); rows.append((pid, qv, True))
+                elif t == "string":
+                    rows.append((pid, str(v), False))
+                elif t == "quantity" and isinstance(v, dict):
+                    rows.append((pid, str(v.get("amount", "")).lstrip("+"), False))
+                elif t == "time" and isinstance(v, dict):
+                    rows.append((pid, str(v.get("time", "")).lstrip("+")[:10], False))
+                elif t == "monolingualtext" and isinstance(v, dict):
+                    rows.append((pid, v.get("text", ""), False))
+            idset.add(pid)
+        # 3. resolve property + item-value labels (batched, en)
+        labels, ids = {}, [x for x in idset if x]
+        for i in range(0, len(ids), 50):
+            chunk = ids[i:i + 50]
+            le = _wd_get(api + _up.urlencode({
+                "action": "wbgetentities", "ids": "|".join(chunk),
+                "props": "labels", "languages": "en", "format": "json"}))
+            for k, vv in (le.get("entities", {}) or {}).items():
+                lab = ((vv.get("labels", {}) or {}).get("en", {}) or {}).get("value")
+                if lab:
+                    labels[k] = lab
+        _noise = ("commons category", "topic's main category", "image",
+                  "locator map image", "logo image", "permanent duplicated item",
+                  "category for", "category combines topics", "described at url")
+        inst, facts, seen = [], [], set()
+        for pid, val, is_item in rows:
+            pl = labels.get(pid)
+            vl = labels.get(val, val) if is_item else val
+            if not pl or not vl:
+                continue
+            pll = pl.lower()
+            if pl == "instance of":
+                if vl not in inst:
+                    inst.append(vl)
+            elif pll.endswith(" id") or pll in _noise:
+                continue  # drop external-identifier / category cruft
+            elif (pl, vl) not in seen:
+                seen.add((pl, vl))
+                facts.append({"property": pl, "value": vl})
+        out = {"status": "ok", "qid": qid, "label": label, "description": desc,
+               "instance_of": inst[:6], "facts": facts[:18],
+               "source": "Wikidata (CC0 public domain)",
+               "url": "https://www.wikidata.org/wiki/" + qid}
+        cache[ck] = out
+        _wd_save_cache()
+        return out
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "wikidata query failed: " + str(e)[:160]}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1159,6 +1286,15 @@ TOOLS: List[Dict[str, Any]] = [
      ),
      "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
      "fn": lambda a: language_data(a["query"])},
+    {"name": "wikidata",
+     "description": (
+         "Look up an entity on Wikidata (CC0 public domain) by label -> key facts "
+         "(description, instance-of, notable property/value pairs). Live SPARQL, cached "
+         "offline. Crowd-sourced reference (CONCORDANT-grade, not a HOLDS) -- a starting "
+         "point to verify against the harder sources, never proof. query = an entity label."
+     ),
+     "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+     "fn": lambda a: wikidata(a["query"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1637,6 +1773,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "check": check,
     "verify_giving": verify_giving,
     "language_data": language_data,
+    "wikidata": wikidata,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
