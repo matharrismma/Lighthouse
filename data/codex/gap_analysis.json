@@ -1,0 +1,126 @@
+{
+  "verifiers": 64,
+  "tools": 88,
+  "data_grounded_tools": 17,
+  "grounded_domains": 19,
+  "pure_compute_domains": 11,
+  "ungrounded_domains": 34,
+  "empirical_grounded_pct": 36,
+  "vine_validity": 0.999,
+  "reach_source": 1669,
+  "nodes": 1671,
+  "form_cards": 18,
+  "families": {
+    "pure math & logic": {
+      "n": 11,
+      "grounded": 2,
+      "pure_compute": 9,
+      "ungrounded": 0
+    },
+    "physics & chemistry": {
+      "n": 13,
+      "grounded": 4,
+      "pure_compute": 1,
+      "ungrounded": 8
+    },
+    "earth sciences": {
+      "n": 7,
+      "grounded": 1,
+      "pure_compute": 0,
+      "ungrounded": 6
+    },
+    "life & medicine": {
+      "n": 6,
+      "grounded": 5,
+      "pure_compute": 0,
+      "ungrounded": 1
+    },
+    "language & Word": {
+      "n": 8,
+      "grounded": 2,
+      "pure_compute": 1,
+      "ungrounded": 5
+    },
+    "human systems": {
+      "n": 10,
+      "grounded": 1,
+      "pure_compute": 0,
+      "ungrounded": 9
+    },
+    "built & tech": {
+      "n": 9,
+      "grounded": 4,
+      "pure_compute": 0,
+      "ungrounded": 5
+    }
+  },
+  "grounded": [
+    "astronomy",
+    "biology",
+    "calendar_time",
+    "combinatorics",
+    "cryptography",
+    "ecology",
+    "energy",
+    "finance",
+    "genetics",
+    "geography",
+    "linguistics",
+    "medicine",
+    "networking",
+    "number_theory",
+    "nutrition",
+    "phase",
+    "physics_dimensional",
+    "scripture_anchors",
+    "thermodynamics"
+  ],
+  "ungrounded": [
+    "acoustics",
+    "agriculture",
+    "architecture",
+    "chemistry",
+    "computer_science",
+    "construction",
+    "cybersecurity",
+    "document_validation",
+    "economics",
+    "electrical",
+    "exercise_science",
+    "geology",
+    "giving",
+    "governance_decision_packet",
+    "history_chronology",
+    "hydrology",
+    "labor",
+    "law",
+    "manufacturing",
+    "materials_science",
+    "meteorology",
+    "nuclear_physics",
+    "oceanography",
+    "optics",
+    "philosophy",
+    "photography",
+    "physics",
+    "quantum_computing",
+    "real_estate",
+    "rhetoric",
+    "soil_science",
+    "sports_analytics",
+    "theology_doctrine",
+    "witness"
+  ],
+  "easy_wins": [
+    "ground the data-sources queue (~15 left)",
+    "open the original-language layer (tools ready)",
+    "seal the crypto / info / game-theory spine",
+    "fix stale counts in the agent docs"
+  ],
+  "bottlenecks": [
+    "new verifiers are slow, exact, deterministic",
+    "engine finds, never generates -- bound by the discovered",
+    "best clinical / legal data is licence-gated",
+    "past the easy ceiling -- connection is nearly done"
+  ]
+}
