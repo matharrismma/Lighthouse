@@ -509,6 +509,26 @@ def star_lookup(name: str = "", constellation: str = "", limit: int = 6) -> Dict
     return tools.star_lookup(name or None, constellation or None, limit)
 
 
+@mcp.tool()
+def fluid_property(fluid: str, output: str, input1_name: str = "",
+                   input1_value: float = 0.0, input2_name: str = "",
+                   input2_value: float = 0.0) -> Dict[str, Any]:
+    """Thermophysical property of a fluid, computed deterministically by CoolProp
+    (IAPWS-IF97 for water + Helmholtz-energy equations of state for 100+ fluids;
+    external, MIT-licensed, attributed).
+
+    Two-state form: fluid_property("Water","T","P",101325,"Q",0) = the boiling
+    point at 1 atm (373.12 K). Trivial form (omit the state inputs):
+    fluid_property("Water","Tcrit") = critical temperature. Property codes (SI):
+    T=K, P=Pa, D=density kg/m^3, H=J/kg, S=J/kg/K, Q=vapor quality 0..1, C=cp,
+    Tcrit/Pcrit, M=molar mass kg/mol, V=viscosity Pa*s, L=conductivity W/m/K,
+    A=speed of sound m/s. FAILS CLOSED: an unknown fluid, unsupported state, or
+    out-of-range input returns 'unsupported' (never a guess).
+    """
+    return tools.fluid_property(fluid, output, input1_name or None, input1_value,
+                                input2_name or None, input2_value)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

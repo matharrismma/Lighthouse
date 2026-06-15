@@ -1298,6 +1298,73 @@ def star_lookup(name=None, constellation=None, limit=6):
         return {"status": "error", "detail": "star lookup failed: " + str(e)[:140]}
 
 
+_FLUID_UNITS = {
+    "T": "K", "P": "Pa", "D": "kg/m^3", "H": "J/kg", "S": "J/kg/K", "U": "J/kg",
+    "Q": "(vapor quality 0..1)", "C": "J/kg/K", "CPMASS": "J/kg/K",
+    "CVMASS": "J/kg/K", "Tcrit": "K", "Pcrit": "Pa", "Dcrit": "kg/m^3",
+    "Ttriple": "K", "Tmin": "K", "Tmax": "K", "M": "kg/mol",
+    "molarmass": "kg/mol", "molar_mass": "kg/mol", "V": "Pa*s",
+    "viscosity": "Pa*s", "L": "W/m/K", "conductivity": "W/m/K", "A": "m/s",
+    "speed_of_sound": "m/s", "Z": "(compressibility factor)", "PRANDTL": "(Prandtl)",
+}
+
+
+def fluid_property(fluid, output, input1_name=None, input1_value=None,
+                   input2_name=None, input2_value=None):
+    """Thermophysical property of a fluid, computed deterministically by CoolProp
+    (IAPWS-IF97 for water + Helmholtz-energy EOS for 100+ fluids; external, MIT,
+    attributed). Two-state form: fluid_property('Water','T','P',101325,'Q',0)
+    = boiling point at 1 atm (373.12 K). Trivial form (omit the state inputs):
+    fluid_property('Water','Tcrit') = critical temperature. Property codes (SI):
+    T=K, P=Pa, D=density kg/m^3, H=J/kg, S=J/kg/K, Q=vapor quality 0..1, C=cp
+    J/kg/K, Tcrit/Pcrit, M=molar mass kg/mol, V=viscosity Pa*s, L=conductivity
+    W/m/K, A=speed of sound m/s. FAILS CLOSED: an unknown fluid, unsupported
+    state, or out-of-range input returns 'unsupported' (never a guess)."""
+    import math as _math
+    try:
+        from CoolProp.CoolProp import PropsSI as _PropsSI
+        from CoolProp.CoolProp import get_global_param_string as _ver
+    except Exception:  # noqa: BLE001
+        return {"status": "source_missing", "detail": "CoolProp not installed"}
+    f = str(fluid or "").strip()
+    out = str(output or "").strip()
+    if not f or not out:
+        return {"status": "error", "detail": "provide fluid and output property"}
+    has1 = input1_name not in (None, "")
+    has2 = input2_name not in (None, "")
+    try:
+        if has1 and has2:
+            v1 = float(input1_value)
+            v2 = float(input2_value)
+            val = _PropsSI(out, str(input1_name), v1, str(input2_name), v2, f)
+            given = {str(input1_name): v1, str(input2_name): v2}
+        elif not has1 and not has2:
+            val = _PropsSI(out, f)   # trivial property (Tcrit, molar_mass, ...)
+            given = {}
+        else:
+            return {"status": "error",
+                    "detail": "provide BOTH state inputs (name+value, twice) or "
+                              "none (for a trivial property like Tcrit)"}
+    except Exception as e:  # noqa: BLE001
+        return {"status": "unsupported",
+                "detail": "CoolProp could not evaluate: " + str(e)[:160],
+                "note": "unknown fluid, unsupported state, or out-of-range; "
+                        "the tool fails closed rather than guess."}
+    if isinstance(val, float) and (_math.isnan(val) or _math.isinf(val)):
+        return {"status": "unsupported",
+                "detail": "result is not finite (state out of range)"}
+    try:
+        backend = "CoolProp " + _ver("version")
+    except Exception:  # noqa: BLE001
+        backend = "CoolProp"
+    return {"status": "ok", "fluid": f, "output": out, "value": val,
+            "unit": _FLUID_UNITS.get(out), "given": given,
+            "source": "CoolProp (IAPWS-IF97 / Helmholtz-energy equations of state)",
+            "license": "MIT", "backend": backend,
+            "attribution": "Fluid properties computed by CoolProp (Bell et al., "
+                           "2014), MIT-licensed."}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2140,6 +2207,25 @@ TOOLS: List[Dict[str, Any]] = [
                                     "constellation": {"type": "string"},
                                     "limit": {"type": "integer"}}},
      "fn": lambda a: star_lookup(a.get("name"), a.get("constellation"), a.get("limit", 6))},
+    {"name": "fluid_property",
+     "description": (
+         "Thermophysical property of a fluid, computed by CoolProp (IAPWS-IF97 + Helmholtz "
+         "EOS, 100+ fluids). Two-state form: fluid_property('Water','T','P',101325,'Q',0) = "
+         "boiling point at 1 atm. Trivial form (omit state): ('Water','Tcrit'). Codes (SI): "
+         "T=K P=Pa D=density H=J/kg S=J/kg/K Q=quality C=cp Tcrit/Pcrit M=molar mass V=viscosity "
+         "L=conductivity A=speed of sound. Fails closed on unknown fluid/out-of-range. MIT."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"fluid": {"type": "string"},
+                                    "output": {"type": "string"},
+                                    "input1_name": {"type": "string"},
+                                    "input1_value": {"type": "number"},
+                                    "input2_name": {"type": "string"},
+                                    "input2_value": {"type": "number"}},
+                     "required": ["fluid", "output"]},
+     "fn": lambda a: fluid_property(a["fluid"], a["output"], a.get("input1_name"),
+                                    a.get("input1_value"), a.get("input2_name"),
+                                    a.get("input2_value"))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2628,6 +2714,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "port_lookup": port_lookup,
     "rfc_lookup": rfc_lookup,
     "star_lookup": star_lookup,
+    "fluid_property": fluid_property,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

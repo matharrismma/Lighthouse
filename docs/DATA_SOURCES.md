@@ -38,7 +38,7 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 | **CMU Pronouncing Dictionary** -- WIRED (`word_pronunciation`, 126k words + IPA/syllables/stress, lw/00_source/cmudict/cmudict.db) | linguistics | BSD-2 | offline ~7MB SQLite | Word -> ARPABET pronunciation; completes the language tree (PHOIBLE=inventory, this=word). |
 | **IANA port/protocol registries + RFC index** -- WIRED (`port_lookup` + `rfc_lookup`, 12,571 ports + 9,777 RFCs, lw/00_source/protocols/protocols.db) | networking, cryptography | PD | offline ~2MB SQLite | "TCP 443 = HTTPS", "which RFC defines X" (+ superseded_by flag, e.g. HTTP/2 RFC7540->9113). |
 | **HYG star catalog (hyg_v42)** -- WIRED (`star_lookup`, 119,626 stars, lw/00_source/hyg/hyg.db) | astronomy | CC BY-SA | offline ~11MB SQLite | Star position / magnitude / spectral type / distance / constellation membership; by proper name or constellation-brightest, fully offline. |
-| **CoolProp / IF97** | thermodynamics, energy, phase | MIT | offline (embeddable code) | Water-steam + 100+ fluids; embeds like CODATA/Meeus, cleanest license. |
+| **CoolProp / IF97** -- WIRED (`fluid_property`, CoolProp 7.2.0 pip dep, fails-closed) | thermodynamics, energy, phase | MIT | pip-embedded code lib | Water-steam + 100+ fluids; deterministic PropsSI; gated on known values (water Tboil 373.12K, Tcrit 647.1K). |
 | **IERS leap-seconds.list** | calendar_time | open | offline few KB | TAI<->UTC precision (leap-second history). |
 
 ## TIER 2 -- mission-critical (SERVE: the Table + the Apothecary), open + offline
@@ -99,8 +99,8 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 
 Phase 5 = GeoNames, 6 = tzdata, 7 = UCUM, 8 = OEIS, 9 = CMU dict (DONE -- the
 language tree's phonics level; all 5 linguistic levels now grounded), 10 = IANA
-ports + RFC index, 11 = HYG stars (DONE). Queue from here:
-**CoolProp** (last Tier 1), then the **TIER 2 SERVE mission**:
+ports + RFC index, 11 = HYG stars, 12 = CoolProp (DONE -- TIER 1 COMPLETE).
+Queue from here: the **TIER 2 SERVE mission**:
 **USDA FoodData (the Table) -> DailyMed/openFDA (the Apothecary) -> GBIF/NCBI
 (species) -> Natural Earth (geography)**, then Tier 3 as depth is needed. One
 source per tick: offline build -> reproducible `tools/build_<src>_index.py` -> SQLite (big)
