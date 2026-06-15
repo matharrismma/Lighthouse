@@ -911,6 +911,97 @@ def unit_convert(value, from_unit, to_unit=None):
         return {"status": "error", "detail": "ucum convert failed: " + str(e)[:140]}
 
 
+def _oeis_norm_anum(s):
+    s = str(s or "").strip().upper().lstrip("A").lstrip("0") or "0"
+    try:
+        return "A%06d" % int(s)
+    except (TypeError, ValueError):
+        return None
+
+
+def sequence_lookup(anum=None, terms=None, limit=8):
+    """Identify or look up an integer sequence in the offline OEIS index (external
+    Layer-0, attributed, CC BY-SA). Either: anum (e.g. 'A000045' or 45) -> the
+    sequence's name + terms; or terms (a list like [1,1,2,3,5,8] or a comma
+    string) -> the OEIS sequences whose terms contain that run, most-canonical
+    (lowest A-number) first. OEIS is a curated/crowd-sourced reference: a term
+    match IDENTIFIES a sequence (CONCORDANT-grade), it does not PROVE the defining
+    property. Grounds number_theory / combinatorics sequence claims."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "oeis" / "oeis.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "OEIS db not provisioned"}
+    try:
+        lim = max(1, min(int(limit), 25))
+    except (TypeError, ValueError):
+        lim = 8
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        src = {"source": meta.get("source"), "license": meta.get("license"),
+               "attribution": meta.get("attribution"), "grade": meta.get("grade")}
+        if anum not in (None, ""):
+            a = _oeis_norm_anum(anum)
+            if a is None:
+                con.close()
+                return {"status": "error", "detail": "bad A-number: %r" % anum}
+            row = con.execute("SELECT anum,name,terms FROM sequences WHERE anum=?",
+                              (a,)).fetchone()
+            con.close()
+            if not row:
+                out = {"status": "not_found", "query": a}
+                out.update(src)
+                return out
+            tlist = [t for t in row[2].split(",") if t != ""]
+            out = {"status": "ok", "anum": row[0], "name": row[1],
+                   "terms": tlist[:24], "terms_shown": min(24, len(tlist))}
+            out.update(src)
+            return out
+        # identify by terms
+        if terms in (None, ""):
+            con.close()
+            return {"status": "error",
+                    "detail": "provide 'anum' (e.g. A000045) or 'terms' "
+                              "(e.g. [1,1,2,3,5,8])"}
+        if isinstance(terms, str):
+            raw = [t for t in terms.replace(" ", ",").split(",") if t != ""]
+        else:
+            raw = list(terms)
+        try:
+            ints = [str(int(t)) for t in raw]
+        except (TypeError, ValueError):
+            con.close()
+            return {"status": "error", "detail": "all terms must be integers"}
+        if len(ints) < 3:
+            con.close()
+            return {"status": "error",
+                    "detail": "give at least 3 terms to identify a sequence "
+                              "(fewer is ambiguous)"}
+        needle = "," + ",".join(ints) + ","
+        rows = con.execute(
+            "SELECT anum,name FROM sequences WHERE terms LIKE ? ESCAPE '\\' "
+            "ORDER BY anum LIMIT ?",
+            ("%" + needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%", lim + 1)
+        ).fetchall()
+        con.close()
+        more = len(rows) > lim
+        matches = [{"anum": r[0], "name": r[1]} for r in rows[:lim]]
+        if not matches:
+            out = {"status": "not_found", "query_terms": ints,
+                   "note": "no OEIS sequence contains that exact run of terms."}
+            out.update(src)
+            return out
+        out = {"status": "ok", "query_terms": ints, "count": len(matches),
+               "more_matches": more, "matches": matches,
+               "note": "term match identifies a sequence; it is a reference "
+                       "pointer, not a proof of the defining property."}
+        out.update(src)
+        return out
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "oeis lookup failed: " + str(e)[:140]}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1694,6 +1785,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "to_unit": {"type": "string"}},
                      "required": ["value", "from_unit"]},
      "fn": lambda a: unit_convert(a["value"], a["from_unit"], a.get("to_unit"))},
+    {"name": "sequence_lookup",
+     "description": (
+         "Identify or look up an integer sequence in the offline OEIS index. anum (e.g. "
+         "'A000045' or 45) -> name + terms; OR terms (a list like [1,1,2,3,5,8] or a comma "
+         "string, >=3) -> OEIS sequences whose terms contain that run, lowest A-number first. "
+         "OEIS is a curated reference: a term match IDENTIFIES (not proves) a sequence. "
+         "Grounds number_theory / combinatorics. CC BY-SA, (c) OEIS Foundation."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"anum": {"type": "string"},
+                                    "terms": {"type": "array", "items": {"type": "number"}},
+                                    "limit": {"type": "integer"}}},
+     "fn": lambda a: sequence_lookup(a.get("anum"), a.get("terms"), a.get("limit", 8))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2177,6 +2281,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "place_lookup": place_lookup,
     "timezone_offset": timezone_offset,
     "unit_convert": unit_convert,
+    "sequence_lookup": sequence_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

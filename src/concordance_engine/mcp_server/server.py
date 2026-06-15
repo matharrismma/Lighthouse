@@ -437,6 +437,20 @@ def unit_convert(value: float, from_unit: str, to_unit: str = "") -> Dict[str, A
     return tools.unit_convert(value, from_unit, to_unit or None)
 
 
+@mcp.tool()
+def sequence_lookup(anum: str = "", terms: list = None, limit: int = 8) -> Dict[str, Any]:
+    """Identify or look up an integer sequence in the offline OEIS index (external
+    Layer-0, attributed, CC BY-SA).
+
+    Either anum (e.g. "A000045" or 45) -> {name, terms}; or terms (a list like
+    [1,1,2,3,5,8], at least 3) -> the OEIS sequences whose terms contain that run,
+    lowest A-number (most canonical) first. OEIS is a curated/crowd-sourced
+    reference: a term match IDENTIFIES a sequence (CONCORDANT-grade) -- it does
+    not PROVE the defining property. Grounds number_theory / combinatorics claims.
+    """
+    return tools.sequence_lookup(anum or None, terms, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
