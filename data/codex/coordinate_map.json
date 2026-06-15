@@ -11,16 +11,16 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1642,
-  "edges": 1667,
+  "nodes": 1644,
+  "edges": 1669,
   "kin": 1583,
-  "braces": 3250,
+  "braces": 3252,
   "vine_validity": 0.609,
-  "reach_source": 1000,
+  "reach_source": 1002,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1642,
-  "rigidity_ratio": 0.991,
-  "language": 1259,
+  "kin_assisted_reach_source": 1644,
+  "rigidity_ratio": 0.99,
+  "language": 1261,
   "math": 328,
   "axis": 55
  },
@@ -19728,6 +19728,30 @@
    "level": "foundational",
    "kind": "protocol",
    "title": "Clear reasoning tracks real probability -- the named fallacies are where the min"
+  },
+  {
+   "id": "assessment_augustine_forms_are_gods_thoughts_time_is_distention",
+   "tree": "language",
+   "t": 0.1352,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 548.1,
+   "y": 793.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Augustine -- the Forms are God's thoughts, time is the soul's distention, evil i"
+  },
+  {
+   "id": "assessment_aquinas_five_ways_and_essence_existence",
+   "tree": "language",
+   "t": 0.1292,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 561.0,
+   "y": 798.9,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Aquinas -- the Five Ways point, essence is not existence, grace perfects nature:"
   }
  ],
  "edges": [
@@ -26398,6 +26422,14 @@
   [
    "connection_clear_reasoning_tracks_real_probability",
    "connection_reality_is_mappable"
+  ],
+  [
+   "assessment_augustine_forms_are_gods_thoughts_time_is_distention",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_aquinas_five_ways_and_essence_existence",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
   ]
  ],
  "kin": [
