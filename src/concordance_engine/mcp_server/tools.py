@@ -76,6 +76,7 @@ from ..verifiers import oceanography as _oceanography
 from ..verifiers import phase as _phase
 from ..verifiers import atomic as _atomic
 from ..verifiers import molecular_geometry as _molecular_geometry
+from ..verifiers import giving as _giving
 from ..verifiers.base import VerifierResult
 from ..walkthrough import (
     render_walkthrough, render_walkthrough_compact, render_walkthrough_html,
@@ -371,6 +372,12 @@ def check(claim=None, steps=None, mode=None, params=None, domain="mathematics", 
         except Exception as e:  # noqa: BLE001
             result["seal_error"] = str(e)[:200]
     return result
+
+
+def verify_giving(spec):
+    """Conservation of a giving / value-transfer chain -- every dollar accounted
+    from the source to the end user (no leakage, no skim). See verifiers/giving.py."""
+    return _r(_giving.verify(spec))
 
 
 def verify_statistics_pvalue(spec):
@@ -1079,6 +1086,15 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"mode": {"type": "string"}, "params": {"type": "object"}},
                      "required": ["mode", "params"]},
      "fn": lambda a: verify_mathematics(a["mode"], a["params"])},
+    {"name": "verify_giving",
+     "description": (
+         "Conservation of a giving / value-transfer chain -- prove every dollar is "
+         "accounted from the donor to the END USER, no leakage. spec={source, links:[{name,fee}], "
+         "delivered, claimed_delivered_fraction?, tolerance?}. Confirms iff source == sum(fees) + "
+         "delivered; reports the unaccounted leak + the % that reached the end user."
+     ),
+     "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
+     "fn": lambda a: verify_giving(a["spec"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1555,6 +1571,7 @@ def call_tool(name, arguments):
 
 ALL_TOOLS: Dict[str, Any] = {
     "check": check,
+    "verify_giving": verify_giving,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

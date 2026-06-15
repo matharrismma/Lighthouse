@@ -328,6 +328,29 @@ def check(
                        domain=domain, seal=seal)
 
 
+@mcp.tool()
+def verify_giving(spec: Dict[str, Any]) -> Dict[str, Any]:
+    """Conservation of a giving / value-transfer chain -- prove every dollar is
+    accounted for from the donor all the way to the END USER, with no leakage or
+    skim. The conservation law (a balanced equation; a closed system) applied to
+    money: what goes in must come out as fees + what is delivered.
+
+    spec = {
+      "source": 1000.00,                 # what the donor gave
+      "links": [{"name":"platform","fee":30}, {"name":"charity","fee":120}],
+      "delivered": 800.00,               # what reached the end user
+      "claimed_delivered_fraction": 0.80,# optional efficiency to check
+      "tolerance": 0.01                  # optional, default one penny
+    }
+
+    CONFIRMED iff source == sum(fees) + delivered (within tolerance). On a
+    shortfall it reports the UNACCOUNTED leak; it always reports what fraction
+    reached the end user. "Never trust, always verify" for giving -- the giver
+    gets a result re-checkable without trusting any middleman.
+    """
+    return tools.verify_giving(spec)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
