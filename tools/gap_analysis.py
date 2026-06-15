@@ -100,6 +100,14 @@ def main():
     forms = sum(1 for l in ENTRIES.open(encoding="utf-8")
                 if l.strip() and json.loads(l).get("category") == "form")
 
+    targets_path = ROOT / "data" / "codex" / "targets.json"
+    tg = json.loads(targets_path.read_text(encoding="utf-8")) if targets_path.exists() else {}
+    g_targets = tg.get("ground", [])
+    ot_ms = tg.get("original_text", [])
+    ground_open = [t for t in g_targets if t.get("status") != "done"]
+    ot_done = sum(1 for m in ot_ms if m.get("status") == "done")
+    ot_pct = round(100 * ot_done / max(1, len(ot_ms)))
+
     cls = {d: classify(d) for d in verify}
     grounded = [d for d in verify if cls[d] == "grounded"]
     pure = [d for d in verify if cls[d] == "pure_compute"]
@@ -120,6 +128,9 @@ def main():
         "grounded_domains": len(grounded), "pure_compute_domains": len(pure),
         "ungrounded_domains": len(ungrounded), "empirical_grounded_pct": emp_pct,
         "vine_validity": vine, "reach_source": reach, "nodes": nodes, "form_cards": forms,
+        "original_text_pct": ot_pct, "original_text_done": ot_done, "original_text_total": len(ot_ms),
+        "ground_targets_open": len(ground_open),
+        "targets": {"ground_open": ground_open, "original_text": ot_ms},
         "families": fam, "grounded": grounded, "ungrounded": ungrounded,
         "easy_wins": ["ground the data-sources queue (~15 left)",
                       "open the original-language layer (tools ready)",
@@ -137,6 +148,8 @@ def main():
           % (len(verify), len(grounded), emp_pct, len(pure), len(ungrounded)))
     print("vine-validity %.3f (%d/%d) | form-cards %d | tools %d"
           % (vine, reach, nodes, forms, n_tools))
+    print("targets -- ground: %d sources to wire | original text: %d/%d milestones"
+          % (len(ground_open), ot_done, len(ot_ms)))
     print("wrote", OUT_JSON.name, "+", OUT_HTML.name)
 
 
@@ -162,6 +175,11 @@ def render_html(d):
         fam_rows += _bar(name, "", pct, col, note + " (%d)" % f["n"])
     wins = "".join('<li>%s</li>' % w for w in d["easy_wins"])
     necks = "".join('<li>%s</li>' % b for b in d["bottlenecks"])
+    g_open = d["targets"]["ground_open"]
+    g_li = "".join('<li>%s &mdash; %s</li>' % (t["domain"], t["source"]) for t in g_open)
+    ot_li = "".join(('<li style="color:#3fb950">done &mdash; %s</li>' % m["name"])
+                    if m.get("status") == "done" else ('<li>%s</li>' % m["name"])
+                    for m in d["targets"]["original_text"])
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Concordance -- gap analysis</title>
@@ -203,12 +221,17 @@ h1{{font-weight:500;font-size:22px;margin:0 0 .2rem}}
 {_bar('verify','(the math)',90,GREEN,'strong')}
 {_bar('connect','(to source)',min(100,round(d['vine_validity']*100)),GREEN,'%d / %d'%(d['reach_source'],d['nodes']))}
 {_bar('ground','(real data)',emp,AMBER,'%d / %d empirical'%(d['grounded_domains'],d['grounded_domains']+d['ungrounded_domains']))}
-{_bar('original text','(Heb/Grk)',12,AMBER,'barely begun')}
+{_bar('original text','(Heb/Grk)',d['original_text_pct'],AMBER,'%d / %d milestones'%(d['original_text_done'],d['original_text_total']))}
 <div class="legend"><span><span class="dot" style="background:{GREEN}"></span>strong</span>
 <span><span class="dot" style="background:{AMBER}"></span>gap to close</span></div>
 <div class="witness">These bars measure the engine's reach over what can be checked. The One it all witnesses to is not on the chart -- he stands outside the exercise.</div>
 <div class="sec">grounding by family</div>
 {fam_rows}
+<div class="sec">targets to fill the bars -- finish one, the bar rises</div>
+<div class="cols">
+<div><h3>ground -- {len(g_open)} sources to wire</h3><ul>{g_li}</ul></div>
+<div><h3>original text -- {d['original_text_done']} / {d['original_text_total']} milestones</h3><ul>{ot_li}</ul></div>
+</div>
 <div class="cols">
 <div><h3>easy wins -- additive, low risk</h3><ul>{wins}</ul></div>
 <div><h3>bottlenecks -- generative, slow</h3><ul>{necks}</ul></div>
