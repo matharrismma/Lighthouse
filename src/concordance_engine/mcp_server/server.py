@@ -592,6 +592,23 @@ def drug_target(drug: str, limit: int = 8) -> Dict[str, Any]:
     return tools.drug_target(drug, limit)
 
 
+@mcp.tool()
+def currency_convert(amount: float, from_cur: str, to_cur: str,
+                     date: str = None) -> Dict[str, Any]:
+    """Convert money between currencies using the offline ECB euro foreign-exchange
+    reference-rate set (external Layer-0, attributed).
+
+    amount + from_cur + to_cur (ISO 3-letter, e.g. USD, EUR, JPY, GBP) + optional
+    date (YYYY-MM-DD, default the latest available) -> the converted amount via the
+    EUR cross, with the as-of date and the rate used. ~40 currencies, daily back to
+    1999; weekends and holidays fall back to the most recent prior business day.
+    ECB reference rates are published ~16:00 CET for INFORMATION -- they are NOT
+    transaction rates, and a bank will not give you exactly this. Free use with
+    attribution to the ECB.
+    """
+    return tools.currency_convert(amount, from_cur, to_cur, date)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

@@ -1632,6 +1632,65 @@ def drug_target(drug, limit=8):
             "attribution": meta.get("attribution")}
 
 
+def currency_convert(amount, from_cur, to_cur, date=None):
+    """Convert money between currencies using the offline ECB euro foreign-exchange
+    reference-rate set (external Layer-0, attributed). amount + from_cur + to_cur
+    (ISO 3-letter, e.g. USD, EUR, JPY, GBP) + optional date (YYYY-MM-DD, default the
+    latest available) -> the converted amount via the EUR cross, with the as-of date
+    and the rate used. ~40 currencies, daily back to 1999; weekends/holidays fall
+    back to the most recent prior business day. ECB REFERENCE rates (~16:00 CET) are
+    for INFORMATION -- NOT transaction rates; a bank will not give exactly this."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "ecb_fx" / "fx.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "ECB FX db not provisioned"}
+    try:
+        amt = float(amount)
+    except (TypeError, ValueError):
+        return {"status": "error", "detail": "amount must be a number"}
+    fr = str(from_cur or "").strip().upper()
+    to = str(to_cur or "").strip().upper()
+    if not fr or not to:
+        return {"status": "error", "detail": "provide from_cur and to_cur (ISO 3-letter)"}
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        if date:
+            d = str(date).strip()
+            row = con.execute("SELECT MAX(date) FROM rates WHERE date<=?", (d,)).fetchone()
+            asof = row[0] if row and row[0] else None
+            if asof is None:
+                con.close()
+                return {"status": "not_found",
+                        "detail": "no ECB rates on or before " + d + " (data starts 1999-01-04)"}
+        else:
+            asof = meta.get("latest_date")
+
+        def _rate(c):
+            if c == "EUR":
+                return 1.0
+            rr = con.execute("SELECT rate FROM rates WHERE date=? AND cur=?",
+                             (asof, c)).fetchone()
+            return rr[0] if rr else None
+        rf = _rate(fr)
+        rt = _rate(to)
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "fx lookup failed: " + str(e)[:140]}
+    if rf is None:
+        return {"status": "not_found", "detail": "currency not in the ECB set: " + fr}
+    if rt is None:
+        return {"status": "not_found", "detail": "currency not in the ECB set: " + to}
+    rate = rt / rf
+    return {"status": "ok", "amount": amt, "from": fr, "to": to, "as_of_date": asof,
+            "rate": round(rate, 6), "result": round(amt * rate, 4),
+            "basis": "ECB euro reference rates via the EUR cross -- INFORMATION only, "
+                     "not a transaction rate",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2545,6 +2604,22 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["drug"]},
      "fn": lambda a: drug_target(a["drug"], a.get("limit", 8))},
+    {"name": "currency_convert",
+     "description": (
+         "Convert money between currencies via the offline ECB euro reference-rate set. "
+         "amount + from_cur + to_cur (ISO 3-letter: USD, EUR, JPY, GBP, ...) + optional date "
+         "(YYYY-MM-DD, default latest) -> the converted amount through the EUR cross, with the "
+         "as-of date and rate used. ~40 currencies, daily since 1999; weekends/holidays use the "
+         "prior business day. ECB REFERENCE rates (info only, ~16:00 CET) -- NOT transaction "
+         "rates. Free use, attribution ECB."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"amount": {"type": "number"},
+                                    "from_cur": {"type": "string"},
+                                    "to_cur": {"type": "string"},
+                                    "date": {"type": "string"}},
+                     "required": ["amount", "from_cur", "to_cur"]},
+     "fn": lambda a: currency_convert(a["amount"], a["from_cur"], a["to_cur"], a.get("date"))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3038,6 +3113,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "drug_lookup": drug_lookup,
     "species_lookup": species_lookup,
     "drug_target": drug_target,
+    "currency_convert": currency_convert,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

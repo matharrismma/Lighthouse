@@ -62,7 +62,7 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 | **Copernicus DEM GLO-30** | geography, geology | open (attrib) | offline AWS tiles | Global elevation (Everest 8849 m); pull tiles as needed. |
 | **World Bank Open Data** | economics | CC BY | offline CSV + no-key API | GDP / inflation / population. |
 | **US BLS flat files** | labor | PD | offline flat files | Unemployment / CPI (offline beats the daily API cap). |
-| **ECB eurofxref-hist.csv (Frankfurter)** | finance | free (attrib) | offline ~1MB CSV | Daily FX reference rate back to 1999. |
+| **ECB eurofxref-hist.csv** -- WIRED (`currency_convert`, 41 currencies / 7,027 days / 218,831 rates back to 1999, lw/00_source/ecb_fx/fx.db) | finance | free (attrib) | offline ~14MB SQLite | Convert money between currencies via the EUR cross, any date back to 1999-01-04; ECB reference rates, INFORMATION only (not transaction rates). |
 | **SEC EDGAR companyfacts.zip** | finance | PD | offline multi-GB | Company filings / XBRL facts. |
 | **Caselaw Access Project** | law | **CC0** | offline bulk JSON (tens GB) | Cleanest possible license on the full US case-law corpus. |
 | **US Code (OLRC USLM XML)** | law, governance | PD | offline XML | Statutory text by title/section. |
