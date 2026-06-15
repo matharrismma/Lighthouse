@@ -11,16 +11,16 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1650,
-  "edges": 1675,
+  "nodes": 1653,
+  "edges": 1678,
   "kin": 1583,
-  "braces": 3258,
-  "vine_validity": 0.611,
-  "reach_source": 1008,
+  "braces": 3261,
+  "vine_validity": 0.612,
+  "reach_source": 1011,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1650,
-  "rigidity_ratio": 0.988,
-  "language": 1266,
+  "kin_assisted_reach_source": 1653,
+  "rigidity_ratio": 0.987,
+  "language": 1269,
   "math": 329,
   "axis": 55
  },
@@ -19824,6 +19824,42 @@
    "level": "foundational",
    "kind": "assessment",
    "title": "Ockham -- the razor is a true method, nominalism cuts too deep: parsimony kept, "
+  },
+  {
+   "id": "assessment_confucius_the_ordered_virtue_without_a_savior",
+   "tree": "language",
+   "t": 0.1601,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 484.9,
+   "y": 772.4,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Confucius -- real moral order, the rectification of names, the Silver Rule: virt"
+  },
+  {
+   "id": "assessment_laozi_the_way_and_wu_wei_an_impersonal_source",
+   "tree": "language",
+   "t": 0.1748,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 440.1,
+   "y": 759.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Lao Tzu -- the unnameable Source, the way of yielding, water that overcomes the "
+  },
+  {
+   "id": "assessment_buddha_true_diagnosis_extinction_not_redemption",
+   "tree": "language",
+   "t": 0.1436,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 528.4,
+   "y": 786.5,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Buddha -- the true diagnosis of craving and suffering, the wrong cure: extinctio"
   }
  ],
  "edges": [
@@ -26525,6 +26561,18 @@
   ],
   [
    "assessment_ockham_the_razor_and_nominalism",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_confucius_the_ordered_virtue_without_a_savior",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_laozi_the_way_and_wu_wei_an_impersonal_source",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_buddha_true_diagnosis_extinction_not_redemption",
    "connection_the_thinker_assessment_keeps_kernel_names_fork"
   ]
  ],
