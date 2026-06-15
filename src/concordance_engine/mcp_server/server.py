@@ -624,6 +624,21 @@ def scripture(reference: str, limit: int = 60) -> Dict[str, Any]:
     return tools.scripture(reference, limit)
 
 
+@mcp.tool()
+def original_words(reference: str, limit: int = 12) -> Dict[str, Any]:
+    """The ORIGINAL-LANGUAGE words of a Bible passage -- the agent's canonical
+    layer -- each tagged with its Strong's number and morphology, from the offline
+    OpenScriptures Hebrew Bible (Westminster Leningrad Codex, external Layer-0).
+
+    reference = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. The Old Testament
+    (Hebrew) is onboard now; the Greek New Testament lands in the next milestone.
+    Each Strong's number can be expanded to its definition via word_study (a lexical
+    take); the user reads the WEB through the scripture tool. WLC is public domain;
+    the OSHB Strong's + morphology tagging is CC BY (OpenScriptures).
+    """
+    return tools.original_words(reference, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

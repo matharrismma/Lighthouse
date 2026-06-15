@@ -1782,6 +1782,77 @@ def scripture(reference, limit=60):
             "attribution": meta.get("attribution")}
 
 
+def original_words(reference, limit=12):
+    """Return the ORIGINAL-LANGUAGE words for a Bible passage -- the agent's
+    canonical layer -- each tagged with its Strong's number and morphology, from
+    the offline OpenScriptures Hebrew Bible (Westminster Leningrad Codex). reference
+    = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. Old Testament (Hebrew) is
+    onboard now; the Greek NT lands in the next milestone. Each Strong's number can
+    be expanded to its definition via word_study (a lexical take). External Layer-0,
+    attributed (WLC public domain; OSHB tagging CC BY)."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    base = _Path(__file__).resolve().parents[3] / "lw" / "00_source"
+    web = base / "web_bible" / "web.db"
+    heb = base / "hebrew_ot" / "hebrew.db"
+    if not web.exists() or not heb.exists():
+        return {"status": "source_missing", "detail": "Scripture original-language db not provisioned"}
+    ref = str(reference or "").strip()
+    m = _re.match(r"^\s*(\d?\s?[A-Za-z][A-Za-z. ]*?)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?\s*$", ref)
+    if not m:
+        return {"status": "error", "detail": "could not parse reference: " + ref}
+    bk_raw, ch = m.group(1).strip(), int(m.group(2))
+    v1 = int(m.group(3)) if m.group(3) else None
+    v2 = int(m.group(4)) if m.group(4) else v1
+    try:
+        lim = max(1, min(int(limit), 40))
+    except (TypeError, ValueError):
+        lim = 12
+    try:
+        cw = _sql.connect("file:%s?mode=ro" % web.as_posix(), uri=True)
+        num = _resolve_bible_book(cw, bk_raw)
+        name = (cw.execute("SELECT name FROM books WHERE book_num=?", (num,)).fetchone()[0]
+                if num else None)
+        cw.close()
+        if num is None:
+            return {"status": "not_found", "detail": "unknown book: " + bk_raw}
+        if num > 39:
+            return {"status": "not_yet",
+                    "detail": "Greek NT original lands in the next milestone; the Hebrew OT is onboard now."}
+        ch_db = _sql.connect("file:%s?mode=ro" % heb.as_posix(), uri=True)
+        meta = dict(ch_db.execute("SELECT k,v FROM meta").fetchall())
+        if v1 is None:
+            vlist = [r[0] for r in ch_db.execute(
+                "SELECT DISTINCT verse FROM words WHERE book_num=? AND chapter=? "
+                "ORDER BY verse LIMIT ?", (num, ch, lim)).fetchall()]
+        else:
+            vlist = list(range(v1, (v2 or v1) + 1))[:lim]
+        out_v = []
+        for vs in vlist:
+            ws = ch_db.execute("SELECT pos,heb,strongs,morph FROM words WHERE book_num=? "
+                               "AND chapter=? AND verse=? ORDER BY pos", (num, ch, vs)).fetchall()
+            if not ws:
+                continue
+            out_v.append({"ref": "%s %d:%d" % (name, ch, vs),
+                          "words": [{"heb": w[1], "strongs": w[2] or None,
+                                     "morph": w[3] or None} for w in ws]})
+        ch_db.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "original lookup failed: " + str(e)[:140]}
+    if not out_v:
+        return {"status": "not_found", "detail": "no original words for '" + ref + "'"}
+    canon = name + " " + str(ch)
+    if v1 is not None:
+        canon += ":" + str(v1) + (("-" + str(v2)) if v2 != v1 else "")
+    return {"status": "ok", "reference": canon, "language": "Hebrew",
+            "count": len(out_v), "verses": out_v,
+            "note": "The agent's canonical layer. Expand any Strong's number to its definition "
+                    "via word_study (a lexical take); the user reads the WEB via the scripture tool.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2725,6 +2796,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: scripture(a["reference"], a.get("limit", 60))},
+    {"name": "original_words",
+     "description": (
+         "The ORIGINAL-LANGUAGE words of a Bible passage (the agent's canonical layer), each tagged "
+         "with Strong's number + morphology, from the offline OpenScriptures Hebrew Bible (WLC). "
+         "reference = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. OT (Hebrew) onboard now; Greek NT "
+         "next milestone. Expand a Strong's number via word_study for its definition. WLC public "
+         "domain; OSHB tagging CC BY."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: original_words(a["reference"], a.get("limit", 12))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3220,6 +3304,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "drug_target": drug_target,
     "currency_convert": currency_convert,
     "scripture": scripture,
+    "original_words": original_words,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

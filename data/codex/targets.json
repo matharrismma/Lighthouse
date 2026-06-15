@@ -1,30 +1,114 @@
 {
   "note": "Targets that fill the gap-analysis bars. GROUND = wire one external authoritative source per empirical domain (each done = the ground bar rises live). ORIGINAL_TEXT = the Scripture-onboard milestones (each done = that bar rises). Mark status 'done' as completed; gap_analysis.py reads this and recomputes the bars. The Word/reasoning domains (theology, philosophy, rhetoric, witness, giving) are NOT here -- they ground through the original-text + corpus build, not external data.",
   "ground": [
-    {"domain": "geology", "source": "USGS ComCat (quakes) + Smithsonian GVP (volcanoes)", "status": "open"},
-    {"domain": "oceanography", "source": "GEBCO 2024 bathymetry", "status": "open"},
-    {"domain": "hydrology", "source": "USGS Water Services", "status": "open"},
-    {"domain": "meteorology", "source": "NOAA GHCN / Climate Normals", "status": "open"},
-    {"domain": "soil_science", "source": "USDA SSURGO / SoilGrids", "status": "open"},
-    {"domain": "agriculture", "source": "FAOSTAT + USDA PLANTS", "status": "open"},
-    {"domain": "chemistry", "source": "ChEBI (open chemistry layer)", "status": "open"},
-    {"domain": "materials_science", "source": "Materials Project", "status": "open"},
-    {"domain": "nuclear_physics", "source": "NNDC ENSDF half-lives + NIST ASD", "status": "open"},
-    {"domain": "optics", "source": "NIST ASD spectral lines", "status": "open"},
-    {"domain": "economics", "source": "World Bank Open Data", "status": "open"},
-    {"domain": "labor", "source": "US BLS flat files", "status": "open"},
-    {"domain": "law", "source": "US Code (OLRC) + Caselaw CC0", "status": "open"},
-    {"domain": "history_chronology", "source": "World Historical Gazetteer", "status": "open"},
-    {"domain": "exercise_science", "source": "Compendium of Physical Activities (METs)", "status": "open"}
+    {
+      "domain": "geology",
+      "source": "USGS ComCat (quakes) + Smithsonian GVP (volcanoes)",
+      "status": "open"
+    },
+    {
+      "domain": "oceanography",
+      "source": "GEBCO 2024 bathymetry",
+      "status": "open"
+    },
+    {
+      "domain": "hydrology",
+      "source": "USGS Water Services",
+      "status": "open"
+    },
+    {
+      "domain": "meteorology",
+      "source": "NOAA GHCN / Climate Normals",
+      "status": "open"
+    },
+    {
+      "domain": "soil_science",
+      "source": "USDA SSURGO / SoilGrids",
+      "status": "open"
+    },
+    {
+      "domain": "agriculture",
+      "source": "FAOSTAT + USDA PLANTS",
+      "status": "open"
+    },
+    {
+      "domain": "chemistry",
+      "source": "ChEBI (open chemistry layer)",
+      "status": "open"
+    },
+    {
+      "domain": "materials_science",
+      "source": "Materials Project",
+      "status": "open"
+    },
+    {
+      "domain": "nuclear_physics",
+      "source": "NNDC ENSDF half-lives + NIST ASD",
+      "status": "open"
+    },
+    {
+      "domain": "optics",
+      "source": "NIST ASD spectral lines",
+      "status": "open"
+    },
+    {
+      "domain": "economics",
+      "source": "World Bank Open Data",
+      "status": "open"
+    },
+    {
+      "domain": "labor",
+      "source": "US BLS flat files",
+      "status": "open"
+    },
+    {
+      "domain": "law",
+      "source": "US Code (OLRC) + Caselaw CC0",
+      "status": "open"
+    },
+    {
+      "domain": "history_chronology",
+      "source": "World Historical Gazetteer",
+      "status": "open"
+    },
+    {
+      "domain": "exercise_science",
+      "source": "Compendium of Physical Activities (METs)",
+      "status": "open"
+    }
   ],
   "original_text": [
-    {"name": "original-language form-card + seed word studies", "status": "done"},
-    {"name": "WEB translation onboard, verse-keyed", "status": "done"},
-    {"name": "Hebrew OT original + Strong's + morphology onboard", "status": "open"},
-    {"name": "Greek NT original + Strong's + morphology onboard", "status": "open"},
-    {"name": "read_passage tool: original + translation + lexical takes", "status": "open"},
-    {"name": "lexicon takes wired (Strong's, then BDB / Thayer)", "status": "open"},
-    {"name": "commentary takes searchable per verse (CCEL: Henry, Barnes, Calvin)", "status": "open"},
-    {"name": "sermon takes searchable (Spurgeon, Edwards, Wesley)", "status": "open"}
+    {
+      "name": "original-language form-card + seed word studies",
+      "status": "done"
+    },
+    {
+      "name": "WEB translation onboard, verse-keyed",
+      "status": "done"
+    },
+    {
+      "name": "Hebrew OT original + Strong's + morphology onboard",
+      "status": "done"
+    },
+    {
+      "name": "Greek NT original + Strong's + morphology onboard",
+      "status": "open"
+    },
+    {
+      "name": "read_passage tool: original + translation + lexical takes",
+      "status": "open"
+    },
+    {
+      "name": "lexicon takes wired (Strong's, then BDB / Thayer)",
+      "status": "open"
+    },
+    {
+      "name": "commentary takes searchable per verse (CCEL: Henry, Barnes, Calvin)",
+      "status": "open"
+    },
+    {
+      "name": "sermon takes searchable (Spurgeon, Edwards, Wesley)",
+      "status": "open"
+    }
   ]
 }
