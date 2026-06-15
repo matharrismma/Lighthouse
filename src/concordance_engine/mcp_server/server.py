@@ -421,6 +421,22 @@ def timezone_offset(zone: str, when: str = "") -> Dict[str, Any]:
     return tools.timezone_offset(zone, when or None)
 
 
+@mcp.tool()
+def unit_convert(value: float, from_unit: str, to_unit: str = "") -> Dict[str, Any]:
+    """Deterministic unit conversion via the offline UCUM table (external Layer-0,
+    royalty-free, attributed).
+
+    from_unit / to_unit are UCUM codes or expressions: "km", "m/s", "kg.m/s2",
+    "[mi_i]" (international mile), "[lb_av]" (pound), "Cel", "[degF]". Omit
+    to_unit to get the value in canonical base units. Affine temperatures (Cel,
+    [degF], [degR], K) are handled with offsets. Incommensurable units are
+    REPORTED, not forced; an unparseable or non-linear unit returns 'unsupported'
+    -- the converter FAILS CLOSED rather than guess (a wrong conversion is worse
+    than none). This is the units substrate beneath every dimensional check.
+    """
+    return tools.unit_convert(value, from_unit, to_unit or None)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

@@ -716,6 +716,201 @@ def timezone_offset(zone, when=None):
             "attribution": meta.get("attribution")}
 
 
+# --- UCUM unit converter (offline, deterministic, fails closed) -------------
+_UCUM = {"doc": None, "memo": {}}
+_UCUM_OFFSET = {"Cel", "[degF]", "[degR]"}
+
+
+class _UcumUnsupported(Exception):
+    pass
+
+
+def _ucum_doc():
+    if _UCUM["doc"] is None:
+        import json as _json
+        from pathlib import Path as _Path
+        p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "ucum" / "ucum.json"
+        if not p.exists():
+            return None
+        _UCUM["doc"] = _json.loads(p.read_text(encoding="utf-8"))
+        _UCUM["memo"] = {}
+    return _UCUM["doc"]
+
+
+def _ucum_resolve_code(code):
+    memo = _UCUM["memo"]
+    if code in memo:
+        return memo[code]
+    units = _UCUM["doc"]["units"]
+    if code not in units:
+        raise _UcumUnsupported("unknown unit '%s'" % code)
+    u = units[code]
+    if u.get("base"):
+        r = (1.0, {code: 1}); memo[code] = r; return r
+    if u.get("special"):
+        raise _UcumUnsupported("special/affine unit '%s'" % code)
+    v = u.get("value"); expr = u.get("unit")
+    if v is None or expr is None:
+        raise _UcumUnsupported("unit '%s' has no definition" % code)
+    m, d = _ucum_eval(expr)
+    r = (v * m, d); memo[code] = r; return r
+
+
+def _ucum_atom(sym):
+    doc = _UCUM["doc"]; units = doc["units"]; pref = doc["prefixes"]
+    if sym in units:
+        return _ucum_resolve_code(sym)
+    for plen in (2, 1):
+        if len(sym) > plen and sym[:plen] in pref:
+            rest = sym[plen:]
+            if rest in units and units[rest].get("metric"):
+                m, d = _ucum_resolve_code(rest)
+                return (pref[sym[:plen]] * m, d)
+    raise _UcumUnsupported("unresolved unit '%s'" % sym)
+
+
+def _ucum_sym_exp(tok):
+    import re as _re
+    if tok.startswith("10*") or tok.startswith("10^"):
+        rest = tok[3:]
+        return tok[:3], (int(rest) if rest else 1)
+    if "]" in tok:
+        i = tok.rfind("]") + 1
+        rest = tok[i:]
+        return tok[:i], (int(rest) if rest else 1)
+    mt = _re.search(r"([+-]?\d+)$", tok)
+    if mt and mt.start() > 0:
+        return tok[:mt.start()], int(mt.group(1))
+    return tok, 1
+
+
+def _ucum_term(tok):
+    import re as _re
+    if _re.match(r"^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$", tok):
+        return (float(tok), {})
+    sym, exp = _ucum_sym_exp(tok)
+    m, d = _ucum_atom(sym)
+    if exp != 1:
+        m = m ** exp
+        d = {k: v * exp for k, v in d.items()}
+    return (m, d)
+
+
+def _ucum_eval(s):
+    import re as _re
+    s = _re.sub(r"\{[^}]*\}", "", s)
+    toks = _re.split(r"([./])", s)
+    if not toks or toks[0] == "":
+        raise _UcumUnsupported("empty expression")
+    mag, dim = _ucum_term(toks[0])
+    dim = dict(dim)
+    i = 1
+    while i < len(toks):
+        op = toks[i]
+        m2, d2 = _ucum_term(toks[i + 1])
+        i += 2
+        if op == ".":
+            mag *= m2
+            for k, v in d2.items():
+                dim[k] = dim.get(k, 0) + v
+        else:
+            mag /= m2
+            for k, v in d2.items():
+                dim[k] = dim.get(k, 0) - v
+    return mag, {k: v for k, v in dim.items() if v != 0}
+
+
+def _ucum_toK(v, u):
+    return {"K": v, "Cel": v + 273.15, "[degF]": (v + 459.67) * 5.0 / 9.0,
+            "[degR]": v * 5.0 / 9.0}[u]
+
+
+def _ucum_fromK(k, u):
+    return {"K": k, "Cel": k - 273.15, "[degF]": k * 9.0 / 5.0 - 459.67,
+            "[degR]": k * 9.0 / 5.0}[u]
+
+
+def _ucum_dimstr(dim, base_order):
+    parts = []
+    for b in base_order:
+        e = dim.get(b)
+        if e:
+            parts.append(b if e == 1 else "%s%d" % (b, e))
+    return ".".join(parts) if parts else "1"
+
+
+def unit_convert(value, from_unit, to_unit=None):
+    """Deterministic unit conversion via the offline UCUM table (external Layer-0,
+    attributed, royalty-free). Resolves UCUM unit codes/expressions to their base
+    dimension + magnitude and converts. from_unit, to_unit accept UCUM codes like
+    'km', 'm/s', 'kg.m/s2', '[mi_i]', 'Cel'. If to_unit is omitted, returns the
+    value in canonical base units. Affine temperatures (Cel, [degF], [degR], K)
+    handled with offsets. Incommensurable units are REPORTED, not forced. The
+    converter FAILS CLOSED -- an unparseable/non-linear unit returns 'unsupported'
+    rather than a guess (a wrong conversion is worse than none). This is the units
+    substrate under every dimensional check."""
+    doc = _ucum_doc()
+    if doc is None:
+        return {"status": "source_missing", "detail": "UCUM index not provisioned"}
+    try:
+        val = float(value)
+    except (TypeError, ValueError):
+        return {"status": "error", "detail": "value must be numeric"}
+    frm = str(from_unit or "").strip()
+    if not frm:
+        return {"status": "error", "detail": "provide from_unit (a UCUM code, e.g. km)"}
+    to = str(to_unit).strip() if to_unit not in (None, "") else None
+    meta = doc["meta"]
+    base_order = doc["base_units"]
+    src = {"source": meta.get("source"), "license": meta.get("license"),
+           "ucum_version": meta.get("version"),
+           "attribution": meta.get("attribution")}
+    try:
+        if to is None:
+            mf, df = _ucum_eval(frm)
+            out = {"status": "ok", "value": val, "from": frm,
+                   "canonical_value": val * mf,
+                   "canonical_units": _ucum_dimstr(df, base_order)}
+            out.update(src)
+            return out
+        if frm in _UCUM_OFFSET or to in _UCUM_OFFSET:
+            allow = _UCUM_OFFSET | {"K"}
+            if frm not in allow or to not in allow:
+                out = {"status": "unsupported",
+                       "detail": "affine temperature converts only among "
+                                 "K, Cel, [degF], [degR]"}
+                out.update(src)
+                return out
+            res = _ucum_fromK(_ucum_toK(val, frm), to)
+            out = {"status": "ok", "value": val, "from": frm, "to": to,
+                   "result": res,
+                   "note": "affine (offset) temperature conversion"}
+            out.update(src)
+            return out
+        mf, df = _ucum_eval(frm)
+        mt, dt = _ucum_eval(to)
+        if df != dt:
+            out = {"status": "incommensurable",
+                   "detail": "units are not dimensionally compatible",
+                   "from": frm, "from_dimension": _ucum_dimstr(df, base_order),
+                   "to": to, "to_dimension": _ucum_dimstr(dt, base_order)}
+            out.update(src)
+            return out
+        out = {"status": "ok", "value": val, "from": frm, "to": to,
+               "result": val * mf / mt,
+               "dimension": _ucum_dimstr(df, base_order)}
+        out.update(src)
+        return out
+    except _UcumUnsupported as e:
+        out = {"status": "unsupported", "detail": str(e),
+               "note": "UCUM code unrecognized or not linearly convertible; the "
+                       "converter fails closed rather than guess."}
+        out.update(src)
+        return out
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "ucum convert failed: " + str(e)[:140]}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1484,6 +1679,21 @@ TOOLS: List[Dict[str, Any]] = [
                                     "when": {"type": "string"}},
                      "required": ["zone"]},
      "fn": lambda a: timezone_offset(a["zone"], a.get("when"))},
+    {"name": "unit_convert",
+     "description": (
+         "Deterministic unit conversion via the offline UCUM table. from_unit/to_unit are "
+         "UCUM codes/expressions: 'km', 'm/s', 'kg.m/s2', '[mi_i]' (intl mile), '[lb_av]', "
+         "'Cel', '[degF]'. Omit to_unit to get the value in canonical base units. Handles "
+         "affine temperatures. Incommensurable units are reported (not forced); unparseable/"
+         "non-linear units return 'unsupported' -- it fails closed, never guesses. The units "
+         "substrate under every dimensional check."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"value": {"type": "number"},
+                                    "from_unit": {"type": "string"},
+                                    "to_unit": {"type": "string"}},
+                     "required": ["value", "from_unit"]},
+     "fn": lambda a: unit_convert(a["value"], a["from_unit"], a.get("to_unit"))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1966,6 +2176,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "word_meaning": word_meaning,
     "place_lookup": place_lookup,
     "timezone_offset": timezone_offset,
+    "unit_convert": unit_convert,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
