@@ -11,17 +11,17 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1661,
-  "edges": 2326,
+  "nodes": 1664,
+  "edges": 2329,
   "kin": 1583,
-  "braces": 3909,
+  "braces": 3912,
   "vine_validity": 0.999,
-  "reach_source": 1659,
+  "reach_source": 1662,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1661,
-  "rigidity_ratio": 1.178,
-  "language": 1273,
-  "math": 333,
+  "kin_assisted_reach_source": 1664,
+  "rigidity_ratio": 1.177,
+  "language": 1275,
+  "math": 334,
   "axis": 55
  },
  "nodes": [
@@ -19956,6 +19956,42 @@
    "level": "foundational",
    "kind": "assessment",
    "title": "Heidegger -- he reopened the forgotten question of Being and warned of technolog"
+  },
+  {
+   "id": "assessment_husserl_to_the_things_themselves",
+   "tree": "math",
+   "t": 0.1645,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 708.1,
+   "y": 768.5,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Husserl -- phenomenology, 'to the things themselves', and the structure of inten"
+  },
+  {
+   "id": "assessment_sartre_radical_freedom_on_no_ground",
+   "tree": "language",
+   "t": 0.1691,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 458.0,
+   "y": 764.6,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Sartre -- existence precedes essence, radical freedom and bad faith: real on res"
+  },
+  {
+   "id": "assessment_camus_the_absurd_named_truly_the_silence_accepted",
+   "tree": "language",
+   "t": 0.1748,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 440.3,
+   "y": 759.7,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Camus -- the absurd named honestly and nihilism refused; the more honest atheist"
   }
  ],
  "edges": [
@@ -29261,6 +29297,18 @@
   ],
   [
    "assessment_heidegger_reopened_being_refused_the_person",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_husserl_to_the_things_themselves",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_sartre_radical_freedom_on_no_ground",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_camus_the_absurd_named_truly_the_silence_accepted",
    "connection_the_thinker_assessment_keeps_kernel_names_fork"
   ]
  ],
