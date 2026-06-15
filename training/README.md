@@ -161,7 +161,8 @@ weaker; both together is the architecture.
 
 ## License
 
-The training data, system prompts, and scripts in this directory are
-released under Apache 2.0, matching the engine. The eval dataset and
+The scripts in this directory are released under AGPL-3.0-or-later and the
+training data / system prompts under CC BY-SA 4.0, matching the engine (see the
+repo `LICENSE` / `LICENSE-CONTENT` / `LICENSING.md`). The eval dataset and
 training items are hand-written; no machine-generated content has been
 added unattributed.

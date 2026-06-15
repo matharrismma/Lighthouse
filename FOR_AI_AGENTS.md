@@ -156,7 +156,7 @@ The hash chain is your warrant. If your decision was recorded, the entry hash an
 
 Source: https://github.com/matharrismma/Lighthouse
 Public endpoint: https://narrowhighway.com
-License: Apache 2.0 (engine)
+License: AGPL-3.0-or-later (code), CC BY-SA 4.0 (content). Free for agents serving people via the hosted API/MCP. See LICENSING.md / COMMERCIAL.md.
 
 The strategic and theological documents that motivate the architecture are kept under `lw/08_docs/` and are not in the public repository. The engine, the verifiers, the gates, the ledger, and the canons are all open.
 

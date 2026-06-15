@@ -105,4 +105,6 @@ When you're ready to invest more in the site, in priority order:
 
 ## License
 
-Same as the engine: Apache 2.0. Reuse the HTML/CSS for related projects freely.
+Same as the engine: code AGPL-3.0-or-later, content CC BY-SA 4.0 (see the repo
+`LICENSE` / `LICENSE-CONTENT` / `LICENSING.md`). Reuse and adapt the HTML/CSS
+freely under those terms.

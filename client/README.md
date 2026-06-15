@@ -157,4 +157,5 @@ Method | Endpoint | Purpose
 
 ## License
 
-Apache 2.0 (matches the engine).
+AGPL-3.0-or-later, matching the engine (content under CC BY-SA 4.0). See the
+repo `LICENSE`, `LICENSE-CONTENT`, and `LICENSING.md`.
