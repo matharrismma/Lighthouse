@@ -11,17 +11,17 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1635,
-  "edges": 1481,
+  "nodes": 1636,
+  "edges": 1513,
   "kin": 1583,
-  "braces": 3064,
-  "vine_validity": 0.502,
-  "reach_source": 821,
+  "braces": 3096,
+  "vine_validity": 0.521,
+  "reach_source": 853,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1635,
-  "rigidity_ratio": 0.938,
+  "kin_assisted_reach_source": 1636,
+  "rigidity_ratio": 0.947,
   "language": 1258,
-  "math": 322,
+  "math": 323,
   "axis": 55
  },
  "nodes": [
@@ -19644,6 +19644,18 @@
    "level": "foundational",
    "kind": "protocol",
    "title": "Life runs on a few exact, mappable laws -- the cell and the body keep one rulebo"
+  },
+  {
+   "id": "connection_practical_provision_for_the_least",
+   "tree": "math",
+   "t": 0.1358,
+   "layer": 0.0,
+   "hue": 71,
+   "x": 513.3,
+   "y": 863.2,
+   "level": "foundational",
+   "kind": "protocol",
+   "title": "Practical provision for the least -- clean water, warmth, food, and healing, mad"
   }
  ],
  "edges": [
@@ -21040,6 +21052,18 @@
    "bridge_by_their_fruits_is_identification_by_output"
   ],
   [
+   "patent_slow_sand_filter",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_solar_still_single_effect",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_chlorination_dose_math",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
    "patent_pasteurization",
    "teaching_i_am_the_good_shepherd"
   ],
@@ -21052,8 +21076,44 @@
    "teaching_i_am_the_good_shepherd"
   ],
   [
+   "patent_salt_curing_water_activity",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
    "patent_root_cellar",
    "teaching_i_am_the_good_shepherd"
+  ],
+  [
+   "patent_composting_c_n_ratio",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_bordeaux_mixture",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_nitrogen_fixing_legumes",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_oral_rehydration_solution",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_hand_washing_semmelweis",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_iodine_tincture",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_penicillin_production",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_rocket_stove",
+   "connection_practical_provision_for_the_least"
   ],
   [
    "patent_bicycle_generator",
@@ -21064,8 +21124,24 @@
    "teaching_i_am_the_good_shepherd"
   ],
   [
+   "patent_rocket_mass_heater",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_crystal_radio",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
    "patent_morse_code",
    "connection_entropy_is_compression_floor"
+  ],
+  [
+   "patent_soap_saponification",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "patent_composting_toilet",
+   "connection_practical_provision_for_the_least"
   ],
   [
    "saying_franklin_small_leak",
@@ -21078,6 +21154,14 @@
   [
    "saying_franklin_plough_deep",
    "connection_proverb_is_a_compressed_durable_truth"
+  ],
+  [
+   "practical_daniell_cell_battery",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_borax_wood_preservative",
+   "connection_practical_provision_for_the_least"
   ],
   [
    "practical_langstroth_hive",
@@ -21094,6 +21178,10 @@
   [
    "practical_ringworm_topical_antifungal",
    "teaching_i_am_the_good_shepherd"
+  ],
+  [
+   "practical_poison_ivy_urushiol_wash",
+   "connection_practical_provision_for_the_least"
   ],
   [
    "practical_sunburn_uv_spf_math",
@@ -21118,6 +21206,42 @@
   [
    "practical_citrus_canker_identification",
    "teaching_i_am_the_good_shepherd"
+  ],
+  [
+   "practical_aloe_vera_burns",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_medical_honey_wound",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_saline_nasal_irrigation",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_peppermint_oil_ibs",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_ginger_nausea",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_capsaicin_topical_pain",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_willow_bark_salicin",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_chamomile_mild_sedative",
+   "connection_practical_provision_for_the_least"
+  ],
+  [
+   "practical_garlic_blood_pressure",
+   "connection_practical_provision_for_the_least"
   ],
   [
    "practical_turmeric_curcumin_bioavailability",
@@ -21692,8 +21816,16 @@
    "connection_the_earthly_thing_witnesses_the_heavenly"
   ],
   [
+   "connection_acidity_is_logarithm",
+   "connection_matter_keeps_its_books"
+  ],
+  [
    "connection_physical_laws_climb_the_tensor_ladder",
    "connection_recurring_forms_are_a_periodic_table"
+  ],
+  [
+   "almanac_why_the_periodic_table_rows_are_2_8_18",
+   "connection_the_earthly_thing_witnesses_the_heavenly"
   ],
   [
    "almanac_all_waves_keep_one_rule",
@@ -21778,6 +21910,10 @@
   [
    "almanac_the_whole_earth_runs_the_same_few_laws",
    "connection_recurring_forms_are_a_periodic_table"
+  ],
+  [
+   "connection_matter_keeps_its_books",
+   "connection_reality_is_mappable"
   ],
   [
    "connection_the_sky_is_computable_for_any_date",
@@ -25570,6 +25706,10 @@
   [
    "connection_life_runs_on_a_few_mappable_laws",
    "connection_reality_is_mappable"
+  ],
+  [
+   "connection_practical_provision_for_the_least",
+   "teaching_i_am_the_good_shepherd"
   ]
  ],
  "kin": [
