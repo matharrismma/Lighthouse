@@ -11,17 +11,17 @@
   "built_from": "saved coord{level,block,family} + kind + bonds; invents nothing"
  },
  "stats": {
-  "nodes": 1644,
-  "edges": 1669,
+  "nodes": 1647,
+  "edges": 1672,
   "kin": 1583,
-  "braces": 3252,
-  "vine_validity": 0.609,
-  "reach_source": 1002,
+  "braces": 3255,
+  "vine_validity": 0.61,
+  "reach_source": 1005,
   "kin_assisted_reach": 1.0,
-  "kin_assisted_reach_source": 1644,
-  "rigidity_ratio": 0.99,
-  "language": 1261,
-  "math": 328,
+  "kin_assisted_reach_source": 1647,
+  "rigidity_ratio": 0.989,
+  "language": 1263,
+  "math": 329,
   "axis": 55
  },
  "nodes": [
@@ -19752,6 +19752,42 @@
    "level": "foundational",
    "kind": "assessment",
    "title": "Aquinas -- the Five Ways point, essence is not existence, grace perfects nature:"
+  },
+  {
+   "id": "assessment_kierkegaard_the_leap_and_the_single_individual",
+   "tree": "language",
+   "t": 0.156,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 496.4,
+   "y": 775.9,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Kierkegaard -- the stages of life, the leap, the single individual before God: t"
+  },
+  {
+   "id": "assessment_wittgenstein_limits_of_language_and_meaning_is_use",
+   "tree": "math",
+   "t": 0.137,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 635.9,
+   "y": 792.2,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Wittgenstein -- the limits of language, the unsayable that shows itself, meaning"
+  },
+  {
+   "id": "assessment_nietzsche_diagnosed_the_disease_prescribed_the_poison",
+   "tree": "language",
+   "t": 0.1413,
+   "layer": 1.0,
+   "hue": 80,
+   "x": 534.1,
+   "y": 788.5,
+   "level": "foundational",
+   "kind": "assessment",
+   "title": "Nietzsche -- the true diagnosis of nihilism, the sharpest fork in the cluster: h"
   }
  ],
  "edges": [
@@ -26429,6 +26465,18 @@
   ],
   [
    "assessment_aquinas_five_ways_and_essence_existence",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_kierkegaard_the_leap_and_the_single_individual",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_wittgenstein_limits_of_language_and_meaning_is_use",
+   "connection_the_thinker_assessment_keeps_kernel_names_fork"
+  ],
+  [
+   "assessment_nietzsche_diagnosed_the_disease_prescribed_the_poison",
    "connection_the_thinker_assessment_keeps_kernel_names_fork"
   ]
  ],
