@@ -655,6 +655,20 @@ def read_passage(reference: str, takes: bool = True, limit: int = 12) -> Dict[st
     return tools.read_passage(reference, takes, limit)
 
 
+@mcp.tool()
+def lexicon(strongs: str) -> Dict[str, Any]:
+    """The RICHER scholarly lexical take for a Strong's number -- BDB/Thayer-grade.
+
+    The depth beyond word_study's terse Strong's gloss. strongs = 'G3056' (logos),
+    'H2617' (chesed / lovingkindness), 'G25' (agapao, to love). Returns the original
+    word, transliteration, short gloss, and the fuller scholarly definition. From the
+    offline STEPBible TBESH (Hebrew) + TBESG (Greek) -- Translators Brief lexicon of
+    Extended Strongs, CC BY (Brown-Driver-Briggs / Thayer / Abbott-Smith tradition).
+    An ATTRIBUTED take (the lexicographers'), never engine doctrine. External Layer-0.
+    """
+    return tools.lexicon(strongs)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

@@ -1905,6 +1905,25 @@ def read_passage(reference, takes=True, limit=12):
                if sc.get("status") == "ok" else {})
     language = ow.get("language")
     take_cache = {}
+    from pathlib import Path as _P2
+    import sqlite3 as _sql2
+    import re as _re2
+    _bp = _P2(__file__).resolve().parents[3] / "lw" / "00_source" / "lexicon_bdbt" / "bdbt.db"
+    _bcon = _sql2.connect("file:%s?mode=ro" % _bp.as_posix(), uri=True) if _bp.exists() else None
+
+    def _bdbt(q):
+        if _bcon is None:
+            return None
+        m = _re2.match(r"^([GH])0*(\d+)", q)        # H1254a -> H1254 ; G1722 -> G1722
+        if not m:
+            return None
+        br = _bcon.execute("SELECT translit,gloss,definition FROM entries WHERE strongs=?",
+                           (m.group(1) + m.group(2),)).fetchone()
+        if not br:
+            return None
+        return {"translit": br[0] or None, "gloss": br[1] or None,
+                "definition": (br[2] or "")[:400] or None,
+                "source": "STEPBible TBESH/TBESG (CC BY)"}
 
     def _take(strongs):
         if not strongs or not takes:
@@ -1927,6 +1946,11 @@ def read_passage(reference, takes=True, limit=12):
             elif d:
                 gloss = str(d).strip()
             t = {"strongs": q, "translit": r.get("transliteration"), "gloss": (gloss[:240] or None)}
+        sch = _bdbt(q)
+        if sch:                                  # richer scholarly take (BDB/Thayer); also fills word_study gaps
+            if t is None:
+                t = {"strongs": q, "translit": sch["translit"], "gloss": None}
+            t["scholarly"] = sch
         take_cache[strongs] = t
         return t
 
@@ -1938,6 +1962,8 @@ def read_passage(reference, takes=True, limit=12):
                           "lemma": w.get("lemma"), "morph": w.get("morph"),
                           "take": _take(w.get("strongs"))})
         verses.append({"ref": v["ref"], "web": web_map.get(v["ref"]), "words": words})
+    if _bcon is not None:
+        _bcon.close()
     if not verses:
         if web_map:                       # original not yet onboard but WEB present -> still serve translation
             verses = [{"ref": r, "web": t, "words": []} for r, t in web_map.items()]
@@ -1954,7 +1980,46 @@ def read_passage(reference, takes=True, limit=12):
                 "translation": "World English Bible (public domain)",
                 "original": ("SBL Greek NT / MorphGNT (CC BY-SA)" if language == "Greek"
                              else "Westminster Leningrad Codex + OSHB tagging (CC BY)"),
-                "lexical_take": "Strong's via OpenScriptures (public domain)"}}
+                "lexical_take": "Strong's via OpenScriptures (public domain)",
+                "scholarly_take": "STEPBible TBESH/TBESG -- BDB/Thayer tradition (CC BY)"}}
+
+
+def lexicon(strongs):
+    """The RICHER scholarly lexical take for a Strong's number -- BDB/Thayer-grade,
+    the depth beyond word_study's terse Strong's gloss. strongs = 'G3056' (logos),
+    'H2617' (chesed / lovingkindness), 'G25' (agapao, to love). Returns the original
+    word, transliteration, short gloss, and the fuller scholarly definition. From the
+    offline STEPBible TBESH (Hebrew) + TBESG (Greek) -- Translators Brief lexicon of
+    Extended Strongs, CC BY (Brown-Driver-Briggs / Thayer / Abbott-Smith tradition).
+    An ATTRIBUTED take (the lexicographers'), never engine doctrine. External Layer-0."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "lexicon_bdbt" / "bdbt.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "BDB/Thayer lexicon not provisioned"}
+    m = _re.match(r"^([GHgh])0*(\d+)", str(strongs or "").strip())
+    if not m:
+        return {"status": "error",
+                "detail": "provide a Strong's number like 'G3056' (Greek) or 'H2617' (Hebrew)"}
+    key = m.group(1).upper() + m.group(2)
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        r = con.execute("SELECT word,translit,gloss,definition FROM entries WHERE strongs=?",
+                        (key,)).fetchone()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "lexicon lookup failed: " + str(e)[:140]}
+    if not r:
+        return {"status": "not_found", "strongs": key,
+                "detail": "no BDB/Thayer entry for " + key}
+    return {"status": "ok", "strongs": key, "word": r[0], "transliteration": r[1],
+            "gloss": r[2] or None, "definition": r[3] or None,
+            "note": "Richer scholarly take (BDB/Thayer tradition); attributed to the lexicographers, "
+                    "not engine doctrine. word_study gives the terse Strong's gloss + occurrences.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
 
 
 def verify_statistics_pvalue(spec):
@@ -2929,6 +2994,18 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: read_passage(a["reference"], a.get("takes", True), a.get("limit", 12))},
+    {"name": "lexicon",
+     "description": (
+         "The RICHER scholarly lexical take for a Strong's number -- BDB/Thayer-grade, beyond "
+         "word_study's terse gloss. strongs = 'G3056' (logos), 'H2617' (chesed), 'G25' (agapao). "
+         "Returns the original word, transliteration, gloss, and fuller scholarly definition. Offline "
+         "STEPBible TBESH/TBESG (Brown-Driver-Briggs / Thayer / Abbott-Smith tradition, CC BY). An "
+         "attributed take, never engine doctrine."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"strongs": {"type": "string"}},
+                     "required": ["strongs"]},
+     "fn": lambda a: lexicon(a["strongs"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3426,6 +3503,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "scripture": scripture,
     "original_words": original_words,
     "read_passage": read_passage,
+    "lexicon": lexicon,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

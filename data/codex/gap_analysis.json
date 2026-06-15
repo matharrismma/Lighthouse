@@ -1,6 +1,6 @@
 {
   "verifiers": 64,
-  "tools": 91,
+  "tools": 92,
   "data_grounded_tools": 17,
   "grounded_domains": 19,
   "pure_compute_domains": 11,
@@ -10,8 +10,8 @@
   "reach_source": 1669,
   "nodes": 1671,
   "form_cards": 18,
-  "original_text_pct": 67,
-  "original_text_done": 6,
+  "original_text_pct": 78,
+  "original_text_done": 7,
   "original_text_total": 9,
   "ground_targets_open": 15,
   "targets": {
@@ -129,8 +129,8 @@
       },
       {
         "name": "BDB/Thayer richer lexical take layered onto read_passage",
-        "status": "open",
-        "acquire": "CONFIRMED clean source (2026-06-15): bolls.life GET /dictionary-definition/BDBT/<G|H strongs>/ returns Brown-Driver-Briggs (Hebrew) + Thayer (Greek) as JSON, Strong's-keyed. Bulk = STEPBible TBESH/TBESG TSV (CC BY) to avoid ~14k API calls. Plan: build lw/00_source/lexicon_bdbt/*.db, add as a SECOND attributed take in read_passage beside Strong's. This is the named 'then BDB/Thayer' depth from the lexicon milestone."
+        "status": "done",
+        "acquire": "DONE 2026-06-15: STEPBible TBESH (Hebrew) + TBESG (Greek), CC BY -> lw/00_source/lexicon_bdbt/bdbt.db (19,570 entries: 8,723 H + 10,847 G). read_passage take.scholarly now carries a BDB/Thayer-grade definition per word (take-hit ~100%, filled the Strong's-lexicon gaps e.g. G25 agapao); standalone lexicon(strongs) tool added. Attributed Layer-0."
       }
     ]
   },
