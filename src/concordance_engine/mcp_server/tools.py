@@ -1691,6 +1691,97 @@ def currency_convert(amount, from_cur, to_cur, date=None):
             "attribution": meta.get("attribution")}
 
 
+_BIBLE_ALIASES = {
+    "psalm": "psalms", "ps": "psalms", "psa": "psalms",
+    "song of songs": "song of solomon", "songs": "song of solomon",
+    "canticles": "song of solomon", "song": "song of solomon", "sos": "song of solomon",
+    "revelations": "revelation", "apocalypse": "revelation",
+}
+
+
+def _resolve_bible_book(con, raw):
+    import re as _re
+    r = _re.sub(r"\s+", " ", str(raw).strip().lower()).replace(".", "")
+    books = con.execute("SELECT book_num, name, code FROM books").fetchall()
+    for num, name, code in books:
+        if r == name.lower():
+            return num
+    if r in _BIBLE_ALIASES:
+        t = _BIBLE_ALIASES[r]
+        for num, name, code in books:
+            if name.lower() == t:
+                return num
+    for num, name, code in books:
+        if r == code.lower():
+            return num
+    rr = r.replace(" ", "")
+    cands = [num for num, name, code in books
+             if name.lower().replace(" ", "").startswith(rr)]
+    if len(cands) == 1:
+        return cands[0]
+    return None
+
+
+def scripture(reference, limit=60):
+    """Look up a Bible passage in the offline World English Bible (WEB, PUBLIC
+    DOMAIN, external Layer-0). reference = 'John 3:16', 'Genesis 1:1-3', 'Psalm 23'
+    (whole chapter), '1 Corinthians 13:4-7', 'Colossians 1:17' -> the verse(s),
+    verse-keyed. This is the TRANSLATION surface (milestone 1 of the Scripture
+    layer); the original Hebrew/Greek + Strong's + the great minds' attributed
+    takes layer onto the same verse keys in later milestones. 66-book canon,
+    31,103 verses."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "web_bible" / "web.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "WEB db not provisioned"}
+    ref = str(reference or "").strip()
+    if not ref:
+        return {"status": "error", "detail": "provide a reference, e.g. 'John 3:16' or 'Psalm 23'"}
+    m = _re.match(r"^\s*(\d?\s?[A-Za-z][A-Za-z. ]*?)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?\s*$", ref)
+    if not m:
+        return {"status": "error", "detail": "could not parse reference: " + ref}
+    bk_raw, ch = m.group(1).strip(), int(m.group(2))
+    v1 = int(m.group(3)) if m.group(3) else None
+    v2 = int(m.group(4)) if m.group(4) else v1
+    try:
+        lim = max(1, min(int(limit), 180))
+    except (TypeError, ValueError):
+        lim = 60
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        num = _resolve_bible_book(con, bk_raw)
+        if num is None:
+            con.close()
+            return {"status": "not_found", "detail": "unknown book: " + bk_raw}
+        if v1 is None:
+            rows = con.execute("SELECT verse,ref,text FROM verses WHERE book_num=? AND chapter=? "
+                               "ORDER BY verse LIMIT ?", (num, ch, lim)).fetchall()
+        else:
+            rows = con.execute("SELECT verse,ref,text FROM verses WHERE book_num=? AND chapter=? "
+                               "AND verse BETWEEN ? AND ? ORDER BY verse LIMIT ?",
+                               (num, ch, v1, v2, lim)).fetchall()
+        name = con.execute("SELECT name FROM books WHERE book_num=?", (num,)).fetchone()[0]
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "scripture lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found",
+                "detail": "no verses for '" + ref + "' (book/chapter/verse out of range)"}
+    verses = [{"ref": r[1], "verse": r[0], "text": r[2]} for r in rows]
+    canon = name + " " + str(ch)
+    if v1 is not None:
+        canon += ":" + str(v1) + (("-" + str(v2)) if v2 != v1 else "")
+    return {"status": "ok", "reference": canon, "translation": "WEB",
+            "count": len(verses), "verses": verses,
+            "note": "Translation surface (WEB). The original Hebrew/Greek + Strong's "
+                    "+ attributed takes layer onto these verse keys in later milestones.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2620,6 +2711,20 @@ TOOLS: List[Dict[str, Any]] = [
                                     "date": {"type": "string"}},
                      "required": ["amount", "from_cur", "to_cur"]},
      "fn": lambda a: currency_convert(a["amount"], a["from_cur"], a["to_cur"], a.get("date"))},
+    {"name": "scripture",
+     "description": (
+         "Look up a Bible passage in the offline World English Bible (WEB, public domain). "
+         "reference = 'John 3:16', 'Genesis 1:1-3', 'Psalm 23' (whole chapter), "
+         "'1 Corinthians 13:4-7', 'Colossians 1:17' -> the verse(s), verse-keyed. The TRANSLATION "
+         "surface of the Scripture layer (milestone 1); the original Hebrew/Greek + Strong's + the "
+         "great minds' attributed takes layer onto the same verse keys later. 66-book canon, 31,103 "
+         "verses, public domain."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: scripture(a["reference"], a.get("limit", 60))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3114,6 +3219,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "species_lookup": species_lookup,
     "drug_target": drug_target,
     "currency_convert": currency_convert,
+    "scripture": scripture,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

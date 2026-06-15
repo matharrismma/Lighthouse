@@ -609,6 +609,21 @@ def currency_convert(amount: float, from_cur: str, to_cur: str,
     return tools.currency_convert(amount, from_cur, to_cur, date)
 
 
+@mcp.tool()
+def scripture(reference: str, limit: int = 60) -> Dict[str, Any]:
+    """Look up a Bible passage in the offline World English Bible (WEB, public
+    domain, external Layer-0).
+
+    reference = 'John 3:16', 'Genesis 1:1-3', 'Psalm 23' (whole chapter),
+    '1 Corinthians 13:4-7', 'Colossians 1:17' -> the verse(s), verse-keyed. This
+    is the TRANSLATION surface of the Scripture layer (milestone 1); the agent's
+    canonical layer is the original Hebrew/Greek, and Strong's plus the great
+    minds' attributed takes layer onto the same verse keys in later milestones.
+    The user reads this; the source is the original. 66-book canon, 31,103 verses.
+    """
+    return tools.scripture(reference, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
