@@ -576,6 +576,22 @@ def species_lookup(name: str, limit: int = 5) -> Dict[str, Any]:
     return tools.species_lookup(name, limit)
 
 
+@mcp.tool()
+def drug_target(drug: str, limit: int = 8) -> Dict[str, Any]:
+    """Molecular targets + mechanism of a drug from the offline DrugCentral
+    drug-target set (external Layer-0, attributed, CC BY-SA).
+
+    drug -> the proteins it acts on, mechanism-of-action targets first, each
+    {target, gene, target_class, action (INHIBITOR / AGONIST / ANTAGONIST / ...),
+    is_mechanism_of_action, assay, affinity, organism}. This is the MECHANISM
+    layer of the Apothecary ("how does drug X work / what does it act on") --
+    e.g. ibuprofen -> COX inhibitor, propranolol -> beta-adrenergic antagonist.
+    REFERENCE ONLY -- not medical advice; coverage is partial (~2,587 drugs with
+    measured target data), queried offline.
+    """
+    return tools.drug_target(drug, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

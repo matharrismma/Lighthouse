@@ -1579,6 +1579,59 @@ def species_lookup(name, limit=5):
             "attribution": meta.get("attribution")}
 
 
+def drug_target(drug, limit=8):
+    """Molecular targets + mechanism of a drug from the offline DrugCentral
+    drug-target set (external Layer-0, attributed, CC BY-SA). drug -> the proteins
+    it acts on, mechanism-of-action targets first, each {target, gene, class,
+    action (INHIBITOR/AGONIST/ANTAGONIST/...), is_moa, assay, affinity, organism}.
+    The MECHANISM layer of the Apothecary ('how does drug X work / what does it
+    act on'). REFERENCE ONLY -- not medical advice; coverage is partial (only
+    drugs with measured target data, ~2,587 drugs)."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "drugcentral" / "drug_targets.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "DrugCentral db not provisioned"}
+    q = str(drug or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide a drug name"}
+    try:
+        lim = max(1, min(int(limit), 20))
+    except (TypeError, ValueError):
+        lim = 8
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        rows = con.execute(
+            "SELECT target_name,gene,target_class,action_type,moa,act_type,"
+            "act_value,organism FROM targets WHERE drug_lc=? "
+            "ORDER BY (moa='1') DESC, (action_type!='') DESC LIMIT ?",
+            (q.lower(), lim)).fetchall()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "drug-target lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "query": drug,
+                "note": "no measured target data for that drug in DrugCentral "
+                        "(coverage is partial).",
+                "source": meta.get("source")}
+    targets = []
+    for r in rows:
+        gene = r[1] or None
+        if gene and len(gene) > 80:   # collapse huge multi-gene complexes
+            gene = gene[:77] + "..."
+        targets.append({
+            "target": r[0] or None, "gene": gene, "target_class": r[2] or None,
+            "action": r[3] or None, "is_mechanism_of_action": (r[4] == "1"),
+            "assay": r[5] or None, "affinity_log": r[6] or None,
+            "organism": r[7] or None})
+    return {"status": "ok", "drug": q, "count": len(targets), "targets": targets,
+            "disclaimer": "REFERENCE ONLY -- not medical advice; measured "
+                          "mechanism data, partial coverage.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2479,6 +2532,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["name"]},
      "fn": lambda a: species_lookup(a["name"], a.get("limit", 5))},
+    {"name": "drug_target",
+     "description": (
+         "Molecular targets + mechanism of a drug from the offline DrugCentral set. drug -> "
+         "the proteins it acts on (mechanism-of-action targets first), each {target, gene, "
+         "class, action (INHIBITOR/AGONIST/ANTAGONIST), is_moa, assay, affinity}. The mechanism "
+         "layer of the Apothecary ('how does drug X work'). REFERENCE ONLY -- not medical "
+         "advice; ~2,587 drugs (partial). CC BY-SA, DrugCentral."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"drug": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["drug"]},
+     "fn": lambda a: drug_target(a["drug"], a.get("limit", 8))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2971,6 +3037,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "food_nutrition": food_nutrition,
     "drug_lookup": drug_lookup,
     "species_lookup": species_lookup,
+    "drug_target": drug_target,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
