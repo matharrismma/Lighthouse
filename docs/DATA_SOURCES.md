@@ -32,7 +32,7 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 
 | Source | Verifier(s) | License | Access | Why first |
 |---|---|---|---|---|
-| **IANA tz database (tzdata)** | calendar_time | PD | offline ~500KB | Place's zone name (from GeoNames) -> exact UTC/DST offset at any instant. Single highest-leverage add. |
+| **IANA tz database (tzdata)** -- WIRED (`timezone_offset`, IANA 2026b, lw/00_source/tzdata/tzdata.zip) | calendar_time | PD | offline ~300KB | Place's zone name (from GeoNames) -> exact UTC/DST offset at any instant. Single highest-leverage add. |
 | **UCUM units (ucum-essence.xml)** | physics_dimensional + ALL dimensional checks | royalty-free | offline 1 file | The units *substrate*; unblocks unit verification across every domain. |
 | **OEIS (stripped.gz + names.gz)** | number_theory, combinatorics | CC BY-SA | offline ~tens MB | Only source for sequence name<->terms ("A000045 = Fibonacci"); exact + offline. |
 | **CMU Pronouncing Dictionary** | linguistics | BSD-2 | offline ~4MB | Word -> ARPABET pronunciation; completes the language tree (PHOIBLE=inventory, this=word). |
@@ -97,8 +97,8 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 
 ## Wiring order (extends the autonomous data-sources loop)
 
-Phase 5 done = GeoNames. The ranked queue from here:
-**tzdata -> UCUM -> OEIS -> CMU dict -> IANA/RFC -> HYG -> CoolProp** (Tier 1,
+Phase 5 = GeoNames, Phase 6 = tzdata (DONE). The ranked queue from here:
+**UCUM -> OEIS -> CMU dict -> IANA/RFC -> HYG -> CoolProp** (Tier 1,
 fast offline wins), then **USDA FoodData -> DailyMed/openFDA -> GBIF/NCBI**
 (Tier 2, the SERVE mission), then Tier 3 as depth is needed. One source per
 tick: offline build -> reproducible `tools/build_<src>_index.py` -> SQLite (big)

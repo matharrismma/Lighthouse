@@ -406,6 +406,21 @@ def place_lookup(name: str, limit: int = 8) -> Dict[str, Any]:
     return tools.place_lookup(name, limit)
 
 
+@mcp.tool()
+def timezone_offset(zone: str, when: str = "") -> Dict[str, Any]:
+    """UTC offset + daylight-saving state for an IANA time zone at an instant,
+    from the offline IANA Time Zone Database (external Layer-0, PUBLIC DOMAIN).
+
+    zone = an IANA name like "Asia/Tokyo" or "America/New_York" (use place_lookup
+    to get a place's zone name from its 'timezone' field). when = optional ISO
+    date or datetime (default: now). Returns {utc_offset, offset_seconds,
+    abbreviation, is_dst} -- a deterministic rule fact computed from the tzdb
+    rules, not invented. Completes the calendar_time grounding and pairs with
+    place_lookup (place -> zone -> offset) for "what time is it in X".
+    """
+    return tools.timezone_offset(zone, when or None)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

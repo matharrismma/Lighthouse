@@ -653,6 +653,69 @@ def place_lookup(name, limit=8):
             "attribution": meta.get("attribution")}
 
 
+def timezone_offset(zone, when=None):
+    """UTC offset + daylight-saving state for an IANA time zone at an instant,
+    from the offline IANA Time Zone Database (external Layer-0, attributed,
+    PUBLIC DOMAIN). zone = an IANA name like "Asia/Tokyo" or "America/New_York"
+    (use place_lookup to get a place's zone name). when = optional ISO date or
+    datetime (default: now). Returns the offset, abbreviation, and whether DST is
+    in effect -- the offset is a HISTORICAL/RULE fact, computed deterministically
+    from the tzdb rules, not invented. Completes the calendar_time grounding;
+    pairs with place_lookup (place -> zone) for "what time is it in X"."""
+    import io as _io
+    import json as _json
+    import zipfile as _zip
+    import zoneinfo as _zi
+    import datetime as _dt
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "tzdata" / "tzdata.zip"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "tzdata index not provisioned"}
+    z = str(zone or "").strip()
+    if not z:
+        return {"status": "error", "detail": "provide an IANA zone name, e.g. Asia/Tokyo"}
+    try:
+        zf = _zip.ZipFile(str(p))
+        meta = _json.loads(zf.read("meta.json"))
+        if z not in zf.namelist():
+            return {"status": "not_found", "query": zone,
+                    "note": "not an IANA zone name; use place_lookup(name) to get "
+                            "a place's zone (the 'timezone' field), then pass it here.",
+                    "source": meta.get("source")}
+        data = zf.read(z)
+        if data[:4] != b"TZif":
+            return {"status": "not_found", "query": zone,
+                    "note": "that entry is not a zone (it is an auxiliary tzdb file)."}
+        tz = _zi.ZoneInfo.from_file(_io.BytesIO(data), key=z)
+        if when:
+            try:
+                moment = _dt.datetime.fromisoformat(str(when))
+            except ValueError:
+                return {"status": "error",
+                        "detail": "could not parse 'when' as ISO 8601 (e.g. 2024-07-04 "
+                                  "or 2024-07-04T13:30)"}
+            moment = moment.replace(tzinfo=tz)
+            when_str = str(when)
+        else:
+            moment = _dt.datetime.now(tz)
+            when_str = moment.isoformat()
+        off = moment.utcoffset()
+        secs = int(off.total_seconds()) if off is not None else 0
+        sign = "+" if secs >= 0 else "-"
+        a = abs(secs)
+        hhmm = "%s%02d:%02d" % (sign, a // 3600, (a % 3600) // 60)
+        is_dst = bool(moment.dst())
+        zf.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "tzdata lookup failed: " + str(e)[:140]}
+    return {"status": "ok", "zone": z, "when": when_str,
+            "utc_offset": hhmm, "offset_seconds": secs,
+            "abbreviation": moment.tzname(), "is_dst": is_dst,
+            "iana_version": meta.get("iana_version"),
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1408,6 +1471,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["name"]},
      "fn": lambda a: place_lookup(a["name"], a.get("limit", 8))},
+    {"name": "timezone_offset",
+     "description": (
+         "UTC offset + daylight-saving state for an IANA time zone at an instant, from the "
+         "offline IANA Time Zone Database (public domain). zone = an IANA name like "
+         "'Asia/Tokyo' (use place_lookup to get a place's zone). when = optional ISO date/"
+         "datetime (default now). Returns utc_offset, abbreviation, is_dst -- a deterministic "
+         "rule fact, not invented. Completes the calendar_time grounding."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"zone": {"type": "string"},
+                                    "when": {"type": "string"}},
+                     "required": ["zone"]},
+     "fn": lambda a: timezone_offset(a["zone"], a.get("when"))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1889,6 +1965,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "wikidata": wikidata,
     "word_meaning": word_meaning,
     "place_lookup": place_lookup,
+    "timezone_offset": timezone_offset,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
