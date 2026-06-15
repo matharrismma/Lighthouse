@@ -1365,6 +1365,78 @@ def fluid_property(fluid, output, input1_name=None, input1_value=None,
                            "2014), MIT-licensed."}
 
 
+# USDA nutrient id -> friendly key (units in the key). Curated key set.
+_USDA_KEY = {
+    1008: "energy_kcal", 1003: "protein_g", 1004: "fat_g",
+    1005: "carbohydrate_g", 1079: "fiber_g", 2000: "sugars_g",
+    1258: "saturated_fat_g", 1253: "cholesterol_mg", 1051: "water_g",
+    1087: "calcium_mg", 1089: "iron_mg", 1090: "magnesium_mg",
+    1091: "phosphorus_mg", 1092: "potassium_mg", 1093: "sodium_mg",
+    1095: "zinc_mg", 1162: "vitamin_c_mg", 1106: "vitamin_a_rae_ug",
+    1114: "vitamin_d_ug",
+}
+# stable display order
+_USDA_ORDER = ["energy_kcal", "protein_g", "fat_g", "saturated_fat_g",
+               "carbohydrate_g", "fiber_g", "sugars_g", "cholesterol_mg",
+               "sodium_mg", "potassium_mg", "calcium_mg", "iron_mg",
+               "magnesium_mg", "phosphorus_mg", "zinc_mg", "vitamin_c_mg",
+               "vitamin_a_rae_ug", "vitamin_d_ug", "water_g"]
+
+
+def food_nutrition(food, limit=3):
+    """Nutrition of a food per 100 g from the offline USDA FoodData Central
+    SR Legacy dataset (external Layer-0, attributed, PUBLIC DOMAIN). food = a
+    description to search (e.g. 'spinach raw') -> the matching USDA foods, each
+    with key nutrients PER 100 g AS ANALYZED: energy (kcal), protein, fat,
+    carbohydrate, fiber, sugars, and key minerals/vitamins. Grounds the nutrition
+    verifier and the SERVE mission (the Table). Values are reported as USDA
+    measured them; matching is by name substring (returns several, most generic
+    first -- pick the right one)."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "usda" / "usda.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "USDA db not provisioned"}
+    q = str(food or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide a food to search, e.g. 'spinach raw'"}
+    try:
+        lim = max(1, min(int(limit), 12))
+    except (TypeError, ValueError):
+        lim = 3
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        foods = con.execute(
+            "SELECT fdc_id, description FROM foods WHERE desc_lc LIKE ? "
+            "ORDER BY length(description) LIMIT ?",
+            ("%" + q.lower() + "%", lim)).fetchall()
+        matches = []
+        for fid, desc in foods:
+            rows = con.execute(
+                "SELECT nutrient_id, amount FROM food_nutrients WHERE fdc_id=?",
+                (fid,)).fetchall()
+            nut = {}
+            for nid, amt in rows:
+                key = _USDA_KEY.get(nid)
+                if key is not None and amt is not None:
+                    nut[key] = amt
+            ordered = {k: nut[k] for k in _USDA_ORDER if k in nut}
+            matches.append({"fdc_id": fid, "description": desc,
+                            "nutrients_per_100g": ordered})
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "usda lookup failed: " + str(e)[:140]}
+    if not matches:
+        return {"status": "not_found", "query": food,
+                "note": "no USDA SR Legacy food matched that description.",
+                "source": meta.get("source")}
+    return {"status": "ok", "query": food, "count": len(matches),
+            "basis": "per 100 g, as analyzed", "matches": matches,
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2226,6 +2298,19 @@ TOOLS: List[Dict[str, Any]] = [
      "fn": lambda a: fluid_property(a["fluid"], a["output"], a.get("input1_name"),
                                     a.get("input1_value"), a.get("input2_name"),
                                     a.get("input2_value"))},
+    {"name": "food_nutrition",
+     "description": (
+         "Nutrition of a food per 100 g from the offline USDA FoodData Central SR Legacy "
+         "dataset. food = a description to search ('spinach raw') -> matching USDA foods, each "
+         "with key nutrients per 100 g as analyzed: energy (kcal), protein, fat, carbohydrate, "
+         "fiber, sugars, minerals + vitamins. The Table (feed-the-hungry) / nutrition grounding. "
+         "Public domain (USDA)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"food": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["food"]},
+     "fn": lambda a: food_nutrition(a["food"], a.get("limit", 3))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2715,6 +2800,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "rfc_lookup": rfc_lookup,
     "star_lookup": star_lookup,
     "fluid_property": fluid_property,
+    "food_nutrition": food_nutrition,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

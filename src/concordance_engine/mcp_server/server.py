@@ -529,6 +529,22 @@ def fluid_property(fluid: str, output: str, input1_name: str = "",
                                 input2_name or None, input2_value)
 
 
+@mcp.tool()
+def food_nutrition(food: str, limit: int = 3) -> Dict[str, Any]:
+    """Nutrition of a food per 100 g from the offline USDA FoodData Central
+    SR Legacy dataset (external Layer-0, attributed, PUBLIC DOMAIN).
+
+    food = a description to search (e.g. "spinach raw") -> the matching USDA
+    foods, each with key nutrients PER 100 g AS ANALYZED: energy (kcal), protein,
+    fat, saturated fat, carbohydrate, fiber, sugars, cholesterol, and key
+    minerals/vitamins (sodium, potassium, calcium, iron, vitamin C, etc.). This
+    grounds the nutrition verifier and the SERVE mission (the Table -- feed the
+    hungry). Values are reported as USDA measured them; matching is by name
+    substring and returns several foods (most generic first) -- pick the right one.
+    """
+    return tools.food_nutrition(food, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
