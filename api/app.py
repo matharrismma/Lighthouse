@@ -936,7 +936,7 @@ def _keep_clean_tokens(tokens: dict) -> dict:
 # changes until the cookie expires. Each device needs the magic URL once.
 _KEEP_SESS_PATH = Path(__file__).resolve().parent.parent / "data" / "keep" / "sessions.json"
 _KEEP_COOKIE_NAME = "nh_keep_session"
-_KEEP_COOKIE_TTL = 90 * 24 * 3600  # 90 days
+_KEEP_COOKIE_TTL = 365 * 24 * 3600  # 1 year; sliding (renewed on each visit)
 
 
 def _keep_load_sessions() -> dict:
@@ -988,6 +988,24 @@ def _keep_mint_session(ua: str = "") -> str:
     return token
 
 
+def _keep_renew_session(cookie: str) -> bool:
+    """Slide the expiry forward on each admitted visit so an active operator is
+    never logged out. Returns True if the cookie was a live session."""
+    if not cookie:
+        return False
+    sessions = _keep_load_sessions()
+    entry = sessions.get(cookie)
+    if not entry:
+        return False
+    now = int(time.time())
+    if entry.get("expires_ts", 0) < now:
+        return False
+    entry["expires_ts"] = now + _KEEP_COOKIE_TTL
+    sessions[cookie] = entry
+    _keep_save_sessions(sessions)
+    return True
+
+
 def _keep_require_allowed(request: Request):
     """Raise 404 if the requester isn't admitted. Admission = allowlisted IP
     OR valid session cookie (so a rotated IP on the same browser still works)."""
@@ -1008,7 +1026,8 @@ async def _keep_ip_guard(request: Request, call_next):
         return await call_next(request)
 
     client_ip = _keep_client_ip(request)
-    allowed = _is_operator_ip(client_ip) or _keep_session_valid(request)
+    has_cookie = _keep_session_valid(request)
+    allowed = _is_operator_ip(client_ip) or has_cookie
     new_cookie = None
 
     # Token query path: ?k=<NH_KEEP_TOKEN> admits this request AND mints a
@@ -1020,13 +1039,10 @@ async def _keep_ip_guard(request: Request, call_next):
         if _tok and _supplied and secrets.compare_digest(_supplied, _tok):
             allowed = True
             new_cookie = _keep_mint_session(request.headers.get("user-agent", ""))
-            # Also pin the IP for legacy compatibility
-            try:
-                _ips = _keep_load_file_ips()
-                _ips.add(client_ip)
-                _keep_save_file_ips(_ips)
-            except Exception:
-                pass
+            # NB: we deliberately do NOT pin the client IP here. The 1-year
+            # sliding cookie handles roaming, and auto-pinning every device's
+            # current IP is what accreted a stale allowlist and caused lockouts
+            # when those IPs rotated. The cookie is the durable, IP-free path.
 
     _keep_log(client_ip, allowed, path, request.headers.get("user-agent", ""))
 
@@ -1034,13 +1050,30 @@ async def _keep_ip_guard(request: Request, call_next):
         from fastapi.responses import PlainTextResponse
         return PlainTextResponse("Not Found", status_code=404)
 
-    response = await call_next(request)
+    # Admitted via the magic URL: redirect to a clean /keep.html so (a) the user
+    # lands on the dashboard instead of a 404, and (b) the token leaves the URL/
+    # history. The long-lived cookie rides on the redirect.
     if new_cookie:
-        response.set_cookie(
+        from fastapi.responses import RedirectResponse
+        r = RedirectResponse("/keep.html", status_code=302)
+        r.set_cookie(
             _KEEP_COOKIE_NAME, new_cookie,
             max_age=_KEEP_COOKIE_TTL,
             httponly=True, secure=True, samesite="lax", path="/",
         )
+        return r
+
+    response = await call_next(request)
+    # Sliding session: each admitted page visit renews the cookie's expiry, so an
+    # operator who checks in within the year is never logged out.
+    if has_cookie:
+        _cookie = request.cookies.get(_KEEP_COOKIE_NAME, "")
+        if _keep_renew_session(_cookie):
+            response.set_cookie(
+                _KEEP_COOKIE_NAME, _cookie,
+                max_age=_KEEP_COOKIE_TTL,
+                httponly=True, secure=True, samesite="lax", path="/",
+            )
     return response
 
 
