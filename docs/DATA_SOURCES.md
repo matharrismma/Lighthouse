@@ -46,7 +46,7 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 | Source | Verifier(s) | License | Access | Mission |
 |---|---|---|---|---|
 | **USDA FoodData Central (SR Legacy)** -- WIRED (`food_nutrition`, 7,793 foods + 644k nutrient rows, lw/00_source/usda/usda.db) | nutrition | PD | offline ~21MB SQLite | The Table -- feed the hungry. Key nutrients per 100g, by name search. |
-| **DailyMed + openFDA** (pair) | medicine | PD | offline bulk (labels + AE + NDC) | The Apothecary -- heal the sick; no license gate. |
+| **openFDA NDC directory** -- WIRED (`drug_lookup`, 135,883 products, lw/00_source/openfda_ndc/drugs.db) | medicine | PD | offline ~55MB SQLite | The Apothecary -- heal the sick; brand/generic, active ingredients, form, route, Rx/OTC, DEA schedule, pharm class. REFERENCE not medical advice. (DailyMed labels = deeper next step.) |
 | **DrugCentral** | medicine | CC BY-SA | offline SQL dump | Open structured pharmacology (the open alt to license-gated DrugBank). |
 | **MedlinePlus Herbs + NCCIH Herbs at a Glance** | medicine | PD | offline monographs | Best OPEN herb monographs for the Apothecary. |
 | **GBIF Backbone + NCBI Taxonomy** | biology, ecology, genetics | CC0 / PD | offline DwC-A / taxdump ~60MB | Species name authority ("tomato = Solanum lycopersicum"). |
@@ -100,9 +100,10 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 Phase 5 = GeoNames, 6 = tzdata, 7 = UCUM, 8 = OEIS, 9 = CMU dict (DONE -- the
 language tree's phonics level; all 5 linguistic levels now grounded), 10 = IANA
 ports + RFC index, 11 = HYG stars, 12 = CoolProp (TIER 1 COMPLETE), 13 = USDA
-FoodData / the Table (DONE -- first SERVE source). Queue from here (TIER 2 SERVE):
-**DailyMed/openFDA (the Apothecary) -> DrugCentral + MedlinePlus/NCCIH herbs ->
-GBIF/NCBI (species) -> Natural Earth (geography)**, then Tier 3 as depth is needed. One
+FoodData / the Table (first SERVE source), 14 = openFDA NDC / the Apothecary
+(DONE -- 2nd SERVE source). Queue from here (TIER 2 SERVE):
+**DrugCentral or MedlinePlus/NCCIH herbs (deeper Apothecary) -> GBIF/NCBI
+(species) -> Natural Earth (geography)**, then Tier 3 as depth is needed. One
 source per tick: offline build -> reproducible `tools/build_<src>_index.py` -> SQLite (big)
 or JSON (small) at `lw/00_source/<src>/` -> lookup tool -> deploy -> benchmark
 58/58 -> verify live -> one commit -> push.

@@ -1437,6 +1437,66 @@ def food_nutrition(food, limit=3):
             "attribution": meta.get("attribution")}
 
 
+def drug_lookup(name, limit=5):
+    """Look up a drug product in the offline openFDA NDC directory (external
+    Layer-0, attributed, PUBLIC DOMAIN). name = a brand or generic name (e.g.
+    'ibuprofen', 'Tylenol') -> the matching FDA-registered products, each with
+    {brand_name, generic_name, active_ingredients (name + strength), dosage_form,
+    route, product_type (Rx/OTC), dea_schedule, pharm_class}. Same-drug products
+    from different labelers are grouped (product_count). REFERENCE ONLY -- NOT
+    medical advice, NOT a prescription. The Apothecary (heal-the-sick) grounding
+    for the medicine verifier."""
+    import json as _json
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "openfda_ndc" / "drugs.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "openFDA NDC db not provisioned"}
+    q = str(name or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide a drug brand or generic name"}
+    try:
+        lim = max(1, min(int(limit), 15))
+    except (TypeError, ValueError):
+        lim = 5
+    ql = "%" + q.lower() + "%"
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        rows = con.execute(
+            "SELECT brand_name,generic_name,dosage_form,route,active_ingredients,"
+            "pharm_class,product_type,dea_schedule,MIN(product_ndc),COUNT(*) "
+            "FROM drugs WHERE generic_lc LIKE ? OR brand_lc LIKE ? "
+            "GROUP BY generic_lc,brand_lc,dosage_form "
+            "ORDER BY COUNT(*) DESC LIMIT ?", (ql, ql, lim)).fetchall()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "drug lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "query": name,
+                "note": "no FDA-registered product matched that name.",
+                "source": meta.get("source")}
+    matches = []
+    for r in rows:
+        try:
+            ai = _json.loads(r[4]) if r[4] else []
+        except Exception:  # noqa: BLE001
+            ai = []
+        matches.append({
+            "brand_name": r[0] or None, "generic_name": r[1] or None,
+            "active_ingredients": ai, "dosage_form": r[2] or None,
+            "route": r[3] or None, "product_type": r[6] or None,
+            "dea_schedule": r[7] or None,
+            "pharm_class": [c for c in (r[5] or "").split("; ") if c],
+            "example_ndc": r[8], "product_count": r[9]})
+    return {"status": "ok", "query": name, "count": len(matches),
+            "matches": matches,
+            "disclaimer": "REFERENCE ONLY -- not medical advice and not a "
+                          "prescription; FDA product registrations.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2311,6 +2371,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["food"]},
      "fn": lambda a: food_nutrition(a["food"], a.get("limit", 3))},
+    {"name": "drug_lookup",
+     "description": (
+         "Look up a drug in the offline openFDA NDC directory. name = a brand or generic name "
+         "('ibuprofen', 'Tylenol') -> FDA-registered products, each {brand, generic, active "
+         "ingredients + strength, dosage form, route, Rx/OTC, DEA schedule, pharm class}; "
+         "same-drug products grouped. REFERENCE ONLY -- not medical advice. The Apothecary / "
+         "medicine grounding. Public domain (FDA)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"name": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["name"]},
+     "fn": lambda a: drug_lookup(a["name"], a.get("limit", 5))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2801,6 +2874,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "star_lookup": star_lookup,
     "fluid_property": fluid_property,
     "food_nutrition": food_nutrition,
+    "drug_lookup": drug_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

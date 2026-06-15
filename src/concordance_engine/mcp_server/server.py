@@ -545,6 +545,22 @@ def food_nutrition(food: str, limit: int = 3) -> Dict[str, Any]:
     return tools.food_nutrition(food, limit)
 
 
+@mcp.tool()
+def drug_lookup(name: str, limit: int = 5) -> Dict[str, Any]:
+    """Look up a drug product in the offline openFDA National Drug Code (NDC)
+    directory (external Layer-0, attributed, PUBLIC DOMAIN).
+
+    name = a brand or generic name (e.g. "ibuprofen", "Tylenol") -> the matching
+    FDA-registered products, each with {brand_name, generic_name,
+    active_ingredients (name + strength), dosage_form, route, product_type
+    (Rx/OTC), dea_schedule, pharm_class}. Same-drug products from different
+    labelers are grouped (product_count). REFERENCE ONLY -- NOT medical advice
+    and NOT a prescription. This is the Apothecary (heal-the-sick) grounding for
+    the medicine verifier. 135,883 products, queried offline.
+    """
+    return tools.drug_lookup(name, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
