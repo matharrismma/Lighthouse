@@ -1002,6 +1002,88 @@ def sequence_lookup(anum=None, terms=None, limit=8):
         return {"status": "error", "detail": "oeis lookup failed: " + str(e)[:140]}
 
 
+# ARPABET -> IPA (segmental). \\u escapes keep this source pure-ASCII.
+_CMU_ARPA_IPA = {
+    "AA": "ɑ", "AE": "æ", "AH": "ʌ", "AO": "ɔ",
+    "AW": "aʊ", "AY": "aɪ", "EH": "ɛ", "ER": "ɝ",
+    "EY": "eɪ", "IH": "ɪ", "IY": "i", "OW": "oʊ",
+    "OY": "ɔɪ", "UH": "ʊ", "UW": "u",
+    "B": "b", "CH": "tʃ", "D": "d", "DH": "ð", "F": "f",
+    "G": "ɡ", "HH": "h", "JH": "dʒ", "K": "k", "L": "l",
+    "M": "m", "N": "n", "NG": "ŋ", "P": "p", "R": "ɹ",
+    "S": "s", "SH": "ʃ", "T": "t", "TH": "θ", "V": "v",
+    "W": "w", "Y": "j", "Z": "z", "ZH": "ʒ",
+}
+_CMU_VOWELS = {"AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY",
+               "IH", "IY", "OW", "OY", "UH", "UW"}
+
+
+def _cmu_analyze(phones):
+    toks = phones.split()
+    stress = []
+    ipa = []
+    ok = True
+    for ph in toks:
+        base, st = ph, None
+        if ph and ph[-1] in "012":
+            base, st = ph[:-1], ph[-1]
+        if base in _CMU_VOWELS:
+            stress.append(st or "0")
+        if base == "AH" and st == "0":
+            ipa.append("ə")        # schwa
+        elif base == "ER" and st == "0":
+            ipa.append("ɚ")        # r-colored schwa
+        elif base in _CMU_ARPA_IPA:
+            ipa.append(_CMU_ARPA_IPA[base])
+        else:
+            ok = False
+    return {"arpabet": phones, "syllable_count": len(stress),
+            "stress_pattern": "-".join(stress),
+            "ipa": ("".join(ipa) if ok else None)}
+
+
+def word_pronunciation(word):
+    """Pronunciation of an English word from the offline CMU Pronouncing
+    Dictionary (external Layer-0, attributed, BSD-2). word -> each pronunciation
+    variant as {arpabet, ipa, syllable_count, stress_pattern}. ARPABET is CMU's
+    authoritative transcription; IPA is a deterministic segmental transliteration
+    (no syllable-boundary stress marks); stress_pattern lists the vowel stresses
+    (1 primary, 2 secondary, 0 none). The PHONICS level of the language tree --
+    pairs with language_data (phoneme inventories), word_meaning (semantics), and
+    word_study (original-language morphology). ~126k words, queried offline."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "cmudict" / "cmudict.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "cmudict db not provisioned"}
+    q = str(word or "").strip().lower()
+    if not q:
+        return {"status": "error", "detail": "provide a word"}
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        rows = con.execute(
+            "SELECT variant, arpabet FROM pron WHERE word=? ORDER BY variant",
+            (q,)).fetchall()
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "cmudict lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "query": word,
+                "note": "not in the CMU dictionary (proper nouns, rare or "
+                        "non-English words may be absent).",
+                "source": meta.get("source")}
+    prons = []
+    for var, ar in rows:
+        a = _cmu_analyze(ar)
+        a["variant"] = var
+        prons.append(a)
+    return {"status": "ok", "word": q, "pronunciations": prons,
+            "scheme": meta.get("scheme"), "source": meta.get("source"),
+            "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1798,6 +1880,17 @@ TOOLS: List[Dict[str, Any]] = [
                                     "terms": {"type": "array", "items": {"type": "number"}},
                                     "limit": {"type": "integer"}}},
      "fn": lambda a: sequence_lookup(a.get("anum"), a.get("terms"), a.get("limit", 8))},
+    {"name": "word_pronunciation",
+     "description": (
+         "Pronunciation of an English word from the offline CMU Pronouncing Dictionary. "
+         "word -> each variant as {arpabet, ipa (segmental), syllable_count, stress_pattern}. "
+         "ARPABET is CMU's authoritative transcription; IPA is a deterministic transliteration. "
+         "The phonics level of the language tree (pairs with language_data, word_meaning, "
+         "word_study). ~126k words, offline. BSD-2, (c) Carnegie Mellon University."
+     ),
+     "inputSchema": {"type": "object", "properties": {"word": {"type": "string"}},
+                     "required": ["word"]},
+     "fn": lambda a: word_pronunciation(a["word"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2282,6 +2375,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "timezone_offset": timezone_offset,
     "unit_convert": unit_convert,
     "sequence_lookup": sequence_lookup,
+    "word_pronunciation": word_pronunciation,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

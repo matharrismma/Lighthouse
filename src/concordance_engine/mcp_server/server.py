@@ -451,6 +451,22 @@ def sequence_lookup(anum: str = "", terms: list = None, limit: int = 8) -> Dict[
     return tools.sequence_lookup(anum or None, terms, limit)
 
 
+@mcp.tool()
+def word_pronunciation(word: str) -> Dict[str, Any]:
+    """Pronunciation of an English word from the offline CMU Pronouncing
+    Dictionary (external Layer-0, attributed, BSD-2).
+
+    word -> each pronunciation variant as {arpabet, ipa, syllable_count,
+    stress_pattern}. ARPABET is CMU's authoritative transcription; IPA is a
+    deterministic segmental transliteration; stress_pattern lists the vowel
+    stresses (1 primary, 2 secondary, 0 none). This is the PHONICS level of the
+    language tree -- it pairs with language_data (phoneme inventories),
+    word_meaning (semantics), and word_study (original-language morphology).
+    ~126,000 words, queried offline from SQLite.
+    """
+    return tools.word_pronunciation(word)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
