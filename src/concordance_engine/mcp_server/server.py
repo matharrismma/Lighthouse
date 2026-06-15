@@ -351,6 +351,21 @@ def verify_giving(spec: Dict[str, Any]) -> Dict[str, Any]:
     return tools.verify_giving(spec)
 
 
+@mcp.tool()
+def language_data(query: str) -> Dict[str, Any]:
+    """Phoneme inventory + language family + world region for a language, from the
+    offline PHOIBLE 2.0 + Glottolog index (external Layer-0 source, attributed --
+    CC-BY-SA PHOIBLE / CC-BY Glottolog).
+
+    query = a language name ("Korean"), an ISO 639-3 code ("kor"), or a Glottocode
+    ("kore1280"). Returns {name, glottocode, iso, family, macroarea, lat, lon,
+    n_phonemes, n_consonants, n_vowels, n_tones, consonants[], vowels[], tones[]}.
+    Covers ~2,177 languages. Use it to ground a claim about a language's sounds or
+    its place in the family tree (the phoneme half of the dispersal map).
+    """
+    return tools.language_data(query)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

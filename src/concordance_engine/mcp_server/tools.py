@@ -380,6 +380,61 @@ def verify_giving(spec):
     return _r(_giving.verify(spec))
 
 
+# ── Layer-0 source: PHOIBLE 2.0 + Glottolog (offline phoneme inventories) ──
+_PHOIBLE_INDEX = None
+
+
+def _load_phoible():
+    global _PHOIBLE_INDEX
+    if _PHOIBLE_INDEX is None:
+        import json as _json
+        from pathlib import Path as _Path
+        p = (_Path(__file__).resolve().parents[3] / "lw" / "00_source" /
+             "phoible" / "phoible_index.json")
+        try:
+            _PHOIBLE_INDEX = _json.loads(p.read_text(encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            _PHOIBLE_INDEX = {"by_glottocode": {}, "name_index": {},
+                              "meta": {"error": f"phoible index not provisioned: {exc}"}}
+    return _PHOIBLE_INDEX
+
+
+def language_data(query):
+    """Phoneme inventory + language family + world region for a language, from the
+    offline PHOIBLE 2.0 + Glottolog index (external Layer-0 source, attributed).
+    Accepts a language name, ISO 639-3 code, or Glottocode."""
+    idx = _load_phoible()
+    by_gc = idx.get("by_glottocode") or {}
+    if not by_gc:
+        return {"status": "source_missing",
+                "detail": idx.get("meta", {}).get("error", "PHOIBLE index not provisioned")}
+    q = str(query or "").strip().lower()
+    if not q:
+        return {"status": "error", "detail": "provide a language name, ISO 639-3 code, or Glottocode"}
+    ni = idx.get("name_index") or {}
+    gc = ni.get(q)
+    if not gc:
+        hits = sorted(k for k in ni if k.startswith(q))
+        if len(hits) == 1:
+            gc = ni[hits[0]]
+        else:
+            sug = []
+            for g in dict.fromkeys(ni[h] for h in hits[:10]):
+                e = by_gc.get(g)
+                if e:
+                    sug.append(e.get("name"))
+            return {"status": "not_found", "query": query,
+                    "detail": f"no language matched '{query}'",
+                    "suggestions": sug[:8], "source": idx.get("meta", {}).get("source")}
+    e = by_gc.get(gc)
+    if not e:
+        return {"status": "not_found", "query": query, "detail": "matched id has no record"}
+    out = {"status": "ok", "source": idx.get("meta", {}).get("source"),
+           "license": idx.get("meta", {}).get("license")}
+    out.update(e)
+    return out
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1095,6 +1150,15 @@ TOOLS: List[Dict[str, Any]] = [
      ),
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
      "fn": lambda a: verify_giving(a["spec"])},
+    {"name": "language_data",
+     "description": (
+         "Phoneme inventory + language family + world region for a language, from the "
+         "offline PHOIBLE 2.0 + Glottolog index (external Layer-0 source). query = a "
+         "language name, ISO 639-3 code, or Glottocode. Returns family, macroarea, "
+         "coordinates, and the consonants/vowels/tones with counts."
+     ),
+     "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+     "fn": lambda a: language_data(a["query"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1572,6 +1636,7 @@ def call_tool(name, arguments):
 ALL_TOOLS: Dict[str, Any] = {
     "check": check,
     "verify_giving": verify_giving,
+    "language_data": language_data,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
