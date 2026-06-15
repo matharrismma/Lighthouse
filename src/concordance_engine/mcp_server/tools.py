@@ -16,7 +16,7 @@ from ..engine import (
 )
 from ..verifiers import (
     chemistry, physics, mathematics, statistics,
-    computer_science, biology, governance, scripture,
+    computer_science, biology, governance, scripture as _scripture,
 )
 from ..verifiers import energy as _energy
 from ..verifiers import acoustics as _acoustics
@@ -1886,6 +1886,77 @@ def original_words(reference, limit=12):
             "attribution": meta.get("attribution")}
 
 
+def read_passage(reference, takes=True, limit=12):
+    """ONE verse-keyed view that fuses the three Scripture layers: the WEB
+    translation the user READS, the original-language words the agent WORKS on
+    (Hebrew OT / Koine Greek NT, each with Strong's + morphology), and -- when
+    takes=True (default) -- the lexical TAKE for each word (its Strong's
+    transliteration + definition, an attributed lexicon gloss). The whole
+    Scripture-onboard architecture in a single call. reference = 'John 3:16',
+    'Genesis 1:1', 'Romans 8:28', 'Psalm 23:1'. The engine never authors the text
+    or the gloss -- it recombines FOUND, GROUNDED, ATTRIBUTED pieces (WEB public
+    domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures)."""
+    sc = scripture(reference, limit=limit)
+    ow = original_words(reference, limit=limit)
+    if ow.get("status") != "ok" and sc.get("status") != "ok":
+        return {"status": ow.get("status", "error"),
+                "detail": ow.get("detail") or sc.get("detail") or "could not read passage"}
+    web_map = ({v["ref"]: v["text"] for v in sc.get("verses", [])}
+               if sc.get("status") == "ok" else {})
+    language = ow.get("language")
+    take_cache = {}
+
+    def _take(strongs):
+        if not strongs or not takes:
+            return None
+        if strongs in take_cache:
+            return take_cache[strongs]
+        q = (strongs if str(strongs)[:1] in ("G", "H")
+             else (("H" if language == "Hebrew" else "G") + str(strongs)))
+        r = word_study(q)
+        if r.get("status") != "ok" and q[1:][-1:].isalpha():   # augmented Strong's letter -> retry plain
+            r2 = word_study(q[:-1])
+            if r2.get("status") == "ok":
+                r, q = r2, q[:-1]
+        t = None
+        if r.get("status") == "ok":
+            d = r.get("definition")
+            gloss = ""
+            if isinstance(d, dict):
+                gloss = (d.get("strongs_def") or d.get("kjv_def") or d.get("derivation") or "").strip()
+            elif d:
+                gloss = str(d).strip()
+            t = {"strongs": q, "translit": r.get("transliteration"), "gloss": (gloss[:240] or None)}
+        take_cache[strongs] = t
+        return t
+
+    verses = []
+    for v in ow.get("verses", []):
+        words = []
+        for w in v.get("words", []):
+            words.append({"orig": w.get("grk") or w.get("heb"), "strongs": w.get("strongs"),
+                          "lemma": w.get("lemma"), "morph": w.get("morph"),
+                          "take": _take(w.get("strongs"))})
+        verses.append({"ref": v["ref"], "web": web_map.get(v["ref"]), "words": words})
+    if not verses:
+        if web_map:                       # original not yet onboard but WEB present -> still serve translation
+            verses = [{"ref": r, "web": t, "words": []} for r, t in web_map.items()]
+        else:
+            return {"status": "not_found", "detail": "no passage for '" + str(reference) + "'"}
+    return {"status": "ok", "reference": ow.get("reference") or sc.get("reference"),
+            "translation": "WEB", "language": language, "takes": bool(takes),
+            "count": len(verses), "verses": verses,
+            "note": "The Scripture-onboard architecture in one call: the agent works the original; "
+                    "the user reads the WEB; Strong's adds its lexical take. Found, grounded, "
+                    "attributed -- never generated. Expand any Strong's number with word_study; "
+                    "more attributed takes (BDB/Thayer, commentary, sermons) layer on later.",
+            "sources": {
+                "translation": "World English Bible (public domain)",
+                "original": ("SBL Greek NT / MorphGNT (CC BY-SA)" if language == "Greek"
+                             else "Westminster Leningrad Codex + OSHB tagging (CC BY)"),
+                "lexical_take": "Strong's via OpenScriptures (public domain)"}}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2493,7 +2564,7 @@ def resolve_scripture_ref(ref):
     Accepts forms like "Jn3:16", "John 3:16", "1Co13:4". Returns
     `{ref, web_text, status, detail}`. Status `source_missing` means
     the Layer 0 data has not been provisioned yet — see the detail."""
-    return scripture.resolve_ref(ref)
+    return _scripture.resolve_ref(ref)
 
 
 def word_study(strongs_num):
@@ -2502,7 +2573,7 @@ def word_study(strongs_num):
     `{strongs, word, transliteration, definition, derivation, verses,
     occurrence_count}` or a `source_missing` status if Layer 0 has not
     been provisioned."""
-    return scripture.word_study(strongs_num)
+    return _scripture.word_study(strongs_num)
 
 
 def verify_scripture_anchors(anchors):
@@ -2510,7 +2581,7 @@ def verify_scripture_anchors(anchors):
     Used to catch fabricated scripture citations — the most common
     LLM-failure mode in this domain. Returns the standard verifier
     result shape (CONFIRMED / MISMATCH / SKIPPED)."""
-    return _r(scripture.verify_scripture_anchors(list(anchors or [])))
+    return _r(_scripture.verify_scripture_anchors(list(anchors or [])))
 
 
 def triangulate_claim(ref, claim, strongs_keys=None):
@@ -2523,7 +2594,7 @@ def triangulate_claim(ref, claim, strongs_keys=None):
     numbers supplied (e.g. ['G142'] for airo), returns the per-word
     semantic range so a reviewer (or later automated tagging) can
     compare the claim to attested meaning."""
-    return scripture.triangulate_claim(ref, claim, strongs_keys=strongs_keys)
+    return _scripture.triangulate_claim(ref, claim, strongs_keys=strongs_keys)
 
 
 def get_example_packet(name):
@@ -2832,16 +2903,32 @@ TOOLS: List[Dict[str, Any]] = [
     {"name": "original_words",
      "description": (
          "The ORIGINAL-LANGUAGE words of a Bible passage (the agent's canonical layer), each tagged "
-         "with Strong's number + morphology, from the offline OpenScriptures Hebrew Bible (WLC). "
-         "reference = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. OT (Hebrew) onboard now; Greek NT "
-         "next milestone. Expand a Strong's number via word_study for its definition. WLC public "
-         "domain; OSHB tagging CC BY."
+         "with Strong's number + morphology. BOTH Testaments onboard: Hebrew OT (Westminster Leningrad "
+         "Codex / OSHB) and Koine Greek NT (SBLGNT / MorphGNT). reference = 'Genesis 1:1', 'John 1:1', "
+         "'Romans 8:28', 'Psalm 23'. Expand a Strong's number via word_study for its definition. WLC "
+         "public domain + OSHB tagging CC BY; SBLGNT/MorphGNT CC BY-SA."
      ),
      "inputSchema": {"type": "object",
                      "properties": {"reference": {"type": "string"},
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: original_words(a["reference"], a.get("limit", 12))},
+    {"name": "read_passage",
+     "description": (
+         "ONE verse-keyed view fusing the three Scripture layers: the WEB translation the user READS, "
+         "the original-language words the agent WORKS on (Hebrew OT / Greek NT, with Strong's + "
+         "morphology), and the lexical TAKE per word (Strong's transliteration + definition). The whole "
+         "Scripture-onboard architecture in a single call. reference = 'John 3:16', 'Genesis 1:1', "
+         "'Romans 8:28'. takes=false drops the lexical gloss (lighter). Recombines found, grounded, "
+         "attributed pieces -- never generated. WEB public domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's "
+         "via OpenScriptures."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "takes": {"type": "boolean"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: read_passage(a["reference"], a.get("takes", True), a.get("limit", 12))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3338,6 +3425,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "currency_convert": currency_convert,
     "scripture": scripture,
     "original_words": original_words,
+    "read_passage": read_passage,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

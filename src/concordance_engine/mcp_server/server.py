@@ -627,16 +627,32 @@ def scripture(reference: str, limit: int = 60) -> Dict[str, Any]:
 @mcp.tool()
 def original_words(reference: str, limit: int = 12) -> Dict[str, Any]:
     """The ORIGINAL-LANGUAGE words of a Bible passage -- the agent's canonical
-    layer -- each tagged with its Strong's number and morphology, from the offline
-    OpenScriptures Hebrew Bible (Westminster Leningrad Codex, external Layer-0).
+    layer -- each tagged with its Strong's number and morphology.
 
-    reference = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. The Old Testament
-    (Hebrew) is onboard now; the Greek New Testament lands in the next milestone.
-    Each Strong's number can be expanded to its definition via word_study (a lexical
-    take); the user reads the WEB through the scripture tool. WLC is public domain;
-    the OSHB Strong's + morphology tagging is CC BY (OpenScriptures).
+    BOTH Testaments are onboard: Hebrew OT (Westminster Leningrad Codex / OSHB,
+    book_num 1-39) and Koine Greek NT (SBLGNT / MorphGNT, 40-66). reference =
+    'Genesis 1:1', 'Deuteronomy 6:4', 'John 1:1', 'Romans 8:28', 'Psalm 23'. Each
+    Strong's number can be expanded to its definition via word_study (a lexical
+    take); the user reads the WEB through the scripture tool. WLC public domain +
+    OSHB tagging CC BY; SBLGNT/MorphGNT CC BY-SA. External Layer-0, attributed.
     """
     return tools.original_words(reference, limit)
+
+
+@mcp.tool()
+def read_passage(reference: str, takes: bool = True, limit: int = 12) -> Dict[str, Any]:
+    """ONE verse-keyed view fusing the three Scripture layers in a single call.
+
+    Returns, per verse: the WEB translation the user READS, the original-language
+    words the agent WORKS on (Hebrew OT / Koine Greek NT, each with Strong's +
+    morphology), and -- when takes=True (default) -- the lexical TAKE per word (its
+    Strong's transliteration + definition, an attributed lexicon gloss). The whole
+    Scripture-onboard architecture at once. reference = 'John 3:16', 'Genesis 1:1',
+    'Romans 8:28', 'Psalm 23:1'. takes=False drops the gloss (lighter). The engine
+    never authors the text or the gloss -- it recombines FOUND, GROUNDED, ATTRIBUTED
+    pieces (WEB public domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures).
+    """
+    return tools.read_passage(reference, takes, limit)
 
 
 # ---------------------------------------------------------------------------

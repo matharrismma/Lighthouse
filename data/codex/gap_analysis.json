@@ -1,6 +1,6 @@
 {
   "verifiers": 64,
-  "tools": 90,
+  "tools": 91,
   "data_grounded_tools": 17,
   "grounded_domains": 19,
   "pure_compute_domains": 11,
@@ -10,8 +10,8 @@
   "reach_source": 1669,
   "nodes": 1671,
   "form_cards": 18,
-  "original_text_pct": 50,
-  "original_text_done": 4,
+  "original_text_pct": 75,
+  "original_text_done": 6,
   "original_text_total": 8,
   "ground_targets_open": 15,
   "targets": {
@@ -111,11 +111,11 @@
       },
       {
         "name": "read_passage tool: original + translation + lexical takes",
-        "status": "open"
+        "status": "done"
       },
       {
         "name": "lexicon takes wired (Strong's, then BDB / Thayer)",
-        "status": "open"
+        "status": "done"
       },
       {
         "name": "commentary takes searchable per verse (CCEL: Henry, Barnes, Calvin)",
