@@ -493,6 +493,22 @@ def rfc_lookup(number: str) -> Dict[str, Any]:
     return tools.rfc_lookup(number)
 
 
+@mcp.tool()
+def star_lookup(name: str = "", constellation: str = "", limit: int = 6) -> Dict[str, Any]:
+    """Look up a star in the offline HYG stellar catalog (external Layer-0,
+    attributed, CC BY-SA).
+
+    name = a proper name (e.g. "Betelgeuse") -> its constellation, apparent/
+    absolute magnitude, spectral type, distance (ly + pc), and position; OR
+    constellation = a name or IAU abbreviation (e.g. "Orion" or "Ori") -> the
+    brightest stars in it (lowest apparent magnitude first). Grounds astronomy
+    claims like "Betelgeuse is in Orion" or "Sirius is the brightest star".
+    Measurements are reported as the HYG catalog (Hipparcos/Yale/Gliese) gives
+    them. 119,626 stars, queried offline.
+    """
+    return tools.star_lookup(name or None, constellation or None, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

@@ -1186,6 +1186,118 @@ def rfc_lookup(number):
     return out
 
 
+# The 88 IAU constellations: abbreviation -> full name.
+_CONSTELLATIONS = {
+    "And": "Andromeda", "Ant": "Antlia", "Aps": "Apus", "Aqr": "Aquarius",
+    "Aql": "Aquila", "Ara": "Ara", "Ari": "Aries", "Aur": "Auriga",
+    "Boo": "Bootes", "Cae": "Caelum", "Cam": "Camelopardalis", "Cnc": "Cancer",
+    "CVn": "Canes Venatici", "CMa": "Canis Major", "CMi": "Canis Minor",
+    "Cap": "Capricornus", "Car": "Carina", "Cas": "Cassiopeia",
+    "Cen": "Centaurus", "Cep": "Cepheus", "Cet": "Cetus", "Cha": "Chamaeleon",
+    "Cir": "Circinus", "Col": "Columba", "Com": "Coma Berenices",
+    "CrA": "Corona Australis", "CrB": "Corona Borealis", "Crv": "Corvus",
+    "Crt": "Crater", "Cru": "Crux", "Cyg": "Cygnus", "Del": "Delphinus",
+    "Dor": "Dorado", "Dra": "Draco", "Equ": "Equuleus", "Eri": "Eridanus",
+    "For": "Fornax", "Gem": "Gemini", "Gru": "Grus", "Her": "Hercules",
+    "Hor": "Horologium", "Hya": "Hydra", "Hyi": "Hydrus", "Ind": "Indus",
+    "Lac": "Lacerta", "Leo": "Leo", "LMi": "Leo Minor", "Lep": "Lepus",
+    "Lib": "Libra", "Lup": "Lupus", "Lyn": "Lynx", "Lyr": "Lyra",
+    "Men": "Mensa", "Mic": "Microscopium", "Mon": "Monoceros", "Mus": "Musca",
+    "Nor": "Norma", "Oct": "Octans", "Oph": "Ophiuchus", "Ori": "Orion",
+    "Pav": "Pavo", "Peg": "Pegasus", "Per": "Perseus", "Phe": "Phoenix",
+    "Pic": "Pictor", "Psc": "Pisces", "PsA": "Piscis Austrinus",
+    "Pup": "Puppis", "Pyx": "Pyxis", "Ret": "Reticulum", "Sge": "Sagitta",
+    "Sgr": "Sagittarius", "Sco": "Scorpius", "Scl": "Sculptor", "Sct": "Scutum",
+    "Ser": "Serpens", "Sex": "Sextans", "Tau": "Taurus", "Tel": "Telescopium",
+    "Tri": "Triangulum", "TrA": "Triangulum Australe", "Tuc": "Tucana",
+    "UMa": "Ursa Major", "UMi": "Ursa Minor", "Vel": "Vela", "Vir": "Virgo",
+    "Vol": "Volans", "Vul": "Vulpecula",
+}
+_CON_BY_NAME = {v.lower(): k for k, v in _CONSTELLATIONS.items()}
+_CON_BY_ABBR_LC = {k.lower(): k for k in _CONSTELLATIONS}
+_PC_TO_LY = 3.261563
+
+
+def _star_row(r):
+    proper, bf, c, ra, dec, dist, mag, absmag, spect, lum = r
+    out = {"proper": proper or None, "bayer_flamsteed": bf or None,
+           "constellation": _CONSTELLATIONS.get(c, c) if c else None,
+           "constellation_abbr": c or None,
+           "ra_hours": ra, "dec_deg": dec,
+           "apparent_magnitude": mag, "absolute_magnitude": absmag,
+           "spectral_type": spect or None, "luminosity_solar": lum}
+    if dist is not None and dist < 100000:
+        out["distance_ly"] = round(dist * _PC_TO_LY, 3)
+        out["distance_pc"] = dist
+    else:
+        out["distance_ly"] = None
+        out["distance_note"] = "no reliable parallax (distance unknown)"
+    return out
+
+
+def star_lookup(name=None, constellation=None, limit=6):
+    """Look up a star in the offline HYG catalog (external Layer-0, attributed,
+    CC BY-SA). name = a proper name (e.g. 'Betelgeuse') -> its constellation,
+    magnitude, spectral type, distance, position. constellation = a name or IAU
+    abbreviation (e.g. 'Orion' or 'Ori') -> the brightest stars in it (lowest
+    apparent magnitude first). Grounds astronomy claims ('Betelgeuse is in Orion',
+    'Sirius is the brightest star'). Measurements reported as the HYG catalog
+    gives them (Hipparcos/Yale/Gliese), attributed."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "hyg" / "hyg.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "HYG db not provisioned"}
+    try:
+        lim = max(1, min(int(limit), 25))
+    except (TypeError, ValueError):
+        lim = 6
+    cols = ("proper,bf,con,ra,dec,dist,mag,absmag,spect,lum")
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        src = {"source": meta.get("source"), "license": meta.get("license"),
+               "attribution": meta.get("attribution")}
+        nm = str(name or "").strip()
+        cst = str(constellation or "").strip()
+        if nm:
+            row = con.execute(
+                "SELECT %s FROM stars WHERE proper_lc=?" % cols,
+                (nm.lower(),)).fetchone()
+            con.close()
+            if not row:
+                out = {"status": "not_found", "query": name,
+                       "note": "no star with that proper name; only ~499 stars "
+                               "have proper names (try a Bayer name or "
+                               "constellation)."}
+                out.update(src)
+                return out
+            out = {"status": "ok", "star": _star_row(row)}
+            out.update(src)
+            return out
+        if cst:
+            abbr = _CON_BY_ABBR_LC.get(cst.lower()) or _CON_BY_NAME.get(cst.lower())
+            if not abbr:
+                con.close()
+                return {"status": "not_found", "query": constellation,
+                        "detail": "unknown constellation name or abbreviation"}
+            rows = con.execute(
+                "SELECT %s FROM stars WHERE con=? AND mag IS NOT NULL "
+                "ORDER BY mag LIMIT ?" % cols, (abbr, lim)).fetchall()
+            con.close()
+            out = {"status": "ok",
+                   "constellation": _CONSTELLATIONS[abbr],
+                   "constellation_abbr": abbr,
+                   "brightest": [_star_row(r) for r in rows]}
+            out.update(src)
+            return out
+        con.close()
+        return {"status": "error",
+                "detail": "provide 'name' (a star) or 'constellation'"}
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "star lookup failed: " + str(e)[:140]}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2016,6 +2128,18 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"number": {"type": "string"}},
                      "required": ["number"]},
      "fn": lambda a: rfc_lookup(a["number"])},
+    {"name": "star_lookup",
+     "description": (
+         "Look up a star in the offline HYG catalog. name = a proper name ('Betelgeuse') -> "
+         "constellation, magnitude, spectral type, distance, position; OR constellation = a "
+         "name/abbr ('Orion'/'Ori') -> its brightest stars. Grounds astronomy ('Betelgeuse is "
+         "in Orion'). 119k stars; measurements per Hipparcos/Yale/Gliese. CC BY-SA, astronexus."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"name": {"type": "string"},
+                                    "constellation": {"type": "string"},
+                                    "limit": {"type": "integer"}}},
+     "fn": lambda a: star_lookup(a.get("name"), a.get("constellation"), a.get("limit", 6))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2503,6 +2627,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "word_pronunciation": word_pronunciation,
     "port_lookup": port_lookup,
     "rfc_lookup": rfc_lookup,
+    "star_lookup": star_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
