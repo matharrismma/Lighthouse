@@ -185,13 +185,14 @@ h1{{font-weight:500;font-size:22px;margin:0 0 .2rem}}
 .reserved{{flex:1;height:18px;border:1px dashed #3a3f49;border-radius:6px}}
 .legend{{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:12px 0 0}}
 .dot{{width:10px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:5px}}
+.witness{{color:var(--mut);font-size:13px;margin:16px 0 0;font-style:italic}}
 .cols{{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:1.8rem}}
 .cols h3{{font-weight:500;font-size:14px;margin:0 0 .5rem}}
 .cols ul{{margin:0;padding-left:1.1rem;color:var(--mut);font-size:13px}}.cols li{{margin:.3rem 0}}
 .foot{{color:#6b7280;font-size:12px;margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}}
 </style></head><body><div class="wrap">
 <h1>Gap analysis</h1>
-<div class="sub">Steering instrument -- regenerated from live state. We work the gaps in order; the apex stays reserved.</div>
+<div class="sub">Steering instrument -- regenerated from live state. We work the gaps in order.</div>
 <div class="cards">
 <div class="card"><div class="k">domains verified</div><div class="v">{d['verifiers']}</div></div>
 <div class="card"><div class="k">grounded in data</div><div class="v">{d['grounded_domains']}</div></div>
@@ -203,10 +204,9 @@ h1{{font-weight:500;font-size:22px;margin:0 0 .2rem}}
 {_bar('connect','(to source)',min(100,round(d['vine_validity']*100)),GREEN,'%d / %d'%(d['reach_source'],d['nodes']))}
 {_bar('ground','(real data)',emp,AMBER,'%d / %d empirical'%(d['grounded_domains'],d['grounded_domains']+d['ungrounded_domains']))}
 {_bar('original text','(Heb/Grk)',12,AMBER,'barely begun')}
-<div class="row"><div class="lab">apex <span class="hint">(the join)</span></div><div class="reserved"></div><div class="val">reserved</div></div>
 <div class="legend"><span><span class="dot" style="background:{GREEN}"></span>strong</span>
-<span><span class="dot" style="background:{AMBER}"></span>gap to close</span>
-<span><span class="dot" style="border:1px dashed #3a3f49"></span>reserved by design -- not a gap</span></div>
+<span><span class="dot" style="background:{AMBER}"></span>gap to close</span></div>
+<div class="witness">These bars measure the engine's reach over what can be checked. The One it all witnesses to is not on the chart -- he stands outside the exercise.</div>
 <div class="sec">grounding by family</div>
 {fam_rows}
 <div class="cols">
