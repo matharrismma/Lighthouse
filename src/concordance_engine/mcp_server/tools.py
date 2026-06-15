@@ -591,6 +591,68 @@ def word_meaning(word):
             "source": meta.get("source"), "license": meta.get("license")}
 
 
+_GEO_FEATURE = {
+    "PPLC": "national capital", "PPLA": "first-order admin seat (e.g. state capital)",
+    "PPLA2": "second-order admin seat", "PPLA3": "third-order admin seat",
+    "PPLA4": "fourth-order admin seat", "PPLG": "seat of government",
+    "PPL": "populated place", "PPLX": "section of populated place",
+    "PPLL": "populated locality", "PPLS": "populated places", "STLMT": "settlement",
+}
+
+
+def place_lookup(name, limit=8):
+    """Gazetteer lookup from the offline GeoNames cities5000 database (external
+    Layer-0 source, attributed). name -> matching places, each {name, admin1,
+    country, lat, lon, population, feature, timezone}, ordered by population so
+    the most prominent match is first. Serves the local-community layer ("group
+    you by your area") and basic geography. SQLite (low memory); 69,133 places
+    with population >= 5000, offline/ownable. Data (c) GeoNames.org, CC-BY 4.0."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "geonames" / "geonames.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "GeoNames db not provisioned"}
+    q = str(name or "").strip().lower()
+    if not q:
+        return {"status": "error", "detail": "provide a place name"}
+    try:
+        n = int(limit)
+    except (TypeError, ValueError):
+        n = 8
+    n = max(1, min(n, 25))
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        rows = con.execute(
+            "SELECT name, ascii, lat, lon, cc, admin1, fcode, population, tz "
+            "FROM places WHERE name_lc=? OR ascii_lc=? "
+            "ORDER BY population DESC LIMIT ?", (q, q, n)).fetchall()
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        matches = []
+        for r in rows:
+            nm, asc, lat, lon, cc, a1, fcode, pop, tz = r
+            cn = con.execute("SELECT name FROM countries WHERE cc=?", (cc,)).fetchone()
+            an = con.execute("SELECT name FROM admin1 WHERE code=?",
+                             (cc + "." + (a1 or ""),)).fetchone()
+            matches.append({
+                "name": asc or nm, "admin1": (an[0] if an else a1) or None,
+                "country": cn[0] if cn else cc, "country_code": cc,
+                "lat": lat, "lon": lon, "population": pop,
+                "feature": _GEO_FEATURE.get(fcode, fcode), "feature_code": fcode,
+                "timezone": tz})
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "geonames lookup failed: " + str(e)[:140]}
+    if not matches:
+        return {"status": "not_found", "query": name,
+                "note": "GeoNames cities5000 covers populated places >= 5000; "
+                        "smaller or historical places may be absent.",
+                "source": meta.get("source", "GeoNames cities5000 gazetteer")}
+    return {"status": "ok", "query": name, "count": len(matches),
+            "matches": matches, "source": meta.get("source"),
+            "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1333,6 +1395,19 @@ TOOLS: List[Dict[str, Any]] = [
      ),
      "inputSchema": {"type": "object", "properties": {"word": {"type": "string"}}, "required": ["word"]},
      "fn": lambda a: word_meaning(a["word"])},
+    {"name": "place_lookup",
+     "description": (
+         "Gazetteer lookup from the offline GeoNames cities5000 database. name -> matching "
+         "places ordered by population, each {name, admin1, country, lat, lon, population, "
+         "feature, timezone}. Serves the local-community layer (group you by your area) and "
+         "basic geography; disambiguates same-named places by size. 69k places (pop >= 5000), "
+         "offline. Data (c) GeoNames.org, CC-BY 4.0."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"name": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["name"]},
+     "fn": lambda a: place_lookup(a["name"], a.get("limit", 8))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -1813,6 +1888,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "language_data": language_data,
     "wikidata": wikidata,
     "word_meaning": word_meaning,
+    "place_lookup": place_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

@@ -392,6 +392,20 @@ def word_meaning(word: str) -> Dict[str, Any]:
     return tools.word_meaning(word)
 
 
+@mcp.tool()
+def place_lookup(name: str, limit: int = 8) -> Dict[str, Any]:
+    """Gazetteer lookup from the offline GeoNames cities5000 database (external
+    Layer-0 source, attributed).
+
+    name -> {matches: [{name, admin1, country, lat, lon, population, feature,
+    timezone}]}, ordered by population so the most prominent place is first and
+    same-named places are disambiguated by size. Serves the local-community layer
+    ("group you by your area") and basic geography. 69,133 populated places with
+    population >= 5000, queried offline from SQLite. Data (c) GeoNames.org, CC-BY 4.0.
+    """
+    return tools.place_lookup(name, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
