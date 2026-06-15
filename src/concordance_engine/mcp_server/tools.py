@@ -1497,6 +1497,88 @@ def drug_lookup(name, limit=5):
             "attribution": meta.get("attribution")}
 
 
+_TAX_STD_RANKS = ("superkingdom", "kingdom", "phylum", "class", "order",
+                  "family", "genus", "species")
+
+
+def species_lookup(name, limit=5):
+    """Identify an organism in the offline NCBI Taxonomy (external Layer-0,
+    attributed, PUBLIC DOMAIN). name = a scientific OR common name (e.g.
+    'tomato', 'Solanum lycopersicum', 'basil') -> matching taxa, each with
+    {scientific_name, rank, common_names, lineage (kingdom..genus..species)}.
+    The species-name authority for biology / ecology / genetics and for herb /
+    food identity ('tomato = Solanum lycopersicum'). Names/classification per
+    NCBI; reported as the source gives them, attributed."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "ncbi_taxonomy" / "taxonomy.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "NCBI taxonomy db not provisioned"}
+    q = str(name or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide a scientific or common name"}
+    try:
+        lim = max(1, min(int(limit), 10))
+    except (TypeError, ValueError):
+        lim = 5
+    ql = q.lower()
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        ids = [r[0] for r in con.execute(
+            "SELECT taxid FROM taxa WHERE sci_name_lc=?", (ql,)).fetchall()]
+        for r in con.execute("SELECT taxid FROM altnames WHERE name_lc=?", (ql,)).fetchall():
+            if r[0] not in ids:
+                ids.append(r[0])
+        if not ids:  # fall back to a bounded prefix search on scientific names
+            ids = [r[0] for r in con.execute(
+                "SELECT taxid FROM taxa WHERE sci_name_lc LIKE ? ORDER BY "
+                "length(sci_name) LIMIT ?", (ql + "%", lim)).fetchall()]
+        ids = ids[:lim]
+
+        def _row(taxid):
+            return con.execute(
+                "SELECT sci_name, rank, parent FROM taxa WHERE taxid=?",
+                (taxid,)).fetchone()
+
+        matches = []
+        for taxid in ids:
+            r = _row(taxid)
+            if not r:
+                continue
+            sci, rank, parent = r
+            lineage = {}
+            cur, hops = taxid, 0
+            while cur and cur != 1 and hops < 40:
+                rr = _row(cur)
+                if not rr:
+                    break
+                if rr[1] in _TAX_STD_RANKS:
+                    lineage[rr[1]] = rr[0]
+                cur, hops = rr[2], hops + 1
+            commons = [x[0] for x in con.execute(
+                "SELECT name FROM altnames WHERE taxid=? AND name_class IN "
+                "('genbank common name','common name')", (taxid,)).fetchall()]
+            synonyms = [x[0] for x in con.execute(
+                "SELECT name FROM altnames WHERE taxid=? AND name_class='synonym' "
+                "LIMIT 5", (taxid,)).fetchall()]
+            matches.append({
+                "taxid": taxid, "scientific_name": sci, "rank": rank,
+                "common_names": commons[:5], "synonyms": synonyms,
+                "lineage": {k: lineage[k] for k in _TAX_STD_RANKS if k in lineage}})
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "taxonomy lookup failed: " + str(e)[:140]}
+    if not matches:
+        return {"status": "not_found", "query": name,
+                "note": "no organism matched that name in NCBI Taxonomy.",
+                "source": meta.get("source")}
+    return {"status": "ok", "query": name, "count": len(matches),
+            "matches": matches, "source": meta.get("source"),
+            "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -2384,6 +2466,19 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["name"]},
      "fn": lambda a: drug_lookup(a["name"], a.get("limit", 5))},
+    {"name": "species_lookup",
+     "description": (
+         "Identify an organism in the offline NCBI Taxonomy. name = a scientific OR common "
+         "name ('tomato', 'Solanum lycopersicum', 'basil') -> matching taxa, each {scientific_"
+         "name, rank, common_names, synonyms, lineage (kingdom..family..genus..species)}. The "
+         "species-name authority for biology/ecology/genetics + herb/food identity. Public "
+         "domain (NCBI)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"name": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["name"]},
+     "fn": lambda a: species_lookup(a["name"], a.get("limit", 5))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2875,6 +2970,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "fluid_property": fluid_property,
     "food_nutrition": food_nutrition,
     "drug_lookup": drug_lookup,
+    "species_lookup": species_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

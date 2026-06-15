@@ -561,6 +561,21 @@ def drug_lookup(name: str, limit: int = 5) -> Dict[str, Any]:
     return tools.drug_lookup(name, limit)
 
 
+@mcp.tool()
+def species_lookup(name: str, limit: int = 5) -> Dict[str, Any]:
+    """Identify an organism in the offline NCBI Taxonomy (external Layer-0,
+    attributed, PUBLIC DOMAIN).
+
+    name = a scientific OR common name (e.g. "tomato", "Solanum lycopersicum",
+    "basil") -> the matching taxa, each with {scientific_name, rank,
+    common_names, synonyms, lineage (kingdom .. family .. genus .. species)}.
+    This is the species-name authority for the biology / ecology / genetics
+    verifiers and for herb/food identity ("tomato = Solanum lycopersicum").
+    Names + classification are reported as NCBI gives them. 2.8M taxa, offline.
+    """
+    return tools.species_lookup(name, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------
