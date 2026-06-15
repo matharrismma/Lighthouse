@@ -1785,11 +1785,12 @@ def scripture(reference, limit=60):
 def original_words(reference, limit=12):
     """Return the ORIGINAL-LANGUAGE words for a Bible passage -- the agent's
     canonical layer -- each tagged with its Strong's number and morphology, from
-    the offline OpenScriptures Hebrew Bible (Westminster Leningrad Codex). reference
-    = 'Genesis 1:1', 'Deuteronomy 6:4', 'Psalm 23'. Old Testament (Hebrew) is
-    onboard now; the Greek NT lands in the next milestone. Each Strong's number can
-    be expanded to its definition via word_study (a lexical take). External Layer-0,
-    attributed (WLC public domain; OSHB tagging CC BY)."""
+    the offline OpenScriptures Hebrew Bible (Westminster Leningrad Codex) for the OT
+    and MorphGNT/SBLGNT for the NT. reference = 'Genesis 1:1', 'Deuteronomy 6:4',
+    'John 1:1', 'Romans 8:28', 'Psalm 23'. BOTH Testaments are onboard: Hebrew OT
+    (book_num 1-39) and Koine Greek NT (40-66). Each Strong's number can be expanded
+    to its definition via word_study (a lexical take). External Layer-0, attributed
+    (WLC public domain + OSHB tagging CC BY; SBLGNT/MorphGNT CC BY-SA)."""
     import re as _re
     import sqlite3 as _sql
     from pathlib import Path as _Path
@@ -1818,8 +1819,40 @@ def original_words(reference, limit=12):
         if num is None:
             return {"status": "not_found", "detail": "unknown book: " + bk_raw}
         if num > 39:
-            return {"status": "not_yet",
-                    "detail": "Greek NT original lands in the next milestone; the Hebrew OT is onboard now."}
+            grk = base / "greek_nt" / "greek.db"
+            if not grk.exists():
+                return {"status": "source_missing", "detail": "Greek NT db not provisioned"}
+            cg = _sql.connect("file:%s?mode=ro" % grk.as_posix(), uri=True)
+            gmeta = dict(cg.execute("SELECT k,v FROM meta").fetchall())
+            if v1 is None:
+                vlist = [r[0] for r in cg.execute(
+                    "SELECT DISTINCT verse FROM words WHERE book_num=? AND chapter=? "
+                    "ORDER BY verse LIMIT ?", (num, ch, lim)).fetchall()]
+            else:
+                vlist = list(range(v1, (v2 or v1) + 1))[:lim]
+            gout = []
+            for vs in vlist:
+                ws = cg.execute("SELECT pos,grk,strongs,morph,lemma FROM words WHERE book_num=? "
+                                "AND chapter=? AND verse=? ORDER BY pos", (num, ch, vs)).fetchall()
+                if not ws:
+                    continue
+                gout.append({"ref": "%s %d:%d" % (name, ch, vs),
+                             "words": [{"grk": w[1], "strongs": w[2] or None,
+                                        "morph": w[3] or None, "lemma": w[4] or None} for w in ws]})
+            cg.close()
+            if not gout:
+                return {"status": "not_found", "detail": "no original words for '" + ref + "'"}
+            gcanon = name + " " + str(ch)
+            if v1 is not None:
+                gcanon += ":" + str(v1) + (("-" + str(v2)) if v2 != v1 else "")
+            return {"status": "ok", "reference": gcanon, "language": "Greek",
+                    "count": len(gout), "verses": gout,
+                    "note": "The agent's canonical layer (Koine Greek). Expand any Strong's number "
+                            "to its definition via word_study (a lexical take); the user reads the WEB "
+                            "via the scripture tool. ~98% of words carry a Strong's number; "
+                            "particles/variants carry the lemma only.",
+                    "source": gmeta.get("source"), "license": gmeta.get("license"),
+                    "attribution": gmeta.get("attribution")}
         ch_db = _sql.connect("file:%s?mode=ro" % heb.as_posix(), uri=True)
         meta = dict(ch_db.execute("SELECT k,v FROM meta").fetchall())
         if v1 is None:
