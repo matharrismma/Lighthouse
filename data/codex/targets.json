@@ -104,11 +104,18 @@
     },
     {
       "name": "commentary takes searchable per verse (CCEL: Henry, Barnes, Calvin)",
-      "status": "open"
+      "status": "open",
+      "acquire": "Great-minds commentary is NOT clean verse-keyed JSON anywhere quick (scouted 2026-06-15: bolls.life exposes no commentary list, only 3 lexicons; godlytalias/scrollmapper carry translations only). Authoritative public-domain home = CCEL ThML (ccel.org: Barnes' Notes is the most verse-by-verse; Henry/Calvin are passage-level) OR CrossWire Sword modules (zText, needs pysword). Plan: dedicated tick -- parse one commentary (Barnes first) to a verse/passage-keyed lw/00_source/commentary/*.db, wire commentary(reference) tool returning the attributed note per verse, takes-style. Verdict ATTRIBUTED Layer-2 take, never engine doctrine."
     },
     {
       "name": "sermon takes searchable (Spurgeon, Edwards, Wesley)",
-      "status": "open"
+      "status": "open",
+      "acquire": "Public-domain sermons (Spurgeon's ~3500 NPSP/MTP, Edwards, Wesley) are prose, not verse-keyed. Source: CCEL + Spurgeon Center / archive.org plaintext. Plan: dedicated tick -- index by primary_scripture (each sermon already cites a text), build lw/00_source/sermons/*.db keyed verse->sermon, wire sermon_take(reference). Local data/sermons/sermons.jsonl holds only 3 of Matt's own outlines (not the public-domain corpus). ATTRIBUTED Layer-2."
+    },
+    {
+      "name": "BDB/Thayer richer lexical take layered onto read_passage",
+      "status": "open",
+      "acquire": "CONFIRMED clean source (2026-06-15): bolls.life GET /dictionary-definition/BDBT/<G|H strongs>/ returns Brown-Driver-Briggs (Hebrew) + Thayer (Greek) as JSON, Strong's-keyed. Bulk = STEPBible TBESH/TBESG TSV (CC BY) to avoid ~14k API calls. Plan: build lw/00_source/lexicon_bdbt/*.db, add as a SECOND attributed take in read_passage beside Strong's. This is the named 'then BDB/Thayer' depth from the lexicon milestone."
     }
   ]
 }
