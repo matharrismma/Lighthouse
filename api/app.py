@@ -18385,11 +18385,28 @@ def generate_gated_endpoint(body: _GenerateGatedIn):
                         f"Make sure the backend's runtime (mlx-lm or transformers/peft) "
                         f"is installed in the engine's Python env."),
             )
+    elif (adapter_name_lower.startswith("openai")
+          or adapter_name_lower.startswith("compat")
+          or adapter_name_lower.startswith("ollama")):
+        # openai:<model> | ollama:<model> | compat:<model> -> any OpenAI-compatible
+        # /chat/completions endpoint (configured via NH_OPENAI_BASE_URL). A LOCAL
+        # server (Ollama/llama.cpp/vLLM) = the sovereign path, zero external dep;
+        # a cloud URL = "works with anything". Same gates, verifiers, trail.
+        from api.generate_gated import OpenAICompatibleAdapter
+        model_id = adapter_name.split(":", 1)[1].strip() if ":" in adapter_name else ""
+        try:
+            adapter = OpenAICompatibleAdapter(model_id=model_id or None)
+        except Exception as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"could not init OpenAI-compatible adapter: {e}",
+            )
     else:
         raise HTTPException(
             status_code=400,
             detail=f"unknown base_model adapter: {adapter_name} "
-                   f"(supported: anthropic, echo, local, local:<model_id>)",
+                   f"(supported: anthropic, echo, local, local:<model_id>, "
+                   f"openai[:<model>], ollama[:<model>])",
         )
 
     verifiers = list(body.verifiers) if body.verifiers else list(DEFAULT_VERIFIERS)

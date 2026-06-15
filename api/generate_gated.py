@@ -199,6 +199,100 @@ class EchoAdapter:
         )
 
 
+# ── OpenAI-compatible adapter (sovereign + universal) ────────────────
+# ONE adapter for "work with anything, stand on our own". It speaks the
+# OpenAI /v1/chat/completions wire format that every local runtime
+# (Ollama, llama.cpp server, vLLM, LM Studio, text-generation-webui) AND
+# every cloud provider (OpenAI, OpenRouter, Together, Groq, Fireworks)
+# exposes. Point base_url at a LOCAL server (e.g. Ollama at
+# http://localhost:11434/v1) and the engine drafts with ZERO external
+# dependency -- the sovereign path; point it at a cloud URL and it
+# "works with anything". Stdlib only: no torch / transformers / SDK on
+# the host, so it runs even on the small engine droplet (the model is
+# served wherever the compute is). The gates, verifiers, witness step,
+# and signed trail are identical whatever organ drafts.
+
+class OpenAICompatibleAdapter:
+    """Calls any OpenAI-compatible /chat/completions endpoint. Stdlib only.
+
+    Each setting resolves arg -> env -> default:
+      base_url : NH_OPENAI_BASE_URL  (default http://localhost:11434/v1, Ollama)
+      model_id : NH_OPENAI_MODEL     (default 'llama3.1')
+      api_key  : NH_OPENAI_API_KEY   (optional; local servers need none)
+    """
+
+    name = "openai"
+
+    def __init__(self, model_id: str | None = None, base_url: str | None = None,
+                 api_key: str | None = None):
+        self.base_url = (base_url or os.environ.get("NH_OPENAI_BASE_URL")
+                         or "http://localhost:11434/v1").rstrip("/")
+        self.model_id = (model_id or os.environ.get("NH_OPENAI_MODEL")
+                         or "llama3.1")
+        self.api_key = api_key or os.environ.get("NH_OPENAI_API_KEY") or ""
+
+    def generate(self, prompt: str, max_tokens: int = DEFAULT_MAX_TOKENS,
+                 system: str = "", **opts) -> Generation:
+        import urllib.request
+        import urllib.error
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+        payload = {
+            "model": self.model_id,
+            "messages": messages,
+            "max_tokens": int(max_tokens),
+            "temperature": float(opts.get("temperature", 0.0)),
+            "stream": False,
+        }
+        data = json.dumps(payload).encode("utf-8")
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = "Bearer " + self.api_key
+        url = self.base_url + "/chat/completions"
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        start = time.time()
+        try:
+            with urllib.request.urlopen(req, timeout=float(opts.get("timeout", 120))) as r:
+                body = json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            detail = (e.read().decode("utf-8", "replace")[:300]
+                      if hasattr(e, "read") else str(e))
+            raise RuntimeError("OpenAI-compatible endpoint %s returned HTTP %s: %s"
+                               % (url, e.code, detail)) from e
+        except (urllib.error.URLError, OSError) as e:
+            raise RuntimeError(
+                "could not reach OpenAI-compatible endpoint %s (%s). For the "
+                "sovereign path, start a local server (e.g. `ollama serve`) and set "
+                "NH_OPENAI_BASE_URL=http://localhost:11434/v1, NH_OPENAI_MODEL=<model>."
+                % (url, e)) from e
+        latency_ms = (time.time() - start) * 1000.0
+        usage = body.get("usage") or {}
+        return Generation(
+            text=self._extract_text(body),
+            model="%s/%s" % (self.name, self.model_id),
+            tokens_in=int(usage.get("prompt_tokens", 0) or 0),
+            tokens_out=int(usage.get("completion_tokens", 0) or 0),
+            latency_ms=latency_ms,
+            cost_usd=0.0,   # local inference = $0; cloud cost not tracked here
+        )
+
+    @staticmethod
+    def _extract_text(body: dict) -> str:
+        choices = body.get("choices") or []
+        if not choices:
+            return ""
+        msg = choices[0].get("message") or {}
+        content = msg.get("content")
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):   # some servers return content as parts
+            return "".join(p.get("text", "") if isinstance(p, dict) else str(p)
+                           for p in content)
+        return choices[0].get("text", "") or ""   # completion-style fallback
+
+
 # ── Local model adapter (the standalone goal) ────────────────────────
 # Drop-in replacement for AnthropicAdapter. Loads a locally-stored
 # fine-tuned model and exposes the same Generation interface.
