@@ -36,7 +36,7 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 | **UCUM units (ucum-essence.xml)** -- WIRED (`unit_convert`, UCUM 2.2, lw/00_source/ucum/ucum.json) | physics_dimensional + ALL dimensional checks | royalty-free | offline 1 file | The units *substrate*; unblocks unit verification across every domain. Deterministic recursive evaluator, fails closed. |
 | **OEIS (stripped.gz + names.gz)** -- WIRED (`sequence_lookup`, 396,600 seqs, lw/00_source/oeis/oeis.db) | number_theory, combinatorics | CC BY-SA | offline ~126MB SQLite | Only source for sequence name<->terms ("A000045 = Fibonacci"); by A-number or term-run identification. |
 | **CMU Pronouncing Dictionary** -- WIRED (`word_pronunciation`, 126k words + IPA/syllables/stress, lw/00_source/cmudict/cmudict.db) | linguistics | BSD-2 | offline ~7MB SQLite | Word -> ARPABET pronunciation; completes the language tree (PHOIBLE=inventory, this=word). |
-| **IANA port/protocol registries + RFC index** | networking, cryptography | PD | offline small CSV/TXT | "TCP 443 = HTTPS", "which RFC defines X" (+ tracks obsoletes, e.g. HTTP/2 RFC7540->9113). |
+| **IANA port/protocol registries + RFC index** -- WIRED (`port_lookup` + `rfc_lookup`, 12,571 ports + 9,777 RFCs, lw/00_source/protocols/protocols.db) | networking, cryptography | PD | offline ~2MB SQLite | "TCP 443 = HTTPS", "which RFC defines X" (+ superseded_by flag, e.g. HTTP/2 RFC7540->9113). |
 | **HYG star catalog (AT-HYG)** | astronomy | CC BY-SA | offline ~14MB CSV | Star position / magnitude / constellation membership, fully offline. |
 | **CoolProp / IF97** | thermodynamics, energy, phase | MIT | offline (embeddable code) | Water-steam + 100+ fluids; embeds like CODATA/Meeus, cleanest license. |
 | **IERS leap-seconds.list** | calendar_time | open | offline few KB | TAI<->UTC precision (leap-second history). |
@@ -98,8 +98,9 @@ Legend: **PD** = public domain, **offline** = single bulk artifact we can vendor
 ## Wiring order (extends the autonomous data-sources loop)
 
 Phase 5 = GeoNames, 6 = tzdata, 7 = UCUM, 8 = OEIS, 9 = CMU dict (DONE -- the
-language tree's phonics level; all 5 linguistic levels now grounded). Queue from here:
-**IANA/RFC -> HYG -> CoolProp** (Tier 1,
+language tree's phonics level; all 5 linguistic levels now grounded), 10 = IANA
+ports + RFC index (DONE). Queue from here:
+**HYG -> CoolProp** (Tier 1,
 fast offline wins), then **USDA FoodData -> DailyMed/openFDA -> GBIF/NCBI**
 (Tier 2, the SERVE mission), then Tier 3 as depth is needed. One source per
 tick: offline build -> reproducible `tools/build_<src>_index.py` -> SQLite (big)

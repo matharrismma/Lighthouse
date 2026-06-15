@@ -467,6 +467,32 @@ def word_pronunciation(word: str) -> Dict[str, Any]:
     return tools.word_pronunciation(word)
 
 
+@mcp.tool()
+def port_lookup(query: str, protocol: str = "") -> Dict[str, Any]:
+    """Look up an internet port or service in the offline IANA Service Name and
+    Transport Protocol Port Number Registry (external Layer-0, public domain).
+
+    query = a port NUMBER (e.g. 443 -> the services on it, like https) OR a
+    service NAME (e.g. "ssh" -> port 22). Optional protocol filters to
+    tcp/udp/sctp/dccp. The authoritative "what runs on port N" / "what port does
+    X use" for the networking verifier.
+    """
+    return tools.port_lookup(query, protocol or None)
+
+
+@mcp.tool()
+def rfc_lookup(number: str) -> Dict[str, Any]:
+    """Look up an RFC in the offline RFC Index (external Layer-0, public domain).
+
+    number = an RFC number (9113, "RFC9113", "rfc 9113") -> {doc_id, title,
+    current_status, date, obsoletes, obsoleted_by, updates, updated_by, url}. If
+    the RFC has been obsoleted, 'superseded_by' is set prominently so a dead RFC
+    is never cited as current (e.g. RFC 7540 -> superseded by RFC 9113). The
+    authoritative "which RFC defines X" for networking / cryptography.
+    """
+    return tools.rfc_lookup(number)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

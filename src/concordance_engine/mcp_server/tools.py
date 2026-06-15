@@ -1084,6 +1084,108 @@ def word_pronunciation(word):
             "attribution": meta.get("attribution")}
 
 
+def _protocols_db():
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "protocols" / "protocols.db"
+    return p if p.exists() else None
+
+
+def port_lookup(query, protocol=None):
+    """Look up an internet port or service in the offline IANA port registry
+    (external Layer-0, attributed, public domain). query = a port NUMBER (e.g.
+    443 -> the services on it, like https) OR a service NAME (e.g. 'ssh' -> its
+    port 22). Optional protocol filters to tcp/udp/sctp/dccp. The authoritative
+    'what runs on port N' / 'what port does X use' for the networking verifier."""
+    import sqlite3 as _sql
+    p = _protocols_db()
+    if p is None:
+        return {"status": "source_missing", "detail": "protocols db not provisioned"}
+    q = str(query if query is not None else "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide a port number or service name"}
+    proto = str(protocol).strip().lower() if protocol else None
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        if q.isdigit():
+            sql = ("SELECT port,protocol,service,description,reference FROM ports "
+                   "WHERE port=?")
+            args = [int(q)]
+            if proto:
+                sql += " AND protocol=?"
+                args.append(proto)
+            rows = con.execute(sql + " ORDER BY protocol,service", args).fetchall()
+            mode = "by_port"
+        else:
+            sql = ("SELECT port,protocol,service,description,reference FROM ports "
+                   "WHERE service=?")
+            args = [q.lower()]
+            if proto:
+                sql += " AND protocol=?"
+                args.append(proto)
+            rows = con.execute(sql + " ORDER BY port,protocol", args).fetchall()
+            mode = "by_service"
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "port lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "query": query,
+                "source": meta.get("ports_source")}
+    matches = [{"port": r[0], "protocol": r[1], "service": r[2],
+                "description": r[3], "reference": r[4]} for r in rows]
+    return {"status": "ok", "query": query, "mode": mode,
+            "count": len(matches), "matches": matches,
+            "source": meta.get("ports_source"),
+            "license": meta.get("ports_license"),
+            "attribution": meta.get("attribution")}
+
+
+def rfc_lookup(number):
+    """Look up an RFC in the offline RFC Index (external Layer-0, attributed,
+    public domain). number = an RFC number (9113, 'RFC9113', 'rfc 9113') ->
+    {doc_id, title, status, date, obsoletes, obsoleted_by, updates, updated_by,
+    url}. If the RFC has been obsoleted, 'superseded_by' is set prominently so a
+    dead RFC is never cited as current (e.g. RFC 7540 -> superseded by RFC 9113).
+    The authoritative 'which RFC defines X' for networking / cryptography."""
+    import sqlite3 as _sql
+    p = _protocols_db()
+    if p is None:
+        return {"status": "source_missing", "detail": "protocols db not provisioned"}
+    digits = "".join(ch for ch in str(number or "") if ch.isdigit())
+    if not digits:
+        return {"status": "error", "detail": "provide an RFC number, e.g. 9113"}
+    num = int(digits)
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        row = con.execute(
+            "SELECT doc_id,title,status,date,obsoletes,obsoleted_by,updates,"
+            "updated_by FROM rfcs WHERE num=?", (num,)).fetchone()
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "rfc lookup failed: " + str(e)[:140]}
+    if not row:
+        return {"status": "not_found", "query": number,
+                "source": meta.get("rfc_source")}
+
+    def _split(s):
+        return [x for x in (s or "").split(",") if x]
+
+    obs_by = _split(row[5])
+    out = {"status": "ok", "doc_id": row[0], "number": num, "title": row[1],
+           "current_status": row[2], "date": row[3],
+           "obsoletes": _split(row[4]), "obsoleted_by": obs_by,
+           "updates": _split(row[6]), "updated_by": _split(row[7]),
+           "url": "https://www.rfc-editor.org/rfc/rfc%d" % num,
+           "source": meta.get("rfc_source"), "license": meta.get("rfc_license"),
+           "attribution": meta.get("attribution")}
+    if obs_by:
+        out["superseded_by"] = obs_by
+        out["note"] = ("THIS RFC IS OBSOLETE -- superseded by " + ", ".join(obs_by)
+                       + "; cite the newer RFC as current.")
+    return out
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -1891,6 +1993,29 @@ TOOLS: List[Dict[str, Any]] = [
      "inputSchema": {"type": "object", "properties": {"word": {"type": "string"}},
                      "required": ["word"]},
      "fn": lambda a: word_pronunciation(a["word"])},
+    {"name": "port_lookup",
+     "description": (
+         "Look up an internet port or service in the offline IANA port registry. query = a "
+         "port NUMBER (443 -> https) OR a service NAME ('ssh' -> port 22). Optional protocol "
+         "(tcp/udp/sctp). The authoritative 'what runs on port N / what port does X use' for "
+         "networking. Public domain (IANA)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"query": {"type": "string"},
+                                    "protocol": {"type": "string"}},
+                     "required": ["query"]},
+     "fn": lambda a: port_lookup(a["query"], a.get("protocol"))},
+    {"name": "rfc_lookup",
+     "description": (
+         "Look up an RFC in the offline RFC Index. number (9113, 'RFC9113') -> {title, status, "
+         "date, obsoletes, obsoleted_by, url}. If the RFC is obsoleted, 'superseded_by' is set "
+         "prominently so a dead RFC is never cited as current (RFC 7540 -> superseded by 9113). "
+         "'Which RFC defines X' for networking/crypto. Public domain (IETF)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"number": {"type": "string"}},
+                     "required": ["number"]},
+     "fn": lambda a: rfc_lookup(a["number"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -2376,6 +2501,8 @@ ALL_TOOLS: Dict[str, Any] = {
     "unit_convert": unit_convert,
     "sequence_lookup": sequence_lookup,
     "word_pronunciation": word_pronunciation,
+    "port_lookup": port_lookup,
+    "rfc_lookup": rfc_lookup,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
