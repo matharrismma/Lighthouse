@@ -725,6 +725,30 @@ def nuclide_data(nuclide: str) -> Dict[str, Any]:
     return tools.nuclide_data(nuclide)
 
 
+@mcp.tool()
+def element_data(query: str) -> Dict[str, Any]:
+    """Properties of a chemical element from the periodic table (IUPAC atomic weights).
+
+    query = 'Fe', 'iron', or '26' (symbol, name, or atomic number). Returns atomic mass,
+    number, category, block, group/period, phase, density, melt/boil (K),
+    electronegativity, and electron configuration. External Layer-0, attributed. Grounds
+    chemistry.
+    """
+    return tools.element_data(query)
+
+
+@mcp.tool()
+def molar_mass(formula: str) -> Dict[str, Any]:
+    """Compute the molar mass (g/mol) of a chemical formula from IUPAC atomic weights.
+
+    formula = 'H2O', 'C6H12O6', 'Fe2O3', 'Ca(OH)2', 'Al2(SO4)3' (nested parentheses +
+    counts supported). Returns the molar mass and the per-element breakdown, computed
+    from the offline periodic table's real atomic weights. External Layer-0, attributed.
+    Grounds chemistry.
+    """
+    return tools.molar_mass(formula)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

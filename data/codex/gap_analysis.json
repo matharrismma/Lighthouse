@@ -1,11 +1,11 @@
 {
   "verifiers": 64,
-  "tools": 96,
-  "data_grounded_tools": 19,
-  "grounded_domains": 21,
+  "tools": 98,
+  "data_grounded_tools": 21,
+  "grounded_domains": 22,
   "pure_compute_domains": 11,
-  "ungrounded_domains": 32,
-  "empirical_grounded_pct": 40,
+  "ungrounded_domains": 31,
+  "empirical_grounded_pct": 42,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -13,7 +13,7 @@
   "original_text_pct": 100,
   "original_text_done": 9,
   "original_text_total": 9,
-  "ground_targets_open": 13,
+  "ground_targets_open": 12,
   "targets": {
     "ground_open": [
       {
@@ -44,11 +44,6 @@
       {
         "domain": "agriculture",
         "source": "FAOSTAT + USDA PLANTS",
-        "status": "open"
-      },
-      {
-        "domain": "chemistry",
-        "source": "ChEBI (open chemistry layer)",
         "status": "open"
       },
       {
@@ -133,9 +128,9 @@
     },
     "physics & chemistry": {
       "n": 13,
-      "grounded": 5,
+      "grounded": 6,
       "pure_compute": 1,
-      "ungrounded": 7
+      "ungrounded": 6
     },
     "earth sciences": {
       "n": 7,
@@ -172,6 +167,7 @@
     "astronomy",
     "biology",
     "calendar_time",
+    "chemistry",
     "combinatorics",
     "cryptography",
     "ecology",
@@ -195,7 +191,6 @@
     "acoustics",
     "agriculture",
     "architecture",
-    "chemistry",
     "computer_science",
     "construction",
     "cybersecurity",

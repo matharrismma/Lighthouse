@@ -2259,6 +2259,113 @@ def nuclide_data(nuclide):
             "attribution": meta.get("attribution")}
 
 
+def element_data(query):
+    """Properties of a chemical element from the offline periodic table (IUPAC standard
+    atomic weights). query = 'Fe', 'iron', or '26' (symbol, name, or atomic number).
+    Returns atomic mass, number, category, block, group/period, phase, density,
+    melt/boil (K), electronegativity, and electron configuration. External Layer-0,
+    attributed. Grounds chemistry."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "elements" / "elements.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "periodic table not provisioned"}
+    q = str(query or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide an element symbol, name, or number"}
+    cols = ("number,symbol,name,atomic_mass,category,block,grp,period,phase,density,"
+            "melt_k,boil_k,electronegativity,electron_config")
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        r = None
+        if q.isdigit():
+            r = con.execute("SELECT %s FROM elements WHERE number=?" % cols, (int(q),)).fetchone()
+        if not r:
+            r = con.execute("SELECT %s FROM elements WHERE symbol=? COLLATE NOCASE" % cols, (q,)).fetchone()
+        if not r:
+            r = con.execute("SELECT %s FROM elements WHERE name=? COLLATE NOCASE" % cols, (q,)).fetchone()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "element lookup failed: " + str(e)[:140]}
+    if not r:
+        return {"status": "not_found", "detail": "no element matching '%s'" % q}
+    keys = ["number", "symbol", "name", "atomic_mass", "category", "block", "group", "period",
+            "phase", "density_g_cm3", "melt_K", "boil_K", "electronegativity_pauling",
+            "electron_configuration"]
+    el = dict(zip(keys, r))
+    el.update({"status": "ok", "source": meta.get("source"),
+               "license": meta.get("license"), "attribution": meta.get("attribution")})
+    return el
+
+
+def molar_mass(formula):
+    """Compute the molar mass (g/mol) of a chemical formula from the offline periodic
+    table's IUPAC atomic weights. formula = 'H2O', 'C6H12O6', 'Fe2O3', 'Ca(OH)2',
+    'Al2(SO4)3' (supports nested parentheses + counts). Returns the molar mass and the
+    per-element breakdown, computed from real atomic weights. External Layer-0,
+    attributed. Grounds chemistry."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "elements" / "elements.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "periodic table not provisioned"}
+    f = str(formula or "").strip().replace(" ", "")
+    if not f or not _re.match(r"^[A-Za-z0-9()]+$", f):
+        return {"status": "error", "detail": "provide a formula like 'H2O' or 'Ca(OH)2'"}
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        masses = {s: m for s, m in con.execute("SELECT symbol,atomic_mass FROM elements")}
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "molar mass failed: " + str(e)[:140]}
+
+    def _parse(s, i):
+        local = {}
+        while i < len(s):
+            c = s[i]
+            if c == "(":
+                sub, i = _parse(s, i + 1)
+                j = i
+                while j < len(s) and s[j].isdigit():
+                    j += 1
+                mult = int(s[i:j] or 1); i = j
+                for el, ct in sub.items():
+                    local[el] = local.get(el, 0) + ct * mult
+            elif c == ")":
+                return local, i + 1
+            elif c.isalpha():
+                j = i + 1
+                if j < len(s) and s[j].islower():
+                    j += 1
+                sym = s[i:j]; i = j
+                k = i
+                while k < len(s) and s[k].isdigit():
+                    k += 1
+                local[sym] = local.get(sym, 0) + int(s[i:k] or 1); i = k
+            else:
+                i += 1
+        return local, i
+
+    counts = _parse(f, 0)[0]
+    if not counts:
+        return {"status": "error", "detail": "could not parse any elements from: " + f}
+    unknown = [el for el in counts if el not in masses]
+    if unknown:
+        return {"status": "error", "detail": "unknown element symbol(s): " + ", ".join(sorted(unknown))}
+    total = sum(masses[el] * ct for el, ct in counts.items())
+    breakdown = sorted(({"element": el, "count": ct, "atomic_mass": masses[el],
+                         "subtotal": round(masses[el] * ct, 4)} for el, ct in counts.items()),
+                       key=lambda x: -x["subtotal"])
+    return {"status": "ok", "formula": f, "molar_mass_g_per_mol": round(total, 4),
+            "breakdown": breakdown,
+            "note": "Computed from IUPAC standard atomic weights. Grounds chemistry.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3294,6 +3401,26 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"nuclide": {"type": "string"}},
                      "required": ["nuclide"]},
      "fn": lambda a: nuclide_data(a["nuclide"])},
+    {"name": "element_data",
+     "description": (
+         "Properties of a chemical element from the offline periodic table (IUPAC standard atomic "
+         "weights). query = 'Fe', 'iron', or '26' (symbol, name, or atomic number) -> atomic mass, "
+         "number, category, block, group/period, phase, density, melt/boil (K), electronegativity, "
+         "electron configuration. Grounds chemistry."
+     ),
+     "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}},
+                     "required": ["query"]},
+     "fn": lambda a: element_data(a["query"])},
+    {"name": "molar_mass",
+     "description": (
+         "Compute the molar mass (g/mol) of a chemical formula from the offline periodic table's IUPAC "
+         "atomic weights. formula = 'H2O', 'C6H12O6', 'Fe2O3', 'Ca(OH)2', 'Al2(SO4)3' (nested parens + "
+         "counts supported) -> molar mass + per-element breakdown. Grounds chemistry against real "
+         "atomic weights."
+     ),
+     "inputSchema": {"type": "object", "properties": {"formula": {"type": "string"}},
+                     "required": ["formula"]},
+     "fn": lambda a: molar_mass(a["formula"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3796,6 +3923,8 @@ ALL_TOOLS: Dict[str, Any] = {
     "sermon": sermon,
     "activity_mets": activity_mets,
     "nuclide_data": nuclide_data,
+    "element_data": element_data,
+    "molar_mass": molar_mass,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
