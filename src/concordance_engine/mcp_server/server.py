@@ -684,6 +684,21 @@ def commentary(reference: str, author: str = "matthew-henry", limit: int = 6) ->
     return tools.commentary(reference, author, limit)
 
 
+@mcp.tool()
+def sermon(reference: str, author: str = "spurgeon", limit: int = 8) -> Dict[str, Any]:
+    """The great-minds SERMON take -- which classic sermon was preached on a verse.
+
+    reference = 'Romans 8:28', 'Ephesians 1:5', 'John 3' (whole chapter). author selects
+    the preacher (default 'spurgeon' -- Charles H. Spurgeon, public domain). A verse-keyed
+    INDEX/POINTER: the sermon title, its text, and a source link to hear/read it -- not
+    the full prose (full-text enrichment is a follow-up). An ATTRIBUTED take (the
+    preacher's) -- the engine surfaces it, never endorses or generates it. scope='chapter'
+    in the result means no sermon was preached on the exact verse, so the same-chapter
+    sermons are returned. Read alongside scripture, commentary, and original_words.
+    """
+    return tools.sermon(reference, author, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

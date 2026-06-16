@@ -2093,6 +2093,76 @@ def commentary(reference, author="matthew-henry", limit=6):
             "attribution": meta.get("attribution")}
 
 
+def sermon(reference, author="spurgeon", limit=8):
+    """The great-minds SERMON take -- which classic sermon was preached on a verse,
+    attributed, with a source link. reference = 'Romans 8:28', 'Ephesians 1:5', 'John 3'
+    (whole chapter). author selects the preacher (default 'spurgeon' -- Charles H.
+    Spurgeon, public domain). A verse-keyed INDEX/POINTER (the sermon title + its text +
+    where to hear/read it), not the full prose; full-text enrichment is a follow-up. An
+    ATTRIBUTED take (the preacher's) -- the engine surfaces it, never endorses or
+    generates it. Read alongside scripture, commentary, and original_words."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    base = _Path(__file__).resolve().parents[3] / "lw" / "00_source"
+    web = base / "web_bible" / "web.db"
+    sdb = base / "sermons" / (str(author or "spurgeon").replace("-", "_").replace(" ", "_").lower() + ".db")
+    if not web.exists() or not sdb.exists():
+        return {"status": "source_missing", "detail": "sermons '%s' not provisioned" % author}
+    ref = str(reference or "").strip()
+    m = _re.match(r"^\s*(\d?\s?[A-Za-z][A-Za-z. ]*?)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?\s*$", ref)
+    if not m:
+        return {"status": "error", "detail": "could not parse reference: " + ref}
+    bk_raw, ch = m.group(1).strip(), int(m.group(2))
+    v1 = int(m.group(3)) if m.group(3) else None
+    v2 = int(m.group(4)) if m.group(4) else v1
+    try:
+        lim = max(1, min(int(limit), 30))
+    except (TypeError, ValueError):
+        lim = 8
+    try:
+        cw = _sql.connect("file:%s?mode=ro" % web.as_posix(), uri=True)
+        num = _resolve_bible_book(cw, bk_raw)
+        name = (cw.execute("SELECT name FROM books WHERE book_num=?", (num,)).fetchone()[0]
+                if num else None)
+        cw.close()
+        if num is None:
+            return {"status": "not_found", "detail": "unknown book: " + bk_raw}
+        cs = _sql.connect("file:%s?mode=ro" % sdb.as_posix(), uri=True)
+        meta = dict(cs.execute("SELECT k,v FROM meta").fetchall())
+        scope = "verse"
+        if v1 is not None:
+            rows = cs.execute("SELECT title,reference,source_url FROM sermons WHERE book_num=? AND "
+                              "chapter=? AND verse BETWEEN ? AND ? ORDER BY verse LIMIT ?",
+                              (num, ch, v1, v2, lim)).fetchall()
+            if not rows:                       # no sermon on the exact verse -> the whole chapter
+                scope = "chapter"
+                rows = cs.execute("SELECT title,reference,source_url FROM sermons WHERE book_num=? "
+                                  "AND chapter=? ORDER BY verse LIMIT ?", (num, ch, lim)).fetchall()
+        else:
+            scope = "chapter"
+            rows = cs.execute("SELECT title,reference,source_url FROM sermons WHERE book_num=? AND "
+                              "chapter=? ORDER BY verse LIMIT ?", (num, ch, lim)).fetchall()
+        cs.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "sermon lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found",
+                "detail": "no %s sermon indexed for '%s'" % (meta.get("author", "Spurgeon"), ref)}
+    canon = name + " " + str(ch)
+    if v1 is not None:
+        canon += ":" + str(v1) + (("-" + str(v2)) if v2 != v1 else "")
+    sermons = [{"title": r[0], "on": r[1], "source": r[2]} for r in rows]
+    return {"status": "ok", "reference": canon, "author": meta.get("author"),
+            "scope": scope, "count": len(sermons), "sermons": sermons,
+            "note": "Attributed great-minds SERMON index (which sermon was preached on this text + a "
+                    "source link), not the full prose. The engine surfaces it, never endorses or "
+                    "generates it. scope='chapter' means no sermon on the exact verse -- these are "
+                    "from the same chapter.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3091,6 +3161,20 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: commentary(a["reference"], a.get("author", "matthew-henry"), a.get("limit", 6))},
+    {"name": "sermon",
+     "description": (
+         "The great-minds SERMON take -- which classic sermon was preached on a verse, attributed, "
+         "with a source link. reference = 'Romans 8:28', 'Ephesians 1:5', 'John 3' (whole chapter). "
+         "author selects the preacher (default 'spurgeon' -- Charles H. Spurgeon, public domain). A "
+         "verse-keyed index/pointer (title + text + where to hear/read), not full prose. Attributed "
+         "take; the engine surfaces it, never endorses or generates it."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "author": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: sermon(a["reference"], a.get("author", "spurgeon"), a.get("limit", 8))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3590,6 +3674,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "read_passage": read_passage,
     "lexicon": lexicon,
     "commentary": commentary,
+    "sermon": sermon,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

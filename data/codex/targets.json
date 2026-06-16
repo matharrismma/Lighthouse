@@ -109,8 +109,8 @@
     },
     {
       "name": "sermon takes searchable (Spurgeon, Edwards, Wesley)",
-      "status": "open",
-      "acquire": "Public-domain sermons (Spurgeon's ~3500 NPSP/MTP, Edwards, Wesley) are prose, not verse-keyed. Source: CCEL + Spurgeon Center / archive.org plaintext. Plan: dedicated tick -- index by primary_scripture (each sermon already cites a text), build lw/00_source/sermons/*.db keyed verse->sermon, wire sermon_take(reference). Local data/sermons/sermons.jsonl holds only 3 of Matt's own outlines (not the public-domain corpus). ATTRIBUTED Layer-2."
+      "status": "done",
+      "acquire": "DONE 2026-06-15: FottyM/spurgeon-gems (Spurgeon sermons w/ title + text, public domain) -> lw/00_source/sermons/spurgeon.db (422 sermons, 53 books) via tools/build_sermon_index.py. Wired sermon(reference, author) tool: verse-keyed INDEX/POINTER (which sermon was preached on a text + title + source link), exact-verse then same-chapter fallback (Romans 8:28 -> 'The True Christian's Blessedness'; John 3:16 -> scope=chapter). ATTRIBUTED (Spurgeon, public domain), never engine doctrine. HONEST: this is the index/pointer, not the full prose (full-text + Edwards/Wesley are documented follow-ups)."
     },
     {
       "name": "BDB/Thayer richer lexical take layered onto read_passage",

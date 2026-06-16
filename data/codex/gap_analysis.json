@@ -1,6 +1,6 @@
 {
   "verifiers": 64,
-  "tools": 93,
+  "tools": 94,
   "data_grounded_tools": 17,
   "grounded_domains": 19,
   "pure_compute_domains": 11,
@@ -10,8 +10,8 @@
   "reach_source": 1682,
   "nodes": 1684,
   "form_cards": 18,
-  "original_text_pct": 89,
-  "original_text_done": 8,
+  "original_text_pct": 100,
+  "original_text_done": 9,
   "original_text_total": 9,
   "ground_targets_open": 15,
   "targets": {
@@ -124,8 +124,8 @@
       },
       {
         "name": "sermon takes searchable (Spurgeon, Edwards, Wesley)",
-        "status": "open",
-        "acquire": "Public-domain sermons (Spurgeon's ~3500 NPSP/MTP, Edwards, Wesley) are prose, not verse-keyed. Source: CCEL + Spurgeon Center / archive.org plaintext. Plan: dedicated tick -- index by primary_scripture (each sermon already cites a text), build lw/00_source/sermons/*.db keyed verse->sermon, wire sermon_take(reference). Local data/sermons/sermons.jsonl holds only 3 of Matt's own outlines (not the public-domain corpus). ATTRIBUTED Layer-2."
+        "status": "done",
+        "acquire": "DONE 2026-06-15: FottyM/spurgeon-gems (Spurgeon sermons w/ title + text, public domain) -> lw/00_source/sermons/spurgeon.db (422 sermons, 53 books) via tools/build_sermon_index.py. Wired sermon(reference, author) tool: verse-keyed INDEX/POINTER (which sermon was preached on a text + title + source link), exact-verse then same-chapter fallback (Romans 8:28 -> 'The True Christian's Blessedness'; John 3:16 -> scope=chapter). ATTRIBUTED (Spurgeon, public domain), never engine doctrine. HONEST: this is the index/pointer, not the full prose (full-text + Edwards/Wesley are documented follow-ups)."
       },
       {
         "name": "BDB/Thayer richer lexical take layered onto read_passage",
