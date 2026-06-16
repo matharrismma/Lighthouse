@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Narrow Highway — a discernment engine for Christian families.</title>
-  <meta name="description" content="A discernment engine for Christian families. Bring a question or a claim; it's weighed against Scripture and what has stood the test of time, through four gates — and you see what survives, with the trail. Free, no ads, nothing tracked.">
+  <title>Narrow Highway — bring anything; it knows what to do.</title>
+  <meta name="description" content="One work area that knows what to do with whatever you bring. A note becomes a list, a message becomes a ready draft, a claim is run through the engine — verdict, trail, and a seal anyone can re-check. Free, no ads, nothing tracked.">
 
   <link rel="canonical" href="https://narrowhighway.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Narrow Highway">
-  <meta property="og:title" content="Narrow Highway — a discernment engine.">
-  <meta property="og:description" content="Bring a question or a claim. It's weighed against Scripture and what has stood the test of time — and you see what survives. For Christian families. Free, no ads.">
+  <meta property="og:title" content="Narrow Highway — bring anything; it knows what to do.">
+  <meta property="og:description" content="A note becomes a list. A message becomes a ready draft. A claim is run through the engine. The engine verifies; the assistant drafts. Free, no ads, nothing tracked.">
   <meta property="og:url" content="https://narrowhighway.com/">
   <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Narrow Highway — a discernment engine.">
-  <meta name="twitter:description" content="Bring a question or a claim. Weighed against Scripture and what has survived. For Christian families. Free, no ads.">
+  <meta name="twitter:title" content="Narrow Highway — bring anything; it knows what to do.">
+  <meta name="twitter:description" content="A note becomes a list. A message becomes a draft. A claim is verified by the engine. Free, no ads.">
   <meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
 
   <script type="application/ld+json">
@@ -28,7 +28,7 @@
         "name": "Narrow Highway",
         "url": "https://narrowhighway.com/",
         "logo": "https://narrowhighway.com/img/og_card.png",
-        "description": "A curated internet for Christian families — a well of knowledge, weighed through four gates. Aligned, free, no ads."
+        "description": "A work area that knows what to do with whatever you bring — and an engine that verifies what is verifiable. Aligned, free, no ads."
       },
       {
         "@type": "WebSite",
@@ -66,274 +66,178 @@
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;}
     a{color:var(--accent);text-decoration:none;} a:hover{color:var(--accenthi);}
 
-    .well{max-width:680px;margin:0 auto;padding:9vh 22px 8vh;text-align:center;}
+    .well{max-width:680px;margin:0 auto;padding:8vh 22px 8vh;text-align:center;}
     .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;}
     .eyebrow .ld{width:7px;height:7px;border-radius:50%;background:var(--pass);box-shadow:0 0 8px var(--pass);}
     h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(2.1rem,5vw,3rem);color:#f4ecd5;line-height:1.1;margin-bottom:12px;}
-    .tagline{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--accenthi);font-size:clamp(1.02rem,1.8vw,1.2rem);margin:0 auto 26px;max-width:34ch;}
+    .tagline{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--accenthi);font-size:clamp(1.02rem,1.8vw,1.2rem);margin:0 auto 26px;max-width:40ch;}
 
     form.draw{display:flex;gap:8px;max-width:600px;margin:0 auto;}
     form.draw input{flex:1;padding:15px 18px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.06rem;}
     form.draw input:focus{outline:none;border-color:var(--accenthi);box-shadow:0 0 0 4px rgba(232,200,150,.2);}
     form.draw button{padding:0 24px;background:var(--accent);color:#1a1820;border:2px solid var(--accent);border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
-    form.draw button:hover{background:var(--accenthi);}
+    form.draw button:hover{background:var(--accenthi);} form.draw button:disabled{opacity:.5;cursor:default;}
     @media(max-width:540px){form.draw{flex-direction:column;}form.draw button{padding:13px;}}
 
-    /* Example questions: hints, not headline. Faint at rest, fade further
-       the moment the user starts typing (it's their turn). */
-    .chips{margin:13px auto 0;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;opacity:.55;transition:opacity .25s;}
+    .chips{margin:13px auto 0;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;opacity:.6;transition:opacity .25s;}
     .chips.faded{opacity:.12;pointer-events:none;}
-    .chip{padding:4px 11px;background:transparent;border:1px solid rgba(201,168,124,.22);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:11.5px;}
+    .chip{padding:4px 11px;background:transparent;border:1px solid rgba(201,168,124,.22);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:11.5px;cursor:pointer;}
     .chip:hover{background:rgba(201,168,124,.12);color:#f4ecd5;}
 
-    #drawResult{display:none;margin:16px auto 0;max-width:600px;text-align:left;}
-    #drawResult .rc{background:rgba(201,168,124,.06);border-left:2px solid rgba(201,168,124,.4);border-radius:0 6px 6px 0;padding:9px 12px;margin:6px 0;}
-    #drawResult .rt{color:#e8e2d8;font-size:14px;} #drawResult .rs{color:#9b94ac;font-size:12px;margin-top:3px;}
-    #drawResult .rmore{display:inline-block;margin-top:9px;font-size:13px;border-bottom:1px dashed rgba(201,168,124,.4);}
-    #drawResult .loading{color:#9b94ac;font-style:italic;}
+    /* the work area — each artifact the engine/assistant produces, kept */
+    #ures{display:block;margin:18px auto 0;max-width:600px;text-align:left;min-height:4px;}
+    .weighing{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);text-align:center;padding:8px 0;}
+    .weighing .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:6px;animation:wp 1s ease-in-out infinite;}
+    @keyframes wp{0%,100%{opacity:.3;}50%{opacity:1;box-shadow:0 0 9px var(--accent);}}
+    .art{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 18px;}
+    .art-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+    .art-lbl .kept{color:var(--muted);font-size:8.5px;}
+    .li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+    .li:last-child{border-bottom:none;}
+    .li .bx{width:15px;height:15px;border:1.5px solid var(--accent);border-radius:4px;flex:none;}
+    .li .tx{font-family:'Crimson Pro',Georgia,serif;font-size:1.04rem;color:#f4ecd5;}
+    .draft .to{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:3px;}
+    .draft .subj{font-family:'Crimson Pro',Georgia,serif;font-size:1.08rem;color:#f4ecd5;margin-bottom:9px;}
+    .draft .bd{font-family:'Crimson Pro',Georgia,serif;font-size:.98rem;color:var(--text);white-space:pre-wrap;line-height:1.55;}
+    .note-t{font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;color:#f4ecd5;margin-bottom:5px;}
+    .note-b{font-family:'Crimson Pro',Georgia,serif;font-size:1rem;color:var(--text);}
+    .ans{font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;color:var(--text);line-height:1.6;}
+    .ans-cav{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12px;color:var(--muted);margin-top:11px;}
+    .uact{display:inline-block;margin-top:13px;padding:8px 15px;border:1px solid var(--accent);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accenthi);cursor:pointer;background:transparent;}
+    .uact:hover{background:rgba(201,168,124,.1);}
+    .verdict{display:inline-flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.08em;font-weight:600;padding:6px 0;}
+    .verdict .d{width:10px;height:10px;border-radius:50%;}
+    .verdict.pass{color:var(--pass);}.verdict.pass .d{background:var(--pass);box-shadow:0 0 9px var(--pass);}
+    .verdict.fail{color:#e07a6f;}.verdict.fail .d{background:#e07a6f;box-shadow:0 0 9px #e07a6f;}
+    .verdict.amber{color:var(--accenthi);}.verdict.amber .d{background:var(--accenthi);}
+    .trail{border-left:2px solid var(--border);margin:5px 0 4px;}
+    .tstep{display:grid;grid-template-columns:20px 1fr auto;align-items:baseline;gap:9px;padding:6px 12px;}
+    .tstep .m{font-family:'JetBrains Mono',monospace;font-size:13px;}
+    .tstep.confirmed .m{color:var(--pass);}.tstep.mismatch .m,.tstep.error .m{color:#e07a6f;}
+    .tstep .c{font-family:'Crimson Pro',Georgia,serif;font-size:14px;color:var(--text);line-height:1.4;}
+    .tstep .st{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);}
+    .seal-open{display:inline-block;margin-top:11px;padding:9px 16px;border:1px solid var(--accent);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accenthi);}
+    .seal-open:hover{background:rgba(201,168,124,.1);}
+    .onote{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;}
+    .uhint{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);text-align:center;line-height:1.55;}
 
-    /* The four-gate trail — visible during a draw. The trail IS the reasoning,
-       so it's shown rather than hidden behind a spinner. Each gate ticks from
-       … to ✓ as the engine works. */
-    .gate-trail{display:flex;flex-direction:column;gap:5px;padding:6px 2px;}
-    .gate-step{display:grid;grid-template-columns:18px 86px 1fr;align-items:baseline;gap:8px;opacity:.45;transition:opacity .25s;}
-    .gate-step.done{opacity:1;}
-    .gate-step .mark{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);}
-    .gate-step.done .mark{color:var(--pass);}
-    .gate-step .gate-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--accent);}
-    .gate-step .gate-desc{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12.5px;color:var(--dim);}
+    .brainwrap{max-width:620px;margin:46px auto 0;}
+    .brainwrap .bh{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+    .brainwrap iframe{width:100%;height:430px;border:1px solid var(--border);border-radius:12px;background:#06070b;display:block;}
 
-    .offices{margin:34px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;text-align:left;}
-    @media(max-width:540px){.offices{grid-template-columns:1fr;}}
-    .office{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:0 8px 8px 0;padding:9px 12px;}
-    .office .n{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accenthi);}
-    .office .d{font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;color:var(--dim);line-height:1.4;margin-top:2px;}
-    .offices-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);max-width:600px;margin:34px auto 6px;text-align:left;}
-
-    .today{display:block;max-width:600px;margin:24px auto 0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:left;}
-    .today:hover{border-color:var(--accent);}
-    .today .l{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
-    .today h3{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:1.05rem;color:var(--text);margin:5px 0 0;}
-    .today .b{font-size:13px;color:var(--dim);margin-top:5px;}
-
-    .explore{margin:40px auto 0;max-width:560px;font-size:13px;color:var(--muted);line-height:1.6;}
+    .explore{margin:38px auto 0;max-width:560px;font-size:13px;color:var(--muted);line-height:1.6;}
+    .links{margin-top:16px;text-align:center;}
+    .links a{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;}
+    .links .sep{color:var(--border);margin:0 10px;}
   </style>
 </head>
+
 <body>
 
 <main class="well">
-  <div class="eyebrow">A discernment engine</div>
-  <h1>A well of knowledge.</h1>
-  <p class="tagline">Bring what you're carrying — a worry, a verse, a hard question. It's weighed against Scripture and what has stood the test of time, and you see what survives, with the trail.</p>
+  <div class="eyebrow"><span class="ld"></span>Bring anything &middot; it knows what to do</div>
+  <h1>The work area.</h1>
+  <p class="tagline">A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.</p>
 
-  <form class="draw" onsubmit="return nhDraw(event);">
-    <input id="nhQ" type="text" autocomplete="off" placeholder="Bring what you're carrying — a worry, a verse, a question, a remedy.">
-    <button type="submit">Draw &rarr;</button>
+  <form class="draw" onsubmit="return nhBring(event);">
+    <input id="uq" type="text" autocomplete="off" placeholder="Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember">
+    <button id="ubtn" type="submit">Bring it &rarr;</button>
   </form>
-  <div id="drawResult"></div>
+  <div id="ures"></div>
 
-  <div class="chips">
-    <a class="chip" href="#" onclick="nhChip('a remedy for grief');return false;">A remedy for what I carry</a>
-    <a class="chip" href="#" onclick="nhChip('What does Psalm 23 say in context?');return false;">What does this verse really say?</a>
-    <a class="chip" href="#" onclick="nhChip('help for anxious thoughts');return false;">Help for anxious thoughts</a>
+  <div class="chips" id="uchips">
+    <a class="chip" href="#" data-bring="milk, eggs, bread and a dozen apples">milk, eggs, bread&hellip;</a>
+    <a class="chip" href="#" data-bring="tell Sarah I'll be 15 minutes late for dinner tonight">tell Sarah I'll be late</a>
+    <a class="chip" href="#" data-bring="the derivative of x squared is 2x">the derivative of x&sup2; is 2x</a>
+    <a class="chip" href="#" data-bring="91 is a prime number">91 is a prime number</a>
+    <a class="chip" href="#" data-bring="remember the wifi password is sunflower42">remember the wifi password</a>
   </div>
 
-  <p class="explore">Free. No login, no ads, nothing tracked. For Christian families.</p>
-  <p style="margin-top:28px;text-align:center;"><a href="/brain.html" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accenthi);border:1px solid rgba(201,168,124,.45);border-radius:9px;padding:11px 22px;">See the engine as a brain &mdash; every verified thing &amp; the paths between &rarr;</a></p>
-  <p style="margin-top:14px;text-align:center;"><a href="/see.html" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">See how it works &mdash; the engine &amp; the living map &rarr;</a></p>
-  <p style="margin-top:16px;text-align:center;">
-    <a href="/welcome.html" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;">Explore everything &rarr;</a>
-    <span style="color:var(--border);margin:0 10px;">&middot;</span>
-    <a href="/mcp.html" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;">For developers &amp; AI &rarr;</a>
-    <span style="color:var(--border);margin:0 10px;">&middot;</span>
-    <a href="/four-gates.html" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;">Watch the four gates &rarr;</a>
-    <span style="color:var(--border);margin:0 10px;">&middot;</span>
-    <a href="/concordance.html" style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;">Where Scripture echoes Scripture &rarr;</a>
+  <div class="brainwrap">
+    <div class="bh">the engine &middot; everything it has weighed, and the paths between</div>
+    <iframe src="/brain.html" title="The engine as a digital brain" loading="lazy"></iframe>
+  </div>
+
+  <p class="explore">Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.</p>
+  <p style="margin-top:24px;text-align:center;"><a href="/enter.html" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accenthi);border:1px solid rgba(201,168,124,.45);border-radius:9px;padding:11px 22px;">What is this? &mdash; the whole story &rarr;</a></p>
+  <p class="links">
+    <a href="/brain.html">See the engine as a brain &rarr;</a>
+    <span class="sep">&middot;</span>
+    <a href="/welcome.html">Explore everything &rarr;</a>
+    <span class="sep">&middot;</span>
+    <a href="/mcp.html">For developers &amp; AI &rarr;</a>
   </p>
 </main>
 
 <script>
-// The Well is the front of the funnel. Every draw goes through the airlock
-// classifier (one funnel) and is saved to the device-local journal (the Well
-// IS the notebook). Discernment queries still run the four gates inline — the
-// Well's signature demo — but a recipe, a hymn, or a remedy is routed to its room.
+// The work area: bring anything; the one brain routes it; the engine verifies what
+// is verifiable; the assistant only drafts the rest; everything is kept (on-device).
 var nhEsc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-
-function nhJournal(q){
-  try{
-    var K='nh_ws_journal_v1';
-    var a=JSON.parse(localStorage.getItem(K)||'[]');
-    a.unshift({ts:Date.now(), q:q});
-    localStorage.setItem(K, JSON.stringify(a.slice(0,100)));
-  }catch(e){}
+function nhWorking(msg){var r=document.getElementById('ures');r.innerHTML='<div class="weighing">'+(msg||'Working')+'<span class="pulse"></span></div>';}
+async function nhPost(url,b){var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return await r.json();}
+function nhKeep(kind,obj){try{var K='nh_kept_v1';var a=JSON.parse(localStorage.getItem(K)||'[]');a.unshift({ts:Date.now(),kind:kind,obj:obj});localStorage.setItem(K,JSON.stringify(a.slice(0,200)));}catch(e){}}
+function nhVerifyCard(res){
+  var v=(res&&res.verdict)||'ERROR';
+  var cls=v==='HOLDS'?'pass':(v==='BROKEN'?'fail':'amber');
+  var label=v==='HOLDS'?'HOLDS — it survives':(v==='BROKEN'?'BROKEN — it does not hold':(v==='INCOMPLETE'?'INCOMPLETE — not enough to weigh':'could not weigh'));
+  var html='<div class="verdict '+cls+'"><span class="d"></span>'+label+'</div>';
+  var trail=(res&&res.trail)||[];
+  if(trail.length){html+='<div class="trail">';trail.forEach(function(s){var st=(s.status||'').toLowerCase(),mk=st==='confirmed'?'✓':((st==='mismatch'||st==='error')?'✕':'·');html+='<div class="tstep '+st+'"><span class="m">'+mk+'</span><span class="c">'+nhEsc(s.claim||s.domain||'step')+'</span><span class="st">'+nhEsc(s.status||'')+'</span></div>';});html+='</div>';}
+  var cite=(res&&res.receipt&&res.receipt.cite_url)||'';
+  if(cite)html+='<a class="seal-open" href="'+nhEsc(cite)+'">Open the seal — re-check it yourself &rarr;</a>';
+  html+='<div class="onote">The engine verifies; it does not generate. A wrong claim shows as BROKEN.</div>';
+  return html;
 }
-
-async function nhDraw(ev){
-  if(ev) ev.preventDefault();
-  var q=(document.getElementById('nhQ').value||'').trim(); if(!q) return false;
-  var box=document.getElementById('drawResult');
-  box.style.display='block';
-  box.innerHTML='<div style="font-style:italic;color:var(--muted);padding:8px 0;">Weighing it on the floor…</div>';
-  nhJournal(q);
-
-  // One engine: stand what was brought on the whole floor. The floor reads
-  // the lens, runs the gates, points at the wall, and shows where it goes.
-  var s=null;
-  try{
-    var r=await fetch('/floor/stand',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:q})});
-    s=await r.json();
-  }catch(e){}
-
-  // Engine unreachable (e.g. mid-deploy) → fall back to the four-gate walk.
-  if(!s || !s.gates){ return nhRunWalk(q, box); }
-
-  // A hard gate refused it (coercion, domination) → show the floor saying no.
-  if(s.gates.admitted===false){
-    var w=(s.gates.verdicts&&s.gates.verdicts[0])||{};
-    box.innerHTML='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid #d97c7c;border-radius:0 8px 8px 0;padding:14px 18px;">'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#d97c7c;margin-bottom:5px;">Did not pass the floor</div>'+
-      '<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(w.why||'a gate rejected it')+'</div></div>';
-    return false;
+function nhCopy(btn){var t=btn.getAttribute('data-copy')||'';try{navigator.clipboard.writeText(t);btn.textContent='Copied ✓';}catch(e){}}
+function nhRender(d){
+  var res=document.getElementById('ures'), intent=d&&d.intent;
+  if(intent==='verify'){
+    nhKeep('verify',{claim:d.claim,verdict:(d.result||{}).verdict});
+    res.innerHTML='<div class="art"><div class="art-lbl">Verified by the engine <span class="kept">&middot; kept</span></div>'+nhVerifyCard(d.result||{})+'</div>';return;
   }
-
-  // Discernment → run the four gates inline (the Well's signature).
-  if(s.lens && s.lens.name==='discern'){ return nhRunWalk(q, box); }
-
-  var lens=s.lens||{}, route=s.route||{}, nc=s.nested_control||null, ver=s.verifier||{};
-
-  // Navigation → just point to the room. No gates/wall noise for "play chess".
-  if(lens.name==='navigate'){
-    box.innerHTML='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">'+
-      '<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(route.why||'opening the room')+'</div>'+
-      (route.url?'<a href="'+nhEsc(route.url)+'" style="display:inline-block;margin-top:10px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open &rarr;</a>':'')+
-      '</div>';
-    return false;
+  if(intent==='list'){
+    nhKeep('list',{list:d.list,items:d.items});
+    var h='<div class="art"><div class="art-lbl">Added to your '+nhEsc(d.list||'list')+' list <span class="kept">&middot; kept on this device</span></div>';
+    (d.items||[]).forEach(function(it){h+='<div class="li"><span class="bx"></span><span class="tx">'+nhEsc(it)+'</span></div>';});
+    res.innerHTML=h+'</div>';return;
   }
-
-  // A judgment lens (apothecary / scripture / reckon) → show it standing on the floor.
-  var html='<div style="text-align:left;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;">';
-  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Stood on the floor &middot; '+nhEsc(lens.label||'weighed')+'</div>';
-  html+='<div style="font-style:italic;color:var(--dim);font-size:14px;">'+nhEsc(route.why||lens.frame||'')+'</div>';
-  html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--pass);margin-top:8px;letter-spacing:.08em;">RED ✓ &nbsp; FLOOR ✓ &nbsp;<span style="color:var(--muted);">&middot; BROTHERS / GOD pending</span></div>';
-  if(ver.applies){ html+='<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--muted);margin-top:3px;">wall &middot; '+nhEsc(ver.applies)+'</div>'; }
-  if(nc && nc.primary_layer){
-    html+='<div style="margin-top:9px;color:var(--accenthi);font-size:13px;">Control layer &middot; '+nhEsc(nc.primary_layer)+'</div>';
-    if(nc.referral_note){ html+='<div style="font-style:italic;color:var(--muted);font-size:11.5px;margin-top:3px;">'+nhEsc(nc.referral_note)+'</div>'; }
+  if(intent==='draft'){
+    nhKeep('draft',d); var body=d.body||'';
+    var h='<div class="art draft"><div class="art-lbl">Drafted — ready to send <span class="kept">&middot; kept</span></div>';
+    if(d.to)h+='<div class="to">To: '+nhEsc(d.to)+'</div>';
+    if(d.subject)h+='<div class="subj">'+nhEsc(d.subject)+'</div>';
+    h+='<div class="bd">'+nhEsc(body)+'</div><button class="uact" onclick="nhCopy(this)" data-copy="'+nhEsc(body)+'">Copy</button></div>';
+    res.innerHTML=h;return;
   }
-  // Choices — the correct next options, sized for intuition. Pick one and its
-  // protocol opens in place (the detail rode along — no round-trip). The space
-  // narrows from the symptom to the system without rendering the whole tree.
-  if(s.choices && s.choices.options && s.choices.options.length){
-    html+='<div style="margin-top:13px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);">'+nhEsc(s.choices.prompt||'Narrow it')+'</div>';
-    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;">';
-    s.choices.options.forEach(function(o,i){
-      html+='<button type="button" onclick="nhPick(\'nhc'+i+'\')" style="cursor:pointer;background:#1d1828;border:1px solid var(--border);color:var(--dim);font-family:\'Crimson Pro\',Georgia,serif;font-size:13.5px;padding:6px 13px;border-radius:7px;">'+nhEsc(o.label||'')+'</button>';
-    });
-    html+='</div>';
-    s.choices.options.forEach(function(o,i){
-      html+='<div id="nhc'+i+'" class="nh-cd" style="display:none;margin-top:8px;padding:9px 13px;background:#15111c;border-left:2px solid var(--accenthi);border-radius:0 7px 7px 0;">';
-      if(o.why) html+='<div style="font-style:italic;color:var(--muted);font-size:12px;margin-bottom:6px;">often shows as: '+nhEsc(o.why)+'</div>';
-      (o.detail||[]).forEach(function(d){ html+='<div style="color:var(--dim);font-size:13px;line-height:1.5;">&middot; '+nhEsc(d)+'</div>'; });
-      html+='</div>';
-    });
+  if(intent==='note'){
+    nhKeep('note',d);
+    res.innerHTML='<div class="art"><div class="art-lbl">Kept <span class="kept">&middot; on this device</span></div><div class="note-t">'+nhEsc(d.title||'Note')+'</div><div class="note-b">'+nhEsc(d.note||'')+'</div></div>';return;
   }
-  if(route.url){ html+='<a href="'+nhEsc(route.url)+'" style="display:inline-block;margin-top:12px;padding:7px 16px;background:var(--accent);color:#1a1820;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;text-decoration:none;">Open '+nhEsc(lens.label||'the room')+' &rarr;</a>'; }
-  html+=' <a href="/workspace.html" style="display:inline-block;margin-top:12px;margin-left:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Workspace</a>';
-  html+='</div>';
-  box.innerHTML=html;
-  return false;
+  if(intent==='ask'){
+    nhKeep('ask',d);
+    res.innerHTML='<div class="art"><div class="art-lbl">Answer</div><div class="ans">'+nhEsc(d.answer||'')+'</div><div class="ans-cav">The assistant drafted this — anything that matters, weigh it. (Type it as a claim and the engine will.)</div></div>';return;
+  }
+  if(intent==='open'){
+    res.innerHTML='<div class="art"><div class="art-lbl">Open</div><div class="ans">Opening '+nhEsc(d.what||'the room')+'.</div></div>';return;
+  }
+  if(intent==='route'){
+    var c=d.route||{};
+    res.innerHTML='<div class="art"><div class="art-lbl">Routed</div><div class="ans">'+nhEsc(c.why||'routed by rules')+(c.url?' — <a href="'+nhEsc(c.url)+'">open &rarr;</a>':'')+'</div></div>';return;
+  }
+  res.innerHTML='<div class="uhint">Kept.</div>';
 }
-
-// Pick a choice — open its detail in place, close the others. The narrowing:
-// the right amount of information surfaces only for the choice intuition made.
-function nhPick(id){
-  var box=document.getElementById('drawResult'); if(!box) return;
-  box.querySelectorAll('.nh-cd').forEach(function(d){ d.style.display='none'; });
-  var el=document.getElementById(id); if(el) el.style.display='block';
+async function nhBringText(text){
+  text=(text||'').trim(); if(!text) return;
+  document.getElementById('uq').value=text;
+  var btn=document.getElementById('ubtn'); btn.disabled=true;
+  nhWorking('Reading what you brought');
+  try{ nhRender(await nhPost('/workspace/intake',{text:text})); }
+  catch(e){ document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the work area just now — try again in a moment.</div>'; }
+  btn.disabled=false;
 }
-
-// The four-gate walk, inline. (Same logic the Well always had.)
-async function nhRunWalk(q, box){
-  var gates=[{n:'RED',d:'the disqualifying signal'},{n:'FLOOR',d:'the protective minimum'},{n:'BROTHERS',d:'second witness'},{n:'GOD',d:'weighed against time'}];
-  var trail='<div class="gate-trail">';
-  gates.forEach(function(g,i){ trail+='<div class="gate-step" id="gate-'+i+'"><span class="mark">…</span><span class="gate-name">'+g.n+'</span><span class="gate-desc">'+g.d+'</span></div>'; });
-  trail+='</div>';
-  box.innerHTML=trail;
-  var startT=performance.now(), GATE_MS=320;
-  gates.forEach(function(g,i){ setTimeout(function(){ var el=document.getElementById('gate-'+i); if(el){el.querySelector('.mark').textContent='✓';el.classList.add('done');} }, GATE_MS*(i+1)); });
-  try{
-    var hh=(window.NHHousehold&&NHHousehold.id&&NHHousehold.id())||'home';
-    var r=await fetch('/cards/walk',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,k:5,asked_by:hh})});
-    var d=await r.json();
-    var minMs=GATE_MS*(gates.length+0.5), waited=performance.now()-startT;
-    if(waited<minMs) await new Promise(function(res){ setTimeout(res, minMs-waited); });
-    var steps=(d&&d.steps)||[];
-    if(!steps.length){
-      // Never a dead-end (project_wisdom_flywheel): if the well genuinely holds
-      // no card for this yet, ENGAGE — show the honest message + invite, and
-      // offer to capture the question so a real answer comes back. Don't bounce.
-      if(d && d.offer_followup){ nhNoMatch(q, d, box); }
-      else { box.innerHTML='<div class="rc"><div class="rs">'+nhEsc((d&&d.narration)||'Try a few words about what you are weighing.')+'</div></div>'; }
-      return false;
-    }
-    var html='';
-    steps.forEach(function(s){ var src=(s.source&&(s.source.label||s.source.author))||s.shelf||''; html+='<div class="rc"><div class="rt">'+nhEsc(s.title||'(untitled)')+'</div>'+(src?'<div class="rs">'+nhEsc(src)+'</div>':'')+'</div>'; });
-    html+='<a class="rmore" href="/walk.html">See the full walk + the four gates &rarr;</a>';
-    // The gates rest on Scripture, witnessed by the Didache — shown beneath.
-    if(window.nhGatesHtml) html+=window.nhGatesHtml();
-    box.innerHTML=html;
-  }catch(e){ location.href='/walk.html'; }
-  return false;
-}
-
-// The well holds no card for this yet — but a real question deserves a real
-// answer. Engage instead of bouncing: show the honest message + invite, and
-// offer to capture the question so we come back to them (the no-answer ladder,
-// project_wisdom_flywheel_2026-06-10). The asked question is stashed on the box.
-function nhNoMatch(q, d, box){
-  var inv=nhEsc((d&&d.invite)||'What were you weighing when this came to mind?');
-  var nar=nhEsc((d&&d.narration)||'');
-  var html=''
-    +'<div class="rc"><div class="rs" style="line-height:1.65">'+nar+'</div></div>'
-    +'<div id="nhTk" style="margin-top:12px">'
-    +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px">'+inv+'</div>'
-    +'<textarea id="nhTkElab" rows="3" placeholder="Say a little more (optional)…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid var(--line,#333);border-radius:6px;color:inherit;font:inherit;padding:8px"></textarea>'
-    +'<div style="margin-top:8px">'
-    +'<button onclick="nhTicket()" style="padding:7px 16px;background:var(--accent);color:#1a1820;border:none;border-radius:6px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;cursor:pointer">Get back to me &rarr;</button>'
-    +'<a href="/walk.html?q='+encodeURIComponent(q||'')+'" style="margin-left:10px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Walk it now</a>'
-    +'</div></div>';
-  box.innerHTML=html;
-  box.dataset.tkq=q||'';
-}
-
-// Capture the question as a ticket — the promise that a real answer comes back
-// (slice 1 backend: POST /tickets). On success we show the engine's own promise.
-async function nhTicket(){
-  var box=document.getElementById('drawResult'); if(!box) return;
-  var q=box.dataset.tkq||'';
-  var elabEl=document.getElementById('nhTkElab'); var elab=elabEl?elabEl.value:'';
-  var hh=(window.NHHousehold&&NHHousehold.id&&NHHousehold.id())||'home';
-  var tk=document.getElementById('nhTk'); if(tk) tk.innerHTML='<div class="rs">Capturing…</div>';
-  try{
-    var r=await fetch('/tickets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,elaboration:elab,source:'home',visitor_id:hh})});
-    var d=await r.json();
-    if(tk) tk.innerHTML='<div class="rs" style="line-height:1.65">'+nhEsc((d&&d.message)||'Captured — we will come back to you.')+'</div>';
-  }catch(e){ if(tk) tk.innerHTML='<div class="rs">Could not reach the well just now — try again in a moment.</div>'; }
-}
-
-// Chips fill the input and submit through the same funnel.
-function nhChip(text){ var el=document.getElementById('nhQ'); if(el){ el.value=text; nhDraw(null); } }
-
-// Fade the example chips as soon as the user starts typing.
-(function(){
-  var q = document.getElementById('nhQ');
-  var chips = document.querySelector('.chips');
-  if (!q || !chips) return;
-  q.addEventListener('input', function(e){
-    if ((e.target.value || '').length > 0) chips.classList.add('faded');
-    else chips.classList.remove('faded');
-  });
-})();
+function nhBring(ev){ if(ev)ev.preventDefault(); nhBringText(document.getElementById('uq').value); return false; }
+document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();nhBringText(c.getAttribute('data-bring'));});});
+(function(){var q=document.getElementById('uq'),chips=document.getElementById('uchips');if(q&&chips)q.addEventListener('input',function(e){chips.classList.toggle('faded',(e.target.value||'').length>0);});})();
 </script>
 
 </body>
