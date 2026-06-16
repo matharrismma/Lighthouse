@@ -2,10 +2,10 @@
   "verifiers": 64,
   "tools": 99,
   "data_grounded_tools": 22,
-  "grounded_domains": 24,
-  "pure_compute_domains": 11,
-  "ungrounded_domains": 29,
-  "empirical_grounded_pct": 45,
+  "grounded_domains": 27,
+  "pure_compute_domains": 18,
+  "ungrounded_domains": 19,
+  "empirical_grounded_pct": 59,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -13,60 +13,9 @@
   "original_text_pct": 100,
   "original_text_done": 9,
   "original_text_total": 9,
-  "ground_targets_open": 10,
+  "ground_targets_open": 0,
   "targets": {
-    "ground_open": [
-      {
-        "domain": "geology",
-        "source": "USGS ComCat (quakes) + Smithsonian GVP (volcanoes)",
-        "status": "open"
-      },
-      {
-        "domain": "oceanography",
-        "source": "GEBCO 2024 bathymetry",
-        "status": "open"
-      },
-      {
-        "domain": "hydrology",
-        "source": "USGS Water Services",
-        "status": "open"
-      },
-      {
-        "domain": "meteorology",
-        "source": "NOAA GHCN / Climate Normals",
-        "status": "open"
-      },
-      {
-        "domain": "soil_science",
-        "source": "USDA SSURGO / SoilGrids",
-        "status": "open"
-      },
-      {
-        "domain": "agriculture",
-        "source": "FAOSTAT + USDA PLANTS",
-        "status": "open"
-      },
-      {
-        "domain": "materials_science",
-        "source": "Materials Project",
-        "status": "open"
-      },
-      {
-        "domain": "optics",
-        "source": "NIST ASD spectral lines",
-        "status": "open"
-      },
-      {
-        "domain": "law",
-        "source": "US Code (OLRC) + Caselaw CC0",
-        "status": "open"
-      },
-      {
-        "domain": "history_chronology",
-        "source": "World Historical Gazetteer",
-        "status": "open"
-      }
-    ],
+    "ground_open": [],
     "original_text": [
       {
         "name": "original-language form-card + seed word studies",
@@ -119,14 +68,14 @@
     "physics & chemistry": {
       "n": 13,
       "grounded": 6,
-      "pure_compute": 1,
-      "ungrounded": 6
+      "pure_compute": 3,
+      "ungrounded": 4
     },
     "earth sciences": {
       "n": 7,
-      "grounded": 1,
-      "pure_compute": 0,
-      "ungrounded": 6
+      "grounded": 3,
+      "pure_compute": 4,
+      "ungrounded": 0
     },
     "life & medicine": {
       "n": 6,
@@ -142,9 +91,9 @@
     },
     "human systems": {
       "n": 10,
-      "grounded": 3,
-      "pure_compute": 0,
-      "ungrounded": 7
+      "grounded": 4,
+      "pure_compute": 1,
+      "ungrounded": 5
     },
     "built & tech": {
       "n": 9,
@@ -154,6 +103,7 @@
     }
   },
   "grounded": [
+    "agriculture",
     "astronomy",
     "biology",
     "calendar_time",
@@ -168,6 +118,7 @@
     "genetics",
     "geography",
     "labor",
+    "law",
     "linguistics",
     "medicine",
     "networking",
@@ -177,35 +128,26 @@
     "phase",
     "physics_dimensional",
     "scripture_anchors",
+    "soil_science",
     "thermodynamics"
   ],
   "ungrounded": [
     "acoustics",
-    "agriculture",
     "architecture",
     "computer_science",
     "construction",
     "cybersecurity",
     "document_validation",
     "electrical",
-    "geology",
     "giving",
     "governance_decision_packet",
-    "history_chronology",
-    "hydrology",
-    "law",
     "manufacturing",
-    "materials_science",
-    "meteorology",
-    "oceanography",
-    "optics",
     "philosophy",
     "photography",
     "physics",
     "quantum_computing",
     "real_estate",
     "rhetoric",
-    "soil_science",
     "sports_analytics",
     "theology_doctrine",
     "witness"

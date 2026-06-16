@@ -49,12 +49,22 @@ GROUNDED = {
     "chemistry": "IUPAC periodic table (atomic weights)",
     "economics": "World Bank Open Data",
     "labor": "World Bank Open Data (labor indicators)",
+    # Self-contained: the verifier ships public-domain reference data inline (read the
+    # verifier; no external dataset is needed) -- grounded in real authoritative data,
+    # just embedded rather than a separate lw/ db.
+    "agriculture": "embedded USDA/NRCS reference (in-verifier)",
+    "soil_science": "embedded FAO/USDA-NRCS reference (in-verifier)",
+    "law": "embedded US Constitution / US Code reference (in-verifier)",
 }
-# Domains complete in the formula -- they need no external reference data.
+# Domains complete in the formula -- the verifier takes the values as INPUTS and checks
+# the math (Snell's law, Manning velocity, dew point, radiometric decay, date arithmetic,
+# stress-strain). They need no external reference data. (Confirmed by reading each.)
 PURE_COMPUTE = {
     "mathematics", "geometry", "formal_logic", "statistics", "statistics_pvalue",
     "statistics_confidence_interval", "statistics_multiple_comparisons",
     "operations_research", "information_theory", "music_theory", "physics_conservation",
+    "optics", "geology", "hydrology", "meteorology", "oceanography", "materials_science",
+    "history_chronology",
 }
 # Six families for the rollup (each verified domain lands in one).
 FAMILIES = {

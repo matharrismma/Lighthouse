@@ -3,33 +3,39 @@
   "ground": [
     {
       "domain": "geology",
-      "source": "USGS ComCat (quakes) + Smithsonian GVP (volcanoes)",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "oceanography",
-      "source": "GEBCO 2024 bathymetry",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "hydrology",
-      "source": "USGS Water Services",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "meteorology",
-      "source": "NOAA GHCN / Climate Normals",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "soil_science",
-      "source": "USDA SSURGO / SoilGrids",
-      "status": "open"
+      "source": "SELF-CONTAINED -- embedded public-domain reference (USDA/NRCS), in-verifier",
+      "status": "done",
+      "resolved": "2026-06-16: no external dataset needed -- the verifier ships public-domain reference data inline and checks against it. Reclassified GROUNDED (embedded) in gap_analysis."
     },
     {
       "domain": "agriculture",
-      "source": "FAOSTAT + USDA PLANTS",
-      "status": "open"
+      "source": "SELF-CONTAINED -- embedded public-domain reference (USDA/NRCS), in-verifier",
+      "status": "done",
+      "resolved": "2026-06-16: no external dataset needed -- the verifier ships public-domain reference data inline and checks against it. Reclassified GROUNDED (embedded) in gap_analysis."
     },
     {
       "domain": "chemistry",
@@ -38,8 +44,9 @@
     },
     {
       "domain": "materials_science",
-      "source": "Materials Project",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "nuclear_physics",
@@ -48,8 +55,9 @@
     },
     {
       "domain": "optics",
-      "source": "NIST ASD spectral lines",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "economics",
@@ -63,13 +71,15 @@
     },
     {
       "domain": "law",
-      "source": "US Code (OLRC) + Caselaw CC0",
-      "status": "open"
+      "source": "SELF-CONTAINED -- embedded public-domain reference (US Constitution / US Code), in-verifier",
+      "status": "done",
+      "resolved": "2026-06-16: no external dataset needed -- the verifier ships public-domain reference data inline and checks against it. Reclassified GROUNDED (embedded) in gap_analysis."
     },
     {
       "domain": "history_chronology",
-      "source": "World Historical Gazetteer",
-      "status": "open"
+      "source": "PURE-COMPUTE -- verifier takes the values as inputs and checks the formula",
+      "status": "done",
+      "resolved": "2026-06-16: no external data source needed -- this is a calculation domain (read the verifier: user provides the values, the verifier checks the math). Reclassified PURE_COMPUTE in gap_analysis. The original 'wire an external source' plan was a miscategorization."
     },
     {
       "domain": "exercise_science",
