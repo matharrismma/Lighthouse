@@ -83,7 +83,15 @@ def verify_step(domain: str, spec: Dict[str, Any]) -> Dict[str, str]:
     domain = (domain or "").strip()
     if not domain:
         return {"status": "ERROR", "detail": "step missing 'domain'"}
-    out = _am.dispatch(f"verify_{domain}", spec or {})
+    # Fail closed: a verifier that RAISES on a malformed spec must become ERROR
+    # (a failed step), never propagate and crash the chain runner. A crash is not a
+    # false-positive, but it is a denial path -- a bad spec to /derivation/verify
+    # should return BROKEN, not 500. The verdict can never be a silent pass here.
+    try:
+        out = _am.dispatch(f"verify_{domain}", spec or {})
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "ERROR",
+                "detail": f"verifier raised: {type(exc).__name__}: {str(exc)[:200]}"}
     if not out.get("ok"):
         return {"status": "ERROR", "detail": str(out.get("error", "dispatch failed"))[:300]}
     acc: List = []
