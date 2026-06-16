@@ -745,16 +745,62 @@ def run_theology_doctrine_verifier(text: str) -> VerifierResult:
     )
 
 
+def run_derivation_verifier(text: str) -> VerifierResult:
+    """Bring the full deterministic verifier stack to bear on generated output.
+
+    The 64 verify_* domains need STRUCTURED claims, not prose -- so this uses the
+    prose->steps bridge (derivation.structure_prose: the oracle STRUCTURES, it never
+    judges) and then JUDGES every extracted quantitative claim with verify_derivation
+    (the deterministic chain). A false quantitative claim in the answer -> BROKEN ->
+    MISMATCH -> the FLOOR gate rejects the draft. Conservative and graceful: only a
+    genuinely BROKEN derivation is a MISMATCH; an unstructurable answer, a partial
+    (INCOMPLETE) structuring, no oracle key, or any error -> NOT_APPLICABLE (no penalty,
+    no crash). So it strengthens verification without ever over-rejecting honest prose."""
+    start = time.time()
+
+    def _r(verdict, summary, details, conf):
+        return VerifierResult(verifier="derivation", verdict=verdict, summary=summary,
+                              details=details, confidence=conf,
+                              latency_ms=(time.time() - start) * 1000)
+    try:
+        from api import derivation as _d
+        structured = _d.structure_prose(text)
+        if not structured.get("ok"):
+            return _r("NOT_APPLICABLE",
+                      "no structured claims verified (oracle unavailable or nothing to formalize)",
+                      {"reason": str(structured.get("error", ""))[:200]}, 0.0)
+        steps = structured.get("steps") or []
+        if not steps:
+            return _r("NOT_APPLICABLE", "no verifiable quantitative claims extracted", {}, 0.0)
+        result = _d.verify_derivation(steps)
+        v = result.get("verdict")
+        mapped = {"HOLDS": "CONFIRMED", "BROKEN": "MISMATCH"}.get(v, "NOT_APPLICABLE")
+        summary = (f"{v}: {result.get('confirmed_steps', 0)}/{result.get('steps', 0)} claim(s) confirmed"
+                   + (f"; broke at {result.get('broken_at')}" if v == "BROKEN" else ""))
+        return _r(mapped, summary,
+                  {"verdict": v, "broken_at": result.get("broken_at"),
+                   "gap_at": result.get("gap_at"), "structured_steps": steps,
+                   "trail": result.get("trail")},
+                  1.0 if mapped in ("CONFIRMED", "MISMATCH") else 0.5)
+    except Exception as e:  # noqa: BLE001 -- a verifier must never crash the pipeline
+        return _r("NOT_APPLICABLE", f"derivation verifier error: {type(e).__name__}",
+                  {"error": str(e)[:200]}, 0.0)
+
+
 # Registry: verifier name -> function
 VERIFIERS = {
     "scripture_anchors": run_scripture_anchors_verifier,
     "theology_doctrine": run_theology_doctrine_verifier,
+    "derivation": run_derivation_verifier,
 }
 
 
 # ── The pipeline ─────────────────────────────────────────────────────
 
-DEFAULT_VERIFIERS = ["scripture_anchors", "theology_doctrine"]
+# scripture_anchors + theology_doctrine run on the text; derivation brings the full
+# deterministic 64-verifier stack to bear on the answer's quantitative claims via the
+# prose->structured bridge (and only rejects on a genuinely false claim).
+DEFAULT_VERIFIERS = ["scripture_anchors", "theology_doctrine", "derivation"]
 
 
 def run_gated(
