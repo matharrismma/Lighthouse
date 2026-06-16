@@ -36,6 +36,36 @@ _WRITE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 # Endpoints exempt from mode gate even in lockdown:
 # none — in lockdown every write is blocked.
 
+# Canonical-substrate write paths. In restricted/quantum mode THESE require the
+# physical token (the operator's key); everything else -- public verify,
+# generation, the agent (/robot/*) endpoints, user activity -- stays OPEN so the
+# engine keeps serving people and agents (a public engine must accept verify
+# POSTs). This is "own our writes" for a public instance: the canonical truth
+# substrate can only be mutated with the key in hand; the public service is not.
+#
+# FAIL-OPEN for unlisted paths: forgetting to list a write here leaves it at
+# today's ungated behaviour -- it never breaks a public flow. Tighten over time.
+# (Lockdown still blocks ALL writes -- that mode is for read-only mesh nodes.)
+_GUARDED_PREFIXES = ("/seal",)   # /seal, /seal/polymathic, /seal/render -- minting seals
+_GUARDED_EXACT = frozenset({
+    "/cas",               # content-addressable store write
+    "/chain/receive",     # federation ingest into the append-only ledger
+    "/receipts/promote",  # promotion to canonical receipts
+    "/packets/import",    # bulk import into the substrate
+    "/grid/axis/add",     # mutating the coordinate map
+    "/grid/axis/remove",
+})
+
+
+def is_guarded_path(path: str) -> bool:
+    """True if `path` mutates the canonical substrate (so it needs the physical
+    key in restricted/quantum mode). Public verify/read/agent paths are NOT
+    guarded and pass freely."""
+    p = (path or "").rstrip("/") or "/"
+    if p in _GUARDED_EXACT:
+        return True
+    return any(p == pre or p.startswith(pre + "/") for pre in _GUARDED_PREFIXES)
+
 
 def get_mode() -> str:
     """Return the current deployment mode (always a valid member of VALID_MODES)."""
@@ -74,15 +104,21 @@ def mode_info() -> Dict[str, Any]:
     """Return a dict describing the current mode — surfaced at GET /mode."""
     mode = get_mode()
     token_path = _token_path()
-    present = token_present() if mode in {"restricted", "quantum"} else None
+    guarded = mode in {"restricted", "quantum"}
+    present = token_present() if guarded else None
     return {
         "mode": mode,
         "writes_enabled": writes_allowed(),
+        "substrate_writes_enabled": (token_present() if guarded
+                                     else (mode == "open")),
         "token_path": str(token_path),
         "token_present": present,
+        "guarded_paths": (sorted(_GUARDED_EXACT) + [p + "/*" for p in _GUARDED_PREFIXES]
+                          if guarded else None),
         "description": {
             "open":       "Full functionality — all endpoints available",
-            "restricted": "Writes require physical token at token_path",
+            "restricted": "Canonical-substrate writes require the physical token; "
+                          "public verify / read / agent endpoints stay open",
             "lockdown":   "Read-only — all write endpoints return 423 Locked",
             "quantum":    "Reserved — currently equivalent to restricted",
         }.get(mode, "unknown"),
@@ -108,16 +144,20 @@ async def mode_gate_middleware(request, call_next):
                 },
             )
         if mode in {"restricted", "quantum"}:
-            if not token_present():
+            # Only canonical-substrate writes need the key; public/agent writes pass.
+            if is_guarded_path(request.url.path) and not token_present():
                 from fastapi.responses import JSONResponse
                 return JSONResponse(
                     status_code=423,
                     content={
                         "detail": (
-                            f"Instance is in {mode} mode — physical token required. "
-                            f"Place a non-empty key file at {_token_path()} to enable writes."
+                            f"Instance is in {mode} mode — this writes to the canonical "
+                            f"substrate, which requires the physical token. Mount the key "
+                            f"file at {_token_path()} to enable. Public verify / read / agent "
+                            f"endpoints remain open."
                         ),
                         "mode": mode,
+                        "guarded_path": request.url.path,
                         "token_path": str(_token_path()),
                     },
                 )
