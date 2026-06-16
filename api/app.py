@@ -4184,6 +4184,38 @@ def scripture_lookup_one(ref: str = "", lang: str = "en"):
     }
 
 
+@app.get("/scripture/cross-references", tags=["humans"])
+def scripture_cross_references(ref: str = "", limit: int = 20):
+    """The cross-references for a verse -- where Scripture echoes Scripture.
+
+    ref = "John 3:16", "Romans 8:28". Returns the related passages ranked by a relevance
+    vote, each with its WEB text. Backed by openbible.info's community-voted expansion of
+    the public-domain Treasury of Scripture Knowledge (CC BY) -- an ATTRIBUTED index, never
+    engine doctrine; the engine surfaces a linkage, it does not author or endorse one.
+    """
+    from concordance_engine.mcp_server import tools as _tools
+    if not ref or not ref.strip():
+        return {"status": "error", "detail": "ref is required"}
+    return _tools.cross_references(ref.strip(), limit)
+
+
+@app.get("/scripture/concord", tags=["humans"])
+def scripture_concord(ref: str = "", across_xrefs: bool = False, limit: int = 12, top: int = 14):
+    """The CONCORD across the gathered witnesses for a verse -- where they converge.
+
+    ref = "John 3:16", "Romans 8:28". By default measures term-convergence across the
+    interpretive takes (lexicon, commentary, sermon). across_xrefs=true switches to
+    cross-passage concord: the verse + its cross-referenced passages, surfacing the thematic
+    thread through Scripture's echoes. A DETERMINISTIC term-overlap across ATTRIBUTED
+    witnesses -- NOT a verdict on truth, not a synthesis: it shows WHERE they agree, not
+    whether they are right.
+    """
+    from concordance_engine.mcp_server import tools as _tools
+    if not ref or not ref.strip():
+        return {"status": "error", "detail": "ref is required"}
+    return _tools.concord(ref.strip(), limit, top, across_xrefs)
+
+
 @app.get("/scripture/parallel", tags=["humans"])
 def scripture_parallel(ref: str = "", langs: str = ""):
     """For a verse reference, return that text in every available translation.
