@@ -145,9 +145,27 @@ TO RUN           │ tools/model_registry.py register     │  base_model: "loca
 ### Phase 4 — Grow the corpus
 
 The mechanism produces one training pair per gated call. For a useful
-fine-tune you want 2k–10k+ pairs minimum. Today you have ~30 from
-benchmarking; you need a larger curated prompt set and a corpus generation
-run against it.
+fine-tune you want 2k–10k+ pairs minimum.
+
+> **The curated prompt set is now built** (2026-06-15): `tools/build_corpus_prompts.py`
+> assembles **1,752 prompts** -> `data/prompt_sets/v1.jsonl`, GROUNDED in the
+> substrate (1,194 from the verified almanac entries whose verdicts the engine
+> already knows + core Scripture + curriculum/family + adversarial traps).
+> Categories: factual 1,109 / doctrinal 423 / family 123 / adversarial 97. Re-run
+> the script to expand. End-to-end chain verified (prompts -> generate_corpus ->
+> export_corpus -> `training_pair_organ/1` pairs; the organ shape teaches the model
+> to be the DRAFT inside the gated body, not to mimic verdicts).
+>
+> **Generate the corpus** (your call on cost):
+> ```
+> # quality distillation via Anthropic (~$0.003/prompt -> ~$5 for the full set):
+> python tools/generate_corpus.py --prompts data/prompt_sets/v1.jsonl --base anthropic --max-cost 8 --sleep 0.4
+> # OR sovereign + free: draft via a local model through the OpenAI adapter:
+> NH_OPENAI_BASE_URL=http://localhost:11434/v1 NH_OPENAI_MODEL=llama3.1 \
+>   python tools/generate_corpus.py --prompts data/prompt_sets/v1.jsonl --base openai --max-cost 0
+> python tools/export_corpus.py        # -> data/training_corpus/*.jsonl
+> ```
+> Then Phase 5 (finetune_mlx on your Mac) trains on the exported pairs.
 
 **Recommended prompt set composition (for a 5k-pair starter corpus):**
 
