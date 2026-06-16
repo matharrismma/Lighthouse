@@ -1,0 +1,44 @@
+{
+  "H1_shared_manifold": {
+    "decision": "INCONCLUSIVE",
+    "decision_basis": "No mortality data",
+    "primary_decision": "INCONCLUSIVE",
+    "sensitivity_flips": null,
+    "bootstrap_ci_excludes_zero": null,
+    "bootstrap_pass_probability": null,
+    "meets_clinical_bar": null,
+    "gates_passed": [],
+    "gates_failed": [],
+    "gates_skipped": [
+      "eligibility",
+      "sensitivity_weighted",
+      "bootstrap_ci"
+    ]
+  },
+  "H2_multipath": {
+    "decision": "INCONCLUSIVE",
+    "decision_basis": "",
+    "gates_passed": [],
+    "gates_failed": [
+      "eligibility"
+    ],
+    "gates_skipped": []
+  },
+  "H3_hierarchy": {
+    "decision": "INCONCLUSIVE",
+    "decision_basis": "Insufficient data",
+    "primary_decision": "INCONCLUSIVE",
+    "sensitivity_flips": null,
+    "bootstrap_ci_excludes_zero": null,
+    "bootstrap_pass_probability": null,
+    "meets_clinical_bar": null,
+    "gates_passed": [],
+    "gates_failed": [
+      "eligibility"
+    ],
+    "gates_skipped": [
+      "sensitivity_weighted",
+      "bootstrap_ci"
+    ]
+  }
+}

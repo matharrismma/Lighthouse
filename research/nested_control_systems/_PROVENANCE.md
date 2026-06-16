@@ -44,8 +44,13 @@ verdicts. The framework's own honest gap is documented: NHANES lacks direct L1 m
 (HSP70/72, gamma-H2AX, mitophagy flux, UPR) -- the L1_proxy is an indirect approximation;
 true L1 validation needs UK Biobank Olink proteomics.
 
-**Proposed next uses (need Matt's go on cost/compute):**
-1. Ingest the framework's cited claims as ATTRIBUTED almanac entries / cards (verdict
-   CONCORDANT-to-literature, each with its citation) -- a clean, honest substrate add.
-2. Wire NHANES as a ground source for the health/medicine/nutrition verifiers.
-3. Run the validation pipeline; record the honest verdicts.
+**Uses (status):**
+1. DONE -- ingested the framework's cited claims as 13 ATTRIBUTED almanac entries
+   (verdict CONCORDANT-to-literature). See commit 428a58c.
+2. TODO -- wire NHANES as a ground source for the health/medicine/nutrition verifiers.
+3. DONE (honestly) -- ran the validation pipeline (--mode prereg) on real CDC data
+   (39,156 participants). Verdicts: all three INCONCLUSIVE, for DOCUMENTED data-
+   availability reasons (no mortality linkage for H1; hs-CRP absent 2011-2014 -> L3
+   empty -> H2/H3). NOT a falsification or validation -- the rubric correctly refused
+   to over-claim. Required a downloader URL fix (CDC 2024 reorg). Full writeup +
+   follow-ups in VALIDATION_NOTE.md.

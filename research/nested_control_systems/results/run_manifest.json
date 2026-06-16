@@ -1,0 +1,55 @@
+{
+  "pipeline_version": "3.1",
+  "analysis_plan_version": "3.1",
+  "run_timestamp": "2026-06-15T21:41:25.411142",
+  "mode": "prereg",
+  "script_sha256": "c081bc7aa075b7e5cda52402fa5f3b66af4ee5a5dc637e3fe877082e6c6f6d2a",
+  "git_hash": "428a58c1bf39eb152a0c58960b033a2f400d8c47",
+  "os": "Windows 11",
+  "dependencies": {
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "matplotlib": "3.11.0",
+    "sklearn": "1.9.0",
+    "scipy": "1.17.1",
+    "pyreadstat": "1.3.5"
+  },
+  "config_snapshot": {
+    "cycles": [
+      [
+        "2011-2012",
+        "G"
+      ],
+      [
+        "2013-2014",
+        "H"
+      ],
+      [
+        "2015-2016",
+        "I"
+      ],
+      [
+        "2017-2018",
+        "J"
+      ]
+    ],
+    "random_seed": 42,
+    "cv_folds": 5,
+    "test_size": 0.3,
+    "min_sample_size": 500,
+    "min_events_h1": 50,
+    "min_cycle_n_h3": 300,
+    "prereg_auc_delta": 0.015,
+    "clinical_auc_delta": 0.02,
+    "h2_ari_threshold": 0.4,
+    "h2_bootstrap_n": 50,
+    "bootstrap_reps": 200,
+    "layer_min_obs": {
+      "L2_metabolic": 3,
+      "L3_immune": 2,
+      "L4_tissue": 3,
+      "L5_systemic": 2
+    }
+  }
+}

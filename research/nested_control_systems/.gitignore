@@ -1,0 +1,8 @@
+# Raw CDC NHANES data (re-downloads automatically; large) -- never commit
+nhanes_data/
+# Bulky / regenerated run artifacts (keep summary.json + the small evidence jsons)
+results/figures/
+results/validation_results.json
+results/*.png
+__pycache__/
+*.pyc

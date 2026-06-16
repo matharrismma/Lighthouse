@@ -271,14 +271,19 @@ class NHANESDownloader:
 
     def xpt_url(self, base: str, suffix: str) -> str:
         yr = self.cycle_year_range(suffix)
-        return f"https://wwwn.cdc.gov/Nchs/Nhanes/{yr}/{base}_{suffix}.XPT"
+        begin = yr.split("-")[0]   # CDC 2024 site reorg: files live under the begin-year folder
+        return (f"https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/{begin}/DataFiles/"
+                f"{base}_{suffix}.xpt")
 
     @staticmethod
     def _download(url: str, out: Path) -> bool:
         try:
             import requests
-            r = requests.get(url, timeout=90)
-            if r.status_code == 200:
+            r = requests.get(url, timeout=120,
+                             headers={"User-Agent": "Mozilla/5.0 (NHANES-validation)"})
+            # CDC serves a 200 HTML page for missing files; only save genuine SAS
+            # transport files (guard on the XPT signature) so a soft-404 can't poison it.
+            if r.status_code == 200 and r.content[:13] == b"HEADER RECORD":
                 out.write_bytes(r.content)
                 return True
             return False
