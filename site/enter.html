@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narrow Highway — whoever chooses to enter</title>
+<meta name="description" content="An engine that serves Jesus Christ. Bring what you carry; it is weighed against Scripture and what has stood the test of time, and you see what survives — with the trail, and a seal anyone can re-check. Free. Owned by no one. The door is open.">
+<link rel="canonical" href="https://narrowhighway.com/enter.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Narrow Highway — whoever chooses to enter">
+<meta property="og:description" content="It does not add a voice. It takes them away — eliminating what is not the answer until only what survived is left, with a seal anyone can re-check. Free. Owned by no one.">
+<meta property="og:url" content="https://narrowhighway.com/enter.html">
+<meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+<meta name="theme-color" content="#0a0810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;600&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0810;--bg2:#0d0b14;--tx:#ede7db;--cream:#f4ecd5;--dim:#b3aabd;--mut:#6e6878;--gold:#c9a87c;--goldhi:#e3c498;--surface:#161320;--line:#29232f;--pass:#6fc47c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--tx);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  a{color:var(--gold);text-decoration:none;}a:hover{color:var(--goldhi);}
+  section{padding:15vh 24px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}
+  .wrap{max-width:680px;width:100%;}
+  .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);margin-bottom:20px;}
+  h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(2.6rem,8vw,4.6rem);line-height:1.04;color:var(--cream);letter-spacing:-.01em;}
+  h2{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.8rem,4.6vw,2.9rem);line-height:1.12;color:var(--cream);margin-bottom:22px;}
+  .lead{font-family:'Crimson Pro',Georgia,serif;font-size:clamp(1.08rem,2vw,1.32rem);line-height:1.62;color:var(--dim);max-width:34ch;margin:0 auto;}
+  p.body{font-size:clamp(1rem,1.7vw,1.12rem);line-height:1.7;color:var(--dim);max-width:46ch;margin:0 auto;}
+  em{color:var(--goldhi);font-style:italic;}
+  .rev{opacity:0;transform:translateY(26px);transition:opacity 1s cubic-bezier(.2,.6,.2,1),transform 1s cubic-bezier(.2,.6,.2,1);}
+  .rev.in{opacity:1;transform:none;}
+  .rev.d1{transition-delay:.12s;}.rev.d2{transition-delay:.24s;}.rev.d3{transition-delay:.36s;}
+
+  /* hero */
+  #hero{min-height:100svh;justify-content:center;background:radial-gradient(ellipse 70% 55% at 50% 32%,#15101f 0%,#0a0810 66%);}
+  #hero .sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--mut);margin-bottom:26px;display:inline-flex;align-items:center;gap:9px;}
+  #hero .sub .ld{width:6px;height:6px;border-radius:50%;background:var(--pass);box-shadow:0 0 9px var(--pass);}
+  #hero .lead{margin-top:28px;max-width:40ch;}
+  .cue{margin-top:54px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);animation:fl 2.4s ease-in-out infinite;}
+  @keyframes fl{0%,100%{opacity:.4;transform:translateY(0);}50%{opacity:1;transform:translateY(5px);}}
+
+  /* gates */
+  .gates{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:34px auto 0;max-width:600px;text-align:left;}
+  @media(max-width:560px){.gates{grid-template-columns:1fr 1fr;}}
+  .gate{background:var(--surface);border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:0 0 8px 8px;padding:14px 13px;}
+  .gate .gn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--goldhi);}
+  .gate .gd{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:13px;color:var(--dim);margin-top:6px;line-height:1.4;}
+  .after{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:1.02rem;color:var(--dim);margin-top:26px;}
+
+  /* seal proof */
+  .seal{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:22px 24px;max-width:480px;margin:30px auto 0;text-align:left;}
+  .seal .claim{font-family:'Crimson Pro',Georgia,serif;font-size:1.5rem;color:var(--cream);}
+  .seal .verd{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;color:var(--pass);}
+  .seal .verd b{width:9px;height:9px;border-radius:50%;background:var(--pass);box-shadow:0 0 8px var(--pass);}
+  .seal .open{display:inline-block;margin-top:18px;padding:10px 18px;border:1px solid var(--gold);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--goldhi);}
+  .seal .open:hover{background:rgba(201,168,124,.1);}
+  .seal .meta{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.06em;color:var(--mut);margin-top:14px;word-break:break-all;line-height:1.5;}
+  .nums{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 30px;margin:34px auto 0;max-width:560px;}
+  .num{text-align:center;}
+  .num b{display:block;font-family:'Crimson Pro',Georgia,serif;font-size:1.9rem;color:var(--goldhi);}
+  .num span{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);}
+
+  /* brain */
+  .brainframe{width:100%;max-width:920px;height:540px;margin:30px auto 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#06070b;}
+  .brainframe iframe{width:100%;height:100%;border:0;display:block;}
+  .lk{display:inline-block;margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldhi);border-bottom:1px dashed rgba(201,168,124,.45);padding-bottom:2px;}
+
+  /* invitation */
+  #door{min-height:96svh;justify-content:center;background:radial-gradient(ellipse 60% 50% at 50% 50%,#15101f 0%,#0a0810 70%);}
+  .enter{display:inline-block;margin-top:30px;padding:16px 40px;background:var(--gold);color:#1a1410;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;}
+  .enter:hover{background:var(--goldhi);color:#1a1410;}
+  .verse{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:1.05rem;color:var(--mut);max-width:40ch;margin:48px auto 0;line-height:1.6;}
+  footer{padding:40px 24px 56px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);}
+  footer a{color:var(--dim);}
+  .div{width:1px;height:64px;background:linear-gradient(var(--line),transparent);margin:0 auto;}
+</style>
+</head>
+<body>
+
+<section id="hero">
+  <div class="wrap">
+    <div class="sub rev"><span class="ld"></span>An engine that serves Jesus Christ</div>
+    <h1 class="rev d1">Whoever chooses<br>to enter.</h1>
+    <p class="lead rev d2">Bring what you carry — a worry, a verse, a hard claim. It is weighed against Scripture and what has stood the test of time, and you see what survives: with the trail, and a seal anyone can re-check. No one is sorted at the door. Whoever enters, enters.</p>
+    <div class="cue rev d3">scroll &darr;</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="lbl rev">the world you came from</div>
+    <h2 class="rev d1">Everything wants to be believed.</h2>
+    <p class="body rev d2">You are surrounded by confident voices. The machines speak now too — fluent, certain, and often wrong. Almost nothing you are handed has been <em>weighed</em>. Almost nothing arrives with proof. Discernment has become the rarest thing, exactly when it is needed most.</p>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section>
+  <div class="wrap">
+    <div class="lbl rev">what this is</div>
+    <h2 class="rev d1">It does not add a voice.<br>It takes them away.</h2>
+    <p class="body rev d2">Most tools generate an answer and ask you to trust it. This one does the opposite. It <em>eliminates what is not the answer</em> — until only the narrow path is left, lit by what survived. It does not invent; it weighs. It is a conduit, not a source. And by its design, it cannot be made to seal a falsehood.</p>
+    <div class="gates rev d2">
+      <div class="gate"><div class="gn">RED</div><div class="gd">Is it honest? Is it safe?</div></div>
+      <div class="gate"><div class="gn">FLOOR</div><div class="gd">Does it clear the minimum?</div></div>
+      <div class="gate"><div class="gn">BROTHERS</div><div class="gd">Is there a second witness?</div></div>
+      <div class="gate"><div class="gn">GOD</div><div class="gd">Does it hold, against time?</div></div>
+    </div>
+    <p class="after rev d3">What passes all four, you keep. What fails, you see exactly where it broke.</p>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section>
+  <div class="wrap">
+    <div class="lbl rev">don't take our word &mdash; that's the point</div>
+    <h2 class="rev d1">Every verdict shows its work.<br>And seals it.</h2>
+    <p class="body rev d2">When the engine confirms something, it mints a permanent receipt — a seal anyone can open and re-check, without trusting us or this page. Here is one:</p>
+    <div class="seal rev d2">
+      <div class="claim">sin&sup2;x + cos&sup2;x = 1</div>
+      <div class="verd"><b></b>HOLDS &middot; verified, not asserted</div>
+      <div><a class="open" href="https://narrowhighway.com/seal/c604eadb19f8829a808ea4b301c800d2dc3d40daa1bb8cf2f348e5fd38304608">Open the seal &rarr;</a></div>
+      <div class="meta">content-addressed &middot; re-checkable forever<br>c604eadb19f8829a808ea4b301c800d2&hellip;</div>
+    </div>
+    <div class="nums rev d3">
+      <div class="num"><b>64</b><span>domains checked</span></div>
+      <div class="num"><b>0</b><span>false seals, in testing</span></div>
+      <div class="num"><b>every</b><span>claim, the worked trail</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section>
+  <div class="wrap">
+    <div class="lbl rev">what it has kept</div>
+    <h2 class="rev d1">A living map of what<br>survived the truth.</h2>
+    <p class="body rev d2">Everything the engine has weighed and kept becomes one structure — two trees from a single source, wired by what was verified. It is not a database. It is closer to a mind. Watch the signal move along the paths it follows.</p>
+  </div>
+  <div class="brainframe rev d2"><iframe src="/brain.html" title="The engine as a digital brain" loading="lazy"></iframe></div>
+  <a class="lk rev d3" href="/brain.html">Open the brain, full screen &rarr;</a>
+</section>
+
+<div class="div"></div>
+
+<section>
+  <div class="wrap">
+    <div class="lbl rev">the terms</div>
+    <h2 class="rev d1">Free. Yours.<br>Owned by no one.</h2>
+    <p class="body rev d2">No login. No ads. Nothing tracked. It stands on its own — no company owns the truth it keeps, and it can run without one. It is built to serve the least first: a child learning to read, the sick searching for what is real, anyone who cannot pay. Freedom is the point — freedom from deception, and from being owned.</p>
+  </div>
+</section>
+
+<section id="door">
+  <div class="wrap">
+    <h2 class="rev" style="margin-bottom:14px;">The door is open.</h2>
+    <p class="lead rev d1">Bring what you're carrying.</p>
+    <a class="enter rev d2" href="/">Enter &rarr;</a>
+    <p class="verse rev d3">&ldquo;Let the one who is thirsty come; let whoever wishes take the water of life freely.&rdquo;</p>
+  </div>
+</section>
+
+<footer>Serves Jesus Christ &middot; <a href="/">narrowhighway.com</a> &middot; free, no ads, nothing tracked</footer>
+
+<script>
+(function(){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.16, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>
