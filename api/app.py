@@ -18333,10 +18333,43 @@ class _GenerateGatedIn(BaseModel):
     context: dict = {}            # caller metadata (source, intent, etc.)
     base_model: str = ""          # adapter override; empty = anthropic
     persist: bool = True          # save as a /d/<slug> record
+    deep: bool = False            # also run the oracle-backed derivation verifier (slower, paid)
+
+
+# Public-safety guards for the gated-generation endpoint: a per-IP rate limit
+# (bounds abuse, cost, and disk) + a budget gate on the PAID adapters. The $0
+# paths (echo / local / ollama) stay open; the paid paths (anthropic / cloud
+# openai|compat) stop when the Steward's monthly cap is spent.
+_GATED_HITS: dict = {}                     # ip -> [unix timestamps]
+_GATED_PER_MIN = 8
+_GATED_PER_HOUR = 60
+
+
+def _gated_client_ip(request) -> str:
+    h = request.headers
+    fwd = h.get("cf-connecting-ip") or h.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return (getattr(request.client, "host", "") if request.client else "") or "unknown"
+
+
+def _gated_rate_ok(ip: str) -> bool:
+    import time as _t
+    now = _t.time()
+    hits = [t for t in _GATED_HITS.get(ip, []) if now - t < 3600]
+    if len([t for t in hits if now - t < 60]) >= _GATED_PER_MIN or len(hits) >= _GATED_PER_HOUR:
+        _GATED_HITS[ip] = hits
+        return False
+    hits.append(now)
+    _GATED_HITS[ip] = hits
+    if len(_GATED_HITS) > 5000:            # bound memory: drop stale IPs
+        for k in [k for k, v in _GATED_HITS.items() if not v or now - v[-1] > 3600]:
+            _GATED_HITS.pop(k, None)
+    return True
 
 
 @app.post("/api/generate-gated", include_in_schema=False)
-def generate_gated_endpoint(body: _GenerateGatedIn):
+def generate_gated_endpoint(body: _GenerateGatedIn, request: Request):
     """The mechanism as one HTTP call.
 
     Accepts a prompt, runs the full pipeline (RED -> base LLM -> verifiers ->
@@ -18345,7 +18378,7 @@ def generate_gated_endpoint(body: _GenerateGatedIn):
     permanent /d/<slug> record viewable at /d/<slug>.
     """
     from api.generate_gated import (
-        run_gated, AnthropicAdapter, EchoAdapter, DEFAULT_VERIFIERS,
+        run_gated, AnthropicAdapter, EchoAdapter, DEFAULT_VERIFIERS, DEEP_VERIFIERS,
     )
 
     prompt = (body.prompt or "").strip()
@@ -18353,6 +18386,14 @@ def generate_gated_endpoint(body: _GenerateGatedIn):
         raise HTTPException(status_code=400, detail="prompt too short (min 3 chars)")
     if len(prompt) > 200_000:
         raise HTTPException(status_code=400, detail="prompt too long (max 200k chars)")
+
+    # Public-safety: per-IP rate limit (bounds abuse, cost, and disk writes).
+    if not _gated_rate_ok(_gated_client_ip(request)):
+        raise HTTPException(
+            status_code=429,
+            detail=(f"rate limit: max {_GATED_PER_MIN}/min and {_GATED_PER_HOUR}/hour for gated "
+                    f"generation. Slow down, or run it locally (base_model=local / ollama)."),
+        )
 
     # Pick the base model adapter.
     # - "anthropic" / "echo"  → built-in adapters
@@ -18441,7 +18482,33 @@ def generate_gated_endpoint(body: _GenerateGatedIn):
                    f"openai[:<model>], ollama[:<model>])",
         )
 
-    verifiers = list(body.verifiers) if body.verifiers else list(DEFAULT_VERIFIERS)
+    # Public-safety: budget-gate the PAID adapters so anonymous calls cannot run the
+    # Steward's monthly cap dry. The $0 paths (echo / local / ollama) are exempt; a
+    # cloud openai/compat URL is treated as paid. When the cap is spent, point the
+    # caller at the free sovereign path rather than silently spending.
+    _paid = (adapter_name_lower == "anthropic"
+             or adapter_name_lower.startswith("openai")
+             or adapter_name_lower.startswith("compat"))
+    if _paid:
+        try:
+            from api.offices import steward_budget_remaining_usd as _budget
+            if _budget() < 1.0:
+                raise HTTPException(
+                    status_code=503,
+                    detail=("monthly model budget exhausted; use base_model=echo, or run a "
+                            "local model (base_model=local or ollama) -- the sovereign $0 path."),
+                )
+        except HTTPException:
+            raise
+        except Exception:
+            pass  # budget check is best-effort; never block on its own failure
+
+    if body.verifiers:
+        verifiers = list(body.verifiers)
+    elif body.deep:
+        verifiers = list(DEEP_VERIFIERS)      # opt-in: also verify quantitative claims (paid oracle)
+    else:
+        verifiers = list(DEFAULT_VERIFIERS)
 
     try:
         response = run_gated(

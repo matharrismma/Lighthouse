@@ -797,10 +797,14 @@ VERIFIERS = {
 
 # ── The pipeline ─────────────────────────────────────────────────────
 
-# scripture_anchors + theology_doctrine run on the text; derivation brings the full
-# deterministic 64-verifier stack to bear on the answer's quantitative claims via the
-# prose->structured bridge (and only rejects on a genuinely false claim).
-DEFAULT_VERIFIERS = ["scripture_anchors", "theology_doctrine", "derivation"]
+# Default = the two fast, free, deterministic text checks. `derivation` is the DEEP
+# check: it brings the full 64-verifier stack to bear on the answer's quantitative claims
+# via the prose->structured bridge -- but that bridge calls the paid oracle to FORMALIZE,
+# so it costs ~$0.01 and ~10s PER call. That is wrong as an always-on default for a public
+# endpoint, so it is OPT-IN: request verifiers=[...,"derivation"] when you want the answer's
+# math/science claims deterministically verified (a false claim -> MISMATCH -> rejected).
+DEFAULT_VERIFIERS = ["scripture_anchors", "theology_doctrine"]
+DEEP_VERIFIERS = ["scripture_anchors", "theology_doctrine", "derivation"]
 
 
 def run_gated(

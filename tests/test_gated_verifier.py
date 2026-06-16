@@ -31,8 +31,11 @@ _FALSE = [{"id": "s0", "domain": "mathematics",
 
 
 def test_derivation_verifier_registered():
+    # available in the registry and in the opt-in DEEP set, but NOT the default
+    # (it calls the paid oracle, so it is opt-in -- see DEFAULT_VERIFIERS comment).
     assert "derivation" in G.VERIFIERS
-    assert "derivation" in G.DEFAULT_VERIFIERS
+    assert "derivation" in G.DEEP_VERIFIERS
+    assert "derivation" not in G.DEFAULT_VERIFIERS
 
 
 def test_graceful_without_oracle():
