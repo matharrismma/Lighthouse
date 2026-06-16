@@ -704,20 +704,22 @@ def sermon(reference: str, author: str = "spurgeon", limit: int = 8) -> Dict[str
 
 
 @mcp.tool()
-def concord(reference: str, limit: int = 12, top: int = 14) -> Dict[str, Any]:
-    """The CONCORD across the attributed takes for a passage -- the measurable agreement.
+def concord(reference: str, limit: int = 12, top: int = 14,
+            across_xrefs: bool = False) -> Dict[str, Any]:
+    """The CONCORD across the gathered witnesses for a passage -- the measurable agreement.
 
     Concordance = index + CONCORD. reference = 'John 3:16', 'Romans 8:28', 'Genesis 1:1'.
-    Gathers the takes already onboard (the Strong's lexical glosses, the BDB/Thayer
-    scholarly definitions, the classic commentary, the sermon index) and reports which
-    content TERMS recur across multiple INDEPENDENT sources (convergence) versus what each
-    source uniquely contributes (divergence). HONEST: this is a DETERMINISTIC surface-term
-    overlap across ATTRIBUTED takes -- found and recombined, never authored. It is NOT a
-    verdict on truth, NOT a generated synthesis, NOT a semantic judgment: it shows WHERE
-    the witnesses agree, not whether they are right. Read each take in full via
-    read_passage, lexicon, commentary, and sermon.
+    By default gathers the interpretive takes already onboard (the Strong's lexical glosses,
+    the BDB/Thayer scholarly definitions, the classic commentary, the sermon index) and
+    reports which content TERMS recur across multiple INDEPENDENT sources (convergence) vs
+    what each uniquely contributes (divergence). across_xrefs=True switches to CROSS-PASSAGE
+    concord: the verse + its top cross-referenced passages (WEB text), measuring the thematic
+    thread running through the verse and its scriptural echoes (limit = how many cross-refs).
+    HONEST: a DETERMINISTIC surface-term overlap -- found and recombined, never authored. It
+    is NOT a verdict on truth, NOT a generated synthesis, NOT a semantic judgment: it shows
+    WHERE the witnesses agree, not whether they are right.
     """
-    return tools.concord(reference, limit, top)
+    return tools.concord(reference, limit, top, across_xrefs)
 
 
 @mcp.tool()

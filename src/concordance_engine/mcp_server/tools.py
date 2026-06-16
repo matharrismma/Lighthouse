@@ -2202,7 +2202,84 @@ _CONCORD_STOP = frozenset((
     "accordingly thereupon other another etc whether either neither").split())
 
 
-def concord(reference, limit=12, top=14):
+def _concord_compute(sources, top):
+    """The deterministic CONCORD core: term-overlap across a dict of label -> text. Returns
+    which content terms recur across >=2 sources (convergence) and what each source uniquely
+    contributes (divergence). Shared by both concord modes (takes + cross-passage)."""
+    import re as _re
+    per_source = {}
+    for label, text in sources.items():
+        terms = {}
+        for tok in _re.findall(r"[a-z]+", (text or "").lower()):
+            if len(tok) < 3 or tok in _CONCORD_STOP:
+                continue
+            terms[tok] = terms.get(tok, 0) + 1
+        per_source[label] = terms
+    term_src, term_freq = {}, {}
+    for label, terms in per_source.items():
+        for tok, c in terms.items():
+            term_src.setdefault(tok, set()).add(label)
+            term_freq[tok] = term_freq.get(tok, 0) + c
+    n_terms = len(term_src)
+    shared = [(t, len(s)) for t, s in term_src.items() if len(s) >= 2]
+    shared.sort(key=lambda x: (-x[1], -term_freq[x[0]], x[0]))
+    n_strong = sum(1 for _, k in shared if k >= 3)
+    concord_terms = [{"term": t, "in_sources": k, "freq": term_freq[t],
+                      "sources": sorted(term_src[t])} for t, k in shared[:top]]
+    divergence = {}
+    for label, terms in per_source.items():
+        uniq = sorted(((t, c) for t, c in terms.items() if len(term_src[t]) == 1),
+                      key=lambda x: (-x[1], x[0]))
+        divergence[label] = [t for t, _ in uniq[:6]]
+    return {"n_terms": n_terms, "n_shared": len(shared), "n_strong": n_strong,
+            "concord_ratio": round(len(shared) / max(1, n_terms), 3),
+            "concord_terms": concord_terms, "divergence": divergence}
+
+
+def _concord_across_xrefs(reference, limit, top):
+    """Cross-passage concord: gather the verse + its top cross-referenced passages (WEB text)
+    and measure where the linked Scripture passages CONVERGE -- the thematic thread through a
+    verse and its echoes. Deterministic term-overlap; surfaces the thread, never interprets."""
+    try:
+        k = max(2, min(int(limit), 15))
+    except (TypeError, ValueError):
+        k = 8
+    xr = cross_references(reference, limit=k)
+    if xr.get("status") != "ok":
+        return {"status": xr.get("status", "error"),
+                "detail": xr.get("detail") or "could not gather cross-references for concord",
+                "reference": xr.get("reference") or reference}
+    sources, passages = {}, []
+    if xr.get("verse_text"):
+        sources[(xr.get("reference") or "verse") + " (the verse)"] = xr["verse_text"]
+    for x in xr.get("cross_references", []):
+        if x.get("text"):
+            sources[x["ref"]] = x["text"]
+            passages.append({"ref": x["ref"], "votes": x.get("votes")})
+    if len(sources) < 2:
+        return {"status": "insufficient_passages",
+                "detail": "need the verse + at least 1 cross-referenced passage with text; found %d"
+                          % len(sources),
+                "reference": xr.get("reference")}
+    core = _concord_compute(sources, top)
+    return {"status": "ok", "mode": "across_xrefs", "reference": xr.get("reference"),
+            "verse_text": xr.get("verse_text"), "translation": "WEB",
+            "n_passages": len(sources), "passages": passages,
+            "n_terms": core["n_terms"], "n_shared": core["n_shared"], "n_strong": core["n_strong"],
+            "concord_ratio": core["concord_ratio"], "concord_terms": core["concord_terms"],
+            "divergence": core["divergence"],
+            "interpretation": ("the thematic thread running through the verse and its scriptural "
+                               "echoes -- terms in 3+ of the linked PASSAGES are the strongest common "
+                               "thread; divergence = what each passage alone adds."),
+            "note": "Cross-passage concord: a DETERMINISTIC term-overlap across the verse and the "
+                    "Scripture passages cross-referenced to it (WEB text; links from openbible.info / "
+                    "TSK, attributed). It surfaces the shared thread, NOT a verdict on meaning -- the "
+                    "engine finds where the passages converge, it does not interpret them. Each passage "
+                    "is Scripture; the linkage is an attributed index, never engine doctrine.",
+            "source": xr.get("source"), "attribution": xr.get("attribution")}
+
+
+def concord(reference, limit=12, top=14, across_xrefs=False):
     """The CONCORD across the attributed takes for a passage -- the measurable agreement
     of independent witnesses. Concordance = index + CONCORD: for a verse this gathers the
     takes already onboard (the Strong's lexical glosses, the BDB/Thayer scholarly
@@ -2210,16 +2287,21 @@ def concord(reference, limit=12, top=14):
     recur across multiple INDEPENDENT sources (= concord / convergence) versus what each
     source uniquely contributes (= divergence).
 
-    HONEST: this is a DETERMINISTIC surface-term overlap across attributed human/lexical
-    takes -- NOT a verdict on truth, NOT a generated synthesis, NOT a semantic judgment.
-    The takes are FOUND and ATTRIBUTED (recombined, never authored). It shows WHERE the
-    witnesses agree, not WHETHER they are right. reference = 'John 3:16', 'Romans 8:28',
-    'Genesis 1:1', 'Psalm 23:1'."""
-    import re as _re
+    across_xrefs=True switches to CROSS-PASSAGE concord: instead of the interpretive takes,
+    it gathers the verse + its top cross-referenced passages (their WEB text) and measures
+    the thematic thread running through the verse and its scriptural echoes (limit = how many
+    cross-refs to include).
+
+    HONEST: this is a DETERMINISTIC surface-term overlap -- NOT a verdict on truth, NOT a
+    generated synthesis, NOT a semantic judgment. The takes/passages are FOUND and ATTRIBUTED
+    (recombined, never authored). It shows WHERE the witnesses agree, not WHETHER they are
+    right. reference = 'John 3:16', 'Romans 8:28', 'Genesis 1:1', 'Psalm 23:1'."""
     try:
         top = max(4, min(int(top), 40))
     except (TypeError, ValueError):
         top = 14
+    if across_xrefs:
+        return _concord_across_xrefs(reference, limit, top)
     # gather the attributed takes already onboard (compose the existing tools)
     rp = read_passage(reference, takes=True, limit=limit)
     cm = commentary(reference)
@@ -2257,38 +2339,13 @@ def concord(reference, limit=12, top=14):
                 "sources_found": sorted(sources.keys()),
                 "takes_status": {"read_passage": rp.get("status"), "commentary": cm.get("status"),
                                  "sermon": sm.get("status")}}
-    # per-source content-term sets (deterministic: lowercase ascii words, stopword-filtered)
-    per_source = {}
-    for label, text in sources.items():
-        terms = {}
-        for tok in _re.findall(r"[a-z]+", text.lower()):
-            if len(tok) < 3 or tok in _CONCORD_STOP:
-                continue
-            terms[tok] = terms.get(tok, 0) + 1
-        per_source[label] = terms
-    term_src, term_freq = {}, {}
-    for label, terms in per_source.items():
-        for tok, c in terms.items():
-            term_src.setdefault(tok, set()).add(label)
-            term_freq[tok] = term_freq.get(tok, 0) + c
-    n_terms = len(term_src)
-    shared = [(t, len(s)) for t, s in term_src.items() if len(s) >= 2]
-    shared.sort(key=lambda x: (-x[1], -term_freq[x[0]], x[0]))
-    n_shared = len(shared)
-    n_strong = sum(1 for _, k in shared if k >= 3)
-    concord_terms = [{"term": t, "in_sources": k, "freq": term_freq[t],
-                      "sources": sorted(term_src[t])} for t, k in shared[:top]]
-    divergence = {}
-    for label, terms in per_source.items():
-        uniq = sorted(((t, c) for t, c in terms.items() if len(term_src[t]) == 1),
-                      key=lambda x: (-x[1], x[0]))
-        divergence[label] = [t for t, _ in uniq[:6]]
+    core = _concord_compute(sources, top)        # deterministic term-overlap (shared core)
     return {"status": "ok", "reference": rp.get("reference") or reference,
             "anchor": anchor, "translation": "WEB",
             "n_sources": len(sources), "sources": sorted(sources.keys()),
-            "n_terms": n_terms, "n_shared": n_shared, "n_strong": n_strong,
-            "concord_ratio": round(n_shared / max(1, n_terms), 3),
-            "concord_terms": concord_terms, "divergence": divergence,
+            "n_terms": core["n_terms"], "n_shared": core["n_shared"], "n_strong": core["n_strong"],
+            "concord_ratio": core["concord_ratio"],
+            "concord_terms": core["concord_terms"], "divergence": core["divergence"],
             "interpretation": ("higher in_sources = the witnesses converge on that term; the "
                                "strong terms (in 3+ sources) are where lexicon, commentary and "
                                "sermon independently land together. divergence = what each source "
@@ -3653,14 +3710,18 @@ TOOLS: List[Dict[str, Any]] = [
          "TERMS recur across multiple INDEPENDENT sources (convergence) versus what each uniquely "
          "contributes (divergence). HONEST: a DETERMINISTIC surface-term overlap across ATTRIBUTED "
          "takes -- found and recombined, never authored; NOT a verdict on truth, not a synthesis. It "
-         "shows WHERE the witnesses agree, not whether they are right."
+         "shows WHERE the witnesses agree, not whether they are right. across_xrefs=true switches to "
+         "CROSS-PASSAGE concord: the verse + its top cross-referenced passages (WEB text), measuring "
+         "the thematic thread through the verse and its scriptural echoes (limit = how many cross-refs)."
      ),
      "inputSchema": {"type": "object",
                      "properties": {"reference": {"type": "string"},
                                     "limit": {"type": "integer"},
-                                    "top": {"type": "integer"}},
+                                    "top": {"type": "integer"},
+                                    "across_xrefs": {"type": "boolean"}},
                      "required": ["reference"]},
-     "fn": lambda a: concord(a["reference"], a.get("limit", 12), a.get("top", 14))},
+     "fn": lambda a: concord(a["reference"], a.get("limit", 12), a.get("top", 14),
+                             a.get("across_xrefs", False))},
     {"name": "cross_references",
      "description": (
          "The cross-references for a verse -- where Scripture echoes Scripture. reference = "
