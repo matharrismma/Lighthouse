@@ -123,3 +123,10 @@ data/quarantine/
 # auto-captured for operator review. Contains user-submitted claim
 # text. Operator-local.
 data/misalignments/
+
+# Scratch / debug artifacts at repo root — temp dumps, curl bodies, slice files.
+# These are working scratch, never part of the project; keep them out of git.
+_tmp_*
+_cr_*.json
+*_slice.txt
+conn_index.txt
