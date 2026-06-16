@@ -2303,6 +2303,71 @@ def concord(reference, limit=12, top=14):
                              "sermon": sm.get("status")}}
 
 
+def cross_references(reference, limit=20):
+    """The cross-references for a verse -- where Scripture echoes Scripture. reference =
+    'John 3:16', 'Romans 8:28', 'Genesis 1:1' (a single verse). Returns the related
+    passages, ranked by a relevance VOTE score, each with its WEB text. From openbible.info's
+    community-voted expansion of the public-domain Treasury of Scripture Knowledge (CC BY) --
+    an ATTRIBUTED index, never engine doctrine. The concordance's core act: cross-referencing
+    the Word with the Word. Pair with concord to measure where the linked passages converge."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    base = _Path(__file__).resolve().parents[3] / "lw" / "00_source"
+    web = base / "web_bible" / "web.db"
+    xdb = base / "xrefs" / "xrefs.db"
+    if not web.exists() or not xdb.exists():
+        return {"status": "source_missing", "detail": "cross-reference index not provisioned"}
+    ref = str(reference or "").strip()
+    m = _re.match(r"^\s*(\d?\s?[A-Za-z][A-Za-z. ]*?)\s+(\d+):(\d+)\s*$", ref)
+    if not m:
+        return {"status": "error",
+                "detail": "provide a single verse like 'John 3:16' or 'Romans 8:28'"}
+    bk_raw, ch, vs = m.group(1).strip(), int(m.group(2)), int(m.group(3))
+    try:
+        lim = max(1, min(int(limit), 60))
+    except (TypeError, ValueError):
+        lim = 20
+    try:
+        cw = _sql.connect("file:%s?mode=ro" % web.as_posix(), uri=True)
+        num = _resolve_bible_book(cw, bk_raw)
+        if num is None:
+            cw.close()
+            return {"status": "not_found", "detail": "unknown book: " + bk_raw}
+        from_name = cw.execute("SELECT name FROM books WHERE book_num=?", (num,)).fetchone()[0]
+        ftr = cw.execute("SELECT text FROM verses WHERE book_num=? AND chapter=? AND verse=?",
+                         (num, ch, vs)).fetchone()
+        cx = _sql.connect("file:%s?mode=ro" % xdb.as_posix(), uri=True)
+        meta = dict(cx.execute("SELECT k,v FROM meta").fetchall())
+        rows = cx.execute("SELECT to_book,to_chapter,to_verse_start,to_verse_end,votes FROM cross_refs "
+                          "WHERE from_book=? AND from_chapter=? AND from_verse=? ORDER BY votes DESC, "
+                          "to_book,to_chapter,to_verse_start LIMIT ?", (num, ch, vs, lim)).fetchall()
+        cx.close()
+        refs = []
+        for tb, tc, v1, v2, votes in rows:
+            tn = cw.execute("SELECT name FROM books WHERE book_num=?", (tb,)).fetchone()
+            tname = tn[0] if tn else ("book %d" % tb)
+            vrows = cw.execute("SELECT text FROM verses WHERE book_num=? AND chapter=? AND "
+                               "verse BETWEEN ? AND ? ORDER BY verse", (tb, tc, v1, v2)).fetchall()
+            text = " ".join(t for (t,) in vrows) if vrows else None
+            canon = "%s %d:%d" % (tname, tc, v1) + (("-%d" % v2) if v2 != v1 else "")
+            refs.append({"ref": canon, "votes": votes, "text": text})
+        cw.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "cross-reference lookup failed: " + str(e)[:140]}
+    if not refs:
+        return {"status": "not_found", "reference": "%s %d:%d" % (from_name, ch, vs),
+                "detail": "no cross references indexed for this verse"}
+    return {"status": "ok", "reference": "%s %d:%d" % (from_name, ch, vs),
+            "verse_text": ftr[0] if ftr else None, "translation": "WEB",
+            "count": len(refs), "cross_references": refs,
+            "note": "Where Scripture echoes Scripture -- related passages ranked by relevance vote. "
+                    "An ATTRIBUTED index (openbible.info / TSK), the engine surfaces it, never authors "
+                    "or endorses a linkage. Measure where the linked passages converge with concord.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def activity_mets(query, limit=10):
     """The metabolic-equivalent (MET) intensity of a physical activity, from the
     offline 2011 Compendium of Physical Activities (Ainsworth et al.). query =
@@ -3596,6 +3661,20 @@ TOOLS: List[Dict[str, Any]] = [
                                     "top": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: concord(a["reference"], a.get("limit", 12), a.get("top", 14))},
+    {"name": "cross_references",
+     "description": (
+         "The cross-references for a verse -- where Scripture echoes Scripture. reference = "
+         "'John 3:16', 'Romans 8:28', 'Genesis 1:1' (a single verse). Returns the related passages "
+         "ranked by a relevance VOTE score, each with its WEB text. From openbible.info's community-"
+         "voted expansion of the public-domain Treasury of Scripture Knowledge (CC BY) -- an ATTRIBUTED "
+         "index, never engine doctrine. The concordance's core act: cross-referencing the Word with the "
+         "Word. Pair with concord to measure where the linked passages converge."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: cross_references(a["reference"], a.get("limit", 20))},
     {"name": "activity_mets",
      "description": (
          "The metabolic-equivalent (MET) intensity of a physical activity, from the offline 2011 "
@@ -4153,6 +4232,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "commentary": commentary,
     "sermon": sermon,
     "concord": concord,
+    "cross_references": cross_references,
     "activity_mets": activity_mets,
     "nuclide_data": nuclide_data,
     "element_data": element_data,

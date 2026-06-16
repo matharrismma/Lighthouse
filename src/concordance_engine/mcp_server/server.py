@@ -721,6 +721,20 @@ def concord(reference: str, limit: int = 12, top: int = 14) -> Dict[str, Any]:
 
 
 @mcp.tool()
+def cross_references(reference: str, limit: int = 20) -> Dict[str, Any]:
+    """The cross-references for a verse -- where Scripture echoes Scripture.
+
+    reference = 'John 3:16', 'Romans 8:28', 'Genesis 1:1' (a single verse). Returns the
+    related passages ranked by a relevance VOTE score, each with its WEB text. From
+    openbible.info's community-voted expansion of the public-domain Treasury of Scripture
+    Knowledge (CC BY) -- an ATTRIBUTED index, never engine doctrine. The concordance's core
+    act: cross-referencing the Word with the Word. Pair with concord to measure where the
+    linked passages converge. John 3:16 -> Romans 5:8, 1 John 4:9-10, Romans 8:32.
+    """
+    return tools.cross_references(reference, limit)
+
+
+@mcp.tool()
 def activity_mets(query: str, limit: int = 10) -> Dict[str, Any]:
     """The metabolic-equivalent (MET) intensity of a physical activity.
 
