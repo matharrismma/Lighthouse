@@ -669,6 +669,21 @@ def lexicon(strongs: str) -> Dict[str, Any]:
     return tools.lexicon(strongs)
 
 
+@mcp.tool()
+def commentary(reference: str, author: str = "matthew-henry", limit: int = 6) -> Dict[str, Any]:
+    """The classic COMMENTARY take for a passage -- an attributed great-minds note.
+
+    reference = 'John 3:16', 'Genesis 1', 'Romans 8:28-30'. author selects the
+    commentator (default 'matthew-henry'; more layer on as built). Classic
+    commentators write at PASSAGE granularity, so a single-verse lookup returns the
+    note whose passage covers that verse (largest start verse <= the one asked). From
+    offline public-domain commentary (Free Use Bible API data). An ATTRIBUTED take
+    (the author's) -- the engine surfaces it, it does NOT endorse or generate it. Read
+    alongside scripture (the WEB) and original_words (the original).
+    """
+    return tools.commentary(reference, author, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

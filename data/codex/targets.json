@@ -104,8 +104,8 @@
     },
     {
       "name": "commentary takes searchable per verse (CCEL: Henry, Barnes, Calvin)",
-      "status": "open",
-      "acquire": "Great-minds commentary is NOT clean verse-keyed JSON anywhere quick (scouted 2026-06-15: bolls.life exposes no commentary list, only 3 lexicons; godlytalias/scrollmapper carry translations only). Authoritative public-domain home = CCEL ThML (ccel.org: Barnes' Notes is the most verse-by-verse; Henry/Calvin are passage-level) OR CrossWire Sword modules (zText, needs pysword). Plan: dedicated tick -- parse one commentary (Barnes first) to a verse/passage-keyed lw/00_source/commentary/*.db, wire commentary(reference) tool returning the attributed note per verse, takes-style. Verdict ATTRIBUTED Layer-2 take, never engine doctrine."
+      "status": "done",
+      "acquire": "DONE 2026-06-15: cleaner source than CCEL found -- the Free Use Bible API (bible.helloao.org) serves classic public-domain commentaries as verse-keyed JSON. Built lw/00_source/commentary/matthew_henry.db (4,124 passage notes, all 66 books, 34MB) via tools/build_commentary_index.py (fetch+build, 1167 chapters). Wired commentary(reference, author) tool: passage-level, returns the note whose start verse covers the queried verse (John 3:16 -> Henry on the Nicodemus passage). ATTRIBUTED (Matthew Henry, public domain), never engine doctrine. More commentators (Barnes/Calvin/JFB/Clarke/Gill all on helloao) drop in by re-running the build with --commentary <id>."
     },
     {
       "name": "sermon takes searchable (Spurgeon, Edwards, Wesley)",

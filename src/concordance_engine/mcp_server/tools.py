@@ -2022,6 +2022,77 @@ def lexicon(strongs):
             "attribution": meta.get("attribution")}
 
 
+def commentary(reference, author="matthew-henry", limit=6):
+    """The classic COMMENTARY take for a passage -- an attributed great-minds note.
+    reference = 'John 3:16', 'Genesis 1', 'Romans 8:28-30'. author selects the
+    commentator (default 'matthew-henry'; more layer on as built). Classic
+    commentators write at PASSAGE granularity, so a single-verse lookup returns the
+    note whose passage COVERS that verse (largest start verse <= the one asked). From
+    offline public-domain commentary (Free Use Bible API data). An ATTRIBUTED take
+    (the author's) -- the engine surfaces it, it does NOT endorse or generate it. Read
+    alongside scripture (the WEB) and original_words (the original)."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    base = _Path(__file__).resolve().parents[3] / "lw" / "00_source"
+    web = base / "web_bible" / "web.db"
+    cdb = base / "commentary" / (str(author or "matthew-henry").replace("-", "_") + ".db")
+    if not web.exists() or not cdb.exists():
+        return {"status": "source_missing", "detail": "commentary '%s' not provisioned" % author}
+    ref = str(reference or "").strip()
+    m = _re.match(r"^\s*(\d?\s?[A-Za-z][A-Za-z. ]*?)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?\s*$", ref)
+    if not m:
+        return {"status": "error", "detail": "could not parse reference: " + ref}
+    bk_raw, ch = m.group(1).strip(), int(m.group(2))
+    v1 = int(m.group(3)) if m.group(3) else None
+    v2 = int(m.group(4)) if m.group(4) else v1
+    try:
+        lim = max(1, min(int(limit), 20))
+    except (TypeError, ValueError):
+        lim = 6
+    try:
+        cw = _sql.connect("file:%s?mode=ro" % web.as_posix(), uri=True)
+        num = _resolve_bible_book(cw, bk_raw)
+        name = (cw.execute("SELECT name FROM books WHERE book_num=?", (num,)).fetchone()[0]
+                if num else None)
+        cw.close()
+        if num is None:
+            return {"status": "not_found", "detail": "unknown book: " + bk_raw}
+        cc = _sql.connect("file:%s?mode=ro" % cdb.as_posix(), uri=True)
+        meta = dict(cc.execute("SELECT k,v FROM meta").fetchall())
+        if v1 is None:
+            rows = cc.execute("SELECT verse_start,text FROM notes WHERE book_num=? AND chapter=? "
+                              "ORDER BY verse_start LIMIT ?", (num, ch, lim)).fetchall()
+        else:
+            cov = cc.execute("SELECT max(verse_start) FROM notes WHERE book_num=? AND chapter=? "
+                             "AND verse_start<=?", (num, ch, v1)).fetchone()[0]
+            lo = cov if cov is not None else v1
+            rows = cc.execute("SELECT verse_start,text FROM notes WHERE book_num=? AND chapter=? "
+                              "AND verse_start BETWEEN ? AND ? ORDER BY verse_start LIMIT ?",
+                              (num, ch, lo, v2, lim)).fetchall()
+        cc.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "commentary lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "detail": "no commentary for '" + ref + "'"}
+    CAP = 2600
+    notes = []
+    for vs, txt in rows:
+        t = txt or ""
+        notes.append({"on": "%s %d:%d" % (name, ch, vs), "verse_start": vs,
+                      "text": (t[:CAP] + " ...[truncated]") if len(t) > CAP else t,
+                      "chars": len(t)})
+    canon = name + " " + str(ch)
+    if v1 is not None:
+        canon += ":" + str(v1) + (("-" + str(v2)) if v2 != v1 else "")
+    return {"status": "ok", "reference": canon, "author": meta.get("author"),
+            "count": len(notes), "notes": notes,
+            "note": "Attributed great-minds commentary take (passage-level); the engine surfaces it, "
+                    "never endorses or generates it. Read with scripture (the WEB) + original_words.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3006,6 +3077,20 @@ TOOLS: List[Dict[str, Any]] = [
                      "properties": {"strongs": {"type": "string"}},
                      "required": ["strongs"]},
      "fn": lambda a: lexicon(a["strongs"])},
+    {"name": "commentary",
+     "description": (
+         "The classic COMMENTARY take for a passage -- an attributed great-minds note. reference = "
+         "'John 3:16', 'Genesis 1', 'Romans 8:28-30'. author selects the commentator (default "
+         "'matthew-henry'). Classic commentators write at PASSAGE level, so a single-verse lookup "
+         "returns the note whose passage covers that verse. Offline public-domain commentary (Free Use "
+         "Bible API data). An attributed take -- the engine surfaces it, never endorses or generates it."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "author": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: commentary(a["reference"], a.get("author", "matthew-henry"), a.get("limit", 6))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3504,6 +3589,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "original_words": original_words,
     "read_passage": read_passage,
     "lexicon": lexicon,
+    "commentary": commentary,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
