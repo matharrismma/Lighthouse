@@ -5764,6 +5764,94 @@ def derivation_solve(request: Request, body: _DerivationProseIn):
     return result
 
 
+# ── The work area: one input that knows what to do with whatever you bring ────
+# The airlock vision made live: bring anything -- a grocery note, an email, a
+# claim, a thing to remember -- and the work area routes it and DOES it. The
+# assistant organ (the paid oracle) classifies + drafts; a VERIFIABLE claim is
+# handed to the deterministic engine (which judges, never the oracle). Honest
+# split: the engine VERIFIES; the assistant DRAFTS (generated, kept, never
+# crowned). Budget- and rate-gated; falls back to the rule-based floor when the
+# oracle is unprovisioned. Everything stays the caller's -- this returns the
+# artifact; the device keeps it (the file-system-for-life starts on-device).
+_INTAKE_SYS = """You are the router for a person's personal workspace. Read what they bring and decide the single best action, then DO it. Respond with ONLY one JSON object -- no prose, no markdown.
+
+Pick intent and fill its fields:
+- "verify": a checkable factual, mathematical, scientific, or logical claim. {"intent":"verify","claim":"<the claim, restated plainly>"}  Do NOT judge it yourself -- a deterministic engine will.
+- "list": one or more items for a list (groceries, to-dos, packing). {"intent":"list","list":"<short name, e.g. grocery or to-do>","items":["item one","item two"]}
+- "draft": a message or email they want written. {"intent":"draft","kind":"email","to":"<recipient or empty>","subject":"<subject or empty>","body":"<full drafted text, ready to send>"}
+- "note": something to remember or keep (a fact, an idea, a password). {"intent":"note","title":"<3-5 word title>","note":"<the thing to keep>"}
+- "ask": a question wanting a direct answer. {"intent":"ask","answer":"<brief, honest answer; say plainly if unsure>"}
+- "open": they want to open a tool or room (chess, calendar, radio, the Bible, a game). {"intent":"open","what":"<the room or tool>"}
+
+Be decisive and practical. A bare statement of fact -> prefer "verify". A list of things -> "list". Output ONLY the JSON object."""
+
+
+def _intake_route(text: str) -> Dict[str, Any]:
+    import os
+    import anthropic
+    try:
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=22.0, max_retries=1)
+        resp = client.messages.create(
+            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
+            max_tokens=900, system=_INTAKE_SYS,
+            messages=[{"role": "user", "content": text}])
+        try:
+            from api.offices import ledger_record
+            ti = getattr(resp.usage, "input_tokens", 0) or 0
+            to = getattr(resp.usage, "output_tokens", 0) or 0
+            ledger_record("workspace_intake", ti * 3e-6 + to * 15e-6)
+        except Exception:  # noqa: BLE001
+            pass
+        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        i, j = raw.find("{"), raw.rfind("}")
+        if i >= 0 and j > i:
+            return json.loads(raw[i:j + 1])
+    except Exception as exc:  # noqa: BLE001 -- never crash; fall back to keeping it as a note
+        return {"intent": "note", "title": "Kept", "note": text, "_error": str(exc)[:140]}
+    return {"intent": "note", "title": "Kept", "note": text}
+
+
+class _IntakeIn(BaseModel):
+    text: str
+
+
+@app.post("/workspace/intake", tags=["public"])
+def workspace_intake(request: Request, body: _IntakeIn):
+    """The work area's one brain: read whatever was brought and do the right thing.
+    Verifiable claim -> the deterministic engine (with a seal). Everything else the
+    assistant organ drafts (a list, an email, a note, an answer, a room to open).
+    The engine verifies; the assistant only drafts. Budget/rate-gated; falls back to
+    the rule-based floor when the oracle is offline."""
+    _rate_check(request, "workspace_intake")
+    text = (body.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="bring something")
+    if len(text) > 4000:
+        text = text[:4000]
+    import os
+    try:
+        from api.offices import steward_budget_remaining_usd as _budget
+        budget_ok = _budget() >= 1.0
+    except Exception:  # noqa: BLE001
+        budget_ok = True
+    if not os.environ.get("ANTHROPIC_API_KEY") or not budget_ok:
+        from api import floor as _floor
+        c = _floor.classify(text)
+        return {"intent": "route", "oracle": False, "route": c,
+                "note": "the assistant is offline (no key or over budget) -- routed by rules. "
+                        "A structured claim can always go to POST /derivation/verify."}
+    routed = _intake_route(text)
+    if routed.get("intent") == "verify":
+        from api import derivation as _d
+        claim = (routed.get("claim") or text)[:2000]
+        res = _d.solve_prose(claim)
+        if res.get("ok") and res.get("verdict") not in (None, "ERROR"):
+            res["receipt"] = _d.seal_receipt(res, claim)
+        return {"intent": "verify", "oracle": True, "claim": claim, "result": res}
+    routed["oracle"] = True
+    return routed
+
+
 # ── The narrowing engine — eliminate to almost nothing, then hand off ─────────
 # The engine's identity as an API: "eliminates what is not the answer so the
 # narrow path is illuminated by what survives... the trail is the reasoning."

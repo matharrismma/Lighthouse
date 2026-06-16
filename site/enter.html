@@ -100,6 +100,22 @@
   .seal-open:hover{background:rgba(201,168,124,.1);}
   .onote{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12px;color:var(--mut);margin-top:14px;line-height:1.5;max-width:50ch;}
   .uhint{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);text-align:center;line-height:1.55;}
+  .art{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:18px 20px;text-align:left;}
+  .art-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .art-lbl .kept{color:var(--mut);font-size:8.5px;}
+  .li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(41,35,47,.6);}
+  .li:last-child{border-bottom:none;}
+  .li .bx{width:15px;height:15px;border:1.5px solid var(--gold);border-radius:4px;flex:none;}
+  .li .tx{font-family:'Crimson Pro',Georgia,serif;font-size:1.06rem;color:var(--cream);}
+  .draft .to{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:3px;}
+  .draft .subj{font-family:'Crimson Pro',Georgia,serif;font-size:1.1rem;color:var(--cream);margin-bottom:10px;}
+  .draft .bd{font-family:'Crimson Pro',Georgia,serif;font-size:1rem;color:var(--tx);white-space:pre-wrap;line-height:1.55;}
+  .note-t{font-family:'Crimson Pro',Georgia,serif;font-size:1.15rem;color:var(--cream);margin-bottom:5px;}
+  .note-b{font-family:'Crimson Pro',Georgia,serif;font-size:1.02rem;color:var(--tx);}
+  .ans{font-family:'Crimson Pro',Georgia,serif;font-size:1.08rem;color:var(--tx);line-height:1.6;}
+  .ans-cav{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12px;color:var(--mut);margin-top:12px;}
+  .uact{display:inline-block;margin-top:14px;padding:8px 15px;border:1px solid var(--gold);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--goldhi);cursor:pointer;background:transparent;}
+  .uact:hover{background:rgba(201,168,124,.1);}
 
   /* invitation */
   #door{min-height:96svh;justify-content:center;background:radial-gradient(ellipse 60% 50% at 50% 50%,#15101f 0%,#0a0810 70%);}
@@ -180,17 +196,18 @@
   <a class="lk rev d3" href="/brain.html">Open the brain, full screen &rarr;</a>
 
   <div class="use rev d2">
-    <div class="use-h">Now weigh a claim yourself.</div>
-    <div class="use-sub">Bring something the world can check — a calculation, a law, a fact with numbers. It catches the false ones too.</div>
-    <form class="ubar" onsubmit="return nhWeighProse(event);">
-      <input id="uq" type="text" autocomplete="off" placeholder="e.g. the derivative of x cubed is 3x squared">
-      <button id="ubtn" type="submit">Weigh it &rarr;</button>
+    <div class="use-h">The work area.</div>
+    <div class="use-sub">Bring anything. A note becomes a list. A message becomes a ready draft. A claim is run through the engine. It knows what to do — and it is yours to keep.</div>
+    <form class="ubar" onsubmit="return nhBring(event);">
+      <input id="uq" type="text" autocomplete="off" placeholder="Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember">
+      <button id="ubtn" type="submit">Bring it &rarr;</button>
     </form>
     <div class="uchips">
-      <button type="button" class="uchip" data-spec='{"domain":"mathematics","spec":{"mode":"derivative","params":{"function":"x**2","variable":"x","claimed_derivative":"2*x"}},"claim":"the derivative of x² is 2x"}'>the derivative of x&sup2; is 2x</button>
-      <button type="button" class="uchip" data-spec='{"domain":"number_theory","spec":{"n_prime":91,"claimed_prime":true},"claim":"91 is a prime number"}'>91 is a prime number</button>
-      <button type="button" class="uchip" data-spec='{"domain":"mathematics","spec":{"mode":"equality","params":{"expr_a":"sin(x)**2 + cos(x)**2","expr_b":"1","variables":["x"]}},"claim":"sin²x + cos²x = 1"}'>sin&sup2;x + cos&sup2;x = 1</button>
-      <button type="button" class="uchip" data-spec='{"domain":"chemistry","spec":{"equation":"2 H2 + O2 -> 2 H2O"},"claim":"2H₂ + O₂ → 2H₂O is balanced"}'>2H&#8322; + O&#8322; &rarr; 2H&#8322;O is balanced</button>
+      <button type="button" class="uchip" data-bring="milk, eggs, bread and a dozen apples">milk, eggs, bread&hellip;</button>
+      <button type="button" class="uchip" data-bring="tell Sarah I'll be 15 minutes late for dinner tonight">tell Sarah I'll be late</button>
+      <button type="button" class="uchip" data-bring="the derivative of x squared is 2x">the derivative of x&sup2; is 2x</button>
+      <button type="button" class="uchip" data-bring="91 is a prime number">91 is a prime number</button>
+      <button type="button" class="uchip" data-bring="remember the wifi password is sunflower42">remember the wifi password</button>
     </div>
     <div id="ures"></div>
   </div>
@@ -225,41 +242,72 @@
   document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
 })();
 
-// ── Live proof: weigh a real claim through the engine, right on the page ──
+// ── The work area: bring anything; it knows what to do; it is kept ──
 var nhEsc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-function nhWeighing(msg){var r=document.getElementById('ures');r.innerHTML='<div class="weighing">'+(msg||'Weighing it')+'<span class="pulse"></span></div>';}
-function nhRender(d){
-  var res=document.getElementById('ures');
-  if(d&&d.ok===false){res.innerHTML='<div class="uhint">The engine couldn\'t formalize that into checkable steps yet. Bring something quantitative — a calculation, a law, a fact with numbers — and it weighs every step. (Structured claims always verify.)</div>';return;}
-  var v=(d&&d.verdict)||'ERROR';
+function nhWorking(msg){var r=document.getElementById('ures');r.innerHTML='<div class="weighing">'+(msg||'Working')+'<span class="pulse"></span></div>';}
+async function nhPost(url,b){var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return await r.json();}
+function nhKeep(kind,obj){try{var K='nh_kept_v1';var a=JSON.parse(localStorage.getItem(K)||'[]');a.unshift({ts:Date.now(),kind:kind,obj:obj});localStorage.setItem(K,JSON.stringify(a.slice(0,200)));}catch(e){}}
+function nhVerifyCard(res){
+  var v=(res&&res.verdict)||'ERROR';
   var cls=v==='HOLDS'?'pass':(v==='BROKEN'?'fail':'amber');
   var label=v==='HOLDS'?'HOLDS — it survives':(v==='BROKEN'?'BROKEN — it does not hold':(v==='INCOMPLETE'?'INCOMPLETE — not enough to weigh':'could not weigh'));
   var html='<div class="verdict '+cls+'"><span class="d"></span>'+label+'</div>';
-  var trail=(d&&d.trail)||[];
+  var trail=(res&&res.trail)||[];
   if(trail.length){html+='<div class="trail">';trail.forEach(function(s){var st=(s.status||'').toLowerCase(),mk=st==='confirmed'?'✓':((st==='mismatch'||st==='error')?'✕':'·');html+='<div class="tstep '+st+'"><span class="m">'+mk+'</span><span class="c">'+nhEsc(s.claim||s.domain||'step')+'</span><span class="st">'+nhEsc(s.status||'')+'</span></div>';});html+='</div>';}
-  var cite=(d&&d.receipt&&d.receipt.cite_url)||'';
+  var cite=(res&&res.receipt&&res.receipt.cite_url)||'';
   if(cite)html+='<a class="seal-open" href="'+nhEsc(cite)+'">Open the seal — re-check it yourself &rarr;</a>';
-  if(d&&d.structured)html+='<div class="onote">The engine only formalized your words into steps; the verdict is the deterministic verifier\'s, never the formalizer\'s. A wrong formalization shows as BROKEN.</div>';
-  res.innerHTML=html;
+  html+='<div class="onote">The engine verifies; it does not generate. A wrong claim shows as BROKEN.</div>';
+  return html;
 }
-async function nhPost(url,b){var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return await r.json();}
-async function nhWeighProse(ev){
-  if(ev)ev.preventDefault();
-  var q=(document.getElementById('uq').value||'').trim();if(!q)return false;
-  var btn=document.getElementById('ubtn');btn.disabled=true;
-  nhWeighing('Weighing it — formalizing, then checking every step');
-  try{nhRender(await nhPost('/derivation/solve',{problem:q,seal:true}));}
-  catch(e){document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the engine just now — try again in a moment.</div>';}
-  btn.disabled=false;return false;
+function nhCopy(btn){var t=btn.getAttribute('data-copy')||'';try{navigator.clipboard.writeText(t);btn.textContent='Copied ✓';}catch(e){}}
+function nhRender(d){
+  var res=document.getElementById('ures'), intent=d&&d.intent;
+  if(intent==='verify'){
+    nhKeep('verify',{claim:d.claim,verdict:(d.result||{}).verdict});
+    res.innerHTML='<div class="art"><div class="art-lbl">Verified by the engine <span class="kept">&middot; kept</span></div>'+nhVerifyCard(d.result||{})+'</div>';return;
+  }
+  if(intent==='list'){
+    nhKeep('list',{list:d.list,items:d.items});
+    var h='<div class="art"><div class="art-lbl">Added to your '+nhEsc(d.list||'list')+' list <span class="kept">&middot; kept on this device</span></div>';
+    (d.items||[]).forEach(function(it){h+='<div class="li"><span class="bx"></span><span class="tx">'+nhEsc(it)+'</span></div>';});
+    res.innerHTML=h+'</div>';return;
+  }
+  if(intent==='draft'){
+    nhKeep('draft',d); var body=d.body||'';
+    var h='<div class="art draft"><div class="art-lbl">Drafted — ready to send <span class="kept">&middot; kept</span></div>';
+    if(d.to)h+='<div class="to">To: '+nhEsc(d.to)+'</div>';
+    if(d.subject)h+='<div class="subj">'+nhEsc(d.subject)+'</div>';
+    h+='<div class="bd">'+nhEsc(body)+'</div><button class="uact" onclick="nhCopy(this)" data-copy="'+nhEsc(body)+'">Copy</button></div>';
+    res.innerHTML=h;return;
+  }
+  if(intent==='note'){
+    nhKeep('note',d);
+    res.innerHTML='<div class="art"><div class="art-lbl">Kept <span class="kept">&middot; on this device</span></div><div class="note-t">'+nhEsc(d.title||'Note')+'</div><div class="note-b">'+nhEsc(d.note||'')+'</div></div>';return;
+  }
+  if(intent==='ask'){
+    nhKeep('ask',d);
+    res.innerHTML='<div class="art"><div class="art-lbl">Answer</div><div class="ans">'+nhEsc(d.answer||'')+'</div><div class="ans-cav">The assistant drafted this — anything that matters, weigh it. (Type it as a claim and the engine will.)</div></div>';return;
+  }
+  if(intent==='open'){
+    res.innerHTML='<div class="art"><div class="art-lbl">Open</div><div class="ans">Opening '+nhEsc(d.what||'the room')+'.</div></div>';return;
+  }
+  if(intent==='route'){
+    var c=d.route||{};
+    res.innerHTML='<div class="art"><div class="art-lbl">Routed</div><div class="ans">'+nhEsc(c.why||'routed by rules')+(c.url?' — <a href="'+nhEsc(c.url)+'">open &rarr;</a>':'')+'</div></div>';return;
+  }
+  res.innerHTML='<div class="uhint">Kept.</div>';
 }
-async function nhWeighStep(j){
-  var step;try{step=JSON.parse(j);}catch(e){return;}
-  document.getElementById('uq').value=step.claim||'';
-  nhWeighing('Weighing it');
-  try{nhRender(await nhPost('/derivation/verify',{steps:[step],seal:true}));}
-  catch(e){document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the engine just now — try again.</div>';}
+async function nhBringText(text){
+  text=(text||'').trim(); if(!text) return;
+  document.getElementById('uq').value=text;
+  var btn=document.getElementById('ubtn'); btn.disabled=true;
+  nhWorking('Reading what you brought');
+  try{ nhRender(await nhPost('/workspace/intake',{text:text})); }
+  catch(e){ document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the work area just now — try again in a moment.</div>'; }
+  btn.disabled=false;
 }
-document.querySelectorAll('.uchip').forEach(function(c){c.addEventListener('click',function(){nhWeighStep(c.getAttribute('data-spec'));});});
+function nhBring(ev){ if(ev)ev.preventDefault(); nhBringText(document.getElementById('uq').value); return false; }
+document.querySelectorAll('.uchip').forEach(function(c){c.addEventListener('click',function(){nhBringText(c.getAttribute('data-bring'));});});
 </script>
 </body>
 </html>
