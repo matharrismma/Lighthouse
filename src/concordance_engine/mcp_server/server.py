@@ -700,6 +700,23 @@ def sermon(reference: str, author: str = "spurgeon", limit: int = 8) -> Dict[str
 
 
 @mcp.tool()
+def concord(reference: str, limit: int = 12, top: int = 14) -> Dict[str, Any]:
+    """The CONCORD across the attributed takes for a passage -- the measurable agreement.
+
+    Concordance = index + CONCORD. reference = 'John 3:16', 'Romans 8:28', 'Genesis 1:1'.
+    Gathers the takes already onboard (the Strong's lexical glosses, the BDB/Thayer
+    scholarly definitions, the classic commentary, the sermon index) and reports which
+    content TERMS recur across multiple INDEPENDENT sources (convergence) versus what each
+    source uniquely contributes (divergence). HONEST: this is a DETERMINISTIC surface-term
+    overlap across ATTRIBUTED takes -- found and recombined, never authored. It is NOT a
+    verdict on truth, NOT a generated synthesis, NOT a semantic judgment: it shows WHERE
+    the witnesses agree, not whether they are right. Read each take in full via
+    read_passage, lexicon, commentary, and sermon.
+    """
+    return tools.concord(reference, limit, top)
+
+
+@mcp.tool()
 def activity_mets(query: str, limit: int = 10) -> Dict[str, Any]:
     """The metabolic-equivalent (MET) intensity of a physical activity.
 

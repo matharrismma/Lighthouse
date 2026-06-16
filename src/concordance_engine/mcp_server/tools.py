@@ -2163,6 +2163,129 @@ def sermon(reference, author="spurgeon", limit=8):
             "attribution": meta.get("attribution")}
 
 
+# Function/structural words filtered out before measuring concord -- so the signal is
+# CONTENT terms (love, grace, world, life, believe...), not glue. Christ-centering words
+# (god, lord, son, christ, jesus, spirit, faith, grace) are deliberately KEPT -- they are
+# exactly the convergence we surface. Deterministic, ASCII-only.
+_CONCORD_STOP = frozenset((
+    "the and for but not you his her him who all was are has had our out its may can did "
+    "does done this that with from have will they them then than which what when where "
+    "were been their there would could should shall must unto upon also into such here "
+    "thus more most some very even much many every these those both each about because "
+    "while being itself himself herself themselves they're you're she he it is in of to "
+    "on at as by an or if so we us am be do no nor yet own off per via amid one two any "
+    "now new how why our your mine ours hers theirs whom whose this's let get got say "
+    "said saith says sayeth thee thou thy thine ye hath doth dost ere nay verse verses "
+    "chapter chapters text texts word words passage passages page line lines note notes "
+    "thing things part parts way ways come came goes went make made take took give given "
+    "thus hence whereof wherein whereby therein thereof thereto hereby herein this that "
+    "him's a i o "
+    # discourse connectives + determiners (function words, principled -- not content):
+    "therefore however moreover rather indeed namely likewise wherefore otherwise besides "
+    "accordingly thereupon other another etc whether either neither").split())
+
+
+def concord(reference, limit=12, top=14):
+    """The CONCORD across the attributed takes for a passage -- the measurable agreement
+    of independent witnesses. Concordance = index + CONCORD: for a verse this gathers the
+    takes already onboard (the Strong's lexical glosses, the BDB/Thayer scholarly
+    definitions, the classic commentary, the sermon index) and reports which content TERMS
+    recur across multiple INDEPENDENT sources (= concord / convergence) versus what each
+    source uniquely contributes (= divergence).
+
+    HONEST: this is a DETERMINISTIC surface-term overlap across attributed human/lexical
+    takes -- NOT a verdict on truth, NOT a generated synthesis, NOT a semantic judgment.
+    The takes are FOUND and ATTRIBUTED (recombined, never authored). It shows WHERE the
+    witnesses agree, not WHETHER they are right. reference = 'John 3:16', 'Romans 8:28',
+    'Genesis 1:1', 'Psalm 23:1'."""
+    import re as _re
+    try:
+        top = max(4, min(int(top), 40))
+    except (TypeError, ValueError):
+        top = 14
+    # gather the attributed takes already onboard (compose the existing tools)
+    rp = read_passage(reference, takes=True, limit=limit)
+    cm = commentary(reference)
+    sm = sermon(reference)
+    anchor, sources = None, {}
+    if rp.get("status") == "ok":
+        glosses, scholarly, web_parts = [], [], []
+        for v in rp.get("verses", []):
+            if v.get("web"):
+                web_parts.append(v["web"])
+            for w in v.get("words", []):
+                t = w.get("take") or {}
+                if t.get("gloss"):
+                    glosses.append(t["gloss"])
+                sch = t.get("scholarly") or {}
+                if sch.get("definition"):
+                    scholarly.append(sch["definition"])
+        anchor = " ".join(web_parts) or None
+        if glosses:
+            sources["Strong's lexical glosses (OpenScriptures)"] = " ".join(glosses)
+        if scholarly:
+            sources["BDB/Thayer scholarly definitions (STEPBible)"] = " ".join(scholarly)
+    if cm.get("status") == "ok":
+        txt = " ".join(n.get("text", "") for n in cm.get("notes", []))
+        if txt.strip():
+            sources[(cm.get("author") or "Matthew Henry") + " commentary"] = txt
+    if sm.get("status") == "ok":
+        txt = " ".join(s.get("title", "") for s in sm.get("sermons", []))
+        if txt.strip():
+            sources[(sm.get("author") or "Spurgeon") + " sermon index"] = txt
+    if len(sources) < 2:
+        return {"status": "insufficient_takes",
+                "detail": "need at least 2 attributed takes to measure concord; found %d" % len(sources),
+                "reference": rp.get("reference") or reference,
+                "sources_found": sorted(sources.keys()),
+                "takes_status": {"read_passage": rp.get("status"), "commentary": cm.get("status"),
+                                 "sermon": sm.get("status")}}
+    # per-source content-term sets (deterministic: lowercase ascii words, stopword-filtered)
+    per_source = {}
+    for label, text in sources.items():
+        terms = {}
+        for tok in _re.findall(r"[a-z]+", text.lower()):
+            if len(tok) < 3 or tok in _CONCORD_STOP:
+                continue
+            terms[tok] = terms.get(tok, 0) + 1
+        per_source[label] = terms
+    term_src, term_freq = {}, {}
+    for label, terms in per_source.items():
+        for tok, c in terms.items():
+            term_src.setdefault(tok, set()).add(label)
+            term_freq[tok] = term_freq.get(tok, 0) + c
+    n_terms = len(term_src)
+    shared = [(t, len(s)) for t, s in term_src.items() if len(s) >= 2]
+    shared.sort(key=lambda x: (-x[1], -term_freq[x[0]], x[0]))
+    n_shared = len(shared)
+    n_strong = sum(1 for _, k in shared if k >= 3)
+    concord_terms = [{"term": t, "in_sources": k, "freq": term_freq[t],
+                      "sources": sorted(term_src[t])} for t, k in shared[:top]]
+    divergence = {}
+    for label, terms in per_source.items():
+        uniq = sorted(((t, c) for t, c in terms.items() if len(term_src[t]) == 1),
+                      key=lambda x: (-x[1], x[0]))
+        divergence[label] = [t for t, _ in uniq[:6]]
+    return {"status": "ok", "reference": rp.get("reference") or reference,
+            "anchor": anchor, "translation": "WEB",
+            "n_sources": len(sources), "sources": sorted(sources.keys()),
+            "n_terms": n_terms, "n_shared": n_shared, "n_strong": n_strong,
+            "concord_ratio": round(n_shared / max(1, n_terms), 3),
+            "concord_terms": concord_terms, "divergence": divergence,
+            "interpretation": ("higher in_sources = the witnesses converge on that term; the "
+                               "strong terms (in 3+ sources) are where lexicon, commentary and "
+                               "sermon independently land together. divergence = what each source "
+                               "alone contributes."),
+            "note": "Concord = the measurable agreement of the gathered takes. A DETERMINISTIC "
+                    "surface-term overlap across ATTRIBUTED takes (Strong's, BDB/Thayer, commentary, "
+                    "sermon) -- found and recombined, never authored. NOT a verdict on truth, not a "
+                    "synthesis, not a semantic judgment: it shows WHERE the witnesses agree, not "
+                    "whether they are right. Read each take in full via read_passage, lexicon, "
+                    "commentary, sermon.",
+            "takes_status": {"read_passage": rp.get("status"), "commentary": cm.get("status"),
+                             "sermon": sm.get("status")}}
+
+
 def activity_mets(query, limit=10):
     """The metabolic-equivalent (MET) intensity of a physical activity, from the
     offline 2011 Compendium of Physical Activities (Ainsworth et al.). query =
@@ -3435,6 +3558,23 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: sermon(a["reference"], a.get("author", "spurgeon"), a.get("limit", 8))},
+    {"name": "concord",
+     "description": (
+         "The CONCORD across the attributed takes for a passage -- the measurable agreement of "
+         "independent witnesses (concordance = index + concord). reference = 'John 3:16', 'Romans "
+         "8:28', 'Genesis 1:1'. Gathers the takes already onboard (Strong's lexical glosses, BDB/Thayer "
+         "scholarly definitions, the classic commentary, the sermon index) and reports which content "
+         "TERMS recur across multiple INDEPENDENT sources (convergence) versus what each uniquely "
+         "contributes (divergence). HONEST: a DETERMINISTIC surface-term overlap across ATTRIBUTED "
+         "takes -- found and recombined, never authored; NOT a verdict on truth, not a synthesis. It "
+         "shows WHERE the witnesses agree, not whether they are right."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"reference": {"type": "string"},
+                                    "limit": {"type": "integer"},
+                                    "top": {"type": "integer"}},
+                     "required": ["reference"]},
+     "fn": lambda a: concord(a["reference"], a.get("limit", 12), a.get("top", 14))},
     {"name": "activity_mets",
      "description": (
          "The metabolic-equivalent (MET) intensity of a physical activity, from the offline 2011 "
@@ -3991,6 +4131,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "lexicon": lexicon,
     "commentary": commentary,
     "sermon": sermon,
+    "concord": concord,
     "activity_mets": activity_mets,
     "nuclide_data": nuclide_data,
     "element_data": element_data,
