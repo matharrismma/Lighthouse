@@ -1,11 +1,11 @@
 {
   "verifiers": 64,
-  "tools": 95,
-  "data_grounded_tools": 18,
-  "grounded_domains": 20,
+  "tools": 96,
+  "data_grounded_tools": 19,
+  "grounded_domains": 21,
   "pure_compute_domains": 11,
-  "ungrounded_domains": 33,
-  "empirical_grounded_pct": 38,
+  "ungrounded_domains": 32,
+  "empirical_grounded_pct": 40,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -13,7 +13,7 @@
   "original_text_pct": 100,
   "original_text_done": 9,
   "original_text_total": 9,
-  "ground_targets_open": 14,
+  "ground_targets_open": 13,
   "targets": {
     "ground_open": [
       {
@@ -54,11 +54,6 @@
       {
         "domain": "materials_science",
         "source": "Materials Project",
-        "status": "open"
-      },
-      {
-        "domain": "nuclear_physics",
-        "source": "NNDC ENSDF half-lives + NIST ASD",
         "status": "open"
       },
       {
@@ -138,9 +133,9 @@
     },
     "physics & chemistry": {
       "n": 13,
-      "grounded": 4,
+      "grounded": 5,
       "pure_compute": 1,
-      "ungrounded": 8
+      "ungrounded": 7
     },
     "earth sciences": {
       "n": 7,
@@ -188,6 +183,7 @@
     "linguistics",
     "medicine",
     "networking",
+    "nuclear_physics",
     "number_theory",
     "nutrition",
     "phase",
@@ -216,7 +212,6 @@
     "manufacturing",
     "materials_science",
     "meteorology",
-    "nuclear_physics",
     "oceanography",
     "optics",
     "philosophy",

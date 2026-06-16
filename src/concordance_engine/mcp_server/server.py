@@ -712,6 +712,19 @@ def activity_mets(query: str, limit: int = 10) -> Dict[str, Any]:
     return tools.activity_mets(query, limit)
 
 
+@mcp.tool()
+def nuclide_data(nuclide: str) -> Dict[str, Any]:
+    """Half-life, stability, and decay mode of a nuclide (NUBASE/AME evaluated data).
+
+    nuclide = 'C-14', 'U-238', 'Co-60', 'Cs-137', 'Fe-56' (case-insensitive; 'C14' /
+    '14C' also accepted). Returns the half-life in seconds plus a human-readable form,
+    whether it is stable, the primary decay mode, natural abundance, and atomic mass.
+    Grounds nuclear_physics -- the evaluated half-life VALUES the decay formula needs.
+    External Layer-0, attributed; reference data, not a radiation-safety / dosimetry tool.
+    """
+    return tools.nuclide_data(nuclide)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

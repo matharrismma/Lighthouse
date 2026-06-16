@@ -2201,6 +2201,64 @@ def activity_mets(query, limit=10):
             "attribution": meta.get("attribution")}
 
 
+def nuclide_data(nuclide):
+    """Half-life, stability, and decay mode of a nuclide, from the offline NUBASE/AME
+    evaluated nuclear data. nuclide = 'C-14', 'U-238', 'Co-60', 'Cs-137', 'Fe-56'
+    (case-insensitive; 'C14' / '14C' also accepted). Returns the half-life in seconds
+    plus a human-readable form, whether it is stable, the primary decay mode, natural
+    abundance, and atomic mass. Grounds nuclear_physics -- the evaluated half-life VALUES
+    the decay formula N=N0*exp(-ln2*t/T) needs. External Layer-0, attributed; reference
+    data, not a radiation-safety / dosimetry tool."""
+    import re as _re
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "nuclides" / "nuclides.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "nuclide data not provisioned"}
+    s = str(nuclide or "").strip()
+    m = (_re.match(r"^\s*([A-Za-z]{1,2})\s*-?\s*(\d{1,3})\s*$", s)
+         or _re.match(r"^\s*(\d{1,3})\s*-?\s*([A-Za-z]{1,2})\s*$", s))
+    if not m:
+        return {"status": "error", "detail": "provide a nuclide like 'C-14', 'U-238', or 'Co-60'"}
+    g1, g2 = m.group(1), m.group(2)
+    el, a = (g1, g2) if g1.isalpha() else (g2, g1)
+    canon = el[:1].upper() + el[1:].lower() + "-" + str(int(a))
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        r = con.execute("SELECT nuclide,element,z,n,a,half_life_s,is_stable,decay_1,decay_1_pct,"
+                        "abundance,atomic_mass FROM nuclides WHERE nuclide=?", (canon,)).fetchone()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "nuclide lookup failed: " + str(e)[:140]}
+    if not r:
+        return {"status": "not_found", "detail": "no data for nuclide '%s'" % canon}
+
+    def _human(sec):
+        if not sec:
+            return None
+        for unit, div in (("years", 365.25 * 86400), ("days", 86400.0),
+                          ("hours", 3600.0), ("minutes", 60.0)):
+            v = sec / div
+            if v >= 1:
+                return "%.4g %s" % (v, unit)
+        return "%.4g s" % sec
+
+    try:
+        mass_u = float(r[10]) / 1e6 if r[10] else None
+    except (TypeError, ValueError):
+        mass_u = None
+    return {"status": "ok", "nuclide": r[0], "element": r[1], "Z": r[2], "N": r[3], "A": r[4],
+            "is_stable": bool(r[6]),
+            "half_life_seconds": r[5], "half_life": ("stable" if r[6] else _human(r[5])),
+            "primary_decay": r[7], "decay_branching_pct": r[8],
+            "natural_abundance": r[9], "atomic_mass_u": mass_u,
+            "note": "Evaluated NUBASE/AME nuclear data; half-life in seconds (+ human form). "
+                    "Reference data, not a radiation-safety or dosimetry tool.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3225,6 +3283,17 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["query"]},
      "fn": lambda a: activity_mets(a["query"], a.get("limit", 10))},
+    {"name": "nuclide_data",
+     "description": (
+         "Half-life, stability, and decay mode of a nuclide, from offline NUBASE/AME evaluated nuclear "
+         "data. nuclide = 'C-14', 'U-238', 'Co-60', 'Cs-137', 'Fe-56' (case-insensitive; 'C14'/'14C' "
+         "ok). Returns half-life in seconds + human form, whether stable, primary decay mode, natural "
+         "abundance, atomic mass. Grounds nuclear_physics. Reference data, not a dosimetry tool."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"nuclide": {"type": "string"}},
+                     "required": ["nuclide"]},
+     "fn": lambda a: nuclide_data(a["nuclide"])},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3726,6 +3795,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "commentary": commentary,
     "sermon": sermon,
     "activity_mets": activity_mets,
+    "nuclide_data": nuclide_data,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
