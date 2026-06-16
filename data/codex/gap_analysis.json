@@ -2,10 +2,11 @@
   "verifiers": 64,
   "tools": 99,
   "data_grounded_tools": 22,
-  "grounded_domains": 27,
-  "pure_compute_domains": 18,
-  "ungrounded_domains": 19,
-  "empirical_grounded_pct": 59,
+  "grounded_domains": 29,
+  "pure_compute_domains": 32,
+  "non_empirical_domains": 3,
+  "ungrounded_domains": 0,
+  "empirical_grounded_pct": 100,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -63,53 +64,62 @@
       "n": 11,
       "grounded": 2,
       "pure_compute": 9,
+      "non_empirical": 0,
       "ungrounded": 0
     },
     "physics & chemistry": {
       "n": 13,
       "grounded": 6,
-      "pure_compute": 3,
-      "ungrounded": 4
+      "pure_compute": 7,
+      "non_empirical": 0,
+      "ungrounded": 0
     },
     "earth sciences": {
       "n": 7,
       "grounded": 3,
       "pure_compute": 4,
+      "non_empirical": 0,
       "ungrounded": 0
     },
     "life & medicine": {
       "n": 6,
       "grounded": 6,
       "pure_compute": 0,
+      "non_empirical": 0,
       "ungrounded": 0
     },
     "language & Word": {
       "n": 8,
       "grounded": 2,
-      "pure_compute": 1,
-      "ungrounded": 5
+      "pure_compute": 3,
+      "non_empirical": 3,
+      "ungrounded": 0
     },
     "human systems": {
       "n": 10,
       "grounded": 4,
-      "pure_compute": 1,
-      "ungrounded": 5
+      "pure_compute": 6,
+      "non_empirical": 0,
+      "ungrounded": 0
     },
     "built & tech": {
       "n": 9,
-      "grounded": 4,
-      "pure_compute": 0,
-      "ungrounded": 5
+      "grounded": 6,
+      "pure_compute": 3,
+      "non_empirical": 0,
+      "ungrounded": 0
     }
   },
   "grounded": [
     "agriculture",
+    "architecture",
     "astronomy",
     "biology",
     "calendar_time",
     "chemistry",
     "combinatorics",
     "cryptography",
+    "cybersecurity",
     "ecology",
     "economics",
     "energy",
@@ -131,37 +141,22 @@
     "soil_science",
     "thermodynamics"
   ],
-  "ungrounded": [
-    "acoustics",
-    "architecture",
-    "computer_science",
-    "construction",
-    "cybersecurity",
-    "document_validation",
-    "electrical",
-    "giving",
-    "governance_decision_packet",
-    "manufacturing",
+  "ungrounded": [],
+  "non_empirical": [
     "philosophy",
-    "photography",
-    "physics",
-    "quantum_computing",
-    "real_estate",
     "rhetoric",
-    "sports_analytics",
-    "theology_doctrine",
-    "witness"
+    "theology_doctrine"
   ],
   "easy_wins": [
-    "ground the data-sources queue (~15 left)",
-    "open the original-language layer (tools ready)",
-    "seal the crypto / info / game-theory spine",
-    "fix stale counts in the agent docs"
+    "more commentators (Barnes/Calvin/JFB) into the take layer",
+    "more translations onboard alongside WEB",
+    "the concord-score across existing takes (data already keyed)",
+    "deepen embedded references (more standard values per domain)"
   ],
   "bottlenecks": [
-    "new verifiers are slow, exact, deterministic",
+    "new verifiers are slow, exact -- DOMAIN COVERAGE is the frontier now",
+    "each verifier checks a bounded slice; the claim-space is vast",
     "engine finds, never generates -- bound by the discovered",
-    "best clinical / legal data is licence-gated",
-    "past the easy ceiling -- connection is nearly done"
+    "the Missions layer is people-work, not a metric"
   ]
 }

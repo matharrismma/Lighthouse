@@ -55,16 +55,38 @@ GROUNDED = {
     "agriculture": "embedded USDA/NRCS reference (in-verifier)",
     "soil_science": "embedded FAO/USDA-NRCS reference (in-verifier)",
     "law": "embedded US Constitution / US Code reference (in-verifier)",
+    # Honest classification pass 2026-06-16 (read each verifier): these embed REAL
+    # standards-body values that are NOT derivable from math -- building-code dimensions
+    # and security-standard bands -- so they are grounded in authoritative reference data
+    # (embedded), exactly like law/agriculture/soil above.
+    "architecture": "embedded IBC building-code reference (in-verifier)",
+    "cybersecurity": "embedded CVSS v3.1 / RFC 8996 TLS reference (in-verifier)",
 }
 # Domains complete in the formula -- the verifier takes the values as INPUTS and checks
 # the math (Snell's law, Manning velocity, dew point, radiometric decay, date arithmetic,
 # stress-strain). They need no external reference data. (Confirmed by reading each.)
+# HONEST NOTE: pure-compute verifies the RELATIONSHIP among supplied values, not their
+# real-world ground-truth (e.g. it confirms V == I*R, not the measured resistance of a
+# real component). That is grounding of the math, not omniscience over the world.
 PURE_COMPUTE = {
     "mathematics", "geometry", "formal_logic", "statistics", "statistics_pvalue",
     "statistics_confidence_interval", "statistics_multiple_comparisons",
     "operations_research", "information_theory", "music_theory", "physics_conservation",
     "optics", "geology", "hydrology", "meteorology", "oceanography", "materials_science",
     "history_chronology",
+    # Added by the 2026-06-16 classification pass (each read; formula/structural check on
+    # caller-supplied inputs -- manufacturing's DPMO<->sigma table is Gaussian-derived so
+    # pure-compute is the modest, correct label; witness/governance check packet structure).
+    "acoustics", "computer_science", "construction", "document_validation", "electrical",
+    "giving", "governance_decision_packet", "manufacturing", "photography", "physics",
+    "quantum_computing", "real_estate", "sports_analytics", "witness",
+}
+# Word/reason-grounded -- NOT empirical-measurement domains. They ground through Scripture,
+# logic, and the corpus (the original-text + cards layer), never through external measured
+# data. Counting them as "empirical domains lacking data" was a category error: there is no
+# dataset that could or should ground them. Excluded from the empirical denominator.
+NON_EMPIRICAL = {
+    "philosophy", "rhetoric", "theology_doctrine",
 }
 # Six families for the rollup (each verified domain lands in one).
 FAMILIES = {
@@ -105,6 +127,8 @@ def classify(domain):
         return "grounded"
     if domain in PURE_COMPUTE:
         return "pure_compute"
+    if domain in NON_EMPIRICAL:
+        return "non_empirical"
     return "ungrounded"
 
 
@@ -127,6 +151,7 @@ def main():
     cls = {d: classify(d) for d in verify}
     grounded = [d for d in verify if cls[d] == "grounded"]
     pure = [d for d in verify if cls[d] == "pure_compute"]
+    non_emp = [d for d in verify if cls[d] == "non_empirical"]
     ungrounded = [d for d in verify if cls[d] == "ungrounded"]
     empirical = grounded + ungrounded          # domains that CAN use external data
     emp_pct = round(100 * len(grounded) / max(1, len(empirical)))
@@ -136,32 +161,38 @@ def main():
         present = [d for d in doms if d in verify]
         g = [d for d in present if cls[d] == "grounded"]
         p = [d for d in present if cls[d] == "pure_compute"]
+        ne = [d for d in present if cls[d] == "non_empirical"]
         fam[name] = {"n": len(present), "grounded": len(g), "pure_compute": len(p),
-                     "ungrounded": len(present) - len(g) - len(p)}
+                     "non_empirical": len(ne),
+                     "ungrounded": len(present) - len(g) - len(p) - len(ne)}
 
     data = {
         "verifiers": len(verify), "tools": n_tools, "data_grounded_tools": len(lookups),
         "grounded_domains": len(grounded), "pure_compute_domains": len(pure),
+        "non_empirical_domains": len(non_emp),
         "ungrounded_domains": len(ungrounded), "empirical_grounded_pct": emp_pct,
         "vine_validity": vine, "reach_source": reach, "nodes": nodes, "form_cards": forms,
         "original_text_pct": ot_pct, "original_text_done": ot_done, "original_text_total": len(ot_ms),
         "ground_targets_open": len(ground_open),
         "targets": {"ground_open": ground_open, "original_text": ot_ms},
         "families": fam, "grounded": grounded, "ungrounded": ungrounded,
-        "easy_wins": ["ground the data-sources queue (~15 left)",
-                      "open the original-language layer (tools ready)",
-                      "seal the crypto / info / game-theory spine",
-                      "fix stale counts in the agent docs"],
-        "bottlenecks": ["new verifiers are slow, exact, deterministic",
+        "non_empirical": non_emp,
+        # The additive/easy gaps (connect, ground, onboard) are essentially closed -- the
+        # honest frontier has moved to GENERATIVE work. These are the real next steps.
+        "easy_wins": ["more commentators (Barnes/Calvin/JFB) into the take layer",
+                      "more translations onboard alongside WEB",
+                      "the concord-score across existing takes (data already keyed)",
+                      "deepen embedded references (more standard values per domain)"],
+        "bottlenecks": ["new verifiers are slow, exact -- DOMAIN COVERAGE is the frontier now",
+                        "each verifier checks a bounded slice; the claim-space is vast",
                         "engine finds, never generates -- bound by the discovered",
-                        "best clinical / legal data is licence-gated",
-                        "past the easy ceiling -- connection is nearly done"],
+                        "the Missions layer is people-work, not a metric"],
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(data, indent=2), encoding="utf-8")
     OUT_HTML.write_text(render_html(data), encoding="utf-8")
-    print("verifiers %d | grounded %d (empirical %d%%) | pure-compute %d | ungrounded %d"
-          % (len(verify), len(grounded), emp_pct, len(pure), len(ungrounded)))
+    print("verifiers %d | grounded %d (empirical %d%%) | pure-compute %d | non-empirical %d | ungrounded %d"
+          % (len(verify), len(grounded), emp_pct, len(pure), len(non_emp), len(ungrounded)))
     print("vine-validity %.3f (%d/%d) | form-cards %d | tools %d"
           % (vine, reach, nodes, forms, n_tools))
     print("targets -- ground: %d sources to wire | original text: %d/%d milestones"
@@ -182,12 +213,14 @@ def render_html(d):
     fam_rows = ""
     for name, f in d["families"].items():
         n = f["n"] or 1
-        done = f["grounded"] + f["pure_compute"]   # complete or grounded
+        done = f["grounded"] + f["pure_compute"] + f.get("non_empirical", 0)  # grounded, complete, or Word/reason
         pct = round(100 * done / n)
         col = GREEN if pct >= 60 else AMBER
         note = ("%d grounded" % f["grounded"]) if f["grounded"] else "ungrounded"
         if f["pure_compute"]:
             note += " / %d pure-compute" % f["pure_compute"]
+        if f.get("non_empirical"):
+            note += " / %d Word-grounded" % f["non_empirical"]
         fam_rows += _bar(name, "", pct, col, note + " (%d)" % f["n"])
     wins = "".join('<li>%s</li>' % w for w in d["easy_wins"])
     necks = "".join('<li>%s</li>' % b for b in d["bottlenecks"])
@@ -252,7 +285,7 @@ h1{{font-weight:500;font-size:22px;margin:0 0 .2rem}}
 <div><h3>easy wins -- additive, low risk</h3><ul>{wins}</ul></div>
 <div><h3>bottlenecks -- generative, slow</h3><ul>{necks}</ul></div>
 </div>
-<div class="foot">Pure-compute domains (math, logic, geometry, statistics) need no external data -- they are complete in the formula, so the real grounding target is the {d['ungrounded_domains']} empirical domains still ungrounded. Numbers are read live; map-never-launder.</div>
+<div class="foot">Of {d['verifiers']} verified domains, {d['grounded_domains']} are grounded in authoritative reference data (external or embedded standards), {d['pure_compute_domains']} are pure-compute relationship-checks that need no data, and {d['non_empirical_domains']} ground through Scripture and logic (the Word, not measured data) -- {d['ungrounded_domains']} need-but-lack external data. The empirical-grounding gap closed by READING each verifier (a miscount correction), not by acquiring data -- map-never-launder. Honest frontier: this is grounding of the math, not omniscience over the world -- pure-compute confirms relationships (V == I*R), not real-world ground-truth, and each verifier still checks only a bounded slice of its domain. COVERAGE, original-language depth, and the Missions / concord layers are the live, generative work now.</div>
 </div></body></html>"""
 
 
