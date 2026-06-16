@@ -48,6 +48,7 @@ GROUNDED = {
     "nuclear_physics": "NUBASE/AME nuclide data (half-lives)",
     "chemistry": "IUPAC periodic table (atomic weights)",
     "economics": "World Bank Open Data",
+    "labor": "World Bank Open Data (labor indicators)",
 }
 # Domains complete in the formula -- they need no external reference data.
 PURE_COMPUTE = {

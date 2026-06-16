@@ -33,6 +33,12 @@ INDICATORS = {
     "FP.CPI.TOTL.ZG": "Inflation, consumer prices (annual %)",
     "SL.UEM.TOTL.ZS": "Unemployment (% of labor force, modeled ILO)",
     "SP.URB.TOTL.IN.ZS": "Urban population (% of total)",
+    # Labor indicators (grounds the 'labor' domain via the same World Bank source).
+    "SL.TLF.CACT.ZS": "Labor force participation rate (% of pop 15+)",
+    "SL.EMP.TOTL.SP.ZS": "Employment to population ratio (% of pop 15+)",
+    "SL.TLF.TOTL.IN": "Labor force, total",
+    "SL.AGR.EMPL.ZS": "Employment in agriculture (% of employment)",
+    "SL.SRV.EMPL.ZS": "Employment in services (% of employment)",
 }
 
 
