@@ -29,7 +29,7 @@ mkdir -p "$DEST"
 
 # Build the include list from paths that actually exist (skip missing ones quietly).
 ROOT_PATHS=()
-for p in data/cas data/codex data/almanac; do
+for p in data/cas data/codex data/almanac data/phonics; do
   [ -e "$ROOT/$p" ] && ROOT_PATHS+=("$p")
 done
 HOME_PATHS=()
