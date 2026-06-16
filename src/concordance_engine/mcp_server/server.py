@@ -749,6 +749,19 @@ def molar_mass(formula: str) -> Dict[str, Any]:
     return tools.molar_mass(formula)
 
 
+@mcp.tool()
+def economic_indicator(country: str, indicator: str = None) -> Dict[str, Any]:
+    """Key economic / development indicators for a country (World Bank Open Data snapshot).
+
+    country = 'United States', 'Japan', 'USA', 'NGA' (name or ISO3, case-insensitive;
+    partial name ok). indicator (optional) = a keyword to filter -- 'GDP', 'inflation',
+    'life expectancy', 'population', 'unemployment', 'urban'; omit for all. Returns the
+    most-recent value + year per indicator. External Layer-0, attributed (World Bank,
+    CC BY 4.0); a dated snapshot. Grounds economics.
+    """
+    return tools.economic_indicator(country, indicator)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

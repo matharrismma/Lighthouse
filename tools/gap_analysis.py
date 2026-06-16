@@ -47,6 +47,7 @@ GROUNDED = {
     "exercise_science": "Compendium of Physical Activities (METs)",
     "nuclear_physics": "NUBASE/AME nuclide data (half-lives)",
     "chemistry": "IUPAC periodic table (atomic weights)",
+    "economics": "World Bank Open Data",
 }
 # Domains complete in the formula -- they need no external reference data.
 PURE_COMPUTE = {
@@ -84,7 +85,7 @@ def parse_tools():
         "word_pronunciation", "port_lookup", "rfc_lookup", "star_lookup", "fluid_property",
         "food_nutrition", "drug_lookup", "species_lookup", "drug_target", "currency_convert",
         "place_lookup", "word_meaning", "word_study", "wikidata", "activity_mets",
-        "nuclide_data", "element_data", "molar_mass") if n in names]
+        "nuclide_data", "element_data", "molar_mass", "economic_indicator") if n in names]
     return verify, lookups, len(names)
 
 

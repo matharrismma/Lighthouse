@@ -2366,6 +2366,63 @@ def molar_mass(formula):
             "attribution": meta.get("attribution")}
 
 
+def economic_indicator(country, indicator=None):
+    """Key economic / development indicators for a country, from the offline World Bank
+    Open Data snapshot. country = 'United States', 'Japan', 'USA', 'NGA' (name or ISO3,
+    case-insensitive; partial name ok). indicator (optional) = a keyword to filter --
+    'GDP', 'inflation', 'life expectancy', 'population', 'unemployment', 'urban'; omit
+    for all. Returns the most-recent value + year per indicator. External Layer-0,
+    attributed (World Bank, CC BY 4.0); a dated snapshot. Grounds economics."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "worldbank" / "worldbank.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "World Bank snapshot not provisioned"}
+    c = str(country or "").strip()
+    if not c:
+        return {"status": "error", "detail": "provide a country name or ISO3 code"}
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        row = con.execute("SELECT DISTINCT country,iso3 FROM indicators WHERE iso3=? COLLATE NOCASE",
+                          (c,)).fetchone()
+        if not row:
+            row = con.execute("SELECT DISTINCT country,iso3 FROM indicators WHERE country=? COLLATE NOCASE",
+                              (c,)).fetchone()
+        if not row:
+            cands = con.execute("SELECT DISTINCT country,iso3 FROM indicators WHERE country LIKE ? "
+                                "COLLATE NOCASE", ("%" + c + "%",)).fetchall()
+            if len(cands) == 1:
+                row = cands[0]
+            elif len(cands) > 1:
+                con.close()
+                return {"status": "ambiguous",
+                        "detail": "multiple matches: " + ", ".join(r[0] for r in cands[:8])}
+        if not row:
+            con.close()
+            return {"status": "not_found", "detail": "no country matching '%s'" % c}
+        cn, iso3 = row
+        if indicator:
+            rows = con.execute("SELECT indicator,value,year FROM indicators WHERE iso3=? AND "
+                               "indicator LIKE ? COLLATE NOCASE ORDER BY code",
+                               (iso3, "%" + str(indicator) + "%")).fetchall()
+        else:
+            rows = con.execute("SELECT indicator,value,year FROM indicators WHERE iso3=? ORDER BY code",
+                               (iso3,)).fetchall()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "economics lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found",
+                "detail": "no indicators for '%s'%s" % (cn, (" matching '%s'" % indicator) if indicator else "")}
+    inds = [{"indicator": r[0], "value": r[1], "year": r[2]} for r in rows]
+    return {"status": "ok", "country": cn, "iso3": iso3, "count": len(inds), "indicators": inds,
+            "note": "World Bank Open Data, most-recent value per indicator (a dated snapshot). "
+                    "Country aggregates (e.g. 'Arab World') are included. Grounds economics.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3421,6 +3478,19 @@ TOOLS: List[Dict[str, Any]] = [
      "inputSchema": {"type": "object", "properties": {"formula": {"type": "string"}},
                      "required": ["formula"]},
      "fn": lambda a: molar_mass(a["formula"])},
+    {"name": "economic_indicator",
+     "description": (
+         "Key economic / development indicators for a country, from the offline World Bank Open Data "
+         "snapshot. country = 'United States', 'Japan', 'USA', 'NGA' (name or ISO3; partial name ok). "
+         "indicator (optional) = 'GDP', 'inflation', 'life expectancy', 'population', 'unemployment', "
+         "'urban' to filter; omit for all. Returns most-recent value + year per indicator. Grounds "
+         "economics. World Bank, CC BY 4.0 (a dated snapshot)."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"country": {"type": "string"},
+                                    "indicator": {"type": "string"}},
+                     "required": ["country"]},
+     "fn": lambda a: economic_indicator(a["country"], a.get("indicator"))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3925,6 +3995,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "nuclide_data": nuclide_data,
     "element_data": element_data,
     "molar_mass": molar_mass,
+    "economic_indicator": economic_indicator,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,

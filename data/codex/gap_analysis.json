@@ -1,11 +1,11 @@
 {
   "verifiers": 64,
-  "tools": 98,
-  "data_grounded_tools": 21,
-  "grounded_domains": 22,
+  "tools": 99,
+  "data_grounded_tools": 22,
+  "grounded_domains": 23,
   "pure_compute_domains": 11,
-  "ungrounded_domains": 31,
-  "empirical_grounded_pct": 42,
+  "ungrounded_domains": 30,
+  "empirical_grounded_pct": 43,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -13,7 +13,7 @@
   "original_text_pct": 100,
   "original_text_done": 9,
   "original_text_total": 9,
-  "ground_targets_open": 12,
+  "ground_targets_open": 11,
   "targets": {
     "ground_open": [
       {
@@ -54,11 +54,6 @@
       {
         "domain": "optics",
         "source": "NIST ASD spectral lines",
-        "status": "open"
-      },
-      {
-        "domain": "economics",
-        "source": "World Bank Open Data",
         "status": "open"
       },
       {
@@ -152,9 +147,9 @@
     },
     "human systems": {
       "n": 10,
-      "grounded": 1,
+      "grounded": 2,
       "pure_compute": 0,
-      "ungrounded": 9
+      "ungrounded": 8
     },
     "built & tech": {
       "n": 9,
@@ -171,6 +166,7 @@
     "combinatorics",
     "cryptography",
     "ecology",
+    "economics",
     "energy",
     "exercise_science",
     "finance",
@@ -195,7 +191,6 @@
     "construction",
     "cybersecurity",
     "document_validation",
-    "economics",
     "electrical",
     "geology",
     "giving",
