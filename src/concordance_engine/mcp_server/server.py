@@ -699,6 +699,19 @@ def sermon(reference: str, author: str = "spurgeon", limit: int = 8) -> Dict[str
     return tools.sermon(reference, author, limit)
 
 
+@mcp.tool()
+def activity_mets(query: str, limit: int = 10) -> Dict[str, Any]:
+    """The metabolic-equivalent (MET) intensity of a physical activity.
+
+    query = 'running', 'walking 3 mph', 'bicycling', 'yoga' -> matching activities with
+    their MET value (1 MET ~ resting energy expenditure; 8 METs = 8x resting) and
+    category, from the offline 2011 Compendium of Physical Activities (Ainsworth et al.).
+    External Layer-0, attributed (the public Compendium). Reference data only -- NOT
+    medical or exercise-prescription advice.
+    """
+    return tools.activity_mets(query, limit)
+
+
 # ---------------------------------------------------------------------------
 # Statistics
 # ---------------------------------------------------------------------------

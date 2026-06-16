@@ -44,6 +44,7 @@ GROUNDED = {
     "nutrition": "USDA FoodData", "medicine": "openFDA + DrugCentral",
     "biology": "NCBI Taxonomy", "ecology": "NCBI Taxonomy", "genetics": "NCBI Taxonomy",
     "finance": "ECB euro FX", "geography": "GeoNames", "scripture_anchors": "original-language lexicon",
+    "exercise_science": "Compendium of Physical Activities (METs)",
 }
 # Domains complete in the formula -- they need no external reference data.
 PURE_COMPUTE = {
@@ -80,7 +81,7 @@ def parse_tools():
     lookups = [n for n in ("timezone_offset", "unit_convert", "sequence_lookup",
         "word_pronunciation", "port_lookup", "rfc_lookup", "star_lookup", "fluid_property",
         "food_nutrition", "drug_lookup", "species_lookup", "drug_target", "currency_convert",
-        "place_lookup", "word_meaning", "word_study", "wikidata") if n in names]
+        "place_lookup", "word_meaning", "word_study", "wikidata", "activity_mets") if n in names]
     return verify, lookups, len(names)
 
 

@@ -1,11 +1,11 @@
 {
   "verifiers": 64,
-  "tools": 94,
-  "data_grounded_tools": 17,
-  "grounded_domains": 19,
+  "tools": 95,
+  "data_grounded_tools": 18,
+  "grounded_domains": 20,
   "pure_compute_domains": 11,
-  "ungrounded_domains": 34,
-  "empirical_grounded_pct": 36,
+  "ungrounded_domains": 33,
+  "empirical_grounded_pct": 38,
   "vine_validity": 0.999,
   "reach_source": 1682,
   "nodes": 1684,
@@ -13,7 +13,7 @@
   "original_text_pct": 100,
   "original_text_done": 9,
   "original_text_total": 9,
-  "ground_targets_open": 15,
+  "ground_targets_open": 14,
   "targets": {
     "ground_open": [
       {
@@ -85,11 +85,6 @@
         "domain": "history_chronology",
         "source": "World Historical Gazetteer",
         "status": "open"
-      },
-      {
-        "domain": "exercise_science",
-        "source": "Compendium of Physical Activities (METs)",
-        "status": "open"
       }
     ],
     "original_text": [
@@ -155,9 +150,9 @@
     },
     "life & medicine": {
       "n": 6,
-      "grounded": 5,
+      "grounded": 6,
       "pure_compute": 0,
-      "ungrounded": 1
+      "ungrounded": 0
     },
     "language & Word": {
       "n": 8,
@@ -186,6 +181,7 @@
     "cryptography",
     "ecology",
     "energy",
+    "exercise_science",
     "finance",
     "genetics",
     "geography",
@@ -210,7 +206,6 @@
     "document_validation",
     "economics",
     "electrical",
-    "exercise_science",
     "geology",
     "giving",
     "governance_decision_packet",

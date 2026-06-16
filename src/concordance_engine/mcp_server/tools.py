@@ -2163,6 +2163,44 @@ def sermon(reference, author="spurgeon", limit=8):
             "attribution": meta.get("attribution")}
 
 
+def activity_mets(query, limit=10):
+    """The metabolic-equivalent (MET) intensity of a physical activity, from the
+    offline 2011 Compendium of Physical Activities (Ainsworth et al.). query =
+    'running', 'walking 3 mph', 'bicycling', 'yoga' -> matching activities with their
+    MET value (1 MET ~ resting; 8 METs = 8x resting energy expenditure) and category.
+    External Layer-0, attributed (the public Compendium). Grounds exercise_science --
+    reference data, NOT medical or exercise-prescription advice."""
+    import sqlite3 as _sql
+    from pathlib import Path as _Path
+    p = _Path(__file__).resolve().parents[3] / "lw" / "00_source" / "mets" / "mets.db"
+    if not p.exists():
+        return {"status": "source_missing", "detail": "METs compendium not provisioned"}
+    q = str(query or "").strip()
+    if not q:
+        return {"status": "error", "detail": "provide an activity, e.g. 'running' or 'walking 3 mph'"}
+    try:
+        lim = max(1, min(int(limit), 40))
+    except (TypeError, ValueError):
+        lim = 10
+    try:
+        con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
+        meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
+        rows = con.execute("SELECT description,met,category,code FROM activities "
+                           "WHERE description LIKE ? AND met IS NOT NULL ORDER BY met LIMIT ?",
+                           ("%" + q + "%", lim)).fetchall()
+        con.close()
+    except Exception as e:  # noqa: BLE001
+        return {"status": "error", "detail": "METs lookup failed: " + str(e)[:140]}
+    if not rows:
+        return {"status": "not_found", "detail": "no activity matching '" + q + "'"}
+    acts = [{"activity": r[0], "mets": r[1], "category": r[2], "code": r[3]} for r in rows]
+    return {"status": "ok", "query": q, "count": len(acts), "activities": acts,
+            "note": "MET = activity energy expenditure / resting (1 MET ~ 1 kcal/kg/hr; a brisk walk "
+                    "~3-4, running ~8-12). Reference data, NOT medical or exercise-prescription advice.",
+            "source": meta.get("source"), "license": meta.get("license"),
+            "attribution": meta.get("attribution")}
+
+
 def verify_statistics_pvalue(spec):
     return _r(statistics.verify_pvalue_calibration(spec))
 
@@ -3175,6 +3213,18 @@ TOOLS: List[Dict[str, Any]] = [
                                     "limit": {"type": "integer"}},
                      "required": ["reference"]},
      "fn": lambda a: sermon(a["reference"], a.get("author", "spurgeon"), a.get("limit", 8))},
+    {"name": "activity_mets",
+     "description": (
+         "The metabolic-equivalent (MET) intensity of a physical activity, from the offline 2011 "
+         "Compendium of Physical Activities. query = 'running', 'walking 3 mph', 'bicycling', 'yoga' "
+         "-> matching activities with their MET value (1 MET ~ resting; 8 = 8x resting) + category. "
+         "Public Compendium data (Ainsworth et al.); reference, NOT medical/exercise-prescription advice."
+     ),
+     "inputSchema": {"type": "object",
+                     "properties": {"query": {"type": "string"},
+                                    "limit": {"type": "integer"}},
+                     "required": ["query"]},
+     "fn": lambda a: activity_mets(a["query"], a.get("limit", 10))},
     {"name": "verify_statistics_pvalue",
      "description": "Recompute p from inputs and compare to claimed_p. Tests: two_sample_t, one_sample_t, paired_t, z, chi2, f, one_proportion_z, two_proportion_z, fisher_exact, mannwhitney, wilcoxon_signed_rank, regression_coefficient_t.",
      "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}}, "required": ["spec"]},
@@ -3675,6 +3725,7 @@ ALL_TOOLS: Dict[str, Any] = {
     "lexicon": lexicon,
     "commentary": commentary,
     "sermon": sermon,
+    "activity_mets": activity_mets,
     "validate_packet": validate_packet,
     "seal_packet": seal_packet,
     "walkthrough_packet": walkthrough_packet,
