@@ -117,60 +117,14 @@
     .today .b{font-size:13px;color:var(--dim);margin-top:5px;}
 
     .explore{margin:40px auto 0;max-width:560px;font-size:13px;color:var(--muted);line-height:1.6;}
-
-    /* The four-gate hero — the visual leads the landing: a claim travels the gates
-       and emerges sealed. Self-playing; the engine's promise, seen in the first second. */
-    .nhh{max-width:680px;margin:0 auto;}
-    .nhh-stage{position:relative;background:#0b0912;border:1px solid var(--border);border-radius:14px;padding:20px 20px 22px;overflow:hidden;}
-    .nhh-bring{display:flex;align-items:baseline;gap:10px;justify-content:center;min-height:30px;margin-bottom:18px;}
-    .nhh-lab{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
-    .nhh-claim{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:1.18rem;color:var(--accenthi);opacity:0;transform:translateY(5px);transition:opacity .5s,transform .5s;}
-    .nhh-claim.in{opacity:1;transform:none;}
-    .nhh-corridor{position:relative;display:flex;justify-content:space-between;gap:8px;padding:4px 6px 0;}
-    .nhh-scan{position:absolute;top:-4px;bottom:14px;left:-2%;width:2px;background:var(--accenthi);box-shadow:0 0 14px 3px rgba(227,196,152,.7);opacity:0;border-radius:2px;}
-    .nhh-gate{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;}
-    .nhh-bar{width:100%;max-width:118px;height:54px;border-radius:8px;background:#1b1626;border:1px solid #2a2433;transition:background .45s,border-color .45s,box-shadow .45s;}
-    .nhh-tick{position:absolute;top:-15px;font-size:13px;color:var(--pass);opacity:0;transform:scale(.6);transition:opacity .35s,transform .35s;}
-    .nhh-gn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;color:#8a8194;transition:color .45s;}
-    .nhh-gd{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.2;}
-    .nhh-gate.lit .nhh-bar{background:#241d12;border-color:var(--accent);box-shadow:0 0 16px rgba(201,168,124,.35),inset 0 0 14px rgba(201,168,124,.18);}
-    .nhh-gate.lit .nhh-tick{opacity:1;transform:none;}
-    .nhh-gate.lit .nhh-gn{color:var(--accenthi);}
-    .nhh-result{display:flex;align-items:center;justify-content:center;gap:11px;margin-top:18px;min-height:34px;opacity:0;transform:translateY(6px);transition:opacity .55s,transform .55s;}
-    .nhh-result.show{opacity:1;transform:none;}
-    .nhh-seal{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#1a1820;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(201,168,124,.5);}
-    .nhh-rtext{display:flex;flex-direction:column;line-height:1.25;text-align:left;}
-    .nhh-rtext b{font-family:'Crimson Pro',Georgia,serif;font-weight:600;font-style:normal;font-size:.96rem;color:#f4ecd5;}
-    .nhh-rtext span{font-size:11.5px;color:var(--dim);}
-    .nhh-recheck{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-left:1px solid var(--border);padding-left:11px;align-self:center;}
-    .nhh-cap{font-family:'Crimson Pro',Georgia,serif;font-size:.95rem;line-height:1.55;color:var(--dim);text-align:center;max-width:54ch;margin:15px auto 0;}
-    .nhh-cap em{color:var(--accenthi);font-style:italic;}
-    @media(max-width:520px){.nhh-gd{display:none;}.nhh-claim{font-size:1.02rem;}.nhh-recheck{display:none;}}
   </style>
 </head>
 <body>
 
 <main class="well">
-  <div class="nhh">
-    <div class="nhh-stage">
-      <div class="nhh-bring"><span class="nhh-lab">You bring</span><span class="nhh-claim" id="nhhClaim">&nbsp;</span></div>
-      <div class="nhh-corridor">
-        <div class="nhh-scan" id="nhhScan"></div>
-        <div class="nhh-gate"><span class="nhh-tick">&#10003;</span><span class="nhh-bar"></span><span class="nhh-gn">RED</span><span class="nhh-gd">honest &amp; safe</span></div>
-        <div class="nhh-gate"><span class="nhh-tick">&#10003;</span><span class="nhh-bar"></span><span class="nhh-gn">FLOOR</span><span class="nhh-gd">the minimum</span></div>
-        <div class="nhh-gate"><span class="nhh-tick">&#10003;</span><span class="nhh-bar"></span><span class="nhh-gn">BROTHERS</span><span class="nhh-gd">a second witness</span></div>
-        <div class="nhh-gate"><span class="nhh-tick">&#10003;</span><span class="nhh-bar"></span><span class="nhh-gn">GOD</span><span class="nhh-gd">weighed against time</span></div>
-      </div>
-      <div class="nhh-result" id="nhhResult">
-        <span class="nhh-seal">&#10003;</span>
-        <span class="nhh-rtext"><b id="nhhVerd">&nbsp;</b><span id="nhhAnchor">&nbsp;</span></span>
-        <span class="nhh-recheck">sealed &middot; re-checkable</span>
-      </div>
-    </div>
-    <p class="nhh-cap">It's weighed through four gates against Scripture and what has stood the test of time &mdash; you see <em>what survives</em>, with the trail, and a seal anyone can re-check.</p>
-  </div>
-
-  <h1 style="margin-top:32px;">A well of knowledge.</h1>
+  <div class="eyebrow">A discernment engine</div>
+  <h1>A well of knowledge.</h1>
+  <p class="tagline">Bring what you're carrying — a worry, a verse, a hard question. It's weighed against Scripture and what has stood the test of time, and you see what survives, with the trail.</p>
 
   <form class="draw" onsubmit="return nhDraw(event);">
     <input id="nhQ" type="text" autocomplete="off" placeholder="Bring what you're carrying — a worry, a verse, a question, a remedy.">
@@ -378,43 +332,6 @@ function nhChip(text){ var el=document.getElementById('nhQ'); if(el){ el.value=t
     if ((e.target.value || '').length > 0) chips.classList.add('faded');
     else chips.classList.remove('faded');
   });
-})();
-
-// The four-gate hero — self-playing. A claim travels the gates and emerges sealed,
-// cycling real examples. Pure presentation (no engine call); the live engine is the
-// form just below. Respects reduced-motion: shows one settled frame, no loop.
-(function(){
-  var hero=document.querySelector('.nhh'); if(!hero) return;
-  var claimEl=hero.querySelector('#nhhClaim'), scan=hero.querySelector('#nhhScan'),
-      result=hero.querySelector('#nhhResult'), verd=hero.querySelector('#nhhVerd'),
-      anchor=hero.querySelector('#nhhAnchor'), gates=hero.querySelectorAll('.nhh-gate');
-  var ex=[
-    {q:"Does Psalm 23 promise an easy life?", v:"Weighed - held to the text", a:"Psalm 23:4 - 'through the valley'"},
-    {q:"All things work together for good?", v:"Held - with its condition shown", a:"Romans 8:28 - 'to those who love God'"},
-    {q:"Is 7 x 8 = 56?", v:"Confirmed - the worked trail", a:"arithmetic - re-derived, not asserted"},
-    {q:"Should I be anxious about tomorrow?", v:"Weighed - surfaced, not invented", a:"Matthew 6:34"}
-  ];
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){
-    var e0=ex[0]; claimEl.textContent='"'+e0.q+'"'; claimEl.classList.add('in');
-    gates.forEach(function(g){ g.classList.add('lit'); });
-    verd.textContent=e0.v; anchor.textContent=e0.a; result.classList.add('show'); return;
-  }
-  var i=0, timers=[];
-  function at(ms,fn){ timers.push(setTimeout(fn,ms)); }
-  function run(){
-    var e=ex[i % ex.length]; i++;
-    gates.forEach(function(g){ g.classList.remove('lit'); });
-    result.classList.remove('show'); claimEl.classList.remove('in');
-    scan.style.transition='none'; scan.style.left='-2%'; scan.style.opacity='0'; void scan.offsetWidth;
-    at(140,function(){ claimEl.textContent='"'+e.q+'"'; claimEl.classList.add('in'); });
-    at(380,function(){ scan.style.transition='left 5.4s cubic-bezier(.4,.08,.3,1),opacity .4s'; scan.style.opacity='1'; scan.style.left='100%'; });
-    [1300,2650,4000,5350].forEach(function(t,gi){ at(t,function(){ gates[gi].classList.add('lit'); }); });
-    at(6050,function(){ scan.style.opacity='0'; });
-    at(6300,function(){ verd.textContent=e.v; anchor.textContent=e.a; result.classList.add('show'); });
-    at(9300,function(){ result.classList.remove('show'); claimEl.classList.remove('in'); });
-  }
-  run(); setInterval(function(){ timers.forEach(clearTimeout); timers=[]; run(); }, 9600);
 })();
 </script>
 
