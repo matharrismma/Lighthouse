@@ -21,10 +21,13 @@ shareable in a way the API alone is not.
 re-implementation of the gates in prompts, **not** wired to our real deterministic engine
 (the gates + verifiers + signed seal at narrowhighway.com).
 
-**Highest-value integration (proposed).** Point `server/proxy.js` `/api/validate` at our
-**sovereign engine** -- `POST https://narrowhighway.com/api/generate-gated` (with the
-`base_model` of choice; the OpenAI-compatible adapter lets it draft on any model, local or
-cloud) -- so the demo shows the ACTUAL gates, verifiers, and re-checkable seal, not a prompt
-mimicry. Then deploy as the public front door (Render/Railway, or fold into `site/`). That
-turns this from a pretty mockup into a live window onto the real engine -- the distribution
-lever made real.
+**DONE (2026-06-15).** Wired to the sovereign engine + deployed as the front door:
+`site/four-gates.html` -- a pure static page (no proxy, no API key) that POSTs to the
+PUBLIC `https://narrowhighway.com/api/generate-gated` and renders the ENGINE'S OWN
+gate_results (RED/FLOOR/BROTHERS/GOD, fail-fast), final_decision, and the re-checkable
+seal (content_hash + permalink). The engine sends `Access-Control-Allow-Origin: *`, so the
+page runs from ANY origin -- narrowhighway.com, an embed, an offline/microSD copy
+(freedom/resilience). Live at https://narrowhighway.com/four-gates.html (HTTP 200). Uses
+base_model=echo (free; the gates + seal are deterministic regardless of the drafting model);
+the model is pluggable/sovereign per the adapter. This original React+proxy version is kept
+as the source-of-the-idea; the deployed front door is the static page.
