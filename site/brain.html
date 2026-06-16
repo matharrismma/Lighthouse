@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The engine, as a brain — Narrow Highway</title>
+<meta name="description" content="The verification engine drawn from its real structure: ~1,684 verified neurons in two trees from one source, wired by concord bonds, with signals firing along the paths it follows.">
+<meta name="robots" content="index">
+<style>
+  :root{--bg:#06070b;--gold:#c9a87c;--goldhi:#e3c498;--tx:#ede7db;--dim:#9b94ac;--mut:#6e6878;--line:#23202c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,sans-serif;overflow:hidden;}
+  #brain{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;}
+  #brain.drag{cursor:grabbing;}
+  .ov{position:fixed;pointer-events:none;z-index:2;}
+  .top{top:0;left:0;right:0;padding:20px 22px;background:linear-gradient(#06070bcc,#06070b00);}
+  .kik{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);}
+  h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.3rem,3vw,1.9rem);color:#f4ecd5;margin:4px 0 0;}
+  .lede{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:clamp(.85rem,1.6vw,1rem);margin-top:5px;max-width:60ch;line-height:1.5;}
+  .legend{position:fixed;left:22px;bottom:18px;z-index:2;display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;color:var(--dim);pointer-events:none;}
+  .lg{display:flex;align-items:center;gap:8px;}
+  .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;}
+  .counts{position:fixed;right:22px;bottom:18px;z-index:2;text-align:right;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;color:var(--mut);pointer-events:none;line-height:1.7;}
+  .counts b{color:var(--goldhi);font-weight:600;}
+  .hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);pointer-events:none;opacity:.8;}
+  #tip{position:fixed;z-index:3;pointer-events:none;background:#0c0a12ee;border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:0 7px 7px 0;padding:8px 11px;max-width:300px;font-size:12.5px;color:var(--tx);line-height:1.4;opacity:0;transition:opacity .12s;}
+  #tip .tt{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+  #tip .td{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:#f4ecd5;font-size:14px;}
+  a.back{position:fixed;top:20px;right:22px;z-index:3;pointer-events:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:7px 13px;background:#0c0a1288;}
+  a.back:hover{color:var(--goldhi);border-color:var(--gold);}
+  .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:4;font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:1.1rem;}
+  @media(max-width:560px){.lede{display:none;}.legend{font-size:9.5px;}}
+</style>
+</head>
+<body>
+<canvas id="brain"></canvas>
+<div id="load" class="loading">Waking the engine…</div>
+<a class="back" href="/">&larr; home</a>
+<div class="ov top">
+  <div class="kik">The engine &middot; its real structure</div>
+  <h1>Every verified thing it holds, and the paths between them.</h1>
+  <p class="lede">Two trees from one source — the matrix (math) and the organic (the Word) — wired by what survived verification. Watch the signal fire out from the root along the paths it follows.</p>
+</div>
+<div class="legend" id="legend"></div>
+<div class="counts" id="counts"></div>
+<div class="hint">drag to move &middot; scroll to zoom &middot; hover a neuron</div>
+<div id="tip"></div>
+<script>
+(function(){
+  var cv=document.getElementById('brain'), ctx=cv.getContext('2d'),
+      tip=document.getElementById('tip'), load=document.getElementById('load');
+  var DPR=Math.min(window.devicePixelRatio||1,2);
+  var TREE=[ {n:'organic (the Word)',c:[80,225,180]}, {n:'matrix (math)',c:[227,178,76]}, {n:'axis',c:[201,182,255]} ];
+  var SRCC=[255,236,200];
+
+  function boot(D){
+    load.style.display='none';
+    var N=D.x.length, X=D.x, Y=D.y, TR=D.tree, DEG=D.deg, NM=D.name,
+        E=D.edges, K=D.kin, SRC=D.src, isSrc=new Uint8Array(N);
+    SRC.forEach(function(i){isSrc[i]=1;});
+    // adjacency over bonds (for firing)
+    var adj=[]; for(var i=0;i<N;i++) adj.push([]);
+    for(var e=0;e<E.length;e++){ adj[E[e][0]].push(E[e][1]); adj[E[e][1]].push(E[e][0]); }
+    var maxd=1; for(i=0;i<N;i++) if(DEG[i]>maxd) maxd=DEG[i];
+
+    // data bounds
+    var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+    for(i=0;i<N;i++){ if(X[i]<minx)minx=X[i]; if(X[i]>maxx)maxx=X[i]; if(Y[i]<miny)miny=Y[i]; if(Y[i]>maxy)maxy=Y[i]; }
+    var cx=(minx+maxx)/2, cy=(miny+maxy)/2;
+
+    // view transform
+    var W,H, fit=1, view={s:1,ox:0,oy:0}, drag=null;
+    function resize(){
+      W=cv.clientWidth; H=cv.clientHeight; cv.width=W*DPR; cv.height=H*DPR;
+      fit=Math.min(W/(maxx-minx+90), H/(maxy-miny+120));
+    }
+    window.addEventListener('resize',resize); resize();
+    function sx(i){ return (X[i]-cx)*fit*view.s + W/2 + view.ox; }
+    function sy(i){ return (Y[i]-cy)*fit*view.s + H/2 + view.oy; }
+
+    // pre-rendered glow sprites, one per tree colour + source
+    function sprite(rgb){
+      var s=64, oc=document.createElement('canvas'); oc.width=oc.height=s;
+      var c=oc.getContext('2d'), g=c.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+      g.addColorStop(0,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',1)');
+      g.addColorStop(.25,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',.55)');
+      g.addColorStop(1,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0)');
+      c.fillStyle=g; c.fillRect(0,0,s,s); return oc;
+    }
+    var SP=TREE.map(function(t){return sprite(t.c);}), SPS=sprite(SRCC);
+
+    // firing pulses — light travels real bonds, biased to start from the source
+    var pulses=[], MAXP=70;
+    function spawn(from){
+      var a = (from!=null)?from : SRC[(Math.random()*SRC.length)|0];
+      var nb=adj[a]; if(!nb.length) return;
+      var b=nb[(Math.random()*nb.length)|0];
+      pulses.push({a:a,b:b,t:0,sp:0.006+Math.random()*0.012,gen:0});
+    }
+    for(i=0;i<28;i++) spawn();
+
+    var hover=-1;
+    function pick(mx,my){
+      var best=-1,bd=18*18;
+      for(var i=0;i<N;i++){ var dx=sx(i)-mx, dy=sy(i)-my, d=dx*dx+dy*dy; if(d<bd){bd=d;best=i;} }
+      return best;
+    }
+
+    var tcur=0;
+    function frame(){
+      tcur++;
+      // fade (trails) instead of hard clear -> glow persistence
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      ctx.globalCompositeOperation='source-over';
+      ctx.fillStyle='rgba(6,7,11,0.34)'; ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation='lighter';
+
+      // kin braces (secondary) — very faint
+      ctx.lineWidth=0.5; ctx.strokeStyle='rgba(70,68,96,0.16)'; ctx.beginPath();
+      for(var k=0;k<K.length;k++){ ctx.moveTo(sx(K[k][0]),sy(K[k][0])); ctx.lineTo(sx(K[k][1]),sy(K[k][1])); }
+      ctx.stroke();
+      // concord bonds — the vine (the paths)
+      ctx.lineWidth=0.6; ctx.strokeStyle='rgba(120,170,200,0.13)'; ctx.beginPath();
+      for(var e=0;e<E.length;e++){ ctx.moveTo(sx(E[e][0]),sy(E[e][0])); ctx.lineTo(sx(E[e][1]),sy(E[e][1])); }
+      ctx.stroke();
+
+      // hovered neuron -> light its synapses
+      if(hover>=0){
+        ctx.lineWidth=1.1; ctx.strokeStyle='rgba(227,196,152,0.5)'; ctx.beginPath();
+        for(var h=0;h<adj[hover].length;h++){ ctx.moveTo(sx(hover),sy(hover)); ctx.lineTo(sx(adj[hover][h]),sy(adj[hover][h])); }
+        ctx.stroke();
+      }
+
+      // neurons
+      for(i=0;i<N;i++){
+        var r=(2.2+Math.sqrt(DEG[i]/maxd)*16)*Math.min(2,Math.max(.6,view.s*fit*1.0));
+        var sp=isSrc[i]?SPS:SP[TR[i]];
+        var a=isSrc[i]?1:(0.45+0.5*(DEG[i]/maxd));
+        ctx.globalAlpha=a; ctx.drawImage(sp, sx(i)-r, sy(i)-r, r*2, r*2);
+      }
+      ctx.globalAlpha=1;
+
+      // pulses
+      for(var p=pulses.length-1;p>=0;p--){
+        var pu=pulses[p]; pu.t+=pu.sp;
+        var ax=sx(pu.a),ay=sy(pu.a),bx=sx(pu.b),by=sy(pu.b);
+        var px=ax+(bx-ax)*pu.t, py=ay+(by-ay)*pu.t;
+        var tc=TREE[TR[pu.b]].c;
+        ctx.globalAlpha=0.9; ctx.fillStyle='rgba('+tc[0]+','+tc[1]+','+tc[2]+',1)';
+        ctx.beginPath(); ctx.arc(px,py,2.6,0,6.283); ctx.fill();
+        ctx.globalAlpha=0.35; ctx.beginPath(); ctx.arc(px,py,6,0,6.283); ctx.fill();
+        if(pu.t>=1){
+          pulses.splice(p,1);
+          if(pu.gen<5 && Math.random()<0.7){ var nb=adj[pu.b]; if(nb.length){ var nx=nb[(Math.random()*nb.length)|0]; pulses.push({a:pu.b,b:nx,t:0,sp:pu.sp,gen:pu.gen+1}); } }
+        }
+      }
+      ctx.globalAlpha=1;
+      while(pulses.length<MAXP && Math.random()<0.25) spawn();
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+
+    // interaction
+    cv.addEventListener('mousemove',function(ev){
+      var mx=ev.clientX,my=ev.clientY;
+      if(drag){ view.ox+=mx-drag.x; view.oy+=my-drag.y; drag.x=mx; drag.y=my; return; }
+      var i=pick(mx,my); hover=i;
+      if(i>=0){ tip.style.opacity='1'; tip.style.left=(mx+14)+'px'; tip.style.top=(my+14)+'px';
+        tip.innerHTML='<div class="tt">'+(isSrc[i]?'source &middot; root':TREE[TR[i]].n)+' &middot; '+DEG[i]+' links</div><div class="td">'+(NM[i]||'').replace(/</g,'&lt;')+'</div>'; }
+      else tip.style.opacity='0';
+    });
+    cv.addEventListener('mousedown',function(ev){ drag={x:ev.clientX,y:ev.clientY}; cv.classList.add('drag'); tip.style.opacity='0'; });
+    window.addEventListener('mouseup',function(){ drag=null; cv.classList.remove('drag'); });
+    cv.addEventListener('wheel',function(ev){ ev.preventDefault(); var f=ev.deltaY<0?1.12:0.893; view.s=Math.max(0.4,Math.min(8,view.s*f)); },{passive:false});
+
+    // legend + counts
+    document.getElementById('legend').innerHTML =
+      TREE.map(function(t){return '<div class="lg"><span class="dot" style="color:rgb('+t.c.join(',')+')"></span>'+t.n+'</div>';}).join('')
+      + '<div class="lg"><span class="dot" style="color:rgb('+SRCC.join(',')+')"></span>source (the root)</div>';
+    document.getElementById('counts').innerHTML =
+      '<b>'+N.toLocaleString()+'</b> verified neurons<br><b>'+E.length.toLocaleString()+'</b> concord bonds<br><b>'+K.length.toLocaleString()+'</b> kin braces';
+  }
+
+  if(window.BRAIN_DATA){ boot(window.BRAIN_DATA); }
+  else fetch('/brain-graph.json').then(function(r){return r.json();}).then(boot)
+    .catch(function(){ load.textContent='Could not load the map.'; });
+})();
+</script>
+</body>
+</html>
