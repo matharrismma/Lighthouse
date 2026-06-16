@@ -6,6 +6,11 @@ Lighthouse runs every decision through four checkpoints: is it honest, is it saf
 
 It is built to run as software — an AI agent or a small device — so the checks cannot be skipped, the hierarchy cannot be inverted under pressure, and the underlying claims (math, chemistry, statistics, code, governance) are *computationally* verified rather than merely attested.
 
+> **Honest status.** What in this repo is real, seed, or concept is inventoried in
+> [`docs/STATUS.md`](docs/STATUS.md). The verification engine, the connected map, and the
+> sovereignty stack are real and tested; the community/mission/model surfaces are mostly
+> built-but-unpopulated or aspirational. We don't claim what we can't show.
+
 ## Try it in one call (hosted, zero install)
 
 The engine is live and publicly reachable. Verify a derivation and get a permanent,
