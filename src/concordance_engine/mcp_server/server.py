@@ -640,7 +640,8 @@ def original_words(reference: str, limit: int = 12) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def read_passage(reference: str, takes: bool = True, limit: int = 12) -> Dict[str, Any]:
+def read_passage(reference: str, takes: bool = True, limit: int = 12,
+                 show_concord: bool = False) -> Dict[str, Any]:
     """ONE verse-keyed view fusing the three Scripture layers in a single call.
 
     Returns, per verse: the WEB translation the user READS, the original-language
@@ -648,11 +649,14 @@ def read_passage(reference: str, takes: bool = True, limit: int = 12) -> Dict[st
     morphology), and -- when takes=True (default) -- the lexical TAKE per word (its
     Strong's transliteration + definition, an attributed lexicon gloss). The whole
     Scripture-onboard architecture at once. reference = 'John 3:16', 'Genesis 1:1',
-    'Romans 8:28', 'Psalm 23:1'. takes=False drops the gloss (lighter). The engine
-    never authors the text or the gloss -- it recombines FOUND, GROUNDED, ATTRIBUTED
-    pieces (WEB public domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures).
+    'Romans 8:28', 'Psalm 23:1'. takes=False drops the gloss (lighter). show_concord=True
+    attaches a compact CONCORD summary -- where the gathered witnesses (lexicon,
+    commentary, sermon) converge on the same terms (a deterministic overlap, never a
+    verdict on truth; see the concord tool). The engine never authors the text or the
+    gloss -- it recombines FOUND, GROUNDED, ATTRIBUTED pieces (WEB public domain;
+    WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures).
     """
-    return tools.read_passage(reference, takes, limit)
+    return tools.read_passage(reference, takes, limit, show_concord)
 
 
 @mcp.tool()

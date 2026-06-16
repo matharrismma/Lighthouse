@@ -1886,7 +1886,7 @@ def original_words(reference, limit=12):
             "attribution": meta.get("attribution")}
 
 
-def read_passage(reference, takes=True, limit=12):
+def read_passage(reference, takes=True, limit=12, show_concord=False):
     """ONE verse-keyed view that fuses the three Scripture layers: the WEB
     translation the user READS, the original-language words the agent WORKS on
     (Hebrew OT / Koine Greek NT, each with Strong's + morphology), and -- when
@@ -1895,7 +1895,10 @@ def read_passage(reference, takes=True, limit=12):
     Scripture-onboard architecture in a single call. reference = 'John 3:16',
     'Genesis 1:1', 'Romans 8:28', 'Psalm 23:1'. The engine never authors the text
     or the gloss -- it recombines FOUND, GROUNDED, ATTRIBUTED pieces (WEB public
-    domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures)."""
+    domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's via OpenScriptures).
+    show_concord=True attaches a compact CONCORD summary -- where the gathered
+    witnesses (lexicon, commentary, sermon) converge on the same terms (see the
+    concord tool); a deterministic overlap, never a verdict on truth."""
     sc = scripture(reference, limit=limit)
     ow = original_words(reference, limit=limit)
     if ow.get("status") != "ok" and sc.get("status") != "ok":
@@ -1969,19 +1972,33 @@ def read_passage(reference, takes=True, limit=12):
             verses = [{"ref": r, "web": t, "words": []} for r, t in web_map.items()]
         else:
             return {"status": "not_found", "detail": "no passage for '" + str(reference) + "'"}
-    return {"status": "ok", "reference": ow.get("reference") or sc.get("reference"),
-            "translation": "WEB", "language": language, "takes": bool(takes),
-            "count": len(verses), "verses": verses,
-            "note": "The Scripture-onboard architecture in one call: the agent works the original; "
-                    "the user reads the WEB; Strong's adds its lexical take. Found, grounded, "
-                    "attributed -- never generated. Expand any Strong's number with word_study; "
-                    "more attributed takes (BDB/Thayer, commentary, sermons) layer on later.",
-            "sources": {
-                "translation": "World English Bible (public domain)",
-                "original": ("SBL Greek NT / MorphGNT (CC BY-SA)" if language == "Greek"
-                             else "Westminster Leningrad Codex + OSHB tagging (CC BY)"),
-                "lexical_take": "Strong's via OpenScriptures (public domain)",
-                "scholarly_take": "STEPBible TBESH/TBESG -- BDB/Thayer tradition (CC BY)"}}
+    result = {"status": "ok", "reference": ow.get("reference") or sc.get("reference"),
+              "translation": "WEB", "language": language, "takes": bool(takes),
+              "count": len(verses), "verses": verses,
+              "note": "The Scripture-onboard architecture in one call: the agent works the original; "
+                      "the user reads the WEB; Strong's adds its lexical take. Found, grounded, "
+                      "attributed -- never generated. Expand any Strong's number with word_study; "
+                      "more attributed takes (BDB/Thayer, commentary, sermons) layer on later.",
+              "sources": {
+                  "translation": "World English Bible (public domain)",
+                  "original": ("SBL Greek NT / MorphGNT (CC BY-SA)" if language == "Greek"
+                               else "Westminster Leningrad Codex + OSHB tagging (CC BY)"),
+                  "lexical_take": "Strong's via OpenScriptures (public domain)",
+                  "scholarly_take": "STEPBible TBESH/TBESG -- BDB/Thayer tradition (CC BY)"}}
+    if show_concord:                              # where the gathered witnesses converge (reuse concord)
+        c = concord(reference, limit=limit)
+        if c.get("status") == "ok":
+            result["concord"] = {
+                "n_sources": c.get("n_sources"), "sources": c.get("sources"),
+                "n_strong": c.get("n_strong"), "concord_ratio": c.get("concord_ratio"),
+                "strong_terms": [t["term"] for t in c.get("concord_terms", []) if t["in_sources"] >= 3][:10],
+                "shared_terms": [t["term"] for t in c.get("concord_terms", [])][:12],
+                "note": "Where the gathered witnesses converge (strong = a term in 3+ INDEPENDENT "
+                        "attributed takes). A deterministic term-overlap, NOT a verdict on truth -- "
+                        "full convergence + divergence via the concord tool."}
+        else:
+            result["concord"] = {"status": c.get("status"), "detail": c.get("detail")}
+    return result
 
 
 def lexicon(strongs):
@@ -3508,16 +3525,20 @@ TOOLS: List[Dict[str, Any]] = [
          "the original-language words the agent WORKS on (Hebrew OT / Greek NT, with Strong's + "
          "morphology), and the lexical TAKE per word (Strong's transliteration + definition). The whole "
          "Scripture-onboard architecture in a single call. reference = 'John 3:16', 'Genesis 1:1', "
-         "'Romans 8:28'. takes=false drops the lexical gloss (lighter). Recombines found, grounded, "
-         "attributed pieces -- never generated. WEB public domain; WLC/OSHB + SBLGNT/MorphGNT; Strong's "
-         "via OpenScriptures."
+         "'Romans 8:28'. takes=false drops the lexical gloss (lighter). show_concord=true attaches a "
+         "compact CONCORD summary -- where the gathered witnesses (lexicon, commentary, sermon) "
+         "converge on the same terms (a deterministic overlap, never a verdict on truth). Recombines "
+         "found, grounded, attributed pieces -- never generated. WEB public domain; WLC/OSHB + "
+         "SBLGNT/MorphGNT; Strong's via OpenScriptures."
      ),
      "inputSchema": {"type": "object",
                      "properties": {"reference": {"type": "string"},
                                     "takes": {"type": "boolean"},
-                                    "limit": {"type": "integer"}},
+                                    "limit": {"type": "integer"},
+                                    "show_concord": {"type": "boolean"}},
                      "required": ["reference"]},
-     "fn": lambda a: read_passage(a["reference"], a.get("takes", True), a.get("limit", 12))},
+     "fn": lambda a: read_passage(a["reference"], a.get("takes", True), a.get("limit", 12),
+                                  a.get("show_concord", False))},
     {"name": "lexicon",
      "description": (
          "The RICHER scholarly lexical take for a Strong's number -- BDB/Thayer-grade, beyond "
