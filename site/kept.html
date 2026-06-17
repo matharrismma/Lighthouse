@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your things — Narrow Highway</title>
+<meta name="description" content="Everything you've kept — lists, drafts, notes, verified claims. On your device. Private, nothing tracked.">
+<meta name="theme-color" content="#0a0810">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Crimson+Pro:ital@0;1&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0810;--tx:#ede7db;--dim:#b3aabd;--mut:#6e6878;--accent:#c9a87c;--accenthi:#e3c498;--surface:#161320;--border:#29232f;--pass:#6fc47c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+  a{color:var(--accent);text-decoration:none;}
+  .wrap{max-width:640px;margin:0 auto;padding:30px 20px 70px;}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);}
+  .home{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);}
+  h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:2rem;color:#f4ecd5;margin:2px 0 4px;}
+  .sub{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);margin-bottom:22px;}
+  .day{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:22px 0 9px;}
+  .item{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 11px 11px 0;padding:13px 16px;margin-bottom:9px;}
+  .item .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;display:flex;justify-content:space-between;}
+  .item .lbl .t{color:var(--mut);}
+  .li{display:flex;align-items:center;gap:9px;padding:4px 0;}
+  .li .bx{width:13px;height:13px;border:1.5px solid var(--accent);border-radius:3px;flex:none;}
+  .li .tx{font-family:'Crimson Pro',Georgia,serif;font-size:1.02rem;color:#f4ecd5;}
+  .note-t{font-family:'Crimson Pro',Georgia,serif;font-size:1.1rem;color:#f4ecd5;}
+  .note-b,.body{font-family:'Crimson Pro',Georgia,serif;font-size:1rem;color:var(--tx);white-space:pre-wrap;line-height:1.5;margin-top:3px;}
+  .to{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);}
+  .subj{font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;color:#f4ecd5;margin:2px 0 6px;}
+  .verd{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--pass);}
+  .verd.broken{color:#e07a6f;}
+  .claim{font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;color:#f4ecd5;}
+  .empty{text-align:center;color:var(--dim);font-family:'Crimson Pro',Georgia,serif;font-style:italic;padding:50px 0;line-height:1.6;}
+  .clear{display:block;margin:34px auto 0;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;}
+  .clear:hover{color:#e07a6f;border-color:#e07a6f;}
+  .priv{text-align:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="kicker">Kept on this device</div><a class="home" href="/">&larr; the work area</a></div>
+  <h1>Your things.</h1>
+  <div class="sub">Everything you've brought and kept — lists, drafts, notes, what you checked.</div>
+  <div id="shelf"></div>
+  <div class="priv">Private &middot; on this device only &middot; nothing tracked</div>
+</div>
+<script>
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var items=[]; try{ items=JSON.parse(localStorage.getItem('nh_kept_v1')||'[]'); }catch(e){}
+  var shelf=document.getElementById('shelf');
+  if(!items.length){ shelf.innerHTML='<div class="empty">Nothing kept yet.<br>Bring something on the <a href="/">home page</a> — a grocery note, an email, a claim — and it will land here.</div>'; return; }
+
+  function dayKey(ts){ var d=new Date(ts); return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}); }
+  function timeOf(ts){ try{ return new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
+
+  var LBL={list:'List',draft:'Draft',note:'Note',verify:'Checked',ask:'Answer'};
+  function body(it){
+    var o=it.obj||{}, k=it.kind;
+    if(k==='list'){ return (o.items||[]).map(function(x){return '<div class="li"><span class="bx"></span><span class="tx">'+esc(x)+'</span></div>';}).join(''); }
+    if(k==='draft'){ return (o.to?'<div class="to">To: '+esc(o.to)+'</div>':'')+(o.subject?'<div class="subj">'+esc(o.subject)+'</div>':'')+'<div class="body">'+esc(o.body||'')+'</div>'; }
+    if(k==='note'){ return '<div class="note-t">'+esc(o.title||'Note')+'</div><div class="note-b">'+esc(o.note||'')+'</div>'; }
+    if(k==='verify'){ var v=(o.verdict||''); return '<div class="claim">'+esc(o.claim||'')+'</div><div class="verd'+(v==='BROKEN'?' broken':'')+'">'+esc(v||'checked')+'</div>'; }
+    if(k==='ask'){ return '<div class="body">'+esc(o.answer||'')+'</div>'; }
+    return '<div class="body">'+esc(JSON.stringify(o))+'</div>';
+  }
+  function label(it){ var o=it.obj||{}; var extra = it.kind==='list'&&o.list?(' &middot; '+esc(o.list)):''; return (LBL[it.kind]||it.kind)+extra; }
+
+  var html='', lastDay=null;
+  items.forEach(function(it){
+    var dk=dayKey(it.ts);
+    if(dk!==lastDay){ html+='<div class="day">'+esc(dk)+'</div>'; lastDay=dk; }
+    html+='<div class="item"><div class="lbl"><span>'+label(it)+'</span><span class="t">'+esc(timeOf(it.ts))+'</span></div>'+body(it)+'</div>';
+  });
+  html+='<button class="clear" id="clear">Clear everything kept here</button>';
+  shelf.innerHTML=html;
+  document.getElementById('clear').addEventListener('click',function(){
+    if(confirm('Remove everything kept on this device? This cannot be undone.')){ try{localStorage.removeItem('nh_kept_v1');}catch(e){} location.reload(); }
+  });
+})();
+</script>
+</body>
+</html>
