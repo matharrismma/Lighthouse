@@ -140,8 +140,9 @@
       .catch(function(){ return fetch('https://narrowhighway.com/curriculum').then(function(r){return r.json();}); });
   }
   loadCurriculum().then(function(d){
+    var C=d.tracks||d;   // /curriculum returns {tracks:{phonics:[...]}}; tolerate a flat shape too
     META.forEach(function(m){
-      var u=(d[m.key]||[]).slice().sort(function(a,b){return (a.unit_seq||0)-(b.unit_seq||0);});
+      var u=(C[m.key]||[]).slice().sort(function(a,b){return (a.unit_seq||0)-(b.unit_seq||0);});
       if(u.length) SUBJECTS.push({key:m.key,name:m.name,reading:m.reading,units:u});
     });
     if(!SUBJECTS.length){ document.getElementById('lesson').innerHTML='<div class="loading">Lessons are loading elsewhere — try again shortly.</div>'; return; }
