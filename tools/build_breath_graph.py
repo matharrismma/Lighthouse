@@ -29,6 +29,15 @@ CM = os.path.join(ROOT, "data", "codex", "coordinate_map.json")
 CONN = os.path.join(ROOT, "data", "codex", "index", "connections.json")
 OUT = os.path.join(ROOT, "site", "breath-graph.json")
 LED = os.path.join(ROOT, "data", "almanac", "resonance_grounding.jsonl")
+ENTRIES = os.path.join(ROOT, "data", "almanac", "entries.jsonl")
+# Each almanac entry already carries its OWN verdict -- the work is done. Read it.
+VERDICT_MAP = {
+    "HOLDS": "verified",
+    "CONFIRMED": "concordant", "CONCORDANT": "concordant", "STRUCTURAL": "concordant",
+    "MIXED": "mixed", "PARTIAL": "mixed",
+    "MISMATCH": "retired", "OBSOLETE": "retired", "DEPARTED": "retired", "NON_EXAMPLE": "retired",
+    # NONE / DISCOVERED -> left as resonance (genuinely no verdict yet)
+}
 TREE = {"language": 0, "math": 1, "axis": 2}
 ROOTS = ("connection_reality_is_mappable", "teaching_the_true_vine",
          "teaching_the_words_of_christ_are_the_architecture")
@@ -61,12 +70,29 @@ def main():
     except FileNotFoundError:
         pass
 
+    # PRIMARY grounding: each entry's OWN almanac verdict (already computed -- the work
+    # is done). This is the source of truth; connections.json is only a fallback for
+    # connection_* nodes that are not themselves entries.
+    entry_verdict = {}
+    try:
+        with open(ENTRIES, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    e = json.loads(line)
+                    if e.get("id") and e.get("verdict"):
+                        entry_verdict[e["id"]] = e["verdict"]
+    except FileNotFoundError:
+        pass
+
     # node evidence
     node_ev = []
     for n in nodes:
         nid = n["id"]
         if nid in ROOTS:
             node_ev.append("source")
+        elif nid in entry_verdict:
+            node_ev.append(VERDICT_MAP.get(entry_verdict[nid], "resonance"))
         elif nid in conn_ev:
             node_ev.append(conn_ev[nid])
         else:
