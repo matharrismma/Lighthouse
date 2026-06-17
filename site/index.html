@@ -195,7 +195,7 @@ function nhCopy(btn){var t=btn.getAttribute('data-copy')||'';try{navigator.clipb
 function nhRender(d){
   var res=document.getElementById('ures'), intent=d&&d.intent;
   if(intent==='verify'){
-    nhKeep('verify',{claim:d.claim,verdict:(d.result||{}).verdict});
+    nhKeep('verify',{claim:d.claim,verdict:(d.result||{}).verdict,cite:((d.result||{}).receipt||{}).cite_url});
     res.innerHTML='<div class="art"><div class="art-lbl">Verified by the engine <span class="kept">&middot; kept</span></div>'+nhVerifyCard(d.result||{})+'</div>';return;
   }
   if(intent==='list'){

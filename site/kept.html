@@ -35,6 +35,7 @@
   .verd{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--pass);}
   .verd.broken{color:#e07a6f;}
   .claim{font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;color:#f4ecd5;}
+  .seal-lnk{display:inline-block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--accent);}
   .empty{text-align:center;color:var(--dim);font-family:'Crimson Pro',Georgia,serif;font-style:italic;padding:50px 0;line-height:1.6;}
   .clear{display:block;margin:34px auto 0;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;}
   .clear:hover{color:#e07a6f;border-color:#e07a6f;}
@@ -77,7 +78,7 @@ function nhGo(){var v=(document.getElementById('bringq').value||'').trim();if(v)
     if(k==='list'){ return (o.items||[]).map(function(x){return '<div class="li"><span class="bx"></span><span class="tx">'+esc(x)+'</span></div>';}).join(''); }
     if(k==='draft'){ return (o.to?'<div class="to">To: '+esc(o.to)+'</div>':'')+(o.subject?'<div class="subj">'+esc(o.subject)+'</div>':'')+'<div class="body">'+esc(o.body||'')+'</div>'; }
     if(k==='note'){ return '<div class="note-t">'+esc(o.title||'Note')+'</div><div class="note-b">'+esc(o.note||'')+'</div>'; }
-    if(k==='verify'){ var v=(o.verdict||''); return '<div class="claim">'+esc(o.claim||'')+'</div><div class="verd'+(v==='BROKEN'?' broken':'')+'">'+esc(v||'checked')+'</div>'; }
+    if(k==='verify'){ var v=(o.verdict||''); var seal=o.cite?'<a class="seal-lnk" href="'+esc(o.cite)+'">open the seal &amp; re-check &rarr;</a>':''; return '<div class="claim">'+esc(o.claim||'')+'</div><div class="verd'+(v==='BROKEN'?' broken':'')+'">'+esc(v||'checked')+'</div>'+seal; }
     if(k==='ask'){ return '<div class="body">'+esc(o.answer||'')+'</div>'; }
     return '<div class="body">'+esc(JSON.stringify(o))+'</div>';
   }
