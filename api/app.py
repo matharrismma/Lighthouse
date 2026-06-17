@@ -12597,6 +12597,40 @@ def agent_manifest():
     return _build_manifest()
 
 
+@app.get("/mcp-stats", tags=["agents"])
+def mcp_public_stats():
+    """Public, never-stale counts of the LIVE MCP surface, so the front door
+    (mcp.html) can't drift out of sync with what's actually exposed. Safe
+    aggregate only -- NO request data or logs (those stay operator-gated at
+    /keep/mcp-stats). Counts come straight off the mounted FastMCP managers,
+    so adding a tool updates this automatically."""
+    tools = prompts = resources = verify_tools = None
+    try:
+        from concordance_engine.mcp_server.server import mcp as _m
+        tool_d = getattr(getattr(_m, "_tool_manager", None), "_tools", {}) or {}
+        tools = len(tool_d)
+        verify_tools = sum(1 for n in tool_d if str(n).startswith("verify_"))
+        prompts = len(getattr(getattr(_m, "_prompt_manager", None), "_prompts", {}) or {})
+        resources = len(getattr(getattr(_m, "_resource_manager", None), "_resources", {}) or {})
+    except Exception:
+        pass
+    request_total = None
+    try:
+        request_total = dict(_mcp_request_counter).get("total")
+    except Exception:
+        pass
+    return {
+        "server": "concordance",
+        "tools": tools,
+        "verify_tools": verify_tools,
+        "prompts": prompts,
+        "resources": resources,
+        "request_total": request_total,
+        "transports": {"http": "/mcp", "sse": "/mcp/sse"},
+        "doctrine_url": "https://narrowhighway.com/identity",
+    }
+
+
 @app.get("/openapi-actions.json", include_in_schema=False)
 def openapi_actions_schema():
     """Focused OpenAPI 3.1 schema for ChatGPT Custom GPT Actions.

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <meta property="og:title" content="MCP · Connect an agent to the engine">
-  <meta property="og:description" content="Concordance speaks MCP. 100 tools, 5 prompts, 4 resources — all serving Christ.">
+  <meta property="og:description" content="Concordance speaks MCP. 134 tools, 6 prompts, 4 resources — all serving Christ.">
   <meta property="og:url" content="https://narrowhighway.com/mcp.html">
   <link rel="canonical" href="https://narrowhighway.com/mcp.html">
   <style>
@@ -95,8 +95,8 @@
   </div>
 
   <div class="stat-row" id="statRow">
-    <div class="stat-card"><div class="stat-num" id="toolCount">86</div><div class="stat-label">Tools</div></div>
-    <div class="stat-card"><div class="stat-num" id="promptCount">5</div><div class="stat-label">Prompts</div></div>
+    <div class="stat-card"><div class="stat-num" id="toolCount">134</div><div class="stat-label">Tools</div></div>
+    <div class="stat-card"><div class="stat-num" id="promptCount">6</div><div class="stat-label">Prompts</div></div>
     <div class="stat-card"><div class="stat-num" id="resourceCount">4</div><div class="stat-label">Resources</div></div>
     <div class="stat-card"><div class="stat-num" id="reqTotal">—</div><div class="stat-label">Requests this restart</div></div>
   </div>
@@ -152,7 +152,7 @@
 
   <h3>Domain verifiers (deterministic computation)</h3>
   <p style="color:var(--text-dim,#b3aabd);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:14.5px;">
-    75 <code>verify_*</code> tools covering: math, chemistry, physics (dimensional + conservation), biology, genetics, medicine, statistics (incl. p-value + multiple comparisons + confidence intervals), formal logic, cryptography, computer science, governance, economics, finance, energy, agriculture, materials science, geology, hydrology, meteorology, oceanography, optics, acoustics, networking, manufacturing, construction, architecture, electrical, theology (doctrine + scripture anchors), philosophy, rhetoric, linguistics, music theory, photography, real estate, exercise science, nutrition, ecology, history chronology, sports analytics, soil science, law, witness verification, calendar/time, combinatorics, number theory, geometry, document validation, information theory, quantum computing, polymathic synthesis, scripture verification…
+    <span id="verifyCount">64</span> <code>verify_*</code> tools covering: math, chemistry, physics (dimensional + conservation), biology, genetics, medicine, statistics (incl. p-value + multiple comparisons + confidence intervals), formal logic, cryptography, computer science, governance, economics, finance, energy, agriculture, materials science, geology, hydrology, meteorology, oceanography, optics, acoustics, networking, manufacturing, construction, architecture, electrical, theology (doctrine + scripture anchors), philosophy, rhetoric, linguistics, music theory, photography, real estate, exercise science, nutrition, ecology, history chronology, sports analytics, soil science, law, witness verification, calendar/time, combinatorics, number theory, geometry, document validation, information theory, quantum computing, polymathic synthesis, scripture verification…
   </p>
 
   <h3>Prompts (templates an agent client can offer the user)</h3>
@@ -202,14 +202,18 @@ function copyUrl(elId, url) {
   el.style.background = 'rgba(111,196,124,0.25)';
   setTimeout(() => { el.style.background = orig; }, 600);
 }
-// Live counts from /keep/mcp-stats if accessible (operator only)
+// Live counts from the public /mcp-stats so the numbers can never drift from
+// what's actually exposed. Counts come straight off the mounted MCP server.
 (async () => {
   try {
-    const r = await fetch('/keep/mcp-stats?limit=1');
+    const r = await fetch('/mcp-stats');
     if (!r.ok) return;
     const d = await r.json();
-    if (d.tool_count > 0) document.getElementById('toolCount').textContent = d.tool_count;
-    if (d.counter?.total != null) document.getElementById('reqTotal').textContent = d.counter.total;
+    if (d.tools != null) document.getElementById('toolCount').textContent = d.tools;
+    if (d.prompts != null) document.getElementById('promptCount').textContent = d.prompts;
+    if (d.resources != null) document.getElementById('resourceCount').textContent = d.resources;
+    if (d.verify_tools != null) document.getElementById('verifyCount').textContent = d.verify_tools;
+    if (d.request_total != null) document.getElementById('reqTotal').textContent = d.request_total;
   } catch (e) {}
 })();
 </script>
