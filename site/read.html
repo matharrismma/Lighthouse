@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn to read — Narrow Highway</title>
+<meta name="description" content="A child learns to read by doing it: see a word, sound out each part, and watch the parts blend into the whole. The process, taught as it is used. Free.">
+<meta name="theme-color" content="#0a0810">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Crimson+Pro:ital@0;1&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d1117;--panel:#161b26;--tx:#eef2f7;--dim:#9aa6b8;--mut:#5f6b7e;--line:#26303f;
+        --gold:#e3c498;--sound:#5fb0ff;--blend:#6fe0a8;--warm:#ffce6b;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:radial-gradient(ellipse 90% 60% at 50% 0%,#16203a 0%,#0d1117 60%);color:var(--tx);
+       font-family:Inter,system-ui,sans-serif;min-height:100dvh;-webkit-font-smoothing:antialiased;}
+  a{color:var(--gold);text-decoration:none;}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 18px 70px;}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);}
+  .home{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);}
+  .unit-title{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.5rem,4vw,2.1rem);color:#fff;line-height:1.1;margin:2px 0 4px;}
+  .rule{font-family:'Crimson Pro',Georgia,serif;color:var(--dim);font-size:clamp(1rem,1.9vw,1.12rem);line-height:1.55;max-width:60ch;}
+
+  /* the stage — the word being read */
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 20px 26px;
+         margin:22px 0;text-align:center;box-shadow:0 18px 50px -28px #000;}
+  .tiles{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;min-height:96px;align-items:center;}
+  .tile{font-family:'Crimson Pro',Georgia,serif;font-weight:600;font-size:clamp(2.6rem,11vw,4.4rem);line-height:1;
+        color:#fff;background:#1c2433;border:2px solid var(--line);border-radius:14px;padding:6px 18px;min-width:62px;
+        cursor:pointer;transition:transform .25s,border-color .25s,color .25s,background .25s,box-shadow .25s;position:relative;user-select:none;}
+  .tile .snd{position:absolute;left:0;right:0;bottom:-22px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mut);opacity:0;transition:opacity .25s;}
+  .tile.lit{color:var(--sound);border-color:var(--sound);box-shadow:0 0 26px -4px var(--sound);transform:translateY(-6px);}
+  .tile.lit .snd{opacity:1;color:var(--sound);}
+  .tile.vowel.lit{color:var(--warm);border-color:var(--warm);box-shadow:0 0 26px -4px var(--warm);}
+  .tile.vowel.lit .snd{color:var(--warm);}
+  .tiles.blended{gap:0;}
+  .tiles.blended .tile{color:var(--blend);border-color:transparent;background:transparent;box-shadow:none;transform:none;padding:6px 1px;}
+  .tiles.blended .tile .snd{opacity:0;}
+
+  .ctrls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:34px;}
+  .btn{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;border:1px solid var(--line);
+       background:#1c2433;color:var(--tx);border-radius:11px;padding:13px 20px;cursor:pointer;transition:.18s;}
+  .btn:hover{border-color:var(--gold);color:#fff;}
+  .btn.primary{background:var(--gold);color:#1a1410;border-color:var(--gold);font-weight:700;}
+  .btn.primary:hover{background:#f0d6ac;}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .modehint{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:.98rem;margin-top:16px;min-height:1.4em;transition:color .2s;}
+
+  /* word chooser */
+  .wordrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;}
+  .wchip{font-family:'Crimson Pro',Georgia,serif;font-size:1.15rem;color:var(--dim);background:transparent;
+         border:1px solid var(--line);border-radius:20px;padding:5px 15px;cursor:pointer;transition:.18s;}
+  .wchip:hover{color:#fff;border-color:var(--gold);}
+  .wchip.on{color:#1a1410;background:var(--gold);border-color:var(--gold);font-weight:600;}
+
+  .sent{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--blend);
+        border-radius:0 12px 12px 0;padding:16px 18px;}
+  .sent .l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:7px;}
+  .sent .t{font-family:'Crimson Pro',Georgia,serif;font-size:1.3rem;color:#fff;line-height:1.5;cursor:pointer;}
+  .sent .t:hover{color:var(--blend);}
+
+  .check{margin-top:18px;color:var(--dim);font-family:'Crimson Pro',Georgia,serif;font-size:1.02rem;line-height:1.55;}
+  .check b{color:var(--warm);font-weight:600;}
+
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:30px;}
+  .nav .seq{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mut);letter-spacing:.1em;}
+  .track{display:flex;flex-wrap:wrap;gap:5px;margin-top:26px;justify-content:center;}
+  .tdot{width:9px;height:9px;border-radius:50%;background:var(--line);cursor:pointer;transition:.18s;}
+  .tdot:hover{background:var(--dim);} .tdot.cur{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+  .loading{text-align:center;color:var(--dim);font-family:'Crimson Pro',Georgia,serif;font-style:italic;padding:60px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="kicker">Learn to read &middot; sound it out</div>
+    <a class="home" href="/">&larr; home</a>
+  </div>
+  <div id="lesson"><div class="loading">Opening the first lesson&hellip;</div></div>
+  <div class="track" id="track"></div>
+</div>
+
+<script>
+(function(){
+  // grapheme -> short sound (foundational level: consonants, short vowels, common digraphs)
+  var DIG={sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
+  var VOW='aeiou';
+  var SND={a:'a',e:'e',i:'i',o:'o',u:'u',b:'b',c:'k',d:'d',f:'f',g:'g',h:'h',j:'j',k:'k',l:'l',m:'m',
+           n:'n',p:'p',q:'kw',r:'r',s:'s',t:'t',v:'v',w:'w',x:'ks',y:'y',z:'z',
+           sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
+  function segment(w){
+    w=(w||'').toLowerCase().replace(/[^a-z]/g,''); var g=[],i=0;
+    while(i<w.length){ var two=w.substr(i,2); if(DIG[two]){g.push(two);i+=2;} else {g.push(w[i]);i++;} }
+    return g;
+  }
+  function isWord(s){ s=(s||'').trim(); return /^[a-zA-Z]{2,7}$/.test(s); }
+
+  // speech: say a whole word (reliable). Pure phonemes are shown, not spoken (avoids the schwa error).
+  function say(text,rate){
+    try{ if(!window.speechSynthesis) return; var u=new SpeechSynthesisUtterance(text);
+      u.rate=rate||0.9; u.pitch=1.05; speechSynthesis.cancel(); speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  var UNITS=[], cur=0;
+  function loadPhonics(){
+    return fetch('/phonics').then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .catch(function(){ return fetch('https://narrowhighway.com/phonics').then(function(r){return r.json();}); });
+  }
+  loadPhonics().then(function(d){
+    var all=(d&&d.units)||[];
+    // keep the units whose examples are real decodable words (the ones a child can blend)
+    UNITS=all.filter(function(u){ return (u.examples||[]).filter(isWord).length>=3; });
+    UNITS.sort(function(a,b){return (a.unit_seq||0)-(b.unit_seq||0);});
+    if(!UNITS.length){ document.getElementById('lesson').innerHTML='<div class="loading">Lessons are loading elsewhere — try again shortly.</div>'; return; }
+    renderTrack(); render();
+  }).catch(function(){ document.getElementById('lesson').innerHTML='<div class="loading">Could not reach the lessons just now.</div>'; });
+
+  function renderTrack(){
+    document.getElementById('track').innerHTML=UNITS.map(function(u,i){
+      return '<span class="tdot'+(i===cur?' cur':'')+'" data-i="'+i+'" title="'+(u.title||'').replace(/"/g,'')+'"></span>';
+    }).join('');
+    document.querySelectorAll('.tdot').forEach(function(d){ d.addEventListener('click',function(){ cur=+d.getAttribute('data-i'); render(); }); });
+  }
+
+  function render(){
+    var u=UNITS[cur];
+    var words=(u.examples||[]).filter(isWord).slice(0,8);
+    var rule=(u.rule||'').split('.').slice(0,2).join('.')+'.';
+    var L=document.getElementById('lesson');
+    L.innerHTML=
+      '<div class="unit-title">'+esc(u.title||'')+'</div>'+
+      '<div class="rule">'+esc(rule)+'</div>'+
+      '<div class="wordrow" id="wordrow">'+words.map(function(w,i){return '<button class="wchip'+(i===0?' on':'')+'" data-w="'+esc(w)+'">'+esc(w)+'</button>';}).join('')+'</div>'+
+      '<div class="stage">'+
+        '<div class="tiles" id="tiles"></div>'+
+        '<div class="ctrls">'+
+          '<button class="btn primary" id="sound">▶ Sound it out</button>'+
+          '<button class="btn" id="blend" disabled>Blend it &rarr;</button>'+
+          '<button class="btn" id="hear">🔊 Hear the word</button>'+
+        '</div>'+
+        '<div class="modehint" id="hint">Coach reads first. Press <b>Sound it out</b> and watch each part light up.</div>'+
+      '</div>'+
+      (u.decodable_sentence?('<div class="sent"><div class="l">now read this</div><div class="t" id="sent">'+esc(u.decodable_sentence)+'</div></div>'):'')+
+      (u.check&&u.check.prompt?('<div class="check"><b>Check &middot;</b> '+esc(u.check.prompt)+'</div>'):'')+
+      '<div class="nav">'+
+        '<button class="btn" id="prev"'+(cur===0?' disabled':'')+'>&larr; back</button>'+
+        '<span class="seq">'+(cur+1)+' / '+UNITS.length+'</span>'+
+        '<button class="btn" id="next"'+(cur===UNITS.length-1?' disabled':'')+'>next &rarr;</button>'+
+      '</div>';
+
+    var word=words[0];
+    setWord(word);
+    document.querySelectorAll('#wordrow .wchip').forEach(function(c){ c.addEventListener('click',function(){
+      document.querySelectorAll('#wordrow .wchip').forEach(function(x){x.classList.remove('on');}); c.classList.add('on');
+      setWord(c.getAttribute('data-w'));
+    }); });
+    document.getElementById('sound').addEventListener('click',function(){ soundOut(false); });
+    document.getElementById('blend').addEventListener('click',function(){ blend(); });
+    document.getElementById('hear').addEventListener('click',function(){ say(curWord); });
+    var s=document.getElementById('sent'); if(s) s.addEventListener('click',function(){ say(s.textContent,0.85); });
+    document.getElementById('prev').addEventListener('click',function(){ if(cur>0){cur--;render();renderTrack();} });
+    document.getElementById('next').addEventListener('click',function(){ if(cur<UNITS.length-1){cur++;render();renderTrack();} });
+    renderTrack();
+  }
+
+  var curWord='', curG=[];
+  function setWord(w){
+    curWord=w; curG=segment(w);
+    var t=document.getElementById('tiles'); t.className='tiles';
+    t.innerHTML=curG.map(function(g){var v=VOW.indexOf(g[0])>=0&&g.length===1;
+      return '<span class="tile'+(v?' vowel':'')+'" data-g="'+g+'">'+g+'<span class="snd">/'+(SND[g]||g)+'/</span></span>';}).join('');
+    document.querySelectorAll('#tiles .tile').forEach(function(el){ el.addEventListener('click',function(){
+      el.classList.add('lit'); setTimeout(function(){el.classList.remove('lit');},700);
+    }); });
+    document.getElementById('blend').disabled=true;
+    var h=document.getElementById('hint'); if(h) h.innerHTML='Press <b>Sound it out</b> and watch each part light up.';
+  }
+
+  function soundOut(){
+    var tiles=document.querySelectorAll('#tiles .tile'); if(!tiles.length) return;
+    var t=document.getElementById('tiles'); t.className='tiles';
+    tiles.forEach(function(el){el.classList.remove('lit');});
+    document.getElementById('hint').innerHTML='Each letter has a sound. Hear them in order&hellip;';
+    var i=0;
+    (function step(){
+      if(i>0) tiles[i-1].classList.remove('lit');
+      if(i>=tiles.length){ document.getElementById('blend').disabled=false;
+        document.getElementById('hint').innerHTML='Now <b>blend</b> the sounds together into one word.'; return; }
+      tiles[i].classList.add('lit'); i++; setTimeout(step,720);
+    })();
+  }
+
+  function blend(){
+    var t=document.getElementById('tiles');
+    document.querySelectorAll('#tiles .tile').forEach(function(el){el.classList.remove('lit');});
+    t.classList.add('blended');
+    document.getElementById('hint').innerHTML='&hellip;<b>'+esc(curWord)+'</b>. You read it. 🎉  Now try the next word, or read the sentence.';
+    say(curWord,0.8);
+  }
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+})();
+</script>
+</body>
+</html>
