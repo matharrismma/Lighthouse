@@ -63,6 +63,47 @@ def test_ordinary_conditions_never_trigger():
         assert S.crisis_check(t) is None, f"false positive on {t!r} -- this desensitizes the net"
 
 
+CRISIS_INTL = [
+    ("es", "quiero morir, ya no aguanto más"),
+    ("es", "me quiero matar"),
+    ("fr", "je veux mourir"),
+    ("pt", "quero morrer"),
+    ("it", "voglio morire"),
+    ("de", "ich will nicht mehr leben"),
+    ("de", "ich denke an selbstmord"),
+    ("zh", "我想死"),
+    ("ar", "أريد أن أموت"),
+]
+
+
+def test_non_english_acute_signals_trigger():
+    """A safety net for a multilingual mission must fire across languages —
+    detection is language-agnostic (a Spanish phrase fires on an English page)."""
+    for lang, t in CRISIS_INTL:
+        assert S.crisis_check(t), f"acute {lang} signal NOT caught: {t!r}"
+
+
+def test_localized_block_leads_with_worldwide_helpline():
+    """Non-English blocks localize the wording and lead with the worldwide
+    directory (findahelpline.com), since 988 is US-only."""
+    for lang in ("es", "fr", "pt", "de", "it"):
+        b = S.safety_block(lang)
+        assert b["lang"] == lang, f"{lang} block not localized"
+        assert "findahelpline" in b["immediate"][0]["action"].lower(), \
+            f"{lang} block must lead with the worldwide helpline, not US 988"
+        assert "Salmo" in b["in_christ"] or "Psaume" in b["in_christ"] \
+            or "Salmos" in b["in_christ"] or "Psalm" in b["in_christ"], \
+            f"{lang} block missing localized Psalm 34:18"
+
+
+def test_unsupported_language_falls_back_safely():
+    """An unsupported language still gets a usable block (English text) that
+    leads with the worldwide directory — never a crash, never empty."""
+    b = S.safety_block("sw")  # Swahili — no hand translation
+    assert b["triggered"] and b["severity"] == "crisis"
+    assert "findahelpline" in b["immediate"][0]["action"].lower()
+
+
 def test_block_carries_real_help_and_points_beyond_the_tool():
     b = S.safety_block()
     assert b["severity"] == "crisis"

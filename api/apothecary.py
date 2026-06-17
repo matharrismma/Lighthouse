@@ -534,7 +534,7 @@ def compound(condition: str, lang: str = "en") -> Dict[str, Any]:
     safety = None
     try:
         from api import safety as _safety
-        safety = _safety.crisis_check(condition)
+        safety = _safety.crisis_check(condition, lang=lang)
     except Exception:
         safety = None
 

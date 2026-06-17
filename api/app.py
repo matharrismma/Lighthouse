@@ -4252,13 +4252,13 @@ def i18n_strings(lang: str = "en"):
 @app.get("/i18n/languages", tags=["humans"])
 def i18n_languages():
     """List available UI languages with native names."""
-    from api.scripture_lookup import available_translations
+    from api.scripture_lookup import supported_languages
     return {
         "languages": [
             {"code": "en", "name": "English", "native": "English"},
         ] + [
             {"code": code, "name": label, "native": label}
-            for code, label in sorted(available_translations().items())
+            for code, label in sorted(supported_languages().items())
             if code != "en"
         ],
     }
