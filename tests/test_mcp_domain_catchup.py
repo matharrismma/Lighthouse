@@ -71,6 +71,18 @@ def test_all_seven_are_exposed_as_mcp_tools():
         assert ("verify_" + domain) in td, f"verify_{domain} not exposed as an MCP tool"
 
 
+def test_all_seven_in_every_agent_path():
+    """Covered on EVERY path, not just the MCP tool: the OpenAI function-manifest
+    enumerates them, and the check() oracle bridge knows their spec shape so a
+    plain-language claim routes to them."""
+    from api import agent_manifest, derivation
+    names = [t["function"]["name"] for t in agent_manifest.build_manifest()["tools"]]
+    for domain in CASES:
+        assert ("verify_" + domain) in names, f"verify_{domain} missing from /manifest"
+        assert ('"domain":"' + domain + '"') in derivation._BRIDGE_SYS, \
+            f"{domain} missing from the check() bridge prompt"
+
+
 if __name__ == "__main__":
     import traceback
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]

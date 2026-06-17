@@ -279,6 +279,25 @@ Rules:
   molecular_geometry (VSEPR):
     {"domain":"molecular_geometry","spec":{"bonding_domains":4,"lone_pairs":0,"claimed_geometry":"tetrahedral","claimed_bond_angle_deg":109.47}}
 
+  periodic_table (element identity + IUPAC-2021 standard atomic weight):
+    {"domain":"periodic_table","spec":{"symbol":"O","claimed_atomic_number":8}}
+    {"domain":"periodic_table","spec":{"element":"Cl","isotopes":[{"mass":34.969,"abundance":0.7576},{"mass":36.966,"abundance":0.2424}],"claimed_atomic_mass":35.45}}
+
+  probability (discrete; pick the shape — expected_value / variance / binomial; probabilities are decimals that sum to 1):
+    {"domain":"probability","spec":{"outcomes":[1,2,3,4,5,6],"probabilities":[0.1667,0.1667,0.1667,0.1667,0.1667,0.1667],"claimed_expected_value":3.5}}
+    {"domain":"probability","spec":{"binomial_n":10,"binomial_p":0.5,"binomial_k":5,"claimed_binomial_probability":0.2461}}
+
+  physical_constants (a named CODATA-2018 constant's value within tolerance; keys: speed_of_light, planck_constant, elementary_charge, avogadro_number, boltzmann_constant, gravitational_constant, ...):
+    {"domain":"physical_constants","spec":{"constant":"speed_of_light","claimed_value":299792458,"claimed_unit":"m/s"}}
+
+  linear_algebra (vector / matrix operations via NumPy; pick the shape — dot / cross / magnitude; matrices are row-lists):
+    {"domain":"linear_algebra","spec":{"vec_a":[1,2,3],"vec_b":[4,5,6],"claimed_dot_product":32}}
+    {"domain":"linear_algebra","spec":{"vec":[3,4],"claimed_magnitude":5}}
+
+  ephemeris (computational astronomy; Julian day uses iso_date YYYY-MM-DD at 00:00 UTC, so JD ends in .5):
+    {"domain":"ephemeris","spec":{"iso_date":"2024-06-20","claimed_julian_day":2460481.5}}
+    {"domain":"ephemeris","spec":{"iso_date":"2024-06-22","claimed_moon_phase":"full"}}
+
   statistics (umbrella — the spec carries ONE of pvalue / confidence_interval / multiple_comparisons; tail is "two"/"greater"/"less"; the p tolerance is loose, so use the published rounded p):
     {"domain":"statistics","spec":{"pvalue":{"test":"z","z":1.96,"tail":"two","claimed_p":0.05}}}
     {"domain":"statistics","spec":{"pvalue":{"test":"chi2","statistic":3.841,"df":1,"claimed_p":0.05}}}
