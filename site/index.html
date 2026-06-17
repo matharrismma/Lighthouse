@@ -222,6 +222,10 @@ function nhRender(d){
   if(intent==='open'){
     res.innerHTML='<div class="art"><div class="art-lbl">Open</div><div class="ans">Opening '+nhEsc(d.what||'the room')+'.</div></div>';return;
   }
+  if(intent==='learn'){
+    var topic=d.topic||'';
+    res.innerHTML='<div class="art"><div class="art-lbl">A lesson — the tutor</div><div class="ans">Ready to teach you <b>'+nhEsc(topic||'this')+'</b>, step by step.</div><a class="uact" href="/read.html?topic='+encodeURIComponent(topic)+'">Start the lesson &rarr;</a></div>';return;
+  }
   if(intent==='route'){
     var c=d.route||{};
     res.innerHTML='<div class="art"><div class="art-lbl">Routed</div><div class="ans">'+nhEsc(c.why||'routed by rules')+(c.url?' — <a href="'+nhEsc(c.url)+'">open &rarr;</a>':'')+'</div></div>';return;

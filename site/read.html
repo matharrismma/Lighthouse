@@ -292,6 +292,8 @@
   }
   document.getElementById('teach').addEventListener('click',nhTeach);
   document.getElementById('topic').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); nhTeach(); } });
+  // deep-link: /read.html?topic=... drafts that lesson on arrival (the work area hands off here)
+  try{ var qt=new URLSearchParams(location.search).get('topic'); if(qt){ var ti=document.getElementById('topic'); if(ti){ ti.value=qt; nhTeach(); } } }catch(e){}
 })();
 </script>
 </body>
