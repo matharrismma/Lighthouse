@@ -334,6 +334,18 @@ def stand_on_floor(
         "gates": _run_gates(text),
     }
 
+    # 0. SAFETY — the floor under the floor. If what was brought carries an
+    # acute-risk signal (suicide, self-harm, an overdose), the only honest
+    # standing is to point past the tool to immediate, real help. Deterministic
+    # and first, so every surface that stands on the floor surfaces it.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(text)
+        if _crisis:
+            standing["safety"] = _crisis
+    except Exception:
+        pass
+
     # 3. VERIFIER — point at the fixed wall for this domain
     key = (domain or "").lower()
     standing["verifier"] = {

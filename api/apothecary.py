@@ -527,11 +527,23 @@ def compound(condition: str, lang: str = "en") -> Dict[str, Any]:
     except Exception:
         floor_standing = None
 
+    # Crisis safety net, lifted to the top level so it is impossible to miss.
+    # The floor already detects it (the floor under the floor); we surface it
+    # here as a first-class field so any UI or agent renders it before the
+    # remedy. A remedy must never stand between someone in danger and help.
+    safety = None
+    try:
+        from api import safety as _safety
+        safety = _safety.crisis_check(condition)
+    except Exception:
+        safety = None
+
     return {
         "condition":   condition,
         "lang":        lang,
         "shared_axes": sorted(cond_axes),
         "mt_active":   mt_used,
+        "safety":      safety,
         "compound":    compound_views,
         "floor":       floor_standing,
     }

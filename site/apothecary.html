@@ -418,11 +418,46 @@
       font-style: normal;
     }
 
+    /* Crisis safety net — unmissable, but caring rather than alarming.
+       Leads the result; a remedy never stands between a person and real help. */
+    .ap-safety {
+      max-width: 720px;
+      margin: 0 auto 22px;
+      padding: 20px 24px;
+      border: 2px solid #c98a2b;
+      border-left: 6px solid #c98a2b;
+      border-radius: 10px;
+      background: rgba(201, 138, 43, 0.10);
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--text, #eee);
+    }
+    .ap-safety-headline {
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+    .ap-safety-list { margin: 0 0 14px; padding-left: 20px; line-height: 1.6; }
+    .ap-safety-list li { margin-bottom: 8px; }
+    .ap-safety-action { font-weight: 700; color: #e6a94d; }
+    .ap-safety-detail { font-size: 0.92rem; color: var(--muted-2, #aaa); font-style: italic; }
+    .ap-safety-person { margin: 10px 0; line-height: 1.55; }
+    .ap-safety-christ { margin: 10px 0; line-height: 1.55; font-style: italic; }
+    .ap-safety-limit {
+      margin: 12px 0 0; padding-top: 12px;
+      border-top: 1px solid rgba(201, 138, 43, 0.35);
+      font-size: 0.92rem; color: var(--muted-2, #aaa);
+    }
+
     @media print {
       header.topbar, .lens-bar, .ap-input-row, .ap-print { display: none; }
       .ap-card { border: 1px solid #888; max-width: 100%; }
       body { background: white; color: black; }
       .ap-i-text, .ap-i-extra, .ap-condition { color: black; }
+      /* The safety net must survive printing — keep it visible and legible. */
+      .ap-safety { border-color: #000; background: #fff; color: #000; }
+      .ap-safety-action { color: #000; }
+      .ap-safety-detail, .ap-safety-limit { color: #333; }
     }
   </style>
   <script src="/i18n.js"></script>
@@ -686,13 +721,32 @@
     return renderIngredient(ing, slot, labelFn(ing.kind));
   }
 
+  function renderSafety(s) {
+    if (!s || !s.triggered) return '';
+    const opts = (s.immediate || []).map(o =>
+      `<li><b>${esc(o.name)}</b> — <span class="ap-safety-action">${esc(o.action)}</span>`
+      + (o.detail ? `<br><span class="ap-safety-detail">${esc(o.detail)}</span>` : '') + `</li>`
+    ).join('');
+    return `
+      <section class="ap-safety" role="alert">
+        <div class="ap-safety-headline">${esc(s.headline || '')}</div>
+        <ul class="ap-safety-list">${opts}</ul>
+        ${s.a_real_person ? `<p class="ap-safety-person">${esc(s.a_real_person)}</p>` : ''}
+        ${s.in_christ ? `<p class="ap-safety-christ">${esc(s.in_christ)}</p>` : ''}
+        ${s.honest_limit ? `<p class="ap-safety-limit">${esc(s.honest_limit)}</p>` : ''}
+      </section>`;
+  }
+
   function renderCompound(d) {
+    // Safety leads — always, in every branch. A remedy must never stand
+    // between someone in danger and immediate, real help.
+    const safetyHtml = renderSafety(d.safety);
     if (d.error) {
-      resultEl.innerHTML = `<div class="ap-empty ap-error">${esc(d.error)}</div>`;
+      resultEl.innerHTML = safetyHtml + `<div class="ap-empty ap-error">${esc(d.error)}</div>`;
       return;
     }
     if (!d.compound) {
-      resultEl.innerHTML = '<div class="ap-empty">No compound found.</div>';
+      resultEl.innerHTML = safetyHtml + '<div class="ap-empty">No compound found.</div>';
       return;
     }
     const c = d.compound;
@@ -721,7 +775,7 @@
         <div class="ap-feedback-thanks" id="ap-feedback-thanks-${esc(cid)}" style="display:none;"></div>
       </div>` : '';
 
-    resultEl.innerHTML = `
+    resultEl.innerHTML = safetyHtml + `
       <article class="ap-card">
         <div class="ap-card-header">
           <div>
