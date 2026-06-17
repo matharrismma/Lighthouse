@@ -82,12 +82,14 @@ class Concordance:
 
     def _get_web(self):
         if self._web is None and WEB_DB.exists():
-            self._web = sqlite3.connect(str(WEB_DB))
+            # check_same_thread=False: this Concordance is cached and read from
+            # whatever worker thread the MCP server dispatches on. Read-only, so safe.
+            self._web = sqlite3.connect(str(WEB_DB), check_same_thread=False)
         return self._web
 
     def _get_conc(self):
         if self._conc is None and CONC_DB.exists():
-            self._conc = sqlite3.connect(str(CONC_DB))
+            self._conc = sqlite3.connect(str(CONC_DB), check_same_thread=False)
         return self._conc
 
     def _get_lex(self, prefix: str) -> Optional[dict]:

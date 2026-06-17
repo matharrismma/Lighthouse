@@ -174,7 +174,13 @@ class SourceLayer:
             return self._db
         if not WEB_DB.exists():
             return None
-        self._db = sqlite3.connect(WEB_DB)
+        # check_same_thread=False: this SourceLayer is lru_cache'd, so its
+        # connection is created once (often at startup) but read from whatever
+        # worker thread the MCP server dispatches a tool on. Without this, every
+        # cross-thread call raised "SQLite objects created in a thread can only be
+        # used in that same thread" -- which silently broke verify_scripture_anchors
+        # and resolve_scripture_ref over the hosted MCP. Read-only access, so safe.
+        self._db = sqlite3.connect(WEB_DB, check_same_thread=False)
         return self._db
 
     def _get_strongs(self, testament: str) -> Optional[dict]:

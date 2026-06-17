@@ -332,16 +332,23 @@ def check(
 
 
 @mcp.tool()
-def find_verifier(domain: Optional[str] = None) -> Dict[str, Any]:
-    """Find the right verifier without scanning all 64. Pass a domain or keyword
+def find_verifier(keyword: Optional[str] = None, domain: Optional[str] = None) -> Dict[str, Any]:
+    """Find the right verifier without scanning the full set. Pass a keyword or domain
     (e.g. "chemistry", "prime", "snell", "p-value", "scripture") and get the matching
-    `verify_*` tool(s) with a one-line summary. Omit `domain` for the full index.
+    `verify_*` tool(s) with a one-line summary. Omit it for the full index.
+
+    `keyword` and `domain` are aliases (either works); the instructions say
+    find_verifier("keyword") and that is the same as find_verifier(domain=...).
 
     Then: for a SINGLE narrow claim call the returned verify_* directly; for a multi-step
     derivation or a plain-language statement use `check`; for a many-claim SITUATION that
     spans domains use `run_polymathic`. Counts are read live from the tool registry, so
     they never go stale.
     """
+    # Accept either kwarg (and a bare positional), so the tool behaves as the
+    # MCP instructions advertise -- find_verifier("probability") -- instead of
+    # silently ignoring an unknown arg and dumping the whole index.
+    domain = keyword or domain
     td = getattr(getattr(mcp, "_tool_manager", None), "_tools", {}) or {}
     verifiers = []
     for name, t in sorted(td.items()):
