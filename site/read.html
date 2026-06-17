@@ -69,6 +69,12 @@
          cursor:pointer;transition:.16s;display:flex;justify-content:space-between;align-items:center;gap:12px;}
   .pcard:hover{border-color:var(--gold);}
   .pcard .spk{font-size:14px;color:var(--mut);flex:none;}
+  /* math: ten-frame manipulative */
+  .tfgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:340px;margin:0 auto;}
+  .tfcell{aspect-ratio:1;background:#1c2433;border:2px solid var(--line);border-radius:10px;cursor:pointer;transition:.15s;}
+  .tfcell:hover{border-color:var(--gold);}
+  .tfcell.on{background:var(--blend);border-color:var(--blend);box-shadow:0 0 16px -4px var(--blend);}
+  .tfcount{font-family:'Crimson Pro',Georgia,serif;font-size:3.2rem;color:#fff;margin:14px 0 0;line-height:1;}
 
   .ctrls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
   .btn{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);
@@ -110,6 +116,7 @@
 (function(){
   var DIG={sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
   var VOW='aeiou';
+  var NUM={1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten'};
   var SND={a:'a',e:'e',i:'i',o:'o',u:'u',b:'b',c:'k',d:'d',f:'f',g:'g',h:'h',j:'j',k:'k',l:'l',m:'m',n:'n',p:'p',q:'kw',r:'r',s:'s',t:'t',v:'v',w:'w',x:'ks',y:'y',z:'z',sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
   function segment(w){ w=(w||'').toLowerCase().replace(/[^a-z]/g,''); var g=[],i=0; while(i<w.length){var two=w.substr(i,2); if(DIG[two]){g.push(two);i+=2;}else{g.push(w[i]);i++;}} return g; }
   function isWord(s){ return /^[a-zA-Z]{2,8}$/.test((s||'').trim()); }
@@ -169,12 +176,18 @@
     var rule=(u.rule||'').split('. ').slice(0,2).join('. '); if(rule && rule.slice(-1)!=='.') rule+='.';
     var words=s.reading?(u.examples||[]).filter(isWord).slice(0,8):[];
     var useBlend=words.length>=2;
+    var useTen=(s.key==='math' && !useBlend);
+    var tfHTML='<div class="tfgrid" id="tfgrid">'+Array.apply(null,{length:10}).map(function(_,i){return '<div class="tfcell" data-i="'+i+'"></div>';}).join('')+'</div>'+
+      '<div class="tfcount"><span id="tfn">0</span></div>'+
+      '<div class="hint" id="hint">Tap the boxes to count. How many more make ten?</div>'+
+      '<div class="ctrls" id="tftargets">'+[2,3,5,7,10].map(function(k){return '<button class="btn" data-k="'+k+'">show '+k+'</button>';}).join('')+'<button class="btn" data-k="0">clear</button></div>';
     var L=document.getElementById('lesson');
     var practice = useBlend
       ? ('<div class="wordrow" id="wordrow">'+words.map(function(w,i){return '<button class="wchip'+(i===0?' on':'')+'" data-w="'+esc(w)+'">'+esc(w)+'</button>';}).join('')+'</div>'+
          '<div class="tiles" id="tiles"></div>'+
          '<div class="ctrls"><button class="btn primary" id="sound">▶ Sound it out</button><button class="btn" id="blend" disabled>Blend it &rarr;</button><button class="btn" id="hear">🔊 Hear it</button></div>'+
          '<div class="hint" id="hint">Press <b>Sound it out</b> and watch each part light up.</div>')
+      : useTen ? tfHTML
       : ('<div class="cards" id="cards">'+(u.examples||[]).slice(0,6).map(function(e){return '<div class="pcard" data-say="'+esc(e)+'"><span>'+esc(e)+'</span><span class="spk">🔊</span></div>';}).join('')+'</div>'+
          '<div class="hint">Tap a line to hear it. Then read it back — that is the practice.</div>');
 
@@ -194,6 +207,8 @@
       document.getElementById('sound').addEventListener('click',soundOut);
       document.getElementById('blend').addEventListener('click',blend);
       document.getElementById('hear').addEventListener('click',function(){ say(curWord); });
+    } else if(useTen){
+      tfWire();
     } else {
       document.querySelectorAll('#cards .pcard').forEach(function(c){ c.addEventListener('click',function(){ say(c.getAttribute('data-say'),0.92); }); });
     }
@@ -228,6 +243,22 @@
     document.getElementById('tiles').classList.add('blended');
     document.getElementById('hint').innerHTML='&hellip;<b>'+esc(curWord)+'</b>. You read it! 🎉 Try the next word, or read the sentence.';
     say(curWord,0.8);
+  }
+
+  // ── the math chunk: a ten-frame you fill to count and make ten ──
+  function tfFill(n){
+    n=Math.max(0,Math.min(10,n));
+    document.querySelectorAll('#tfgrid .tfcell').forEach(function(c,i){ c.classList.toggle('on', i<n); });
+    var nn=document.getElementById('tfn'); if(nn) nn.textContent=n;
+    var h=document.getElementById('hint');
+    if(h){ if(n===0) h.innerHTML='Tap the boxes to count. How many more make ten?';
+      else if(n<10) h.innerHTML='<b>'+n+'</b> &middot; '+(10-n)+' more makes ten.';
+      else h.innerHTML='<b>10</b> — a full frame! 🎉'; }
+    if(n>0) say(NUM[n]||(''+n));
+  }
+  function tfWire(){
+    document.querySelectorAll('#tfgrid .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(+c.getAttribute('data-i')+1); }); });
+    document.querySelectorAll('#tftargets .btn').forEach(function(b){ b.addEventListener('click',function(){ tfFill(+b.getAttribute('data-k')); }); });
   }
 
   // ── learn anything: the tutor drafts a lesson on any topic (curate, not filter) ──
