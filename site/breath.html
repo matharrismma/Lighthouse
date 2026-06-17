@@ -55,11 +55,12 @@
   var EV={
     source:    {n:'source — the root all of it points to', c:[255,240,210], rank:4, a:1.0,  sz:1.0},
     verified:  {n:'verified — a verifier confirmed it',    c:[150,240,170], rank:3, a:1.0,  sz:1.25},
-    concordant:{n:'concordant — the witnesses agree',      c:[110,200,235], rank:2, a:0.92, sz:1.0},
+    concordant:{n:'concordant — witnesses agree / a source grounds it', c:[110,200,235], rank:2, a:0.92, sz:1.0},
     mixed:     {n:'mixed — partial / qualified',           c:[232,200,120], rank:1, a:0.8,  sz:0.85},
-    resonance: {n:'resonance — a likeness, NOT yet proven',c:[122,114,150], rank:0, a:0.32, sz:0.6}
+    resonance: {n:'resonance — a likeness, NOT yet proven',c:[122,114,150], rank:0, a:0.32, sz:0.6},
+    retired:   {n:'retired — tested, did NOT hold',        c:[208,96,90],  rank:-1,a:0.62, sz:0.8}
   };
-  var ORDER=['resonance','mixed','concordant','verified']; // draw faint first, proven on top
+  var ORDER=['resonance','retired','mixed','concordant','verified']; // faint first, retired marked, proven on top
 
   function boot(D){
     load.style.display='none';
@@ -182,7 +183,7 @@
     cv.addEventListener('wheel',function(ev){ ev.preventDefault(); var f=ev.deltaY<0?1.12:0.893; view.s=Math.max(0.4,Math.min(8,view.s*f)); },{passive:false});
 
     // legend (by evidence) + the honest breakdown
-    var L=['source','verified','concordant','mixed','resonance'];
+    var L=['source','verified','concordant','mixed','resonance','retired'];
     document.getElementById('legend').innerHTML = L.map(function(k){
       return '<div class="lg"><span class="dot" style="color:rgb('+EV[k].c.join(',')+')"></span>'+EV[k].n+'</div>'; }).join('');
     var nb=(D.meta&&D.meta.node_evidence)||{}, eb=(D.meta&&D.meta.edge_evidence)||{};
@@ -190,7 +191,7 @@
     document.getElementById('counts').innerHTML =
       '<div style="color:var(--dim);margin-bottom:3px;">of '+N.toLocaleString()+' nodes</div>'
       + row('verified','verified',nb) + row('concordant','concordant',nb)
-      + row('mixed','mixed',nb) + row('resonance','resonance',nb);
+      + row('mixed','mixed',nb) + row('retired','retired',nb) + row('resonance','resonance',nb);
   }
 
   fetch('/breath-graph.json').then(function(r){return r.json();}).then(boot)

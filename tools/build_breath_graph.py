@@ -28,13 +28,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CM = os.path.join(ROOT, "data", "codex", "coordinate_map.json")
 CONN = os.path.join(ROOT, "data", "codex", "index", "connections.json")
 OUT = os.path.join(ROOT, "site", "breath-graph.json")
+LED = os.path.join(ROOT, "data", "almanac", "resonance_grounding.jsonl")
 TREE = {"language": 0, "math": 1, "axis": 2}
 ROOTS = ("connection_reality_is_mappable", "teaching_the_true_vine",
          "teaching_the_words_of_christ_are_the_architecture")
 
-# evidence rank: higher wins when an edge touches two differently-graded nodes
-EV = {"source": 4, "verified": 3, "concordant": 2, "mixed": 1, "resonance": 0}
+# evidence rank: higher wins when an edge touches two differently-graded nodes.
+# `retired` ranks below resonance so a proven-FALSE node never lends evidence to an edge.
+EV = {"source": 4, "verified": 3, "concordant": 2, "mixed": 1, "resonance": 0, "retired": -1}
 VERDICT_TO_EV = {"CONFIRMED": "verified", "CONCORDANT": "concordant", "MIXED": "mixed"}
+# the resonance-grounding campaign: a saying that was grounded moves off pure resonance.
+GROUND_EV = {"ATTRIBUTED": "concordant", "VERIFIED": "concordant",
+             "RETIRED": "retired", "LEFT": "resonance"}
 
 
 def main():
@@ -66,6 +71,24 @@ def main():
             node_ev.append(conn_ev[nid])
         else:
             node_ev.append("resonance")
+
+    # apply the resonance-grounding campaign ledger: a saying we GROUNDED moves off
+    # pure resonance (attributed/verified -> concordant), and a saying we proved FALSE
+    # is RETIRED -- shown honestly, never hidden. Only resonance nodes are upgraded.
+    grounded = {}
+    try:
+        with open(LED, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    rec = json.loads(line)
+                    grounded[rec.get("id")] = rec.get("outcome")
+    except FileNotFoundError:
+        pass
+    for i, n in enumerate(nodes):
+        g = grounded.get(n["id"])
+        if g and node_ev[i] == "resonance":
+            node_ev[i] = GROUND_EV.get(g, "resonance")
 
     x = [round(float(n["x"]), 1) for n in nodes]
     y = [round(float(n["y"]), 1) for n in nodes]
@@ -111,11 +134,13 @@ def main():
         "meta": {
             "nodes": len(nodes), "edges": len(edges), "kin": len(kin),
             "node_evidence": node_break, "edge_evidence": edge_break,
+            "grounded_resonances": len(grounded),
             "legend": {"source": "the root the map points to (rendered as a gap, never a node)",
                        "verified": "a deterministic verifier confirmed it",
-                       "concordant": "the gathered witnesses agree (attributed)",
+                       "concordant": "the gathered witnesses agree / a named source grounds it",
                        "mixed": "partial / qualified",
-                       "resonance": "a shared-axis likeness -- NOT a verified connection"},
+                       "resonance": "a shared-axis likeness -- NOT a verified connection",
+                       "retired": "a saying we tested and it did NOT hold -- shown, not hidden"},
             "note": "THE BREATH -- the engine's real map, every node and edge labelled by "
                     "what backs it. Honest by construction: resonance is never shown as fact.",
         },
