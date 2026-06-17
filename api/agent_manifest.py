@@ -1127,10 +1127,19 @@ of the created order.\
 
 def build_manifest() -> Dict[str, Any]:
     """Return the full OpenAI-compatible manifest."""
+    # Derive the benchmark from the live results file so the public claim can't
+    # go stale (map-never-launder). Falls back to the last-known values only if
+    # the results file is missing.
+    bench = benchmark_summary()
+    if bench.get("ok"):
+        benchmark = {"score": bench["score"], "accuracy": bench["accuracy"],
+                     "domains": len(bench.get("domains", {}))}
+    else:
+        benchmark = {"score": "171/171", "accuracy": 1.0, "domains": 57}
     return {
         "schema_version": "1.0",
         "engine": "concordance",
-        "benchmark": {"score": "171/171", "accuracy": 1.0, "domains": 57},
+        "benchmark": benchmark,
         "axes": _AXES,
         "tools": _MANIFEST,
         "context_block": context_block(),

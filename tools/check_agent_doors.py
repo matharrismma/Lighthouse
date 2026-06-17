@@ -93,13 +93,24 @@ def main():
     except Exception as e:  # noqa: BLE001
         record("robot/admit", False, type(e).__name__ + ": " + str(e)[:50])
 
-    # 3. Manifest reachable + non-empty
+    # 3. Manifest reachable + non-empty; surface the benchmark so a stale/false
+    #    claim is visible in the output (it derives live from the results file).
     try:
         code, mani = _get(base, "/manifest")
         n = len(mani.get("tools", []))
-        record("/manifest", code == 200 and n > 0, "%s tools (function-format)" % n)
+        bench = mani.get("benchmark", {})
+        record("/manifest", code == 200 and n > 0,
+               "%s tools | benchmark %s (%s domains)" % (n, bench.get("score"), bench.get("domains")))
     except Exception as e:  # noqa: BLE001
         record("/manifest", False, type(e).__name__ + ": " + str(e)[:50])
+
+    # 3b. OpenAI Actions schema reachable (ChatGPT Custom GPT discovery path)
+    try:
+        code, oa = _get(base, "/openapi-actions.json")
+        nop = len(oa.get("paths", {}))
+        record("/openapi-actions.json", code == 200 and nop > 0, "%s operations" % nop)
+    except Exception as e:  # noqa: BLE001
+        record("/openapi-actions.json", False, type(e).__name__ + ": " + str(e)[:50])
 
     # 4. Public /mcp-stats reachable AND consistent with the LIVE tools/list
     try:
