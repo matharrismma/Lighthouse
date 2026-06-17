@@ -20,6 +20,29 @@ called `tools/list` can find and use the right tool. Verified live during the fr
   Doctrine preserved verbatim.
 - **Duplicate marked** — `polymathic_run` is a thin wrapper of `run_polymathic`; its
   docstring now says so (prefer `run_polymathic`). Not removed (no break).
+- **`find_verifier(keyword)` added** — the missing claim→verifier index (audit RANK 2),
+  read live from the registry (never stale). Named `find_verifier` (not `verify_*`) so it
+  doesn't pollute the verifier count or list itself. Instructions point to it. (135 tools now.)
+- **Search disambiguation** — `search()`'s docstring now maps which-search-for-which-
+  substrate (see below); resolves the "which one?" confusion without a risky merge.
+
+## Decisions made during the work (corrections to the audit)
+
+- **Gate renames (`attest_*`→`gate_*`): declined.** The docstrings already define RED
+  (coercion/authority/hard-failure) and FLOOR (completeness/consistency). A rename adds a
+  duplicate tool for niche tools during the deprecation window — net clutter, low value.
+- **`verify_phase` is NOT a stub** — it's a terse-but-functional phase classifier
+  (setup/positioning/conversion). Left as-is.
+- **Search tools are NOT pure duplicates** — `search`/`fetch` are a *required ChatGPT-
+  connector contract*; `almanac`/`packets_search`/`cards_walk` hit different substrates.
+  Fixed by disambiguation, not consolidation.
+
+## Proposed for review (not built — your call on the design)
+
+- **`find_in_substrate(query, kind=…)`** — a unified fan-out that searches corpus +
+  almanac + packets in one call and tags results by source. Genuine convenience, but the
+  substrates differ enough that the merge shape is a design question. Worth doing
+  deliberately, not rushed at session's end.
 
 ## Remaining menu
 
