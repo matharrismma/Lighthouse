@@ -31,6 +31,13 @@ from .base import VerifierResult, VerifierStatus, na, confirm, mismatch, error
 # Modules are imported on demand by `_get_module`.
 VERIFIERS: Dict[str, str] = {
     "chemistry":            "concordance_engine.verifiers.chemistry",
+    "atomic":               "concordance_engine.verifiers.atomic",
+    "molecular_geometry":   "concordance_engine.verifiers.molecular_geometry",
+    "periodic_table":       "concordance_engine.verifiers.periodic_table",
+    "probability":          "concordance_engine.verifiers.probability",
+    "physical_constants":   "concordance_engine.verifiers.physical_constants",
+    "linear_algebra":       "concordance_engine.verifiers.linear_algebra",
+    "ephemeris":            "concordance_engine.verifiers.ephemeris",
     "physics":              "concordance_engine.verifiers.physics",
     "statistics":           "concordance_engine.verifiers.statistics",
     "mathematics":          "concordance_engine.verifiers.mathematics",

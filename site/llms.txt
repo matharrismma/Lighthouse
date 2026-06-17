@@ -36,7 +36,7 @@ agents) and embedded in every `/version` response.
 Over MCP (https://narrowhighway.com/mcp/), call ONE tool: `check`. Give it a math
 claim, a multi-step derivation, or a plain-language statement; it returns the
 verdict, the WORKED MATH (the trail, step by step), and a permanent, re-checkable
-seal (cite_url) you can show a user. The 64 domain-specific `verify_*` tools are
+seal (cite_url) you can show a user. The 71 domain-specific `verify_*` tools are
 its internals -- reach for them only for a single narrow domain check.
 
     check(mode="equality",
@@ -166,13 +166,13 @@ This is the fastest path from *reading about* the engine to *using* it.
     MCP endpoint (SSE transport):    https://narrowhighway.com/mcp/sse
 
 Live counts (never stale): GET https://narrowhighway.com/mcp-stats
--> {tools, verify_tools, prompts, resources}. Currently 134 tools, 64 verify_*,
+-> {tools, verify_tools, prompts, resources}. Currently 142 tools, 71 verify_*,
 6 prompts, 4 resources. The MCP tools/list is authoritative; numbers in the prose
 below are a guide, not the source of truth.
 
-The server exposes 134 tools. Highlights:
+The server exposes 142 tools. Highlights:
 
-  - verify_<domain>          64 domain verifiers (chemistry, physics, mathematics,
+  - verify_<domain>          71 domain verifiers (chemistry, physics, mathematics,
                              statistics, law, medicine, genetics, theology_doctrine,
                              scripture_anchors, formal_logic, finance, ...) — each
                              computes against an external standard, returns PASS/REJECT
@@ -697,7 +697,7 @@ GET  /narrow/predicates  — the deterministic eliminator registry
 The engine NARROWS by elimination — running every constraint over a candidate
 space and deleting everything that fails — until the residual is tiny (often one
 survivor). Constraints are cheap named predicates OR verifier-backed eliminators
-that route each candidate through one of the 64 verified domains (the moat: a
+that route each candidate through one of the 71 verified domains (the moat: a
 quantum normalization law, a primality proof, dimensional analysis). YOU finish
 the trivial residual; the engine VERIFIES your finish, so it is safe to hand to
 any tool — a wrong answer is BROKEN. The narrowing trail seals to a citable
