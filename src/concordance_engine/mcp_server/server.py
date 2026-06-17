@@ -1932,6 +1932,20 @@ def _entry_url(e: Dict[str, Any]) -> str:
     return f"https://narrowhighway.com/almanac/{e.get('id', '')}"
 
 
+def _entry_triggers(e: Dict[str, Any]) -> tuple:
+    """An entry's `triggers` may be a {keywords, axes} dict, a flat keyword
+    list, or absent. Return (keywords, axes) for any of the three. A raw list
+    here used to crash callers with 'list' object has no attribute 'get' --
+    one source of truth so that bug can't reappear in another call site.
+    """
+    trig = e.get("triggers")
+    if isinstance(trig, dict):
+        return (trig.get("keywords") or [], trig.get("axes") or [])
+    if isinstance(trig, list):
+        return (trig, [])
+    return ([], [])
+
+
 def _entry_blob(e: Dict[str, Any]) -> str:
     parts = [
         str(e.get("title", "")),
@@ -1940,7 +1954,7 @@ def _entry_blob(e: Dict[str, Any]) -> str:
         str(e.get("verification", "")),
         str(e.get("wisdom", "")),
         " ".join(str(x) for x in (e.get("domains") or [])),
-        " ".join(str(x) for x in ((e.get("triggers") or {}).get("keywords") or [])),
+        " ".join(str(x) for x in _entry_triggers(e)[0]),
         str(e.get("category", "")),
     ]
     return " ".join(parts).lower()
@@ -2230,16 +2244,10 @@ def almanac(
             if verdict and (e.get("verdict") or "").upper() != verdict.upper(): continue
 
             score = 0
-            # triggers may be a {keywords, axes} dict OR a flat keyword list OR absent --
-            # be robust to all three (a list here was crashing the whole query with
-            # 'list' object has no attribute 'get').
-            _trig = e.get("triggers")
-            if isinstance(_trig, dict):
-                _kw, _tax = (_trig.get("keywords") or []), (_trig.get("axes") or [])
-            elif isinstance(_trig, list):
-                _kw, _tax = _trig, []
-            else:
-                _kw, _tax = [], []
+            # triggers may be a {keywords, axes} dict, a flat keyword list, or
+            # absent -- _entry_triggers normalizes all three (a raw list here was
+            # crashing the whole query with 'list' object has no attribute 'get').
+            _kw, _tax = _entry_triggers(e)
             keywords = [str(k).lower() for k in _kw]
             score += sum(2 for k in keywords if k in qlower)
 
@@ -2509,9 +2517,67 @@ def _predict_axes_from_query(qlower: str) -> set:
 
 _LOCAL_API_BASE = (os.environ.get("CONCORDANCE_API_URL") or "http://127.0.0.1:8000").rstrip("/")
 
+# When this MCP server is mounted INSIDE the engine's own ASGI app (the hosted
+# /mcp path), a tool that reaches the engine over HTTP-to-127.0.0.1 DEADLOCKS:
+# the MCP SDK runs sync tool functions directly on the event loop, so a blocking
+# urllib call freezes the single uvicorn worker -- and the self-request it's
+# waiting on can never be served, so it hangs until the timeout. The fix is to
+# call the app in-process: same process (shared caches/state), no socket, no
+# contention with the server's loop. We run the ASGI app on a private event loop
+# in a worker thread so it can't touch the server's loop at all. Falls back to
+# real HTTP when `api.app` isn't importable (the standalone stdio MCP).
+_INPROC_CLIENT = None     # a persistent Starlette TestClient over the app
+_INPROC_AVAILABLE = None  # tri-state: None=untried, True/False=cached
+
+
+def _inproc_call(method: str, path: str,
+                 query: Optional[Dict[str, Any]] = None,
+                 body: Optional[Dict[str, Any]] = None,
+                 timeout: float = 45.0) -> Optional[Dict[str, Any]]:
+    """Invoke the engine's ASGI app in-process via a Starlette TestClient.
+
+    TestClient runs the app on its own blocking portal (a separate thread +
+    loop with anyio's backend correctly initialized), so a tool that reaches
+    the engine never re-enters the server's single event loop -- which is what
+    deadlocked the urllib-to-127.0.0.1 self-call. We construct it WITHOUT the
+    context manager so the app's lifespan is NOT re-run (the live server
+    already ran startup; we share its in-memory state). Returns the decoded
+    JSON, or None when in-process dispatch isn't available so the caller falls
+    back to real HTTP (the standalone stdio MCP)."""
+    global _INPROC_CLIENT, _INPROC_AVAILABLE
+    if _INPROC_AVAILABLE is False:
+        return None
+    if _INPROC_CLIENT is None:
+        try:
+            from starlette.testclient import TestClient
+            from api.app import app as _asgi  # lazy: avoids the import cycle
+            _INPROC_CLIENT = TestClient(_asgi, raise_server_exceptions=False)
+            _INPROC_AVAILABLE = True
+        except Exception:
+            _INPROC_AVAILABLE = False
+            return None
+    try:
+        params = {k: v for k, v in (query or {}).items() if v is not None and v != ""}
+        if method == "POST":
+            resp = _INPROC_CLIENT.post(path, json=(body or {}), timeout=timeout)
+        else:
+            resp = _INPROC_CLIENT.get(path, params=params, timeout=timeout)
+        try:
+            return resp.json()
+        except Exception:
+            return {"error": "non-JSON response", "status": resp.status_code, "path": path}
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}", "path": path}
+
 
 def _engine_get(path: str, **params) -> Dict[str, Any]:
-    """GET an engine endpoint; defensive, returns {error: ...} on failure."""
+    """GET an engine endpoint; defensive, returns {error: ...} on failure.
+
+    In-process when mounted in the app (avoids the self-call deadlock); real
+    HTTP when running standalone (stdio)."""
+    _ip = _inproc_call("GET", path, query=params)
+    if _ip is not None:
+        return _ip
     import urllib.parse as _up
     q = _up.urlencode({k: v for k, v in params.items() if v is not None and v != ""})
     url = f"{_LOCAL_API_BASE}{path}"
@@ -2528,7 +2594,13 @@ def _engine_get(path: str, **params) -> Dict[str, Any]:
 
 
 def _engine_post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    """POST JSON to an engine endpoint; defensive."""
+    """POST JSON to an engine endpoint; defensive.
+
+    In-process when mounted in the app (avoids the self-call deadlock); real
+    HTTP when running standalone (stdio)."""
+    _ip = _inproc_call("POST", path, body=payload)
+    if _ip is not None:
+        return _ip
     url = f"{_LOCAL_API_BASE}{path}"
     try:
         data = json.dumps(payload).encode("utf-8")
