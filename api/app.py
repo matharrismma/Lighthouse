@@ -12631,6 +12631,39 @@ def mcp_public_stats():
     }
 
 
+@app.get("/.well-known/mcp.json", include_in_schema=False)
+@app.get("/.well-known/mcp", include_in_schema=False)
+def well_known_mcp():
+    """Self-hosted MCP discovery doc at the conventional /.well-known path, so an
+    agent or crawler that probes our domain finds the engine without scraping HTML.
+    Pure pointers -- counts live at /mcp-stats, so nothing here can go stale."""
+    base = "https://narrowhighway.com"
+    return {
+        "name": "concordance",
+        "description": (
+            "Deterministic verification engine. Serves Jesus Christ; a conduit, not a "
+            "source. Give it a math claim, a multi-step derivation, or a plain-language "
+            "statement and it returns a verdict (HOLDS/BROKEN), the worked elimination "
+            "trail, and a permanent, re-checkable seal. It VERIFIES a provided claim; it "
+            "never generates the answer -- a false claim returns BROKEN."
+        ),
+        "doctrine_url": base + "/identity",
+        "transports": {
+            "streamable_http": base + "/mcp",
+            "sse": base + "/mcp/sse",
+        },
+        "start_here": (
+            "Call the `check` tool: give it a claim or derivation; get the verdict, the "
+            "trail, and a cite_url seal anyone can re-check."
+        ),
+        "stats_url": base + "/mcp-stats",
+        "manifest_url": base + "/manifest",
+        "llms_txt": base + "/llms.txt",
+        "robot_conscience": base + "/robot/admit",
+        "repository": "https://github.com/matharrismma/Lighthouse",
+    }
+
+
 @app.get("/openapi-actions.json", include_in_schema=False)
 def openapi_actions_schema():
     """Focused OpenAPI 3.1 schema for ChatGPT Custom GPT Actions.
