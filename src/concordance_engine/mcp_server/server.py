@@ -1934,6 +1934,11 @@ def search(query: str, max_results: int = 10) -> Dict[str, Any]:
 
     Returns {"results": [{"id", "title", "url", "snippet"}]}. Pass an id
     to fetch() to read the whole page and its proof receipt.
+
+    WHICH SEARCH TOOL? This one searches the verified CORPUS PAGES. For the
+    curated almanac (protocols + sayings, with category/kind/verdict filters)
+    use `almanac`; for decision-packet examples use `packets_search`; for the
+    Shepherd's cache-first card walk use `cards_walk`.
     """
     book = _ALMANAC_ENTRIES or []
     q = (query or "").lower().strip()
