@@ -2230,8 +2230,17 @@ def almanac(
             if verdict and (e.get("verdict") or "").upper() != verdict.upper(): continue
 
             score = 0
-            triggers = e.get("triggers") or {}
-            keywords = [k.lower() for k in (triggers.get("keywords") or [])]
+            # triggers may be a {keywords, axes} dict OR a flat keyword list OR absent --
+            # be robust to all three (a list here was crashing the whole query with
+            # 'list' object has no attribute 'get').
+            _trig = e.get("triggers")
+            if isinstance(_trig, dict):
+                _kw, _tax = (_trig.get("keywords") or []), (_trig.get("axes") or [])
+            elif isinstance(_trig, list):
+                _kw, _tax = _trig, []
+            else:
+                _kw, _tax = [], []
+            keywords = [str(k).lower() for k in _kw]
             score += sum(2 for k in keywords if k in qlower)
 
             # Title / saying match
@@ -2252,7 +2261,7 @@ def almanac(
                     if w in d.lower(): score += 1
 
             # Axis overlap
-            trigger_axes = set(triggers.get("axes") or [])
+            trigger_axes = set(_tax)
             entry_axes = set(e.get("axes") or [])
             score += len(predicted & (trigger_axes | entry_axes))
 

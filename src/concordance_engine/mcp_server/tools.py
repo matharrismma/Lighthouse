@@ -354,7 +354,34 @@ def check(claim=None, steps=None, mode=None, params=None, domain="mathematics", 
               trail:[{id, domain, status, detail<-THE WORKED MATH, uses}],
               seal:{cite_url, content_hash}}.
     """
-    from api import derivation as _d  # lazy import: avoids the tools<->derivation cycle
+    try:
+        from api import derivation as _d  # in-process when the full engine is present
+    except ImportError:
+        # Standalone stdio MCP: the app layer (`api`) isn't importable here, so the
+        # in-process derivation runner is unavailable. Route to the hosted engine via
+        # CONCORDANCE_API_URL (the same hosted-or-local pattern the rest of the server
+        # uses); if none is configured, say so plainly instead of crashing with an
+        # opaque "No module named 'api'".
+        import os as _os, json as _json, urllib.request as _u
+        _base = _os.environ.get("CONCORDANCE_API_URL")
+        if not _base:
+            return {"error": "check needs the verification engine: set CONCORDANCE_API_URL to a "
+                    "running Concordance instance, or install the full package (the `api` module)."}
+        if steps:
+            _path, _body = "/derivation/verify", {"steps": list(steps), "seal": bool(seal)}
+        elif mode and params is not None:
+            _path, _body = "/derivation/verify", {"steps": [{"id": "s1", "domain": domain or "mathematics", "spec": {"mode": mode, "params": params}}], "seal": bool(seal)}
+        elif claim:
+            _path, _body = "/derivation/solve", {"problem": str(claim), "seal": bool(seal)}
+        else:
+            return {"error": "Provide one of: steps[], (mode + params [+ domain]), or claim (prose)."}
+        try:
+            _req = _u.Request(_base.rstrip("/") + _path, data=_json.dumps(_body).encode(),
+                              headers={"Content-Type": "application/json"})
+            with _u.urlopen(_req, timeout=40) as _resp:
+                return _json.loads(_resp.read().decode())
+        except Exception as _e:  # noqa: BLE001
+            return {"error": "check via the hosted engine (%s) failed: %s" % (_base, str(_e)[:160])}
     if steps:
         result = _d.verify_derivation(list(steps))
     elif mode and params is not None:
