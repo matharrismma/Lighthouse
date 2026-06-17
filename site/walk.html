@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/nh-shell.css">
   <script defer src="/nh-shell.js"></script>
   <script src="/nh-household.js"></script>
+  <script defer src="/breath-embed.js"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Narrow Highway">
 <meta property="og:title" content="The Walk">
@@ -98,6 +99,14 @@
   #convo .turn.shep { background: #1a3a52; color: #f4ecd5; font-style: italic; }
   #convo .startover { display: block; text-align: center; font-size: 0.78em; margin-top: 0.2em; }
   #convo .startover a { color: #8a7a4a; cursor: pointer; }
+  /* THE BREATH, embedded — the verified body you walk with the Shepherd */
+  .breathwrap { margin: 1.3em 0 0.5em; }
+  .breathwrap .bcap { font-family:'Courier New',monospace; font-size:0.72em; letter-spacing:0.12em; text-transform:uppercase; color:#806010; margin-bottom:0.35em; display:flex; justify-content:space-between; align-items:baseline; gap:0.6em; }
+  .breathwrap .bcanv { position:relative; height:300px; border:1px solid #b8945a; border-radius:8px; overflow:hidden; background:#06070b; box-shadow:inset 0 0 40px rgba(0,0,0,0.55); }
+  .breathwrap .bcanv canvas { width:100%; height:100%; display:block; }
+  .breathwrap .bnote { font-family:Georgia,serif; font-style:italic; color:#6a5a3a; font-size:0.86em; margin-top:0.35em; }
+  .breathwrap a.bfull { color:#1a3a52; text-decoration:none; font-family:'Courier New',monospace; font-size:0.7em; white-space:nowrap; }
+  .breathwrap a.bfull:hover { color:#2a5570; }
 </style>
 <link rel="stylesheet" href="/nh-sabbath.css">
 <link rel="stylesheet" href="/nh-print.css" media="print">
@@ -121,6 +130,13 @@
 </div>
 <div id="recall"></div>
 <div id="narrow"></div>
+
+<div class="breathwrap">
+  <div class="bcap"><span>The verified body you're walking</span> <a class="bfull" href="/breath.html">open full &rarr;</a></div>
+  <div class="bcanv"><canvas id="breathcv"></canvas></div>
+  <div class="bnote" id="breathnote">Everything the engine holds, drawn by what proves it. When the Shepherd arrives at a path, it lights up here — on the proven ground it rests on.</div>
+</div>
+
 <p class="hint">Everything you bring is <strong>private by default</strong> — yours, on your shelf. You choose what to publish; only the verified few rise to the knowledge bank.</p>
 
 <h2>Your shelf</h2>
@@ -323,6 +339,15 @@
     if(a.trail&&a.trail.length){ html+='<div class="trail">Set aside: '+a.trail.map(function(t){return esc(t.name)+(t.why_considered?' <span class="t">('+esc((t.why_considered||[]).join(', '))+')</span>':'');}).join(' · ')+'</div>'; }
     html+='</div>';
     $narrow.innerHTML=html;
+    // light up where this path stands on the verified body — the map IS the substrate
+    try{
+      var bn=[]; if(ans.name) bn.push(ans.name);
+      if(a.precedent&&a.precedent.summary) bn.push(a.precedent.summary);
+      (a.trail||[]).forEach(function(t){ if(t&&t.name) bn.push(t.name); });
+      var bnote=document.getElementById('breathnote');
+      if(window.NHBreath && bn.length){ var hc=NHBreath.highlight(bn);
+        if(bnote) bnote.innerHTML = hc ? 'Here is where your path rests — <b>'+hc+'</b> point'+(hc>1?'s':'')+' on the verified body, lit. The ground was already proven.' : 'This is new ground — not yet on the map. What you keep can become part of it.'; }
+    }catch(e){}
   }
 
   function capture(){
@@ -385,6 +410,9 @@
   // those links point to without losing the carried context.
   try{ var _sp=new URLSearchParams(location.search); var pq=_sp.get('q')||_sp.get('situation'); if(pq){ $box.value=pq; $box.focus(); } }catch(e){}
   loadMine();
+  // mount THE BREATH — the verified body, present in the Walk; the Shepherd and Scribe
+  // walk you across it, and the discernment lights up where it stands.
+  try{ if(window.NHBreath){ NHBreath.mount(document.getElementById('breathcv'), {}); } }catch(e){}
 })();
 </script>
 </body>
