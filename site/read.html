@@ -77,6 +77,7 @@
   .tfcount{font-family:'Crimson Pro',Georgia,serif;font-size:3.2rem;color:#fff;margin:14px 0 0;line-height:1;}
   .tfframes{display:flex;flex-direction:column;gap:12px;}
   .tfBhide{display:none;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important;} }
 
   .ctrls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
   .btn{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);
@@ -123,6 +124,15 @@
   function segment(w){ w=(w||'').toLowerCase().replace(/[^a-z]/g,''); var g=[],i=0; while(i<w.length){var two=w.substr(i,2); if(DIG[two]){g.push(two);i+=2;}else{g.push(w[i]);i++;}} return g; }
   function isWord(s){ return /^[a-zA-Z]{2,8}$/.test((s||'').trim()); }
   function say(t,rate){ try{ if(!window.speechSynthesis)return; var u=new SpeechSynthesisUtterance(t); u.rate=rate||0.9; u.pitch=1.05; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+  // make a clickable <div> operable by keyboard + screen reader (serve the least includes the disabled)
+  function clickable(el, fn, label){
+    if(!el) return;
+    el.addEventListener('click', fn);
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    if(label) el.setAttribute('aria-label', label);
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){ e.preventDefault(); fn(e); } });
+  }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
   // subjects in a sensible learning order; "reading" = the blend interaction applies
@@ -214,9 +224,9 @@
     } else if(useTen){
       tfWire();
     } else {
-      document.querySelectorAll('#cards .pcard').forEach(function(c){ c.addEventListener('click',function(){ say(c.getAttribute('data-say'),0.92); }); });
+      document.querySelectorAll('#cards .pcard').forEach(function(c){ clickable(c, function(){ say(c.getAttribute('data-say'),0.92); }, 'Hear: '+(c.getAttribute('data-say')||'')); });
     }
-    var sent=document.getElementById('sent'); if(sent) sent.addEventListener('click',function(){ say(sent.textContent,0.85); });
+    var sent=document.getElementById('sent'); if(sent) clickable(sent, function(){ say(sent.textContent,0.85); }, 'Hear the sentence');
     document.getElementById('prev').addEventListener('click',function(){ if(ui>0){ui--;render();} });
     document.getElementById('next').addEventListener('click',function(){ if(ui<s.units.length-1){ui++;render();} });
     renderTrack();
@@ -266,8 +276,8 @@
     if(n>0) say(NUM[n]||(''+n));
   }
   function tfWire(){
-    document.querySelectorAll('#tfgridA .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(+c.getAttribute('data-i')+1); }); });
-    document.querySelectorAll('#tfgridB .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(10 + +c.getAttribute('data-i') + 1); }); });
+    document.querySelectorAll('#tfgridA .tfcell').forEach(function(c){ var n=+c.getAttribute('data-i')+1; clickable(c, function(){ tfFill(n); }, 'Fill to '+n); });
+    document.querySelectorAll('#tfgridB .tfcell').forEach(function(c){ var n=10 + +c.getAttribute('data-i') + 1; clickable(c, function(){ tfFill(n); }, 'Fill to '+n); });
     document.querySelectorAll('#tftargets .btn').forEach(function(b){ b.addEventListener('click',function(){ tfFill(+b.getAttribute('data-k')); }); });
   }
 
@@ -283,7 +293,7 @@
       (u.check&&u.check.prompt?('<div class="check"><b>Check &middot;</b> '+esc(u.check.prompt)+'</div>'):'')+
       helpStrip(u)+
       '<div class="nav"><button class="btn" id="back">&larr; back to subjects</button><span class="seq">drafted lesson</span><button class="btn" id="again">teach something else</button></div>';
-    document.querySelectorAll('#lesson .pcard').forEach(function(c){ c.addEventListener('click',function(){ say(c.getAttribute('data-say'),0.92); }); });
+    document.querySelectorAll('#lesson .pcard').forEach(function(c){ clickable(c, function(){ say(c.getAttribute('data-say'),0.92); }, 'Hear: '+(c.getAttribute('data-say')||'')); });
     document.getElementById('back').addEventListener('click',function(){ render(); });
     document.getElementById('again').addEventListener('click',function(){ document.getElementById('topic').focus(); });
     document.getElementById('track').innerHTML='';
