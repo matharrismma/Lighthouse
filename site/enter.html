@@ -32,6 +32,11 @@
   .rev{opacity:0;transform:translateY(26px);transition:opacity 1s cubic-bezier(.2,.6,.2,1),transform 1s cubic-bezier(.2,.6,.2,1);}
   .rev.in{opacity:1;transform:none;}
   .rev.d1{transition-delay:.12s;}.rev.d2{transition-delay:.24s;}.rev.d3{transition-delay:.36s;}
+  /* reduced motion: make everything instant (never removed -> never leaves content hidden) and force reveals visible */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+    .rev{opacity:1!important;transform:none!important;}
+  }
 
   /* hero */
   #hero{min-height:100svh;justify-content:center;background:radial-gradient(ellipse 70% 55% at 50% 32%,#15101f 0%,#0a0810 66%);}

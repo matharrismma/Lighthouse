@@ -89,6 +89,7 @@
     .weighing{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);text-align:center;padding:8px 0;}
     .weighing .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:6px;animation:wp 1s ease-in-out infinite;}
     @keyframes wp{0%,100%{opacity:.3;}50%{opacity:1;box-shadow:0 0 9px var(--accent);}}
+    @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;} }
     .art{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 18px;}
     .art-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
     .art-lbl .kept{color:var(--muted);font-size:8.5px;}
