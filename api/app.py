@@ -5833,6 +5833,17 @@ def workspace_intake(request: Request, body: _IntakeIn):
         raise HTTPException(status_code=400, detail="bring something")
     if len(text) > 4000:
         text = text[:4000]
+    # Crisis safety net — deterministic and FIRST, before any routing or oracle
+    # call. If what was brought carries an acute-risk signal, the only honest
+    # response is to point past the tool to immediate, real help; we never spend
+    # an oracle call drafting a reply to someone who may be in danger.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(text)
+        if _crisis:
+            return {"intent": "safety", "oracle": False, "safety": _crisis}
+    except Exception:  # noqa: BLE001 — a detector failure must never break intake
+        pass
     import os
     try:
         from api.offices import steward_budget_remaining_usd as _budget

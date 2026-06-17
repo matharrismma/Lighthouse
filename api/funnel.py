@@ -273,6 +273,20 @@ def get_router():
             data = {}
         history = _history_from(data)
 
+        # Crisis safety net — deterministic and FIRST, before the oracle. If any
+        # of what the person has said carries an acute-risk signal, the Shepherd's
+        # one honest move is to point past itself to immediate, real help (and not
+        # spend a Steward-gated oracle call drafting a reply to someone in danger).
+        try:
+            from api import safety as _safety
+            _utext = " ".join(str(m.get("content", "")) for m in history
+                              if isinstance(m, dict) and m.get("role") == "user")
+            _crisis = _safety.crisis_check(_utext)
+            if _crisis:
+                return {"ok": True, "status": "safety", "safety": _crisis}
+        except Exception:
+            pass
+
         # Oracle is ON here (Steward-gated): this is the one door, so it must be
         # able to ask. Tier 0 (keep) catches quick captures for free; the oracle
         # only fires for genuinely ambiguous, non-capture input, and the Steward
@@ -463,6 +477,15 @@ def get_router():
             raise HTTPException(400, "situation too long")
         chosen = data.get("chosen_id")
         reply = data.get("reply")
+        # Crisis safety net — deterministic, before narrowing. Acute signals can
+        # surface in the opening situation OR in a follow-up reply.
+        try:
+            from api import safety as _safety
+            _crisis = _safety.crisis_check(situation + " " + (str(reply) if reply else ""))
+            if _crisis:
+                return {"status": "safety", "safety": _crisis}
+        except Exception:
+            pass
         result = _offices.narrow(situation,
                                  reply=(str(reply)[:2000] if reply else None),
                                  chosen_id=(str(chosen) if chosen else None))

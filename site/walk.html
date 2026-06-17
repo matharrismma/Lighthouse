@@ -10,6 +10,7 @@
   <script defer src="/nh-shell.js"></script>
   <script src="/nh-household.js"></script>
   <script src="/breath-embed.js"></script>
+  <script src="/safety-banner.js"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Narrow Highway">
 <meta property="og:title" content="The Walk">
@@ -303,14 +304,14 @@
     $narrow.innerHTML='<div class="nq">…</div>';
     fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,reply:reply})})
       .then(function(r){return r.ok?r.json():null;})
-      .then(function(nz){ if(nz){ renderNarrow(nz, situation); } else { $narrow.innerHTML='<div class="nq">Could not continue.</div>'; } })
+      .then(function(nz){ if(nz&&nz.status==='safety'&&nz.safety&&window.NHSafety){ $narrow.innerHTML=NHSafety.render(nz.safety); return; } if(nz){ renderNarrow(nz, situation); } else { $narrow.innerHTML='<div class="nq">Could not continue.</div>'; } })
       .catch(function(){ $narrow.innerHTML='<div class="nq">Could not continue.</div>'; });
   }
   function pickNarrow(situation, chosen_id){
     $narrow.innerHTML='<div class="nq">Bringing the path…</div>';
     fetch('/narrow',{method:'POST',headers:hdr({'Content-Type':'application/json'}),body:JSON.stringify({situation:situation,chosen_id:chosen_id})})
       .then(function(r){return r.ok?r.json():null;})
-      .then(function(a){ if(a&&a.arrived){ renderArrival(a); } else { $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; } })
+      .then(function(a){ if(a&&a.status==='safety'&&a.safety&&window.NHSafety){ $narrow.innerHTML=NHSafety.render(a.safety); return; } if(a&&a.arrived){ renderArrival(a); } else { $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; } })
       .catch(function(){ $narrow.innerHTML='<div class="nq">Could not bring the path.</div>'; });
   }
   function renderArrival(a){
@@ -359,6 +360,9 @@
       .then(function(j){
         $send.disabled=false;
         if(!j){ if(j!==null){ $flash.textContent='Could not capture.'; } return; }
+        // Crisis safety net leads — before any narrowing or kept card. A path
+        // must never stand between someone in danger and immediate, real help.
+        if(j.status==='safety'&&j.safety&&window.NHSafety){ resetThread(); setShepFlash(''); if($narrow){ $narrow.innerHTML=NHSafety.render(j.safety); } return; }
         if(j.status==='asking'){
           // the Shepherd needs one clarification — carry the conversation
           thread=(j.messages&&j.messages.length)?j.messages:thread.concat([{role:'assistant',content:j.say}]);

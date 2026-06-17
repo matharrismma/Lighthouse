@@ -176,6 +176,7 @@
 </main>
 
 <script src="/breath-embed.js"></script>
+<script src="/safety-banner.js"></script>
 <script>
 // The work area: bring anything; the one brain routes it; the engine verifies what
 // is verifiable; the assistant only drafts the rest; everything is kept (on-device).
@@ -198,6 +199,9 @@ function nhVerifyCard(res){
 function nhCopy(btn){var t=btn.getAttribute('data-copy')||'';try{navigator.clipboard.writeText(t);btn.textContent='Copied ✓';}catch(e){}}
 function nhRender(d){
   var res=document.getElementById('ures'), intent=d&&d.intent;
+  // Crisis safety net leads — always, before anything else. A remedy or an
+  // answer must never stand between someone in danger and immediate, real help.
+  if(d&&d.safety&&window.NHSafety){var _sh=NHSafety.render(d.safety);if(_sh){res.innerHTML=_sh;return;}}
   // light up where this lands on the verified body
   try{ if(window.NHBreath){ var _q=d.claim||d.topic||(d.items&&d.items.join(' '))||d.title||d.subject||''; if(_q){ var _hc=NHBreath.highlight(_q); var _bh=document.getElementById('breathbh'); if(_bh) _bh.textContent=_hc?('the verified body · '+_hc+' lit — where this lands'):'the verified body · new ground — the keeping can grow'; } } }catch(e){}
   if(intent==='verify'){
