@@ -33,7 +33,7 @@
 </style>
 </head>
 <body>
-<canvas id="brain"></canvas>
+<canvas id="brain" role="img" aria-label="A network map of the engine's concepts: ~1,684 nodes in two glowing hemispheres, language and mathematics, linked by ~2,363 connections that trace back to a few source roots."></canvas>
 <div id="load" class="loading">Waking the engine…</div>
 <a class="back" href="/">&larr; home</a>
 <div class="ov top">
@@ -91,13 +91,14 @@
 
     // firing pulses — light travels real bonds, biased to start from the source
     var pulses=[], MAXP=70;
+    var reduceMotion=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     function spawn(from){
       var a = (from!=null)?from : SRC[(Math.random()*SRC.length)|0];
       var nb=adj[a]; if(!nb.length) return;
       var b=nb[(Math.random()*nb.length)|0];
       pulses.push({a:a,b:b,t:0,sp:0.006+Math.random()*0.012,gen:0});
     }
-    for(i=0;i<28;i++) spawn();
+    if(!reduceMotion) for(i=0;i<28;i++) spawn();
 
     var hover=-1;
     function pick(mx,my){
@@ -155,7 +156,7 @@
         }
       }
       ctx.globalAlpha=1;
-      while(pulses.length<MAXP && Math.random()<0.25) spawn();
+      if(!reduceMotion) while(pulses.length<MAXP && Math.random()<0.25) spawn();
 
       requestAnimationFrame(frame);
     }
