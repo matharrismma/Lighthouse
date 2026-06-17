@@ -287,11 +287,20 @@
     </div>
 
     <div id="wbResults" style="margin-top:22px;"></div>
+    <div id="wbBreath" style="margin-top:20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+        <span>The verified body &mdash; where your writing lands</span>
+        <a href="/breath.html" style="color:var(--accent);text-decoration:none;font-size:10px;">open full &rarr;</a>
+      </div>
+      <div style="position:relative;height:300px;border:1px solid var(--border-hi);border-radius:10px;overflow:hidden;background:#06070b;"><canvas id="wbBreathCv" style="width:100%;height:100%;display:block;"></canvas></div>
+      <div id="wbBreathNote" style="font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--text-dim);font-size:13px;margin-top:8px;">Everything the keeping holds, drawn by what proves it. Run your writing across the tools, and where it lands lights up here &mdash; on ground already proven.</div>
+    </div>
   </section>
 
   <div id="sc-content"></div>
 </main>
 
+<script src="/breath-embed.js"></script>
 <script>
 // ── Tool composer wiring ──
 (function workbench() {
@@ -662,11 +671,24 @@
       `;
     }
     resultsEl.innerHTML = html;
+    // light up where this writing lands on the verified body
+    try {
+      const bn = ranked.slice(0, 14).map(it => it.packet.title || it.packet.id).filter(Boolean);
+      const note = document.getElementById('wbBreathNote');
+      if (window.NHBreath && bn.length) {
+        const hc = NHBreath.highlight(bn);
+        if (note) note.innerHTML = hc
+          ? 'Your writing lands here &mdash; <b style="color:var(--text)">' + hc + '</b> point' + (hc > 1 ? 's' : '') + ' on the verified body, lit. The keeping already holds this ground.'
+          : 'No match yet &mdash; this is new ground. Write it to the Scribe so the keeping can grow.';
+      }
+    } catch (e) {}
   }
 
   function escapeHtml(s) {
     return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
+  // mount THE BREATH -- the verified body the Scribe writes into
+  try { if (window.NHBreath) NHBreath.mount(document.getElementById('wbBreathCv'), {}); } catch (e) {}
 })();
 </script>
 
