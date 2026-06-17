@@ -22,16 +22,18 @@ feature. Below is the chunk inventory and how the surfaces compose them.
 | **Curriculum schema** | one shape — `rule / examples / modes / wedges / check / track` | all 7 subjects (phonics, reading, writing, math, science, social studies, bible) |
 | **Teaching moves (wedges)** | a leveled catalog of scaffolds — Repeat, Echo, Chunk, Phonics, Context, Skip, Meaning, Praise (+ math: Count-on, Ten-frame, Doubles) | every lesson, every subject (`data/wedges/catalog.jsonl`) |
 | **Gradual release (modes)** | model -> together -> you do | every lesson |
-| **Interaction chunks** | the per-domain practice: segment->sound->blend for reading words; tap-to-hear cards for facts; (next: ten-frame for math) | the tutor, keyed by subject |
+| **Interaction chunks** | the per-domain practice: segment->sound->blend for reading words; the ten-frame for math; tap-to-hear cards for other facts | the tutor, keyed by subject |
 | **Graph renderer** | draws any node/edge set as a glowing network | the brain (the engine's real structure); reusable for any map |
 
 ## The surfaces (composed from the chunks)
 
 - **The work area** (`/`) — the front door. Bring anything; the intake router routes it; the
-  engine verifies what's verifiable; the assistant drafts the rest; it's kept on-device.
+  engine verifies what's verifiable; the assistant drafts the rest; it's kept on-device. Asking
+  to learn something hands off to the tutor.
 - **The tutor** (`/read`) — the curriculum schema + interaction chunks + the wedges/modes,
   over all 7 subjects from `/curriculum`. Plus **learn anything** (`/tutor/lesson`): the
-  assistant drafts a lesson on any topic in the same schema.
+  assistant drafts a lesson on any topic in the same schema. Deep-linkable —
+  `/read.html?topic=...` drafts that lesson on arrival, so the work area can route you straight in.
 - **The brain** (`/brain`) — the graph renderer over the real 1,684-node map.
 - **The story** (`/enter`) — what this is, once.
 
@@ -60,10 +62,11 @@ area answering to what you bring.
   + drafts a lesson on anything; the engine verifies + seals; the anti-idol guardrail is live
   and tested; everything kept on-device (private, nothing tracked).
 - **Seed / next:** content is thin (~69 curriculum units); "curate" is labelled-honest but the
-  engine doesn't yet *seal* a lesson's checkable claims; the math interaction chunk (ten-frame)
-  isn't built; "on every surface" (the shared work-area on every page + a browsable kept shelf)
-  is not done; the gated organ (`run_gated`) still needs the same guardrail.
+  engine doesn't yet *seal* a lesson's checkable claims; the gated organ (`run_gated`) still
+  needs the same anti-idol guardrail; the shared work-area isn't yet embedded on *every* page.
+  (Done since first writing: the ten-frame math chunk; the browsable kept shelf at `/kept`;
+  the work-area -> tutor learn hand-off.)
 
-The next honest moves are composition, not new subsystems: add the ten-frame interaction
-chunk; seal a lesson's checkable claims through the engine; put the work area on every page;
-make the kept record browsable.
+The next honest moves are composition, not new subsystems: seal a lesson's checkable claims
+through the engine; carry the same anti-idol guardrail into the gated organ; embed the work
+area on every page.
