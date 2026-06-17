@@ -21,6 +21,8 @@ SURFACES = [
     ("/kept.html",    "kept"),        # the file-system-for-life shelf
     ("/brain.html",      "brain"),    # the engine as a digital brain
     ("/brain-graph.json", None),      # the brain's runtime data -- checked as JSON below
+    ("/breath.html",     "Breath"),   # the map drawn by evidence (verified vs resonance)
+    ("/breath-graph.json", None),     # the evidence-labelled runtime data -- checked as JSON below
     ("/enter.html",   "door"),        # the cinematic pitch
     ("/curriculum",   None),          # the lessons API -- checked as JSON below
     ("/identity",     "Jesus Christ"),# who this serves
@@ -54,11 +56,14 @@ def check(base):
                     note = "no curriculum units"
                 else:
                     status, note = "UP", "%d units" % n
-            elif path == "/brain-graph.json":
+            elif path in ("/brain-graph.json", "/breath-graph.json"):
                 d = json.loads(body)
                 n = len(d.get("x", []))  # parallel-array node count
                 if n <= 0:
                     note = "no graph nodes"
+                elif path == "/breath-graph.json":
+                    ev = (d.get("meta") or {}).get("node_evidence") or {}
+                    status, note = "UP", "%d nodes (%d verified)" % (n, ev.get("verified", 0))
                 else:
                     status, note = "UP", "%d nodes" % n
             elif needle and needle.lower() not in body.lower():

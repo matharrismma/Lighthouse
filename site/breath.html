@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Breath — the map, by what backs it</title>
+<meta name="description" content="The engine's real map, drawn by EVIDENCE: what a verifier proved glows, what witnesses attest is lit, and what is only a resonance is shown faintly — never disguised as fact. We cannot out-scale a knowledge graph; we can out-true it.">
+<meta name="robots" content="index">
+<style>
+  :root{--bg:#06070b;--gold:#c9a87c;--goldhi:#e3c498;--tx:#ede7db;--dim:#9b94ac;--mut:#6e6878;--line:#23202c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,sans-serif;overflow:hidden;}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;}
+  #c.drag{cursor:grabbing;}
+  .ov{position:fixed;pointer-events:none;z-index:2;}
+  .top{top:0;left:0;right:0;padding:20px 22px;background:linear-gradient(#06070bcc,#06070b00);}
+  .kik{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);}
+  h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.3rem,3vw,1.9rem);color:#f4ecd5;margin:4px 0 0;}
+  .lede{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:clamp(.85rem,1.6vw,1rem);margin-top:5px;max-width:64ch;line-height:1.5;}
+  .legend{position:fixed;left:22px;bottom:18px;z-index:2;display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;color:var(--dim);pointer-events:none;}
+  .lg{display:flex;align-items:center;gap:8px;}
+  .dot{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;flex:none;}
+  .counts{position:fixed;right:22px;bottom:18px;z-index:2;text-align:right;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;color:var(--mut);pointer-events:none;line-height:1.8;}
+  .counts b{font-weight:600;}
+  .hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);pointer-events:none;opacity:.8;}
+  #tip{position:fixed;z-index:3;pointer-events:none;background:#0c0a12ee;border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:0 7px 7px 0;padding:9px 12px;max-width:320px;font-size:12.5px;color:var(--tx);line-height:1.45;opacity:0;transition:opacity .12s;}
+  #tip .tt{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+  #tip .td{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:#f4ecd5;font-size:14px;}
+  #tip .tm{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;color:var(--mut);margin-top:5px;}
+  a.back{position:fixed;top:20px;right:22px;z-index:3;pointer-events:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:7px 13px;background:#0c0a1288;}
+  a.back:hover{color:var(--goldhi);border-color:var(--gold);}
+  .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:4;font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:1.1rem;}
+  @media(max-width:560px){.lede{display:none;}.legend{font-size:9.5px;}}
+</style>
+</head>
+<body>
+<canvas id="c" role="img" aria-label="The engine's concept map drawn by evidence: a small luminous core of verified connections, a ring of witnessed (concordant) ones, and a vast faint field of resonances that are likenesses, not yet proven. The source is shown as a gap the whole map points to, never as a node."></canvas>
+<div id="load" class="loading">Drawing the map by what backs it…</div>
+<a class="back" href="/brain.html">&larr; the brain</a>
+<div class="ov top">
+  <div class="kik">The Breath &middot; the map, by what backs it</div>
+  <h1>What is proven glows. What is only resonant is shown faintly — never as fact.</h1>
+  <p class="lede">The same map, drawn by EVIDENCE. A verifier confirmed the bright core; witnesses attest the lit ring; the vast faint field is resonance — a likeness, not yet proven. The light only travels the proven paths. We cannot out-scale a knowledge graph; we can out-true it.</p>
+</div>
+<div class="legend" id="legend"></div>
+<div class="counts" id="counts"></div>
+<div class="hint">drag to move &middot; scroll to zoom &middot; hover a node</div>
+<div id="tip"></div>
+<script>
+(function(){
+  var cv=document.getElementById('c'), ctx=cv.getContext('2d'),
+      tip=document.getElementById('tip'), load=document.getElementById('load');
+  var DPR=Math.min(window.devicePixelRatio||1,2);
+  // EVIDENCE is the channel: proven glows, resonance is faint, source is a gap.
+  var EV={
+    source:    {n:'source — the root all of it points to', c:[255,240,210], rank:4, a:1.0,  sz:1.0},
+    verified:  {n:'verified — a verifier confirmed it',    c:[150,240,170], rank:3, a:1.0,  sz:1.25},
+    concordant:{n:'concordant — the witnesses agree',      c:[110,200,235], rank:2, a:0.92, sz:1.0},
+    mixed:     {n:'mixed — partial / qualified',           c:[232,200,120], rank:1, a:0.8,  sz:0.85},
+    resonance: {n:'resonance — a likeness, NOT yet proven',c:[122,114,150], rank:0, a:0.32, sz:0.6}
+  };
+  var ORDER=['resonance','mixed','concordant','verified']; // draw faint first, proven on top
+
+  function boot(D){
+    load.style.display='none';
+    var N=D.x.length, X=D.x, Y=D.y, DEG=D.deg, NM=D.name, NEV=D.node_ev||[],
+        E=D.edges, EEV=D.edge_ev||[], K=D.kin, SRC=D.src||[], ID=D.id||[];
+    var isSrc=new Uint8Array(N); SRC.forEach(function(i){isSrc[i]=1;});
+    // adjacency over PROVEN edges only (verified + concordant) — truth travels the proven vine
+    var adj=[]; for(var i=0;i<N;i++) adj.push([]);
+    for(var e=0;e<E.length;e++){ var ev=EEV[e]; if(ev==='verified'||ev==='concordant'){ adj[E[e][0]].push(E[e][1]); adj[E[e][1]].push(E[e][0]); } }
+    var provenSeeds=[]; for(i=0;i<N;i++){ if(adj[i].length) provenSeeds.push(i); }
+    var maxd=1; for(i=0;i<N;i++) if(DEG[i]>maxd) maxd=DEG[i];
+
+    var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+    for(i=0;i<N;i++){ if(X[i]<minx)minx=X[i]; if(X[i]>maxx)maxx=X[i]; if(Y[i]<miny)miny=Y[i]; if(Y[i]>maxy)maxy=Y[i]; }
+    var cx=(minx+maxx)/2, cy=(miny+maxy)/2;
+
+    var W,H, fit=1, view={s:1,ox:0,oy:0}, drag=null;
+    function resize(){ W=cv.clientWidth; H=cv.clientHeight; cv.width=W*DPR; cv.height=H*DPR;
+      fit=Math.min(W/(maxx-minx+90), H/(maxy-miny+120)); }
+    window.addEventListener('resize',resize); resize();
+    function sx(i){ return (X[i]-cx)*fit*view.s + W/2 + view.ox; }
+    function sy(i){ return (Y[i]-cy)*fit*view.s + H/2 + view.oy; }
+
+    function sprite(rgb,soft){
+      var s=64, oc=document.createElement('canvas'); oc.width=oc.height=s;
+      var c=oc.getContext('2d'), g=c.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+      // soft=true -> a halo with a hollow centre (the source: a gap, not a node)
+      g.addColorStop(0, soft?'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0)':'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',1)');
+      g.addColorStop(soft?.45:.25,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',.55)');
+      g.addColorStop(1,'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0)');
+      c.fillStyle=g; c.fillRect(0,0,s,s); return oc;
+    }
+    var SP={}; for(var key in EV){ SP[key]=sprite(EV[key].c, key==='source'); }
+
+    // pulses fire ONLY along proven edges, seeded from proven nodes
+    var pulses=[], MAXP=44;
+    var reduceMotion=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    function spawn(from){
+      var a=(from!=null)?from:(provenSeeds.length?provenSeeds[(Math.random()*provenSeeds.length)|0]:-1);
+      if(a<0) return; var nb=adj[a]; if(!nb.length) return;
+      var b=nb[(Math.random()*nb.length)|0];
+      pulses.push({a:a,b:b,t:0,sp:0.006+Math.random()*0.012,gen:0});
+    }
+    if(!reduceMotion) for(i=0;i<20;i++) spawn();
+
+    var hover=-1;
+    function pick(mx,my){ var best=-1,bd=18*18;
+      for(var i=0;i<N;i++){ var dx=sx(i)-mx, dy=sy(i)-my, d=dx*dx+dy*dy; if(d<bd){bd=d;best=i;} } return best; }
+
+    function frame(){
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      ctx.globalCompositeOperation='source-over';
+      ctx.fillStyle='rgba(6,7,11,0.34)'; ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation='lighter';
+
+      // edges by evidence: resonance faint underneath, proven bright on top
+      function strokeEdges(want, rgba, lw){
+        ctx.lineWidth=lw; ctx.strokeStyle=rgba; ctx.beginPath();
+        for(var e=0;e<E.length;e++){ if((EEV[e]||'resonance')===want){ ctx.moveTo(sx(E[e][0]),sy(E[e][0])); ctx.lineTo(sx(E[e][1]),sy(E[e][1])); } }
+        ctx.stroke();
+      }
+      strokeEdges('resonance','rgba(122,114,150,0.07)',0.5);
+      strokeEdges('mixed','rgba(232,200,120,0.22)',0.7);
+      strokeEdges('concordant','rgba(110,200,235,0.34)',0.8);
+      strokeEdges('verified','rgba(150,240,170,0.7)',1.2);
+
+      if(hover>=0){
+        ctx.lineWidth=1.1; ctx.strokeStyle='rgba(227,196,152,0.5)'; ctx.beginPath();
+        for(var h=0;h<adj[hover].length;h++){ ctx.moveTo(sx(hover),sy(hover)); ctx.lineTo(sx(adj[hover][h]),sy(adj[hover][h])); }
+        ctx.stroke();
+      }
+
+      // nodes, faint-evidence first so proven sits on top
+      for(var oi=0;oi<ORDER.length;oi++){
+        var want=ORDER[oi], cfg=EV[want];
+        for(i=0;i<N;i++){
+          if(isSrc[i]) continue;
+          if((NEV[i]||'resonance')!==want) continue;
+          var r=(2.0+Math.sqrt(DEG[i]/maxd)*15)*cfg.sz*Math.min(2,Math.max(.6,view.s*fit));
+          ctx.globalAlpha=cfg.a*(0.5+0.5*(DEG[i]/maxd));
+          ctx.drawImage(SP[want], sx(i)-r, sy(i)-r, r*2, r*2);
+        }
+      }
+      // source LAST, as a soft luminous gap (never a hard node)
+      ctx.globalAlpha=0.9;
+      for(i=0;i<N;i++){ if(!isSrc[i]) continue; var rs=46*Math.min(2.4,Math.max(.7,view.s*fit)); ctx.drawImage(SP.source, sx(i)-rs, sy(i)-rs, rs*2, rs*2); }
+      ctx.globalAlpha=1;
+
+      // pulses (only on proven edges)
+      for(var p=pulses.length-1;p>=0;p--){
+        var pu=pulses[p]; pu.t+=pu.sp;
+        var ax=sx(pu.a),ay=sy(pu.a),bx=sx(pu.b),by=sy(pu.b);
+        var px=ax+(bx-ax)*pu.t, py=ay+(by-ay)*pu.t;
+        ctx.globalAlpha=0.95; ctx.fillStyle='rgba(180,245,200,1)';
+        ctx.beginPath(); ctx.arc(px,py,2.5,0,6.283); ctx.fill();
+        ctx.globalAlpha=0.3; ctx.beginPath(); ctx.arc(px,py,6,0,6.283); ctx.fill();
+        if(pu.t>=1){ pulses.splice(p,1);
+          if(pu.gen<6 && Math.random()<0.75){ var nb=adj[pu.b]; if(nb.length){ var nx=nb[(Math.random()*nb.length)|0]; pulses.push({a:pu.b,b:nx,t:0,sp:pu.sp,gen:pu.gen+1}); } } }
+      }
+      ctx.globalAlpha=1;
+      if(!reduceMotion) while(pulses.length<MAXP && Math.random()<0.22) spawn();
+      requestAnimationFrame(frame);
+    }
+    frame();
+
+    cv.addEventListener('mousemove',function(ev){
+      var mx=ev.clientX,my=ev.clientY;
+      if(drag){ view.ox+=mx-drag.x; view.oy+=my-drag.y; drag.x=mx; drag.y=my; return; }
+      var i=pick(mx,my); hover=i;
+      if(i>=0){ var ek=isSrc[i]?'source':(NEV[i]||'resonance'), cfg=EV[ek];
+        tip.style.opacity='1'; tip.style.left=(mx+14)+'px'; tip.style.top=(my+14)+'px';
+        tip.style.borderLeftColor='rgb('+cfg.c.join(',')+')';
+        tip.innerHTML='<div class="tt" style="color:rgb('+cfg.c.join(',')+')">'+cfg.n+'</div>'
+          +'<div class="td">'+(NM[i]||'').replace(/</g,'&lt;')+'</div>'
+          +(DEG[i]?'<div class="tm">'+DEG[i]+' links'+(ek==='resonance'?' &middot; not yet proven':'')+'</div>':''); }
+      else tip.style.opacity='0';
+    });
+    cv.addEventListener('mousedown',function(ev){ drag={x:ev.clientX,y:ev.clientY}; cv.classList.add('drag'); tip.style.opacity='0'; });
+    window.addEventListener('mouseup',function(){ drag=null; cv.classList.remove('drag'); });
+    cv.addEventListener('wheel',function(ev){ ev.preventDefault(); var f=ev.deltaY<0?1.12:0.893; view.s=Math.max(0.4,Math.min(8,view.s*f)); },{passive:false});
+
+    // legend (by evidence) + the honest breakdown
+    var L=['source','verified','concordant','mixed','resonance'];
+    document.getElementById('legend').innerHTML = L.map(function(k){
+      return '<div class="lg"><span class="dot" style="color:rgb('+EV[k].c.join(',')+')"></span>'+EV[k].n+'</div>'; }).join('');
+    var nb=(D.meta&&D.meta.node_evidence)||{}, eb=(D.meta&&D.meta.edge_evidence)||{};
+    function row(lbl,k,m){ var v=m[k]||0, col=EV[k].c.join(','); return '<div><b style="color:rgb('+col+')">'+v.toLocaleString()+'</b> '+lbl+'</div>'; }
+    document.getElementById('counts').innerHTML =
+      '<div style="color:var(--dim);margin-bottom:3px;">of '+N.toLocaleString()+' nodes</div>'
+      + row('verified','verified',nb) + row('concordant','concordant',nb)
+      + row('mixed','mixed',nb) + row('resonance','resonance',nb);
+  }
+
+  fetch('/breath-graph.json').then(function(r){return r.json();}).then(boot)
+    .catch(function(){ load.textContent='Could not load the map.'; });
+})();
+</script>
+</body>
+</html>
