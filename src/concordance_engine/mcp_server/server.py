@@ -65,12 +65,14 @@ from .. import IDENTITY_SHORT
 # stated up front so callers know.
 _MCP_INSTRUCTIONS = (
     "Concordance / Lighthouse — Serves Jesus Christ. "
-    "START HERE: to verify anything, call ONE tool — `check`. It takes a math "
-    "claim, a multi-step derivation, or a plain-language statement, and returns "
-    "the verdict, the WORKED MATH (the trail, step by step), and a permanent, "
-    "re-checkable seal (cite_url) you can show a user. The many domain-specific "
-    "`verify_*` tools are its internals; reach for them only for a single narrow "
-    "domain check. "
+    "START HERE: `check` is the one entry for verifying anything. Pick the path that fits "
+    "what you hold: (a) a plain-language statement -> check(claim=\"...\") and the engine "
+    "routes it; (b) one structured claim -> check(mode=..., params=..., domain=...); "
+    "(c) a multi-step derivation -> check(steps=[{id,domain,spec}, ...]). It returns the "
+    "verdict, the WORKED MATH (the trail, step by step), and a permanent, re-checkable seal "
+    "(cite_url) you can show a user. For a many-claims SITUATION that spans domains, call "
+    "`run_polymathic`. The 64 `verify_*` tools are check's internals — reach for one only "
+    "when you already know the single domain. "
     "Conduit, not source. The engine eliminates what is not the answer "
     "so the narrow path is illuminated by what survives. Good fruit is "
     "the measure. The keeping is the substrate. Tools here categorize, "
@@ -2539,7 +2541,11 @@ def almanac_search(query: str, limit: int = 12) -> Dict[str, Any]:
 
 @mcp.tool()
 def polymathic_run(situation: str, visitor_id: str = "mcp_agent") -> Dict[str, Any]:
-    """Multi-domain synthesis — every applicable verifier fires in
+    """Alias of `run_polymathic` (prefer that one — it exposes max_domains,
+    split_threshold, stop_on_discordant, and the oracle_model). This is a thin
+    fixed-default wrapper kept for backward compatibility.
+
+    Multi-domain synthesis — every applicable verifier fires in
     parallel and returns a composite verdict.
 
     Requires the engine to have an Anthropic API key configured for the
