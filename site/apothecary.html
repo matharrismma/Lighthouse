@@ -628,7 +628,9 @@
     if (!ing) return '';
     const title = ing.title || ing.reference || ing.id || '';
     const ref = ing.reference && ing.reference !== title ? ing.reference : '';
-    const text = ing.text || '';
+    // Strip WEB editorial superscriptions (<<A Psalm by David.>>) so a grieving
+    // reader sees the verse, not the translation's bracketed markup.
+    const text = (ing.text || '').replace(/<<[\s\S]*?>>/g, '').replace(/\s{2,}/g, ' ').trim();
     const source = ing.source || '';
 
     let extras = '';

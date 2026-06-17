@@ -66,7 +66,7 @@ curl https://narrowhighway.com/identity
 <span style="color:var(--muted,#6e6878);"># 2. Verify a deterministic claim (chemistry domain)</span>
 curl -X POST https://narrowhighway.com/verify \
   -H "Content-Type: application/json" \
-  -d '{"domain":"chemistry","equation":"2 H2 + O2 -&gt; 2 H2O"}'
+  -d '{"tool":"verify_chemistry","spec":{"equation":"2 H2 + O2 -&gt; 2 H2O"}}'
 
 <span style="color:var(--muted,#6e6878);"># 3. Connect via MCP (Model Context Protocol)</span>
 <span style="color:var(--muted,#6e6878);"># Add this URL to your MCP client:</span>
@@ -159,7 +159,7 @@ https://narrowhighway.com/mcp/sse</div>
 <section id="mcp-tools">
   <div class="container">
     <h2>MCP tool inventory</h2>
-    <p>100 MCP tools total: <strong>70 verifiers</strong> (one per deterministic domain check), plus pipeline tools (validate / seal / attest / walk through), read &amp; synthesize surfaces (atlas, almanac, run_polymathic, propose_almanac_entry), and the <strong>12 card-library tools</strong> added 2026-05-19 (cards_walk, shepherd_interview, atlas_paths, card_get, card_notes, daily_card, etc.). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior.</p>
+    <p><strong>142 MCP tools total</strong>, of which <strong>71 are verifiers</strong> (one per deterministic domain check), plus pipeline tools (validate / seal / attest / walk through), read &amp; synthesize surfaces (atlas, almanac, run_polymathic, propose_almanac_entry), and the card-library tools (cards_walk, shepherd_interview, atlas_paths, card_get, card_notes, daily_card, etc.). Every tool is reachable over stdio MCP, HTTP MCP, and SSE MCP — same wire format, same behavior. <em>Live counts (authoritative): <a href="/mcp-stats">/mcp-stats</a>; the MCP <code>tools/list</code> is the source of truth.</em></p>
 
     <h3 style="margin-top:1.8em; color:var(--accent);">Card library tools <span style="font-size:0.7em; font-weight:400; color:var(--muted);">— new 2026-05-19</span></h3>
     <table>
@@ -257,7 +257,7 @@ https://narrowhighway.com/mcp/sse</div>
     "concordance": { "url": "https://narrowhighway.com/mcp" }
   }
 }</code></pre>
-    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 100 tools become available immediately.</p>
+    <p>Also available over SSE: <code>https://narrowhighway.com/mcp/sse</code>. All 142 tools become available immediately.</p>
 
     <h3>2 · MCP over stdio — for offline / air-gapped use</h3>
     <p>Install once, run locally. No outbound calls.</p>
@@ -288,10 +288,10 @@ curl -X POST https://narrowhighway.com/shepherd/interview \
 # Today's card (deterministic worldwide)
 curl https://narrowhighway.com/daily-card
 
-# Verify a chemistry claim
-curl -X POST https://narrowhighway.com/verify/chemistry \
+# Verify a chemistry claim (POST /verify takes {tool, spec})
+curl -X POST https://narrowhighway.com/verify \
   -H "Content-Type: application/json" \
-  -d '{"equation": "H2 + O2 -> H2O"}'
+  -d '{"tool": "verify_chemistry", "spec": {"equation": "2 H2 + O2 -> 2 H2O"}}'
 
 # Classify and trace a path
 curl -X POST https://narrowhighway.com/path \
@@ -608,7 +608,7 @@ for step in walk["steps"]:
 
     <h3>Architecture: verifiers, dispatchers, coordinator</h3>
     <ul style="max-width:52rem;color:var(--muted);padding-left:1.5rem;margin-bottom:1.5rem;">
-      <li><strong>Verifiers</strong> — the 48 <code>verify_*</code> functions. One domain, deterministic, offline.</li>
+      <li><strong>Verifiers</strong> — the 71 <code>verify_*</code> functions. One domain, deterministic, offline.</li>
       <li><strong>Dispatchers</strong> — rule-based + oracle-based classifiers that route a natural-language claim to the right verifier.</li>
       <li><strong>Coordinator</strong> — the polymathic agent. Runs all verifiers and synthesizes the collective result.</li>
     </ul>
