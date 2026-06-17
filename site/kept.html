@@ -39,6 +39,13 @@
   .clear{display:block;margin:34px auto 0;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--mut);background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;}
   .clear:hover{color:#e07a6f;border-color:#e07a6f;}
   .priv{text-align:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-top:26px;}
+  /* the front door, reachable here too */
+  .bringbar{display:flex;gap:8px;margin:0 0 22px;}
+  .bringbar input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--tx);font-family:inherit;font-size:14px;outline:none;}
+  .bringbar input:focus{border-color:var(--accent);}
+  .bringbar input::placeholder{color:var(--mut);}
+  .bringbar button{flex:none;background:var(--accent);color:var(--bg);border:none;border-radius:10px;padding:0 16px;font-size:16px;cursor:pointer;font-weight:600;}
+  .bringbar button:hover{background:var(--accenthi);}
 </style>
 </head>
 <body>
@@ -46,10 +53,15 @@
   <div class="top"><div class="kicker">Kept on this device</div><a class="home" href="/">&larr; the work area</a></div>
   <h1>Your things.</h1>
   <div class="sub">Everything you've brought and kept — lists, drafts, notes, what you checked.</div>
+  <form class="bringbar" onsubmit="return nhGo()">
+    <input id="bringq" autocomplete="off" placeholder="Bring something new — a note, a list, a claim to check&hellip;">
+    <button type="submit" aria-label="Bring it to the work area">&rarr;</button>
+  </form>
   <div id="shelf"></div>
   <div class="priv">Private &middot; on this device only &middot; nothing tracked</div>
 </div>
 <script>
+function nhGo(){var v=(document.getElementById('bringq').value||'').trim();if(v)location.href='/?bring='+encodeURIComponent(v);return false;}
 (function(){
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var items=[]; try{ items=JSON.parse(localStorage.getItem('nh_kept_v1')||'[]'); }catch(e){}

@@ -244,6 +244,8 @@ async function nhBringText(text){
 function nhBring(ev){ if(ev)ev.preventDefault(); nhBringText(document.getElementById('uq').value); return false; }
 document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();nhBringText(c.getAttribute('data-bring'));});});
 (function(){var q=document.getElementById('uq'),chips=document.getElementById('uchips');if(q&&chips)q.addEventListener('input',function(e){chips.classList.toggle('faded',(e.target.value||'').length>0);});})();
+// deep-link: /?bring=... runs it on arrival, so any surface can hand off to the work area
+(function(){try{var b=new URLSearchParams(location.search).get('bring');if(b)nhBringText(b);}catch(e){}})();
 </script>
 
 </body>
