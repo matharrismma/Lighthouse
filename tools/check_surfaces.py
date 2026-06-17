@@ -19,7 +19,8 @@ SURFACES = [
     ("/",             "work area"),   # the front door
     ("/read.html",    "tutor"),       # the lifelong tutor
     ("/kept.html",    "kept"),        # the file-system-for-life shelf
-    ("/brain.html",   "brain"),       # the engine as a digital brain
+    ("/brain.html",      "brain"),    # the engine as a digital brain
+    ("/brain-graph.json", None),      # the brain's runtime data -- checked as JSON below
     ("/enter.html",   "door"),        # the cinematic pitch
     ("/curriculum",   None),          # the lessons API -- checked as JSON below
     ("/identity",     "Jesus Christ"),# who this serves
@@ -53,6 +54,13 @@ def check(base):
                     note = "no curriculum units"
                 else:
                     status, note = "UP", "%d units" % n
+            elif path == "/brain-graph.json":
+                d = json.loads(body)
+                n = len(d.get("x", []))  # parallel-array node count
+                if n <= 0:
+                    note = "no graph nodes"
+                else:
+                    status, note = "UP", "%d nodes" % n
             elif needle and needle.lower() not in body.lower():
                 note = "missing %r" % needle
             else:
