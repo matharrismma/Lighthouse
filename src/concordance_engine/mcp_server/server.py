@@ -72,7 +72,8 @@ _MCP_INSTRUCTIONS = (
     "verdict, the WORKED MATH (the trail, step by step), and a permanent, re-checkable seal "
     "(cite_url) you can show a user. For a many-claims SITUATION that spans domains, call "
     "`run_polymathic`. The 64 `verify_*` tools are check's internals — reach for one only "
-    "when you already know the single domain. "
+    "when you already know the single domain (or call find_verifier(\"keyword\") to find it "
+    "without scanning the list). "
     "Conduit, not source. The engine eliminates what is not the answer "
     "so the narrow path is illuminated by what survives. Good fruit is "
     "the measure. The keeping is the substrate. Tools here categorize, "
@@ -328,6 +329,49 @@ def check(
     """
     return tools.check(claim=claim, steps=steps, mode=mode, params=params,
                        domain=domain, seal=seal)
+
+
+@mcp.tool()
+def find_verifier(domain: Optional[str] = None) -> Dict[str, Any]:
+    """Find the right verifier without scanning all 64. Pass a domain or keyword
+    (e.g. "chemistry", "prime", "snell", "p-value", "scripture") and get the matching
+    `verify_*` tool(s) with a one-line summary. Omit `domain` for the full index.
+
+    Then: for a SINGLE narrow claim call the returned verify_* directly; for a multi-step
+    derivation or a plain-language statement use `check`; for a many-claim SITUATION that
+    spans domains use `run_polymathic`. Counts are read live from the tool registry, so
+    they never go stale.
+    """
+    td = getattr(getattr(mcp, "_tool_manager", None), "_tools", {}) or {}
+    verifiers = []
+    for name, t in sorted(td.items()):
+        if not name.startswith("verify_"):
+            continue
+        full = (getattr(t, "description", "") or "")
+        lines = full.strip().splitlines()
+        verifiers.append({"tool": name,
+                          "summary": (lines[0][:160] if lines else ""),
+                          "_hay": (name + " " + full).lower()})
+    def _clean(vs):
+        return [{"tool": v["tool"], "summary": v["summary"]} for v in vs]
+    if domain:
+        q = domain.strip().lower()
+        # precise first: the whole phrase as a substring
+        hits = [v for v in verifiers if q in v["_hay"] or q.replace(" ", "_") in v["_hay"]]
+        if not hits:
+            # fall back to per-word match only when the phrase finds nothing
+            toks = [w for w in re.split(r"[\s,_/-]+", q) if len(w) >= 4] or [q]
+            hits = [v for v in verifiers if any(tok in v["_hay"] for tok in toks)]
+        if hits:
+            return {"query": domain, "count": len(hits), "matches": _clean(hits),
+                    "next": "Call the matching verify_* directly for one claim; use `check` "
+                            "for multi-step or plain-language; `run_polymathic` for a situation."}
+        return {"query": domain, "count": 0, "matches": [],
+                "next": "No direct verifier matched. Use check(claim=\"...\") and the engine "
+                        "will route it, or run_polymathic for a multi-domain situation."}
+    return {"count": len(verifiers), "verifiers": _clean(verifiers),
+            "next": "Pass a domain/keyword to filter. One claim -> the verify_* directly; "
+                    "multi-step or unsure -> `check`; a situation -> `run_polymathic`."}
 
 
 @mcp.tool()
