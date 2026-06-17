@@ -5919,6 +5919,17 @@ def tutor_lesson(request: Request, body: _LessonIn):
         raise HTTPException(status_code=400, detail="what would you like to learn?")
     if len(topic) > 200:
         topic = topic[:200]
+    # Crisis safety net — deterministic and FIRST, before any oracle call. If the
+    # "topic" carries an acute-risk signal, the only honest response is to point
+    # past the tool to immediate, real help; we never spend an oracle call drafting
+    # a lesson for someone who may be in danger.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(topic)
+        if _crisis:
+            return {"intent": "safety", "oracle": False, "safety": _crisis}
+    except Exception:  # noqa: BLE001 — a detector failure must never break the tutor
+        pass
     import os
     try:
         from api.offices import steward_budget_remaining_usd as _budget
@@ -9533,6 +9544,17 @@ def intake(request: Request, req: IntakeRequest):
     _rate_check(request, "intake")
     text   = (req.text or "").strip()
     domain = (req.domain or "").strip()
+
+    # Crisis safety net — deterministic and FIRST, before the Haiku call. If the
+    # claim text carries an acute-risk signal, point past the tool to immediate,
+    # real help rather than spending an oracle call phrasing Socratic questions.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(text)
+        if _crisis:
+            return {"domain": domain, "axes": [], "questions": [], "safety": _crisis}
+    except Exception:  # noqa: BLE001 — a detector failure must never break intake
+        pass
 
     # Resolve domain from text if not supplied
     if not domain:
@@ -18631,6 +18653,18 @@ def generate_gated_endpoint(body: _GenerateGatedIn, request: Request):
         raise HTTPException(status_code=400, detail="prompt too short (min 3 chars)")
     if len(prompt) > 200_000:
         raise HTTPException(status_code=400, detail="prompt too long (max 200k chars)")
+
+    # Crisis safety net — deterministic and FIRST, before the generation pipeline.
+    # If the prompt carries an acute-risk signal, the only honest response is to
+    # point past the tool to immediate, real help; we never run the base model to
+    # draft a reply for someone who may be in danger.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(prompt)
+        if _crisis:
+            return {"intent": "safety", "oracle": False, "safety": _crisis}
+    except Exception:  # noqa: BLE001 — a detector failure must never break generation
+        pass
 
     # Public-safety: per-IP rate limit (bounds abuse, cost, and disk writes).
     if not _gated_rate_ok(_gated_client_ip(request)):

@@ -215,6 +215,23 @@ def shepherd_discern(history: List[Dict[str, str]], allow_keep: bool = True,
             break
     query0 = (history[0]["content"] if history else last_user)
 
+    # Crisis safety net — deterministic and FIRST, before any tier (including the
+    # oracle). If what the person has said carries an acute-risk signal, the
+    # Shepherd's one honest move is to point past itself to immediate, real help —
+    # never spend an oracle call drafting a route for someone who may be in danger.
+    # (Front doors /funnel and /narrow short-circuit before reaching here; this also
+    # covers any caller that does not, e.g. /deposit.)
+    try:
+        from api import safety as _safety
+        _all_user = " ".join(str(m.get("content", "")) for m in history
+                             if isinstance(m, dict) and m.get("role") == "user") or last_user
+        _crisis = _safety.crisis_check(_all_user)
+        if _crisis:
+            return {"action": "safety", "safety": _crisis, "via": "safety",
+                    "say": _crisis.get("headline", ""), "query": query0}
+    except Exception:  # noqa: BLE001 — a detector failure must never break discernment
+        pass
+
     # Tier 0 — keep (personal capture).
     if allow_keep:
         kd = _keep_deck(last_user)

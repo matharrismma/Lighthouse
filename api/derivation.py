@@ -406,6 +406,18 @@ def structure_prose(problem: str) -> Dict[str, Any]:
 def solve_prose(problem: str) -> Dict[str, Any]:
     """Full bridge: structure a prose problem, then JUDGE it with the chain runner.
     The oracle structured; the verdict below is the VERIFIER's, not the oracle's."""
+    # Crisis safety net — deterministic and FIRST, before the oracle structures the
+    # prose. If what was submitted carries an acute-risk signal, point past the tool
+    # to immediate, real help rather than spending an oracle call formalizing it.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(problem)
+        if _crisis:
+            return {"ok": False, "structured": False, "problem": problem,
+                    "safety": _crisis,
+                    "message": "Please reach a real person right now — see the safety block."}
+    except Exception:  # noqa: BLE001 — a detector failure must never break the bridge
+        pass
     structured = structure_prose(problem)
     if not structured.get("ok"):
         return {"ok": False, "structured": False, "problem": problem,
