@@ -26,6 +26,14 @@
        border:1px solid var(--line);border-radius:20px;padding:8px 15px;cursor:pointer;transition:.16s;}
   .sub:hover{color:#fff;border-color:var(--gold);}
   .sub.on{background:var(--gold);color:#1a1410;border-color:var(--gold);font-weight:600;}
+  .teachbar{display:flex;gap:8px;margin-bottom:18px;}
+  .teachbar input{flex:1;padding:12px 15px;background:#0f1620;color:var(--tx);border:1px solid var(--line);border-radius:11px;font-family:Inter,sans-serif;font-size:15px;}
+  .teachbar input:focus{outline:none;border-color:var(--gold);}
+  .teachbar button{padding:0 18px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;white-space:nowrap;}
+  .teachbar button:hover{background:rgba(227,196,152,.12);} .teachbar button:disabled{opacity:.4;cursor:default;}
+  @media(max-width:540px){.teachbar{flex-direction:column;}.teachbar button{padding:11px;}}
+  .genbanner{font-family:'Crimson Pro',Georgia,serif;font-size:.95rem;color:var(--gold);background:rgba(227,196,152,.07);border:1px solid rgba(227,196,152,.25);border-radius:10px;padding:10px 14px;margin-bottom:14px;line-height:1.5;}
+  .genbanner span{color:var(--dim);font-style:italic;}
 
   .unit-title{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(1.5rem,4vw,2.1rem);color:#fff;line-height:1.12;margin:2px 0 5px;}
   .rule{font-family:'Crimson Pro',Georgia,serif;color:var(--dim);font-size:clamp(1rem,1.9vw,1.12rem);line-height:1.55;max-width:62ch;}
@@ -91,6 +99,10 @@
 <div class="wrap">
   <div class="top"><div class="kicker">Your tutor &middot; learn anything, a step at a time</div><a class="home" href="/">&larr; home</a></div>
   <div class="subjects" id="subjects"></div>
+  <div class="teachbar">
+    <input id="topic" type="text" autocomplete="off" placeholder="Or teach me anything — photosynthesis · fractions · the dragonfly">
+    <button id="teach">Teach me &rarr;</button>
+  </div>
   <div id="lesson"><div class="loading">Opening your lessons&hellip;</div></div>
   <div class="track" id="track"></div>
 </div>
@@ -217,6 +229,38 @@
     document.getElementById('hint').innerHTML='&hellip;<b>'+esc(curWord)+'</b>. You read it! 🎉 Try the next word, or read the sentence.';
     say(curWord,0.8);
   }
+
+  // ── learn anything: the tutor drafts a lesson on any topic (curate, not filter) ──
+  function renderGenerated(u){
+    var L=document.getElementById('lesson');
+    L.innerHTML=
+      '<div class="genbanner">&#10022; Fresh lesson on &ldquo;'+esc(u.topic||'')+'&rdquo; &middot; <span>'+esc(u.source_note||'drafted for you')+'</span></div>'+
+      '<div class="unit-title">'+esc(u.title||'')+'</div>'+
+      '<div class="rule">'+esc(u.rule||'')+'</div>'+
+      modeStrip(u)+
+      '<div class="stage"><div class="cards">'+(u.examples||[]).slice(0,6).map(function(e){return '<div class="pcard" data-say="'+esc(e)+'"><span>'+esc(e)+'</span><span class="spk">🔊</span></div>';}).join('')+'</div><div class="hint">Tap a line to hear it. Read it back — that is the practice.</div></div>'+
+      (u.check&&u.check.prompt?('<div class="check"><b>Check &middot;</b> '+esc(u.check.prompt)+'</div>'):'')+
+      helpStrip(u)+
+      '<div class="nav"><button class="btn" id="back">&larr; back to subjects</button><span class="seq">drafted lesson</span><button class="btn" id="again">teach something else</button></div>';
+    document.querySelectorAll('#lesson .pcard').forEach(function(c){ c.addEventListener('click',function(){ say(c.getAttribute('data-say'),0.92); }); });
+    document.getElementById('back').addEventListener('click',function(){ render(); });
+    document.getElementById('again').addEventListener('click',function(){ document.getElementById('topic').focus(); });
+    document.getElementById('track').innerHTML='';
+  }
+  async function nhTeach(){
+    var t=(document.getElementById('topic').value||'').trim(); if(!t) return;
+    var b=document.getElementById('teach'); b.disabled=true;
+    document.getElementById('lesson').innerHTML='<div class="loading">Drafting your lesson on &ldquo;'+esc(t)+'&rdquo;&hellip;</div>';
+    document.getElementById('track').innerHTML='';
+    try{
+      var r=await fetch('/tutor/lesson',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic:t})});
+      if(!r.ok){ document.getElementById('lesson').innerHTML='<div class="loading">The tutor could not draft that just now — try a subject above.</div>'; b.disabled=false; return; }
+      renderGenerated(await r.json());
+    }catch(e){ document.getElementById('lesson').innerHTML='<div class="loading">Could not reach the tutor — try again.</div>'; }
+    b.disabled=false;
+  }
+  document.getElementById('teach').addEventListener('click',nhTeach);
+  document.getElementById('topic').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); nhTeach(); } });
 })();
 </script>
 </body>

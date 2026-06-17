@@ -5852,6 +5852,80 @@ def workspace_intake(request: Request, body: _IntakeIn):
     return routed
 
 
+# ── Learn anything: the tutor drafts a lesson on any topic, taught in the schema ──
+# Curate, not filter: the assistant DRAFTS the lesson from what it knows (the outside),
+# in the same shape as the hand-authored curriculum (rule/examples/check/modes), and it
+# is honestly labelled as drafted -- not engine-verified. The verifiable parts (a math
+# or science claim) can be sent to the deterministic engine on demand; the rest is the
+# tutor's draft, said plainly. Budget- and rate-gated.
+_LESSON_SYS = """You are a patient, honest tutor making ONE short beginner lesson on the learner's topic. Respond with ONLY this JSON object, no prose:
+{"title":"<short title>","rule":"<1-3 plain, true, concrete sentences teaching the core idea>","examples":["<4 to 6 short concrete examples or facts, one per item>"],"check":{"prompt":"<one question a beginner could answer>","answer":"<the answer>"},"level":"beginner"}
+Be TRUE and concrete; prefer the simplest correct explanation. If a point is genuinely uncertain or debated, say so in the rule rather than overstating. Keep it short and clear. Output ONLY the JSON object."""
+
+
+def _tutor_lesson(topic: str) -> Dict[str, Any]:
+    import os
+    import anthropic
+    try:
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=25.0, max_retries=1)
+        resp = client.messages.create(
+            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
+            max_tokens=900, system=_LESSON_SYS,
+            messages=[{"role": "user", "content": "Teach me: " + topic}])
+        try:
+            from api.offices import ledger_record
+            ti = getattr(resp.usage, "input_tokens", 0) or 0
+            to = getattr(resp.usage, "output_tokens", 0) or 0
+            ledger_record("tutor_lesson", ti * 3e-6 + to * 15e-6)
+        except Exception:  # noqa: BLE001
+            pass
+        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        i, j = raw.find("{"), raw.rfind("}")
+        if i >= 0 and j > i:
+            return json.loads(raw[i:j + 1])
+    except Exception as exc:  # noqa: BLE001
+        return {"error": str(exc)[:160]}
+    return {"error": "could not draft a lesson"}
+
+
+class _LessonIn(BaseModel):
+    topic: str
+
+
+@app.post("/tutor/lesson", tags=["public"])
+def tutor_lesson(request: Request, body: _LessonIn):
+    """Draft a beginner lesson on any topic, in the curriculum schema, taught by the
+    tutor. Honest: the assistant DRAFTS it (not engine-verified); the math/science parts
+    can be sent to the engine to verify. Budget/rate-gated."""
+    _rate_check(request, "tutor_lesson")
+    topic = (body.topic or "").strip()
+    if len(topic) < 2:
+        raise HTTPException(status_code=400, detail="what would you like to learn?")
+    if len(topic) > 200:
+        topic = topic[:200]
+    import os
+    try:
+        from api.offices import steward_budget_remaining_usd as _budget
+        ok = _budget() >= 1.0
+    except Exception:  # noqa: BLE001
+        ok = True
+    if not os.environ.get("ANTHROPIC_API_KEY") or not ok:
+        raise HTTPException(status_code=503,
+                            detail="the tutor is resting (offline or over budget) — try the built-in lessons.")
+    lesson = _tutor_lesson(topic)
+    if lesson.get("error"):
+        raise HTTPException(status_code=502, detail=lesson["error"])
+    lesson["modes"] = [{"id": "coach_models", "label": "Tutor explains"},
+                       {"id": "take_turns", "label": "Together"},
+                       {"id": "i_try", "label": "You try"}]
+    lesson["wedges"] = ["wedge_repeat", "wedge_chunk", "wedge_meaning"]
+    lesson["track"] = "generated"
+    lesson["topic"] = topic
+    lesson["source_note"] = ("Drafted by your tutor from what it knows — not engine-verified. "
+                             "Check anything that matters; the engine can verify the math and science claims.")
+    return lesson
+
+
 # ── The narrowing engine — eliminate to almost nothing, then hand off ─────────
 # The engine's identity as an API: "eliminates what is not the answer so the
 # narrow path is illuminated by what survives... the trail is the reasoning."
