@@ -75,6 +75,8 @@
   .tfcell:hover{border-color:var(--gold);}
   .tfcell.on{background:var(--blend);border-color:var(--blend);box-shadow:0 0 16px -4px var(--blend);}
   .tfcount{font-family:'Crimson Pro',Georgia,serif;font-size:3.2rem;color:#fff;margin:14px 0 0;line-height:1;}
+  .tfframes{display:flex;flex-direction:column;gap:12px;}
+  .tfBhide{display:none;}
 
   .ctrls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
   .btn{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.05em;border:1px solid var(--line);
@@ -116,7 +118,7 @@
 (function(){
   var DIG={sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
   var VOW='aeiou';
-  var NUM={1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten'};
+  var NUM={1:'one',2:'two',3:'three',4:'four',5:'five',6:'six',7:'seven',8:'eight',9:'nine',10:'ten',11:'eleven',12:'twelve',13:'thirteen',14:'fourteen',15:'fifteen',16:'sixteen',17:'seventeen',18:'eighteen',19:'nineteen',20:'twenty'};
   var SND={a:'a',e:'e',i:'i',o:'o',u:'u',b:'b',c:'k',d:'d',f:'f',g:'g',h:'h',j:'j',k:'k',l:'l',m:'m',n:'n',p:'p',q:'kw',r:'r',s:'s',t:'t',v:'v',w:'w',x:'ks',y:'y',z:'z',sh:'sh',ch:'ch',th:'th',ck:'k',ng:'ng',wh:'w',ph:'f',qu:'kw'};
   function segment(w){ w=(w||'').toLowerCase().replace(/[^a-z]/g,''); var g=[],i=0; while(i<w.length){var two=w.substr(i,2); if(DIG[two]){g.push(two);i+=2;}else{g.push(w[i]);i++;}} return g; }
   function isWord(s){ return /^[a-zA-Z]{2,8}$/.test((s||'').trim()); }
@@ -178,10 +180,11 @@
     var words=s.reading?(u.examples||[]).filter(isWord).slice(0,8):[];
     var useBlend=words.length>=2;
     var useTen=(s.key==='math' && !useBlend);
-    var tfHTML='<div class="tfgrid" id="tfgrid">'+Array.apply(null,{length:10}).map(function(_,i){return '<div class="tfcell" data-i="'+i+'"></div>';}).join('')+'</div>'+
+    var tfCells=Array.apply(null,{length:10}).map(function(_,i){return '<div class="tfcell" data-i="'+i+'"></div>';}).join('');
+    var tfHTML='<div class="tfframes"><div class="tfgrid" id="tfgridA">'+tfCells+'</div><div id="tfB" class="tfBhide"><div class="tfgrid" id="tfgridB">'+tfCells+'</div></div></div>'+
       '<div class="tfcount"><span id="tfn">0</span></div>'+
-      '<div class="hint" id="hint">Tap the boxes to count. How many more make ten?</div>'+
-      '<div class="ctrls" id="tftargets">'+[2,3,5,7,10].map(function(k){return '<button class="btn" data-k="'+k+'">show '+k+'</button>';}).join('')+'<button class="btn" data-k="0">clear</button></div>';
+      '<div class="hint" id="hint">Tap the boxes to count. Fill the frame to make ten.</div>'+
+      '<div class="ctrls" id="tftargets">'+[5,10,14,20].map(function(k){return '<button class="btn" data-k="'+k+'">show '+k+'</button>';}).join('')+'<button class="btn" data-k="0">clear</button></div>';
     var L=document.getElementById('lesson');
     var practice = useBlend
       ? ('<div class="wordrow" id="wordrow">'+words.map(function(w,i){return '<button class="wchip'+(i===0?' on':'')+'" data-w="'+esc(w)+'">'+esc(w)+'</button>';}).join('')+'</div>'+
@@ -248,17 +251,23 @@
 
   // ── the math chunk: a ten-frame you fill to count and make ten ──
   function tfFill(n){
-    n=Math.max(0,Math.min(10,n));
-    document.querySelectorAll('#tfgrid .tfcell').forEach(function(c,i){ c.classList.toggle('on', i<n); });
+    n=Math.max(0,Math.min(20,n));
+    var a=Math.min(n,10), b=Math.max(0,n-10);
+    document.querySelectorAll('#tfgridA .tfcell').forEach(function(c,i){ c.classList.toggle('on', i<a); });
+    document.querySelectorAll('#tfgridB .tfcell').forEach(function(c,i){ c.classList.toggle('on', i<b); });
+    var B=document.getElementById('tfB'); if(B) B.classList.toggle('tfBhide', n<=10);
     var nn=document.getElementById('tfn'); if(nn) nn.textContent=n;
     var h=document.getElementById('hint');
-    if(h){ if(n===0) h.innerHTML='Tap the boxes to count. How many more make ten?';
+    if(h){ if(n===0) h.innerHTML='Tap the boxes to count. Fill the frame to make ten.';
       else if(n<10) h.innerHTML='<b>'+n+'</b> &middot; '+(10-n)+' more makes ten.';
-      else h.innerHTML='<b>10</b> — a full frame! 🎉'; }
+      else if(n===10) h.innerHTML='<b>10</b> — a full frame! Keep going for the teens.';
+      else if(n<20) h.innerHTML='<b>'+n+'</b> = ten and <b>'+(n-10)+'</b> more.';
+      else h.innerHTML='<b>20</b> — two full frames! 🎉'; }
     if(n>0) say(NUM[n]||(''+n));
   }
   function tfWire(){
-    document.querySelectorAll('#tfgrid .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(+c.getAttribute('data-i')+1); }); });
+    document.querySelectorAll('#tfgridA .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(+c.getAttribute('data-i')+1); }); });
+    document.querySelectorAll('#tfgridB .tfcell').forEach(function(c){ c.addEventListener('click',function(){ tfFill(10 + +c.getAttribute('data-i') + 1); }); });
     document.querySelectorAll('#tftargets .btn').forEach(function(b){ b.addEventListener('click',function(){ tfFill(+b.getAttribute('data-k')); }); });
   }
 
