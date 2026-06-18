@@ -5883,6 +5883,28 @@ def _doc_title(text: str) -> str:
     return "Document"
 
 
+def _serve_native_intent(intent: str, text: str) -> Optional[Dict[str, Any]]:
+    """Build the routing result our OWN model can serve with no generation. Only
+    the non-destructive intents (a wrong guess keeps or merely navigates)."""
+    if intent == "note":
+        return {"intent": "note", "title": _doc_title(text), "note": text}
+    if intent == "search":
+        return {"intent": "search", "query": text[:200]}
+    if intent == "settings":
+        what = "profile"
+        tl = text.lower()
+        if "household" in tl or "family" in tl:
+            what = "household"
+        elif "schedule" in tl or "calendar" in tl:
+            what = "schedule"
+        return {"intent": "settings", "what": what}
+    if intent == "learn":
+        return {"intent": "learn", "topic": text[:160]}
+    if intent == "open":
+        return {"intent": "open", "what": text[:120]}
+    return None
+
+
 class _IntakeIn(BaseModel):
     text: str
 
@@ -5922,6 +5944,22 @@ def workspace_intake(request: Request, body: _IntakeIn):
     if _looks_like_document(text):
         return {"intent": "note", "oracle": False, "kept_as": "document",
                 "title": _doc_title(text), "note": text}
+    # OUR OWN MODEL — try first. It acts only when confident on an intent it can
+    # serve with NO generation (note/search/settings/learn/open — a wrong guess is
+    # non-destructive). Otherwise we fall through to the fallback oracle below and
+    # learn from whatever it decides, so our model handles more over time and the
+    # fallback is needed less. Pure-Python, no Ollama. (api/own_model.py)
+    try:
+        from api import own_model as _own
+        _o = _own.route(text)
+        if _o is not None:
+            _native = _serve_native_intent(_o["intent"], text)
+            if _native is not None:
+                _own.learn(text, _o["intent"], was_native=True)
+                _native.update({"oracle": False, "via": "own_model", "confidence": _o["confidence"]})
+                return _native
+    except Exception:  # noqa: BLE001 — our model must never break intake
+        pass
     import os
     try:
         from api.offices import steward_budget_remaining_usd as _budget
@@ -5935,6 +5973,13 @@ def workspace_intake(request: Request, body: _IntakeIn):
                 "note": "the assistant is offline (no key or over budget) -- routed by rules. "
                         "A structured claim can always go to POST /derivation/verify."}
     routed = _intake_route(text)
+    # Distill: teach our own model what the fallback decided, so it can handle this
+    # kind of input itself next time (and we track shadow accuracy toward takeover).
+    try:
+        from api import own_model as _own
+        _own.learn(text, str(routed.get("intent") or ""), was_native=False)
+    except Exception:  # noqa: BLE001
+        pass
     if routed.get("intent") == "verify":
         from api import derivation as _d
         claim = (routed.get("claim") or text)[:2000]
@@ -7663,6 +7708,19 @@ async def me_memory_post(request: Request):
     except Exception:
         raise HTTPException(status_code=500, detail="could not store memory")
     return {"ok": True, "stored": True}
+
+
+@app.get("/own-model/stats", tags=["agents"])
+def own_model_stats():
+    """How our OWN model is doing — docs learned, native coverage, and shadow
+    accuracy (how often it already agrees with the fallback). The curve to watch:
+    as shadow_accuracy stays high, the model takes over more and the fallback
+    (Ollama / any provider) is needed less. The goal is to not need one at all."""
+    try:
+        from api import own_model as _own
+        return _own.stats()
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e)[:160]}
 
 
 @app.post("/community/proposals/accept", tags=["community"])
