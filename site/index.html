@@ -149,6 +149,13 @@
     .consider .ch{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
     .consider a{display:inline-block;margin:0 6px 7px 0;padding:6px 12px;border:1px solid rgba(201,168,124,.3);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:13px;}
     .consider a:hover{border-color:var(--accent);background:rgba(201,168,124,.08);}
+    .consider.recall .ch{color:var(--accenthi);}
+    .personal{max-width:660px;margin:14px auto 0;}
+    .personal .pl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);text-align:center;margin-bottom:8px;}
+    .personal .prow{text-align:center;margin:6px 0;}
+    .personal .pk{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px;}
+    .personal .prow a{display:inline-block;margin:0 5px 6px 0;padding:5px 11px;border:1px solid rgba(201,168,124,.3);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:13px;}
+    .personal .prow a:hover{border-color:var(--accent);background:rgba(201,168,124,.08);}
     .brainwrap{max-width:620px;margin:30px auto 0;}
     .brainwrap .bh{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
     .brainwrap iframe,.brainwrap canvas{width:100%;height:430px;border:1px solid var(--border);border-radius:12px;background:#06070b;display:block;}
@@ -194,6 +201,7 @@
     <a class="chip" href="#" data-bring="remember the wifi password is sunflower42">remember the wifi password</a>
     <a class="chip" href="#" data-bring="teach me how fractions work">teach me fractions</a>
   </div>
+  <div id="personal"></div>
 
   <div class="faceslabel">One workspace · five faces. Type above — it shows its thinking and points you to the right one.</div>
   <div class="faces" id="faces" aria-label="The workspace">
@@ -228,6 +236,7 @@
 <script src="/breath-embed.js"></script>
 <script src="/safety-banner.js"></script>
 <script src="/i18n.js"></script>
+<script src="/nh-memory.js"></script>
 <script>
 // The work area: bring anything; the one brain routes it; the engine verifies what
 // is verifiable; the assistant only drafts the rest; everything is kept (on-device).
@@ -323,9 +332,25 @@ async function nhBringText(text){
   text=(text||'').trim(); if(!text) return;
   var btn=document.getElementById('ubtn'); if(btn) btn.disabled=true;
   nhWorking('Reading what you brought');
-  try{ var d=await nhPost('/workspace/intake',{text:text}); nhRender(d); nhAppendConsider(text,d); }
+  try{ var d=await nhPost('/workspace/intake',{text:text}); nhRender(d); nhAppendRecall(text,d); nhAppendConsider(text,d); }
   catch(e){ document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the work area just now — try again in a moment.</div>'; }
   if(btn) btn.disabled=false;
+}
+// Route for the USER, on-device: recall what they've kept that relates to what
+// they just brought, and offer to bring it back. Their memory, never leaving the
+// device — the same as the operator's memory works for the operator.
+function nhAppendRecall(text, d){
+  try{
+    if(!window.NHMemory || (d&&d.intent==='safety')) return;
+    var hits=NHMemory.recall(text,3); if(!hits.length) return;
+    var ures=document.getElementById('ures'); if(!ures||!ures.firstChild) return;
+    var h='<div class="consider recall"><div class="ch">You\'ve kept related things — bring one back:</div>';
+    hits.forEach(function(it,i){ h+='<a href="#" data-rc="'+i+'">'+nhEsc(it.label)+'</a>'; });
+    ures.insertAdjacentHTML('beforeend', h+'</div>');
+    ures.querySelectorAll('.recall a').forEach(function(a){
+      a.addEventListener('click',function(e){ e.preventDefault(); var it=hits[+a.getAttribute('data-rc')]; if(it){ nhDocSet(it.text||it.label); var el=nhDocEl(); if(el) el.focus(); } });
+    });
+  }catch(e){}
 }
 // Show the thinking: which of the five faces this could ALSO open in. Deterministic
 // (no LLM) and transparent — when we'd consider the Apothecary, you see it and choose.
@@ -397,6 +422,23 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
 (function(){ try{ if(window.NHBreath){ NHBreath.mount(document.getElementById('breathcv'), {}); } }catch(e){} })();
 // deep-link: /?bring=... runs it on arrival, so any surface can hand off to the work area
 (function(){try{var b=new URLSearchParams(location.search).get('bring');if(b){nhDocSet(b);nhBringText(b);}}catch(e){}})();
+// Returning user: the work area remembers. Surface their own brain — what they
+// keep returning to, and what they kept recently — on-device. New visitors see
+// the generic examples instead.
+(function(){
+  try{
+    if(!window.NHMemory || NHMemory.count()===0) return;
+    var el=document.getElementById('personal'); if(!el) return;
+    var rec=NHMemory.recent(3), th=NHMemory.themes(6);
+    var h='<div class="personal"><div class="pl">Welcome back · your work area remembers</div>';
+    if(rec.length){ h+='<div class="prow"><span class="pk">Pick up:</span>'; rec.forEach(function(it,i){ h+='<a href="#" data-pr="'+i+'">'+nhEsc(it.label)+'</a>'; }); h+='</div>'; }
+    if(th.length){ h+='<div class="prow"><span class="pk">You return to:</span>'; th.forEach(function(t){ h+='<a href="#" data-pt="'+nhEsc(t)+'">'+nhEsc(t)+'</a>'; }); h+='</div>'; }
+    el.innerHTML=h+'</div>';
+    var chips=document.getElementById('uchips'); if(chips) chips.classList.add('faded');
+    el.querySelectorAll('[data-pr]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); var it=rec[+a.getAttribute('data-pr')]; if(it){ nhDocSet(it.text||it.label); var d=nhDocEl(); if(d) d.focus(); } }); });
+    el.querySelectorAll('[data-pt]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); nhDocSet(a.getAttribute('data-pt')); var d=nhDocEl(); if(d) d.focus(); }); });
+  }catch(e){}
+})();
 </script>
 
 </body>
