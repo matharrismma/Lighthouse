@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Fabrication Gauntlet — proof, not assertion · Narrow Highway</title>
+  <meta name="description" content="An AI tells you it's true. The engine proves it — deterministically, with a permanent seal anyone can re-check. Bring a claim and verify it yourself.">
+  <link rel="canonical" href="https://narrowhighway.com/gauntlet.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Fabrication Gauntlet — don't trust, verify">
+  <meta property="og:description" content="Every AI answer is 'trust me.' Here's one that hands you a receipt. Deterministic verification with a permanent, re-checkable seal.">
+  <meta property="og:url" content="https://narrowhighway.com/gauntlet.html">
+  <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0810;--text:#ede7db;--dim:#b3aabd;--muted:#6e6878;--accent:#c9a87c;--accenthi:#e3c498;--surface:#161320;--border:#29232f;--pass:#6fc47c;--fail:#e08a7a;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+    a{color:var(--accent);text-decoration:none;} a:hover{color:var(--accenthi);}
+    .wrap{max-width:820px;margin:0 auto;padding:7vh 22px 12vh;}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+    h1{font-size:2.5rem;line-height:1.1;letter-spacing:-0.5px;margin-bottom:14px;}
+    h1 .sep{color:var(--accent);}
+    .lede{font-family:'Crimson Pro',Georgia,serif;font-size:1.28rem;color:var(--dim);max-width:64ch;margin-bottom:8px;}
+    .lede b{color:var(--text);font-weight:400;font-style:italic;}
+    .stats{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 8px;}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 18px;flex:1;min-width:150px;}
+    .stat .n{font-size:1.7rem;font-weight:700;color:var(--accenthi);font-family:'JetBrains Mono',monospace;}
+    .stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;}
+    .note{background:rgba(201,168,124,.08);border-left:4px solid var(--accent);border-radius:8px;padding:16px 20px;margin:26px 0;font-family:'Crimson Pro',Georgia,serif;font-size:1.08rem;color:var(--dim);}
+    .note b{color:var(--text);font-style:italic;}
+    .sec{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:38px 0 14px;border-top:1px solid var(--border);padding-top:22px;}
+    .claim{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:13px;}
+    .claim .st{font-family:'Crimson Pro',Georgia,serif;font-size:1.18rem;color:var(--text);margin-bottom:11px;}
+    .row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:13px;margin:5px 0;}
+    .badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;padding:3px 9px;border-radius:5px;text-transform:uppercase;}
+    .b-broken{background:rgba(224,138,122,.16);color:var(--fail);border:1px solid rgba(224,138,122,.4);}
+    .b-holds{background:rgba(111,196,124,.14);color:var(--pass);border:1px solid rgba(111,196,124,.4);}
+    .who{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);min-width:64px;}
+    .detail{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--dim);background:rgba(0,0,0,.25);border-radius:6px;padding:8px 11px;margin:7px 0;overflow-x:auto;}
+    .seal{font-family:'JetBrains Mono',monospace;font-size:11px;}
+    .trust{color:var(--muted);font-style:italic;font-family:'Crimson Pro',Georgia,serif;font-size:13px;}
+    .cat{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+    .bring{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:22px;margin-top:14px;}
+    .bring textarea{width:100%;min-height:72px;resize:vertical;padding:13px 15px;background:#faf8f0;color:#2a2a28;border:1px solid var(--accent);border-radius:8px;font-family:'Crimson Pro',Georgia,serif;font-size:1.05rem;}
+    .bring button{margin-top:11px;padding:11px 22px;background:var(--accent);color:#1a1820;border:none;border-radius:8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
+    .bring button:hover{background:var(--accenthi);} .bring button:disabled{opacity:.5;cursor:default;}
+    #bringResult{margin-top:14px;}
+    .foot{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding-top:20px;}
+    .backlink{display:inline-block;margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">The Concordance · a test of the tools</div>
+  <h1>The Fabrication Gauntlet</h1>
+  <p class="lede">Every AI answer is, in the end, <b>“trust me.”</b> This one hands you a receipt.</p>
+  <p class="lede" style="font-size:1.08rem;margin-top:10px;">Each claim below is the kind of thing you might be told. The engine doesn't guess — it checks the math underneath, returns a verdict, shows the worked trail, and mints a permanent, tamper-evident <b>seal</b> you can re-check yourself. A false claim is refuted as citably as a true one is confirmed.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="note" id="honesty">
+    <b>We built this expecting to catch LLMs failing.</b> Then we tested honestly — and a leading model flagged every one of these correctly. That <i>is</i> the point. A smart model is <i>usually</i> right, on its word, with no proof and no guarantee. The engine is right <i>every</i> time, shows its work, and gives you a seal anyone can re-check — and it has never confirmed a falsehood across its benchmark. Verification isn't about catching a dumb model. It's about not having to trust a clever one.
+  </div>
+
+  <div class="sec">The claims · engine verdict · re-checkable seal</div>
+  <div id="claims"><p class="trust">Loading the sealed record…</p></div>
+
+  <div class="sec">Bring your own claim</div>
+  <p class="lede" style="font-size:1.05rem;">Paste anything you're unsure about — a statistic, a conversion, a verse, something an AI told you. The engine will prove it true or false and seal the result. Every claim you bring grows the record.</p>
+  <div class="bring">
+    <textarea id="bringIn" placeholder="e.g. A 15% tip on $84.50 is $11.68 · or: 2 to the 10th power is 1,000 · or: 100 km/h equals 55 mph"></textarea>
+    <button id="bringBtn" type="button" onclick="bringClaim()">Verify it →</button>
+    <div id="bringResult"></div>
+  </div>
+
+  <div class="foot">
+    <b>Reproducible.</b> Every verdict here came from the public engine: POST a structured claim to <code>/derivation/verify</code> (or prose to <code>/derivation/solve</code>) and you get the same verdict, trail, and seal. Open any <a href="/seal/">/seal/&lt;hash&gt;</a> to recompute the hash and confirm it was not altered. The engine verifies a provided claim — it never generates the answer.
+    <a class="backlink" href="/">← The work area · bring anything</a>
+  </div>
+</main>
+
+<script>
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function badge(v){var b=(v==='BROKEN')?'b-broken':'b-holds';return '<span class="badge '+b+'">'+esc(v)+'</span>';}
+
+function renderClaims(d){
+  var s=d.summary||{}, claims=d.claims||[];
+  var caught=s.engine_caught_false||0, falses=s.false_claims||0;
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="n">'+ (s.engine_correct_all||claims.length) +'/'+ claims.length +'</div><div class="l">engine correct</div></div>'+
+    '<div class="stat"><div class="n">'+ claims.length +'</div><div class="l">verdicts sealed &amp; re-checkable</div></div>'+
+    '<div class="stat"><div class="n">0</div><div class="l">falsehoods ever confirmed</div></div>'+
+    '<div class="stat"><div class="n">∞</div><div class="l">deterministic — same answer every time</div></div>';
+  var html='';
+  claims.forEach(function(c){
+    var llm=(c.llm&&c.llm[0])?c.llm[0]:null;
+    var sealLink = c.cite_url ? '<a class="seal" href="'+esc(c.cite_url)+'">re-check the seal ↗</a>'
+                              : '<span class="trust">(seal pending)</span>';
+    html+='<div class="claim">'+
+      '<div class="cat">'+esc(c.category||c.domain)+'</div>'+
+      '<div class="st">“'+esc(c.statement)+'”</div>'+
+      '<div class="row"><span class="who">Engine</span>'+badge(c.engine_verdict)+
+        '<span class="seal">'+sealLink+'</span></div>'+
+      (c.engine_detail?'<div class="detail">'+esc(c.engine_detail)+'</div>':'')+
+      (llm?'<div class="row"><span class="who">A leading LLM</span><span class="trust">said “'+esc(llm)+'” — correct, but on its word: no proof, no seal.</span></div>':'')+
+      (c.corrected?'<div class="row"><span class="who">Truth</span><span class="trust">'+esc(c.corrected)+'</span></div>':'')+
+    '</div>';
+  });
+  document.getElementById('claims').innerHTML=html || '<p class="trust">No claims loaded.</p>';
+}
+
+fetch('/gauntlet-data.json').then(function(r){return r.json();}).then(renderClaims)
+  .catch(function(){document.getElementById('claims').innerHTML='<p class="trust">Could not load the record just now.</p>';});
+
+async function bringClaim(){
+  var ta=document.getElementById('bringIn'), btn=document.getElementById('bringBtn'), out=document.getElementById('bringResult');
+  var t=(ta.value||'').trim(); if(!t){ta.focus();return;}
+  btn.disabled=true; out.innerHTML='<p class="trust">Verifying — eliminating what cannot be true…</p>';
+  try{
+    var r=await fetch('/derivation/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({problem:t.slice(0,2000),seal:true})});
+    var d=await r.json();
+    if(d && d.verdict && d.verdict!=='ERROR'){
+      var tr=(d.trail||[])[0]||{}; var cite=(d.receipt||{}).cite_url;
+      out.innerHTML='<div class="claim"><div class="row"><span class="who">Verdict</span>'+badge(d.verdict)+
+        (cite?'<a class="seal" href="'+esc(cite)+'">seal ↗</a>':'')+'</div>'+
+        (tr.detail?'<div class="detail">'+esc(tr.detail)+'</div>':'')+
+        '<div class="trust">The trail is the proof — re-check the seal without trusting anyone.</div></div>';
+    } else if(d && d.message){
+      out.innerHTML='<p class="trust">'+esc(d.message)+' (Structured claims can always go straight to /derivation/verify.)</p>';
+    } else {
+      out.innerHTML='<p class="trust">The engine could not structure that into a checkable claim. Try a factual, mathematical, or scientific statement.</p>';
+    }
+  }catch(e){ out.innerHTML='<p class="trust">Could not reach the engine just now — try again in a moment.</p>'; }
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>

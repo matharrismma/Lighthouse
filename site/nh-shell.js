@@ -119,6 +119,7 @@ body.nh-radio-on{padding-bottom:62px;}
         <a href="/">The work area &middot; bring anything</a>
         <a href="/workspace.html">Desks &middot; libraries &amp; contribute</a>
         <a href="/walk.html">The engine</a>
+        <a href="/gauntlet.html">The Fabrication Gauntlet · proof, not assertion</a>
         <a href="/try.html">Verify a claim</a>
         <a href="/walk.html">Discern this teaching</a>
         <a href="/almanac.html">Almanac</a>
