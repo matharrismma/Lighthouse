@@ -131,10 +131,28 @@
   // your keeping/documents/preferences follow you to any device. On-device
   // first; it syncs ONLY if you hold a key. The id is the key — like the keep
   // token; the server stores your own blob, readable only by whoever holds it.
-  function hhId() { try { return (window.NHHousehold && NHHousehold.get() && NHHousehold.get().id) || ""; } catch (_) { return ""; } }
+  // Your key. Everything is stored LOCAL (on this device); the key is what lets
+  // you carry a copy to another device and restore it if this one is lost. It is
+  // yours — an opaque hh_ capability, no account, no password. We give you one
+  // automatically the first time you keep something; you can also paste one from
+  // another device to bring that work here.
+  var KKEY = "nh_key";
+  function genKey() {
+    var b = new Uint8Array(8);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b);
+    else for (var i = 0; i < 8; i++) b[i] = Math.floor(Math.random() * 256);
+    return "hh_" + Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+  }
+  function getKey() { try { return localStorage.getItem(KKEY) || ""; } catch (_) { return ""; } }
+  function ensureKey() { var k = getKey(); if (!k) { k = genKey(); try { localStorage.setItem(KKEY, k); } catch (_) {} } return k; }
+  function setKey(k) { try { if (/^hh_[0-9a-f]{16}$/.test(String(k || "").trim())) { localStorage.setItem(KKEY, String(k).trim()); return true; } } catch (_) {} return false; }
+  window.NHKey = { get: getKey, ensure: ensureKey, set: setKey, regenerate: function () { var k = genKey(); setKey(k); return k; } };
+
+  // Effective sync id: a household key if the user set one, else their personal key.
+  function hhId() { try { return (window.NHHousehold && NHHousehold.get() && NHHousehold.get().id) || getKey() || ""; } catch (_) { return getKey() || ""; } }
   var _pushT = null;
   function doPush() {
-    var id = hhId(); if (!id) return;
+    var id = hhId() || ensureKey(); if (!id) return;
     try {
       fetch("/me/memory", { method: "POST", headers: { "Content-Type": "application/json", "X-Household-Id": id },
         body: JSON.stringify({ kept: load(), docs: dload(), prefs: pload(), v: 1, updated: Date.now() }) }).catch(function () {});

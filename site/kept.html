@@ -61,6 +61,18 @@
   .dc-open:hover{text-decoration:underline;}
   .dc-del{color:var(--mut);text-decoration:none;cursor:pointer;}
   .dc-del:hover{color:#e07a6f;}
+  /* Your key — local-first, carried by you */
+  .keypanel{margin:30px 0 6px;padding:18px 18px;border:1px solid var(--border);border-radius:12px;background:rgba(201,168,124,.05);}
+  .kp-head{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accenthi);margin-bottom:9px;}
+  .kp-note{font-family:'Crimson Pro',Georgia,serif;font-size:.95rem;color:var(--mut);line-height:1.5;margin:8px 0;}
+  .kp-note b{color:var(--tx);}
+  .kp-row{display:flex;gap:8px;align-items:center;margin:8px 0;}
+  .kp-row code{flex:1;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accenthi);background:rgba(0,0,0,.25);padding:9px 12px;border-radius:8px;overflow-x:auto;}
+  .kp-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;}
+  .kp-row input:focus{border-color:var(--accent);}
+  .kp-row button{flex:none;background:var(--accent);color:var(--bg);border:none;border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
+  .kp-row button:hover{background:var(--accenthi);}
+  .kp-msg{font-family:'Crimson Pro',Georgia,serif;font-size:.9rem;color:var(--accenthi);min-height:1.2em;margin-top:4px;}
 </style>
 </head>
 <body>
@@ -74,7 +86,8 @@
   </form>
   <div id="docs"></div>
   <div id="shelf"></div>
-  <div class="priv">Private &middot; on this device only &middot; nothing tracked</div>
+  <div id="keypanel" class="keypanel"></div>
+  <div class="priv">Stored on this device &middot; carried only by your key &middot; nothing tracked</div>
 </div>
 <script src="/nh-memory.js"></script>
 <script>
@@ -104,6 +117,31 @@ function nhGo(){var v=(document.getElementById('bringq').value||'').trim();if(v)
   render();
   // Cross-device: when this person's memory syncs in, refresh the cards.
   window.addEventListener('nh-synced', render);
+})();
+// Your key — everything is stored on THIS device; the key carries a copy to
+// your other devices and restores it if this one is lost. We give you one;
+// paste another device's key to bring that work here.
+(function(){
+  var el=document.getElementById('keypanel'); if(!el||!window.NHKey) return;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function render(){
+    var k=NHKey.ensure();
+    el.innerHTML='<div class="kp-head">Your key</div>'+
+      '<div class="kp-note">Everything you keep lives on <b>this device</b>. Your key carries a copy to your other devices and restores it if this one is lost. Keep it private — it is the only key, and we cannot recover it for you.</div>'+
+      '<div class="kp-row"><code id="kpval">'+esc(k)+'</code><button id="kpcopy" type="button">Copy</button></div>'+
+      '<div class="kp-note">On another device, paste that key here to bring your work over:</div>'+
+      '<div class="kp-row"><input id="kpin" placeholder="hh_…" autocomplete="off" spellcheck="false"><button id="kpuse" type="button">Bring my work</button></div>'+
+      '<div id="kpmsg" class="kp-msg"></div>';
+    document.getElementById('kpcopy').addEventListener('click',function(){ try{navigator.clipboard.writeText(k);this.textContent='Copied ✓';}catch(e){} });
+    document.getElementById('kpuse').addEventListener('click',function(){
+      var v=(document.getElementById('kpin').value||'').trim(), msg=document.getElementById('kpmsg');
+      if(!NHKey.set(v)){ msg.textContent='That does not look like a key (hh_ followed by 16 hex characters).'; return; }
+      msg.textContent='Bringing your work…';
+      if(window.NHSync){ NHSync.pull(function(ch){ msg.textContent=ch?'Your work is here. ✓':'That key has nothing stored yet (or it is already here).'; render(); }); }
+      else { msg.textContent='Key set. It will sync when you reload.'; }
+    });
+  }
+  render();
 })();
 (function(){
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
