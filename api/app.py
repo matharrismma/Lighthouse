@@ -1745,6 +1745,8 @@ def visits_stats(days: int = 7):
     unique_external_prefixes: set[str] = set()
     agents_by_name: dict[str, int] = {}  # named bots/agents/tools reaching us (GPTBot, ClaudeBot, Googlebot, ...)
     by_hour: dict[str, int] = {}          # external requests per hour ("YYYY-MM-DDTHH") across the window
+    by_referrer: dict[str, int] = {}      # external referrer domains — WHERE inbound traffic comes from (the discovery signal)
+    by_referrer_human: dict[str, int] = {}  # same, but only real-browser visits (human discovery)
     day_cls: dict[str, dict] = {}         # per-day {ua_class: count}
     day_agents: dict[str, dict] = {}      # per-day {named-agent: count}
     day_ips: dict[str, set] = {}          # per-day distinct ip_prefixes
@@ -1789,6 +1791,21 @@ def visits_stats(days: int = 7):
         hr = (r.get("ts_iso") or "")[:13]
         if hr:
             by_hour[hr] = by_hour.get(hr, 0) + 1
+        # Referrer domain — the one signal that answers "where did this traffic
+        # come from" (a search engine, a forum, a social post, an inbound link).
+        # External only: drop our own domain and empties. This is how we will
+        # tell whether a discovery effort (registry, post, list) actually worked.
+        _rf = (r.get("referer") or "").strip()
+        if _rf:
+            try:
+                from urllib.parse import urlparse as _urlparse
+                _rhost = (_urlparse(_rf).hostname or "").lower()
+            except Exception:
+                _rhost = ""
+            if _rhost and "narrowhighway" not in _rhost and _rhost not in ("localhost", "127.0.0.1"):
+                by_referrer[_rhost] = by_referrer.get(_rhost, 0) + 1
+                if cls == "human":
+                    by_referrer_human[_rhost] = by_referrer_human.get(_rhost, 0) + 1
         if day:
             dc = day_cls.setdefault(day, {}); dc[cls] = dc.get(cls, 0) + 1
             if nm:
@@ -1891,6 +1908,11 @@ def visits_stats(days: int = 7):
         "retrieval_paths_top": dict(_top(retrieval_paths, 15)),
         "intent_by_day": intent_by_day,
         "by_country": dict(_top(by_country, 25)),
+        "by_referrer_top": dict(_top(by_referrer, 20)),
+        "by_referrer_human_top": dict(_top(by_referrer_human, 20)),
+        "referrer_note": "external referrer domains (own-domain + empties dropped); "
+                         "by_referrer_human_top is real-browser visits only — the clearest "
+                         "read on which discovery channels bring people.",
         "by_path_top": dict(_top(by_path, 25)),
         "by_status": by_status,
         "by_day": dict(sorted(by_day.items())),
@@ -7607,6 +7629,24 @@ def dashboard_stats():
         week_rows = _read_visits_for_days(days=7)
         ext_today = sum(1 for r in today_rows
                         if not (r.get("ip_prefix", "") or "").startswith(("127.", "0.0.0")))
+        # Human referrer rollup — WHERE this week's real-browser visits came from
+        # (the discovery-channel signal: search vs social vs a forum vs an LLM).
+        from urllib.parse import urlparse as _urlparse
+        _ref_counts: Dict[str, int] = {}
+        for r in week_rows:
+            if r.get("actor") == "operator":
+                continue
+            if _classify_ua(r.get("ua", ""), r.get("path", "")) != "human":
+                continue
+            _rf = (r.get("referer") or "").strip()
+            if not _rf:
+                continue
+            try:
+                _h = (_urlparse(_rf).hostname or "").lower()
+            except Exception:
+                _h = ""
+            if _h and "narrowhighway" not in _h and _h not in ("localhost", "127.0.0.1"):
+                _ref_counts[_h] = _ref_counts.get(_h, 0) + 1
         out["visits"] = {
             "today_total": len(today_rows),
             "today_external": ext_today,
@@ -7616,6 +7656,8 @@ def dashboard_stats():
                 _bucket(week_rows, "country").items(),
                 key=lambda kv: kv[1], reverse=True
             )[:8]),
+            "by_referrer_week_top": dict(sorted(
+                _ref_counts.items(), key=lambda kv: kv[1], reverse=True)[:10]),
         }
     except Exception as exc:
         out["visits"] = {"error": str(exc)[:200]}

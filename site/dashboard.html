@@ -337,6 +337,10 @@
       <div class="breakdown" id="visitsBreakdown">
         <div class="empty-hint" style="grid-column:1/-1;">Loading…</div>
       </div>
+      <h3 style="margin-top:16px;">Where humans came from <span class="small">referrers · the discovery signal</span></h3>
+      <div class="breakdown" id="referrersBreakdown">
+        <div class="empty-hint" style="grid-column:1/-1;">Loading…</div>
+      </div>
     </section>
 
     <section class="panel">
@@ -444,6 +448,17 @@ async function loadStats() {
       vbEl.innerHTML += `<div class="row"><span class="k">${escapeHtml(k||'—')}</span><span class="v">${fmtNum(ctry[k])}</span></div>`;
     });
     if (vbEl.innerHTML === '') vbEl.innerHTML = '<div class="empty-hint" style="grid-column:1/-1;">no visits yet</div>';
+
+    // Where humans came from — referrer domains (the discovery signal)
+    const rbEl = $('referrersBreakdown');
+    if (rbEl) {
+      rbEl.innerHTML = '';
+      const refs = v.by_referrer_week_top || {};
+      Object.keys(refs).forEach(k => {
+        rbEl.innerHTML += `<div class="row"><span class="k">${escapeHtml(k)}</span><span class="v">${fmtNum(refs[k])}</span></div>`;
+      });
+      if (rbEl.innerHTML === '') rbEl.innerHTML = '<div class="empty-hint" style="grid-column:1/-1;">no external referrers this week</div>';
+    }
 
     // Ledger breakdown
     const lbEl = $('ledgerBreakdown');
