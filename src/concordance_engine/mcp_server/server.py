@@ -2517,6 +2517,82 @@ def _predict_axes_from_query(qlower: str) -> set:
     return predicted
 
 
+# Axis duals — the symmetric partners the SUPERSYMMETRY placeholder predicts.
+# PROVISIONAL (the placeholder is unconfirmed) — used to point the map search
+# toward non-examples and predicted-missing partners, never to assert truth. Some
+# axes have a confident dual; some predict a partner that is not yet a dimension
+# (a gap the symmetry predicts); encoding / time_sequence / symmetry are honestly
+# unpaired so far (themselves exploration targets).
+_AXIS_DUALS = {
+    "order": "uncertainty", "uncertainty": "order",
+    "conservation_balance": "metabolism", "metabolism": "conservation_balance",
+    "reasoning": "authority_trust", "authority_trust": "reasoning",
+    "physical_substance": "(abstract/spirit — predicted, not yet an axis)",
+    "discreteness": "(continuity — predicted, not yet an axis)",
+}
+
+
+@mcp.tool()
+def locate(text: str) -> Dict[str, Any]:
+    """Place a claim/idea on the MAP and get where to think next — the agent's
+    window into the second brain. Returns its coordinates (the dimensions it sits
+    on), the NEAREST domains (confirming neighbors = exploitation), and — the
+    load-bearing part — the EXPLORE frontier: the symmetric DUALS of those
+    dimensions, the partner domains, and the predicted-MISSING partners (the
+    non-examples to test). A map search must explore, not just exploit, or it
+    becomes an echo chamber; this points you at the disconfirming direction. The
+    duals come from the SUPERSYMMETRY placeholder — PROVISIONAL (see `placeholders`):
+    a lens for where to look, not a settled claim. To extend the map where it is
+    thin, use propose_almanac_entry.
+    """
+    from .. import grid as _grid
+    dims = sorted(_predict_axes_from_query((text or "").lower()))
+    if not dims:
+        return {"text": text, "dimensions": [],
+                "note": "no dimensions predicted — bring a more specific claim, or grow the "
+                        "map with propose_almanac_entry."}
+    dimset = set(dims)
+    scored = []
+    for dom, dd in _grid.AXIS_DIMENSIONS.items():
+        ov = len(dimset & set(dd))
+        if ov:
+            scored.append((ov, dom, sorted(dimset & set(dd))))
+    scored.sort(key=lambda x: -x[0])
+    nearest = [{"domain": d, "shared": s, "on": sh} for s, d, sh in scored[:8]]
+    near_set = {n["domain"] for n in nearest}
+    duals, explore_dims = {}, []
+    for d in dims:
+        du = _AXIS_DUALS.get(d)
+        if du:
+            duals[d] = du
+            if du in _grid.DIMENSIONS and du not in dimset:
+                explore_dims.append(du)
+    partner = []
+    if explore_dims:
+        es = set(explore_dims)
+        ps = [(len(es & set(dd)), dom) for dom, dd in _grid.AXIS_DIMENSIONS.items()
+              if (es & set(dd)) and dom not in near_set]
+        ps.sort(key=lambda x: -x[0])
+        partner = [d for _, d in ps[:6]]
+    missing = sorted({du for du in duals.values() if du not in _grid.DIMENSIONS})
+    return {
+        "text": text,
+        "dimensions": dims,
+        "nearest_domains": nearest,
+        "explore": {
+            "duals": duals,
+            "dual_dimensions_to_test": explore_dims,
+            "partner_domains": partner,
+            "predicted_missing_partners": missing,
+            "why": "A map search must explore, not just exploit. These are the symmetric "
+                   "partners and predicted-missing dimensions — the non-examples to test so "
+                   "the map does not echo-chamber. Try the least-likely first.",
+        },
+        "duals_source": "supersymmetry placeholder (PROVISIONAL — see the `placeholders` tool)",
+        "grow": "Extend the map where it is thin with propose_almanac_entry.",
+    }
+
+
 # ============================================================
 # Engine-substrate tools (close the parity gap with HTTP API)
 # ============================================================
