@@ -7710,6 +7710,54 @@ async def me_memory_post(request: Request):
     return {"ok": True, "stored": True}
 
 
+@app.get("/placeholders", tags=["agents"])
+def placeholders_list():
+    """Placeholders to truth — provisional structures integrated into the map to
+    scaffold + predict, honestly marked as not-yet-confirmed, held open to be
+    confirmed / refined / replaced. The honest way the second brain holds what it
+    does not yet know. (Seeded with supersymmetry as a map-arrangement lens.)"""
+    try:
+        from api import placeholders as _ph
+        return _ph.listing()
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e)[:160], "placeholders": []}
+
+
+@app.get("/placeholders/{pid}", tags=["agents"])
+def placeholders_get(pid: str):
+    """One placeholder by id."""
+    try:
+        from api import placeholders as _ph
+        rec = _ph.get(pid)
+        return rec or {"error": "not found", "id": pid}
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e)[:160]}
+
+
+class _PlaceholderIn(BaseModel):
+    id: str
+    name: str = ""
+    grade: str = "resonance"
+    kind: str = "concept"
+    claim: str = ""
+    organizes: str = ""
+    predicts: List[str] = []
+    provenance: str = ""
+    caveat: str = ""
+
+
+@app.post("/placeholders/propose", tags=["agents"])
+def placeholders_propose(request: Request, body: _PlaceholderIn):
+    """Propose a placeholder — a provisional concept to hold in the map. Cannot
+    self-declare 'confirmed' (confirmation is earned by data, not assertion)."""
+    _rate_check(request, "placeholders_propose")
+    try:
+        from api import placeholders as _ph
+        return _ph.propose(body.model_dump())
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=str(e)[:160])
+
+
 @app.get("/own-model/stats", tags=["agents"])
 def own_model_stats():
     """How our OWN model is doing — docs learned, native coverage, and shadow

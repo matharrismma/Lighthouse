@@ -3065,6 +3065,20 @@ def library_health() -> Dict[str, Any]:
 
 
 @mcp.tool()
+def placeholders(pid: Optional[str] = None) -> Dict[str, Any]:
+    """Placeholders to truth on the map — provisional structures the engine holds
+    to SCAFFOLD and PREDICT, honestly marked as not-yet-confirmed and open to be
+    confirmed / refined / replaced as truth is approached. The honest way the map
+    (the second brain) holds what it does not yet know; reason WITH them knowing
+    they are provisional. Their symmetry can predict GAPS (missing partners) even
+    before confirmation. No args -> all placeholders + the grade scale; pass an
+    id for one. Seeded with supersymmetry as a map-arrangement lens. (Confirmation
+    is earned by data, never self-declared; the final truth is never sealed.)
+    """
+    return _engine_get(f"/placeholders/{pid}" if pid else "/placeholders")
+
+
+@mcp.tool()
 def stack_get(household_id: str) -> Dict[str, Any]:
     """Read a household's card stack: paperclipped cards, authored cards,
     forked cards, shared-inbox, tip total.
