@@ -72,12 +72,16 @@
     h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(2.1rem,5vw,3rem);color:#f4ecd5;line-height:1.1;margin-bottom:12px;}
     .tagline{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--accenthi);font-size:clamp(1.02rem,1.8vw,1.2rem);margin:0 auto 26px;max-width:40ch;}
 
-    form.draw{display:flex;gap:8px;max-width:600px;margin:0 auto;}
-    form.draw input{flex:1;padding:15px 18px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.06rem;}
-    form.draw input:focus{outline:none;border-color:var(--accenthi);box-shadow:0 0 0 4px rgba(232,200,150,.2);}
-    form.draw button{padding:0 24px;background:var(--accent);color:#1a1820;border:2px solid var(--accent);border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
+    form.draw{display:flex;gap:8px;max-width:600px;margin:0 auto;align-items:flex-start;}
+    form.draw input,form.draw textarea{flex:1;padding:15px 18px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.06rem;}
+    form.draw textarea{resize:none;line-height:1.5;min-height:54px;max-height:50vh;overflow-y:auto;width:100%;}
+    form.draw input:focus,form.draw textarea:focus{outline:none;border-color:var(--accenthi);box-shadow:0 0 0 4px rgba(232,200,150,.2);}
+    form.draw.drop-active textarea{border-color:var(--accenthi);background:#fffdf6;box-shadow:0 0 0 5px rgba(232,200,150,.35);}
+    form.draw button{padding:0 24px;align-self:stretch;min-height:54px;background:var(--accent);color:#1a1820;border:2px solid var(--accent);border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
     form.draw button:hover{background:var(--accenthi);} form.draw button:disabled{opacity:.5;cursor:default;}
-    @media(max-width:540px){form.draw{flex-direction:column;}form.draw button{padding:13px;}}
+    .draw-hint{max-width:600px;margin:7px auto 0;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:var(--muted);text-align:center;}
+    .draw-hint b{color:var(--dim);font-weight:600;}
+    @media(max-width:540px){form.draw{flex-direction:column;}form.draw button{padding:13px;align-self:auto;}}
 
     .chips{margin:13px auto 0;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;opacity:.6;transition:opacity .25s;}
     .chips.faded{opacity:.12;pointer-events:none;}
@@ -140,10 +144,11 @@
   <h1 data-i18n="work.title">The work area.</h1>
   <p class="tagline" data-i18n="work.tagline">A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.</p>
 
-  <form class="draw" onsubmit="return nhBring(event);">
-    <input id="uq" type="text" autocomplete="off" data-i18n-placeholder="work.input_placeholder" placeholder="Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember">
+  <form class="draw" id="drawForm" onsubmit="return nhBring(event);">
+    <textarea id="uq" rows="1" autocomplete="off" data-i18n-placeholder="work.input_placeholder" placeholder="Write a journal entry · search the concordance · check a claim · draft a message · pull up your settings — or drop a file here. It goes where it should."></textarea>
     <button id="ubtn" type="submit" data-i18n="work.bring_button">Bring it &rarr;</button>
   </form>
+  <p class="draw-hint">Type or paste a long passage, or <b>drop a text file</b>. <b>⌘/Ctrl + Enter</b> to send. It routes itself — write, search, verify, draft, learn, or your settings.</p>
   <div id="ures"></div>
 
   <div class="chips" id="uchips">
@@ -231,6 +236,20 @@ function nhRender(d){
     nhKeep('ask',d);
     res.innerHTML='<div class="art"><div class="art-lbl">Answer</div><div class="ans">'+nhEsc(d.answer||'')+'</div><div class="ans-cav">The assistant drafted this — anything that matters, weigh it. (Type it as a claim and the engine will.)</div></div>';return;
   }
+  if(intent==='search'){
+    var sq=d.query||'';
+    res.innerHTML='<div class="art"><div class="art-lbl">Search</div><div class="ans">Looking through the concordance for <b>'+nhEsc(sq)+'</b>.</div><a class="uact" href="/search.html?q='+encodeURIComponent(sq)+'">Open results &rarr;</a></div>';
+    setTimeout(function(){ location.href='/search.html?q='+encodeURIComponent(sq); }, 650);
+    return;
+  }
+  if(intent==='settings'){
+    var w=(d.what||'profile');
+    var pg=w==='household'?'/household.html':(w==='schedule'?'/schedule.html':'/profile.html');
+    var lbl=w==='household'?'household':(w==='schedule'?'schedule':'profile & preferences');
+    res.innerHTML='<div class="art"><div class="art-lbl">Your settings</div><div class="ans">Taking you to your <b>'+nhEsc(lbl)+'</b> — not a product search.</div><a class="uact" href="'+pg+'">Open '+nhEsc(lbl)+' &rarr;</a></div>';
+    setTimeout(function(){ location.href=pg; }, 650);
+    return;
+  }
   if(intent==='open'){
     res.innerHTML='<div class="art"><div class="art-lbl">Open</div><div class="ans">Opening '+nhEsc(d.what||'the room')+'.</div></div>';return;
   }
@@ -256,6 +275,35 @@ async function nhBringText(text){
 function nhBring(ev){ if(ev)ev.preventDefault(); nhBringText(document.getElementById('uq').value); return false; }
 document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();nhBringText(c.getAttribute('data-bring'));});});
 (function(){var q=document.getElementById('uq'),chips=document.getElementById('uchips');if(q&&chips)q.addEventListener('input',function(e){chips.classList.toggle('faded',(e.target.value||'').length>0);});})();
+// The threshold is a writing surface: auto-grow, ⌘/Ctrl+Enter to send, and
+// drag-and-drop text or a text file straight in. Long passages welcome.
+(function(){
+  var ta=document.getElementById('uq'), form=document.getElementById('drawForm');
+  if(!ta) return;
+  function grow(){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight, Math.floor(window.innerHeight*0.5))+'px'; }
+  ta.addEventListener('input', grow); setTimeout(grow, 0);
+  ta.addEventListener('keydown', function(e){ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); if(form&&form.requestSubmit) form.requestSubmit(); else nhBring(); } });
+  if(form){
+    ['dragenter','dragover'].forEach(function(ev){ form.addEventListener(ev, function(e){ e.preventDefault(); form.classList.add('drop-active'); }); });
+    ['dragleave','dragend'].forEach(function(ev){ form.addEventListener(ev, function(){ form.classList.remove('drop-active'); }); });
+    form.addEventListener('drop', function(e){
+      e.preventDefault(); form.classList.remove('drop-active');
+      var dt=e.dataTransfer; if(!dt) return;
+      if(dt.files && dt.files.length){
+        var f=dt.files[0];
+        if(/^text\//i.test(f.type||'') || /\.(txt|md|markdown|csv|json|log|html?)$/i.test(f.name||'')){
+          var rd=new FileReader();
+          rd.onload=function(){ ta.value=(ta.value?ta.value+'\n\n':'')+String(rd.result||'').slice(0,8000); grow(); ta.focus(); };
+          rd.readAsText(f);
+        } else {
+          ta.value=(ta.value?ta.value+'\n':'')+'[dropped "'+f.name+'" — paste its text here to keep, search, or check it]'; grow(); ta.focus();
+        }
+      } else {
+        var txt=dt.getData('text'); if(txt){ ta.value=(ta.value?ta.value+'\n':'')+txt; grow(); ta.focus(); }
+      }
+    });
+  }
+})();
 // mount THE BREATH — the verified body, live in the front door; what you bring lands on it
 (function(){ try{ if(window.NHBreath){ NHBreath.mount(document.getElementById('breathcv'), {}); } }catch(e){} })();
 // deep-link: /?bring=... runs it on arrival, so any surface can hand off to the work area

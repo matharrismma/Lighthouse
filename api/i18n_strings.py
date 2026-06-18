@@ -74,7 +74,7 @@ STRINGS: Dict[str, str] = {
     "work.eyebrow":          "Bring anything · it knows what to do",
     "work.title":            "The work area.",
     "work.tagline":          "A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.",
-    "work.input_placeholder": "Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember",
+    "work.input_placeholder": "Write a journal entry · search the concordance · check a claim · draft a message · pull up your settings — or drop a file here. It goes where it should.",
     "work.bring_button":     "Bring it →",
     "work.explore":          "Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.",
     "work.what_is_this":     "What is this? — the whole story →",

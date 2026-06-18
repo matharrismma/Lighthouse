@@ -5801,12 +5801,14 @@ Pick intent and fill its fields:
 - "verify": a checkable factual, mathematical, scientific, or logical claim. {"intent":"verify","claim":"<the claim, restated plainly>"}  Do NOT judge it yourself -- a deterministic engine will.
 - "list": one or more items for a list (groceries, to-dos, packing). {"intent":"list","list":"<short name, e.g. grocery or to-do>","items":["item one","item two"]}
 - "draft": a message or email they want written. {"intent":"draft","kind":"email","to":"<recipient or empty>","subject":"<subject or empty>","body":"<full drafted text, ready to send>"}
-- "note": something to remember or keep (a fact, an idea, a password). {"intent":"note","title":"<3-5 word title>","note":"<the thing to keep>"}
+- "note": something to remember, keep, or write down -- a fact, an idea, a password, OR a longer journal entry / reflection they are writing. {"intent":"note","title":"<3-5 word title>","note":"<the full text to keep, verbatim for long passages>"}
 - "ask": a question wanting an answer, OR a person seeking counsel, comfort, or advice. {"intent":"ask","answer":"<brief, honest, kind answer; say plainly when you do not know>"}
+- "search": they want to FIND or look something up -- in the concordance, the Bible, their kept things, or the web of verified knowledge. {"intent":"search","query":"<what to find, plainly>"}
+- "settings": they want to see or change their OWN preferences, profile, household, or schedule -- NOT buy or look up a product. {"intent":"settings","what":"<profile|household|schedule>"}
 - "open": they want to open a tool or room (chess, calendar, radio, the Bible, a game). {"intent":"open","what":"<the room or tool>"}
 - "learn": they want to learn, study, or be taught a subject or topic. {"intent":"learn","topic":"<the subject or topic, e.g. fractions, photosynthesis, the dragonfly>"}
 
-Be decisive and practical. A bare statement of fact -> prefer "verify". A list of things -> "list". "Teach me X" or "I want to learn Y" -> "learn".
+Be decisive and practical. A bare statement of fact -> prefer "verify". A list of things -> "list". "Teach me X" or "I want to learn Y" -> "learn". "Find / look up / search for X" -> "search". A request about THEIR OWN preferences/settings/profile/household/schedule -> "settings" (route them to the right place; never treat "show my settings" as something to buy or as a note). A long passage they are writing or reflecting on -> "note" (kept as a journal entry, verbatim).
 
 You are a conduit, never the source, and you must never become an idol. Be genuinely useful and do NOT preach on ordinary questions. But on matters of ultimate weight -- meaning, suffering, guilt and forgiveness, death, worship, identity, despair, the largest life decisions -- point the person to Jesus Christ, to Scripture, to prayer, and to real people who love them (a pastor, the church, wise friends); say plainly that the wisdom is found in Him, not in this tool, and that you are not the final authority. Never pose as God, savior, or ultimate counsellor, and never accept the trust that belongs to God alone. Aim to leave the person freer and nearer to Christ and to real community -- needing this tool less, not more.
 
@@ -5838,6 +5840,30 @@ def _intake_route(text: str) -> Dict[str, Any]:
     return {"intent": "note", "title": "Kept", "note": text}
 
 
+def _quick_route(text: str) -> Optional[Dict[str, Any]]:
+    """Deterministic pre-router for the UNAMBIGUOUS cases — no oracle call, works
+    offline, and reliably sends a 'show my settings' or 'search for X' to the
+    right place instead of the Amazon failure (a settings request becoming a
+    product search or a note). Anything not clearly one of these returns None and
+    falls through to the full router."""
+    t = text.strip().lower()
+    if len(t) <= 60 and any(k in t for k in (
+            "my settings", "my preferences", "preferences", "my profile",
+            "my account", "settings page", "open settings", "change my settings",
+            "my schedule", "my household")):
+        what = "profile"
+        if "household" in t or "family" in t:
+            what = "household"
+        elif "schedule" in t or "calendar" in t:
+            what = "schedule"
+        return {"intent": "settings", "oracle": False, "what": what}
+    import re as _re
+    m = _re.match(r"^\s*(search for|search|look up|look for)\b[:\s]+(.+)$", text, _re.I)
+    if m and m.group(2).strip():
+        return {"intent": "search", "oracle": False, "query": m.group(2).strip()[:200]}
+    return None
+
+
 class _IntakeIn(BaseModel):
     text: str
 
@@ -5866,6 +5892,11 @@ def workspace_intake(request: Request, body: _IntakeIn):
             return {"intent": "safety", "oracle": False, "safety": _crisis}
     except Exception:  # noqa: BLE001 — a detector failure must never break intake
         pass
+    # Deterministic quick-route: the obvious search/settings cases go to the right
+    # place with no oracle call. Ambiguous input falls through to the full router.
+    _qr = _quick_route(text)
+    if _qr is not None:
+        return _qr
     import os
     try:
         from api.offices import steward_budget_remaining_usd as _budget
