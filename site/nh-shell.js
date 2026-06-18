@@ -94,7 +94,7 @@ body.nh-radio-on{padding-bottom:62px;}
       <span class="nh-shell-tag">a curated internet for Christian families</span>
     </a>
     <nav class="nh-shell-nav" aria-label="Site sections">
-      <a href="/workspace.html" data-nh-key="desk">Workspace</a>
+      <a href="/" data-nh-key="desk">Workspace</a>
       <a href="/walk.html"     data-nh-key="discern">Discern</a>
       <a href="/family.html"    data-nh-key="family">Family</a>
       <a href="/marketplace.html" data-nh-key="market">Market</a>
@@ -116,7 +116,8 @@ body.nh-radio-on{padding-bottom:62px;}
     <div class="nh-shell-bot-cols">
       <div class="nh-shell-col">
         <h4>Discern</h4>
-        <a href="/workspace.html">The Workspace &middot; one input</a>
+        <a href="/">The work area &middot; bring anything</a>
+        <a href="/workspace.html">Desks &middot; libraries &amp; contribute</a>
         <a href="/walk.html">The engine</a>
         <a href="/try.html">Verify a claim</a>
         <a href="/walk.html">Discern this teaching</a>
@@ -568,15 +569,18 @@ body.nh-radio-on{padding-bottom:62px;}
       didache:   { ref: "Didache 16:1",      text: "Watch; be ready, for you know not the hour." } },
   ];
 
-  // Compact, palette-neutral grounding block. Verse text rides in the title
-  // attribute so the refs stay quiet but the words are one hover away.
+  // Compact, palette-neutral grounding block. The verse words are rendered
+  // INLINE (visible) — not hidden in a hover-only title attribute, which is
+  // inaccessible on touch, keyboard, and screen readers. The title stays as a
+  // bonus for mouse users; the words no longer depend on it.
   window.nhGatesHtml = function () {
     var rows = window.nhGates.map(function (g) {
       var tip = g.scripture.ref + " — " + g.scripture.text + "  |  " + g.didache.ref + " — " + g.didache.text;
-      return '<div title="' + escHtml(tip) + '" style="margin-top:4px;">' +
+      return '<div title="' + escHtml(tip) + '" style="margin-top:6px;">' +
         '<span style="color:#9b7c3c;font-weight:600;">' + g.gate + '</span>' +
         '<span style="opacity:.7;"> · ' + escHtml(g.principle) + '</span>' +
-        '<span style="opacity:.5;"> — ' + escHtml(g.scripture.ref) + ' · ' + escHtml(g.didache.ref) + '</span></div>';
+        '<div style="opacity:.75;margin-top:2px;font-style:italic;">' + escHtml(g.scripture.ref) + ' — ' + escHtml(g.scripture.text) + '</div>' +
+        '<div style="opacity:.5;">' + escHtml(g.didache.ref) + ' — ' + escHtml(g.didache.text) + '</div></div>';
     }).join("");
     return '<div style="margin-top:14px;padding-top:10px;border-top:1px dashed rgba(155,124,60,.3);' +
       "font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.04em;line-height:1.5;\">" +
