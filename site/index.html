@@ -138,7 +138,18 @@
     .onote{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;}
     .uhint{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);text-align:center;line-height:1.55;}
 
-    .brainwrap{max-width:620px;margin:46px auto 0;}
+    .faceslabel{max-width:660px;margin:40px auto 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+    .faces{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:660px;margin:12px auto 0;}
+    @media(min-width:640px){.faces{grid-template-columns:repeat(4,1fr);}}
+    .face{display:block;padding:14px 15px;background:var(--surface);border:1px solid var(--border);border-radius:11px;transition:border-color .2s;}
+    .face:hover{border-color:var(--accent);}
+    .face .fn{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accenthi);}
+    .face .fd{display:block;font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;}
+    .consider{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);}
+    .consider .ch{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+    .consider a{display:inline-block;margin:0 6px 7px 0;padding:6px 12px;border:1px solid rgba(201,168,124,.3);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:13px;}
+    .consider a:hover{border-color:var(--accent);background:rgba(201,168,124,.08);}
+    .brainwrap{max-width:620px;margin:30px auto 0;}
     .brainwrap .bh{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
     .brainwrap iframe,.brainwrap canvas{width:100%;height:430px;border:1px solid var(--border);border-radius:12px;background:#06070b;display:block;}
 
@@ -184,14 +195,22 @@
     <a class="chip" href="#" data-bring="teach me how fractions work">teach me fractions</a>
   </div>
 
+  <div class="faceslabel">One workspace · five faces. Type above — it shows its thinking and points you to the right one.</div>
+  <div class="faces" id="faces" aria-label="The workspace">
+    <a class="face" href="/atlas.html"><span class="fn">Atlas</span><span class="fd">The map — where a thing sits, and the math beneath it.</span></a>
+    <a class="face" href="/almanac.html"><span class="fn">Almanac</span><span class="fd">Practical wisdom, tested against the record.</span></a>
+    <a class="face" href="/walk.html"><span class="fn">Shepherd</span><span class="fd">Walk what you're carrying, through the four gates.</span></a>
+    <a class="face" href="/scribe.html"><span class="fn">Scribe</span><span class="fd">Write &amp; compose — and shape what you keep.</span></a>
+  </div>
+
   <div class="brainwrap">
-    <div class="bh" id="breathbh">the verified body &middot; what you bring lands here, on ground already proven</div>
-    <canvas id="breathcv" aria-label="The verified body — a living map of everything the engine holds, drawn by what proves it. What you bring lights up where it lands."></canvas>
+    <div class="bh" id="breathbh">the brain &middot; the verified body — what you bring lands here, on ground already proven</div>
+    <canvas id="breathcv" aria-label="The brain — a living map of everything the engine holds, drawn by what proves it. What you bring lights up where it lands."></canvas>
   </div>
 
   <p class="explore" data-i18n="work.explore">Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.</p>
   <p style="margin-top:24px;text-align:center;"><a href="/enter.html" data-i18n="work.what_is_this" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accenthi);border:1px solid rgba(201,168,124,.45);border-radius:9px;padding:11px 22px;">What is this? &mdash; the whole story &rarr;</a></p>
-  <p class="links">
+  <p class="links"><span style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;">Dig deeper ·</span>
     <a href="/gauntlet.html"><b>Don't trust — verify &rarr;</b></a>
     <span class="sep">&middot;</span>
     <a href="/read.html" data-i18n="work.link_learn">Learn anything &rarr;</a>
@@ -304,9 +323,36 @@ async function nhBringText(text){
   text=(text||'').trim(); if(!text) return;
   var btn=document.getElementById('ubtn'); if(btn) btn.disabled=true;
   nhWorking('Reading what you brought');
-  try{ nhRender(await nhPost('/workspace/intake',{text:text})); }
+  try{ var d=await nhPost('/workspace/intake',{text:text}); nhRender(d); nhAppendConsider(text,d); }
   catch(e){ document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the work area just now — try again in a moment.</div>'; }
   if(btn) btn.disabled=false;
+}
+// Show the thinking: which of the five faces this could ALSO open in. Deterministic
+// (no LLM) and transparent — when we'd consider the Apothecary, you see it and choose.
+function nhConsider(text, d){
+  var t=(text||'').toLowerCase(), enc=encodeURIComponent((text||'').slice(0,400)), intent=d&&d.intent, out=[];
+  if(intent==='safety') return [];
+  if(/\b(anxious|anxiet|afraid|fear|worried|worry|tired|exhaust|burn(ed|t)? ?out|grief|grieving|sad|lonely|alone|angry|anger|bitter|resent|forgive|marriage|divorce|spouse|addict|tempt|despair|hopeless|ashamed|shame|guilt|sick|ill|pain|hurting|struggl|overwhelm|stress|depress|worthless)/.test(t)){
+    out.push({l:'Apothecary — a remedy compounded for this',u:'/apothecary.html?condition='+enc});
+    out.push({l:'Shepherd — walk it through the four gates',u:'/walk.html?situation='+enc});
+  }
+  if(/\b(proverb|saying|wisdom|old wives|folk|is it true|myth|tradition|weather|harvest|planting)\b/.test(t)){
+    out.push({l:'Almanac — what the tested record says',u:'/almanac.html'});
+  }
+  if(intent==='verify'){ out.push({l:'Atlas — where this sits on the map',u:'/atlas.html'}); }
+  if(d&&d.kept_as==='document'){ out.push({l:'Scribe — keep shaping this',u:'/scribe.html?q='+enc}); }
+  if(intent==='learn'){ out.push({l:'Atlas — the structure beneath it',u:'/atlas.html'}); }
+  var seen={},r=[]; out.forEach(function(f){var k=f.u.split('?')[0]+f.l; if(!seen[k]){seen[k]=1;r.push(f);}});
+  return r.slice(0,3);
+}
+function nhAppendConsider(text, d){
+  try{
+    var faces=nhConsider(text,d); if(!faces.length) return;
+    var ures=document.getElementById('ures'); if(!ures||!ures.firstChild) return;
+    var h='<div class="consider"><div class="ch">We also considered — open one if it fits:</div>';
+    faces.forEach(function(f){ h+='<a href="'+f.u+'">'+nhEsc(f.l)+'</a>'; });
+    ures.insertAdjacentHTML('beforeend', h+'</div>');
+  }catch(e){}
 }
 function nhBring(ev){ if(ev&&ev.preventDefault)ev.preventDefault(); nhBringText(nhDocText()); return false; }
 document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();var t=c.getAttribute('data-bring');nhDocSet(t);nhBringText(t);});});
