@@ -13,12 +13,25 @@ without claiming finality. Agents reason WITH placeholders knowing they are
 provisional; the symmetry/structure they encode can predict gaps even before it
 is confirmed.
 
+This is a SEARCH, not a creed. Holding placeholders and navigating the map toward
+truth is a search over hypothesis space: the best-fitting theory is the greedy
+start (exploitation); the engine's "eliminate what is not the answer" is pruning.
+But a search that only expands CONFIRMING nodes converges prematurely — a local
+optimum, an echo chamber. So every placeholder carries its own DISCONFIRMERS:
+  falsifiers     — what observation would refute it (it must be refutable at all);
+  unlikely_tests — the non-examples to hunt and the improbable cases to try first.
+A placeholder ADVANCES BY SURVIVING these, never by piling up confirmations. This
+is the search's exploration term — the deliberate spend on disconfirmation that
+keeps the map honest instead of self-reinforcing. (Most of science is unsettled;
+we use the best fit as a start AND attack it.)
+
 Grades (rate of descent from confirmed source — low to high standing):
   coincidence < resonance < plausible < candidate < confirmed
-A placeholder lives at resonance/plausible/candidate. When real data lands where
-it predicted, it can graduate toward confirmed (and become a card/axis); when a
+A placeholder lives at resonance/plausible/candidate. It rises only by SURVIVING
+its falsifiers and unlikely tests — not by accumulating agreeing evidence. When a
 better model arrives, it is superseded (retired, never deleted — the record of
-the approach is kept).
+the approach is kept). A placeholder with NO falsifiers is the weakest kind: it
+cannot be wrong, so it cannot be trusted.
 
 Store: append-only JSONL at data/placeholders/placeholders.jsonl (the ledger
 pattern). Seeded with the inaugural placeholder: supersymmetry as a map
@@ -67,10 +80,28 @@ _SEED: List[Dict[str, Any]] = [
                    "better, or a more accurate model may replace this. Elegance is a "
                    "witness, not a proof; symmetry PROPOSES the missing partner, real "
                    "data CONFIRMS it. Discovery, not design — never force a pair."),
+        "falsifiers": [
+            "A fundamental, well-attested domain that fits NO dual — a genuinely unpaired "
+            "axis the symmetry cannot place.",
+            "A predicted partner (e.g. continuity) that, when sought, corresponds to no real "
+            "domain — the pairing predicts ghosts.",
+            "A non-symmetric arrangement that explains adjacency / depth / coherence BETTER, "
+            "with fewer assumptions.",
+        ],
+        "unlikely_tests": [
+            "Hunt the domains that BREAK the pairing, not the ones that confirm it (this is "
+            "the exploration term — skip it and the map becomes an echo chamber).",
+            "Test the WEAKEST predicted partner first, not the strongest.",
+            "Arrange the map with NO symmetry and measure whether it loses explanatory power; "
+            "if it doesn't, the symmetry was decoration, not structure.",
+        ],
+        "advances_by": "surviving the falsifiers and unlikely_tests above — not by confirmations.",
+        "refutable": True,
         "lifecycle": "held",
         "supersedes": None,
         "superseded_by": None,
         "held_since": "2026-06-18",
+        "seed_v": 2,
     },
 ]
 
@@ -98,9 +129,14 @@ def _append(rec: Dict[str, Any]) -> None:
 
 
 def _ensure_seeded() -> None:
-    have = {r.get("id") for r in _load()}
+    # Append a seed when it's missing OR when its seed_v is newer than the stored
+    # one (listing/get use last-wins, so a re-appended seed supersedes the old).
+    stored_v: Dict[str, int] = {}
+    for r in _load():
+        if r.get("id"):
+            stored_v[r["id"]] = max(stored_v.get(r["id"], 0), int(r.get("seed_v", 0) or 0))
     for r in _SEED:
-        if r["id"] not in have:
+        if stored_v.get(r["id"], -1) < int(r.get("seed_v", 0) or 0):
             _append(r)
 
 
@@ -124,6 +160,12 @@ def listing() -> Dict[str, Any]:
                          "the map to scaffold and predict, honestly marked as not-yet-"
                          "confirmed, held open to confirm / refine / replace. Not truth — "
                          "toward it. The final truth is never sealed (the apex is reserved)."),
+        "the_method": ("This is a SEARCH, and it must explore, not just exploit. Each "
+                       "placeholder carries falsifiers (what would refute it) and "
+                       "unlikely_tests (the non-examples to hunt) — it ADVANCES BY SURVIVING "
+                       "them, never by confirmations. Skip the disconfirming probes and the "
+                       "map becomes an echo chamber. A placeholder with no falsifiers "
+                       "(refutable=false) is the weakest kind."),
     }
 
 
@@ -157,6 +199,13 @@ def propose(rec: Dict[str, Any]) -> Dict[str, Any]:
         "provenance": str(rec.get("provenance") or "")[:800],
         "caveat": str(rec.get("caveat") or
                       "Held as a placeholder to truth — provisional, open to revision.")[:600],
+        # Disconfirmers are first-class: a placeholder must be refutable, and it
+        # advances by SURVIVING these (not by confirmations). Empty falsifiers is a
+        # weakness, flagged in the record.
+        "falsifiers": [str(x)[:300] for x in (rec.get("falsifiers") or [])][:8],
+        "unlikely_tests": [str(x)[:300] for x in (rec.get("unlikely_tests") or [])][:8],
+        "advances_by": "surviving its falsifiers and unlikely_tests — not by confirmations.",
+        "refutable": bool(rec.get("falsifiers")),
         "lifecycle": str(rec.get("lifecycle") or "held")[:20],
         "supersedes": rec.get("supersedes"),
         "superseded_by": rec.get("superseded_by"),
