@@ -99,9 +99,11 @@ function nhGo(){var v=(document.getElementById('bringq').value||'').trim();if(v)
     });
     docs.innerHTML=h+'</div>';
     docs.querySelectorAll('[data-open]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.setItem('nh_open_doc', a.getAttribute('data-open'));}catch(_){} location.href='/'; }); });
-    docs.querySelectorAll('[data-del]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); if(confirm('Remove this document? This cannot be undone.')){ NHDocs.remove(a.getAttribute('data-del')); render(); } }); });
+    docs.querySelectorAll('[data-del]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); if(confirm('Remove this document? This cannot be undone.')){ NHDocs.remove(a.getAttribute('data-del')); if(window.NHSync)NHSync.push(); render(); } }); });
   }
   render();
+  // Cross-device: when this person's memory syncs in, refresh the cards.
+  window.addEventListener('nh-synced', render);
 })();
 (function(){
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}

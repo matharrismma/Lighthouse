@@ -97,7 +97,7 @@
                   html: String(html || "").slice(0, 80000), updated: now };
       var idx = -1; for (var i = 0; i < a.length; i++) if (a[i].id === rec.id) { idx = i; break; }
       if (idx >= 0) { rec.ts = a[idx].ts || now; a[idx] = rec; } else { rec.ts = now; a.unshift(rec); }
-      setCur(rec.id); dsave(a); return rec.id;
+      setCur(rec.id); dsave(a); try { if (window.NHSync) NHSync.push(); } catch (_) {} return rec.id;
     }
   };
   window.NHDocs = NHDocs;
@@ -112,6 +112,7 @@
       try {
         var a = pload(); a.unshift({ t: keyToks(text).slice(0, 12), f: face, ts: Date.now() });
         localStorage.setItem(PKEY, JSON.stringify(a.slice(0, 100)));
+        if (window.NHSync) NHSync.push();
       } catch (_) {}
     },
     // Faces the user has chosen before for input overlapping this text, ranked.
@@ -125,4 +126,43 @@
       return Object.keys(score).sort(function (a, b) { return score[b] - score[a]; });
     }
   };
+
+  // ── NHSync — cross-device, OPT-IN. Carry your household key (hh_ id) and
+  // your keeping/documents/preferences follow you to any device. On-device
+  // first; it syncs ONLY if you hold a key. The id is the key — like the keep
+  // token; the server stores your own blob, readable only by whoever holds it.
+  function hhId() { try { return (window.NHHousehold && NHHousehold.get() && NHHousehold.get().id) || ""; } catch (_) { return ""; } }
+  var _pushT = null;
+  function doPush() {
+    var id = hhId(); if (!id) return;
+    try {
+      fetch("/me/memory", { method: "POST", headers: { "Content-Type": "application/json", "X-Household-Id": id },
+        body: JSON.stringify({ kept: load(), docs: dload(), prefs: pload(), v: 1, updated: Date.now() }) }).catch(function () {});
+    } catch (_) {}
+  }
+  function mergeIn(blob) {
+    if (!blob) return false; var changed = false;
+    try {
+      var bk = {}; load().concat(blob.kept || []).forEach(function (x) { if (x && x.ts) bk[x.ts + "_" + (x.kind || "")] = x; });
+      var mk = Object.keys(bk).map(function (k) { return bk[k]; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); }).slice(0, 200);
+      if (mk.length !== load().length) changed = true;
+      localStorage.setItem(KEY, JSON.stringify(mk));
+      var bd = {}; dload().concat(blob.docs || []).forEach(function (x) { if (x && x.id) { if (!bd[x.id] || (x.updated || 0) > (bd[x.id].updated || 0)) bd[x.id] = x; } });
+      var md = Object.keys(bd).map(function (i) { return bd[i]; }).sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); });
+      if (md.length !== dload().length) changed = true;
+      dsave(md);
+      if (blob.prefs && blob.prefs.length) { try { localStorage.setItem(PKEY, JSON.stringify(pload().concat(blob.prefs).slice(0, 150))); } catch (_) {} }
+    } catch (_) {}
+    return changed;
+  }
+  function pull(cb) {
+    var id = hhId(); if (!id) { if (cb) cb(false); return; }
+    fetch("/me/memory", { headers: { "X-Household-Id": id } }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      var ch = d && d.blob ? mergeIn(d.blob) : false;
+      if (ch) { try { window.dispatchEvent(new Event("nh-synced")); } catch (_) {} }
+      if (cb) cb(ch);
+    }).catch(function () { if (cb) cb(false); });
+  }
+  window.NHSync = { push: function () { if (!hhId()) return; clearTimeout(_pushT); _pushT = setTimeout(doPush, 1500); }, pull: pull, hh: hhId };
+  try { pull(); } catch (_) {}
 })();

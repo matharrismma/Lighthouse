@@ -7610,6 +7610,60 @@ def _community_require_api_key(request: Request) -> None:
     raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 
+# ── Cross-device personal memory — your keeping, carried by your key ──────────
+# Opt-in sync. A person who carries a household capability id (hh_<16hex>, the
+# same no-password key the Shepherd uses) can sync their OWN kept things,
+# documents, and route preferences across their devices. Keyed by the opaque id
+# — the id IS the key, like the keep token; only whoever holds it can read it.
+# No account, no PII: the blob is the user's own data that they chose to sync.
+# This is sync, not surveillance — nothing is profiled, nothing is shared.
+import re as _re_hhmem
+_HH_MEM_RE = _re_hhmem.compile(r"^hh_[0-9a-f]{16}$")
+_HMEM_DIR = Path(__file__).parent.parent / "data" / "household_memory"
+try:
+    _HMEM_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
+
+@app.get("/me/memory", tags=["humans"])
+def me_memory_get(request: Request):
+    """Return the personal-memory blob stored under the caller's household id
+    (header X-Household-Id). Empty when no valid id or nothing synced yet."""
+    hh = (request.headers.get("x-household-id") or "").strip()
+    if not _HH_MEM_RE.match(hh):
+        return {"blob": None}
+    p = _HMEM_DIR / (hh + ".json")
+    if not p.exists():
+        return {"blob": None}
+    try:
+        return {"blob": json.loads(p.read_text(encoding="utf-8"))}
+    except Exception:
+        return {"blob": None}
+
+
+@app.post("/me/memory", tags=["humans"])
+async def me_memory_post(request: Request):
+    """Store the caller's personal-memory blob under their household id. The
+    blob is the user's own kept items / documents / preferences. Size-capped."""
+    _rate_check(request, "me_memory")
+    hh = (request.headers.get("x-household-id") or "").strip()
+    if not _HH_MEM_RE.match(hh):
+        raise HTTPException(status_code=400, detail="a valid X-Household-Id is required")
+    raw = await request.body()
+    if len(raw) > 4_000_000:
+        raise HTTPException(status_code=413, detail="memory too large (max 4MB)")
+    try:
+        blob = json.loads(raw.decode("utf-8"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid JSON")
+    try:
+        (_HMEM_DIR / (hh + ".json")).write_text(json.dumps(blob, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        raise HTTPException(status_code=500, detail="could not store memory")
+    return {"ok": True, "stored": True}
+
+
 @app.post("/community/proposals/accept", tags=["community"])
 def community_proposal_accept(
     request: Request,

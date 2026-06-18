@@ -247,7 +247,7 @@
 var nhEsc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
 function nhWorking(msg){var r=document.getElementById('ures');r.innerHTML='<div class="weighing">'+(msg||'Working')+'<span class="pulse"></span></div>';}
 async function nhPost(url,b){var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return await r.json();}
-function nhKeep(kind,obj){try{var K='nh_kept_v1';var a=JSON.parse(localStorage.getItem(K)||'[]');a.unshift({ts:Date.now(),kind:kind,obj:obj});localStorage.setItem(K,JSON.stringify(a.slice(0,200)));}catch(e){}}
+function nhKeep(kind,obj){try{var K='nh_kept_v1';var a=JSON.parse(localStorage.getItem(K)||'[]');a.unshift({ts:Date.now(),kind:kind,obj:obj});localStorage.setItem(K,JSON.stringify(a.slice(0,200)));if(window.NHSync)NHSync.push();}catch(e){}}
 function nhVerifyCard(res){
   var v=(res&&res.verdict)||'ERROR';
   var cls=v==='HOLDS'?'pass':(v==='BROKEN'?'fail':'amber');
@@ -447,8 +447,8 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
 (function(){try{var b=new URLSearchParams(location.search).get('bring');if(b){nhDocSet(b);nhBringText(b);}}catch(e){}})();
 // Returning user: the work area remembers. Surface their own brain — what they
 // keep returning to, and what they kept recently — on-device. New visitors see
-// the generic examples instead.
-(function(){
+// the generic examples instead. Re-runs when a cross-device sync brings data in.
+function nhRenderPersonal(){
   try{
     if(!window.NHMemory || NHMemory.count()===0) return;
     var el=document.getElementById('personal'); if(!el) return;
@@ -461,7 +461,10 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
     el.querySelectorAll('[data-pr]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); var it=rec[+a.getAttribute('data-pr')]; if(it){ nhDocSet(it.text||it.label); var d=nhDocEl(); if(d) d.focus(); } }); });
     el.querySelectorAll('[data-pt]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); nhDocSet(a.getAttribute('data-pt')); var d=nhDocEl(); if(d) d.focus(); }); });
   }catch(e){}
-})();
+}
+nhRenderPersonal();
+// When a cross-device sync pulls in this person's memory, refresh the strip.
+window.addEventListener('nh-synced', nhRenderPersonal);
 </script>
 
 </body>
