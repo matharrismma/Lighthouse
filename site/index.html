@@ -80,7 +80,9 @@
     .fmtbar button{min-width:30px;height:28px;padding:0 8px;background:transparent;border:1px solid transparent;border-radius:6px;color:#3a352c;font-family:'Crimson Pro',Georgia,serif;font-size:14px;cursor:pointer;line-height:1;}
     .fmtbar button:hover{background:#e0d7c2;border-color:rgba(0,0,0,.1);}
     .fmtbar .sp{flex:1;}
-    .fmtbar .saved{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:#8a7e63;text-transform:uppercase;padding-right:4px;}
+    .fmtbar .saved{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:#8a7e63;text-transform:uppercase;padding:0 6px;}
+    .fmtbar .docbtn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6a5f48;padding:5px 9px;border:1px solid rgba(0,0,0,.12);border-radius:6px;background:transparent;cursor:pointer;text-decoration:none;}
+    .fmtbar .docbtn:hover{background:#e0d7c2;color:#3a352c;}
     .doc{min-height:168px;max-height:62vh;overflow-y:auto;padding:18px 20px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:0 0 9px 9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;line-height:1.7;text-align:left;outline:none;}
     .doc:focus{border-color:var(--accenthi);}
     .doc:empty:before{content:attr(data-ph);color:#9a917f;font-style:italic;}
@@ -182,6 +184,8 @@
       <button type="button" data-cmd="formatBlock" data-val="p" title="Normal text">¶</button>
       <button type="button" data-cmd="insertUnorderedList" title="List">&bull;&nbsp;List</button>
       <span class="sp"></span>
+      <button type="button" id="newDocBtn" class="docbtn" title="Start a new document">＋&nbsp;New</button>
+      <a href="/kept.html#docs" class="docbtn" title="Your saved documents">Documents</a>
       <span class="saved" id="savedTag"></span>
     </div>
     <div id="uq" class="doc" contenteditable="true" role="textbox" aria-multiline="true"
@@ -327,7 +331,13 @@ var _nhSaveT=null;
 function nhDocEl(){ return document.getElementById('uq'); }
 function nhDocText(){ var e=nhDocEl(); return (e?(e.innerText||''):'').replace(/ /g,' ').trim(); }
 function nhDocSet(t){ var e=nhDocEl(); if(e){ e.innerText=t||''; nhDocSave(); } }
-function nhDocSave(){ try{ var e=nhDocEl(); if(!e) return; localStorage.setItem('nh_draft', e.innerHTML||''); var s=document.getElementById('savedTag'); if(s) s.textContent = nhDocText()? 'saved' : ''; }catch(_){} }
+function nhIsDoc(html,text){ return /\n\n/.test(text||'') || (text||'').length>500 || /<(b|strong|h2|ul|ol|li|i|em)\b/i.test(html||''); }
+function nhDocSave(){ try{ var e=nhDocEl(); if(!e) return; var html=e.innerHTML||'', text=nhDocText();
+  localStorage.setItem('nh_draft', html);
+  // Composed writing becomes a DOCUMENT CARD you can return to — same card on
+  // re-edit (stable id), on-device. Short inputs (a list, a claim) are not carded.
+  if(window.NHDocs && text && nhIsDoc(html,text)){ NHDocs.upsert(html, text); }
+  var s=document.getElementById('savedTag'); if(s) s.textContent = text? (nhIsDoc(html,text)?'saved · in your documents':'saved') : ''; }catch(_){} }
 async function nhBringText(text){
   text=(text||'').trim(); if(!text) return;
   var btn=document.getElementById('ubtn'); if(btn) btn.disabled=true;
@@ -358,16 +368,18 @@ function nhConsider(text, d){
   var t=(text||'').toLowerCase(), enc=encodeURIComponent((text||'').slice(0,400)), intent=d&&d.intent, out=[];
   if(intent==='safety') return [];
   if(/\b(anxious|anxiet|afraid|fear|worried|worry|tired|exhaust|burn(ed|t)? ?out|grief|grieving|sad|lonely|alone|angry|anger|bitter|resent|forgive|marriage|divorce|spouse|addict|tempt|despair|hopeless|ashamed|shame|guilt|sick|ill|pain|hurting|struggl|overwhelm|stress|depress|worthless)/.test(t)){
-    out.push({l:'Apothecary — a remedy compounded for this',u:'/apothecary.html?condition='+enc});
-    out.push({l:'Shepherd — walk it through the four gates',u:'/walk.html?situation='+enc});
+    out.push({f:'apothecary',l:'Apothecary — a remedy compounded for this',u:'/apothecary.html?condition='+enc});
+    out.push({f:'shepherd',l:'Shepherd — walk it through the four gates',u:'/walk.html?situation='+enc});
   }
   if(/\b(proverb|saying|wisdom|old wives|folk|is it true|myth|tradition|weather|harvest|planting)\b/.test(t)){
-    out.push({l:'Almanac — what the tested record says',u:'/almanac.html'});
+    out.push({f:'almanac',l:'Almanac — what the tested record says',u:'/almanac.html'});
   }
-  if(intent==='verify'){ out.push({l:'Atlas — where this sits on the map',u:'/atlas.html'}); }
-  if(d&&d.kept_as==='document'){ out.push({l:'Scribe — keep shaping this',u:'/scribe.html?q='+enc}); }
-  if(intent==='learn'){ out.push({l:'Atlas — the structure beneath it',u:'/atlas.html'}); }
+  if(intent==='verify'){ out.push({f:'atlas',l:'Atlas — where this sits on the map',u:'/atlas.html'}); }
+  if(d&&d.kept_as==='document'){ out.push({f:'scribe',l:'Scribe — keep shaping this',u:'/scribe.html?q='+enc}); }
+  if(intent==='learn'){ out.push({f:'atlas',l:'Atlas — the structure beneath it',u:'/atlas.html'}); }
   var seen={},r=[]; out.forEach(function(f){var k=f.u.split('?')[0]+f.l; if(!seen[k]){seen[k]=1;r.push(f);}});
+  // History-biased: faces the user has chosen before for similar input come first.
+  try{ if(window.NHPrefs){ var pref=NHPrefs.preferredFor(text); if(pref.length){ r.sort(function(a,b){ var ia=pref.indexOf(a.f),ib=pref.indexOf(b.f); return (ia<0?99:ia)-(ib<0?99:ib); }); } } }catch(e){}
   return r.slice(0,3);
 }
 function nhAppendConsider(text, d){
@@ -375,8 +387,12 @@ function nhAppendConsider(text, d){
     var faces=nhConsider(text,d); if(!faces.length) return;
     var ures=document.getElementById('ures'); if(!ures||!ures.firstChild) return;
     var h='<div class="consider"><div class="ch">We also considered — open one if it fits:</div>';
-    faces.forEach(function(f){ h+='<a href="'+f.u+'">'+nhEsc(f.l)+'</a>'; });
+    faces.forEach(function(f){ h+='<a href="'+f.u+'" data-face="'+(f.f||'')+'">'+nhEsc(f.l)+'</a>'; });
     ures.insertAdjacentHTML('beforeend', h+'</div>');
+    // Learn the user's preference: record which face they choose for this input.
+    ures.querySelectorAll('.consider:not(.recall) a').forEach(function(a){
+      a.addEventListener('click',function(){ try{ if(window.NHPrefs) NHPrefs.record(text, a.getAttribute('data-face')); }catch(e){} });
+    });
   }catch(e){}
 }
 function nhBring(ev){ if(ev&&ev.preventDefault)ev.preventDefault(); nhBringText(nhDocText()); return false; }
@@ -388,8 +404,14 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
   var doc=document.getElementById('uq'), wrap=document.getElementById('drawForm'),
       bar=document.getElementById('fmtbar'), chips=document.getElementById('uchips');
   if(!doc) return;
-  // Restore an in-progress draft — a document is never lost and never "new".
-  try{ var saved=localStorage.getItem('nh_draft'); if(saved && saved.replace(/<[^>]*>/g,'').trim()){ doc.innerHTML=saved; } }catch(_){}
+  // Reopen a document the user chose from their cards; else restore the
+  // in-progress draft. A document is never lost and never "new".
+  try{
+    var oid=localStorage.getItem('nh_open_doc');
+    if(oid && window.NHDocs){ localStorage.removeItem('nh_open_doc'); var od=NHDocs.get(oid);
+      if(od){ doc.innerHTML=od.html||od.text||''; NHDocs.openId(oid); try{localStorage.setItem('nh_draft', doc.innerHTML);}catch(_){} } }
+    else { var saved=localStorage.getItem('nh_draft'); if(saved && saved.replace(/<[^>]*>/g,'').trim()){ doc.innerHTML=saved; } }
+  }catch(_){}
   function onInput(){
     if(chips) chips.classList.toggle('faded', nhDocText().length>0);
     var s=document.getElementById('savedTag'); if(s) s.textContent='editing…';
@@ -400,7 +422,8 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
   // Formatting toolbar (mousedown so the selection isn't lost before the command).
   if(bar){ bar.addEventListener('mousedown', function(e){
     var b=e.target.closest('button'); if(!b) return; e.preventDefault(); doc.focus();
-    try{ document.execCommand(b.getAttribute('data-cmd'), false, b.getAttribute('data-val')||null); }catch(_){}
+    if(b.id==='newDocBtn'){ if(window.NHDocs) NHDocs.newDoc(); doc.innerHTML=''; try{localStorage.removeItem('nh_draft');}catch(_){} onInput(); return; }
+    var cmd=b.getAttribute('data-cmd'); if(cmd){ try{ document.execCommand(cmd, false, b.getAttribute('data-val')||null); }catch(_){} }
     onInput();
   }); }
   // Drag-and-drop text or a text file straight into the document.

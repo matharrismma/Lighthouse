@@ -66,4 +66,63 @@
   }
 
   window.NHMemory = { recall: recall, recent: recent, themes: themes, count: function () { return load().length; } };
+
+  // ── NHDocs — the user's documents, as cards they can return to ──────────
+  // Your writing lives here (nh_docs_v1), on-device. Each document is one card;
+  // editing updates the SAME card (a stable id) instead of spawning a new one,
+  // so going back to an old document is just opening its card. Nothing leaves
+  // the device.
+  var DKEY = "nh_docs_v1", CUR = "nh_cur_doc";
+  function dload() { try { return JSON.parse(localStorage.getItem(DKEY) || "[]") || []; } catch (_) { return []; } }
+  function dsave(a) { try { localStorage.setItem(DKEY, JSON.stringify(a.slice(0, 300))); } catch (_) {} }
+  function curId() { try { return localStorage.getItem(CUR) || ""; } catch (_) { return ""; } }
+  function setCur(id) { try { localStorage.setItem(CUR, id || ""); } catch (_) {} }
+  function newId() { return "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function titleOf(text) {
+    var lines = String(text || "").split("\n");
+    for (var i = 0; i < lines.length; i++) { var l = lines[i].trim(); if (l) return l.length > 70 ? l.slice(0, 70) + "…" : l; }
+    return "Untitled document";
+  }
+  var NHDocs = {
+    list: function () { return dload().slice().sort(function (a, b) { return (b.updated || 0) - (a.updated || 0); }); },
+    get: function (id) { var a = dload(); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; },
+    currentId: curId,
+    newDoc: function () { setCur(""); },
+    openId: function (id) { setCur(id); },
+    remove: function (id) { dsave(dload().filter(function (x) { return x.id !== id; })); if (curId() === id) setCur(""); },
+    // Save/update the CURRENT document. Returns its id.
+    upsert: function (html, text) {
+      var id = curId(), a = dload(), now = Date.now();
+      var rec = { id: id || newId(), title: titleOf(text), text: String(text || "").slice(0, 40000),
+                  html: String(html || "").slice(0, 80000), updated: now };
+      var idx = -1; for (var i = 0; i < a.length; i++) if (a[i].id === rec.id) { idx = i; break; }
+      if (idx >= 0) { rec.ts = a[idx].ts || now; a[idx] = rec; } else { rec.ts = now; a.unshift(rec); }
+      setCur(rec.id); dsave(a); return rec.id;
+    }
+  };
+  window.NHDocs = NHDocs;
+
+  // ── NHPrefs — which face the user chose, so routing can learn ───────────
+  // When the user picks a face for what they brought, remember it; next time
+  // a similar input arrives, surface that face first. On-device, deterministic.
+  var PKEY = "nh_route_pref";
+  function pload() { try { return JSON.parse(localStorage.getItem(PKEY) || "[]") || []; } catch (_) { return []; } }
+  window.NHPrefs = {
+    record: function (text, face) {
+      try {
+        var a = pload(); a.unshift({ t: keyToks(text).slice(0, 12), f: face, ts: Date.now() });
+        localStorage.setItem(PKEY, JSON.stringify(a.slice(0, 100)));
+      } catch (_) {}
+    },
+    // Faces the user has chosen before for input overlapping this text, ranked.
+    preferredFor: function (text) {
+      var q = {}; keyToks(text).forEach(function (t) { q[t] = 1; });
+      var score = {};
+      pload().forEach(function (p) {
+        var hit = 0; (p.t || []).forEach(function (t) { if (q[t]) hit++; });
+        if (hit > 0) score[p.f] = (score[p.f] || 0) + hit;
+      });
+      return Object.keys(score).sort(function (a, b) { return score[b] - score[a]; });
+    }
+  };
 })();

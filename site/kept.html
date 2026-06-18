@@ -47,27 +47,67 @@
   .bringbar input::placeholder{color:var(--mut);}
   .bringbar button{flex:none;background:var(--accent);color:var(--bg);border:none;border-radius:10px;padding:0 16px;font-size:16px;cursor:pointer;font-weight:600;}
   .bringbar button:hover{background:var(--accenthi);}
+  /* Your documents — cards you can return to */
+  .docs-head{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accenthi);margin:6px 0 12px;}
+  .doccards{display:grid;grid-template-columns:1fr;gap:11px;margin-bottom:30px;}
+  @media(min-width:600px){.doccards{grid-template-columns:1fr 1fr;}}
+  .doccard{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:15px 17px;display:flex;flex-direction:column;}
+  .doccard:hover{border-color:var(--accent);}
+  .dc-title{font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;color:#f4ecd5;line-height:1.3;}
+  .dc-prev{font-family:'Crimson Pro',Georgia,serif;font-size:.95rem;color:var(--mut);margin-top:6px;line-height:1.5;max-height:4.5em;overflow:hidden;}
+  .dc-meta{display:flex;align-items:center;gap:12px;margin-top:11px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:var(--mut);}
+  .dc-meta .when{flex:1;}
+  .dc-open{color:var(--accenthi);text-decoration:none;text-transform:uppercase;letter-spacing:.1em;}
+  .dc-open:hover{text-decoration:underline;}
+  .dc-del{color:var(--mut);text-decoration:none;cursor:pointer;}
+  .dc-del:hover{color:#e07a6f;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><div class="kicker">Kept on this device</div><a class="home" href="/">&larr; the work area</a></div>
   <h1>Your things.</h1>
-  <div class="sub">Everything you've brought and kept — lists, drafts, notes, what you checked.</div>
+  <div class="sub">Everything you've written and kept — your documents, plus lists, drafts, notes, and what you checked.</div>
   <form class="bringbar" onsubmit="return nhGo()">
     <input id="bringq" autocomplete="off" placeholder="Bring something new — a note, a list, a claim to check&hellip;">
     <button type="submit" aria-label="Bring it to the work area">&rarr;</button>
   </form>
+  <div id="docs"></div>
   <div id="shelf"></div>
   <div class="priv">Private &middot; on this device only &middot; nothing tracked</div>
 </div>
+<script src="/nh-memory.js"></script>
 <script>
 function nhGo(){var v=(document.getElementById('bringq').value||'').trim();if(v)location.href='/?bring='+encodeURIComponent(v);return false;}
+// Your documents — cards you can return to. Open one to keep writing it in the
+// work area. On-device; nothing leaves.
+(function(){
+  var docs=document.getElementById('docs'); if(!docs||!window.NHDocs) return;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function when(ts){ try{ var d=new Date(ts); return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
+  function render(){
+    var list=NHDocs.list();
+    if(!list.length){ docs.innerHTML=''; return; }
+    var h='<div class="docs-head">Your documents · '+list.length+'</div><div class="doccards">';
+    list.forEach(function(it){
+      var prev=(it.text||'').replace(/\s+/g,' ').trim();
+      h+='<div class="doccard"><div class="dc-title">'+esc(it.title||'Untitled document')+'</div>'+
+         (prev?'<div class="dc-prev">'+esc(prev.slice(0,180))+(prev.length>180?'…':'')+'</div>':'')+
+         '<div class="dc-meta"><span class="when">'+esc(when(it.updated||it.ts))+'</span>'+
+         '<a class="dc-open" href="#" data-open="'+esc(it.id)+'">Open &rarr;</a>'+
+         '<a class="dc-del" data-del="'+esc(it.id)+'">remove</a></div></div>';
+    });
+    docs.innerHTML=h+'</div>';
+    docs.querySelectorAll('[data-open]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); try{localStorage.setItem('nh_open_doc', a.getAttribute('data-open'));}catch(_){} location.href='/'; }); });
+    docs.querySelectorAll('[data-del]').forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); if(confirm('Remove this document? This cannot be undone.')){ NHDocs.remove(a.getAttribute('data-del')); render(); } }); });
+  }
+  render();
+})();
 (function(){
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var items=[]; try{ items=JSON.parse(localStorage.getItem('nh_kept_v1')||'[]'); }catch(e){}
   var shelf=document.getElementById('shelf');
-  if(!items.length){ shelf.innerHTML='<div class="empty">Nothing kept yet.<br>Bring something on the <a href="/">home page</a> — a grocery note, an email, a claim — and it will land here.</div>'; return; }
+  if(!items.length){ shelf.innerHTML='<div class="empty">No lists, drafts, or checks kept yet.<br>Bring something on the <a href="/">work area</a> — a grocery note, an email, a claim — and it will land here. (Documents you write show above.)</div>'; return; }
 
   function dayKey(ts){ var d=new Date(ts); return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}); }
   function timeOf(ts){ try{ return new Date(ts).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } }
