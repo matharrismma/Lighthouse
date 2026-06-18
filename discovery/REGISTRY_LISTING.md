@@ -30,7 +30,10 @@ Publishing is a deliberate, authenticated act (not a silent crawl).
     account that owns the repo. Simplest; no DNS needed.
   - `com.narrowhighway/concordance` — verified by a DNS TXT record on narrowhighway.com.
     Cleaner brand, slightly more setup.
-  - Replace `REVIEW_NAMESPACE/concordance` in `server.json` with the chosen one.
+  - `server.json` is now set to `io.github.matharrismma/concordance` (the recommended,
+    no-DNS default). Change it to `com.narrowhighway/concordance` if you prefer the
+    domain brand. **Nothing has been submitted — publishing is your call (it authenticates
+    as you and is outward-facing).**
 - **How to publish (you run this — it authenticates as you):**
   1. Install the publisher CLI: `mcp-publisher` (per the registry repo's current README —
      confirm the install command, the tooling is young).
@@ -48,8 +51,8 @@ Proposed line (adjust category to each list's taxonomy):
 
 > **[Concordance](https://narrowhighway.com/mcp.html)** — Deterministic verification
 > engine. Check a claim or derivation; get a verdict, the worked trail, and a permanent
-> re-checkable seal. Verifies, never generates (a false claim returns BROKEN). 134 tools
-> across 64 verifier domains + a four-gate decision pipeline.
+> re-checkable seal. Verifies, never generates (a false claim returns BROKEN). 142 tools
+> across 71 verifier domains + a four-gate decision pipeline.
 
 Candidate lists (verify each is active/accepting before opening a PR):
 - `punkpeye/awesome-mcp-servers`
@@ -58,7 +61,7 @@ Candidate lists (verify each is active/accepting before opening a PR):
 
 ## 4. ChatGPT / OpenAI-tool agents — already exposed, optional well-known
 
-- `GET /manifest` — OpenAI function-calling manifest (58 verifiers).
+- `GET /manifest` — OpenAI function-calling manifest (71 verifiers).
 - `GET /openapi-actions.json` — curated schema for a ChatGPT Custom GPT Action.
 - *Optional:* a `/.well-known/ai-plugin.json` for the (now legacy) plugin convention.
   **Held — it needs a contact email and a logo URL from you; I won't publish your

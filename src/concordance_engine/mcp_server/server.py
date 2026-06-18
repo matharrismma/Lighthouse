@@ -1775,17 +1775,18 @@ def atlas(
     """Walk the structural map of the engine — the grid.
 
     The atlas describes WHERE things sit. Every domain has a position
-    on the 7-axis scaffold (encoding, metabolism, reasoning,
-    physical_substance, authority_trust, time_sequence,
-    conservation_balance). Domains that share an axis are
-    structurally adjacent. Domains on 3+ axes are structurally deep.
+    on the dimensional scaffold (the axes are read live from the grid:
+    encoding, metabolism, reasoning, physical_substance, authority_trust,
+    time_sequence, conservation_balance, uncertainty, discreteness,
+    order, symmetry). Domains that share an axis are structurally
+    adjacent. Domains on 3+ axes are structurally deep.
 
     Use the atlas before calling a verifier when you don't know which
     domain applies, or to find which other domains are adjacent to a
     domain you already know.
 
     Modes (call with at most one of these):
-      no args         → return the full scaffold (all 7 axes + their
+      no args         → return the full scaffold (every axis + its
                         member counts, total domains, umbrella groupings).
       domain="X"      → return X's axis position, depth, neighbors
                         ranked by shared-axis count, umbrella, children.
@@ -2495,6 +2496,12 @@ def _predict_axes_from_query(qlower: str) -> set:
         "authority_trust":       ["author", "trust", "consent", "consensus", "legitim", "sign"],
         "time_sequence":         ["time", "sequenc", "order", "before", "after", "deadline", "period"],
         "conservation_balance":  ["balanc", "conserv", "equilibri", "invariant", "preserv"],
+        # The four dimensions added to the grid after the original seven — they
+        # were matched only on their literal name; give them synonym stems too.
+        "uncertainty":           ["uncertain", "probab", "random", "stochast", "risk", "confidence", "estimat"],
+        "discreteness":          ["discret", "integer", "countab", "quantiz", "digital", "granular"],
+        "order":                 ["order", "rank", "sort", "hierarch", "ordinal", "precede"],
+        "symmetry":              ["symmetr", "reflect", "rotation", "mirror", "group-theor"],
     }
     predicted: set = set()
     for ax, stems in AXIS_STEMS.items():
