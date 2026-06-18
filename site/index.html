@@ -72,16 +72,28 @@
     h1{font-family:'Crimson Pro',Georgia,serif;font-weight:400;font-size:clamp(2.1rem,5vw,3rem);color:#f4ecd5;line-height:1.1;margin-bottom:12px;}
     .tagline{font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--accenthi);font-size:clamp(1.02rem,1.8vw,1.2rem);margin:0 auto 26px;max-width:40ch;}
 
-    form.draw{display:flex;gap:8px;max-width:600px;margin:0 auto;align-items:flex-start;}
-    form.draw input,form.draw textarea{flex:1;padding:15px 18px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.06rem;}
-    form.draw textarea{resize:none;line-height:1.5;min-height:54px;max-height:50vh;overflow-y:auto;width:100%;}
-    form.draw input:focus,form.draw textarea:focus{outline:none;border-color:var(--accenthi);box-shadow:0 0 0 4px rgba(232,200,150,.2);}
-    form.draw.drop-active textarea{border-color:var(--accenthi);background:#fffdf6;box-shadow:0 0 0 5px rgba(232,200,150,.35);}
-    form.draw button{padding:0 24px;align-self:stretch;min-height:54px;background:var(--accent);color:#1a1820;border:2px solid var(--accent);border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
-    form.draw button:hover{background:var(--accenthi);} form.draw button:disabled{opacity:.5;cursor:default;}
-    .draw-hint{max-width:600px;margin:7px auto 0;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:var(--muted);text-align:center;}
+    /* The work area is a document from the first keystroke — write, format, and
+       it saves itself and finds the right home. */
+    .draw{max-width:660px;margin:0 auto;}
+    .draw.drop-active .doc{border-color:var(--accenthi);box-shadow:0 0 0 5px rgba(232,200,150,.35);}
+    .fmtbar{display:flex;align-items:center;gap:4px;padding:6px 8px;background:#efe9dc;border:2px solid var(--accent);border-bottom:none;border-radius:9px 9px 0 0;}
+    .fmtbar button{min-width:30px;height:28px;padding:0 8px;background:transparent;border:1px solid transparent;border-radius:6px;color:#3a352c;font-family:'Crimson Pro',Georgia,serif;font-size:14px;cursor:pointer;line-height:1;}
+    .fmtbar button:hover{background:#e0d7c2;border-color:rgba(0,0,0,.1);}
+    .fmtbar .sp{flex:1;}
+    .fmtbar .saved{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:#8a7e63;text-transform:uppercase;padding-right:4px;}
+    .doc{min-height:168px;max-height:62vh;overflow-y:auto;padding:18px 20px;background:#faf8f0;color:#2a2a28;border:2px solid var(--accent);border-radius:0 0 9px 9px;font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;line-height:1.7;text-align:left;outline:none;}
+    .doc:focus{border-color:var(--accenthi);}
+    .doc:empty:before{content:attr(data-ph);color:#9a917f;font-style:italic;}
+    .doc h2{font-size:1.4rem;margin:.4em 0 .2em;}
+    .doc ul{margin:.3em 0 .3em 1.2em;}
+    .draw-actions{display:flex;align-items:center;gap:12px;margin-top:11px;}
+    .draw-actions button{padding:11px 22px;background:var(--accent);color:#1a1820;border:none;border-radius:9px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;}
+    .draw-actions button:hover{background:var(--accenthi);} .draw-actions button:disabled{opacity:.5;cursor:default;}
+    .draw-hint{flex:1;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:var(--muted);text-align:left;}
     .draw-hint b{color:var(--dim);font-weight:600;}
-    @media(max-width:540px){form.draw{flex-direction:column;}form.draw button{padding:13px;align-self:auto;}}
+    .infer{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.04em;color:var(--accent);opacity:.75;text-transform:none;}
+    .infer.det{color:var(--muted);}
+    @media(max-width:540px){.draw-actions{flex-direction:column;align-items:stretch;}}
 
     .chips{margin:13px auto 0;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;opacity:.6;transition:opacity .25s;}
     .chips.faded{opacity:.12;pointer-events:none;}
@@ -144,11 +156,23 @@
   <h1 data-i18n="work.title">The work area.</h1>
   <p class="tagline" data-i18n="work.tagline">A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.</p>
 
-  <form class="draw" id="drawForm" onsubmit="return nhBring(event);">
-    <textarea id="uq" rows="1" autocomplete="off" data-i18n-placeholder="work.input_placeholder" placeholder="Write a journal entry · search the concordance · check a claim · draft a message · pull up your settings — or drop a file here. It goes where it should."></textarea>
-    <button id="ubtn" type="submit" data-i18n="work.bring_button">Bring it &rarr;</button>
-  </form>
-  <p class="draw-hint">Type or paste a long passage, or <b>drop a text file</b>. <b>⌘/Ctrl + Enter</b> to send. It routes itself — write, search, verify, draft, learn, or your settings.</p>
+  <div class="draw" id="drawForm">
+    <div class="fmtbar" id="fmtbar" aria-label="Formatting">
+      <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button type="button" data-cmd="formatBlock" data-val="h2" title="Heading">H</button>
+      <button type="button" data-cmd="formatBlock" data-val="p" title="Normal text">¶</button>
+      <button type="button" data-cmd="insertUnorderedList" title="List">&bull;&nbsp;List</button>
+      <span class="sp"></span>
+      <span class="saved" id="savedTag"></span>
+    </div>
+    <div id="uq" class="doc" contenteditable="true" role="textbox" aria-multiline="true"
+         data-ph="Start writing — a grocery note, a letter to send, a claim to check, or a whole chapter. It saves itself as you go, and finds the right home. Drop a file in too. ⌘/Ctrl+Enter when you want it acted on."></div>
+    <div class="draw-actions">
+      <button id="ubtn" type="button" onclick="nhBring()" data-i18n="work.bring_button">Do something with it &rarr;</button>
+      <span class="draw-hint">It saves itself · <b>⌘/Ctrl+Enter</b> to act · <b>drop a file</b> to bring it in · it determines the path — kept, sent, listed, or verified.</span>
+    </div>
+  </div>
   <div id="ures"></div>
 
   <div class="chips" id="uchips">
@@ -205,6 +229,9 @@ function nhVerifyCard(res){
   return html;
 }
 function nhCopy(btn){var t=btn.getAttribute('data-copy')||'';try{navigator.clipboard.writeText(t);btn.textContent='Copied ✓';}catch(e){}}
+// When the assistant (the LLM) chose the path, say so plainly — independence
+// means the engine and rules act on their own; an inference is always labelled.
+function nhInfer(d){return (d&&d.oracle===true)?' <span class="infer">· inferred — change it if wrong</span>':' <span class="infer det">· by rule</span>';}
 function nhRender(d){
   var res=document.getElementById('ures'), intent=d&&d.intent;
   // Crisis safety net leads — always, before anything else. A remedy or an
@@ -218,13 +245,13 @@ function nhRender(d){
   }
   if(intent==='list'){
     nhKeep('list',{list:d.list,items:d.items});
-    var h='<div class="art"><div class="art-lbl">Added to your '+nhEsc(d.list||'list')+' list <span class="kept">&middot; kept on this device</span></div>';
+    var h='<div class="art"><div class="art-lbl">Added to your '+nhEsc(d.list||'list')+' list <span class="kept">&middot; kept on this device</span>'+nhInfer(d)+'</div>';
     (d.items||[]).forEach(function(it){h+='<div class="li"><span class="bx"></span><span class="tx">'+nhEsc(it)+'</span></div>';});
     res.innerHTML=h+'</div>';return;
   }
   if(intent==='draft'){
     nhKeep('draft',d); var body=d.body||'';
-    var h='<div class="art draft"><div class="art-lbl">Drafted — ready to send <span class="kept">&middot; kept</span></div>';
+    var h='<div class="art draft"><div class="art-lbl">Drafted — ready to send <span class="kept">&middot; kept</span>'+nhInfer(d)+'</div>';
     if(d.to)h+='<div class="to">To: '+nhEsc(d.to)+'</div>';
     if(d.subject)h+='<div class="subj">'+nhEsc(d.subject)+'</div>';
     h+='<div class="bd">'+nhEsc(body)+'</div><button class="uact" onclick="nhCopy(this)" data-copy="'+nhEsc(body)+'">Copy</button></div>';
@@ -232,11 +259,14 @@ function nhRender(d){
   }
   if(intent==='note'){
     nhKeep('note',d);
-    res.innerHTML='<div class="art"><div class="art-lbl">Kept <span class="kept">&middot; on this device</span></div><div class="note-t">'+nhEsc(d.title||'Note')+'</div><div class="note-b">'+nhEsc(d.note||'')+'</div></div>';return;
+    var isDoc=(d.kept_as==='document');
+    var lbl=isDoc?'Kept as a document':'Kept';
+    var body=nhEsc(d.note||''); var prev=body.length>700?body.slice(0,700)+'…':body;
+    res.innerHTML='<div class="art"><div class="art-lbl">'+lbl+' <span class="kept">&middot; on this device</span>'+nhInfer(d)+'</div><div class="note-t">'+nhEsc(d.title||'Note')+'</div><div class="note-b">'+prev+'</div>'+(isDoc?'<div class="ans-cav">Saved here and yours to keep — open it any time from <a href="/kept.html">your things</a>. The path was chosen for you; move it if it belongs elsewhere.</div>':'')+'</div>';return;
   }
   if(intent==='ask'){
     nhKeep('ask',d);
-    res.innerHTML='<div class="art"><div class="art-lbl">Answer</div><div class="ans">'+nhEsc(d.answer||'')+'</div><div class="ans-cav">The assistant drafted this — anything that matters, weigh it. (Type it as a claim and the engine will.)</div></div>';return;
+    res.innerHTML='<div class="art"><div class="art-lbl">Answer'+nhInfer(d)+'</div><div class="ans">'+nhEsc(d.answer||'')+'</div><div class="ans-cav">The assistant drafted this — anything that matters, weigh it. (Type it as a claim and the engine will.)</div></div>';return;
   }
   if(intent==='search'){
     var sq=d.query||'';
@@ -265,51 +295,62 @@ function nhRender(d){
   }
   res.innerHTML='<div class="uhint">Kept.</div>';
 }
+var _nhSaveT=null;
+function nhDocEl(){ return document.getElementById('uq'); }
+function nhDocText(){ var e=nhDocEl(); return (e?(e.innerText||''):'').replace(/ /g,' ').trim(); }
+function nhDocSet(t){ var e=nhDocEl(); if(e){ e.innerText=t||''; nhDocSave(); } }
+function nhDocSave(){ try{ var e=nhDocEl(); if(!e) return; localStorage.setItem('nh_draft', e.innerHTML||''); var s=document.getElementById('savedTag'); if(s) s.textContent = nhDocText()? 'saved' : ''; }catch(_){} }
 async function nhBringText(text){
   text=(text||'').trim(); if(!text) return;
-  document.getElementById('uq').value=text;
-  var btn=document.getElementById('ubtn'); btn.disabled=true;
+  var btn=document.getElementById('ubtn'); if(btn) btn.disabled=true;
   nhWorking('Reading what you brought');
   try{ nhRender(await nhPost('/workspace/intake',{text:text})); }
   catch(e){ document.getElementById('ures').innerHTML='<div class="uhint">Could not reach the work area just now — try again in a moment.</div>'; }
-  btn.disabled=false;
+  if(btn) btn.disabled=false;
 }
-function nhBring(ev){ if(ev)ev.preventDefault(); nhBringText(document.getElementById('uq').value); return false; }
-document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();nhBringText(c.getAttribute('data-bring'));});});
-(function(){var q=document.getElementById('uq'),chips=document.getElementById('uchips');if(q&&chips)q.addEventListener('input',function(e){chips.classList.toggle('faded',(e.target.value||'').length>0);});})();
-// The threshold is a writing surface: auto-grow, ⌘/Ctrl+Enter to send, and
-// drag-and-drop text or a text file straight in. Long passages welcome.
+function nhBring(ev){ if(ev&&ev.preventDefault)ev.preventDefault(); nhBringText(nhDocText()); return false; }
+document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListener('click',function(e){e.preventDefault();var t=c.getAttribute('data-bring');nhDocSet(t);nhBringText(t);});});
+
+// The work area is a DOCUMENT from the first keystroke: format it, it autosaves,
+// you can drop a file in, and ⌘/Ctrl+Enter acts on it. No new-document ceremony.
 (function(){
-  var ta=document.getElementById('uq'), form=document.getElementById('drawForm');
-  if(!ta) return;
-  function grow(){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight, Math.floor(window.innerHeight*0.5))+'px'; }
-  ta.addEventListener('input', grow); setTimeout(grow, 0);
-  ta.addEventListener('keydown', function(e){ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); if(form&&form.requestSubmit) form.requestSubmit(); else nhBring(); } });
-  if(form){
-    ['dragenter','dragover'].forEach(function(ev){ form.addEventListener(ev, function(e){ e.preventDefault(); form.classList.add('drop-active'); }); });
-    ['dragleave','dragend'].forEach(function(ev){ form.addEventListener(ev, function(){ form.classList.remove('drop-active'); }); });
-    form.addEventListener('drop', function(e){
-      e.preventDefault(); form.classList.remove('drop-active');
-      var dt=e.dataTransfer; if(!dt) return;
-      if(dt.files && dt.files.length){
-        var f=dt.files[0];
-        if(/^text\//i.test(f.type||'') || /\.(txt|md|markdown|csv|json|log|html?)$/i.test(f.name||'')){
-          var rd=new FileReader();
-          rd.onload=function(){ ta.value=(ta.value?ta.value+'\n\n':'')+String(rd.result||'').slice(0,8000); grow(); ta.focus(); };
-          rd.readAsText(f);
-        } else {
-          ta.value=(ta.value?ta.value+'\n':'')+'[dropped "'+f.name+'" — paste its text here to keep, search, or check it]'; grow(); ta.focus();
-        }
-      } else {
-        var txt=dt.getData('text'); if(txt){ ta.value=(ta.value?ta.value+'\n':'')+txt; grow(); ta.focus(); }
-      }
-    });
+  var doc=document.getElementById('uq'), wrap=document.getElementById('drawForm'),
+      bar=document.getElementById('fmtbar'), chips=document.getElementById('uchips');
+  if(!doc) return;
+  // Restore an in-progress draft — a document is never lost and never "new".
+  try{ var saved=localStorage.getItem('nh_draft'); if(saved && saved.replace(/<[^>]*>/g,'').trim()){ doc.innerHTML=saved; } }catch(_){}
+  function onInput(){
+    if(chips) chips.classList.toggle('faded', nhDocText().length>0);
+    var s=document.getElementById('savedTag'); if(s) s.textContent='editing…';
+    clearTimeout(_nhSaveT); _nhSaveT=setTimeout(nhDocSave, 600);
   }
+  doc.addEventListener('input', onInput); onInput();
+  doc.addEventListener('keydown', function(e){ if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){ e.preventDefault(); nhBring(); } });
+  // Formatting toolbar (mousedown so the selection isn't lost before the command).
+  if(bar){ bar.addEventListener('mousedown', function(e){
+    var b=e.target.closest('button'); if(!b) return; e.preventDefault(); doc.focus();
+    try{ document.execCommand(b.getAttribute('data-cmd'), false, b.getAttribute('data-val')||null); }catch(_){}
+    onInput();
+  }); }
+  // Drag-and-drop text or a text file straight into the document.
+  function insert(t){ if(!t) return; document.execCommand('insertText', false, (nhDocText()? '\n\n':'')+t); onInput(); }
+  ['dragenter','dragover'].forEach(function(ev){ wrap.addEventListener(ev, function(e){ e.preventDefault(); wrap.classList.add('drop-active'); }); });
+  ['dragleave','dragend'].forEach(function(ev){ wrap.addEventListener(ev, function(){ wrap.classList.remove('drop-active'); }); });
+  wrap.addEventListener('drop', function(e){
+    e.preventDefault(); wrap.classList.remove('drop-active'); doc.focus();
+    var dt=e.dataTransfer; if(!dt) return;
+    if(dt.files && dt.files.length){
+      var f=dt.files[0];
+      if(/^text\//i.test(f.type||'') || /\.(txt|md|markdown|csv|json|log|html?)$/i.test(f.name||'')){
+        var rd=new FileReader(); rd.onload=function(){ insert(String(rd.result||'').slice(0,12000)); }; rd.readAsText(f);
+      } else { insert('[dropped "'+f.name+'" — paste its text here to keep, search, or check it]'); }
+    } else { insert(dt.getData('text')); }
+  });
 })();
 // mount THE BREATH — the verified body, live in the front door; what you bring lands on it
 (function(){ try{ if(window.NHBreath){ NHBreath.mount(document.getElementById('breathcv'), {}); } }catch(e){} })();
 // deep-link: /?bring=... runs it on arrival, so any surface can hand off to the work area
-(function(){try{var b=new URLSearchParams(location.search).get('bring');if(b)nhBringText(b);}catch(e){}})();
+(function(){try{var b=new URLSearchParams(location.search).get('bring');if(b){nhDocSet(b);nhBringText(b);}}catch(e){}})();
 </script>
 
 </body>

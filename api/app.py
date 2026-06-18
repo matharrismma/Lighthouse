@@ -5864,6 +5864,24 @@ def _quick_route(text: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def _looks_like_document(text: str) -> bool:
+    """True when the input is clearly COMPOSED WRITING (a letter, a journal entry,
+    a chapter) rather than a short command or claim. Such writing is kept as a
+    document deterministically — it never needs the LLM to route. Conservative:
+    a paragraph break, or sustained length, marks real writing."""
+    t = (text or "").strip()
+    return ("\n\n" in t) or len(t) > 600
+
+
+def _doc_title(text: str) -> str:
+    """A deterministic title from the first non-empty line — no LLM needed."""
+    for line in (text or "").splitlines():
+        line = line.strip()
+        if line:
+            return (line[:60] + "…") if len(line) > 60 else line
+    return "Document"
+
+
 class _IntakeIn(BaseModel):
     text: str
 
@@ -5879,8 +5897,8 @@ def workspace_intake(request: Request, body: _IntakeIn):
     text = (body.text or "").strip()
     if not text:
         raise HTTPException(status_code=400, detail="bring something")
-    if len(text) > 4000:
-        text = text[:4000]
+    if len(text) > 16000:
+        text = text[:16000]
     # Crisis safety net — deterministic and FIRST, before any routing or oracle
     # call. If what was brought carries an acute-risk signal, the only honest
     # response is to point past the tool to immediate, real help; we never spend
@@ -5897,6 +5915,12 @@ def workspace_intake(request: Request, body: _IntakeIn):
     _qr = _quick_route(text)
     if _qr is not None:
         return _qr
+    # Composed writing (a letter, a journal entry, a chapter) is KEPT AS A DOCUMENT
+    # deterministically — no LLM. Writing your own words should never depend on the
+    # oracle; the engine/rules act on their own, the oracle stays the last resort.
+    if _looks_like_document(text):
+        return {"intent": "note", "oracle": False, "kept_as": "document",
+                "title": _doc_title(text), "note": text}
     import os
     try:
         from api.offices import steward_budget_remaining_usd as _budget
