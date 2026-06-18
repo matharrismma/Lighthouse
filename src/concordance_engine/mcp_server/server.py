@@ -2486,35 +2486,10 @@ def propose_almanac_entry(
 
 
 def _predict_axes_from_query(qlower: str) -> set:
-    """Stem-based axis prediction. Local helper for almanac scoring."""
+    """Stem-based axis prediction. Delegates to the shared, owned parser in
+    grid.predict_dimensions so the locate tool and the map page agree."""
     from .. import grid as _grid
-    AXIS_STEMS = {
-        "encoding":              ["encod", "encrypt", "decod", "symbol", "cipher"],
-        "metabolism":            ["metabol", "growth", "decay", "nutri", "energ"],
-        "reasoning":             ["reason", "logic", "proof", "compute", "calculat", "infer"],
-        "physical_substance":    ["physic", "matter", "substanc", "spatial", "geometr"],
-        "authority_trust":       ["author", "trust", "consent", "consensus", "legitim", "sign"],
-        "time_sequence":         ["time", "sequenc", "order", "before", "after", "deadline", "period"],
-        "conservation_balance":  ["balanc", "conserv", "equilibri", "invariant", "preserv"],
-        # The four dimensions added to the grid after the original seven — they
-        # were matched only on their literal name; give them synonym stems too.
-        "uncertainty":           ["uncertain", "probab", "random", "stochast", "risk", "confidence", "estimat"],
-        "discreteness":          ["discret", "integer", "countab", "quantiz", "digital", "granular"],
-        "order":                 ["order", "rank", "sort", "hierarch", "ordinal", "precede"],
-        "symmetry":              ["symmetr", "reflect", "rotation", "mirror", "group-theor"],
-    }
-    predicted: set = set()
-    for ax, stems in AXIS_STEMS.items():
-        if any(s in qlower for s in stems):
-            predicted.add(ax)
-    for ax in _grid.DIMENSIONS:
-        if ax.replace('_', ' ') in qlower or ax in qlower:
-            predicted.add(ax)
-    for dom in _grid.AXIS_DIMENSIONS:
-        stem = dom[:6] if len(dom) >= 6 else dom
-        if dom in qlower or (len(stem) >= 5 and stem in qlower):
-            predicted.update(_grid.AXIS_DIMENSIONS[dom])
-    return predicted
+    return set(_grid.predict_dimensions(qlower))
 
 
 # Axis duals — the symmetric partners the SUPERSYMMETRY placeholder predicts.

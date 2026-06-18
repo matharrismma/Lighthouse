@@ -16888,8 +16888,48 @@ def grid_scaffold():
             parent: list(children)
             for parent, children in _grid.UMBRELLAS.items()
         },
+        # Aliases let a consumer collapse synonym domains to their canonical
+        # node (the map draws canonical-only by default so it isn't 90 nodes
+        # where a third are duplicates of the same coordinates).
+        "aliases": dict(_grid.ALIASES),
         "axis_count": len(_grid.AXIS_DIMENSIONS),
         "dimension_count": len(_grid.DIMENSIONS),
+    }
+
+
+@app.get("/grid/locate", tags=["agents"])
+def grid_locate(text: str = ""):
+    """Place a plain-language claim on the scaffold.
+
+    Owned, deterministic (no LLM): returns the dimensions the claim sits on
+    (grid.predict_dimensions) and the nearest canonical domains by shared-
+    dimension overlap. This is what the map page calls when you type a claim
+    into it — the same parser the `locate` MCP tool uses.
+    """
+    try:
+        from concordance_engine import grid as _grid
+    except ImportError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    text = (text or "")[:400]
+    dims = sorted(_grid.predict_dimensions(text))
+    nearest = []
+    if dims:
+        dimset = set(dims)
+        scored = []
+        for dom, dd in _grid.AXIS_DIMENSIONS.items():
+            if _grid.is_alias(dom):
+                continue
+            shared = dimset & set(dd)
+            if shared:
+                scored.append((len(shared), dom, sorted(shared)))
+        scored.sort(key=lambda t: (-t[0], t[1]))
+        nearest = [{"domain": d, "shared": s} for _, d, s in scored[:8]]
+    return {
+        "text": text,
+        "dimensions": dims,
+        "nearest_domains": nearest,
+        "note": ("no dimensions matched — bring a more specific claim"
+                 if not dims else None),
     }
 
 

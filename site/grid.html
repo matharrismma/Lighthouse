@@ -98,14 +98,15 @@
     .thresh-btn:hover { border-color: var(--border-bright); color: var(--text); }
     .thresh-btn.active { background: rgba(17,14,24,0.95); border-color: var(--accent); color: var(--accent); }
 
-    #search {
+    #search, #locate {
       background: rgba(17,14,24,0.85); border: 1px solid var(--border);
       border-radius: 6px; color: var(--text);
       font-family: 'Inter', sans-serif; font-size: 12px;
       padding: 5px 10px; outline: none; width: 168px;
     }
-    #search::placeholder { color: var(--muted); }
-    #search:focus { border-color: var(--border-bright); }
+    #locate { width: 210px; }
+    #search::placeholder, #locate::placeholder { color: var(--muted); }
+    #search:focus, #locate:focus { border-color: var(--accent); }
 
     /* Legend */
     #legend {
@@ -165,6 +166,10 @@
     [data-dim="aut"] { background: #2a1e40; color: var(--aut); border: 1px solid #40306a; }
     [data-dim="tim"] { background: #1a2a35; color: var(--tim); border: 1px solid #284555; }
     [data-dim="csv"] { background: #0f3230; color: var(--csv); border: 1px solid #1a4e4c; }
+    [data-dim="unc"] { background: #3a1e2a; color: #e07a9a; border: 1px solid #5a3044; }
+    [data-dim="dsc"] { background: #241f3e; color: #9b8cff; border: 1px solid #393060; }
+    [data-dim="ord"] { background: #2a3015; color: #b8d06a; border: 1px solid #444c22; }
+    [data-dim="sym"] { background: #2f253a; color: #d0b0e0; border: 1px solid #483a58; }
 
     .detail-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 5px; margin-top: 2px; }
     .adj-list { display: flex; flex-direction: column; gap: 3px; max-height: 180px; overflow-y: auto; }
@@ -252,6 +257,13 @@
       <div class="overlay-row">
         <input id="search" type="text" placeholder="Find domain…" autocomplete="off">
       </div>
+      <span class="thresh-label">Place a claim on the map</span>
+      <div class="overlay-row">
+        <input id="locate" type="text" placeholder="e.g. the speed of light is 299792458 m/s" autocomplete="off">
+      </div>
+      <div class="overlay-row">
+        <button class="thresh-btn" id="arr-btn" title="show the symmetry pairs (provisional)">⇄ arrangement</button>
+      </div>
     </div>
 
     <div id="legend">
@@ -262,6 +274,10 @@
       <div class="leg-item"><div class="leg-dot" style="background:var(--rsn)"></div>Reasoning</div>
       <div class="leg-item"><div class="leg-dot" style="background:var(--tim)"></div>Time</div>
       <div class="leg-item"><div class="leg-dot" style="background:var(--phy)"></div>Physical</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#e07a9a"></div>Uncertainty</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#9b8cff"></div>Discreteness</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#b8d06a"></div>Order</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#d0b0e0"></div>Symmetry</div>
     </div>
 
     <button id="spin-btn" class="on">⟳ spinning</button>
@@ -273,10 +289,12 @@
     <div class="panel-header">
       <div class="panel-title">Engine Grid</div>
       <div class="panel-sub">
-        71 domains · 7 axes · <a href="/packets.html" style="color:var(--accent);">~14,000 packets indexed</a><br>
+        every domain · 11 dimensions · <a href="/packets.html" style="color:var(--accent);">packets indexed</a><br>
         <span style="color:var(--accent);font-style:italic">The invisible things… clearly seen  — Rom. 1:20</span>
       </div>
     </div>
+
+    <div id="arrangement" style="display:none;padding:11px 14px;border-bottom:1px solid var(--border)"></div>
 
     <div id="detail">
       <div class="detail-empty">
@@ -314,19 +332,35 @@ const API = (() => {
 
 const DIM_COLOR = {
   enc: '#5b9bd5', met: '#6ec98a', rsn: '#d4c46a',
-  phy: '#d9945c', aut: '#a87cd6', tim: '#7fa8c0', csv: '#5ec4b4'
+  phy: '#d9945c', aut: '#a87cd6', tim: '#7fa8c0', csv: '#5ec4b4',
+  // The four dimensions added after the original seven (live in the scaffold).
+  unc: '#e07a9a', dsc: '#9b8cff', ord: '#b8d06a', sym: '#d0b0e0'
 };
 const DIM_LABEL = {
   enc: 'Encoding', met: 'Metabolism', rsn: 'Reasoning',
-  phy: 'Physical',  aut: 'Authority',  tim: 'Time',     csv: 'Conservation'
+  phy: 'Physical',  aut: 'Authority',  tim: 'Time',     csv: 'Conservation',
+  unc: 'Uncertainty', dsc: 'Discreteness', ord: 'Order', sym: 'Symmetry'
 };
 const DIM_CODE = {
   encoding: 'enc', metabolism: 'met', reasoning: 'rsn',
   physical_substance: 'phy', authority_trust: 'aut',
-  time_sequence: 'tim', conservation_balance: 'csv'
+  time_sequence: 'tim', conservation_balance: 'csv',
+  uncertainty: 'unc', discreteness: 'dsc', order: 'ord', symmetry: 'sym'
 };
-// Priority: rarest most distinctive first
-const DIM_PRIORITY = ['enc','aut','met','csv','rsn','tim','phy'];
+// Priority: rarest / most distinctive first (the four new axes are rarer).
+const DIM_PRIORITY = ['sym','ord','dsc','unc','enc','aut','met','csv','rsn','tim','phy'];
+
+// ── The arrangement (provisional) ──────────────────────────────────────
+// The symmetric duals from the SUPERSYMMETRY placeholder — a lens for how the
+// map is arranged and where to look next, NOT a settled claim. Some axes have a
+// real dual; some predict a partner that is not yet a dimension (a gap).
+const DUALS = {
+  order:'uncertainty', uncertainty:'order',
+  conservation_balance:'metabolism', metabolism:'conservation_balance',
+  reasoning:'authority_trust', authority_trust:'reasoning'
+};
+const PREDICTED = { discreteness:'continuity', physical_substance:'abstract / spirit' };
+const UNPAIRED = ['encoding','time_sequence','symmetry']; // honest: no dual yet (exploration targets)
 
 function primaryDim(dims) {
   for (const d of DIM_PRIORITY) if (dims.includes(d)) return d;
@@ -433,6 +467,9 @@ let adjacentIds = new Set();
 let currentThreshold = 1;
 let spinning = true;
 let searchTerm = '';
+let DIM_TOTAL = 11;        // dimensions in the live scaffold (updated from /grid/scaffold)
+let located = null;        // {ids:Set, dims:[]} — a typed claim placed on the map
+let dimHi = null;          // {a,b} dimension codes — a highlighted symmetry pair
 
 function initGraph(data) {
   allNodes = data.nodes;
@@ -486,6 +523,16 @@ function initGraph(data) {
 }
 
 function nodeColor(d) {
+  // Arrangement mode — colour the two dimensions of a symmetry pair, dim the rest.
+  if (dimHi) {
+    if (d.dims.includes(dimHi.a)) return DIM_COLOR[dimHi.a] || '#ffffff';
+    if (dimHi.b && d.dims.includes(dimHi.b)) return DIM_COLOR[dimHi.b] || '#ffffff';
+    return '#1a1625';
+  }
+  // Locate mode — light the domains a typed claim landed nearest to.
+  if (located) {
+    return located.ids.has(d.id) ? '#6fc47c' : '#1a1625';
+  }
   if (!selectedId) {
     if (searchTerm) {
       return (d.id.includes(searchTerm) || d.label.includes(searchTerm))
@@ -506,6 +553,7 @@ function linkWidth(l) {
 }
 
 function linkVisible(l) {
+  if (dimHi || located) return false;   // arrangement / locate modes are about nodes
   if (!selectedId && !searchTerm) return true;
   if (selectedId) {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
@@ -535,6 +583,7 @@ function refreshGraph() {
 ═══════════════════════════════════════════════════ */
 
 function onNodeClick(node) {
+  dimHi = null; located = null;          // leave arrangement / locate modes
   selectedId = node.id;
   adjacentIds = new Set(
     allLinks
@@ -563,7 +612,7 @@ function onNodeClick(node) {
 }
 
 function onBgClick() {
-  selectedId = null;
+  selectedId = null; dimHi = null; located = null;
   adjacentIds = new Set();
   refreshGraph();
   document.getElementById('detail').innerHTML = `
@@ -704,25 +753,139 @@ window.addEventListener('resize', () => {
                   .height(document.getElementById('graph-3d').clientHeight);
 });
 
+/* ═══════════════════════════════════════════════════
+   ARRANGEMENT — the symmetry pairs (provisional)
+═══════════════════════════════════════════════════ */
+
+function dimDot(name){
+  const c = DIM_COLOR[DIM_CODE[name]] || '#888';
+  return `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:5px;vertical-align:middle"></span>`;
+}
+
+function renderArrangement(){
+  const el = document.getElementById('arrangement');
+  if (!el) return;
+  const seen = {};
+  const pairs = [];
+  for (const a in DUALS){ const b = DUALS[a]; const k=[a,b].sort().join('|'); if(seen[k])continue; seen[k]=1; pairs.push([a,b]); }
+  let html = `<div class="detail-section-label">Arrangement · symmetry pairs</div>`;
+  html += pairs.map(([a,b]) =>
+    `<div class="arr-pair" onclick="highlightDual('${a}','${b}',this)"
+        style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:5px;cursor:pointer;font-size:11px;background:rgba(23,19,32,0.6);margin-bottom:3px;color:var(--text)">
+       ${dimDot(a)}${a.replace(/_/g,' ')} <span style="color:var(--muted)">⇄</span> ${b.replace(/_/g,' ')}${dimDot(b)}
+     </div>`).join('');
+  const preds = Object.keys(PREDICTED);
+  if (preds.length){
+    html += `<div class="detail-section-label" style="margin-top:8px">Predicted partner · a gap</div>`;
+    html += preds.map(p =>
+      `<div class="arr-pair" onclick="highlightDual('${p}',null,this)"
+          style="display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:5px;cursor:pointer;font-size:11px;background:rgba(23,19,32,0.4);margin-bottom:3px;color:var(--muted)">
+         ${dimDot(p)}${p.replace(/_/g,' ')} <span style="color:var(--muted)">→</span> <span style="font-style:italic">${PREDICTED[p]}</span>
+       </div>`).join('');
+  }
+  html += `<div style="font-size:10px;color:var(--muted);margin-top:7px;line-height:1.5">`+
+          `Unpaired so far: ${UNPAIRED.map(u=>u.replace(/_/g,' ')).join(', ')} — exploration targets. `+
+          `The pairing is the <a href="/placeholders" style="color:var(--accent)">supersymmetry placeholder</a>: `+
+          `a lens for where to look, held open, not a settled claim.</div>`;
+  el.innerHTML = html;
+}
+
+function highlightDual(aName, bName, elRow){
+  const a = DIM_CODE[aName], b = bName ? DIM_CODE[bName] : null;
+  if (dimHi && dimHi.a === a && dimHi.b === b){ dimHi = null; }
+  else { dimHi = { a, b }; located = null; selectedId = null; adjacentIds = new Set(); searchTerm = '';
+         const s = document.getElementById('search'); if (s) s.value = ''; }
+  document.querySelectorAll('#arrangement .arr-pair').forEach(x => x.style.outline = '');
+  if (dimHi && elRow) elRow.style.outline = '1px solid var(--accent)';
+  // detail summary
+  const det = document.getElementById('detail');
+  if (dimHi){
+    const onA = allNodes.filter(n => n.dims.includes(a)).map(n=>n.id);
+    const onB = b ? allNodes.filter(n => n.dims.includes(b)).map(n=>n.id) : [];
+    det.innerHTML =
+      `<div class="detail-domain" style="text-transform:none;font-size:14px">${aName.replace(/_/g,' ')}${b?' ⇄ '+bName.replace(/_/g,' '):' → '+ (PREDICTED[aName]||'')}</div>`+
+      `<div class="detail-depth">${onA.length} domain(s) on ${aName.replace(/_/g,' ')}${b?` · ${onB.length} on ${bName.replace(/_/g,' ')}`:''}</div>`+
+      `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px">`+
+      (b ? `A confirmed pair in the placeholder — kept vs transformed, ruled vs trusted, ordered vs uncertain. Coloured on the map now.`
+         : `<b>${aName.replace(/_/g,' ')}</b> has no dimension partner yet — the symmetry predicts <i>${PREDICTED[aName]}</i>. A gap to test, not a claim.`)+
+      `</div>`;
+  }
+  refreshGraph();
+}
+
+document.getElementById('arr-btn').addEventListener('click', () => {
+  const a = document.getElementById('arrangement');
+  const btn = document.getElementById('arr-btn');
+  const show = a.style.display === 'none';
+  a.style.display = show ? 'block' : 'none';
+  btn.classList.toggle('active', show);
+  if (!show && dimHi){ dimHi = null; refreshGraph(); }
+});
+
+/* ═══════════════════════════════════════════════════
+   LOCATE — place a typed claim on the map (owned parser)
+═══════════════════════════════════════════════════ */
+
+function renderLocate(d, t){
+  const det = document.getElementById('detail');
+  const dims = (d.dimensions || []);
+  const pills = dims.length
+    ? dims.map(dim => `<span class="dim-pill" data-dim="${DIM_CODE[dim]||dim}">${DIM_LABEL[DIM_CODE[dim]]||dim}</span>`).join('')
+    : `<span style="color:var(--muted);font-size:11px">no dimensions matched — bring a more specific claim</span>`;
+  const near = (d.nearest_domains || []);
+  det.innerHTML =
+    `<div class="detail-domain" style="text-transform:none;font-size:13px">“${t.slice(0,70)}”</div>`+
+    `<div class="detail-depth">placed by the owned parser — no LLM</div>`+
+    `<div class="detail-dims">${pills}</div>`+
+    (near.length ? `<div class="detail-section-label">${near.length} nearest domains</div>`+
+      `<div class="adj-list">`+ near.map(n =>
+        `<div class="adj-row" onclick="clickAdj('${n.domain}')">`+
+        `<span class="adj-name">${n.domain.replace(/_/g,' ')}</span>`+
+        `<span class="adj-count">${(n.shared||[]).length}</span>`+
+        `<div class="adj-dots">${(n.shared||[]).map(dim=>`<div class="adj-dot" style="background:${DIM_COLOR[DIM_CODE[dim]]||'#888'}"></div>`).join('')}</div>`+
+        `</div>`).join('') + `</div>` : '');
+}
+
+document.getElementById('locate').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const t = e.target.value.trim();
+  if (!t) return;
+  fetch(`${API}/grid/locate?text=` + encodeURIComponent(t)).then(r => r.json()).then(d => {
+    dimHi = null; selectedId = null; adjacentIds = new Set(); searchTerm = '';
+    const sb = document.getElementById('search'); if (sb) sb.value = '';
+    located = { ids: new Set((d.nearest_domains || []).map(x => x.domain)), dims: d.dimensions || [] };
+    refreshGraph();
+    renderLocate(d, t);
+  }).catch(() => {});
+});
+
 async function init() {
-  // Try live API first, fall back to inline
-  let grid = GRID_INLINE;
+  // Live grid is authoritative: EVERY canonical domain, ALL dimensions it sits
+  // on (incl. the four added after the original seven). Aliases are collapsed so
+  // the map isn't padded with duplicate coordinates. Inline is offline fallback.
+  let grid = null;
   try {
     const resp = await fetch(`${API}/grid/scaffold`, { signal: AbortSignal.timeout(4000) });
     if (resp.ok) {
       const json = await resp.json();
+      const aliases = json.aliases || {};
+      const axes = json.axes || {};
       const live = {};
-      for (const id of Object.keys(GRID_INLINE)) {
-        const rawDims = json.axes?.[id] || [];
-        live[id] = rawDims.map(d => DIM_CODE[d] || d).filter(Boolean);
-        if (!live[id].length) live[id] = GRID_INLINE[id]; // fallback
+      for (const id of Object.keys(axes)) {
+        if (aliases[id]) continue;                          // canonical only
+        const codes = (axes[id] || []).map(d => DIM_CODE[d] || d).filter(Boolean);
+        if (codes.length) live[id] = codes;
       }
-      grid = live;
+      if (Object.keys(live).length) grid = live;
+      if (json.dimension_count) DIM_TOTAL = json.dimension_count;
     }
   } catch (_) { /* offline, use inline */ }
+  if (!grid) grid = GRID_INLINE;
 
   const data = buildData(grid);
   initGraph(data);
+  renderArrangement();
   await loadFeed();
   setInterval(loadFeed, 45000);
 }

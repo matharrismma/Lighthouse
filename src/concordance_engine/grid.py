@@ -637,6 +637,65 @@ def depth(axis: str) -> int:
     return len(AXIS_DIMENSIONS[axis])
 
 
+# ── Prose → dimensions (owned, deterministic) ───────────────────────────
+# A keyword layer that places a plain-language claim on the scaffold: which
+# dimensions it sits on. Owned (no LLM), broadened so far more real claims
+# place. The own-model parser will deepen this over time; this is the floor.
+# Multi-axis overlap is expected and fine. Lives here (not in the MCP server)
+# so every surface — the locate tool AND the map page — shares one parser.
+_AXIS_STEMS: Dict[str, Tuple[str, ...]] = {
+    "encoding":              ("encod", "encrypt", "decod", "symbol", "cipher", "code", "languag",
+                              "word", "letter", "alphabet", "translat", "data", "informat", "messag", "text"),
+    "metabolism":            ("metabol", "growth", "decay", "nutri", "energ", "food", "digest",
+                              "cell", "flow", "transform", "burn", "calorie", "grow", "ferment", "photosynth"),
+    "reasoning":             ("reason", "logic", "proof", "comput", "calculat", "infer", "math",
+                              "equal", "sum", "number", "theorem", "equation", "deriv", "prime",
+                              "arithmetic", "prov", "deduc", "solve", "algebra"),
+    "physical_substance":    ("physic", "matter", "substanc", "spatial", "geometr", "light", "speed",
+                              "mass", "force", "veloci", "atom", "particle", "wave", "gravit", "heat",
+                              "temperatur", "distanc", "length", "meter", "molecul", "element", "pressure", "volume"),
+    "authority_trust":       ("author", "trust", "consent", "consensus", "legitim", "sign", "law",
+                              "govern", "vote", "witness", "testimon", "source", "cite", "scriptur", "verse"),
+    "time_sequence":         ("time", "sequenc", "before", "after", "deadline", "period", "date",
+                              "year", "day", "when", "schedul", "calendar", "histor", "event", "clock", "duration"),
+    "conservation_balance":  ("balanc", "conserv", "equilibri", "invariant", "preserv", "momentum",
+                              "charge", "budget", "account", "ledger", "total", "sum to", "first law"),
+    # Dimensions added after the original seven — synonym stems so they place.
+    "uncertainty":           ("uncertain", "probab", "random", "stochast", "risk", "confidence",
+                              "estimat", "chance", "odds", "likely", "p-value", "noise", "variance"),
+    "discreteness":          ("discret", "integer", "countab", "quantiz", "digital", "granular",
+                              "count", "whole number", "digit", "unit", "step"),
+    "order":                 ("order", "rank", "sort", "hierarch", "ordinal", "precede", "greater than", "less than"),
+    "symmetry":              ("symmetr", "reflect", "rotation", "mirror", "group-theor"),
+}
+
+
+def predict_dimensions(text: str) -> FrozenSet[str]:
+    """Place a plain-language claim on the scaffold: which dimensions it sits on.
+
+    Three owned signals, unioned: (1) per-dimension keyword stems, (2) a literal
+    dimension name in the text, (3) a domain name in the text -> that domain's
+    dimensions. Returns the (possibly empty) set of dimensions. Deterministic,
+    no LLM. Only the runtime DIMENSIONS / AXIS_DIMENSIONS are consulted, so any
+    axis added at runtime participates automatically (its stems, if any, would
+    need adding here, but its NAME and its domains' dims still place it)."""
+    q = (text or "").lower()
+    predicted: set = set()
+    if q:
+        for ax, stems in _AXIS_STEMS.items():
+            if any(s in q for s in stems):
+                predicted.add(ax)
+        for dim in DIMENSIONS:
+            if dim in q or dim.replace("_", " ") in q:
+                predicted.add(dim)
+        for dom, dims in AXIS_DIMENSIONS.items():
+            stem = dom[:6] if len(dom) >= 6 else dom
+            if dom in q or (len(stem) >= 5 and stem in q):
+                predicted.update(dims)
+    # Only keep dimensions that actually exist in the live scaffold.
+    return frozenset(d for d in predicted if d in DIMENSIONS)
+
+
 def adjacent(axis: str) -> List[Tuple[str, FrozenSet[str]]]:
     """Other axes that share at least one dimension with this axis,
     paired with the shared-dimension set. Sorted by overlap descending."""
