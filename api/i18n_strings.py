@@ -70,6 +70,20 @@ STRINGS: Dict[str, str] = {
     "door.teach_title":     "I want to teach my child",
     "door.teach_desc":      "66 units across phonics, math, reading, writing, science, social studies, Bible. Free. No accounts.",
 
+    # ── Work area (the current landing page, index.html) ──
+    "work.eyebrow":          "Bring anything · it knows what to do",
+    "work.title":            "The work area.",
+    "work.tagline":          "A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.",
+    "work.input_placeholder": "Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember",
+    "work.bring_button":     "Bring it →",
+    "work.explore":          "Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.",
+    "work.what_is_this":     "What is this? — the whole story →",
+    "work.link_learn":       "Learn anything →",
+    "work.link_kept":        "Your things →",
+    "work.link_brain":       "The engine as a brain →",
+    "work.link_breath":      "The map, by what proves it →",
+    "work.link_mcp":         "For developers & AI →",
+
     # ── Search ──
     "search.placeholder":   'Search — "does ginger help nausea?" · "John 14:6" · "what does agape mean?"',
     "search.button":        "Search →",

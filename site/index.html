@@ -136,13 +136,13 @@
 <body>
 
 <main class="well">
-  <div class="eyebrow"><span class="ld"></span>Bring anything &middot; it knows what to do</div>
-  <h1>The work area.</h1>
-  <p class="tagline">A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.</p>
+  <div class="eyebrow"><span class="ld"></span><span data-i18n="work.eyebrow">Bring anything &middot; it knows what to do</span></div>
+  <h1 data-i18n="work.title">The work area.</h1>
+  <p class="tagline" data-i18n="work.tagline">A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.</p>
 
   <form class="draw" onsubmit="return nhBring(event);">
-    <input id="uq" type="text" autocomplete="off" placeholder="Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember">
-    <button id="ubtn" type="submit">Bring it &rarr;</button>
+    <input id="uq" type="text" autocomplete="off" data-i18n-placeholder="work.input_placeholder" placeholder="Bring anything — milk and eggs · an email to send · a claim to check · a thing to remember">
+    <button id="ubtn" type="submit" data-i18n="work.bring_button">Bring it &rarr;</button>
   </form>
   <div id="ures"></div>
 
@@ -160,23 +160,24 @@
     <canvas id="breathcv" aria-label="The verified body — a living map of everything the engine holds, drawn by what proves it. What you bring lights up where it lands."></canvas>
   </div>
 
-  <p class="explore">Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.</p>
-  <p style="margin-top:24px;text-align:center;"><a href="/enter.html" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accenthi);border:1px solid rgba(201,168,124,.45);border-radius:9px;padding:11px 22px;">What is this? &mdash; the whole story &rarr;</a></p>
+  <p class="explore" data-i18n="work.explore">Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.</p>
+  <p style="margin-top:24px;text-align:center;"><a href="/enter.html" data-i18n="work.what_is_this" style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accenthi);border:1px solid rgba(201,168,124,.45);border-radius:9px;padding:11px 22px;">What is this? &mdash; the whole story &rarr;</a></p>
   <p class="links">
-    <a href="/read.html">Learn anything &rarr;</a>
+    <a href="/read.html" data-i18n="work.link_learn">Learn anything &rarr;</a>
     <span class="sep">&middot;</span>
-    <a href="/kept.html">Your things &rarr;</a>
+    <a href="/kept.html" data-i18n="work.link_kept">Your things &rarr;</a>
     <span class="sep">&middot;</span>
-    <a href="/brain.html">The engine as a brain &rarr;</a>
+    <a href="/brain.html" data-i18n="work.link_brain">The engine as a brain &rarr;</a>
     <span class="sep">&middot;</span>
-    <a href="/breath.html">The map, by what proves it &rarr;</a>
+    <a href="/breath.html" data-i18n="work.link_breath">The map, by what proves it &rarr;</a>
     <span class="sep">&middot;</span>
-    <a href="/mcp.html">For developers &amp; AI &rarr;</a>
+    <a href="/mcp.html" data-i18n="work.link_mcp">For developers &amp; AI &rarr;</a>
   </p>
 </main>
 
 <script src="/breath-embed.js"></script>
 <script src="/safety-banner.js"></script>
+<script src="/i18n.js"></script>
 <script>
 // The work area: bring anything; the one brain routes it; the engine verifies what
 // is verifiable; the assistant only drafts the rest; everything is kept (on-device).
