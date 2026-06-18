@@ -381,20 +381,21 @@ def structure_prose(problem: str) -> Dict[str, Any]:
     except Exception:
         pass
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"],
-                                     timeout=25.0, max_retries=1)
-        resp = client.messages.create(
-            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
-            max_tokens=1200, system=_BRIDGE_SYS,
-            messages=[{"role": "user", "content": problem}])
+        # Formalize through the ONE pluggable oracle seam (api/oracle.complete) so a
+        # single env flip (NH_ORACLE_PROVIDER=ollama/openai/...) structures prose on a
+        # local model; default == today's exact Anthropic behavior (NH_BASE_MODEL,
+        # default claude-sonnet-4-5, max_tokens=1200, timeout 25s, 1 retry). The oracle
+        # STRUCTURES; verify_derivation below JUDGES — the verdict is never the oracle's.
+        from api import oracle as _oracle
+        res = _oracle.complete(_BRIDGE_SYS, problem, max_tokens=1200,
+                               timeout=25.0, max_retries=1)
+        if not res.ok:
+            return {"ok": False, "error": res.error[:300] if res.error else "oracle unavailable"}
         try:
-            ti = getattr(resp.usage, "input_tokens", 0) or 0
-            to = getattr(resp.usage, "output_tokens", 0) or 0
-            ledger_record("derivation_bridge", ti * 3e-6 + to * 15e-6)
+            ledger_record("derivation_bridge", res.tokens_in * 3e-6 + res.tokens_out * 15e-6)
         except Exception:
             pass
-        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        raw = res.text
         steps = _extract_json_array(raw)
         if not steps:
             return {"ok": False, "error": "oracle did not return parseable steps", "raw": raw[:400]}

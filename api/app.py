@@ -5816,22 +5816,23 @@ Output ONLY the JSON object."""
 
 
 def _intake_route(text: str) -> Dict[str, Any]:
-    import os
-    import anthropic
+    # Drafts through the ONE pluggable oracle seam (api/oracle.complete) so a
+    # single env flip (NH_ORACLE_PROVIDER=ollama/openai/...) runs this on a local
+    # model; default == today's exact Anthropic behavior (NH_BASE_MODEL, default
+    # claude-sonnet-4-5, max_tokens=900, timeout 22s, 1 retry). The engine still
+    # judges; the oracle only routes/drafts.
+    from api import oracle as _oracle
     try:
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=22.0, max_retries=1)
-        resp = client.messages.create(
-            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
-            max_tokens=900, system=_INTAKE_SYS,
-            messages=[{"role": "user", "content": text}])
+        res = _oracle.complete(_INTAKE_SYS, text, max_tokens=900,
+                               timeout=22.0, max_retries=1)
+        if not res.ok:
+            raise RuntimeError(res.error or "oracle unavailable")
         try:
             from api.offices import ledger_record
-            ti = getattr(resp.usage, "input_tokens", 0) or 0
-            to = getattr(resp.usage, "output_tokens", 0) or 0
-            ledger_record("workspace_intake", ti * 3e-6 + to * 15e-6)
+            ledger_record("workspace_intake", res.tokens_in * 3e-6 + res.tokens_out * 15e-6)
         except Exception:  # noqa: BLE001
             pass
-        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        raw = res.text
         i, j = raw.find("{"), raw.rfind("}")
         if i >= 0 and j > i:
             return json.loads(raw[i:j + 1])
@@ -5957,22 +5958,22 @@ Be TRUE and concrete; prefer the simplest correct explanation. If a point is gen
 
 
 def _tutor_lesson(topic: str) -> Dict[str, Any]:
-    import os
-    import anthropic
+    # Drafts through the ONE pluggable oracle seam (api/oracle.complete) so a
+    # single env flip runs the tutor on a local model; default == today's exact
+    # Anthropic behavior (NH_BASE_MODEL, default claude-sonnet-4-5, max_tokens=900,
+    # timeout 25s, 1 retry). Honestly labelled downstream as drafted, not verified.
+    from api import oracle as _oracle
     try:
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=25.0, max_retries=1)
-        resp = client.messages.create(
-            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
-            max_tokens=900, system=_LESSON_SYS,
-            messages=[{"role": "user", "content": "Teach me: " + topic}])
+        res = _oracle.complete(_LESSON_SYS, "Teach me: " + topic, max_tokens=900,
+                               timeout=25.0, max_retries=1)
+        if not res.ok:
+            raise RuntimeError(res.error or "oracle unavailable")
         try:
             from api.offices import ledger_record
-            ti = getattr(resp.usage, "input_tokens", 0) or 0
-            to = getattr(resp.usage, "output_tokens", 0) or 0
-            ledger_record("tutor_lesson", ti * 3e-6 + to * 15e-6)
+            ledger_record("tutor_lesson", res.tokens_in * 3e-6 + res.tokens_out * 15e-6)
         except Exception:  # noqa: BLE001
             pass
-        raw = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        raw = res.text
         i, j = raw.find("{"), raw.rfind("}")
         if i >= 0 and j > i:
             return json.loads(raw[i:j + 1])
@@ -9745,13 +9746,17 @@ def intake(request: Request, req: IntakeRequest):
     # Template questions for the selected axes
     templates = [_AXIS_QUESTIONS.get(ax, f"What about {ax}?") for ax in selected_axes]
 
-    # Try to personalise via Haiku — makes questions specific to the claim text
+    # Try to personalise via Haiku — makes questions specific to the claim text.
+    # Drafts through the ONE pluggable seam (api/oracle.complete): a single env flip
+    # (NH_ORACLE_PROVIDER=ollama/openai/...) runs this Socratic-intake personaliser
+    # on a LOCAL model; default == today's exact Anthropic behavior (haiku,
+    # max_tokens=256, single user turn, no system prompt). Falls back to templates
+    # on any failure exactly as before.
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     questions = templates  # default
     if api_key and text:
         try:
-            import anthropic as _anthropic
-            _client = _anthropic.Anthropic(api_key=api_key)
+            from api import oracle as _oracle
             prompt = (
                 f"Claim: {text[:400]}\n"
                 f"Domain: {domain or 'unknown'}\n"
@@ -9761,12 +9766,11 @@ def intake(request: Request, req: IntakeRequest):
                 + "\n".join(f"{i+1}. {q}" for i, q in enumerate(templates))
                 + '\n\nOutput ONLY a JSON array of exactly 2 strings.\n["Question 1?", "Question 2?"]'
             )
-            resp = _client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=256,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            raw   = resp.content[0].text.strip()
+            res = _oracle.complete("", prompt, max_tokens=256,
+                                   model="claude-haiku-4-5-20251001")
+            if not res.ok:
+                raise RuntimeError(res.error or "oracle unavailable")
+            raw   = res.text.strip()
             start = raw.find("[")
             end   = raw.rfind("]") + 1
             if start >= 0 and end > start:
@@ -11405,13 +11409,18 @@ def _call_oracle(text: str, model: str) -> Optional[Dict[str, Any]]:
     """Ask an AI oracle to extract {domain, spec} from text.
     Returns None if oracle is unavailable or fails.
     Oracle response must be valid JSON with 'domain' and 'spec' keys.
+
+    Drafts through the ONE pluggable seam (api/oracle.complete): a single env flip
+    (NH_ORACLE_PROVIDER=ollama/openai/...) runs this /agent NL->{domain,spec}
+    extraction on a LOCAL model; default == today's exact Anthropic behavior. The
+    per-request `model` (default haiku) is honored on the anthropic default path;
+    when the local provider is selected it takes its model from that grammar/env.
     """
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return None
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
+        from api import oracle as _oracle
         system = (
             "You are a field extractor for a deterministic verification engine. "
             "Given natural language describing a calculation or claim, output ONLY "
@@ -11428,13 +11437,10 @@ def _call_oracle(text: str, model: str) -> Optional[Dict[str, Any]]:
             "spec must contain the numeric/string fields the verifier needs. "
             "Output only the JSON object, nothing else."
         )
-        msg = client.messages.create(
-            model=model,
-            max_tokens=512,
-            system=system,
-            messages=[{"role": "user", "content": text}],
-        )
-        content = msg.content[0].text.strip()
+        res = _oracle.complete(system, text, max_tokens=512, model=model)
+        if not res.ok:
+            return None
+        content = res.text.strip()
         # Strip markdown code fences if present
         if content.startswith("```"):
             content = content.split("```")[1]

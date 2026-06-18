@@ -137,12 +137,24 @@ class AnthropicAdapter:
         if not api_key:
             raise RuntimeError("ANTHROPIC_API_KEY not set in environment")
 
-        client = anthropic.Anthropic(api_key=api_key)
+        # Pass through optional client options (timeout, max_retries) when the
+        # caller supplies them — the generative edges set timeout=22-25s,
+        # max_retries=1. Omitted by default, so run_gated's behavior is unchanged.
+        client_opts: dict = {"api_key": api_key}
+        if opts.get("timeout") is not None:
+            client_opts["timeout"] = opts["timeout"]
+        if opts.get("max_retries") is not None:
+            client_opts["max_retries"] = opts["max_retries"]
+        client = anthropic.Anthropic(**client_opts)
         start = time.time()
+        # A caller may pass a full multi-turn conversation via opts["messages"]
+        # (the Shepherd discernment edge does); otherwise the single prompt is the
+        # lone user turn, exactly as before — default behavior is unchanged.
+        msgs = opts.get("messages")
         kwargs = dict(
             model=self.model_id,
             max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
+            messages=msgs if msgs is not None else [{"role": "user", "content": prompt}],
         )
         if system:
             kwargs["system"] = system
@@ -238,7 +250,13 @@ class OpenAICompatibleAdapter:
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
-        messages.append({"role": "user", "content": prompt})
+        # Honor a full multi-turn conversation when supplied (Shepherd discernment
+        # passes the whole history); else the single prompt is the lone user turn.
+        convo = opts.get("messages")
+        if convo is not None:
+            messages.extend(convo)
+        else:
+            messages.append({"role": "user", "content": prompt})
         payload = {
             "model": self.model_id,
             "messages": messages,

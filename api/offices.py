@@ -268,21 +268,24 @@ def shepherd_discern(history: List[Dict[str, str]], allow_keep: bool = True,
         pass
 
     # Tier 2 — the oracle. Only when allowed AND the Steward admits the spend.
+    # Drafts through the ONE pluggable seam (api/oracle.complete): a single env
+    # flip (NH_ORACLE_PROVIDER=ollama/openai/...) runs this companion/Shepherd
+    # voice on a LOCAL model; default == today's exact Anthropic behavior
+    # (NH_BASE_MODEL, default claude-sonnet-4-5, max_tokens=300, full history as
+    # the messages array). The engine still routes; the oracle only discerns.
     if (allow_oracle and os.environ.get("ANTHROPIC_API_KEY")
             and steward_budget_remaining_usd() >= 1.0):
         try:
-            import anthropic
             import re as _re
-            client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+            from api import oracle as _oracle
             msgs = [{"role": m["role"], "content": m["content"]} for m in history if m.get("content")]
-            resp = client.messages.create(
-                model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"),
-                max_tokens=300, system=_SHEPHERD_DISCERN_PROMPT, messages=msgs)
-            txt = "".join(getattr(b, "text", "") for b in resp.content).strip()
+            res = _oracle.complete(_SHEPHERD_DISCERN_PROMPT, last_user,
+                                   max_tokens=300, messages=msgs)
+            if not res.ok:
+                raise RuntimeError(res.error or "oracle unavailable")
+            txt = res.text
             try:
-                ti = getattr(resp.usage, "input_tokens", 0) or 0
-                to = getattr(resp.usage, "output_tokens", 0) or 0
-                ledger_record("shepherd", ti * 3e-6 + to * 15e-6)  # Steward records the cost
+                ledger_record("shepherd", res.tokens_in * 3e-6 + res.tokens_out * 15e-6)  # Steward records the cost
             except Exception:
                 pass
             mj = _re.search(r"\{.*\}", txt, _re.S)
@@ -566,19 +569,20 @@ def _shepherd_socratic_oracle(situation, cards):
     if not os.environ.get("ANTHROPIC_API_KEY") or steward_budget_remaining_usd() < 1.0:
         return None
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-        resp = client.messages.create(
-            model=os.environ.get("NH_BASE_MODEL", "claude-sonnet-4-5"), max_tokens=80,
-            system=_SOCRATIC_SYS,
-            messages=[{"role": "user", "content": _socratic_user(situation, cards)}])
+        # Drafts through the ONE pluggable seam (api/oracle.complete): one env flip
+        # (NH_ORACLE_PROVIDER=ollama/openai/...) phrases the Socratic question on a
+        # LOCAL model; default == today's exact Anthropic behavior (NH_BASE_MODEL,
+        # default claude-sonnet-4-5, max_tokens=80, single user turn).
+        from api import oracle as _oracle
+        res = _oracle.complete(_SOCRATIC_SYS, _socratic_user(situation, cards),
+                               max_tokens=80)
+        if not res.ok:
+            return None
         try:
-            ti = getattr(resp.usage, "input_tokens", 0) or 0
-            to = getattr(resp.usage, "output_tokens", 0) or 0
-            ledger_record("shepherd", ti * 3e-6 + to * 15e-6)  # Steward records the cost
+            ledger_record("shepherd", res.tokens_in * 3e-6 + res.tokens_out * 15e-6)  # Steward records the cost
         except Exception:
             pass
-        q = "".join(getattr(b, "text", "") for b in resp.content).strip()
+        q = res.text
         return q or None
     except Exception:
         return None
