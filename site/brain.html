@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The engine, as a brain — Narrow Highway</title>
-<meta name="description" content="The verification engine drawn from its real structure: ~1,684 verified neurons in two trees from one source, wired by concord bonds, with signals firing along the paths it follows.">
+<meta name="description" content="The verification engine's concept map: ~1,691 mapped findings in two trees from one source — most concordant or resonant, a few engine-verified — wired by their connections. A curated slice of the full 11,138-card corpus.">
 <meta name="robots" content="index">
 <style>
   :root{--bg:#06070b;--gold:#c9a87c;--goldhi:#e3c498;--tx:#ede7db;--dim:#9b94ac;--mut:#6e6878;--line:#23202c;}
@@ -33,13 +33,13 @@
 </style>
 </head>
 <body>
-<canvas id="brain" role="img" aria-label="A network map of the engine's concepts: ~1,684 nodes in two glowing hemispheres, language and mathematics, linked by ~2,363 connections that trace back to a few source roots."></canvas>
+<canvas id="brain" role="img" aria-label="A network map of the engine's concepts: ~1,691 nodes in two glowing hemispheres, language and mathematics, linked by ~2,363 connections that trace back to a few source roots."></canvas>
 <div id="load" class="loading">Waking the engine…</div>
 <a class="back" href="/">&larr; home</a>
 <div class="ov top">
   <div class="kik">The engine &middot; its real structure</div>
-  <h1>Every verified thing it holds, and the paths between them.</h1>
-  <p class="lede">Two trees from one source — the matrix (math) and the organic (the Word) — wired by what survived verification. Watch the signal fire out from the root along the paths it follows.</p>
+  <h1>The concepts it holds, and the paths between them.</h1>
+  <p class="lede">Two trees from one source — the matrix (math) and the organic (the Word), wired by their connections. This is the engine's <b>concept map — ~1,691 findings</b> (a curated slice; the full corpus is <b>11,138 cards</b>). For what is <b>proven</b> versus only <b>resonant</b>, see <a href="/breath.html" style="color:inherit;text-decoration:underline;">the Breath</a>.</p>
 </div>
 <div class="legend" id="legend"></div>
 <div class="counts" id="counts"></div>
@@ -180,7 +180,7 @@
       TREE.map(function(t){return '<div class="lg"><span class="dot" style="color:rgb('+t.c.join(',')+')"></span>'+t.n+'</div>';}).join('')
       + '<div class="lg"><span class="dot" style="color:rgb('+SRCC.join(',')+')"></span>source (the root)</div>';
     document.getElementById('counts').innerHTML =
-      '<b>'+N.toLocaleString()+'</b> verified neurons<br><b>'+E.length.toLocaleString()+'</b> concord bonds<br><b>'+K.length.toLocaleString()+'</b> kin braces';
+      '<b>'+N.toLocaleString()+'</b> mapped concepts<br><b>'+E.length.toLocaleString()+'</b> concord bonds<br><b>'+K.length.toLocaleString()+'</b> kin braces';
   }
 
   if(window.BRAIN_DATA){ boot(window.BRAIN_DATA); }
