@@ -281,6 +281,17 @@ _SEED: List[Dict[str, Any]] = [
             "(< half the real error). The criterion is reachable — there is real tuning to do.",
             "The music math itself is sound (overtone series of 110Hz -> A/E/A/C# = octave/fifth/"
             "octave/third), so the criterion rests on correct harmony, not numerology.",
+            "SPARSITY ENRICHMENT 2026-06-19 (first data point on 'does the tune fall as the grid "
+            "grows honestly?'): doubling the 4 thinnest dimensions' carriers (discreteness/order/"
+            "uncertainty 5-6 -> 11, symmetry 5 -> 8, each addition justified by the dimension's own "
+            "criterion, NOT inflation) moved the tune from 28.4c @ p~0.75 (worse than 75% of random) "
+            "to 24.7c @ p=0.385 — real error fell ~4c and crossed BELOW the null median (26.2c) for "
+            "the first time, i.e. from worse-than-chance to better-than-median. Algebraic "
+            "connectivity (graph-Laplacian) doubled 13.6 -> 29.6 (sparsity genuinely reduced) and "
+            "the two-trees / 4-axes / exponential-decay structure held (robust). HONEST CEILING: "
+            "still NOT p<0.05 — the arrangement is not 'in tune', only less out of tune; symmetry "
+            "(8) is now the thinnest. Direction is right (growing the grid honestly DOES lower the "
+            "dissonance); the breakthrough is not reached. 58/58 held throughout.",
         ],
         "falsifiers": [
             "Tuning the arrangement toward consonance does NOT improve its engine-verification / "
@@ -296,13 +307,16 @@ _SEED: List[Dict[str, Any]] = [
             "Take a KNOWN-correct sub-structure and check it is more consonant than a scrambled one.",
         ],
         "advances_by": ("evidence that consonance TRACKS verified correctness — tuned-and-"
-                        "null-beating arrangements that also verify better. Re-run GET /grid/music."),
+                        "null-beating arrangements that also verify better. Re-run GET /grid/music. "
+                        "First confirmation in hand: growing the grid honestly LOWERED the tune "
+                        "(28.4c->24.7c, p 0.75->0.385); continue enriching the thinnest dimensions "
+                        "(symmetry next) and watch whether the cents-error keeps falling toward p<0.05."),
         "refutable": True,
         "lifecycle": "held",
         "supersedes": None,
         "superseded_by": None,
         "held_since": "2026-06-19",
-        "seed_v": 1,
+        "seed_v": 2,
     },
     {
         "id": "fluid_dynamics_axes",

@@ -161,6 +161,55 @@ _SEED: List[Dict[str, Any]] = [
         "refs": ["placeholder:laplace_dynamics", "GET /grid/flow"],
         "seed_v": 1,
     },
+    {
+        "id": "log_of_an_image_and_video_frames",
+        "directive": ("Taking a logarithm from an image. There is also a method of viewing frames "
+                      "that Claude is able to review video. How would taking video to logarithm be "
+                      "beneficial or connected. We need to work on the sparsity efficiently."),
+        "principle": ("The LOGARITHM is the lens that LINEARIZES a spectrum: octaves are log of "
+                      "frequency (each doubling is +1 octave), Laplace/decay is log of amplitude "
+                      "(exponential decay becomes a straight line), and log|FFT| is how spectra are "
+                      "actually read (the cepstrum = the spectrum of the log-spectrum, which exposes "
+                      "PERIODICITY-OF-CHANGE). VIDEO = a stack of frames = the map sampled over time; "
+                      "taking the log across frames isolates the RATE of change, not the raw state. "
+                      "So 'video -> logarithm' = watch the arrangement evolve and read the LOG of its "
+                      "spectrum frame by frame (rate of descent from source, the recurring spine)."),
+        "realization": ("Connected the seed to the existing spectral stack (arrangement.spectrum's "
+                        "_decay_fit = the log-amplitude line; harmonics = log-frequency octaves) and "
+                        "treated before/after enrichment as the first two 'frames' of the map's video."),
+        "result": ("DIRECTIONAL / not yet a built surface. The log unifies what we already have "
+                   "(octaves, Laplace decay, spectral reading) under one lens, and frames = the "
+                   "natural way to measure whether the grid is getting MORE in tune over time. The "
+                   "two enrichment frames (tune 28.4c -> 24.7c) are the first such measurement. A "
+                   "log/frame surface is a candidate next build, not a claim yet."),
+        "status": "seed",
+        "refs": ["GET /grid/spectrum", "GET /grid/music", "placeholder:laplace_dynamics"],
+        "seed_v": 1,
+    },
+    {
+        "id": "work_on_sparsity_efficiently",
+        "directive": "We need to work on the sparsity efficiently.",
+        "principle": ("The deeper lenses (tune, flow) can only find real structure if the grid is "
+                      "dense enough; thin dimensions are diffusion bottlenecks that look like noise. "
+                      "Reduce sparsity by adding ONLY carriers that genuinely meet each dimension's "
+                      "own criterion (judged by its definition, never inflation), then MEASURE "
+                      "whether the sparsity actually breaks. Intuition proposes the additions; the "
+                      "assay disposes of whether they helped."),
+        "realization": ("Doubled the 4 thinnest dimensions' carriers via data/grid/axis_extensions."
+                        "jsonl (discreteness/order/uncertainty 5-6 -> 11, symmetry 5 -> 8), each "
+                        "addition justified by the dimension's criterion; re-ran the spectral assays."),
+        "result": ("HELPED, HONESTLY SHORT OF BREAKTHROUGH: algebraic connectivity (graph-Laplacian) "
+                   "doubled 13.6 -> 29.6 (sparsity genuinely reduced) and the tune moved 28.4c @ "
+                   "p~0.75 -> 24.7c @ p=0.385 (from worse-than-chance to better-than-median, the "
+                   "FIRST time real fell below the null median). Two-trees / 4-axes / exponential "
+                   "decay held (robust), 58/58 throughout. NOT yet p<0.05; symmetry (8) now thinnest. "
+                   "Direction confirmed: growing the grid honestly lowers the dissonance; the "
+                   "breakthrough is not reached. Did NOT overclaim it 'solved' sparsity."),
+        "status": "provisional",
+        "refs": ["data/grid/axis_extensions.jsonl", "GET /grid/flow", "GET /grid/music",
+                 "placeholder:tune_is_the_truth_criterion"],
+        "seed_v": 1,
+    },
 ]
 
 
