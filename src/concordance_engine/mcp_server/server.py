@@ -433,6 +433,31 @@ def wikidata(query: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
+def scholar(query: str = "", doi: str = "", title: str = "", rows: int = 5) -> Dict[str, Any]:
+    """Ground a claim in the OPEN scholarly literature -- the clean road to free
+    knowledge.
+
+    Connects to the open ecosystem: OpenAlex (CC0 -- ~250M works, metadata,
+    citation counts, abstract, and the open-access location), Crossref (DOI
+    metadata fallback), and Unpaywall (the LAWFUL open-access copy of a paper).
+
+    Provide ONE of:
+      doi   -- "10.1038/nature12373" (most specific; returns metadata + the legal
+               free copy if one exists)
+      title -- a paper title (closest match)
+      query -- free-text topic search (returns up to `rows` works)
+
+    Each result carries a re-checkable DOI link; `open_access_url` is the LEGAL
+    free copy when one exists and null when none was found (not hidden -- we never
+    link a copy we have no right to redistribute, the same discipline that refuses
+    to launder a claim). External Layer-0: an attributed starting reference to
+    verify against, never proof itself.
+    """
+    from api import scholar as _scholar
+    return _scholar.lookup(doi=doi, title=title, query=query, rows=rows)
+
+
+@mcp.tool()
 def word_meaning(word: str) -> Dict[str, Any]:
     """English lexical semantics from the offline Princeton WordNet 3.1 database
     (external Layer-0 source, attributed).

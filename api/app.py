@@ -16933,6 +16933,26 @@ def grid_locate(text: str = ""):
     }
 
 
+@app.get("/scholar/lookup", tags=["agents"])
+def scholar_lookup(doi: str = "", title: str = "", q: str = "", rows: int = 5):
+    """Ground a claim in the OPEN scholarly literature.
+
+    Connects to the open ecosystem — OpenAlex (CC0 metadata + citations + the
+    open-access location + abstract), Crossref (DOI metadata fallback), and
+    Unpaywall (the lawful open-access copy). Provenance is the product: every
+    result carries a re-checkable DOI link, and `open_access_url` is the LEGAL
+    free copy when one exists (null means none was found, not that one was
+    hidden — we never link a copy we have no right to redistribute).
+
+    Provide one of: `doi` (most specific), `title`, or `q` (free-text search).
+    """
+    try:
+        from api import scholar as _scholar
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _scholar.lookup(doi=doi, title=title, query=q, rows=rows)
+
+
 @app.get("/grid/domain/{domain}", tags=["agents"])
 def grid_domain_position(domain: str):
     """Scaffold position of one domain.
