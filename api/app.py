@@ -5090,6 +5090,100 @@ def curriculum_all():
     }
 
 
+_CURRICULUM_BOOK_CACHE: Dict[str, str] = {}
+_CURRICULUM_TRACK_LABELS = {
+    "phonics": "Phonics", "math": "Math", "reading": "Reading", "writing": "Writing",
+    "science": "Science", "bible_curriculum": "Bible", "social_studies": "Social studies",
+    "workready": "Work-ready",
+}
+
+
+@app.get("/curriculum/book", tags=["humans"], include_in_schema=False)
+def curriculum_book():
+    """The whole curriculum as ONE server-rendered, crawlable HTML page.
+
+    /curriculum.html renders client-side, so the free K-12 lessons are invisible
+    to search and AI retrieval. This serves every unit's title, rule, examples,
+    and decodable sentence as plain HTML — readable with no JavaScript, printable,
+    and indexable. Free education, made findable (serve the least). Cached."""
+    import html as _h
+    from fastapi.responses import HTMLResponse
+
+    data = curriculum_all()
+    tracks = data.get("tracks", {})
+    total = data.get("total_units", 0)
+    ckey = str(total)
+    cached = _CURRICULUM_BOOK_CACHE.get(ckey)
+    if cached:
+        return HTMLResponse(cached)
+
+    def esc(s):
+        return _h.escape(str(s or ""))
+
+    parts = [
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>The Curriculum — free K-12, the whole book · Narrow Highway</title>",
+        "<meta name=\"description\" content=\"Every free curriculum unit — phonics, math, "
+        "reading, writing, science, Bible, social studies — each with its rule, examples, and "
+        "a decodable sentence. Readable in full, printable, no account.\">",
+        "<link rel=\"canonical\" href=\"https://narrowhighway.com/curriculum/book\">",
+        "<script type=\"application/ld+json\">",
+        json.dumps({"@context": "https://schema.org", "@type": "Course",
+                    "name": "Narrow Highway Curriculum (free K-12)",
+                    "description": "Free phonics, math, reading, writing, science, Bible, and "
+                                   "social-studies units — the rule, examples, and a decodable "
+                                   "sentence for each.",
+                    "url": "https://narrowhighway.com/curriculum/book",
+                    "provider": {"@type": "Organization", "name": "Narrow Highway",
+                                 "url": "https://narrowhighway.com"},
+                    "isAccessibleForFree": True}),
+        "</script>",
+        "<style>body{font-family:Georgia,'Times New Roman',serif;max-width:760px;margin:0 auto;"
+        "padding:28px 18px 80px;line-height:1.6;color:#1c1a16;background:#fbfaf6}"
+        "h1{font-size:1.9rem;margin:.2em 0 .1em}h2{font-size:1.2rem;margin:1.8em 0 .3em;"
+        "border-bottom:1px solid #d8d2c4;padding-bottom:4px;color:#5a4a2a}"
+        "article{margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid #ece7da}"
+        "h3{font-size:1.06rem;margin:.2em 0;font-weight:600}.seq{font-family:monospace;"
+        "font-size:.72rem;color:#7a6a45;text-transform:uppercase}.rule{margin:.4em 0}"
+        "ul{margin:.3em 0;padding-left:1.2em}.dec{font-style:italic;color:#444;margin:.3em 0}"
+        "a{color:#8a6d3b}.intro{font-style:italic;color:#555;margin:.4em 0 1.4em}"
+        "@media print{body{background:#fff}}</style>",
+        "</head><body>",
+        "<p><a href=\"/curriculum.html\">the interactive curriculum</a> &middot; "
+        "<a href=\"/\">Narrow Highway</a></p>",
+        "<h1>The Curriculum</h1>",
+        "<p class=\"intro\">Free, in full — phonics, math, reading, writing, science, Bible, "
+        f"and social studies. {total} units; each gives the rule, worked examples, and a "
+        "decodable sentence. No account, printable. Freely you have received; freely give.</p>",
+    ]
+    for tkey, units in tracks.items():
+        if not units:
+            continue
+        label = _CURRICULUM_TRACK_LABELS.get(tkey, tkey.replace("_", " ").title())
+        parts.append(f"<h2>{esc(label)} &middot; {len(units)} units</h2>")
+        for u in sorted(units, key=lambda x: x.get("unit_seq") or 0):
+            parts.append("<article><h3>" + esc(u.get("title") or u.get("id")) + "</h3>")
+            seq = u.get("unit_seq")
+            if seq:
+                parts.append(f"<p class=\"seq\">unit {esc(seq)}</p>")
+            if u.get("rule"):
+                parts.append("<p class=\"rule\">" + esc(u.get("rule")) + "</p>")
+            ex = u.get("examples") or []
+            if ex:
+                parts.append("<ul>" + "".join("<li>" + esc(x) + "</li>" for x in ex[:8]) + "</ul>")
+            if u.get("decodable_sentence"):
+                parts.append("<p class=\"dec\">&ldquo;" + esc(u.get("decodable_sentence")) + "&rdquo;</p>")
+            if u.get("summary") and u.get("summary") != u.get("rule"):
+                parts.append("<p>" + esc(u.get("summary")) + "</p>")
+            parts.append("</article>")
+    parts.append("</body></html>")
+    out_html = "".join(parts)
+    _CURRICULUM_BOOK_CACHE.clear()
+    _CURRICULUM_BOOK_CACHE[ckey] = out_html
+    return HTMLResponse(out_html)
+
+
 # ── Teaching layer — parables + mnemonics + glyphs ───────────────
 # "We are teaching along the way." A companion layer to the curriculum:
 # each entry attaches a memory device (mnemonic), a visual glyph, and a
