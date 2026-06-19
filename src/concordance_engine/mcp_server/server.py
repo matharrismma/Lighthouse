@@ -2594,7 +2594,7 @@ def locate(text: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def arrangement_probe() -> Dict[str, Any]:
+def arrangement_probe(deep: bool = False) -> Dict[str, Any]:
     """Run the map's ARRANGEMENT disconfirmers against the live grid — the
     second brain's own self-testing.
 
@@ -2612,10 +2612,11 @@ def arrangement_probe() -> Dict[str, Any]:
 
     Evidence to weigh, never a self-declared verdict (the apex stays reserved).
     Use this when reasoning about WHERE the map's structure is real vs proposed,
-    or before trusting a dual/gap from `locate`.
+    or before trusting a dual/gap from `locate`. Pass deep=True to also run the
+    slower (~2s) 2-pole vs 3-pole test.
     """
     from api import arrangement as _arr
-    return _arr.probe()
+    return _arr.probe(deep=bool(deep))
 
 
 # ============================================================

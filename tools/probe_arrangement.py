@@ -27,4 +27,4 @@ for _p in (_ROOT, os.path.join(_ROOT, "src")):
 from api.arrangement import probe, fmt
 
 if __name__ == "__main__":
-    print(fmt(probe()))
+    print(fmt(probe(deep=True)))  # operator run — include the slower pole-count test

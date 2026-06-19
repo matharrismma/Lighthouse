@@ -160,6 +160,14 @@ _SEED: List[Dict[str, Any]] = [
             "governance; deepest-material = geology / hydrology / agriculture / soil / nuclear.",
             "8 straddlers (biology, quantum_computing, geometry, music_theory...) sit on both — "
             "the expected bridges between form and matter.",
+            "POLE-COUNT TEST (2026-06-18, k-comparable cohesion = avg within-phi minus avg "
+            "across-phi): 3 poles fit MODESTLY better than 2 (cohesion 0.285 vs 0.233, gain "
+            "+0.052). The abstract pole splits into FORMAL/mathematical {reasoning, order, "
+            "discreteness, uncertainty} and INFORMATIONAL/social {encoding, authority_trust, "
+            "time_sequence}; material {physical_substance, metabolism, conservation_balance, "
+            "symmetry} stays whole. So two-poles holds as a COARSE lens, but the data leans "
+            "toward THREE — a finer structure to watch (the margin is small on a sparse grid; "
+            "not minted as its own placeholder yet).",
         ],
         "falsifiers": [
             "A domain strongly on BOTH poles that is NOT a natural bridge — breaks the single-axis claim.",
@@ -172,13 +180,14 @@ _SEED: List[Dict[str, Any]] = [
             "Compare a 2-pole vs 3-pole fit; if 3 poles win clearly, the 'two trees' is wrong.",
         ],
         "advances_by": ("surviving the falsifiers and unlikely_tests — re-run "
-                        "tools/probe_arrangement.py as the grid grows."),
+                        "tools/probe_arrangement.py (deep) as the grid grows; if the 3-pole "
+                        "gain strengthens, supersede this with a 3-pole placeholder."),
         "refutable": True,
-        "lifecycle": "held",
+        "lifecycle": "held-coarse",
         "supersedes": None,
         "superseded_by": None,
         "held_since": "2026-06-18",
-        "seed_v": 1,
+        "seed_v": 2,
     },
 ]
 

@@ -16920,7 +16920,7 @@ def grid_scaffold():
 
 
 @app.get("/grid/probe", tags=["agents"])
-def grid_probe():
+def grid_probe(deep: int = 0):
     """Run the map's ARRANGEMENT disconfirmers against the live grid.
 
     The map's arrangement is a placeholder to truth (see /placeholders) that
@@ -16932,12 +16932,13 @@ def grid_probe():
 
     This is the agent's window into the second brain's own self-testing — the
     exploration term of the search, so the map can't become an echo chamber.
+    Pass deep=1 to also run the slower (~2s) 2-pole vs 3-pole test.
     """
     try:
         from api import arrangement as _arr
     except Exception as exc:
         raise HTTPException(status_code=503, detail=str(exc))
-    return _arr.probe()
+    return _arr.probe(deep=bool(deep))
 
 
 @app.get("/grid/locate", tags=["agents"])

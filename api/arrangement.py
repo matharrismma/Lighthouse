@@ -115,8 +115,74 @@ def _two_poles(domains: Dict[str, frozenset], dims: List[str]) -> Dict:
     }
 
 
-def probe() -> Dict:
-    """Run all disconfirmers against the live grid; return the structured report."""
+def pole_count_test(domains: Dict[str, frozenset], dims: List[str], max_k: int = 3) -> Dict:
+    """Does the data prefer 2 poles, or 3+? (the two-poles placeholder's own
+    falsifier). Uses a k-COMPARABLE criterion — avg within-cluster phi MINUS avg
+    across-cluster phi (a difference of MEANS, so it doesn't mechanically inflate
+    with k the way the raw within-minus-across SUM does). Brute-forces the best
+    partition for each k (exact: k=2 is 2^n, k=3 is 3^n over n=11 dims)."""
+    phi: Dict[frozenset, float] = {}
+    pairs = list(itertools.combinations(dims, 2))
+    for a, b in pairs:
+        phi[frozenset((a, b))] = _phi(domains, a, b)["phi"]
+    n = len(dims)
+
+    def cohesion(labels) -> float:
+        wi = wn = ai = an = 0.0
+        for a, b in pairs:
+            p = phi[frozenset((a, b))]
+            if labels[a] == labels[b]:
+                wi += p; wn += 1
+            else:
+                ai += p; an += 1
+        within = wi / wn if wn else 0.0
+        across = ai / an if an else 0.0
+        return within - across
+
+    out: Dict[int, Dict] = {}
+    for k in range(2, max_k + 1):
+        best_c, best_lab = -1e18, None
+        # assign each dim to one of k labels; require all k used
+        for code in range(k ** n):
+            lab = {}
+            x = code
+            for i in range(n):
+                lab[dims[i]] = x % k
+                x //= k
+            if len(set(lab.values())) < k:
+                continue
+            c = cohesion(lab)
+            if c > best_c:
+                best_c, best_lab = c, dict(lab)
+        clusters = []
+        for g in range(k):
+            clusters.append(sorted(d for d in dims if best_lab[d] == g))
+        clusters = [c for c in clusters if c]
+        clusters.sort(key=len, reverse=True)
+        out[k] = {"cohesion": round(best_c, 4), "clusters": clusters}
+
+    c2 = out[2]["cohesion"]
+    c3 = out.get(3, {}).get("cohesion", c2)
+    gain = round(c3 - c2, 4)
+    # Calibrated, conservative — a modest gain on a small/sparse grid is not a
+    # clear win. Don't overclaim in either direction.
+    if gain > 0.08:
+        verdict = "3+ POLES fit clearly better — two-poles WEAKENED"
+    elif gain > 0.02:
+        verdict = ("3 poles fit MODESTLY better (small margin, small/sparse grid) — "
+                   "two-poles holds as a COARSE lens but the data leans finer")
+    else:
+        verdict = "2 poles is the parsimonious fit — two-poles survives this test"
+    return {"by_k": out, "k3_gain_over_k2": gain, "verdict": verdict,
+            "criterion": "avg within-cluster phi minus avg across-cluster phi (k-comparable)"}
+
+
+def probe(deep: bool = False) -> Dict:
+    """Run all disconfirmers against the live grid; return the structured report.
+
+    deep=True also runs the (slower, ~2s) 2-pole vs 3-pole test — whether the
+    data prefers more poles (the two-poles placeholder's own falsifier). Off by
+    default so the endpoint stays fast."""
     domains = _canonical()
     dims = [d for d in _grid.DIMENSIONS]
     report: Dict = {"n_domains": len(domains), "n_dimensions": len(dims)}
@@ -172,6 +238,10 @@ def probe() -> Dict:
 
     # Refined hypothesis: the unsupervised 2-pole split
     report["two_poles"] = _two_poles(domains, dims)
+
+    # The two-poles placeholder's own falsifier: do 3+ poles fit better? (slow)
+    if deep:
+        report["pole_count"] = pole_count_test(domains, dims, max_k=3)
 
     n_complementary = sum(1 for d in dual_results if d["complementary"])
     report["verdicts"] = {
@@ -243,6 +313,16 @@ def fmt(report: Dict) -> str:
              ", ".join(f"{d}({l:+d})" for d, l in tp["deepest_in_B"]))
     L.append("   (clusters are data-chosen, not imposed; the abstract/material reading "
              "is an interpretation. A 2-pole fit to a small/sparse grid can be an artifact.)")
+
+    pc = report.get("pole_count")
+    if pc:
+        L.append("\nHOW MANY POLES? — does the data prefer 2 or 3+? (k-comparable cohesion):")
+        for k, v in pc["by_k"].items():
+            L.append(f"   k={k}  cohesion={v['cohesion']}")
+            for c in v["clusters"]:
+                L.append(f"        {', '.join(c)}")
+        L.append(f"   k=3 gain over k=2: {pc['k3_gain_over_k2']:+}")
+        L.append(f"   {pc['verdict']}")
 
     L.append("\n" + "-" * 64)
     L.append("A placeholder advances only by SURVIVING these. This is evidence to")
