@@ -308,15 +308,20 @@ _SEED: List[Dict[str, Any]] = [
         ],
         "advances_by": ("evidence that consonance TRACKS verified correctness — tuned-and-"
                         "null-beating arrangements that also verify better. Re-run GET /grid/music. "
-                        "First confirmation in hand: growing the grid honestly LOWERED the tune "
-                        "(28.4c->24.7c, p 0.75->0.385); continue enriching the thinnest dimensions "
-                        "(symmetry next) and watch whether the cents-error keeps falling toward p<0.05."),
+                        "TWO confirmations in hand: growing the grid honestly keeps LOWERING the tune "
+                        "(28.4c@p0.75 -> 24.7c@p0.385 [enrich round 1] -> 20.0c@p0.125 [round 2: "
+                        "symmetry +5 carriers], algebraic connectivity 13.6->29.6->42.6). The "
+                        "cents-error is monotonically falling toward p<0.05 as the grid is enriched "
+                        "honestly — the prediction is holding. NOT YET significant (p=0.125, not <0.05) "
+                        "and NOT yet shown to track VERIFICATION (that's the load-bearing open test). "
+                        "Continue enriching the thinnest dims + test whether the tune tracks verified "
+                        "correctness, not just connectivity."),
         "refutable": True,
         "lifecycle": "held",
         "supersedes": None,
         "superseded_by": None,
         "held_since": "2026-06-19",
-        "seed_v": 2,
+        "seed_v": 3,
     },
     {
         "id": "fluid_dynamics_axes",
