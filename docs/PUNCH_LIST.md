@@ -28,8 +28,8 @@ Tiers are **order of attack**, not what to keep — everything here is in scope.
 
 ## TIER 2 — next (consistency, measurement, the connection made navigable)
 
-- [ ] **`/mcp.html` landing page → lead with the receipt hook** — registry click-throughs land here; one consistent story. `[me]` S
-- [ ] **Harden the `/mcp` 308 redirect** — no-slash POST should work so no MCP client breaks on the handshake. `[me]` S
+- [x] ~~**`/mcp.html` landing page → lead with the receipt hook**~~ ✅ 2af5e10 — h1/sub/title/og rewritten around the receipt; one story registry→landing.
+- [x] ~~**Harden the `/mcp` 308 redirect**~~ ✅ 2af5e10 — the 308 is spec-correct; real fix was advertising the canonical `/mcp/` everywhere (well-known, mcp-stats, mcp.html) so clients don't hit it; 308 kept as safety net.
 - [ ] **Make the map the navigation spine** — Atlas as the navigable connection-map (statistics↔geometry↔probability↔logic↔info-theory↔game-theory). "They all connect" as the IA, not decoration. `[me]` L
 - [ ] **Durable install/citation counter + a glance-able dashboard** — measure whether the listings convert (you noted a counter exists; confirm it's readable as a before/after). `[me]` M
 - [ ] **Site reorg step 4: retire personal essays + slim the 492 KB `coordinate-map` page** — works/dade/molasses/stack/seeds/odysseus/theory move to a clearly-separate section or go. `[me]` M
