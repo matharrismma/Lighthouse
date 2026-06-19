@@ -63,6 +63,15 @@
   .qa-card .proofs { font-size: 0.78em; color: #6a5a3a; margin-top: 0.3em; font-family: 'Courier New', monospace; }
 
   .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
+
+  /* the Codex hub map — every part of the manuscript layer, one door, grouped */
+  .codex-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1em; margin: 0.8em 0 1.6em; }
+  .cluster { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.1em; }
+  .cluster h3 { margin: 0 0 0.5em; font-size: 0.74em; letter-spacing: 0.16em; text-transform: uppercase; color: #b8945a; }
+  .cluster a { display: block; color: #1a3a52; text-decoration: none; padding: 0.45em 0; border-bottom: 1px solid #f2ecd8; font-weight: bold; }
+  .cluster a:last-child { border-bottom: none; }
+  .cluster a:hover { color: #806010; }
+  .cluster a .d { display: block; font-size: 0.8em; color: #6a5a3a; font-style: italic; font-weight: normal; margin-top: 0.1em; }
 </style>
 <link rel="stylesheet" href="/nh-sabbath.css">
 <link rel="stylesheet" href="/nh-print.css" media="print">
@@ -82,36 +91,31 @@
   <p>This page is the navigable index. Click any book, creed, or Q&amp;A to drill in.</p>
 </div>
 
-<a href="/codex-xref.html" style="display:block; background:#1a3a52; color:#f4ecd5; border-radius:6px; padding:0.9em 1.3em; margin-bottom:0.5em; text-decoration:none;">
-  <span style="color:#f0d68a; font-family:'Courier New',monospace; font-size:0.74em; letter-spacing:0.18em;">NEW · LAYER 3 · THE CONNECTIONS</span><br>
-  <strong style="font-size:1.12em;">The Cross-Reference Index →</strong>
-  <span style="color:#c9b48a;"> 2,921 witnessed links between Scripture and the body — every verse to the confession, catechism, father, and dictionary that reaches back to it.</span>
-</a>
-<a href="/codex-themes.html" style="display:block; background:#2a5570; color:#f4ecd5; border-radius:6px; padding:0.9em 1.3em; margin-bottom:0.5em; text-decoration:none;">
-  <span style="color:#f0d68a; font-family:'Courier New',monospace; font-size:0.74em; letter-spacing:0.18em;">NEW · LAYER 3 · CONCEPTS</span><br>
-  <strong style="font-size:1.12em;">The Theme Index →</strong>
-  <span style="color:#c9b48a;"> The engine's concept tags inverted across the whole body — stand at a concept, see every site that carries it. A coarse first index.</span>
-</a>
-<a href="/atlas-map.html" style="display:block; background:#1a3a52; color:#f4ecd5; border-radius:6px; padding:0.9em 1.3em; margin-bottom:0.5em; text-decoration:none;">
-  <span style="color:#f0d68a; font-family:'Courier New',monospace; font-size:0.74em; letter-spacing:0.18em;">THE ATLAS · THE MAP</span><br>
-  <strong style="font-size:1.12em;">The Atlas →</strong>
-  <span style="color:#c9b48a;"> A visual map of the verified connections. Click any path to see its math (why it's true) and its Bible reference (how it points home).</span>
-</a>
-<a href="/codex-connections.html" style="display:block; background:#3a5a2a; color:#f4ecd5; border-radius:6px; padding:0.9em 1.3em; margin-bottom:0.5em; text-decoration:none;">
-  <span style="color:#cfe6a8; font-family:'Courier New',monospace; font-size:0.74em; letter-spacing:0.18em;">THE CONNECTION GRAPH (LIST)</span><br>
-  <strong style="font-size:1.12em;">Connections →</strong>
-  <span style="color:#cfe0b8;"> Verified connections — sources bound by a shared witnessed verse — kept strictly apart from candidate cross-domain resonances. The trail is the trust.</span>
-</a>
-<a href="/cards-dev.html" style="display:block; background:#5a3a2a; color:#f4ecd5; border-radius:6px; padding:0.9em 1.3em; margin-bottom:0.5em; text-decoration:none;">
-  <span style="color:#e8c39a; font-family:'Courier New',monospace; font-size:0.74em; letter-spacing:0.18em;">THE METHOD · CARD DEVELOPMENT</span><br>
-  <strong style="font-size:1.12em;">Develop the Cards →</strong>
-  <span style="color:#e0c4ad;"> Every card by how finished it is — seed, drafted, connected, developed. A definition of done so the corpus coheres instead of just accumulating.</span>
-</a>
-<p style="font-size:0.92em; color:#6a5a3a; margin:0 0 1.5em; text-align:center;">
-  The whole Codex is fingerprinted, signed, and verifiable — <a href="/codex-seal.html" style="color:#1a3a52;">the sealed manuscript →</a>
-</p>
+<h2 style="margin-top:0.6em;">Explore the Codex — the manuscript layer, one door</h2>
+<div class="codex-map">
+  <div class="cluster">
+    <h3>Read</h3>
+    <a href="#books">The 66 books<span class="d">Scripture, by book and section</span></a>
+    <a href="/bibles.html">Bibles<span class="d">Every public-domain translation we stand on</span></a>
+    <a href="/codex-deep.html">Ask the manuscript<span class="d">Name a doctrine, a Father, a theme — it surfaces what's bound</span></a>
+    <a href="/canon.html">The Canon spec<span class="d">The rule underneath the engine</span></a>
+  </div>
+  <div class="cluster">
+    <h3>The connections</h3>
+    <a href="/codex-xref.html">Cross-reference index<span class="d">2,921 witnessed links between Scripture and the body</span></a>
+    <a href="/concordance.html">Concordance<span class="d">Enter a verse — see the passages Scripture itself links to it</span></a>
+    <a href="/codex-connections.html">The connection graph<span class="d">Sources bound by a shared witnessed verse</span></a>
+    <a href="/codex-themes.html">Theme index<span class="d">Stand at a concept, see every site that carries it</span></a>
+  </div>
+  <div class="cluster">
+    <h3>Over time &amp; proof</h3>
+    <a href="/chronicle.html">The Chronicle<span class="d">The Codex across time</span></a>
+    <a href="/codex-seal.html">The sealed manuscript<span class="d">Fingerprinted, signed, verifiable</span></a>
+    <a href="/atlas.html">The Atlas<span class="d">The visual map of verified connections</span></a>
+  </div>
+</div>
 
-<h2>The 66 books</h2>
+<h2 id="books">The 66 books</h2>
 <div class="filters">
   <strong>Filter:</strong>
   <button class="filter-btn book-filter active" data-f="all">All</button>
