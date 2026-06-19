@@ -33,7 +33,7 @@ Tiers are **order of attack**, not what to keep — everything here is in scope.
 - [ ] **Make the map the navigation spine** — Atlas as the navigable connection-map (statistics↔geometry↔probability↔logic↔info-theory↔game-theory). "They all connect" as the IA, not decoration. `[me]` L
 - [ ] **Durable install/citation counter + a glance-able dashboard** — measure whether the listings convert (you noted a counter exists; confirm it's readable as a before/after). `[me]` M
 - [ ] **Site reorg step 4: retire personal essays + slim the 492 KB `coordinate-map` page** — works/dade/molasses/stack/seeds/odysseus/theory move to a clearly-separate section or go. `[me]` M
-- [ ] **Continue sparsity enrichment (symmetry is now thinnest)** — re-measure the tune frame-by-frame; does the dissonance keep falling toward p<0.05? `[me]` M
+- [~] **Continue sparsity enrichment** — round 2 done (4da380d): symmetry +5 carriers → tune 24.7c→20.0c, p 0.385→0.125, alg.conn 29.6→42.6. Dissonance falling monotonically; not yet p<0.05. Ongoing — more thin-dim enrichment + the verification-tracking test. `[me]` M
 - [ ] **Mobile/responsive pass** on the re-anchored front door + canonical hubs. `[me]` S
 
 ## TIER 3 — nice-to-haves (all in scope)
