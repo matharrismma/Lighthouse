@@ -279,6 +279,36 @@ _SEED: List[Dict[str, Any]] = [
                  "doi:10.1093/ajcn/nqab397"],
         "seed_v": 2,
     },
+    {
+        "id": "mcp_stdio_no_api_layer",
+        "directive": "Our MCP is still not right. I want you to work on the bug and then do the rest.",
+        "principle": ("The STANDALONE stdio MCP server (the shipped/registry connector) runs the "
+                      "engine package ONLY -- the `api` app layer is NOT importable. So any tool that "
+                      "does `from api import X` crashes there with 'No module named api' (it works on "
+                      "the hosted /mcp because that runs inside api.app). TWO honest fixes by the "
+                      "nature of the module: (1) a SOVEREIGN, stdlib-only module (scholar -- calls "
+                      "external APIs, needs no engine state) belongs INSIDE concordance_engine so it "
+                      "ships with the MCP and imports directly, working in every context; (2) a tool "
+                      "that needs ENGINE data/state (arrangement needs api.harmonics; missions needs "
+                      "the ledger) routes through the engine via the existing _engine_get/_engine_post "
+                      "(in-process when mounted, HTTP fallback when standalone). Don't paper over an "
+                      "import error -- put each module where it actually belongs."),
+        "realization": ("Moved api/scholar.py -> concordance_engine/scholar.py (api/scholar.py kept "
+                        "as a thin re-export so the REST endpoint + tests are unchanged); scholar MCP "
+                        "tool now imports from the engine package. arrangement_probe -> _engine_get("
+                        "'/grid/probe'); missions -> _engine_get('/missions')."),
+        "result": ("FIXED + verified. Simulated the stdio context (api deliberately NOT importable): "
+                   "all three tools return data -- scholar via direct engine import (network), "
+                   "arrangement_probe + missions via the HTTP fallback to the live engine. Re-export "
+                   "keeps the REST path working; /scholar/lookup, /grid/probe, /missions all 200; "
+                   "58/58, 0 false-positives. NOTE for the connector: scholar is fully sovereign "
+                   "(works with just internet); arrangement/missions need the engine reachable -- set "
+                   "CONCORDANCE_API_URL to the hosted engine for an off-box stdio MCP."),
+        "status": "discipline",
+        "refs": ["src/concordance_engine/scholar.py", "api/scholar.py (re-export)",
+                 "src/concordance_engine/mcp_server/server.py", "_engine_get / _inproc_call"],
+        "seed_v": 1,
+    },
 ]
 
 

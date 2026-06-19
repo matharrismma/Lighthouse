@@ -453,7 +453,10 @@ def scholar(query: str = "", doi: str = "", title: str = "", rows: int = 5) -> D
     to launder a claim). External Layer-0: an attributed starting reference to
     verify against, never proof itself.
     """
-    from api import scholar as _scholar
+    # Sovereign module (stdlib-only, calls external open APIs) -- lives in the
+    # engine package so it works over stdio too, with no dependency on the `api`
+    # app layer (which isn't importable in the standalone MCP).
+    from concordance_engine import scholar as _scholar
     return _scholar.lookup(doi=doi, title=title, query=query, rows=rows)
 
 
@@ -2615,8 +2618,10 @@ def arrangement_probe(deep: bool = False) -> Dict[str, Any]:
     or before trusting a dual/gap from `locate`. Pass deep=True to also run the
     slower (~2s) 2-pole vs 3-pole test.
     """
-    from api import arrangement as _arr
-    return _arr.probe(deep=bool(deep))
+    # Routed through the engine (in-process when mounted, HTTP when standalone) --
+    # arrangement depends on the app layer (api.harmonics), so it is not callable
+    # directly from the standalone MCP. /grid/probe returns arrangement.probe(deep).
+    return _engine_get("/grid/probe", deep=(1 if deep else 0))
 
 
 @mcp.tool()
@@ -2637,11 +2642,12 @@ def missions(mission_id: str = "") -> Dict[str, Any]:
     feeds, houses, or heals anyone; the people do. A mission points to Christ; it
     is not an idol or a savior — the gathering is the point, this is the doorway.
     """
-    from api import missions as _missions
+    # Routed through the engine (in-process when mounted, HTTP when standalone) --
+    # the mission ledger lives with the app, so it is not callable directly from
+    # the standalone MCP.
     if mission_id:
-        rec = _missions.get(mission_id)
-        return rec if rec else {"error": f"no mission with id {mission_id!r}"}
-    return _missions.listing()
+        return _engine_get(f"/missions/{mission_id}")
+    return _engine_get("/missions")
 
 
 # ============================================================
