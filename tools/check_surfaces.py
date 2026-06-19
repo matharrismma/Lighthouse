@@ -26,11 +26,20 @@ SURFACES = [
     ("/enter.html",   "door"),        # the cinematic pitch
     ("/curriculum",   None),          # the lessons API -- checked as JSON below
     ("/identity",     "Jesus Christ"),# who this serves
+    # ── crawlable record + proofs (the discovery moat) + the Acts-2 community ──
+    ("/almanac/book",    "Almanac"),  # the whole tested record, server-rendered
+    ("/curriculum/book", "Phonics"),  # the whole free curriculum, server-rendered
+    ("/verified",        None),       # JSON: proven claims index -- checked below
+    ("/grid/scaffold",   None),       # JSON: the dimensional grid -- checked below
+    ("/missions",        None),       # JSON: the Acts-2 missions -- checked below
 ]
 
 
-def fetch(url, timeout=15):
-    req = urllib.request.Request(url, headers={"User-Agent": "nh-surface-check/1.0"})
+def fetch(url, timeout=15, accept=None):
+    headers = {"User-Agent": "nh-surface-check/1.0"}
+    if accept:
+        headers["Accept"] = accept
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.status, r.read().decode("utf-8", "replace")
 
@@ -66,6 +75,27 @@ def check(base):
                     status, note = "UP", "%d nodes (%d verified)" % (n, ev.get("verified", 0))
                 else:
                     status, note = "UP", "%d nodes" % n
+            elif path == "/verified":
+                d = json.loads(body)
+                n = d.get("proven_total") or 0
+                if n <= 0:
+                    note = "no proven claims"
+                else:
+                    status, note = "UP", "%d proven claims" % n
+            elif path == "/grid/scaffold":
+                d = json.loads(body)
+                n = d.get("dimension_count") or len(d.get("dimensions", []))
+                if n < 7:
+                    note = "grid under 7 dims"
+                else:
+                    status, note = "UP", "%d dimensions" % n
+            elif path == "/missions":
+                d = json.loads(body)
+                n = d.get("count", 0)
+                if n < 1:
+                    note = "no missions"
+                else:
+                    status, note = "UP", "%d missions" % n
             elif needle and needle.lower() not in body.lower():
                 note = "missing %r" % needle
             else:
@@ -77,6 +107,31 @@ def check(base):
         if status != "UP":
             ok_all = False
         rows.append((path, status, note))
+
+    # The seal proof moat: derive a real cite_url from /verified and confirm the
+    # proof SERVER-RENDERS crawlable HTML (not a JS shell or a redirect). A seal
+    # is a capability-URL, so we discover one through the verified index.
+    try:
+        _, vbody = fetch(base.rstrip("/") + "/verified")
+        items = (json.loads(vbody) or {}).get("items") or []
+        cite = (items[0].get("cite_url") if items else "") or ""
+        if not cite:
+            rows.append(("/seal/{hash}", "ERR", "no cite_url in /verified")); ok_all = False
+        else:
+            if cite.startswith("http"):
+                surl = cite
+            elif cite.startswith("/"):
+                surl = base.rstrip("/") + cite
+            else:
+                surl = base.rstrip("/") + "/seal/" + cite
+            scode, sbody = fetch(surl, accept="text/html")
+            if scode == 200 and "without trusting us" in sbody.lower():
+                rows.append(("/seal/{hash}", "UP", "proof SSR (%d bytes)" % len(sbody)))
+            else:
+                rows.append(("/seal/{hash}", "ERR", "seal not server-rendered")); ok_all = False
+    except Exception as e:  # noqa: BLE001
+        rows.append(("/seal/{hash}", "ERR", type(e).__name__ + ": " + str(e)[:50])); ok_all = False
+
     return rows, ok_all
 
 

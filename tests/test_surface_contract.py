@@ -40,3 +40,49 @@ def test_curriculum_check_is_a_content_fingerprint_not_just_200():
     # fingerprints prove the right rendered content came back
     assert "must_contain" in src or "needle" in src, "check must fingerprint content"
     assert "SOME SURFACES DOWN" in src and "ALL UP" in src, "check must give a clear verdict"
+
+
+# ── Lock in the discovery/indexability + Acts-2 work shipped 2026-06-19 ──────
+
+def test_surface_check_covers_the_crawlable_record_and_missions():
+    """The health gate must guard the new doors with REAL-DATA fingerprints."""
+    src = _read("tools", "check_surfaces.py")
+    for door in ("/almanac/book", "/curriculum/book", "/verified", "/grid/scaffold",
+                 "/missions", "/seal/{hash}"):
+        assert door in src, "check_surfaces.py must guard %s" % door
+    for proof in ("proven claims", "dimensions", "missions", "without trusting us"):
+        assert proof in src, "check must assert real content (%r), not just 200" % proof
+
+
+def test_seals_are_server_rendered_not_redirected():
+    """The proof moat must server-render crawlable HTML for browsers/crawlers --
+    NOT redirect them back to the client-rendered /seal.html (the old bug that
+    left every proof invisible to search and AI retrieval)."""
+    src = _read("api", "app.py")
+    assert "def _seal_html(" in src, "the SSR proof renderer must exist"
+    assert "ClaimReview" in src, "the seal proof must carry ClaimReview JSON-LD"
+    assert 'RedirectResponse(url=f"/seal.html' not in src, \
+        "seal HTML must NOT redirect crawlers to the JS viewer"
+
+
+def test_verified_index_content_negotiates_to_crawlable_html():
+    """/verified must serve a crawlable hub to browsers and JSON to agents."""
+    assert "def _verified_html(" in _read("api", "app.py"), \
+        "the verified hub renderer must exist"
+
+
+def test_missions_guardrails_are_baked_in():
+    """The Acts-2 primitive must carry its honest guardrails in the module itself."""
+    low = _read("api", "missions.py").lower()
+    assert "never feed" in low or "feeds, houses, or heals" in low, \
+        "missions must say the software seeds/facilitates, never feeds/houses/heals"
+    assert "christ" in low, "a mission must point to Christ, not be an idol"
+    assert "locally sovereign" in low, "each mission is locally sovereign"
+
+
+def test_robots_does_not_block_the_seal_proofs():
+    """robots.txt must NOT carry a blanket `Disallow: /seal` -- that blocked the
+    now-crawlable proof pages. Only the POST paths may be disallowed."""
+    lines = [ln.strip() for ln in _read("site", "robots.txt").splitlines()]
+    assert "Disallow: /seal" not in lines, \
+        "a bare `Disallow: /seal` blocks the crawlable proof pages"
