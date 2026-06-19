@@ -16143,6 +16143,86 @@ def almanac_index():
     }
 
 
+_ALMANAC_BOOK_CACHE: Dict[str, str] = {}
+
+
+@app.get("/almanac/book", tags=["humans"], include_in_schema=False)
+def almanac_book():
+    """The whole tested record as ONE server-rendered, crawlable HTML page.
+
+    /almanac.html renders client-side, so its ~1,700 verified claims are
+    invisible to search engines and AI retrievers — the discovery bottleneck.
+    This page is plain server-rendered HTML: every entry's title, verdict, and
+    worked summary, readable without JavaScript (and printable / ownable). It is
+    the indexable face of the tested record. Cached by entry count.
+    """
+    import html as _html
+    from fastapi.responses import HTMLResponse
+
+    entries = _almanac_entries()
+    ckey = str(len(entries))
+    cached = _ALMANAC_BOOK_CACHE.get(ckey)
+    if cached:
+        return HTMLResponse(cached)
+
+    by_cat: Dict[str, List[Dict[str, Any]]] = {}
+    for e in entries:
+        by_cat.setdefault(e.get("category") or "other", []).append(e)
+
+    def esc(s):
+        return _html.escape(str(s or ""))
+
+    parts = [
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>The Almanac — the whole tested record · Narrow Highway</title>",
+        "<meta name=\"description\" content=\"Every verified claim and tested folk saying the "
+        "engine has worked through — protocols and sayings, each with its verdict and the worked "
+        "reasoning. Readable in full, printable, citable.\">",
+        "<link rel=\"canonical\" href=\"https://narrowhighway.com/almanac/book\">",
+        "<style>body{font-family:Georgia,'Times New Roman',serif;max-width:760px;margin:0 auto;"
+        "padding:28px 18px 80px;line-height:1.6;color:#1c1a16;background:#fbfaf6;}"
+        "h1{font-size:1.9rem;margin:.2em 0 .1em;}h2{font-size:1.15rem;margin:1.8em 0 .3em;"
+        "border-bottom:1px solid #d8d2c4;padding-bottom:4px;text-transform:capitalize;color:#5a4a2a;}"
+        "article{margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid #ece7da;}"
+        "h3{font-size:1.05rem;margin:.2em 0;font-weight:600;}.v{font-family:monospace;font-size:.72rem;"
+        "letter-spacing:.06em;color:#7a6a45;text-transform:uppercase;margin:.1em 0;}"
+        ".s{color:#444;margin:.3em 0;}.b{margin:.3em 0;}.lnk{font-size:.8rem;color:#999;}"
+        ".lnk a{color:#8a6d3b;}.intro{font-style:italic;color:#555;margin:.4em 0 1.4em;}"
+        "a{color:#8a6d3b;}@media print{.lnk{display:none;}body{background:#fff;}}</style>",
+        "</head><body>",
+        "<p><a href=\"/almanac.html\">&larr; the searchable Almanac</a></p>",
+        "<h1>The Almanac</h1>",
+        "<p class=\"intro\">Everything the engine has worked through — protocols (multi-domain "
+        "situations pre-run through the engine) and sayings (folk wisdom verified by computation). "
+        f"{len(entries)} entries. The Almanac does not panic.</p>",
+    ]
+    for cat in sorted(by_cat):
+        parts.append(f"<h2>{esc(cat.replace('_', ' '))}</h2>")
+        for e in sorted(by_cat[cat], key=lambda x: str(x.get("title") or x.get("id"))):
+            eid = esc(e.get("id"))
+            title = esc(e.get("title") or e.get("id"))
+            verdict = esc(e.get("verdict") or "")
+            doms = ", ".join(esc(d) for d in (e.get("domains") or []))
+            body = (e.get("pre_run") or {}).get("summary") or e.get("verification") or e.get("note") or ""
+            situ = e.get("situation") or ""
+            parts.append(f"<article id=\"e-{eid}\"><h3>{title}</h3>")
+            meta = " · ".join(x for x in [verdict, doms] if x)
+            if meta:
+                parts.append(f"<p class=\"v\">{meta}</p>")
+            if situ and situ != e.get("title"):
+                parts.append(f"<p class=\"s\">{esc(situ)}</p>")
+            if body:
+                parts.append(f"<p class=\"b\">{esc(body)}</p>")
+            parts.append(f"<p class=\"lnk\"><a href=\"/almanac.html#{eid}\">open in the engine</a> "
+                         f"&middot; <a href=\"/almanac/{eid}\">data</a></p></article>")
+    parts.append("</body></html>")
+    out = "".join(parts)
+    _ALMANAC_BOOK_CACHE.clear()
+    _ALMANAC_BOOK_CACHE[ckey] = out
+    return HTMLResponse(out)
+
+
 @app.get("/almanac/{entry_id}", tags=["humans"])
 def almanac_entry(entry_id: str):
     """One entry by id — used for permalink rendering and JSON-LD."""
