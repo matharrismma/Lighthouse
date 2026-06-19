@@ -25,6 +25,19 @@ Disallow: /seal/render
 Disallow: /seal/polymathic
 Disallow: /verify/
 Disallow: /visits/
+# operator / back-office — internal tooling, not part of the public experience
+Disallow: /operator.html
+Disallow: /inbox.html
+Disallow: /outreach.html
+Disallow: /engine-queue.html
+Disallow: /tickets.html
+Disallow: /publish.html
+Disallow: /dashboard.html
+Disallow: /roadmap.html
+Disallow: /setup.html
+Disallow: /handoff.html
+Disallow: /residue.html
+Disallow: /surface-map.html
 
 # AI + search crawlers — explicitly welcome, with the SAME guardrails. A named
 # user-agent group does NOT inherit the rules above, so the disallows are
@@ -60,6 +73,19 @@ Disallow: /seal/render
 Disallow: /seal/polymathic
 Disallow: /verify/
 Disallow: /visits/
+# operator / back-office — internal tooling, not part of the public experience
+Disallow: /operator.html
+Disallow: /inbox.html
+Disallow: /outreach.html
+Disallow: /engine-queue.html
+Disallow: /tickets.html
+Disallow: /publish.html
+Disallow: /dashboard.html
+Disallow: /roadmap.html
+Disallow: /setup.html
+Disallow: /handoff.html
+Disallow: /residue.html
+Disallow: /surface-map.html
 
 # Public read-only surfaces an agent should know about
 # /llms.txt              — service description (start here)
