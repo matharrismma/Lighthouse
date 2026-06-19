@@ -6184,12 +6184,76 @@ def _verified_claim_summary(r: Dict[str, Any]) -> str:
     return ""
 
 
+_VERIFIED_HTML_CACHE: Dict[str, str] = {}
+
+
+def _verified_html(items: List[Dict[str, Any]], by_domain: Dict[str, int],
+                   proven: int, domain: str) -> str:
+    """Server-render the verified ground-truth index as crawlable HTML — a hub
+    that LINKS every proven claim to its (now server-rendered) /seal proof, so the
+    capability-URL proofs become discoverable and indexable."""
+    import html as _h
+
+    def esc(s):
+        return _h.escape(str(s or ""))
+
+    def href(cite):
+        c = str(cite or "")
+        return c if (c.startswith("http") or c.startswith("/")) else ("/seal/" + c)
+
+    by_cat: Dict[str, List[Dict[str, Any]]] = {}
+    for it in items:
+        by_cat.setdefault(it.get("category") or "other", []).append(it)
+    breakdown = " &middot; ".join(f"{esc(d)} {n}" for d, n in list(by_domain.items())[:18])
+    parts = [
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>Verified ground truth", (" · " + esc(domain)) if domain else "",
+        " &middot; Narrow Highway</title>",
+        "<meta name=\"description\" content=\"",
+        esc(("%d machine-verified claims, each carrying a tamper-evident proof receipt you can "
+             "re-check. The engine verifies; it never generates the answer." % proven)[:300]),
+        "\"><link rel=\"canonical\" href=\"https://narrowhighway.com/verified",
+        ("?domain=" + esc(domain)) if domain else "", "\">",
+        "<style>body{font-family:Georgia,'Times New Roman',serif;max-width:760px;margin:0 auto;"
+        "padding:28px 18px 80px;line-height:1.6;color:#1c1a16;background:#fbfaf6}"
+        "h1{font-size:1.8rem;margin:.2em 0 .1em}h2{font-size:1.1rem;margin:1.6em 0 .3em;"
+        "border-bottom:1px solid #d8d2c4;padding-bottom:4px;text-transform:capitalize;color:#5a4a2a}"
+        "article{margin:0 0 14px;padding:0 0 11px;border-bottom:1px solid #ece7da}"
+        "h3{font-size:1.02rem;margin:.2em 0;font-weight:600}.c{color:#444;margin:.25em 0;font-size:.95rem}"
+        ".m{font-family:monospace;font-size:.72rem;color:#7a6a45;text-transform:uppercase}"
+        "a{color:#8a6d3b}.intro{font-style:italic;color:#555;margin:.4em 0 1.2em}"
+        ".bd{font-size:.8rem;color:#7a6a45;margin:.2em 0 1.2em}@media print{body{background:#fff}}</style>",
+        "</head><body>",
+        "<p><a href=\"/almanac/book\">the tested record</a> &middot; <a href=\"/\">Narrow Highway</a></p>",
+        "<h1>Verified ground truth</h1>",
+        "<p class=\"intro\">", str(proven), " machine-verified claims, each carrying a "
+        "tamper-evident proof receipt. The engine verifies a provided derivation; it never "
+        "generates the answer. Pages without a proof are honest prose, not checked claims.</p>",
+        ("<p class=\"bd\">" + breakdown + "</p>") if breakdown else "",
+    ]
+    for cat in sorted(by_cat):
+        parts.append(f"<h2>{esc(cat.replace('_', ' '))}</h2>")
+        for it in by_cat[cat]:
+            doms = ", ".join(esc(d) for d in (it.get("domains") or []))
+            parts.append("<article><h3>" + esc(it.get("title") or it.get("id")) + "</h3>")
+            if it.get("claim"):
+                parts.append("<p class=\"c\">" + esc(it.get("claim")) + "</p>")
+            parts.append("<p class=\"m\">" + (doms or "") + " &middot; "
+                         "<a href=\"" + esc(href(it.get("cite_url"))) + "\">proof &rarr;</a></p></article>")
+    parts.append("</body></html>")
+    return "".join(parts)
+
+
 @app.get("/verified", tags=["public"])
-def verified(domain: str = "", limit: int = 0):
+def verified(request: Request, domain: str = "", limit: int = 0):
     """Live index of corpus pages whose claim carries a sealed, citable proof.
     Filter by `domain` (e.g. chemistry, number_theory); `limit` caps results
     (0 = all). Each item links a GET /seal/{ref} receipt: tamper-evident, with no
-    generated answer. This is the verified ground truth, browsable and citable."""
+    generated answer. This is the verified ground truth, browsable and citable.
+
+    Content negotiation: a browser (Accept: text/html) gets a crawlable HTML hub
+    that links every proof; agents / JSON callers get the raw index."""
     path = Path(__file__).parent.parent / "data" / "almanac" / "entries.jsonl"
     items: List[Dict[str, Any]] = []
     total = 0
@@ -6227,6 +6291,16 @@ def verified(domain: str = "", limit: int = 0):
     items.sort(key=lambda x: (x.get("category") or "", x.get("id") or ""))
     if limit and limit > 0:
         items = items[:limit]
+    _accept = (request.headers.get("accept") or "").lower()
+    if "text/html" in _accept and "application/json" not in _accept:
+        from fastapi.responses import HTMLResponse
+        ckey = "%s|%d|%d" % (domain, proven, len(items))
+        cached = _VERIFIED_HTML_CACHE.get(ckey)
+        if cached is None:
+            cached = _verified_html(items, by_domain, proven, domain)
+            _VERIFIED_HTML_CACHE.clear()
+            _VERIFIED_HTML_CACHE[ckey] = cached
+        return HTMLResponse(cached)
     return {
         "proven_total": proven,
         "count": len(items),
