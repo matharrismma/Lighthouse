@@ -1617,8 +1617,8 @@ def keep_mcp_stats(request: Request, limit: int = 50):
         "total_logged": len(entries),
         "recent": entries[:limit],
         "endpoints": {
-            "http": "/mcp",
-            "sse": "/mcp/sse",
+            "http": "/mcp/",
+            "sse": "/mcp/sse/",
         },
         "server_info": server_info,
         "tool_count": tool_count,
@@ -13337,7 +13337,7 @@ def mcp_public_stats():
         "prompts": prompts,
         "resources": resources,
         "request_total": request_total,
-        "transports": {"http": "/mcp", "sse": "/mcp/sse"},
+        "transports": {"http": "/mcp/", "sse": "/mcp/sse/"},
         "doctrine_url": "https://narrowhighway.com/identity",
     }
 
@@ -13361,8 +13361,8 @@ def well_known_mcp():
         ),
         "doctrine_url": base + "/identity",
         "transports": {
-            "streamable_http": base + "/mcp",
-            "sse": base + "/mcp/sse",
+            "streamable_http": base + "/mcp/",
+            "sse": base + "/mcp/sse/",
         },
         "start_here": (
             "Call the `check` tool: give it a claim or derivation; get the verdict, the "

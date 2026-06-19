@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MCP · Connect an agent to the engine · Concordance</title>
-  <meta name="description" content="The Concordance engine speaks Model Context Protocol. Any MCP-compliant agent — Claude Desktop, Cursor, custom client — can connect and call the engine's tools, fetch its resources, and use its prompts. The engine serves Jesus Christ.">
+  <title>MCP · Give your agent a tool that returns a receipt · Concordance</title>
+  <meta name="description" content="Connect any MCP agent (Claude Desktop, Cursor, ChatGPT, custom) to the Concordance verification engine: run a claim, get a verdict, the worked trail, and a re-checkable seal — a receipt, not a 'trust me.' It verifies, never generates; a false claim returns BROKEN. Serves Jesus Christ.">
   <link rel="stylesheet" href="/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-  <meta property="og:title" content="MCP · Connect an agent to the engine">
-  <meta property="og:description" content="Concordance speaks MCP. 134 tools, 6 prompts, 4 resources — all serving Christ.">
+  <meta property="og:title" content="MCP · A tool that returns a receipt, not a 'trust me'">
+  <meta property="og:description" content="Connect any MCP agent to the Concordance verification engine: verdict, worked trail, re-checkable seal. It verifies, never generates. Serves Christ.">
   <meta property="og:url" content="https://narrowhighway.com/mcp.html">
   <link rel="canonical" href="https://narrowhighway.com/mcp.html">
   <style>
@@ -83,14 +83,14 @@
 
 <main>
   <p class="eyebrow">For agent operators · Claude Desktop · Cursor · custom clients</p>
-  <h1 data-i18n="page.mcp.h1">Connect an agent to the engine.</h1>
+  <h1 data-i18n="page.mcp.h1">Give your agent a tool that returns a receipt — not a "trust me."</h1>
   <p class="sub">
-    Concordance speaks Model Context Protocol. Any MCP-compliant client can connect and call the engine's tools, fetch its resources, and use its prompts — the same engine humans use through the lens pages. <em>The dual audience is real: humans through the lenses, agents through MCP.</em>
+    Concordance speaks Model Context Protocol. Connect any MCP client — Claude Desktop, Cursor, ChatGPT, a custom agent — and it can run a claim through the engine and get back a <b>verdict</b>, the worked <b>trail</b>, and a permanent, <b>re-checkable seal</b>. It verifies a provided claim; it never generates the answer — a false claim returns BROKEN. The engine serves Jesus Christ. <em>The dual audience is real: humans through the lenses, agents through MCP.</em>
   </p>
 
   <div class="quick-action">
-    <span class="url-pill" id="urlHttp" onclick="copyUrl('urlHttp', 'https://narrowhighway.com/mcp')">https://narrowhighway.com/mcp</span>
-    <span class="url-pill" id="urlSse" onclick="copyUrl('urlSse', 'https://narrowhighway.com/mcp/sse')">https://narrowhighway.com/mcp/sse</span>
+    <span class="url-pill" id="urlHttp" onclick="copyUrl('urlHttp', 'https://narrowhighway.com/mcp/')">https://narrowhighway.com/mcp/</span>
+    <span class="url-pill" id="urlSse" onclick="copyUrl('urlSse', 'https://narrowhighway.com/mcp/sse/')">https://narrowhighway.com/mcp/sse/</span>
     <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted,#6e6878);letter-spacing:0.04em;">click to copy · use either transport</span>
   </div>
 
@@ -113,7 +113,7 @@
   "mcpServers": {
     "concordance": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://narrowhighway.com/mcp"]
+      "args": ["-y", "mcp-remote", "https://narrowhighway.com/mcp/"]
     }
   }
 }</pre>
@@ -125,12 +125,12 @@
   <p>Most MCP clients accept HTTP transport directly:</p>
   <pre>{
   "transport": "http",
-  "url": "https://narrowhighway.com/mcp"
+  "url": "https://narrowhighway.com/mcp/"
 }</pre>
   <p>Or SSE for older clients:</p>
   <pre>{
   "transport": "sse",
-  "url": "https://narrowhighway.com/mcp/sse"
+  "url": "https://narrowhighway.com/mcp/sse/"
 }</pre>
 
   <h2>What's exposed</h2>
