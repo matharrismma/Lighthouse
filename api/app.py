@@ -8688,6 +8688,12 @@ _COLLAPSED_DOORS = {
     "/shepherd-room.html": "/walk.html",         # "The Shepherd's Room" — the Shepherd's voice
     "/walks.html": "/walk.html",                 # "The Discernment Engine" — the old main door
     "/watch-listen.html": "/media-center.html",  # retired stub — superseded by the media center
+    # ── map family (2026-06-19 site merge): fold duplicate map pages into the
+    # canonical Atlas hub. coordinate-map (the Cross/four-axes), grid (technical),
+    # brain + breath (distinct visualizations) STAY — they are different views,
+    # not duplicates. Reversible: delete an entry.
+    "/atlas-map.html": "/atlas.html",            # "The Atlas — map of verified connection" — dup of atlas
+    "/map.html": "/atlas.html",                  # generic "The Map" — folds into the hub
 }
 
 

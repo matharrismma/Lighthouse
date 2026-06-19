@@ -131,8 +131,28 @@ def main():
             print("  %-32s %-7s out=%-3d %5dB %3dd  %s%s"
                   % (p, flag, len(outbound[p]), info[p]["size"], age_d, info[p]["title"][:42], hub))
 
+    # Effective PUBLIC surface = total minus robots-Disallowed minus redirected
+    # (folded into a canonical hub). This is the number the reorg actually shrinks.
+    blocked, redirected = set(), set()
+    try:
+        rb = open(os.path.join(HERE, "site", "robots.txt"), encoding="utf-8", errors="replace").read()
+        for m in re.finditer(r"Disallow:\s*/([a-z0-9-]+\.html)", rb):
+            blocked.add(m.group(1))
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        ap = open(os.path.join(HERE, "api", "app.py"), encoding="utf-8", errors="replace").read()
+        for m in re.finditer(r'"/([a-z0-9-]+\.html)"\s*:\s*"/[a-z0-9-]+\.html"', ap):
+            redirected.add(m.group(1))
+    except Exception:  # noqa: BLE001
+        pass
+    effective = [p for p in pages if p not in blocked and p not in redirected]
+
     print("\n--- SUMMARY ---")
     print("total pages:      %d" % len(pages))
+    print("  redirected (folded into a hub): %d" % len(redirected))
+    print("  robots-Disallowed (out of public): %d" % len(blocked))
+    print("EFFECTIVE public pages: %d  (target ~30)" % len(effective))
     print("orphaned (in=0):  %d  (%.0f%%)" % (len(orphans), 100.0 * len(orphans) / len(pages)))
     hubs = [p for p in pages if len(outbound[p]) >= 12]
     print("hub pages (out>=12): %s" % ", ".join(sorted(hubs, key=lambda x: -len(outbound[x]))[:10]))
