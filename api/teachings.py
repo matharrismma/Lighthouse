@@ -241,6 +241,34 @@ _SEED: List[Dict[str, Any]] = [
                  "placeholder:laplace_dynamics"],
         "seed_v": 1,
     },
+    {
+        "id": "ground_a_verifier_with_a_primary_citation",
+        "directive": ("Continue [grounding an empirical verifier's claims against the open "
+                      "literature, as a repeatable pattern]."),
+        "principle": ("An empirical verifier's data must carry a RE-CHECKABLE primary citation, not "
+                      "just a name. THE PATTERN: (1) find the data's primary source via the scholar "
+                      "connection (the clean road); (2) attach a `primary_source` block = the DOI + "
+                      "an HONEST open-access status (the lawful free copy, or None when none was "
+                      "found, never a pirated one) + the current edition if the source was updated; "
+                      "(3) make that block TRAVEL with both the lookup AND the verdict, so an agent "
+                      "can verify the numbers against the literature. Grounds the DATA, never the "
+                      "verdict — a real source does not make a claim true; it makes the claim "
+                      "CHECKABLE."),
+        "realization": ("Grounded exercise_science/METs as the exemplar: scholar located the 2011 "
+                        "Compendium (Ainsworth et al., doi:10.1249/mss.0b013e31821ece12) the data "
+                        "came from + its 2024 Adult Compendium update (doi:10.1016/j.jshs.2023.10.010, "
+                        "lawful OA). Added _METS_PRIMARY_SOURCE to mcp_server/tools.py; surfaced it on "
+                        "activity_mets (lookup) and verify_exercise_science (verdict)."),
+        "result": ("LIVE + 58/58, 0 false-positives. The MET verdict now carries its re-checkable "
+                   "DOI. HONEST status preserved: 2011 paper open_access_url=None (stated, not "
+                   "hidden); 2024 update is gold-OA so its DOI resolves free. Pattern is ready to "
+                   "roll out to the other empirical verifiers (the ~19 that lean on embedded data)."),
+        "status": "discipline",
+        "refs": ["src/concordance_engine/mcp_server/tools.py:_METS_PRIMARY_SOURCE",
+                 "GET /scholar/lookup", "doi:10.1249/mss.0b013e31821ece12",
+                 "doi:10.1016/j.jshs.2023.10.010"],
+        "seed_v": 1,
+    },
 ]
 
 

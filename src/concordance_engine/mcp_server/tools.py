@@ -2452,6 +2452,31 @@ def cross_references(reference, limit=20):
             "attribution": meta.get("attribution")}
 
 
+# Re-checkable PRIMARY citation for the MET data, located via the open scholarly
+# record (the clean road -- scholar/OpenAlex/Crossref/Unpaywall, NOT a data
+# mirror or a pirated copy). The .db carries the data's own provenance (the 2011
+# edition, via a public GitHub mirror); this points at the PRIMARY source with a
+# DOI so an agent can verify the numbers against the literature itself. Pattern:
+# every empirical verifier gets a primary_source block like this -- a DOI plus an
+# HONEST open-access status (the lawful free copy, or None when none was found).
+# Grounds the DATA, never the verdict (a real source does not make a claim true).
+_METS_PRIMARY_SOURCE = {
+    "edition": "2011 Compendium of Physical Activities (2nd update of codes + MET values)",
+    "authors": "Ainsworth BE, Haskell WL, Herrmann SD, et al.",
+    "published_in": "Medicine & Science in Sports & Exercise, 2011",
+    "doi": "10.1249/mss.0b013e31821ece12",
+    "doi_url": "https://doi.org/10.1249/mss.0b013e31821ece12",
+    "open_access_url": None,  # no lawful free copy located -- stated, not hidden, never pirated
+    "current_update": {
+        "edition": "2024 Adult Compendium of Physical Activities (3rd update)",
+        "doi": "10.1016/j.jshs.2023.10.010",
+        "doi_url": "https://doi.org/10.1016/j.jshs.2023.10.010",
+        "open_access_url": "https://doi.org/10.1016/j.jshs.2023.10.010",  # J Sport Health Sci = gold OA
+    },
+    "via": "scholar (OpenAlex/Crossref/Unpaywall) -- lawful Layer-0; grounds the data, not the verdict",
+}
+
+
 def activity_mets(query, limit=10):
     """The metabolic-equivalent (MET) intensity of a physical activity, from the
     offline 2011 Compendium of Physical Activities (Ainsworth et al.). query =
@@ -2487,7 +2512,8 @@ def activity_mets(query, limit=10):
             "note": "MET = activity energy expenditure / resting (1 MET ~ 1 kcal/kg/hr; a brisk walk "
                     "~3-4, running ~8-12). Reference data, NOT medical or exercise-prescription advice.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _METS_PRIMARY_SOURCE}
 
 
 def nuclide_data(nuclide):
@@ -2878,8 +2904,12 @@ def verify_exercise_science(spec):
     Energy: {"claimed_met": 8.0, "weight_kg": 70, "duration_hours": 1.0, "claimed_kcal": 560}
     Max HR (Tanaka): {"age_years": 30, "claimed_max_hr": 187}
     HR zone (Karvonen): {"age_years": 30, "resting_hr": 60, "intensity_low": 0.7, "intensity_high": 0.8,
-                         "claimed_zone_low_bpm": 149, "claimed_zone_high_bpm": 162}"""
-    return {"checks": [_r(r) for r in _exercise_science.run({"EX_VERIFY": spec or {}})]}
+                         "claimed_zone_low_bpm": 149, "claimed_zone_high_bpm": 162}
+
+    The verdict carries `primary_source`: the re-checkable DOI for the MET data
+    (Ainsworth 2011 Compendium), so the grounding travels with the claim."""
+    return {"checks": [_r(r) for r in _exercise_science.run({"EX_VERIFY": spec or {}})],
+            "primary_source": _METS_PRIMARY_SOURCE}
 
 
 def verify_finance(spec):
