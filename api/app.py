@@ -17442,6 +17442,34 @@ def grid_embedding(k: int = 4):
     return _arr.embedding(k=k)
 
 
+@app.get("/grid/music", tags=["agents"])
+def grid_music():
+    """How the spectral map fits OCTAVES and MUSIC — the connection + the honest assay.
+
+    The FFT is the math of music: the cochlea hears by Fourier transform, an octave
+    is a 2:1 doubling, harmony is the small-integer ratios that are a tone's FFT
+    peaks (the overtone series). Returns: the connection; a worked overtone series;
+    and THE ASSAY — reading the map's own eigenvalue spectrum as frequencies and
+    testing whether it is genuinely a harmonic series (it is NOT — reported as
+    found, not forced into meaning).
+    """
+    try:
+        from api import arrangement as _arr, harmonics as _h
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    eig = [m["eigenvalue"] for m in _arr.spectrum().get("modes", [])]
+    return {
+        "connection": _h.the_connection(),
+        "overtone_series_example": {"fundamental_hz": 110.0, "series": _h.overtones(110.0, 6)},
+        "the_map_as_music": _h.spectrum_as_music(eig),
+        "is_it_more_in_tune_than_chance": _arr.tune_test(),
+        "the_criterion": ("When the tune is correct, the theories will be correct (Matt). "
+                          "Consonance is a truth-criterion for the arrangement: tune toward it, "
+                          "count it only when it beats chance, and let the engine's verification "
+                          "confirm. The current arrangement is at chance — honestly, not yet."),
+    }
+
+
 @app.get("/grid/locate", tags=["agents"])
 def grid_locate(text: str = ""):
     """Place a plain-language claim on the scaffold.

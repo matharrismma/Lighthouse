@@ -249,6 +249,61 @@ _SEED: List[Dict[str, Any]] = [
         "held_since": "2026-06-19",
         "seed_v": 1,
     },
+    {
+        "id": "tune_is_the_truth_criterion",
+        "name": "When the tune is correct, the theories will be correct (consonance -> truth)",
+        "status": "placeholder",
+        "grade": "plausible",
+        "kind": "truth_criterion",
+        "claim": ("Matt: 'When the tune is correct, the theories will be correct.' Read the map's "
+                  "spectrum as music: a CORRECT arrangement will be CONSONANT (its inter-mode "
+                  "intervals land on just ratios); the dissonance (cents-error) is how far the "
+                  "arrangement is from correct. So consonance is a truth-criterion — tune the "
+                  "arrangement toward it, and the in-tune one is the candidate truth."),
+        "organizes": ("the whole search for the right arrangement, with a fitness signal. The "
+                      "general bridge is real, grounded math (api/harmonics.py): the FFT is how "
+                      "the ear hears, an octave is a 2:1 doubling, and consonant intervals are "
+                      "the small-integer ratios that ARE a tone's FFT peaks (the overtone "
+                      "series). The musical form of 'elegance is God's signature.'"),
+        "provenance": ("Matt's directive, 2026-06-19. Instrumented by api.arrangement.tune_test "
+                       "and api.harmonics (GET /grid/music)."),
+        "caveat": ("A guiding WITNESS, not a proof (elegance witnesses, verification confirms). "
+                   "Guarded against the gematria trap two ways: a near-tune counts as 'close' "
+                   "ONLY if it BEATS A SHUFFLED-GRID NULL (tune_test), and any tuned arrangement "
+                   "must then be confirmed by the engine's actual verification. Do not fit free "
+                   "parameters to manufacture consonance."),
+        "evidence": [
+            "TUNE_TEST 2026-06-19 (real vs 400 shuffled grids): the CURRENT arrangement is AT "
+            "CHANCE — real 28.4c vs null median 25.4c; 301/400 random grids tune better (p~0.75). "
+            "So we do NOT yet have the right answers, and the tune says so honestly (no laundering "
+            "a near-miss into 'close').",
+            "BUT an in-tune arrangement EXISTS in the space: the best shuffled grid hit 12.8c "
+            "(< half the real error). The criterion is reachable — there is real tuning to do.",
+            "The music math itself is sound (overtone series of 110Hz -> A/E/A/C# = octave/fifth/"
+            "octave/third), so the criterion rests on correct harmony, not numerology.",
+        ],
+        "falsifiers": [
+            "Tuning the arrangement toward consonance does NOT improve its engine-verification / "
+            "explanatory fruit (then consonance is decoration, not a truth-criterion).",
+            "A consonant arrangement reachable ONLY by overfitting free parameters (manufactured, "
+            "not found) — caught by the shuffled-grid null.",
+            "The most-verified arrangement turning out persistently DISsonant.",
+        ],
+        "unlikely_tests": [
+            "Search structurally-meaningful arrangements for one that beats the null AND verifies "
+            "better — does consonance track correctness, or not?",
+            "As the grid grows honestly, does the cents-error fall (toward truth) or stay at chance?",
+            "Take a KNOWN-correct sub-structure and check it is more consonant than a scrambled one.",
+        ],
+        "advances_by": ("evidence that consonance TRACKS verified correctness — tuned-and-"
+                        "null-beating arrangements that also verify better. Re-run GET /grid/music."),
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": None,
+        "superseded_by": None,
+        "held_since": "2026-06-19",
+        "seed_v": 1,
+    },
 ]
 
 

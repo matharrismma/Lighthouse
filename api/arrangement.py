@@ -295,6 +295,75 @@ def embedding(k: int = 4) -> Dict:
     }
 
 
+def tune_test(n_null: int = 200, seed: int = 1729) -> Dict:
+    """Is the map MORE in tune than chance? — Matt's criterion ("when the tune is
+    correct, the theories will be correct") made rigorous, so a near-miss can't be
+    laundered into "we're close."
+
+    Compares the REAL grid's spectral cents-error (how out of tune it is) to the
+    distribution from RANDOMIZED grids (each domain keeps its NUMBER of dimensions;
+    which ones is shuffled). If the real grid beats the null, the near-tune is
+    signal — the arrangement is genuinely close to correct. If it sits inside the
+    null, it is not close yet — but the null's minimum shows a more in-tune
+    arrangement exists in the space to tune toward.
+    """
+    import random as _random
+    from api import harmonics as _h
+    domains = _canonical()
+    dims = [d for d in _grid.DIMENSIONS]
+    n = len(dims)
+    di = {d: i for i, d in enumerate(dims)}
+
+    def err_for(assign):  # assign: domain -> set of dim indices
+        cols = [[1 if i in assign[d] else 0 for d in domains] for i in range(n)]
+
+        def phi(i, j):
+            a, b = cols[i], cols[j]
+            n11 = n10 = n01 = n00 = 0
+            for x, y in zip(a, b):
+                if x and y: n11 += 1
+                elif x: n10 += 1
+                elif y: n01 += 1
+                else: n00 += 1
+            den = math.sqrt((n11 + n10) * (n01 + n00) * (n11 + n01) * (n10 + n00))
+            return (n11 * n00 - n10 * n01) / den if den else 0.0
+
+        M = [[1.0 if i == j else phi(i, j) for j in range(n)] for i in range(n)]
+        eig, _ = _jacobi_eigen(M)
+        r = _h.spectrum_as_music([e for e in eig if e > 0])
+        return r.get("mean_cents_error")
+
+    real_assign = {d: set(di[x] for x in ds if x in di) for d, ds in domains.items()}
+    real = err_for(real_assign)
+    degs = {d: len(real_assign[d]) for d in domains}
+    rng = _random.Random(seed)
+    nulls = []
+    for _ in range(max(20, n_null)):
+        a = {d: set(rng.sample(range(n), degs[d])) for d in domains}
+        e = err_for(a)
+        if e is not None:
+            nulls.append(e)
+    nulls.sort()
+    N = len(nulls) or 1
+    better = sum(1 for x in nulls if x <= real)
+    p = round(better / N, 3)
+    beats = real < nulls[N // 2]
+    return {
+        "real_cents_error": round(real, 1),
+        "null_min": round(nulls[0], 1), "null_median": round(nulls[N // 2], 1),
+        "null_max": round(nulls[-1], 1), "n_null": N,
+        "p_value": p, "beats_chance": bool(p < 0.05),
+        "in_tune_arrangement_exists_at": round(nulls[0], 1),
+        "verdict": ("BEATS CHANCE — the arrangement is more in tune than random; the near-tune is "
+                    "signal, we are close to a correct arrangement." if p < 0.05 else
+                    "AT CHANCE — the current arrangement is NOT more in tune than random; we do "
+                    "NOT yet have the right answers. An in-tune arrangement exists in the space "
+                    "(null_min) — tune toward it."),
+        "criterion": ("When the tune is correct, the theories will be correct (Matt). Tested "
+                      "against a shuffled-grid null so a near-miss is not laundered into 'close'."),
+    }
+
+
 def probe(deep: bool = False) -> Dict:
     """Run all disconfirmers against the live grid; return the structured report.
 
