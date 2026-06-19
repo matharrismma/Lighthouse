@@ -149,12 +149,28 @@ def _build_adapter(provider: str, model: str | None = None):
     )
 
 
-def select_adapter(provider: str | None = None, model: str | None = None):
-    """Build the configured adapter (arg overrides env overrides default).
-    Exposed for callers/tests that want the adapter object directly.
+def select_adapter(provider: str | None = None, model: str | None = None,
+                   task: str | None = None):
+    """Build the configured adapter (arg overrides per-task env overrides global
+    env overrides default). Exposed for callers/tests that want the adapter directly.
 
-    `model` is the optional per-call Anthropic-default override (see _build_adapter)."""
-    prov = provider if provider is not None else os.environ.get(ORACLE_PROVIDER_ENV, "")
+    `model` is the optional per-call Anthropic-default override (see _build_adapter).
+
+    `task` is THE HIVE seam: a generative edge names its task (e.g. "intake",
+    "shepherd", "tutor") and, when a tuned specialist is configured for it via
+    NH_ORACLE_PROVIDER_<TASK> (e.g. NH_ORACLE_PROVIDER_INTAKE=ollama:nh-intake),
+    that edge routes to the specialist. Unset -> falls through to the global
+    NH_ORACLE_PROVIDER -> anthropic default, so nothing changes until a cell of
+    the hive is trained and pointed at. The router stays deterministic: the env
+    map IS the rules, no model picking models."""
+    if provider is not None:
+        prov = provider
+    else:
+        prov = ""
+        if task:
+            prov = os.environ.get(ORACLE_PROVIDER_ENV + "_" + task.strip().upper(), "")
+        if not prov:
+            prov = os.environ.get(ORACLE_PROVIDER_ENV, "")
     return _build_adapter(prov, model)
 
 
@@ -169,6 +185,7 @@ def complete(
     timeout: float | None = None,
     max_retries: int | None = None,
     temperature: float = 0.0,
+    task: str | None = None,
 ) -> OracleResult:
     """The single seam. Take a (system, user) pair and return completion text
     plus token counts, via the configured provider.
@@ -197,7 +214,7 @@ def complete(
     return its error shape). This keeps the endpoints graceful exactly as before.
     """
     try:
-        adapter = select_adapter(provider, model)
+        adapter = select_adapter(provider, model, task=task)
     except Exception as exc:  # noqa: BLE001 — never crash the endpoint
         return OracleResult(ok=False, error=f"{type(exc).__name__}: {exc}"[:300])
 

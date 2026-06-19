@@ -575,7 +575,7 @@ def _shepherd_socratic_oracle(situation, cards):
         # default claude-sonnet-4-5, max_tokens=80, single user turn).
         from api import oracle as _oracle
         res = _oracle.complete(_SOCRATIC_SYS, _socratic_user(situation, cards),
-                               max_tokens=80)
+                               max_tokens=80, task="shepherd")
         if not res.ok:
             return None
         try:

@@ -6043,7 +6043,7 @@ def _intake_route(text: str) -> Dict[str, Any]:
     from api import oracle as _oracle
     try:
         res = _oracle.complete(_INTAKE_SYS, text, max_tokens=900,
-                               timeout=22.0, max_retries=1)
+                               timeout=22.0, max_retries=1, task="intake")
         if not res.ok:
             raise RuntimeError(res.error or "oracle unavailable")
         try:
@@ -6251,7 +6251,7 @@ def _tutor_lesson(topic: str) -> Dict[str, Any]:
     from api import oracle as _oracle
     try:
         res = _oracle.complete(_LESSON_SYS, "Teach me: " + topic, max_tokens=900,
-                               timeout=25.0, max_retries=1)
+                               timeout=25.0, max_retries=1, task="tutor")
         if not res.ok:
             raise RuntimeError(res.error or "oracle unavailable")
         try:
