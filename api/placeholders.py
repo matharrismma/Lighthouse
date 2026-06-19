@@ -119,6 +119,67 @@ _SEED: List[Dict[str, Any]] = [
         "held_since": "2026-06-18",
         "seed_v": 3,
     },
+    {
+        "id": "abstract_material_poles",
+        "name": "Two poles — abstract/formal vs material/embodied (the two trees)",
+        "status": "placeholder",
+        "grade": "plausible",
+        "kind": "arrangement_principle",
+        "claim": ("The grid's dominant complementary structure is a SINGLE axis from a "
+                  "formal/abstract pole (reasoning, encoding, order, discreteness, "
+                  "uncertainty, authority_trust) to a material/embodied pole "
+                  "(physical_substance, metabolism, conservation_balance, time_sequence, "
+                  "symmetry). The strongest anti-correlations run ACROSS this divide "
+                  "(reasoning <-> physical_substance, reasoning <-> metabolism), NOT within "
+                  "the proposed supersymmetry duals."),
+        "organizes": ("the grid's real complementary structure, found UNSUPERVISED (the "
+                      "optimal 2-cluster split of the 11 dimensions by co-occurrence). "
+                      "Domains spread along it: earth/material sciences (geology, hydrology, "
+                      "agriculture) at one pole, formal/informational domains (cryptography, "
+                      "information_theory, finance) at the other; biology, quantum_computing, "
+                      "geometry straddle — the bridge between the trees."),
+        "predicts": [
+            "a domain's position ~ how abstract vs material it is",
+            "bridge domains (biology, music_theory, quantum_computing) carry BOTH poles",
+            "a new domain's dimensions fall mostly on ONE pole unless it genuinely bridges",
+        ],
+        "provenance": ("DERIVED from data, not imposed: tools/probe_arrangement.py brute-forces "
+                       "the optimal 2-cluster split of the live grid (best score 6.34 vs ~0 mean "
+                       "over all 2046 bipartitions). Emerged when the supersymmetry duals FAILED "
+                       "the complementarity test (see supersymmetry_pairing_arrangement). The "
+                       "abstract/material reading is an interpretation of the data-chosen clusters."),
+        "caveat": ("Held as a PLACEHOLDER TO TRUTH — a CANDIDATE refinement, not confirmed. One "
+                   "test on a small, partly-sparse grid (uncertainty/discreteness/order/symmetry "
+                   "have only 5-6 carriers); a clean 2-pole fit can be an artifact of how "
+                   "dimensions were assigned. 'symmetry' landing on the MATERIAL pole is "
+                   "empirical and against intuition — reported as found, not corrected to fit."),
+        "evidence": [
+            "Unsupervised optimal bipartition scores 6.34 vs ~0 mean over all 2046 splits "
+            "(lift +6.34) — a real 2-cluster structure, not noise.",
+            "Poles read cleanly: deepest-abstract = cryptography / information_theory / finance / "
+            "governance; deepest-material = geology / hydrology / agriculture / soil / nuclear.",
+            "8 straddlers (biology, quantum_computing, geometry, music_theory...) sit on both — "
+            "the expected bridges between form and matter.",
+        ],
+        "falsifiers": [
+            "A domain strongly on BOTH poles that is NOT a natural bridge — breaks the single-axis claim.",
+            "The best 2-pole split scoring no better than random bipartitions (it does not — lift +6.34).",
+            "A 3+ pole or continuous structure fitting the co-occurrence markedly better than 2 poles.",
+        ],
+        "unlikely_tests": [
+            "Add new domains and re-run — does the split hold or scramble?",
+            "Test the straddlers' assignment — are biology / quantum_computing truly bridges or mis-tagged?",
+            "Compare a 2-pole vs 3-pole fit; if 3 poles win clearly, the 'two trees' is wrong.",
+        ],
+        "advances_by": ("surviving the falsifiers and unlikely_tests — re-run "
+                        "tools/probe_arrangement.py as the grid grows."),
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": None,
+        "superseded_by": None,
+        "held_since": "2026-06-18",
+        "seed_v": 1,
+    },
 ]
 
 
