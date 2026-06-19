@@ -71,9 +71,9 @@ STRINGS: Dict[str, str] = {
     "door.teach_desc":      "66 units across phonics, math, reading, writing, science, social studies, Bible. Free. No accounts.",
 
     # ── Work area (the current landing page, index.html) ──
-    "work.eyebrow":          "Bring anything · it knows what to do",
-    "work.title":            "The work area.",
-    "work.tagline":          "A note becomes a list. A message becomes a ready draft. A claim is run through the engine — verdict, trail, and a seal anyone can re-check. It knows what to do, and it is yours to keep.",
+    "work.eyebrow":          "Serves Jesus Christ · don't trust — verify",
+    "work.title":            "Bring anything. Get a receipt — not a 'trust me.'",
+    "work.tagline":          "A claim runs through the engine — a verdict, the worked trail, and a seal anyone can re-check — and you see where it lands on the map of everything that connects. It also turns a note into a list, a message into a draft. Free, no ads, nothing tracked.",
     "work.input_placeholder": "Write a journal entry · search the concordance · check a claim · draft a message · pull up your settings — or drop a file here. It goes where it should.",
     "work.bring_button":     "Bring it →",
     "work.explore":          "Free. No login, no ads, nothing tracked. The engine verifies; the assistant only drafts — and says so.",
