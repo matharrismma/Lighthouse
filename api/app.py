@@ -13346,11 +13346,12 @@ def well_known_mcp():
     return {
         "name": "concordance",
         "description": (
-            "Deterministic verification engine. Serves Jesus Christ; a conduit, not a "
-            "source. Give it a math claim, a multi-step derivation, or a plain-language "
-            "statement and it returns a verdict (HOLDS/BROKEN), the worked elimination "
-            "trail, and a permanent, re-checkable seal. It VERIFIES a provided claim; it "
-            "never generates the answer -- a false claim returns BROKEN."
+            "Every AI answer asks you to trust it; this one hands you a receipt you can "
+            "re-check. A deterministic verification engine that serves Jesus Christ (a "
+            "conduit, not a source): give it a math claim, a multi-step derivation, or a "
+            "plain-language statement and it returns a verdict (HOLDS/BROKEN), the worked "
+            "elimination trail, and a permanent, re-checkable seal. It VERIFIES a provided "
+            "claim; it never generates the answer -- a false claim returns BROKEN."
         ),
         "doctrine_url": base + "/identity",
         "transports": {
