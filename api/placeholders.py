@@ -406,6 +406,14 @@ _SEED: List[Dict[str, Any]] = [
             "spike (discreteness=-0.92, rest ~+0.05). RETRACTED. The two-trees is an ALIGNMENT "
             "finding (correlation eigenmode + clustering, which are the same signal); flow is a "
             "DIFFERENT lens and does not show it. Map never launders — recorded as found.",
+            "METHOD GROUNDING (scholar lookup, lawful Layer-0 — grounds the TOOL, not the claim): "
+            "the 'algebraic connectivity' (lambda_2) we report is from Fiedler, 'Algebraic "
+            "connectivity of graphs', Czech. Math. J. 1973 (doi:10.21136/cmj.1973.101168; free copy "
+            "dml.cz/handle/10338.dmlcz/101168) — 3,976 cites, the foundational source of the metric. "
+            "Multi-scale spectral reading: Hammond et al., 'Wavelets on graphs via spectral graph "
+            "theory', ACHA 2010 (doi:10.1016/j.acha.2010.04.005; free copy EPFL infoscience). "
+            "These confirm the methods are sound and well-founded; they do NOT confirm the map's "
+            "arrangement is correct (still p=0.385).",
         ],
         "falsifiers": [
             "On a larger grid the spectrum stops being exponential (the decay law was an artifact).",
@@ -423,7 +431,7 @@ _SEED: List[Dict[str, Any]] = [
         "supersedes": "fluid_dynamics_axes",
         "superseded_by": None,
         "held_since": "2026-06-19",
-        "seed_v": 2,
+        "seed_v": 3,
     },
 ]
 

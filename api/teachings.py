@@ -158,8 +158,11 @@ _SEED: List[Dict[str, Any]] = [
                    "sparsity; the two-trees is an alignment finding, not a flow one. Held provisional "
                    "(the operator is still unsure) — the assay disposed of the convergence claim."),
         "status": "tested_at_chance",
-        "refs": ["placeholder:laplace_dynamics", "GET /grid/flow"],
-        "seed_v": 1,
+        "refs": ["placeholder:laplace_dynamics", "GET /grid/flow",
+                 "Fiedler 1973, 'Algebraic connectivity of graphs', doi:10.21136/cmj.1973.101168 "
+                 "(scholar lookup, lawful Layer-0 — the foundational source of the algebraic-"
+                 "connectivity metric the flow assay reports; grounds the method, not the claim)"],
+        "seed_v": 2,
     },
     {
         "id": "log_of_an_image_and_video_frames",
@@ -183,8 +186,11 @@ _SEED: List[Dict[str, Any]] = [
                    "two enrichment frames (tune 28.4c -> 24.7c) are the first such measurement. A "
                    "log/frame surface is a candidate next build, not a claim yet."),
         "status": "seed",
-        "refs": ["GET /grid/spectrum", "GET /grid/music", "placeholder:laplace_dynamics"],
-        "seed_v": 1,
+        "refs": ["GET /grid/spectrum", "GET /grid/music", "placeholder:laplace_dynamics",
+                 "Noll 1967, 'Cepstrum Pitch Determination', doi:10.1121/1.1910339 "
+                 "(scholar lookup, lawful Layer-0 — the cepstrum = the log-of-spectrum lens, "
+                 "the 60-year lineage of this seed)"],
+        "seed_v": 2,
     },
     {
         "id": "work_on_sparsity_efficiently",
@@ -208,6 +214,31 @@ _SEED: List[Dict[str, Any]] = [
         "status": "provisional",
         "refs": ["data/grid/axis_extensions.jsonl", "GET /grid/flow", "GET /grid/music",
                  "placeholder:tune_is_the_truth_criterion"],
+        "seed_v": 1,
+    },
+    {
+        "id": "use_the_scholar_connection_clean_road",
+        "directive": "Can you use the sci-bot/sci-hub connection?",
+        "principle": ("There is no Sci-Hub connection by design — we take the CLEAN ROAD to the same "
+                      "destination: OpenAlex (CC0) + Crossref + Unpaywall reach the same papers when "
+                      "they are LEGALLY open, and return null (never a pirated copy) when they are "
+                      "not. Two disciplines: (1) never launder provenance — a citation must point at "
+                      "a lawful, re-checkable source; (2) a found paper grounds the METHOD, never the "
+                      "CLAIM — finding the foundational source of a tool we use does not make our "
+                      "answer correct."),
+        "realization": ("Ran the scholar tool (GET /scholar/lookup) on this session's own spectral "
+                        "methods. It reached the foundational sources, lawfully."),
+        "result": ("WORKS: found Fiedler 1973 'Algebraic connectivity of graphs' (the literal origin "
+                   "of the lambda_2 our flow assay reports — with a LEGAL free copy at dml.cz), Noll "
+                   "1967 'Cepstrum Pitch Determination' (the origin of the log-spectrum/cepstrum "
+                   "lens), and Chung 1996 'Spectral Graph Theory' + Hammond 2010 graph-wavelets "
+                   "(free copy EPFL). The discipline held — lawful copy where one exists, null where "
+                   "none does, never a pirated PDF. Wired as grounding refs on the laplace_dynamics "
+                   "placeholder + the flow/log teachings. EXPLICIT: this grounds the tools as sound, "
+                   "NOT the map's arrangement (still p=0.385, not in tune)."),
+        "status": "discipline",
+        "refs": ["GET /scholar/lookup", "api/scholar.py",
+                 "placeholder:laplace_dynamics"],
         "seed_v": 1,
     },
 ]
