@@ -452,12 +452,14 @@ def language_data(query):
                     sug.append(e.get("name"))
             return {"status": "not_found", "query": query,
                     "detail": f"no language matched '{query}'",
-                    "suggestions": sug[:8], "source": idx.get("meta", {}).get("source")}
+                    "suggestions": sug[:8], "source": idx.get("meta", {}).get("source"),
+                    "primary_source": _PHOIBLE_PRIMARY_SOURCE}
     e = by_gc.get(gc)
     if not e:
         return {"status": "not_found", "query": query, "detail": "matched id has no record"}
     out = {"status": "ok", "source": idx.get("meta", {}).get("source"),
-           "license": idx.get("meta", {}).get("license")}
+           "license": idx.get("meta", {}).get("license"),
+           "primary_source": _PHOIBLE_PRIMARY_SOURCE}
     out.update(e)
     return out
 
@@ -613,9 +615,11 @@ def word_meaning(word):
         return {"status": "error", "detail": "wordnet lookup failed: " + str(e)[:140]}
     if not row:
         return {"status": "not_found", "query": word,
-                "source": meta.get("source", "Princeton WordNet 3.1")}
+                "source": meta.get("source", "Princeton WordNet 3.1"),
+                "primary_source": _WORDNET_PRIMARY_SOURCE}
     return {"status": "ok", "word": q, "senses": _json.loads(row[0]),
-            "source": meta.get("source"), "license": meta.get("license")}
+            "source": meta.get("source"), "license": meta.get("license"),
+            "primary_source": _WORDNET_PRIMARY_SOURCE}
 
 
 _GEO_FEATURE = {
@@ -673,11 +677,13 @@ def place_lookup(name, limit=8):
         return {"status": "not_found", "query": name,
                 "note": "GeoNames cities5000 covers populated places >= 5000; "
                         "smaller or historical places may be absent.",
-                "source": meta.get("source", "GeoNames cities5000 gazetteer")}
+                "source": meta.get("source", "GeoNames cities5000 gazetteer"),
+                "primary_source": _GEONAMES_PRIMARY_SOURCE}
     return {"status": "ok", "query": name, "count": len(matches),
             "matches": matches, "source": meta.get("source"),
             "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _GEONAMES_PRIMARY_SOURCE}
 
 
 def timezone_offset(zone, when=None):
@@ -708,7 +714,8 @@ def timezone_offset(zone, when=None):
             return {"status": "not_found", "query": zone,
                     "note": "not an IANA zone name; use place_lookup(name) to get "
                             "a place's zone (the 'timezone' field), then pass it here.",
-                    "source": meta.get("source")}
+                    "source": meta.get("source"),
+                    "primary_source": _TZDB_PRIMARY_SOURCE}
         data = zf.read(z)
         if data[:4] != b"TZif":
             return {"status": "not_found", "query": zone,
@@ -740,7 +747,8 @@ def timezone_offset(zone, when=None):
             "abbreviation": moment.tzname(), "is_dst": is_dst,
             "iana_version": meta.get("iana_version"),
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _TZDB_PRIMARY_SOURCE}
 
 
 # --- UCUM unit converter (offline, deterministic, fails closed) -------------
@@ -891,7 +899,8 @@ def unit_convert(value, from_unit, to_unit=None):
     base_order = doc["base_units"]
     src = {"source": meta.get("source"), "license": meta.get("license"),
            "ucum_version": meta.get("version"),
-           "attribution": meta.get("attribution")}
+           "attribution": meta.get("attribution"),
+           "primary_source": _UCUM_PRIMARY_SOURCE}
     try:
         if to is None:
             mf, df = _ucum_eval(frm)
@@ -1160,14 +1169,16 @@ def port_lookup(query, protocol=None):
         return {"status": "error", "detail": "port lookup failed: " + str(e)[:140]}
     if not rows:
         return {"status": "not_found", "query": query,
-                "source": meta.get("ports_source")}
+                "source": meta.get("ports_source"),
+                "primary_source": _IANA_PORTS_PRIMARY_SOURCE}
     matches = [{"port": r[0], "protocol": r[1], "service": r[2],
                 "description": r[3], "reference": r[4]} for r in rows]
     return {"status": "ok", "query": query, "mode": mode,
             "count": len(matches), "matches": matches,
             "source": meta.get("ports_source"),
             "license": meta.get("ports_license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _IANA_PORTS_PRIMARY_SOURCE}
 
 
 def rfc_lookup(number):
@@ -1196,7 +1207,8 @@ def rfc_lookup(number):
         return {"status": "error", "detail": "rfc lookup failed: " + str(e)[:140]}
     if not row:
         return {"status": "not_found", "query": number,
-                "source": meta.get("rfc_source")}
+                "source": meta.get("rfc_source"),
+                "primary_source": _RFC_SERIES_PRIMARY_SOURCE}
 
     def _split(s):
         return [x for x in (s or "").split(",") if x]
@@ -1207,8 +1219,12 @@ def rfc_lookup(number):
            "obsoletes": _split(row[4]), "obsoleted_by": obs_by,
            "updates": _split(row[6]), "updated_by": _split(row[7]),
            "url": "https://www.rfc-editor.org/rfc/rfc%d" % num,
+           # each RFC is its own re-checkable primary source (RFC Editor DOI scheme)
+           "doi": "10.17487/RFC%d" % num,
+           "doi_url": "https://doi.org/10.17487/RFC%d" % num,
            "source": meta.get("rfc_source"), "license": meta.get("rfc_license"),
-           "attribution": meta.get("attribution")}
+           "attribution": meta.get("attribution"),
+           "primary_source": _RFC_SERIES_PRIMARY_SOURCE}
     if obs_by:
         out["superseded_by"] = obs_by
         out["note"] = ("THIS RFC IS OBSOLETE -- superseded by " + ", ".join(obs_by)
@@ -2069,13 +2085,15 @@ def lexicon(strongs):
         return {"status": "error", "detail": "lexicon lookup failed: " + str(e)[:140]}
     if not r:
         return {"status": "not_found", "strongs": key,
-                "detail": "no BDB/Thayer entry for " + key}
+                "detail": "no BDB/Thayer entry for " + key,
+                "primary_source": _STEPBIBLE_LEXICON_PRIMARY_SOURCE}
     return {"status": "ok", "strongs": key, "word": r[0], "transliteration": r[1],
             "gloss": r[2] or None, "definition": r[3] or None,
             "note": "Richer scholarly take (BDB/Thayer tradition); attributed to the lexicographers, "
                     "not engine doctrine. word_study gives the terse Strong's gloss + occurrences.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _STEPBIBLE_LEXICON_PRIMARY_SOURCE}
 
 
 def commentary(reference, author="matthew-henry", limit=6):
@@ -2612,6 +2630,105 @@ _CMUDICT_PRIMARY_SOURCE = {
     "open_access_url": "https://github.com/cmusphinx/cmudict",
     "note": "ARPABET transcriptions; the IPA is a deterministic segmental transliteration",
     "via": "open dataset -- lawful Layer-0; grounds the pronunciation data, not the verdict",
+}
+_WORDNET_PRIMARY_SOURCE = {
+    "title": "WordNet: A Lexical Database for English",
+    "authors": "Miller GA",
+    "published_in": "Communications of the ACM, 38(11):39 (1995)",
+    "doi": "10.1145/219717.219748",
+    "doi_url": "https://doi.org/10.1145/219717.219748",
+    "open_access_url": "https://dl.acm.org/doi/pdf/10.1145/219717.219748",
+    "book": "Fellbaum C (ed.), WordNet: An Electronic Lexical Database, MIT Press, 1998 "
+            "(doi:10.2307/417141)",
+    "via": "scholar -- lawful Layer-0; grounds the lexical-semantic data, not the verdict",
+}
+# PHOIBLE is a DATABASE RELEASE (no clean journal DOI -- scholar returned related
+# papers, not PHOIBLE itself, so none is attached). Cited by its canonical editors.
+_PHOIBLE_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "PHOIBLE 2.0 (phonological segment inventories) + Glottolog",
+    "editors": "Moran S & McCloy D (eds.), 2019. Jena: Max Planck Institute for the "
+               "Science of Human History",
+    "url": "https://phoible.org",
+    "license": "CC BY-SA 3.0",
+    "doi": None,  # a database release, not a journal paper -- not laundered
+    "open_access_url": "https://phoible.org",
+    "note": "language families/regions via Glottolog (Hammarstrom H, et al., glottolog.org)",
+    "via": "open database -- lawful Layer-0; grounds the phoneme-inventory data, not the verdict",
+}
+_GEONAMES_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "GeoNames geographical database (cities5000)",
+    "publisher": "GeoNames.org",
+    "url": "https://www.geonames.org",
+    "license": "CC BY 4.0",
+    "doi": None,  # an open geographic dataset, not a paper
+    "open_access_url": "https://download.geonames.org/export/dump/",
+    "note": "populated places with population >= 5000; a dated snapshot is bundled offline",
+    "via": "open dataset -- lawful Layer-0; grounds the gazetteer data, not the verdict",
+}
+_TZDB_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "IANA Time Zone Database (tz database / zoneinfo)",
+    "publisher": "Internet Assigned Numbers Authority (IANA)",
+    "url": "https://www.iana.org/time-zones",
+    "license": "Public Domain",
+    "doi": None,  # a maintained reference dataset (maintenance procedures: RFC 6557)
+    "open_access_url": "https://www.iana.org/time-zones",
+    "note": "offsets are computed deterministically from the tzdb rules; governance per RFC 6557",
+    "via": "official dataset -- lawful Layer-0; grounds the offset rules, not the verdict",
+}
+_UCUM_PRIMARY_SOURCE = {
+    "kind": "standard",
+    "title": "The Unified Code for Units of Measure (UCUM)",
+    "authors": "Schadow G, McDonald CJ (Regenstrief Institute)",
+    "url": "https://ucum.org",
+    "license": "Royalty-free (UCUM license)",
+    "doi": None,  # a specification/standard, not a journal paper
+    "open_access_url": "https://ucum.org/ucum",
+    "note": "the unit code specification under every dimensional conversion",
+    "via": "open standard -- lawful Layer-0; grounds the unit definitions, not the verdict",
+}
+_IANA_PORTS_PRIMARY_SOURCE = {
+    "title": "Service Name and Transport Protocol Port Number Registry",
+    "publisher": "Internet Assigned Numbers Authority (IANA)",
+    "url": "https://www.iana.org/assignments/service-names-port-numbers/",
+    "license": "Public Domain (IANA registry)",
+    "governing_rfc": {
+        "title": "IANA Procedures for the Management of the Service Name and Transport "
+                 "Protocol Port Number Registry (RFC 6335)",
+        "doi": "10.17487/RFC6335",
+        "doi_url": "https://doi.org/10.17487/RFC6335",
+        "open_access_url": "https://www.rfc-editor.org/rfc/rfc6335",
+    },
+    "doi": None,  # the registry is a dataset; its governing procedure (RFC 6335) carries the DOI
+    "open_access_url": "https://www.iana.org/assignments/service-names-port-numbers/",
+    "via": "official registry + governing RFC -- lawful Layer-0; grounds the port data, not the verdict",
+}
+# Each RFC IS its own primary source; the RFC Editor mints a DOI per document as
+# 10.17487/RFC{number}. rfc_lookup attaches that DOI to each result dynamically.
+_RFC_SERIES_PRIMARY_SOURCE = {
+    "title": "The RFC series",
+    "publisher": "RFC Editor / Internet Engineering Task Force (IETF)",
+    "url": "https://www.rfc-editor.org",
+    "license": "Public Domain (IETF Trust)",
+    "doi_scheme": "10.17487/RFC{number} (per-document; attached to each result as `doi`)",
+    "via": "the standards documents themselves -- lawful Layer-0; each RFC is re-checkable by DOI",
+}
+# STEPBible lexicon: an ATTRIBUTED scholarly TAKE (the lexicographers'), not engine
+# doctrine -- cited as the dataset + its lexical lineage.
+_STEPBIBLE_LEXICON_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "STEPBible: TBESH (Hebrew) + TBESG (Greek) -- Translators Brief lexicon of "
+             "Extended Strongs",
+    "publisher": "Tyndale House, Cambridge (STEPBible)",
+    "url": "https://github.com/STEPBible/STEPBible-Data",
+    "license": "CC BY 4.0",
+    "doi": None,  # a curated lexical dataset, not a journal paper
+    "open_access_url": "https://github.com/STEPBible/STEPBible-Data",
+    "tradition": "Brown-Driver-Briggs (Hebrew) / Thayer & Abbott-Smith (Greek)",
+    "note": "an ATTRIBUTED lexicographers' take, never engine doctrine",
+    "via": "open dataset -- lawful Layer-0; surfaces the lexical take, never a verdict",
 }
 
 

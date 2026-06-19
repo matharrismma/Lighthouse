@@ -280,13 +280,25 @@ _SEED: List[Dict[str, Any]] = [
                    "doi=None). Every paper DOI + lawful OA located via scholar; datasets carry their "
                    "official portal + license, never a fake DOI. The primary_source rides on ok AND "
                    "not_found returns."),
+        "completed": ("FINISHED (2026-06-19): every empirical reference lookup tool now carries a "
+                      "primary_source -- 19 source families. Final 8: WordNet/Miller 1995 "
+                      "(doi:10.1145/219717.219748, OA) -> word_meaning; PHOIBLE 2.0 (database, no "
+                      "clean DOI -> cited as dataset, NOT laundered) -> language_data; GeoNames -> "
+                      "place_lookup; IANA tz database -> timezone_offset; UCUM standard -> "
+                      "unit_convert; IANA port registry + governing RFC 6335 (doi:10.17487/RFC6335) "
+                      "-> port_lookup; the RFC series -> rfc_lookup (each result now carries its own "
+                      "per-document DOI 10.17487/RFC{n}); STEPBible TBESH/TBESG (an attributed "
+                      "lexicographers' take, never doctrine) -> lexicon. Scripture/commentary "
+                      "substrate left as-is (primary texts with their own attribution discipline, "
+                      "not empirical datasets)."),
         "status": "discipline",
-        "refs": ["src/concordance_engine/mcp_server/tools.py (primary-source registry, 11 families)",
+        "refs": ["src/concordance_engine/mcp_server/tools.py (primary-source registry, 19 families)",
                  "GET /scholar/lookup", "doi:10.1515/pac-2019-0603",
                  "doi:10.1088/1674-1137/abddaf", "doi:10.1051/0004-6361:20078357",
                  "doi:10.1093/ajcn/nqab397", "doi:10.1093/nar/gkaa997",
-                 "doi:10.1093/database/baaa062", "doi:10.1090/noti1734"],
-        "seed_v": 3,
+                 "doi:10.1093/database/baaa062", "doi:10.1090/noti1734",
+                 "doi:10.1145/219717.219748", "doi:10.17487/RFC6335"],
+        "seed_v": 4,
     },
     {
         "id": "mcp_stdio_no_api_layer",
