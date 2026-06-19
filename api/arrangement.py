@@ -40,6 +40,22 @@ def _canonical() -> Dict[str, frozenset]:
             for d in _grid.AXIS_DIMENSIONS if not _grid.is_alias(d)}
 
 
+# "Any truth we find, we need to keep — I don't want to pay for it twice" (Matt).
+# The spectral assays depend ONLY on the grid; cache them by a signature of the
+# grid's content so they recompute only when the grid actually changes. The
+# expensive one (tune_test, 200 shuffles) is the big save. Persistent FINDINGS
+# are kept elsewhere (seals / placeholders / teachings); this is the per-state memo.
+_RESULT_CACHE: Dict[str, Any] = {}
+
+
+def _grid_sig() -> str:
+    import hashlib
+    canon = sorted((d, tuple(sorted(_grid.AXIS_DIMENSIONS[d])))
+                   for d in _grid.AXIS_DIMENSIONS if not _grid.is_alias(d))
+    raw = repr((list(_grid.DIMENSIONS), canon)).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()[:16]
+
+
 def _phi(domains: Dict[str, frozenset], a: str, b: str) -> Dict[str, float]:
     """2x2 co-occurrence of two dimensions across domains + the phi coefficient.
     phi<0 = complementary (tend to NOT co-occur, as true opposites would);
@@ -218,6 +234,9 @@ def spectrum() -> Dict:
     the leading modes are the few generating forms. This is the principled tool the
     crude pole-clustering was groping toward.
     """
+    _key = "spectrum|" + _grid_sig()
+    if _key in _RESULT_CACHE:
+        return _RESULT_CACHE[_key]
     domains = _canonical()
     dims = [d for d in _grid.DIMENSIONS]
     n = len(dims)
@@ -243,7 +262,12 @@ def spectrum() -> Dict:
     m1 = modes[0]
     pos = [d for d, w in m1["loadings"] if w > 0][:4]
     neg = [d for d, w in m1["loadings"] if w < 0][:4]
-    return {
+    # Decay structure of the spectrum (kept, not re-derived): power-law (a turbulent
+    # CASCADE, Fourier) vs exponential (a DECAY, the Laplace domain — each mode
+    # descending from the source at a fixed rate). Assayed 2026-06-19: exponential.
+    pos_eig = [e for e in eig if e > 0]
+    decay = _decay_fit(pos_eig)
+    result = {
         "modes": modes,
         "effective_axes": effective_axes,
         "effective_axes_rule": "Kaiser: count of eigenvalues > 1.0 (a real axis carries "
@@ -251,10 +275,48 @@ def spectrum() -> Dict:
         "principal_axis": {"plus": pos, "minus": neg,
                            "reads_as": "material/embodied vs abstract/formal — the 'two trees'"
                            if ("physical_substance" in pos or "metabolism" in pos) else "(interpret)"},
+        "decay": decay,
         "note": ("The map's natural axes are its eigenmodes (a graph/Fourier spectral view). "
                  "Eigenvalue = energy/rate per mode. The principal mode independently confirms "
                  "the two-trees split; the count of eigenvalues>1 is the data's answer to 'how "
                  "many canonical axes.' Provisional lens — see /placeholders."),
+    }
+    _RESULT_CACHE[_key] = result
+    return result
+
+
+def _decay_fit(values: List[float]) -> Dict[str, Any]:
+    """Does a descending positive series decay as a POWER LAW (cascade, Fourier) or
+    EXPONENTIALLY (decay, the Laplace domain)? Compares log-log vs semi-log R^2."""
+    vals = [v for v in values if v and v > 0]
+    if len(vals) < 3:
+        return {"ok": False}
+    ranks = list(range(1, len(vals) + 1))
+    logv = [math.log(v) for v in vals]
+
+    def fit(xs, ys):
+        m = len(xs); sx = sum(xs); sy = sum(ys)
+        sxx = sum(x * x for x in xs); sxy = sum(x * y for x, y in zip(xs, ys))
+        den = (m * sxx - sx * sx) or 1e-12
+        b = (m * sxy - sx * sy) / den
+        a = (sy - b * sx) / m
+        ym = sy / m
+        ss_t = sum((y - ym) ** 2 for y in ys) or 1e-12
+        ss_r = sum((y - (a + b * x)) ** 2 for x, y in zip(xs, ys))
+        return b, 1 - ss_r / ss_t
+
+    pw_b, pw_r2 = fit([math.log(r) for r in ranks], logv)   # power law
+    ex_b, ex_r2 = fit(ranks, logv)                          # exponential
+    prefers = "exponential" if ex_r2 >= pw_r2 else "power_law"
+    return {
+        "ok": True,
+        "power_law": {"exponent": round(pw_b, 3), "r2": round(pw_r2, 4)},
+        "exponential": {"rate": round(ex_b, 3), "r2": round(ex_r2, 4)},
+        "prefers": prefers,
+        "reads_as": ("EXPONENTIAL decay — the Laplace domain (each mode descends from the source "
+                     "at a fixed rate); NOT a turbulent power-law cascade."
+                     if prefers == "exponential" else
+                     "POWER-LAW cascade — a turbulent/Fourier energy cascade across scales."),
     }
 
 
@@ -267,6 +329,9 @@ def embedding(k: int = 4) -> Dict:
     abstract<->material axis; modes 2..k are the next frequencies. This is the map
     of reality drawn on the axes the data itself revealed — a spectral embedding.
     """
+    _key = "embedding|%d|%s" % (k, _grid_sig())
+    if _key in _RESULT_CACHE:
+        return _RESULT_CACHE[_key]
     domains = _canonical()
     dims = [d for d in _grid.DIMENSIONS]
     n = len(dims)
@@ -286,13 +351,15 @@ def embedding(k: int = 4) -> Dict:
             "plus": [d for d, w in load if w > 0][:3],
             "minus": [d for d, w in load if w < 0][:3],
         })
-    return {
+    result = {
         "coords": coords, "axes": axes, "k": k, "n_domains": len(coords),
         "note": ("Each domain placed on the map's top spectral axes (the Fourier modes). "
                  "Coordinate m = the domain's projection onto eigenmode m; mode 1 is the "
                  "abstract<->material axis. The map of reality drawn on its own found axes. "
                  "Provisional lens — see /placeholders (fourier_spectral_arrangement)."),
     }
+    _RESULT_CACHE[_key] = result
+    return result
 
 
 def tune_test(n_null: int = 200, seed: int = 1729) -> Dict:
@@ -309,6 +376,9 @@ def tune_test(n_null: int = 200, seed: int = 1729) -> Dict:
     """
     import random as _random
     from api import harmonics as _h
+    _key = "tune|%d|%d|%s" % (n_null, seed, _grid_sig())
+    if _key in _RESULT_CACHE:
+        return _RESULT_CACHE[_key]
     domains = _canonical()
     dims = [d for d in _grid.DIMENSIONS]
     n = len(dims)
@@ -348,7 +418,7 @@ def tune_test(n_null: int = 200, seed: int = 1729) -> Dict:
     better = sum(1 for x in nulls if x <= real)
     p = round(better / N, 3)
     beats = real < nulls[N // 2]
-    return {
+    result = {
         "real_cents_error": round(real, 1),
         "null_min": round(nulls[0], 1), "null_median": round(nulls[N // 2], 1),
         "null_max": round(nulls[-1], 1), "n_null": N,
@@ -362,6 +432,8 @@ def tune_test(n_null: int = 200, seed: int = 1729) -> Dict:
         "criterion": ("When the tune is correct, the theories will be correct (Matt). Tested "
                       "against a shuffled-grid null so a near-miss is not laundered into 'close'."),
     }
+    _RESULT_CACHE[_key] = result
+    return result
 
 
 def probe(deep: bool = False) -> Dict:

@@ -91,10 +91,13 @@ _SEED: List[Dict[str, Any]] = [
                       "Fluid dynamics may describe their behavior: turbulence decomposes into "
                       "Fourier modes with an ENERGY CASCADE across scales (which is the eigenvalue "
                       "spectrum); tuning toward consonance is a flow toward equilibrium."),
-        "realization": "Captured as a seed; the honest kernel (turbulence<->Fourier modes<->energy cascade) noted.",
-        "result": "NOT yet tested — a seed. To assay: is the eigenvalue spectrum a power-law cascade?",
-        "status": "seed",
-        "refs": ["placeholder:fluid_dynamics_axes"],
+        "realization": "Assayed via arrangement.spectrum decay fit (GET /grid/spectrum -> decay).",
+        "result": ("TESTED: the cascade prediction FAILED — the eigenvalue spectrum is EXPONENTIAL "
+                   "decay (R^2=0.995), not a power law (R^2=0.93). Not turbulence. BUT exponential "
+                   "decay is the LAPLACE domain, so the dynamics are real, refined into laplace_dynamics."),
+        "status": "weakened",
+        "refs": ["placeholder:fluid_dynamics_axes", "placeholder:laplace_dynamics"],
+        "seed_v": 2,
     },
     {
         "id": "work_trains_the_engine",
@@ -106,6 +109,37 @@ _SEED: List[Dict[str, Any]] = [
         "result": "Standing directive — captured and active.",
         "status": "discipline",
         "refs": ["GET /teachings"],
+    },
+    {
+        "id": "laplace_transform_dynamics",
+        "directive": "laplace transform ... missing",
+        "principle": ("Fourier gives the steady spectrum (the imaginary axis); Laplace adds the "
+                      "real axis sigma — decay/growth rates. It is the transform for the DYNAMICS: "
+                      "how the arrangement responds, decays, and settles. The 'rate of descent "
+                      "from source' is the Laplace decay rate."),
+        "realization": "Captured; tied to the spectrum's decay fit (GET /grid/spectrum -> decay).",
+        "result": ("CONFIRMED-DIRECTION: the eigenvalue spectrum decays EXPONENTIALLY (R^2=0.995) "
+                   "— the Laplace/decay signature, exactly where the fluid assay pointed. Held as "
+                   "placeholder laplace_dynamics (plausible). What the decay rate MEANS for "
+                   "correctness is the open assay."),
+        "status": "provisional",
+        "refs": ["placeholder:laplace_dynamics", "GET /grid/spectrum"],
+        "seed_v": 1,
+    },
+    {
+        "id": "keep_every_truth",
+        "directive": "Any truth we find, we need to keep. I don't want to pay for it twice.",
+        "principle": ("Once a truth is computed/verified, persist it so it is never re-paid for. "
+                      "The seals/CAS keep verified claims (re-checkable forever); placeholders + "
+                      "teachings + almanac keep the findings; and per-state caching keeps the "
+                      "engine's own computations. Compute once; keep; cite."),
+        "realization": ("Added a grid-signature result cache to the spectral assays "
+                        "(arrangement: spectrum/embedding/tune_test recompute only when the grid "
+                        "changes). Findings kept as placeholders + teachings."),
+        "result": "Active — the expensive tune_test (200 shuffles) is now paid once per grid state.",
+        "status": "discipline",
+        "refs": ["arrangement._RESULT_CACHE", "GET /seal/{hash}"],
+        "seed_v": 1,
     },
 ]
 
@@ -133,9 +167,14 @@ def _append(rec: Dict[str, Any]) -> None:
 
 
 def _ensure_seeded() -> None:
-    have = {r.get("id") for r in _load()}
+    # seed_v-aware (teachings are training data — they must be correctable): append
+    # a seed when missing OR when its seed_v is newer than the stored one.
+    stored: Dict[str, int] = {}
+    for r in _load():
+        if r.get("id"):
+            stored[r["id"]] = max(stored.get(r["id"], 0), int(r.get("seed_v", 1) or 1))
     for r in _SEED:
-        if r["id"] not in have:
+        if stored.get(r["id"], -1) < int(r.get("seed_v", 1) or 1):
             rec = dict(r)
             rec.setdefault("attributed_to", "operator")
             rec.setdefault("captured", "2026-06-19")

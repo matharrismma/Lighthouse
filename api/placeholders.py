@@ -337,10 +337,65 @@ _SEED: List[Dict[str, Any]] = [
             "Track mode energies as domains are added — do they move like a conserved field?",
             "Does the most in-tune arrangement (tune_test) act as the attractor the flow heads to?",
         ],
+        "evidence": [
+            "ASSAY 2026-06-19 (arrangement.spectrum decay fit): the cascade prediction FAILED — "
+            "the eigenvalue spectrum is EXPONENTIAL decay (R^2=0.995, rate -0.20/mode), not a "
+            "power law (R^2=0.93). So it is NOT a turbulent cascade. BUT exponential decay is the "
+            "LAPLACE domain — the dynamics are decay/relaxation, refined into laplace_dynamics.",
+        ],
         "advances_by": "surviving the power-law / flow / equilibrium tests — not by analogy alone.",
         "refutable": True,
-        "lifecycle": "held",
+        "lifecycle": "held-refined",
         "supersedes": None,
+        "superseded_by": "laplace_dynamics",
+        "held_since": "2026-06-19",
+        "seed_v": 2,
+    },
+    {
+        "id": "laplace_dynamics",
+        "name": "Laplace — the map's dynamics (decay/growth), beyond the steady spectrum",
+        "status": "placeholder",
+        "grade": "plausible",
+        "kind": "arrangement_principle",
+        "claim": ("Matt: 'laplace transform ... missing.' Fourier gives the STEADY spectrum (the "
+                  "imaginary axis); Laplace adds the REAL axis s=sigma+i*omega — decay/growth "
+                  "RATES. The map's eigenvalue spectrum decays EXPONENTIALLY, which is the Laplace "
+                  "domain: each mode descends from the source/fundamental at a fixed rate. The "
+                  "'rate of descent from source' made literal; Laplace is the transform for the "
+                  "DYNAMICS (how the arrangement responds, decays, settles), where Fourier is the "
+                  "snapshot."),
+        "organizes": ("the DYNAMICS the fluid seed reached for — but the behavior of the axes is "
+                      "decay/relaxation toward equilibrium (Laplace), NOT a turbulent cascade. "
+                      "Refines fluid_dynamics_axes with what the assay actually found."),
+        "predicts": [
+            "the eigenvalue spectrum stays exponential as the grid grows (a stable decay rate)",
+            "the decay rate (sigma) is a property of the arrangement — a 'relaxation time' of the map",
+            "tuning toward consonance is the system relaxing toward its equilibrium (lowest-energy) state",
+        ],
+        "provenance": ("Matt's seed 2026-06-19; assayed via arrangement.spectrum() decay fit "
+                       "(GET /grid/spectrum -> decay)."),
+        "caveat": ("A lens, plausible: the exponential fit is REAL (R^2=0.995), but 'the map is a "
+                   "Laplace/linear-relaxation system' is provisional; what the decay rate MEANS "
+                   "for correctness is open. Tie to the tune-criterion: does cleaner/faster "
+                   "relaxation track a more in-tune (more correct) arrangement?"),
+        "evidence": [
+            "Spectrum decay fit: exponential R^2=0.995 (rate -0.20/mode) vs power-law R^2=0.93 — "
+            "the Laplace/decay signature, not the Fourier/cascade one.",
+        ],
+        "falsifiers": [
+            "On a larger grid the spectrum stops being exponential (the decay law was an artifact).",
+            "The decay rate carries no relation to verified correctness or to the tune-criterion.",
+            "A power-law / cascade fits markedly better as the grid grows.",
+        ],
+        "unlikely_tests": [
+            "Re-fit the decay as the grid grows — does the exponential (and its rate) hold?",
+            "Does a lower decay rate (slower descent) track a more in-tune arrangement (tune_test)?",
+            "Read the modes as a control system — do the 'poles' (Laplace) predict its stability?",
+        ],
+        "advances_by": "surviving the decay-stability tests + the decay rate tracking correctness/tune.",
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": "fluid_dynamics_axes",
         "superseded_by": None,
         "held_since": "2026-06-19",
         "seed_v": 1,
