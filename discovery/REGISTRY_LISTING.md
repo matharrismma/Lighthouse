@@ -42,6 +42,14 @@ Publishing is a deliberate, authenticated act (not a silent crawl).
 - **Confirm before running:** the schema URL/date in `server.json` and the exact field
   names — the registry schema is still moving; check it against the registry repo the day
   you publish so we don't submit against a stale schema.
+- **Verified ready (2026-06-19):** `server.json` parses, carries all required fields
+  ($schema / name / description / version / remotes), and the namespace is the GitHub
+  default. The remote URLs were corrected to the CANONICAL trailing-slash form
+  (`/mcp/`, `/mcp/sse/`) — the bare `/mcp` 308-redirects, which some registry validators
+  and POST clients won't follow. Confirmed live: a proper `initialize` POST to
+  `https://narrowhighway.com/mcp/` returns a valid MCP 200 (serverInfo `concordance`,
+  protocol 2025-06-18). The artifact is ready for your authenticated `mcp-publisher publish`
+  — only your GitHub login + go are missing.
 
 ## 3. Community lists — DRAFT (low-stakes PRs, your call)
 
@@ -51,8 +59,11 @@ Proposed line (adjust category to each list's taxonomy):
 
 > **[Concordance](https://narrowhighway.com/mcp.html)** — Deterministic verification
 > engine. Check a claim or derivation; get a verdict, the worked trail, and a permanent
-> re-checkable seal. Verifies, never generates (a false claim returns BROKEN). 142 tools
+> re-checkable seal. Verifies, never generates (a false claim returns BROKEN). 146 tools
 > across 71 verifier domains + a four-gate decision pipeline.
+
+(Tool count drifts as tools are added — confirm the live number at `GET
+https://narrowhighway.com/mcp-stats` the day you open the PR.)
 
 Candidate lists (verify each is active/accepting before opening a PR):
 - `punkpeye/awesome-mcp-servers`
