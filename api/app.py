@@ -16919,6 +16919,27 @@ def grid_scaffold():
     }
 
 
+@app.get("/grid/probe", tags=["agents"])
+def grid_probe():
+    """Run the map's ARRANGEMENT disconfirmers against the live grid.
+
+    The map's arrangement is a placeholder to truth (see /placeholders) that
+    advances ONLY by surviving disconfirmation. This runs those tests honestly:
+    the supersymmetry duals' complementarity (phi co-occurrence), domains that
+    break the pairing, the untestable predicted partners, AND the unsupervised
+    optimal 2-pole split (the data-derived 'two trees' refinement). Returns
+    survived / weakened / untestable — evidence to weigh, never a verdict.
+
+    This is the agent's window into the second brain's own self-testing — the
+    exploration term of the search, so the map can't become an echo chamber.
+    """
+    try:
+        from api import arrangement as _arr
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _arr.probe()
+
+
 @app.get("/grid/locate", tags=["agents"])
 def grid_locate(text: str = ""):
     """Place a plain-language claim on the scaffold.

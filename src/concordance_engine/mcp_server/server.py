@@ -2593,6 +2593,31 @@ def locate(text: str) -> Dict[str, Any]:
     }
 
 
+@mcp.tool()
+def arrangement_probe() -> Dict[str, Any]:
+    """Run the map's ARRANGEMENT disconfirmers against the live grid — the
+    second brain's own self-testing.
+
+    The map's arrangement (how the dimensions pair / split) is a placeholder to
+    truth (see the `placeholders` tool) that advances ONLY by surviving
+    disconfirmation, never by confirmations — skip the disconfirming probes and
+    the map becomes an echo chamber. This runs them honestly and returns
+    survived / weakened / untestable:
+      - whether the supersymmetry duals are actually COMPLEMENTARY (phi
+        co-occurrence) — they largely are NOT (the duals were weakened);
+      - domains that BREAK the pairing;
+      - the predicted-missing partners (untestable from the current grid);
+      - the UNSUPERVISED optimal 2-pole split (the data-derived abstract/material
+        'two trees' refinement the disconfirmation pointed to).
+
+    Evidence to weigh, never a self-declared verdict (the apex stays reserved).
+    Use this when reasoning about WHERE the map's structure is real vs proposed,
+    or before trusting a dual/gap from `locate`.
+    """
+    from api import arrangement as _arr
+    return _arr.probe()
+
+
 # ============================================================
 # Engine-substrate tools (close the parity gap with HTTP API)
 # ============================================================
