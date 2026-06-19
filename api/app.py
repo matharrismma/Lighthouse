@@ -5859,6 +5859,28 @@ def _quick_route(text: str) -> Optional[Dict[str, Any]]:
             what = "schedule"
         return {"intent": "settings", "oracle": False, "what": what}
     import re as _re
+    # Scholarly grounding — a bare DOI, or an explicit ask for the research
+    # literature, routes to the open scholarly corpus (OpenAlex/Crossref/
+    # Unpaywall). Deterministic + offline-safe here; the frontend fetches
+    # /scholar/lookup and shows attributed results + the lawful open copy.
+    _doi = _re.search(r"10\.\d{4,9}/[^\s\"'<>]+", text)
+    if _doi:
+        return {"intent": "scholar", "oracle": False,
+                "doi": _doi.group(0).rstrip(".,);:'\""), "query": ""}
+    _resm = _re.match(
+        r"^\s*(?:find|show(?:\s+me)?|get|search(?:\s+for)?|look\s+up|look\s+for)\s+"
+        r"(?:me\s+|the\s+|some\s+|recent\s+|any\s+|new\s+|a\s+)*"
+        r"(?:papers?|studies|study|research|articles?|publications?|"
+        r"scholarly\s+articles?|academic\s+(?:papers?|articles?)|"
+        r"scientific\s+literature|literature)\b"
+        r"(?:\s+(?:on|about|regarding|for|into|concerning)\s+|\s+)?(.*)$",
+        text, _re.I)
+    if _resm:
+        _topic = (_resm.group(1) or "").strip()
+        return {"intent": "scholar", "oracle": False,
+                "query": (_topic or text)[:200], "doi": ""}
+    if _re.search(r"\b(?:papers?|studies|research|literature)\s+(?:on|about)\b", t):
+        return {"intent": "scholar", "oracle": False, "query": text[:200], "doi": ""}
     m = _re.match(r"^\s*(search for|search|look up|look for)\b[:\s]+(.+)$", text, _re.I)
     if m and m.group(2).strip():
         return {"intent": "search", "oracle": False, "query": m.group(2).strip()[:200]}

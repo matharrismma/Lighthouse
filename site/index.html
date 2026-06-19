@@ -327,7 +327,42 @@ function nhRender(d){
     var c=d.route||{};
     res.innerHTML='<div class="art"><div class="art-lbl">Routed</div><div class="ans">'+nhEsc(c.why||'routed by rules')+(c.url?' — <a href="'+nhEsc(c.url)+'">open &rarr;</a>':'')+'</div></div>';return;
   }
+  if(intent==='scholar'){
+    var sdoi=d.doi||'', sq=d.query||'';
+    res.innerHTML='<div class="art"><div class="art-lbl">The open literature</div><div class="ans">Searching the open scholarly record for <b>'+nhEsc(sdoi||sq)+'</b>…</div></div>';
+    var surl='/scholar/lookup?'+(sdoi?('doi='+encodeURIComponent(sdoi)):('q='+encodeURIComponent(sq)+'&rows=6'));
+    fetch(surl).then(function(r){return r.json();}).then(function(j){ res.innerHTML=nhScholarCard(j,sdoi,sq); }).catch(function(){ res.innerHTML='<div class="art"><div class="art-lbl">The open literature</div><div class="ans">Could not reach the open record just now — try again in a moment.</div></div>'; });
+    return;
+  }
   res.innerHTML='<div class="uhint">Kept.</div>';
+}
+// Render the open-literature results — attributed, with the LAWFUL open-access
+// copy when one exists. Theme-agnostic inline styles (color:inherit) so it sits
+// in the work area without new CSS. A starting reference to verify against.
+function nhScholarCard(j, doi, query){
+  if(!j||!j.ok){
+    return '<div class="art"><div class="art-lbl">The open literature</div><div class="ans">No open record found'+(query?(' for <b>'+nhEsc(query)+'</b>'):(doi?(' for <b>'+nhEsc(doi)+'</b>'):''))+'. The scholarly corpus is a starting reference — try different words, or type it as a claim and the engine will verify it.</div></div>';
+  }
+  var works = j.work ? [j.work] : (j.results||[]);
+  if(!works.length) return '<div class="art"><div class="art-lbl">The open literature</div><div class="ans">No results.</div></div>';
+  var avail = j.total_available ? (' <span class="kept">&middot; '+Number(j.total_available).toLocaleString()+' works</span>') : '';
+  var h='<div class="art"><div class="art-lbl">The open literature'+avail+'</div>';
+  works.forEach(function(w){
+    var au=(w.authors||[]); var auth=au.slice(0,4).join(', ')+(au.length>4?' et al.':'');
+    var meta=[auth, w.year, w.venue].filter(Boolean).join(' · ');
+    h+='<div style="margin:9px 0;padding-bottom:9px;border-bottom:1px solid rgba(127,127,127,.18)">';
+    h+='<div style="font-weight:600;line-height:1.35">'+nhEsc(w.title||'(untitled)')+'</div>';
+    if(meta) h+='<div style="opacity:.7;font-size:.85em;margin-top:2px">'+nhEsc(meta)+'</div>';
+    var L=[];
+    if(w.open_access_url) L.push('<a href="'+nhEsc(w.open_access_url)+'" target="_blank" rel="noopener">Read free (open access) &rarr;</a>');
+    else L.push('<span style="opacity:.55">no lawful free copy found</span>');
+    if(w.doi_url) L.push('<a href="'+nhEsc(w.doi_url)+'" target="_blank" rel="noopener">DOI</a>');
+    if(typeof w.cited_by_count==='number') L.push('<span style="opacity:.6">cited '+Number(w.cited_by_count).toLocaleString()+'×</span>');
+    h+='<div style="font-size:.85em;margin-top:4px">'+L.join(' &nbsp;·&nbsp; ')+'</div>';
+    h+='</div>';
+  });
+  h+='<div class="ans-cav">Grounded in the open scholarly record (OpenAlex · CC0). The free link is the <b>lawful</b> open-access copy where one exists — never a copy we have no right to share. A starting reference to verify against, not proof itself.</div>';
+  return h+'</div>';
 }
 var _nhSaveT=null;
 function nhDocEl(){ return document.getElementById('uq'); }
