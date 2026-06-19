@@ -263,6 +263,7 @@
       </div>
       <div class="overlay-row">
         <button class="thresh-btn" id="arr-btn" title="show the symmetry pairs (provisional)">⇄ arrangement</button>
+        <button class="thresh-btn" id="poles-btn" title="colour by the data-derived two-pole split">⊥ two trees</button>
       </div>
     </div>
 
@@ -470,6 +471,10 @@ let searchTerm = '';
 let DIM_TOTAL = 11;        // dimensions in the live scaffold (updated from /grid/scaffold)
 let located = null;        // {ids:Set, dims:[]} — a typed claim placed on the map
 let dimHi = null;          // {a,b} dimension codes — a highlighted symmetry pair
+let poleMode = false;      // colour domains by the data-derived two-pole split
+let PROBE = null;          // cached /grid/probe result
+let ABSTRACT = new Set();  // abstract-pole dimension CODES (from the probe)
+let MATERIAL = new Set();  // material-pole dimension CODES (from the probe)
 
 function initGraph(data) {
   allNodes = data.nodes;
@@ -523,6 +528,15 @@ function initGraph(data) {
 }
 
 function nodeColor(d) {
+  // Two-trees mode — colour each domain by which pole it leans to (data-derived).
+  if (poleMode) {
+    let a = 0, m = 0;
+    d.dims.forEach(c => { if (ABSTRACT.has(c)) a++; else if (MATERIAL.has(c)) m++; });
+    const lean = a - m;
+    if (lean > 0) return '#e3c498';   // abstract / formal — warm gold
+    if (lean < 0) return '#5ec4b4';   // material / embodied — cool teal
+    return '#8a8398';                 // straddler — the bridge
+  }
   // Arrangement mode — colour the two dimensions of a symmetry pair, dim the rest.
   if (dimHi) {
     if (d.dims.includes(dimHi.a)) return DIM_COLOR[dimHi.a] || '#ffffff';
@@ -553,7 +567,7 @@ function linkWidth(l) {
 }
 
 function linkVisible(l) {
-  if (dimHi || located) return false;   // arrangement / locate modes are about nodes
+  if (dimHi || located || poleMode) return false;   // these modes are about nodes
   if (!selectedId && !searchTerm) return true;
   if (selectedId) {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
@@ -584,6 +598,7 @@ function refreshGraph() {
 
 function onNodeClick(node) {
   dimHi = null; located = null;          // leave arrangement / locate modes
+  if (poleMode) { poleMode = false; const _pb = document.getElementById('poles-btn'); if (_pb) _pb.classList.remove('active'); }
   selectedId = node.id;
   adjacentIds = new Set(
     allLinks
@@ -613,6 +628,7 @@ function onNodeClick(node) {
 
 function onBgClick() {
   selectedId = null; dimHi = null; located = null;
+  if (poleMode) { poleMode = false; const _pb = document.getElementById('poles-btn'); if (_pb) _pb.classList.remove('active'); }
   adjacentIds = new Set();
   refreshGraph();
   document.getElementById('detail').innerHTML = `
@@ -820,6 +836,56 @@ document.getElementById('arr-btn').addEventListener('click', () => {
   a.style.display = show ? 'block' : 'none';
   btn.classList.toggle('active', show);
   if (!show && dimHi){ dimHi = null; refreshGraph(); }
+});
+
+/* ═══════════════════════════════════════════════════
+   TWO TREES — colour by the data-derived two-pole split (/grid/probe)
+═══════════════════════════════════════════════════ */
+
+function renderPolesDetail(){
+  const det = document.getElementById('detail');
+  const tp = (PROBE && PROBE.two_poles) || {};
+  if (!tp.abstract_dims){
+    det.innerHTML = `<div class="detail-empty">The two-pole probe is offline right now.</div>`;
+    return;
+  }
+  const fmt = arr => (arr || []).map(x => x.replace(/_/g,' ')).join(', ');
+  const lift = tp.lift_over_mean;
+  det.innerHTML =
+    `<div class="detail-domain" style="text-transform:none;font-size:14px">The two trees</div>`+
+    `<div class="detail-depth">data-derived 2-pole split · lift +${lift} over random</div>`+
+    `<div style="margin:7px 0 3px"><span class="dim-pill" style="background:#3a3115;color:#e3c498;border:1px solid #5a4a20">abstract / formal</span></div>`+
+    `<div style="font-size:11px;color:var(--muted);line-height:1.5">${fmt(tp.abstract_dims)}</div>`+
+    `<div style="margin:9px 0 3px"><span class="dim-pill" style="background:#0f3230;color:#5ec4b4;border:1px solid #1a4e4c">material / embodied</span></div>`+
+    `<div style="font-size:11px;color:var(--muted);line-height:1.5">${fmt(tp.material_dims)}</div>`+
+    `<div style="margin:9px 0 3px"><span class="dim-pill" style="background:#1d1a26;color:#8a8398;border:1px solid #2a2535">the bridge (${tp.n_straddlers||0})</span></div>`+
+    `<div style="font-size:11px;color:var(--muted);line-height:1.5">${fmt(tp.straddlers) || '—'}</div>`+
+    `<div class="ans-cav" style="margin-top:10px;font-size:10.5px;color:var(--muted);line-height:1.5">`+
+    `Found UNSUPERVISED — the data chose the split, not us; the abstract/material reading is an interpretation. `+
+    `A <b>candidate</b> refinement (<a href="/placeholders" style="color:var(--accent)">placeholder</a>, grade plausible), `+
+    `not confirmed — it replaced the weaker supersymmetry duals when they failed the test.</div>`;
+}
+
+document.getElementById('poles-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('poles-btn');
+  if (poleMode){
+    poleMode = false; btn.classList.remove('active'); refreshGraph();
+    document.getElementById('detail').innerHTML = `<div class="detail-empty">Drag to explore. Click any node.</div>`;
+    return;
+  }
+  if (!PROBE){
+    try { PROBE = await fetch(`${API}/grid/probe`).then(r => r.json()); } catch(_){ PROBE = null; }
+  }
+  const tp = PROBE && PROBE.two_poles;
+  if (tp){
+    ABSTRACT = new Set((tp.abstract_dims || []).map(x => DIM_CODE[x] || x));
+    MATERIAL = new Set((tp.material_dims || []).map(x => DIM_CODE[x] || x));
+  }
+  poleMode = true; dimHi = null; located = null; selectedId = null; adjacentIds = new Set();
+  const s = document.getElementById('search'); if (s) s.value = '';
+  btn.classList.add('active');
+  refreshGraph();
+  renderPolesDetail();
 });
 
 /* ═══════════════════════════════════════════════════
