@@ -17442,6 +17442,23 @@ def grid_embedding(k: int = 4):
     return _arr.embedding(k=k)
 
 
+@app.get("/grid/flow", tags=["agents"])
+def grid_flow():
+    """The map's FLOW spectrum — the graph Laplacian (path + energy transfer).
+
+    Fluid dynamics as path + energy transfer, via spectrum + frequency: the
+    Laplacian is the diffusion operator (energy spreads along the map's edges,
+    e^-lambda t). Eigenvalues = flow frequencies / decay rates; the Fiedler vector
+    = the principal flow divide (which is, independently, the abstract<->material
+    two-trees split). A provisional lens — see /placeholders.
+    """
+    try:
+        from api import arrangement as _arr
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _arr.flow_spectrum()
+
+
 @app.get("/grid/music", tags=["agents"])
 def grid_music():
     """How the spectral map fits OCTAVES and MUSIC — the connection + the honest assay.

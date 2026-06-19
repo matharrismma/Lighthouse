@@ -32,6 +32,7 @@ SURFACES = [
     ("/verified",        None),       # JSON: proven claims index -- checked below
     ("/grid/scaffold",   None),       # JSON: the dimensional grid -- checked below
     ("/grid/spectrum",   None),       # JSON: the map's Fourier/spectral modes -- checked below
+    ("/grid/flow",       None),       # JSON: the graph-Laplacian flow spectrum -- checked below
     ("/grid/embedding",  None),       # JSON: domains on the spectral axes -- checked below
     ("/grid/music",      None),       # JSON: octaves/music connection + assay -- checked below
     ("/teachings",       None),       # JSON: the operator's teachings (training signal) -- below
@@ -101,6 +102,13 @@ def check(base):
                     note = "no spectral modes"
                 else:
                     status, note = "UP", "%d modes, %d axes" % (len(modes), ax)
+            elif path == "/grid/flow":
+                d = json.loads(body)
+                ff = d.get("flow_frequencies") or []
+                if not ff or "found_two_trees" not in d:
+                    note = "no flow spectrum"
+                else:
+                    status, note = "UP", "%d flow modes" % len(ff)
             elif path == "/grid/embedding":
                 d = json.loads(body)
                 nd = d.get("n_domains") or len(d.get("coords", {}))

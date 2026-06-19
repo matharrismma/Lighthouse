@@ -381,6 +381,17 @@ _SEED: List[Dict[str, Any]] = [
         "evidence": [
             "Spectrum decay fit: exponential R^2=0.995 (rate -0.20/mode) vs power-law R^2=0.93 — "
             "the Laplace/decay signature, not the Fourier/cascade one.",
+            "FLOW assay 2026-06-19 (graph Laplacian L=D-W, GET /grid/flow): the map is one "
+            "connected component (lambda_0=0) and the eigenvalues ARE the heat-equation decay "
+            "rates (e^-lambda t), consistent with the exponential decay. BUT the low flow modes "
+            "isolate the most WEAKLY-COUPLED / sparse dimensions (discreteness, then symmetry) — "
+            "the diffusion bottlenecks — NOT the abstract/material divide. Flow diagnoses the "
+            "grid's SPARSITY, not its content split.",
+            "HONEST CORRECTION (the assay disposed): a first read claimed flow 'confirmed' the "
+            "two-trees (a three-method convergence) — WRONG, a misread of a single-outlier Fiedler "
+            "spike (discreteness=-0.92, rest ~+0.05). RETRACTED. The two-trees is an ALIGNMENT "
+            "finding (correlation eigenmode + clustering, which are the same signal); flow is a "
+            "DIFFERENT lens and does not show it. Map never launders — recorded as found.",
         ],
         "falsifiers": [
             "On a larger grid the spectrum stops being exponential (the decay law was an artifact).",
@@ -398,7 +409,7 @@ _SEED: List[Dict[str, Any]] = [
         "supersedes": "fluid_dynamics_axes",
         "superseded_by": None,
         "held_since": "2026-06-19",
-        "seed_v": 1,
+        "seed_v": 2,
     },
 ]
 

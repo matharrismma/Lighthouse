@@ -320,6 +320,69 @@ def _decay_fit(values: List[float]) -> Dict[str, Any]:
     }
 
 
+def flow_spectrum() -> Dict:
+    """The map's FLOW spectrum — the graph Laplacian (path + energy transfer).
+
+    Fluid dynamics as path + energy transfer, examined via spectrum + frequency
+    (Matt). The Laplacian L = D - W (W = how many domains carry each pair of
+    dimensions = the coupling / pipe-width) is the DIFFUSION operator: energy
+    spreads along the map's edges, u_t = -L u, each mode decaying as e^(-lambda t).
+    Its eigenvalues are the flow FREQUENCIES (the heat-equation decay rates).
+    HONEST FINDING (assayed 2026-06-19): the low modes isolate the most WEAKLY-
+    COUPLED / sparse dimensions one at a time (discreteness, symmetry, ...) — the
+    diffusion bottlenecks — they do NOT reproduce the abstract/material two-trees.
+    So flow diagnoses the grid's CONNECTIVITY/sparsity; the two-trees is an
+    ALIGNMENT finding (the correlation spectrum), not a flow one. The correlation
+    matrix measures alignment; the Laplacian measures transfer — different lenses.
+    """
+    _key = "flow|" + _grid_sig()
+    if _key in _RESULT_CACHE:
+        return _RESULT_CACHE[_key]
+    domains = _canonical()
+    dims = [d for d in _grid.DIMENSIONS]
+    n = len(dims)
+    di = {d: i for i, d in enumerate(dims)}
+    W = [[0.0] * n for _ in range(n)]
+    for ds in domains.values():
+        idx = [di[d] for d in ds if d in di]
+        for a in idx:
+            for b in idx:
+                if a != b:
+                    W[a][b] += 1.0
+    deg = [sum(W[i]) for i in range(n)]
+    Lm = [[(deg[i] if i == j else 0.0) - W[i][j] for j in range(n)] for i in range(n)]
+    eig, vec = _jacobi_eigen(Lm)  # descending
+    order = sorted(range(n), key=lambda i: eig[i])  # ascending by eigenvalue
+    asc = [eig[i] for i in order]
+    # The low modes isolate the most weakly-coupled (peripheral) dimensions — the
+    # diffusion bottlenecks — one per mode. Honest: this is the grid's CONNECTIVITY
+    # structure, NOT the abstract/material content split.
+    peripheral = []
+    for slot in range(1, min(4, n)):
+        fv = vec[order[slot]]
+        dom_i = max(range(n), key=lambda i: abs(fv[i]))
+        peripheral.append({"mode": slot, "lambda": round(asc[slot], 2),
+                           "isolates": dims[dom_i], "weight": round(fv[dom_i], 3)})
+    gaps = sorted(((asc[i + 1] - asc[i], i) for i in range(n - 1)), reverse=True) if n > 1 else []
+    gap_after = gaps[0][1] if gaps else 0  # ascending index after the biggest flow-frequency jump
+    result = {
+        "flow_frequencies": [round(x, 2) for x in asc],
+        "connected": abs(asc[0]) < 1e-6,
+        "algebraic_connectivity": round(asc[1], 2) if n > 1 else 0.0,
+        "weakly_coupled_dimensions": peripheral,
+        "slow_global_modes_before_gap": gap_after,
+        "found_two_trees": False,
+        "note": ("The graph Laplacian is the path/energy-transfer (diffusion) operator; its "
+                 "eigenvalues are the flow frequencies / heat-equation decay rates (e^-lambda t). "
+                 "HONEST FINDING: the low modes isolate the most WEAKLY-COUPLED dimensions (the "
+                 "sparse, recently-added ones like discreteness/symmetry) — the diffusion "
+                 "bottlenecks — NOT the abstract/material two-trees. So flow diagnoses the grid's "
+                 "sparsity; the two-trees is an alignment finding, not a flow one. Provisional."),
+    }
+    _RESULT_CACHE[_key] = result
+    return result
+
+
 def embedding(k: int = 4) -> Dict:
     """Place every domain on the map's TOP SPECTRAL AXES (the Fourier modes).
 

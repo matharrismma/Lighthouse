@@ -141,6 +141,26 @@ _SEED: List[Dict[str, Any]] = [
         "refs": ["arrangement._RESULT_CACHE", "GET /seal/{hash}"],
         "seed_v": 1,
     },
+    {
+        "id": "fluid_is_path_and_energy_transfer",
+        "directive": ("Fluid dynamics is more about path and energy transfer. I am still unsure. "
+                      "We need to look at spectrum and frequency."),
+        "principle": ("Fluid dynamics = PATH + ENERGY TRANSFER, examined via spectrum + frequency "
+                      "-> the GRAPH LAPLACIAN (the diffusion operator): its eigenvalues are the "
+                      "flow frequencies / decay rates, its Fiedler vector is the principal flow "
+                      "path. Correlation measures alignment; the Laplacian measures transfer."),
+        "realization": "Built arrangement.flow_spectrum (GET /grid/flow).",
+        "result": ("The Laplacian is the right transfer operator (its eigenvalues = heat-equation "
+                   "decay rates, matching the exponential decay). But its low flow modes isolate "
+                   "the most WEAKLY-COUPLED / sparse dimensions (discreteness, symmetry), NOT the "
+                   "two-trees. A first read claimed flow 'confirmed' the two-trees — RETRACTED as "
+                   "a misread of a single-outlier Fiedler spike. Honest: flow diagnoses the grid's "
+                   "sparsity; the two-trees is an alignment finding, not a flow one. Held provisional "
+                   "(the operator is still unsure) — the assay disposed of the convergence claim."),
+        "status": "tested_at_chance",
+        "refs": ["placeholder:laplace_dynamics", "GET /grid/flow"],
+        "seed_v": 1,
+    },
 ]
 
 
