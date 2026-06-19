@@ -967,7 +967,8 @@ def sequence_lookup(anum=None, terms=None, limit=8):
         con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
         meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
         src = {"source": meta.get("source"), "license": meta.get("license"),
-               "attribution": meta.get("attribution"), "grade": meta.get("grade")}
+               "attribution": meta.get("attribution"), "grade": meta.get("grade"),
+               "primary_source": _OEIS_PRIMARY_SOURCE}
         if anum not in (None, ""):
             a = _oeis_norm_anum(anum)
             if a is None:
@@ -1099,7 +1100,8 @@ def word_pronunciation(word):
         return {"status": "not_found", "query": word,
                 "note": "not in the CMU dictionary (proper nouns, rare or "
                         "non-English words may be absent).",
-                "source": meta.get("source")}
+                "source": meta.get("source"),
+                "primary_source": _CMUDICT_PRIMARY_SOURCE}
     prons = []
     for var, ar in rows:
         a = _cmu_analyze(ar)
@@ -1108,7 +1110,8 @@ def word_pronunciation(word):
     return {"status": "ok", "word": q, "pronunciations": prons,
             "scheme": meta.get("scheme"), "source": meta.get("source"),
             "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _CMUDICT_PRIMARY_SOURCE}
 
 
 def _protocols_db():
@@ -1505,7 +1508,8 @@ def drug_lookup(name, limit=5):
     if not rows:
         return {"status": "not_found", "query": name,
                 "note": "no FDA-registered product matched that name.",
-                "source": meta.get("source")}
+                "source": meta.get("source"),
+                "primary_source": _OPENFDA_PRIMARY_SOURCE}
     matches = []
     for r in rows:
         try:
@@ -1524,7 +1528,8 @@ def drug_lookup(name, limit=5):
             "disclaimer": "REFERENCE ONLY -- not medical advice and not a "
                           "prescription; FDA product registrations.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _OPENFDA_PRIMARY_SOURCE}
 
 
 _TAX_STD_RANKS = ("superkingdom", "kingdom", "phylum", "class", "order",
@@ -1602,11 +1607,13 @@ def species_lookup(name, limit=5):
     if not matches:
         return {"status": "not_found", "query": name,
                 "note": "no organism matched that name in NCBI Taxonomy.",
-                "source": meta.get("source")}
+                "source": meta.get("source"),
+                "primary_source": _NCBI_TAXONOMY_PRIMARY_SOURCE}
     return {"status": "ok", "query": name, "count": len(matches),
             "matches": matches, "source": meta.get("source"),
             "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _NCBI_TAXONOMY_PRIMARY_SOURCE}
 
 
 def drug_target(drug, limit=8):
@@ -1644,7 +1651,8 @@ def drug_target(drug, limit=8):
         return {"status": "not_found", "query": drug,
                 "note": "no measured target data for that drug in DrugCentral "
                         "(coverage is partial).",
-                "source": meta.get("source")}
+                "source": meta.get("source"),
+                "primary_source": _DRUGCENTRAL_PRIMARY_SOURCE}
     targets = []
     for r in rows:
         gene = r[1] or None
@@ -1659,7 +1667,8 @@ def drug_target(drug, limit=8):
             "disclaimer": "REFERENCE ONLY -- not medical advice; measured "
                           "mechanism data, partial coverage.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _DRUGCENTRAL_PRIMARY_SOURCE}
 
 
 def currency_convert(amount, from_cur, to_cur, date=None):
@@ -2547,6 +2556,62 @@ _WORLDBANK_PRIMARY_SOURCE = {
     "open_access_url": "https://data.worldbank.org",
     "note": "official open dataset (not a scholarly paper); a dated snapshot is bundled offline",
     "via": "official data portal -- lawful Layer-0; grounds the indicator values, not the verdict",
+}
+_DRUGCENTRAL_PRIMARY_SOURCE = {
+    "title": "DrugCentral 2021 supports drug discovery and repositioning",
+    "authors": "Avram S, Bologa CG, Holmes J, et al.",
+    "published_in": "Nucleic Acids Research, 49(D1):D1160 (2021)",
+    "doi": "10.1093/nar/gkaa997",
+    "doi_url": "https://doi.org/10.1093/nar/gkaa997",
+    "open_access_url": "https://academic.oup.com/nar/article-pdf/49/D1/D1160/35364825/gkaa997.pdf",
+    "via": "scholar -- lawful Layer-0; grounds the drug-target data, not the verdict. "
+           "REFERENCE ONLY, not medical advice",
+}
+_NCBI_TAXONOMY_PRIMARY_SOURCE = {
+    "title": "NCBI Taxonomy: a comprehensive update on curation, resources and tools",
+    "authors": "Schoch CL, Ciufo S, Domrachev M, et al.",
+    "published_in": "Database (Oxford), 2020:baaa062 (2020)",
+    "doi": "10.1093/database/baaa062",
+    "doi_url": "https://doi.org/10.1093/database/baaa062",
+    "open_access_url": "https://academic.oup.com/database/article-pdf/doi/10.1093/database/baaa062/33570620/baaa062.pdf",
+    "via": "scholar -- lawful Layer-0; grounds the taxonomic names/classification, not the verdict",
+}
+_OEIS_PRIMARY_SOURCE = {
+    "title": "The On-Line Encyclopedia of Integer Sequences",
+    "authors": "Sloane NJA (the OEIS Foundation Inc.)",
+    "published_in": "Notices of the American Mathematical Society, 65(9) (2018)",
+    "doi": "10.1090/noti1734",
+    "doi_url": "https://doi.org/10.1090/noti1734",
+    "open_access_url": "https://doi.org/10.1090/noti1734",
+    "database_url": "https://oeis.org",
+    "note": "a term match IDENTIFIES a sequence (a reference pointer); it does NOT prove the "
+            "defining property -- CONCORDANT-grade, not deductive",
+    "via": "scholar -- lawful Layer-0; grounds the sequence identity, not the verdict",
+}
+# openFDA NDC + CMU dict are public-domain / open DATASETS, not journal papers --
+# cited honestly as datasets (no DOI to manufacture).
+_OPENFDA_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "openFDA National Drug Code (NDC) Directory",
+    "publisher": "U.S. Food and Drug Administration (openFDA)",
+    "url": "https://open.fda.gov/apis/drug/ndc/",
+    "license": "Public Domain (U.S. FDA / openFDA)",
+    "doi": None,  # a government dataset/API, not a paper
+    "open_access_url": "https://open.fda.gov/apis/drug/ndc/",
+    "note": "FDA product registrations; a dated snapshot is bundled offline. REFERENCE ONLY -- "
+            "not medical advice, not a prescription",
+    "via": "official data portal -- lawful Layer-0; grounds the product data, not the verdict",
+}
+_CMUDICT_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "CMU Pronouncing Dictionary (cmudict)",
+    "publisher": "Carnegie Mellon University",
+    "url": "https://github.com/cmusphinx/cmudict",
+    "license": "BSD-2-Clause, (c) 1993-2015 Carnegie Mellon University",
+    "doi": None,  # an open lexical dataset, not a paper
+    "open_access_url": "https://github.com/cmusphinx/cmudict",
+    "note": "ARPABET transcriptions; the IPA is a deterministic segmental transliteration",
+    "via": "open dataset -- lawful Layer-0; grounds the pronunciation data, not the verdict",
 }
 
 

@@ -271,13 +271,22 @@ _SEED: List[Dict[str, Any]] = [
                    "economic_indicator (cited HONESTLY as a DATASET, doi=None, no fake paper DOI). "
                    "Grounded the lookup tools (where the values actually come from) + the one verdict "
                    "that validates against embedded data (verify_periodic_table); left the pure-compute "
-                   "verifiers ungrounded (they take values as input -- a citation there would mislead)."),
+                   "verifiers ungrounded (they take values as input -- a citation there would mislead). "
+                   "EXTENDED to 11 source families total (2026-06-19): + DrugCentral 2021 "
+                   "(doi:10.1093/nar/gkaa997, OA) -> drug_target; NCBI Taxonomy 2020 "
+                   "(doi:10.1093/database/baaa062, OA) -> species_lookup; OEIS/Sloane 2018 "
+                   "(doi:10.1090/noti1734, OA) -> sequence_lookup; openFDA NDC -> drug_lookup and CMU "
+                   "Pronouncing Dictionary -> word_pronunciation (both cited HONESTLY as datasets, "
+                   "doi=None). Every paper DOI + lawful OA located via scholar; datasets carry their "
+                   "official portal + license, never a fake DOI. The primary_source rides on ok AND "
+                   "not_found returns."),
         "status": "discipline",
-        "refs": ["src/concordance_engine/mcp_server/tools.py (primary-source registry)",
+        "refs": ["src/concordance_engine/mcp_server/tools.py (primary-source registry, 11 families)",
                  "GET /scholar/lookup", "doi:10.1515/pac-2019-0603",
                  "doi:10.1088/1674-1137/abddaf", "doi:10.1051/0004-6361:20078357",
-                 "doi:10.1093/ajcn/nqab397"],
-        "seed_v": 2,
+                 "doi:10.1093/ajcn/nqab397", "doi:10.1093/nar/gkaa997",
+                 "doi:10.1093/database/baaa062", "doi:10.1090/noti1734"],
+        "seed_v": 3,
     },
     {
         "id": "mcp_stdio_no_api_layer",
