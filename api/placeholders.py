@@ -433,6 +433,70 @@ _SEED: List[Dict[str, Any]] = [
         "held_since": "2026-06-19",
         "seed_v": 3,
     },
+    {
+        "id": "model_is_a_hive_not_an_organism",
+        "name": "The model is a hive of small task-tuned specialists, not one organism",
+        "status": "placeholder",
+        "grade": "plausible",
+        "kind": "architecture_principle",
+        "claim": ("Matt: 'Maybe our brains function more like a hive than a single organism — would "
+                  "it be more efficient to have several smaller models tuned for each task with "
+                  "guidance systems?' The GENERATIVE layer should be a HIVE: small task-tuned "
+                  "specialist models + a DETERMINISTIC guidance system (router) + engine verification "
+                  "of every output — not one big general model. It is fractally self-similar to the "
+                  "DETERMINISTIC layer already built (the ~71 verifier-specialists + the check / "
+                  "find_verifier / run_polymathic router): the generative layer mirrors the engine."),
+        "organizes": ("the structure of the generative layer (the assistant 'mouth'), making it the "
+                      "same shape as the verifier hive. The seam already exists: every draft routes "
+                      "through api/oracle.complete, today as one model + a per-task system prompt; the "
+                      "hive swaps that for one tuned SMALL model PER task, routed the same way."),
+        "predicts": [
+            "a small model tuned for ONE narrow task (intake-classify, Socratic question, lesson) "
+            "matches or beats the general model on THAT task, at lower cost and on-device (sovereign)",
+            "the dominant failure mode is MIS-ROUTING -> so the guidance system must be deterministic "
+            "(rules route, like find_verifier); a model routing models compounds errors",
+            "each specialist's output must pass the engine's gate (the verifier hive checks the model "
+            "hive) — a specialist generates, the deterministic gate disposes",
+        ],
+        "provenance": ("Matt's seed 2026-06-19. Grounded: modular-brain neuroscience (the brain is "
+                       "specialized regions + connectivity, not one homogeneous net), Mixture-of-"
+                       "Experts, AND our own engine (the verifier hive already IS this in the "
+                       "deterministic layer)."),
+        "caveat": ("Plausible + well-founded, NOT yet measured. The assay is a HEAD-TO-HEAD: does a "
+                   "tuned small specialist beat the general model on its narrow task (accuracy, "
+                   "latency, cost)? Coordination + per-task training data are real costs. Start with "
+                   "2-3 specialists, deterministic routing, engine-verified outputs — not a big-bang "
+                   "rewrite."),
+        "evidence": [
+            "The deterministic hive already works: ~71 verifier-specialists + a rules router "
+            "(check/find_verifier/run_polymathic) — the pattern is proven on the verify side.",
+            "The generative seam is ready: api/oracle.complete(system, text, model=...) is the ONE "
+            "edge every draft calls, already tiered deterministic-floor -> local small model "
+            "(qwen2.5:3b) -> paid oracle. Splitting = register a tuned model PER task + route by task.",
+        ],
+        "falsifiers": [
+            "A tuned small specialist does NOT beat the general model on its narrow task (then one "
+            "model is simply better — keep it).",
+            "The deterministic router cannot reliably pick the right specialist (the hive mis-fires).",
+            "Maintenance/coordination cost of N specialists exceeds the efficiency gain.",
+        ],
+        "unlikely_tests": [
+            "Tune an intake-classifier on real intake logs — does it beat the general model on "
+            "routing accuracy + latency + $?",
+            "Tune a Socratic-questioner on Matt's voice + the teachings — better questions than the "
+            "general model?",
+            "Measure oracle-dependence: does the hive drive more drafts onto $0 on-device models?",
+        ],
+        "advances_by": ("head-to-head wins, measured: a small tuned specialist beating the general "
+                        "model on its task (accuracy/latency/cost), with the router staying "
+                        "deterministic and every output engine-verified."),
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": None,
+        "superseded_by": None,
+        "held_since": "2026-06-19",
+        "seed_v": 1,
+    },
 ]
 
 

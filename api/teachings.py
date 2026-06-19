@@ -330,6 +330,33 @@ _SEED: List[Dict[str, Any]] = [
                  "src/concordance_engine/mcp_server/server.py", "_engine_get / _inproc_call"],
         "seed_v": 1,
     },
+    {
+        "id": "the_model_is_a_hive",
+        "directive": ("Fractal geometry? Maybe our brains function more like a hive than a single "
+                      "organism. Would it be more efficient to have several smaller models tuned for "
+                      "each task with guidance systems?"),
+        "principle": ("The model is a HIVE, not an organism: small task-tuned specialists + a "
+                      "DETERMINISTIC guidance system (rules route, never a model routing models — "
+                      "that compounds errors) + engine verification of every output. It is fractally "
+                      "self-similar to the verifier hive already built (specialist + gate, repeated "
+                      "at every scale: verifier, model, mission, the whole). Small specialists win on "
+                      "cost, sovereignty (on-device), and containment; the deterministic spine is the "
+                      "nervous system, the small models are muscles, the engine is the gate."),
+        "realization": ("Recognized the engine ALREADY is this in the deterministic layer (~71 "
+                        "verifiers + check/find_verifier/run_polymathic) and the generative seam is "
+                        "ready (api/oracle.complete, tiered deterministic-floor -> local qwen2.5:3b "
+                        "-> paid oracle). Captured placeholder model_is_a_hive_not_an_organism; "
+                        "mapped the first specialists to split from the existing _*_SYS tasks."),
+        "result": ("DIRECTIONAL / to be tested by the assay, not asserted. The win is real on cost + "
+                   "sovereignty; the open question is whether a tuned small specialist BEATS the "
+                   "general model on its narrow task (head-to-head: accuracy/latency/$). Plan: extend "
+                   "the hive incrementally (2-3 specialists), deterministic routing, every output "
+                   "engine-verified — keep the ones that win the head-to-head, drop the rest."),
+        "status": "provisional",
+        "refs": ["placeholder:model_is_a_hive_not_an_organism", "api/oracle.py", "api/local_llm.py",
+                 "check / find_verifier / run_polymathic (the existing rules router)"],
+        "seed_v": 1,
+    },
 ]
 
 
