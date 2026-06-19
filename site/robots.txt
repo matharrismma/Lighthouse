@@ -1,6 +1,8 @@
 # Concordance — narrowhighway.com
 # A deterministic verification engine. The site is optimized for AI
 # agents — read /llms.txt first, then /manifest for the full tool list.
+# The verified record is crawlable: /almanac/book (every tested claim) and
+# /seal/{hash} (each proof, server-rendered with ClaimReview JSON-LD).
 
 User-agent: *
 Allow: /
@@ -19,44 +21,50 @@ Disallow: /chain/
 Disallow: /peers
 Disallow: /queue
 Disallow: /reflect
-Disallow: /seal
+Disallow: /seal/render
 Disallow: /seal/polymathic
 Disallow: /verify/
 Disallow: /visits/
 
-# AI agent crawlers — explicitly welcome on the public read surfaces
+# AI + search crawlers — explicitly welcome, with the SAME guardrails. A named
+# user-agent group does NOT inherit the rules above, so the disallows are
+# repeated here (otherwise these crawlers could reach /cas/, /journal/, etc.).
+# The seal proof pages (/seal/{hash}) are deliberately left crawlable.
 User-agent: GPTBot
-Allow: /
-
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: anthropic-ai
-Allow: /
-
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: Google-Extended
-Allow: /
-
 User-agent: Googlebot
-Allow: /
-
 User-agent: bingbot
-Allow: /
-
 User-agent: CCBot
-Allow: /
-
 User-agent: cohere-ai
-Allow: /
-
 User-agent: FacebookBot
 Allow: /
+Disallow: /_archive/
+Disallow: /auth/
+Disallow: /journal/
+Disallow: /shelf/
+Disallow: /confess
+Disallow: /capture
+Disallow: /cas/
+Disallow: /agent/training
+Disallow: /swarm/
+Disallow: /keeping/
+Disallow: /audit-chain/
+Disallow: /chain/
+Disallow: /peers
+Disallow: /queue
+Disallow: /reflect
+Disallow: /seal/render
+Disallow: /seal/polymathic
+Disallow: /verify/
+Disallow: /visits/
 
 # Public read-only surfaces an agent should know about
 # /llms.txt              — service description (start here)
+# /almanac/book          — the whole tested record, one crawlable page
+# /seal/{hash}           — each proof, server-rendered (ClaimReview JSON-LD)
 # /agents/daily.json     — daily heartbeat: substrate stats + recent decisions + endpoint catalog (start here for cold-crawl)
 # /manifest              — OpenAI-compatible tool list
 # /docs                  — OpenAPI schema
