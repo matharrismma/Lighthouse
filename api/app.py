@@ -17426,6 +17426,22 @@ def grid_spectrum():
     return _arr.spectrum()
 
 
+@app.get("/grid/embedding", tags=["agents"])
+def grid_embedding(k: int = 4):
+    """Every domain's coordinates on the map's TOP SPECTRAL AXES (Fourier modes).
+
+    The payoff of the spectral lens: if the eigenmodes are the map's true axes,
+    a domain's natural place is its projection onto them. Returns {coords: {domain:
+    [c1..ck]}, axes: [{mode, plus, minus}]} — mode 1 is abstract<->material. This
+    is what draws the map of reality on the axes the data itself revealed.
+    """
+    try:
+        from api import arrangement as _arr
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _arr.embedding(k=k)
+
+
 @app.get("/grid/locate", tags=["agents"])
 def grid_locate(text: str = ""):
     """Place a plain-language claim on the scaffold.

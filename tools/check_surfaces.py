@@ -32,6 +32,7 @@ SURFACES = [
     ("/verified",        None),       # JSON: proven claims index -- checked below
     ("/grid/scaffold",   None),       # JSON: the dimensional grid -- checked below
     ("/grid/spectrum",   None),       # JSON: the map's Fourier/spectral modes -- checked below
+    ("/grid/embedding",  None),       # JSON: domains on the spectral axes -- checked below
     ("/missions",        None),       # JSON: the Acts-2 missions -- checked below
 ]
 
@@ -98,6 +99,13 @@ def check(base):
                     note = "no spectral modes"
                 else:
                     status, note = "UP", "%d modes, %d axes" % (len(modes), ax)
+            elif path == "/grid/embedding":
+                d = json.loads(body)
+                nd = d.get("n_domains") or len(d.get("coords", {}))
+                if nd <= 0:
+                    note = "no embedding coords"
+                else:
+                    status, note = "UP", "%d domains placed" % nd
             elif path == "/missions":
                 d = json.loads(body)
                 n = d.get("count", 0)

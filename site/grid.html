@@ -264,6 +264,7 @@
       <div class="overlay-row">
         <button class="thresh-btn" id="arr-btn" title="show the symmetry pairs (provisional)">⇄ arrangement</button>
         <button class="thresh-btn" id="poles-btn" title="colour by the data-derived two-pole split">⊥ two trees</button>
+        <button class="thresh-btn" id="spec-btn" title="lay the map out on its spectral axes (the Fourier modes)">⊿ spectral axes</button>
       </div>
     </div>
 
@@ -469,6 +470,8 @@ let currentThreshold = 1;
 let spinning = true;
 let searchTerm = '';
 let DIM_TOTAL = 11;        // dimensions in the live scaffold (updated from /grid/scaffold)
+let spectralOn = false;    // map laid out on its spectral (Fourier) axes
+let EMB = null;            // cached /grid/embedding result
 let located = null;        // {ids:Set, dims:[]} — a typed claim placed on the map
 let dimHi = null;          // {a,b} dimension codes — a highlighted symmetry pair
 let poleMode = false;      // colour domains by the data-derived two-pole split
@@ -886,6 +889,37 @@ document.getElementById('poles-btn').addEventListener('click', async () => {
   btn.classList.add('active');
   refreshGraph();
   renderPolesDetail();
+});
+
+document.getElementById('spec-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('spec-btn');
+  if (spectralOn) {
+    spectralOn = false; btn.classList.remove('active');
+    allNodes.forEach(n => { n.fx = n.fy = n.fz = undefined; });
+    if (Graph) Graph.d3ReheatSimulation();
+    document.getElementById('detail').innerHTML =
+      '<div class="detail-empty">Back to the force layout. Click any node.</div>';
+    return;
+  }
+  if (!EMB) {
+    try { EMB = await fetch(`${API}/grid/embedding?k=3`).then(r => r.json()); } catch (_) { EMB = null; }
+  }
+  if (!EMB || !EMB.coords) return;
+  const S = 70;  // world units per spectral unit
+  allNodes.forEach(n => {
+    const c = EMB.coords[n.id];
+    if (c) { n.fx = (c[0] || 0) * S; n.fy = (c[1] || 0) * S; n.fz = (c[2] || 0) * S; }
+  });
+  spectralOn = true; btn.classList.add('active');
+  if (Graph) Graph.d3ReheatSimulation();
+  const ax = EMB.axes || [];
+  const lbl = m => ax[m] ? `[${(ax[m].plus || []).join(', ')}] vs [${(ax[m].minus || []).join(', ')}]` : '';
+  document.getElementById('detail').innerHTML =
+    '<div class="detail-domain" style="text-transform:none;font-size:14px">Spectral axes (Fourier modes)</div>' +
+    '<div class="detail-depth">the map drawn on the axes the data itself revealed</div>' +
+    '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:6px">' +
+    `<b>x &middot; mode 1:</b> ${lbl(0)}<br><b>y &middot; mode 2:</b> ${lbl(1)}<br><b>z &middot; mode 3:</b> ${lbl(2)}</div>` +
+    '<div style="font-size:10.5px;color:var(--muted);font-style:italic;margin-top:8px">Each domain sits at its projection onto the top spectral modes. Provisional lens (<a href="/placeholders" style="color:var(--accent)">placeholder</a>).</div>';
 });
 
 /* ═══════════════════════════════════════════════════

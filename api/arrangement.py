@@ -258,6 +258,43 @@ def spectrum() -> Dict:
     }
 
 
+def embedding(k: int = 4) -> Dict:
+    """Place every domain on the map's TOP SPECTRAL AXES (the Fourier modes).
+
+    If the eigenmodes are the map's true axes (see spectrum()), then a domain's
+    natural coordinate is its PROJECTION onto each mode: coord_m = sum over the
+    domain's dimensions of that mode's eigenvector loading. mode 1 is the
+    abstract<->material axis; modes 2..k are the next frequencies. This is the map
+    of reality drawn on the axes the data itself revealed — a spectral embedding.
+    """
+    domains = _canonical()
+    dims = [d for d in _grid.DIMENSIONS]
+    n = len(dims)
+    M = [[1.0 if i == j else _phi(domains, dims[i], dims[j])["phi"]
+          for j in range(n)] for i in range(n)]
+    eig, vec = _jacobi_eigen(M)
+    di = {d: i for i, d in enumerate(dims)}
+    k = max(2, min(k, n))
+    coords = {}
+    for dom, ds in domains.items():
+        coords[dom] = [round(sum(vec[m][di[d]] for d in ds if d in di), 4) for m in range(k)]
+    axes = []
+    for m in range(k):
+        load = sorted(zip(dims, vec[m]), key=lambda t: -abs(t[1]))
+        axes.append({
+            "mode": m + 1, "eigenvalue": round(eig[m], 3),
+            "plus": [d for d, w in load if w > 0][:3],
+            "minus": [d for d, w in load if w < 0][:3],
+        })
+    return {
+        "coords": coords, "axes": axes, "k": k, "n_domains": len(coords),
+        "note": ("Each domain placed on the map's top spectral axes (the Fourier modes). "
+                 "Coordinate m = the domain's projection onto eigenmode m; mode 1 is the "
+                 "abstract<->material axis. The map of reality drawn on its own found axes. "
+                 "Provisional lens — see /placeholders (fourier_spectral_arrangement)."),
+    }
+
+
 def probe(deep: bool = False) -> Dict:
     """Run all disconfirmers against the live grid; return the structured report.
 
