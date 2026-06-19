@@ -34,6 +34,7 @@ SURFACES = [
     ("/grid/spectrum",   None),       # JSON: the map's Fourier/spectral modes -- checked below
     ("/grid/embedding",  None),       # JSON: domains on the spectral axes -- checked below
     ("/grid/music",      None),       # JSON: octaves/music connection + assay -- checked below
+    ("/teachings",       None),       # JSON: the operator's teachings (training signal) -- below
     ("/missions",        None),       # JSON: the Acts-2 missions -- checked below
 ]
 
@@ -114,6 +115,13 @@ def check(base):
                     note = "no music assay"
                 else:
                     status, note = "UP", "assay: %s" % m.get("grade", "?")
+            elif path == "/teachings":
+                d = json.loads(body)
+                nt = d.get("count", 0)
+                if nt < 1:
+                    note = "no teachings"
+                else:
+                    status, note = "UP", "%d teachings" % nt
             elif path == "/missions":
                 d = json.loads(body)
                 n = d.get("count", 0)

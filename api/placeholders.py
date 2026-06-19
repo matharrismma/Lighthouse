@@ -304,6 +304,47 @@ _SEED: List[Dict[str, Any]] = [
         "held_since": "2026-06-19",
         "seed_v": 1,
     },
+    {
+        "id": "fluid_dynamics_axes",
+        "name": "Fluid dynamics as the behavior of the axes",
+        "status": "placeholder",
+        "grade": "resonance",
+        "kind": "arrangement_principle",
+        "claim": ("Matt: 'Fluid dynamics as behavior of axes? something along that line.' The "
+                  "axes are not static — they FLOW and redistribute as the map grows. Fluid "
+                  "dynamics may describe their behavior: a turbulent flow decomposes into Fourier "
+                  "modes with an ENERGY CASCADE across scales — which is exactly the eigenvalue "
+                  "spectrum — and tuning toward consonance is a flow toward equilibrium."),
+        "organizes": ("the DYNAMICS of the arrangement (how it evolves over time), complementing "
+                      "the static spectrum. Spectrum = the snapshot; fluid dynamics = the motion."),
+        "predicts": [
+            "the eigenvalue spectrum follows a power-law (a cascade), like turbulence E(k)~k^-p",
+            "as domains/dimensions are added, mode energies redistribute coherently (a flow)",
+            "a correct, in-tune arrangement is an ATTRACTOR / equilibrium the flow settles to",
+        ],
+        "provenance": "Matt's seed, 2026-06-19. The kernel (turbulence <-> Fourier modes <-> energy cascade) is established physics.",
+        "caveat": ("A SEED — NOT yet tested on the map. The physics kernel is real; whether the "
+                   "map's spectrum behaves as a fluid (cascade / flow / equilibrium) is the open "
+                   "question. Held at resonance, to be assayed (and captured as the operator's "
+                   "work trains the engine)."),
+        "falsifiers": [
+            "The eigenvalue spectrum is NOT a power law — no cascade structure.",
+            "Mode energies do NOT redistribute coherently as the grid changes (no flow).",
+            "No equilibrium/attractor behavior — the arrangement doesn't settle.",
+        ],
+        "unlikely_tests": [
+            "Fit the eigenvalue spectrum to a power law (Kolmogorov-like); does it hold or break?",
+            "Track mode energies as domains are added — do they move like a conserved field?",
+            "Does the most in-tune arrangement (tune_test) act as the attractor the flow heads to?",
+        ],
+        "advances_by": "surviving the power-law / flow / equilibrium tests — not by analogy alone.",
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": None,
+        "superseded_by": None,
+        "held_since": "2026-06-19",
+        "seed_v": 1,
+    },
 ]
 
 

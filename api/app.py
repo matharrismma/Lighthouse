@@ -17470,6 +17470,51 @@ def grid_music():
     }
 
 
+class _TeachingIn(BaseModel):
+    directive: str
+    principle: str = ""
+    realization: str = ""
+    result: str = ""
+    status: str = "seed"
+    refs: List[str] = []
+
+
+@app.get("/teachings", tags=["agents"])
+def teachings_list():
+    """The operator's teachings — directives + principle + the honest assay result.
+
+    His work, captured to train the engine in the METHOD (intuition proposes, the
+    assay disposes; harmony witnesses, verification confirms) — never to assert a
+    seed as fact. Substrate now; training pairs at /teachings/training_pairs.
+    """
+    from api import teachings as _t
+    return _t.listing()
+
+
+@app.post("/teachings", tags=["agents"])
+def teachings_record(request: Request, body: _TeachingIn):
+    """Capture a teaching (operator). Rate-limited."""
+    _rate_check(request, "teaching")
+    from api import teachings as _t
+    rec = _t.record(body.directive, body.principle, body.realization, body.result,
+                    body.status, body.refs)
+    if isinstance(rec, dict) and rec.get("error"):
+        raise HTTPException(status_code=400, detail=rec["error"])
+    return rec
+
+
+@app.get("/teachings/training_pairs", tags=["agents"])
+def teachings_training_pairs():
+    """The teachings as prompt/completion training pairs for the own-model /
+    fine-tune. Completions teach the disciplined method + the honest status, never
+    'this is true.' (tools/export_teachings.py writes these into the corpus.)"""
+    from api import teachings as _t
+    pairs = _t.to_training_pairs()
+    return {"pairs": pairs, "count": len(pairs),
+            "note": "Trains the engine in how the operator reasons + what survived the test, "
+                    "not in unverified conclusions."}
+
+
 @app.get("/grid/locate", tags=["agents"])
 def grid_locate(text: str = ""):
     """Place a plain-language claim on the scaffold.
