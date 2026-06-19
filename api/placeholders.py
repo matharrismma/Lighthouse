@@ -76,10 +76,26 @@ _SEED: List[Dict[str, Any]] = [
                        "physics hypothesis (no superpartners observed at the LHC; the "
                        "expected scale is increasingly disfavored). Borrowed here ONLY as "
                        "a provisional arrangement lens, never as a validated law."),
-        "caveat": ("Held as a PLACEHOLDER TO TRUTH. Our current arrangement may be "
-                   "better, or a more accurate model may replace this. Elegance is a "
-                   "witness, not a proof; symmetry PROPOSES the missing partner, real "
-                   "data CONFIRMS it. Discovery, not design — never force a pair."),
+        "caveat": ("Held as a PLACEHOLDER TO TRUTH, and now EMPIRICALLY WEAKENED (see "
+                   "evidence): the SPECIFIC duals failed the complementarity test. Held on "
+                   "for the general method (seek complementary structure) and the refined "
+                   "direction the data points to — NOT the stated pairs. Elegance is a "
+                   "witness, not a proof; the data did not confirm the proposed symmetry."),
+        "evidence": [
+            "PROBED 2026-06-18 (tools/probe_arrangement.py) against the live grid (72 "
+            "domains x 11 dims): the proposed duals are NOT complementary. "
+            "conservation_balance<->metabolism phi=+0.43 and order<->uncertainty phi=+0.27 "
+            "actually CO-OCCUR (the opposite of opposites); reasoning<->authority_trust "
+            "phi=-0.08 is unremarkable (rank 22/55). F3 fires: as stated, the pairing is "
+            "closer to decoration than structure.",
+            "F1: calendar_time sits only on an unpaired axis (a minor breaker).",
+            "F2: the predicted partners (continuity, abstract/spirit) remain UNTESTABLE from "
+            "the current grid (no such dimension) — an honest open gap, not a confirmation.",
+            "BUT real complementary structure DOES exist along OTHER axes: "
+            "reasoning<->physical_substance (phi=-0.34) and metabolism<->reasoning "
+            "(phi=-0.38) — an abstract/reasoning vs material/physical split (the 'two "
+            "trees'). A candidate REFINED arrangement, to be tested next, not yet claimed.",
+        ],
         "falsifiers": [
             "A fundamental, well-attested domain that fits NO dual — a genuinely unpaired "
             "axis the symmetry cannot place.",
@@ -97,11 +113,11 @@ _SEED: List[Dict[str, Any]] = [
         ],
         "advances_by": "surviving the falsifiers and unlikely_tests above — not by confirmations.",
         "refutable": True,
-        "lifecycle": "held",
+        "lifecycle": "held-weakened",
         "supersedes": None,
         "superseded_by": None,
         "held_since": "2026-06-18",
-        "seed_v": 2,
+        "seed_v": 3,
     },
 ]
 
