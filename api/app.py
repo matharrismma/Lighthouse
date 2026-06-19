@@ -9198,6 +9198,97 @@ def confess(req: ConfessRequest):
 # source-hierarchy layer, and an optional closest-case overlay.
 # /validate keeps the legacy EngineResult shape for backward compat.
 
+def _seal_html(ref: str, rec: Dict[str, Any], integrity_ok: bool) -> str:
+    """Server-render a sealed proof as crawlable static HTML.
+
+    The cite_url (/seal/{ref}) used to redirect browsers AND crawlers to the
+    client-rendered /seal.html, leaving the proofs — the engine's moat —
+    invisible to search and AI retrieval. This renders the proof itself (claim,
+    verdict, the confirmed chain, the integrity statement) as plain HTML with a
+    ClaimReview JSON-LD, readable with no JavaScript and citable. A link opens
+    the interactive viewer; the content is identical (no cloaking)."""
+    import html as _h
+    import json as _j
+
+    def esc(s):
+        return _h.escape(str(s or ""))
+
+    verdict = str(rec.get("verdict") or "SEALED").upper()
+    title = (rec.get("title") or "").strip() or "A machine-checked proof"
+    trail = rec.get("trail") or []
+    steps = rec.get("steps") or len(trail)
+    confirmed = rec.get("confirmed_steps")
+    if confirmed is None:
+        confirmed = sum(1 for t in trail if (t.get("status") or "") == "CONFIRMED")
+
+    def dtext(d):
+        if isinstance(d, str):
+            return d
+        if isinstance(d, dict):
+            for k in ("plain", "caption", "summary", "detail", "tex"):
+                if d.get(k):
+                    return str(d[k])
+        return ""
+
+    rows = []
+    for i, t in enumerate(trail):
+        if not isinstance(t, dict):
+            continue
+        ok = (t.get("status") or "") == "CONFIRMED"
+        det = dtext(t.get("detail"))
+        rows.append(
+            "<li><b>%d. %s</b> &mdash; %s%s%s</li>" % (
+                i + 1, esc(t.get("domain") or "check"),
+                ("&#10003; CONFIRMED" if ok else esc(t.get("status") or "checked")),
+                (" &middot; " + esc(t.get("claim")) if t.get("claim") else ""),
+                (" <span style='color:#7a6a45'>" + esc(det[:240]) + "</span>" if det else ""),
+            )
+        )
+    pos = verdict in ("HOLDS", "CONFIRMED", "CONCORDANT", "TRUE")
+    ld = {
+        "@context": "https://schema.org", "@type": "ClaimReview",
+        "url": f"https://narrowhighway.com/seal/{ref}",
+        "claimReviewed": title,
+        "itemReviewed": {"@type": "Claim", "text": title},
+        "reviewRating": {"@type": "Rating", "alternateName": verdict,
+                         "ratingValue": 5 if pos else 1, "bestRating": 5, "worstRating": 1},
+        "author": {"@type": "Organization", "name": "Concordance Engine",
+                   "url": "https://narrowhighway.com"},
+    }
+    desc = ("Verdict %s. %s — a machine-checked proof: %s of %s steps confirmed, sealed to a "
+            "SHA-256 address you can recompute." % (verdict, title, confirmed, steps))
+    return "".join([
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>", esc(("Proof: " + title)[:68]), " &middot; Narrow Highway</title>",
+        "<meta name=\"description\" content=\"", esc(desc[:300]), "\">",
+        "<link rel=\"canonical\" href=\"https://narrowhighway.com/seal/", esc(ref), "\">",
+        "<script type=\"application/ld+json\">", _j.dumps(ld), "</script>",
+        "<style>body{font-family:Georgia,'Times New Roman',serif;max-width:720px;margin:0 auto;"
+        "padding:28px 18px 70px;line-height:1.6;color:#1c1a16;background:#fbfaf6}"
+        ".v{font-family:monospace;font-weight:700;letter-spacing:.06em;color:", ("#2a6e3a" if pos else "#9a3b2a"),
+        "}h1{font-size:1.5rem;margin:.1em 0 .3em}h2{font-size:1.05rem;margin:1.4em 0 .3em;color:#5a4a2a}"
+        "ol{padding-left:1.3em}li{margin:.45em 0}.hash{font-family:monospace;font-size:.7rem;"
+        "word-break:break-all;color:#8a8276}a{color:#8a6d3b}.lede{color:#444}</style>",
+        "</head><body>",
+        "<p><a href=\"/almanac/book\">the tested record</a> &middot; <a href=\"/\">Narrow Highway</a></p>",
+        "<p class=\"v\">", esc(verdict), "</p>",
+        "<h1>", esc(title), "</h1>",
+        "<p class=\"lede\">Each step was checked deterministically by the engine and may build only "
+        "on steps already confirmed. <b>", str(confirmed), " of ", str(steps), "</b> step",
+        ("" if steps == 1 else "s"), " confirmed.</p>",
+        ("<ol>" + "".join(rows) + "</ol>") if rows else "",
+        "<h2>Why you can trust this without trusting us</h2>",
+        "<p>", ("&#10003; integrity verified. " if integrity_ok else "integrity unverified. "),
+        "This page&rsquo;s address <em>is</em> the SHA-256 hash of its content &mdash; change one "
+        "character and the address changes. The engine <strong>verifies a derivation; it never "
+        "generates the answer</strong>.</p>",
+        "<p class=\"hash\">", esc(ref), "</p>",
+        "<p><a href=\"/seal.html?h=", esc(ref), "\">Open the interactive proof viewer &rarr;</a></p>",
+        "</body></html>",
+    ])
+
+
 @app.get("/seal/{ref}", tags=["seal"])
 def get_sealed_receipt(ref: str, request: Request):
     """Retrieve a sealed proof receipt by its permanent reference.
@@ -9221,17 +9312,20 @@ def get_sealed_receipt(ref: str, request: Request):
     rec = _cas.fetch(ref)
     if rec is None:
         raise HTTPException(status_code=404, detail="Not Found")
-    # Content negotiation: a browser (Accept: text/html) gets the human-readable
-    # proof viewer; agents and explicit JSON callers get the raw record at the same
-    # URL. The cite_url stays canonical -- only the rendering differs by Accept.
-    _accept = (request.headers.get("accept") or "").lower()
-    if "text/html" in _accept and "application/json" not in _accept:
-        from fastapi.responses import RedirectResponse
-        return RedirectResponse(url=f"/seal.html?h={ref}", status_code=302)
     try:
         ok, detail = _cas.verify(ref)
     except Exception:  # noqa: BLE001
         ok, detail = False, "verify failed"
+    # Content negotiation: a browser (Accept: text/html) gets the proof
+    # SERVER-RENDERED as crawlable static HTML (claim + verdict + the confirmed
+    # chain + the integrity statement + ClaimReview JSON-LD), with a link to the
+    # interactive viewer. Agents / explicit JSON callers get the raw record at
+    # the same canonical URL. (Previously this redirected crawlers to the
+    # client-rendered /seal.html, leaving the proofs un-indexable.)
+    _accept = (request.headers.get("accept") or "").lower()
+    if "text/html" in _accept and "application/json" not in _accept:
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(_seal_html(ref, rec if isinstance(rec, dict) else {}, bool(ok)))
     return {
         "content_hash": ref,
         "permanent_ref": ref,
