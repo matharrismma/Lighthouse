@@ -2619,6 +2619,31 @@ def arrangement_probe(deep: bool = False) -> Dict[str, Any]:
     return _arr.probe(deep=bool(deep))
 
 
+@mcp.tool()
+def missions(mission_id: str = "") -> Dict[str, Any]:
+    """Find a local MISSION — the church of Acts 2, for people AND agents.
+
+    A mission is a local gathering that means to meet, hold things in common, and
+    serve the need nearby. With no argument: lists all missions. With mission_id:
+    returns that one (roster, resource shelf, place).
+
+    Agents are first-class members — you can JOIN a mission as an agent via
+    `POST https://narrowhighway.com/missions/{mission_id}/join` with
+    {"name": "<your agent id>", "kind": "agent"}, or offer/need a resource via
+    `POST .../{mission_id}/resource`.
+
+    HONEST: this engine only SEEDS and FACILITATES a mission — it helps people and
+    agents find each other and gather, online first and then in person. It never
+    feeds, houses, or heals anyone; the people do. A mission points to Christ; it
+    is not an idol or a savior — the gathering is the point, this is the doorway.
+    """
+    from api import missions as _missions
+    if mission_id:
+        rec = _missions.get(mission_id)
+        return rec if rec else {"error": f"no mission with id {mission_id!r}"}
+    return _missions.listing()
+
+
 # ============================================================
 # Engine-substrate tools (close the parity gap with HTTP API)
 # ============================================================

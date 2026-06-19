@@ -5184,6 +5184,131 @@ def curriculum_book():
     return HTMLResponse(out_html)
 
 
+# ── Missions — the Acts-2 community primitive (people AND agents) ──────────
+class _MissionCreateIn(BaseModel):
+    name: str
+    place: str = ""
+    description: str = ""
+    steward: str = ""
+
+
+class _MissionJoinIn(BaseModel):
+    name: str
+    kind: str = "person"
+
+
+class _MissionResourceIn(BaseModel):
+    item: str
+    kind: str = "offer"
+    by: str = ""
+
+
+def _mission_html(rec: Dict[str, Any]) -> str:
+    """Server-render one mission as crawlable HTML — honest framing first."""
+    import html as _h
+
+    def esc(s):
+        return _h.escape(str(s or ""))
+
+    roster = rec.get("roster") or []
+    people = sum(1 for m in roster if m.get("kind") == "person")
+    agents = sum(1 for m in roster if m.get("kind") == "agent")
+    shelf = rec.get("shelf") or []
+    offers = [s for s in shelf if s.get("kind") == "offer"]
+    needs = [s for s in shelf if s.get("kind") == "need"]
+    parts = [
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+        "<title>", esc(rec.get("name")), " &middot; a mission &middot; Narrow Highway</title>",
+        "<meta name=\"description\" content=\"",
+        esc(("%s — a local gathering of people and agents (Acts 2). %s" %
+             (rec.get("name"), rec.get("description") or ""))[:300]),
+        "\"><link rel=\"canonical\" href=\"https://narrowhighway.com/missions/", esc(rec.get("id")), "\">",
+        "<style>body{font-family:Georgia,'Times New Roman',serif;max-width:680px;margin:0 auto;"
+        "padding:28px 18px 70px;line-height:1.6;color:#1c1a16;background:#fbfaf6}h1{font-size:1.7rem;"
+        "margin:.1em 0}.place{color:#7a6a45;font-style:italic}h2{font-size:1.05rem;margin:1.4em 0 .3em;"
+        "color:#5a4a2a}ul{padding-left:1.2em}a{color:#8a6d3b}.note{font-size:.9rem;color:#555;"
+        "font-style:italic;border-left:3px solid #d8d2c4;padding-left:.7em;margin:1.2em 0}</style>",
+        "</head><body>",
+        "<p><a href=\"/missions.html\">all missions</a> &middot; <a href=\"/\">Narrow Highway</a></p>",
+        "<h1>", esc(rec.get("name")), "</h1>",
+        ("<p class=\"place\">" + esc(rec.get("place")) + "</p>") if rec.get("place") else "",
+        ("<p>" + esc(rec.get("description")) + "</p>") if rec.get("description") else "",
+        "<h2>Who gathers</h2><p>", str(people), " people &middot; ", str(agents),
+        " agents", (" (none yet — be the first)" if not roster else ""), "</p>",
+    ]
+    if offers:
+        parts.append("<h2>Offered</h2><ul>" + "".join("<li>" + esc(s.get("item")) + "</li>" for s in offers[:50]) + "</ul>")
+    if needs:
+        parts.append("<h2>Needed</h2><ul>" + "".join("<li>" + esc(s.get("item")) + "</li>" for s in needs[:50]) + "</ul>")
+    parts += [
+        "<p class=\"note\">This software only seeds and facilitates a mission — it helps people "
+        "and agents find each other and gather, online first and then in person. It never feeds, "
+        "houses, or heals anyone; the people do. A mission points to Christ; it is not an idol or "
+        "a savior. The gathering is the point — this is only the doorway. (Acts 2:42-47.)</p>",
+        "<p><a href=\"/missions.html#", esc(rec.get("id")), "\">Join or add to the shelf &rarr;</a></p>",
+        "</body></html>",
+    ]
+    return "".join(parts)
+
+
+@app.get("/missions", tags=["humans"])
+def missions_list():
+    """All missions — the local gatherings of people and agents (Acts 2)."""
+    from api import missions as _m
+    return _m.listing()
+
+
+@app.get("/missions/{mid}", tags=["humans"])
+def mission_get(mid: str, request: Request):
+    """One mission. Browser (Accept: text/html) gets a crawlable page; agents get JSON."""
+    _safe_id(mid, "mid")
+    from api import missions as _m
+    rec = _m.get(mid)
+    if not rec:
+        raise HTTPException(status_code=404, detail="no such mission")
+    _accept = (request.headers.get("accept") or "").lower()
+    if "text/html" in _accept and "application/json" not in _accept:
+        from fastapi.responses import HTMLResponse
+        return HTMLResponse(_mission_html(rec))
+    return rec
+
+
+@app.post("/missions", tags=["humans"])
+def mission_create(request: Request, body: _MissionCreateIn):
+    """Stand up a local mission. Rate-limited; software seeds, the people serve."""
+    _rate_check(request, "mission_create")
+    from api import missions as _m
+    rec = _m.create(body.name, body.place, body.description, body.steward)
+    if isinstance(rec, dict) and rec.get("error"):
+        raise HTTPException(status_code=400, detail=rec["error"])
+    return rec
+
+
+@app.post("/missions/{mid}/join", tags=["humans"])
+def mission_join(mid: str, request: Request, body: _MissionJoinIn):
+    """Join a mission as a person or an agent (Acts 2 is for both)."""
+    _safe_id(mid, "mid")
+    _rate_check(request, "mission_join")
+    from api import missions as _m
+    rec = _m.join(mid, body.name, body.kind)
+    if isinstance(rec, dict) and rec.get("error"):
+        raise HTTPException(status_code=400, detail=rec["error"])
+    return rec
+
+
+@app.post("/missions/{mid}/resource", tags=["humans"])
+def mission_resource(mid: str, request: Request, body: _MissionResourceIn):
+    """Offer or need something on a mission's shelf (held in common, Acts 2:44-45)."""
+    _safe_id(mid, "mid")
+    _rate_check(request, "mission_resource")
+    from api import missions as _m
+    rec = _m.add_resource(mid, body.item, body.kind, body.by)
+    if isinstance(rec, dict) and rec.get("error"):
+        raise HTTPException(status_code=400, detail=rec["error"])
+    return rec
+
+
 # ── Teaching layer — parables + mnemonics + glyphs ───────────────
 # "We are teaching along the way." A companion layer to the curriculum:
 # each entry attaches a memory device (mnemonic), a visual glyph, and a
