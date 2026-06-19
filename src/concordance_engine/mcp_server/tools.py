@@ -1284,7 +1284,8 @@ def star_lookup(name=None, constellation=None, limit=6):
         con = _sql.connect("file:%s?mode=ro" % p.as_posix(), uri=True)
         meta = dict(con.execute("SELECT k,v FROM meta").fetchall())
         src = {"source": meta.get("source"), "license": meta.get("license"),
-               "attribution": meta.get("attribution")}
+               "attribution": meta.get("attribution"),
+               "primary_source": _HIPPARCOS_PRIMARY_SOURCE}
         nm = str(name or "").strip()
         cst = str(constellation or "").strip()
         if nm:
@@ -1457,11 +1458,13 @@ def food_nutrition(food, limit=3):
     if not matches:
         return {"status": "not_found", "query": food,
                 "note": "no USDA SR Legacy food matched that description.",
-                "source": meta.get("source")}
+                "source": meta.get("source"),
+                "primary_source": _USDA_FDC_PRIMARY_SOURCE}
     return {"status": "ok", "query": food, "count": len(matches),
             "basis": "per 100 g, as analyzed", "matches": matches,
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _USDA_FDC_PRIMARY_SOURCE}
 
 
 def drug_lookup(name, limit=5):
@@ -2476,6 +2479,76 @@ _METS_PRIMARY_SOURCE = {
     "via": "scholar (OpenAlex/Crossref/Unpaywall) -- lawful Layer-0; grounds the data, not the verdict",
 }
 
+# --- primary-source registry: re-checkable citations for the empirical data, all
+# located via the scholar connection (the clean road -- OpenAlex/Crossref/Unpaywall,
+# never a pirated copy). open_access_url is the LAWFUL free copy or None (stated, not
+# hidden). Each grounds the DATA an agent receives, never the verdict. Same pattern
+# as _METS_PRIMARY_SOURCE; attached to the lookup tool that serves each value. ---
+_IUPAC_ATOMIC_WEIGHTS_SOURCE = {
+    "title": "Standard atomic weights of the elements 2021 (IUPAC Technical Report)",
+    "authors": "Prohaska T, Irrgeher J, Benefield J, et al.",
+    "published_in": "Pure and Applied Chemistry, 2022",
+    "doi": "10.1515/pac-2019-0603",
+    "doi_url": "https://doi.org/10.1515/pac-2019-0603",
+    "open_access_url": "https://www.degruyter.com/document/doi/10.1515/pac-2019-0603/pdf",
+    "via": "scholar -- lawful Layer-0; grounds the atomic-weight values, not the verdict",
+}
+_NUCLIDE_PRIMARY_SOURCE = {
+    "note": "evaluated nuclear data = two companion evaluations (masses + properties)",
+    "mass_evaluation": {
+        "title": "The AME 2020 atomic mass evaluation (II). Tables, graphs and references",
+        "authors": "Wang M, Huang WJ, Kondev FG, Audi G, Naimi S",
+        "published_in": "Chinese Physics C, 45, 030003 (2021)",
+        "doi": "10.1088/1674-1137/abddaf",
+        "doi_url": "https://doi.org/10.1088/1674-1137/abddaf",
+        "open_access_url": "https://iopscience.iop.org/article/10.1088/1674-1137/abddaf/pdf",
+    },
+    "properties_evaluation": {
+        "title": "The NUBASE2020 evaluation of nuclear physics properties",
+        "authors": "Kondev FG, Wang M, Huang WJ, Naimi S, Audi G",
+        "published_in": "Chinese Physics C, 45, 030001 (2021)",
+        "doi": "10.1088/1674-1137/abddae",
+        "doi_url": "https://doi.org/10.1088/1674-1137/abddae",
+        "open_access_url": "https://doi.org/10.1088/1674-1137/abddae",
+    },
+    "via": "scholar -- lawful Layer-0 (Chinese Physics C is gold OA); grounds the data, not the verdict",
+}
+_HIPPARCOS_PRIMARY_SOURCE = {
+    "title": "Validation of the new Hipparcos reduction",
+    "authors": "van Leeuwen F",
+    "published_in": "Astronomy & Astrophysics, 474, 653 (2007)",
+    "doi": "10.1051/0004-6361:20078357",
+    "doi_url": "https://doi.org/10.1051/0004-6361:20078357",
+    "open_access_url": "https://www.aanda.org/articles/aa/pdf/2007/41/aa8357-07.pdf",
+    "note": "the HYG catalog's position/parallax backbone; HYG also draws on the Yale Bright "
+            "Star Catalogue and the Gliese nearby-star catalogue for other fields",
+    "via": "scholar -- lawful Layer-0; grounds the stellar data, not the verdict",
+}
+_USDA_FDC_PRIMARY_SOURCE = {
+    "title": "USDA's FoodData Central: what is it and why is it needed today?",
+    "authors": "Fukagawa NK, McKillop K, Pehrsson PR, et al.",
+    "published_in": "The American Journal of Clinical Nutrition, 115(3):619 (2022)",
+    "doi": "10.1093/ajcn/nqab397",
+    "doi_url": "https://doi.org/10.1093/ajcn/nqab397",
+    "open_access_url": "https://academic.oup.com/ajcn/article-pdf/115/3/619/42695273/nqab397.pdf",
+    "note": "the descriptor paper for FoodData Central; the values used are the SR Legacy "
+            "dataset, U.S. Government public domain",
+    "via": "scholar -- lawful Layer-0; grounds the food-composition data, not the verdict",
+}
+# World Bank is a DATASET, not a journal paper -- cited honestly as such (no DOI to
+# manufacture). The primary source is the data product with its official portal + license.
+_WORLDBANK_PRIMARY_SOURCE = {
+    "kind": "dataset",
+    "title": "World Development Indicators / World Bank Open Data",
+    "publisher": "The World Bank",
+    "url": "https://data.worldbank.org",
+    "license": "CC BY 4.0",
+    "doi": None,  # a data product, not a paper -- not laundered into a fake citation
+    "open_access_url": "https://data.worldbank.org",
+    "note": "official open dataset (not a scholarly paper); a dated snapshot is bundled offline",
+    "via": "official data portal -- lawful Layer-0; grounds the indicator values, not the verdict",
+}
+
 
 def activity_mets(query, limit=10):
     """The metabolic-equivalent (MET) intensity of a physical activity, from the
@@ -2571,7 +2644,8 @@ def nuclide_data(nuclide):
             "note": "Evaluated NUBASE/AME nuclear data; half-life in seconds (+ human form). "
                     "Reference data, not a radiation-safety or dosimetry tool.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _NUCLIDE_PRIMARY_SOURCE}
 
 
 def element_data(query):
@@ -2610,7 +2684,8 @@ def element_data(query):
             "electron_configuration"]
     el = dict(zip(keys, r))
     el.update({"status": "ok", "source": meta.get("source"),
-               "license": meta.get("license"), "attribution": meta.get("attribution")})
+               "license": meta.get("license"), "attribution": meta.get("attribution"),
+               "primary_source": _IUPAC_ATOMIC_WEIGHTS_SOURCE})
     return el
 
 
@@ -2678,7 +2753,8 @@ def molar_mass(formula):
             "breakdown": breakdown,
             "note": "Computed from IUPAC standard atomic weights. Grounds chemistry.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _IUPAC_ATOMIC_WEIGHTS_SOURCE}
 
 
 def economic_indicator(country, indicator=None):
@@ -2735,7 +2811,8 @@ def economic_indicator(country, indicator=None):
             "note": "World Bank Open Data, most-recent value per indicator (a dated snapshot). "
                     "Country aggregates (e.g. 'Arab World') are included. Grounds economics.",
             "source": meta.get("source"), "license": meta.get("license"),
-            "attribution": meta.get("attribution")}
+            "attribution": meta.get("attribution"),
+            "primary_source": _WORLDBANK_PRIMARY_SOURCE}
 
 
 def verify_statistics_pvalue(spec):
@@ -3159,8 +3236,12 @@ def verify_periodic_table(spec):
     """Element identity (symbol/name/atomic number) + IUPAC-2021 standard atomic weight.
     Identity: {"symbol": "O", "claimed_atomic_number": 8}
     Weighted average: {"element": "Cl", "isotopes": [{"mass": 34.969, "abundance": 0.7576},
-                       {"mass": 36.966, "abundance": 0.2424}], "claimed_atomic_mass": 35.45}"""
-    return {"checks": [_r(r) for r in _periodic_table.run({"PT_VERIFY": spec or {}})]}
+                       {"mass": 36.966, "abundance": 0.2424}], "claimed_atomic_mass": 35.45}
+
+    The verdict carries `primary_source` (IUPAC 2021 standard atomic weights), the
+    embedded table it validates against -- the grounding travels with the claim."""
+    return {"checks": [_r(r) for r in _periodic_table.run({"PT_VERIFY": spec or {}})],
+            "primary_source": _IUPAC_ATOMIC_WEIGHTS_SOURCE}
 
 
 def verify_probability(spec):

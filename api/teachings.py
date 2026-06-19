@@ -259,15 +259,25 @@ _SEED: List[Dict[str, Any]] = [
                         "came from + its 2024 Adult Compendium update (doi:10.1016/j.jshs.2023.10.010, "
                         "lawful OA). Added _METS_PRIMARY_SOURCE to mcp_server/tools.py; surfaced it on "
                         "activity_mets (lookup) and verify_exercise_science (verdict)."),
-        "result": ("LIVE + 58/58, 0 false-positives. The MET verdict now carries its re-checkable "
-                   "DOI. HONEST status preserved: 2011 paper open_access_url=None (stated, not "
-                   "hidden); 2024 update is gold-OA so its DOI resolves free. Pattern is ready to "
-                   "roll out to the other empirical verifiers (the ~19 that lean on embedded data)."),
+        "result": ("LIVE + 58/58, 0 false-positives. The MET verdict carries its re-checkable DOI. "
+                   "HONEST status preserved: 2011 paper open_access_url=None (stated, not hidden); "
+                   "2024 update is gold-OA. ROLLED OUT (2026-06-19) to a primary-source registry in "
+                   "tools.py covering 6 source families, every DOI + lawful OA located via scholar: "
+                   "METs (Ainsworth/Compendium); IUPAC 2021 atomic weights (doi:10.1515/pac-2019-0603, "
+                   "OA) -> element_data/molar_mass/verify_periodic_table; AME2020 + NUBASE2020 "
+                   "(doi:10.1088/1674-1137/abddaf, /abddae, OA) -> nuclide_data; Hipparcos van Leeuwen "
+                   "2007 (doi:10.1051/0004-6361:20078357, OA) -> star_lookup; USDA FoodData Central "
+                   "(doi:10.1093/ajcn/nqab397, OA) -> food_nutrition; World Bank Open Data -> "
+                   "economic_indicator (cited HONESTLY as a DATASET, doi=None, no fake paper DOI). "
+                   "Grounded the lookup tools (where the values actually come from) + the one verdict "
+                   "that validates against embedded data (verify_periodic_table); left the pure-compute "
+                   "verifiers ungrounded (they take values as input -- a citation there would mislead)."),
         "status": "discipline",
-        "refs": ["src/concordance_engine/mcp_server/tools.py:_METS_PRIMARY_SOURCE",
-                 "GET /scholar/lookup", "doi:10.1249/mss.0b013e31821ece12",
-                 "doi:10.1016/j.jshs.2023.10.010"],
-        "seed_v": 1,
+        "refs": ["src/concordance_engine/mcp_server/tools.py (primary-source registry)",
+                 "GET /scholar/lookup", "doi:10.1515/pac-2019-0603",
+                 "doi:10.1088/1674-1137/abddaf", "doi:10.1051/0004-6361:20078357",
+                 "doi:10.1093/ajcn/nqab397"],
+        "seed_v": 2,
     },
 ]
 
