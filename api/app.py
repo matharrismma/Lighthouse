@@ -17408,6 +17408,24 @@ def grid_probe(deep: int = 0):
     return _arr.probe(deep=bool(deep))
 
 
+@app.get("/grid/spectrum", tags=["agents"])
+def grid_spectrum():
+    """The map's FOURIER / SPECTRAL decomposition — its natural modes.
+
+    Fourier's move generalized off the regular cycle (where the FFT lives) to the
+    map: the eigenmodes of the dimension correlation matrix ARE the map's natural
+    axes, the eigenvalue is the energy/rate each carries. Returns the spectrum
+    (modes + dimension loadings), the count of eigenvalues>1 (the data's answer to
+    'how many canonical axes'), and the principal axis (which independently
+    confirms the two-trees split). A provisional lens — see /placeholders.
+    """
+    try:
+        from api import arrangement as _arr
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _arr.spectrum()
+
+
 @app.get("/grid/locate", tags=["agents"])
 def grid_locate(text: str = ""):
     """Place a plain-language claim on the scaffold.

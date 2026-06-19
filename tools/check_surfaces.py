@@ -31,6 +31,7 @@ SURFACES = [
     ("/curriculum/book", "Phonics"),  # the whole free curriculum, server-rendered
     ("/verified",        None),       # JSON: proven claims index -- checked below
     ("/grid/scaffold",   None),       # JSON: the dimensional grid -- checked below
+    ("/grid/spectrum",   None),       # JSON: the map's Fourier/spectral modes -- checked below
     ("/missions",        None),       # JSON: the Acts-2 missions -- checked below
 ]
 
@@ -89,6 +90,14 @@ def check(base):
                     note = "grid under 7 dims"
                 else:
                     status, note = "UP", "%d dimensions" % n
+            elif path == "/grid/spectrum":
+                d = json.loads(body)
+                modes = d.get("modes", [])
+                ax = d.get("effective_axes", 0)
+                if not modes or ax < 1:
+                    note = "no spectral modes"
+                else:
+                    status, note = "UP", "%d modes, %d axes" % (len(modes), ax)
             elif path == "/missions":
                 d = json.loads(body)
                 n = d.get("count", 0)

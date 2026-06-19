@@ -189,6 +189,66 @@ _SEED: List[Dict[str, Any]] = [
         "held_since": "2026-06-18",
         "seed_v": 2,
     },
+    {
+        "id": "fourier_spectral_arrangement",
+        "name": "The map's axes are its spectral modes (the Fourier lens)",
+        "status": "placeholder",
+        "grade": "plausible",
+        "kind": "arrangement_principle",
+        "claim": ("Fourier's move — decompose a whole into the few fundamental modes that "
+                  "generate it — generalized off the regular cycle (where the FFT lives) to the "
+                  "map: the EIGENMODES of the dimension correlation matrix ARE the map's natural "
+                  "axes; each eigenvalue is the energy/rate that mode carries (calibrate to "
+                  "source + rate of descent). The few leading modes are the few generating forms."),
+        "organizes": ("the whole arrangement question, principled. It SUBSUMES the earlier "
+                      "lenses: the principal eigenmode IS the two-trees / two-pole split, and "
+                      "the symmetry intuition becomes the spectral structure. Replaces the crude "
+                      "phi-clustering with the eigen-decomposition the clustering was approximating."),
+        "predicts": [
+            "the principal mode (highest energy) is the abstract/formal vs material/embodied axis",
+            "the count of eigenvalues > 1 (Kaiser) is the number of real canonical axes",
+            "as the grid grows, the leading modes stay stable; the tail reshuffles",
+        ],
+        "provenance": ("Matt: 'Look at a Fast Fourier Transform. That is the missing piece.' "
+                       "Tested via api.arrangement.spectrum() (sovereign Jacobi eigensolver on "
+                       "the live grid's dimension phi-correlation matrix)."),
+        "caveat": ("Held as a PLACEHOLDER TO TRUTH — a CANDIDATE lens, not confirmed. One "
+                   "correlation matrix on a small/sparse grid (4 dims have only 5-6 carriers); "
+                   "the FFT proper lives on a regular cycle, this is the GRAPH/spectral "
+                   "generalization, named honestly. Elegance (the eigenbasis) is a witness, not "
+                   "a proof."),
+        "evidence": [
+            "SPECTRUM 2026-06-19 (api.arrangement.spectrum, live grid): mode 1 (22.4% energy) "
+            "loads physical_substance/metabolism/conservation_balance vs encoding/reasoning/"
+            "discreteness — INDEPENDENTLY confirms the two-trees (abstract<->material) as the "
+            "PRINCIPAL mode, with no clustering.",
+            "EXACTLY 4 eigenvalues exceed 1.0 (2.46, 1.82, 1.49, 1.17; mode 5 = 0.95) — the "
+            "data's own answer to 'how many canonical axes' = FOUR, landing on the breath's "
+            "QUADRATIC(4) center.",
+            "Energy decays smoothly (22>17>14>11>9...): the map is richly connected, not a "
+            "clean low-rank object — honest about the texture.",
+        ],
+        "falsifiers": [
+            "The principal eigenmode NOT corresponding to the abstract/material split.",
+            "The effective-axes count (eigenvalues>1) swinging wildly as the grid grows — "
+            "spectral structure that is an artifact, not signal.",
+            "A non-spectral arrangement explaining adjacency/depth/coherence markedly better "
+            "with fewer assumptions.",
+        ],
+        "unlikely_tests": [
+            "Re-run the spectrum as dimensions/domains are added — do the leading modes hold?",
+            "Compare the spectral effective-rank to the brute-force pole count — do they agree?",
+            "Perturb the grid (drop a sparse dimension) and check the principal mode is stable.",
+        ],
+        "advances_by": ("surviving its falsifiers/unlikely_tests — re-run GET /grid/spectrum as "
+                        "the grid grows; it advances only if the leading modes stay stable."),
+        "refutable": True,
+        "lifecycle": "held",
+        "supersedes": None,
+        "superseded_by": None,
+        "held_since": "2026-06-19",
+        "seed_v": 1,
+    },
 ]
 
 

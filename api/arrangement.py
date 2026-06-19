@@ -177,6 +177,87 @@ def pole_count_test(domains: Dict[str, frozenset], dims: List[str], max_k: int =
             "criterion": "avg within-cluster phi minus avg across-cluster phi (k-comparable)"}
 
 
+def _jacobi_eigen(a: List[List[float]], iters: int = 200, tol: float = 1e-12):
+    """Eigen-decomposition of a small SYMMETRIC matrix by cyclic Jacobi rotation.
+    Pure Python (sovereign — no numpy). Returns (eigenvalues, eigenvectors) sorted
+    by eigenvalue descending; eigenvectors[k] is the k-th unit eigenvector."""
+    n = len(a)
+    a = [row[:] for row in a]
+    V = [[float(i == j) for j in range(n)] for i in range(n)]
+    for _ in range(iters):
+        p, q, mx = 0, 1, 0.0
+        for i in range(n):
+            for j in range(i + 1, n):
+                if abs(a[i][j]) > mx:
+                    mx = abs(a[i][j]); p, q = i, j
+        if mx < tol:
+            break
+        app, aqq, apq = a[p][p], a[q][q], a[p][q]
+        th = 0.5 * math.atan2(2 * apq, (aqq - app)) if aqq != app else math.pi / 4
+        c, s = math.cos(th), math.sin(th)
+        for k in range(n):
+            kp, kq = a[k][p], a[k][q]; a[k][p] = c * kp - s * kq; a[k][q] = s * kp + c * kq
+        for k in range(n):
+            pk, qk = a[p][k], a[q][k]; a[p][k] = c * pk - s * qk; a[q][k] = s * pk + c * qk
+        for k in range(n):
+            kp, kq = V[k][p], V[k][q]; V[k][p] = c * kp - s * kq; V[k][q] = s * kp + c * kq
+    eig = [a[i][i] for i in range(n)]
+    vecs = [[V[i][j] for i in range(n)] for j in range(n)]  # vecs[j] = eigenvector j
+    order = sorted(range(n), key=lambda i: -eig[i])
+    return [eig[i] for i in order], [vecs[i] for i in order]
+
+
+def spectrum() -> Dict:
+    """The map's FOURIER/SPECTRAL decomposition — its natural modes ("frequencies").
+
+    Fourier's move: decompose a whole into the few fundamental modes that generate
+    it. Generalized off the regular cycle (where the fast transform, the FFT, lives)
+    to an arbitrary structure, that is the SPECTRAL decomposition — the eigenmodes
+    of the dimension correlation matrix ARE the map's natural axes. The eigenvalue
+    is the energy/rate carried by each mode (calibrate to source + rate of descent);
+    the leading modes are the few generating forms. This is the principled tool the
+    crude pole-clustering was groping toward.
+    """
+    domains = _canonical()
+    dims = [d for d in _grid.DIMENSIONS]
+    n = len(dims)
+    # phi correlation matrix (diagonal 1) — the dimensions as correlated signals
+    M = [[1.0 if i == j else _phi(domains, dims[i], dims[j])["phi"]
+          for j in range(n)] for i in range(n)]
+    eig, vec = _jacobi_eigen(M)
+    tot = sum(abs(e) for e in eig) or 1.0
+    modes = []
+    cum = 0.0
+    for k in range(n):
+        cum += abs(eig[k])
+        loadings = sorted(zip(dims, vec[k]), key=lambda t: -abs(t[1]))
+        modes.append({
+            "rank": k + 1,
+            "eigenvalue": round(eig[k], 3),
+            "energy_pct": round(100 * abs(eig[k]) / tot, 1),
+            "cum_pct": round(100 * cum / tot, 1),
+            "loadings": [(d, round(w, 2)) for d, w in loadings[:6]],
+        })
+    # Kaiser criterion on a correlation matrix: a real axis has eigenvalue > 1.
+    effective_axes = sum(1 for e in eig if e > 1.0)
+    m1 = modes[0]
+    pos = [d for d, w in m1["loadings"] if w > 0][:4]
+    neg = [d for d, w in m1["loadings"] if w < 0][:4]
+    return {
+        "modes": modes,
+        "effective_axes": effective_axes,
+        "effective_axes_rule": "Kaiser: count of eigenvalues > 1.0 (a real axis carries "
+                               "more than one dimension's worth of variance)",
+        "principal_axis": {"plus": pos, "minus": neg,
+                           "reads_as": "material/embodied vs abstract/formal — the 'two trees'"
+                           if ("physical_substance" in pos or "metabolism" in pos) else "(interpret)"},
+        "note": ("The map's natural axes are its eigenmodes (a graph/Fourier spectral view). "
+                 "Eigenvalue = energy/rate per mode. The principal mode independently confirms "
+                 "the two-trees split; the count of eigenvalues>1 is the data's answer to 'how "
+                 "many canonical axes.' Provisional lens — see /placeholders."),
+    }
+
+
 def probe(deep: bool = False) -> Dict:
     """Run all disconfirmers against the live grid; return the structured report.
 
@@ -238,6 +319,9 @@ def probe(deep: bool = False) -> Dict:
 
     # Refined hypothesis: the unsupervised 2-pole split
     report["two_poles"] = _two_poles(domains, dims)
+
+    # The map's spectral decomposition — its natural modes (the Fourier lens). Fast.
+    report["spectrum"] = spectrum()
 
     # The two-poles placeholder's own falsifier: do 3+ poles fit better? (slow)
     if deep:
@@ -313,6 +397,16 @@ def fmt(report: Dict) -> str:
              ", ".join(f"{d}({l:+d})" for d, l in tp["deepest_in_B"]))
     L.append("   (clusters are data-chosen, not imposed; the abstract/material reading "
              "is an interpretation. A 2-pole fit to a small/sparse grid can be an artifact.)")
+
+    sp = report.get("spectrum")
+    if sp:
+        L.append("\nSPECTRUM — the map's natural modes (the Fourier/spectral lens):")
+        L.append(f"   effective axes (eigenvalue>1, Kaiser): {sp['effective_axes']}")
+        for m in sp["modes"][:4]:
+            load = " ".join("%s%s%.2f" % (d, "+" if w >= 0 else "-", abs(w)) for d, w in m["loadings"][:5])
+            L.append(f"   mode {m['rank']}: eig {m['eigenvalue']:+.2f} ({m['energy_pct']}%, cum {m['cum_pct']}%)  {load}")
+        pa = sp["principal_axis"]
+        L.append(f"   principal axis: [{', '.join(pa['plus'])}] vs [{', '.join(pa['minus'])}] — {pa['reads_as']}")
 
     pc = report.get("pole_count")
     if pc:
