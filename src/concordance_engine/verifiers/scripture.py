@@ -72,6 +72,26 @@ def _anchor_to_ref(raw: Any) -> Optional[str]:
 
 from .base import VerifierResult
 
+# Tradition-aware canon layer (concordance_engine.canon). Disputed books are
+# reported on their OWN layer, never merged into the undisputed 66.
+# canon.canon_status(book) tells us who holds a book + the honest historical
+# frame. Sovereign / stdlib-only. Imported LAZILY via `_get_canon()` to avoid
+# an import cycle: canon.py derives its UNDISPUTED_66 from this module's
+# `_CANON_BOOKS` (defined later in this file), so a top-level import here would
+# make canon fall back to a names-only mirror that loses abbreviations.
+
+
+@lru_cache(maxsize=1)
+def _get_canon():
+    """Lazy import of the canon layer. Deferring to call time lets this module
+    finish defining `_CANON_BOOKS` before canon.py reads it (one source of
+    truth for the 66). Returns the canon module, or None if unavailable."""
+    try:
+        from .. import canon as _canon_mod
+        return _canon_mod
+    except Exception:
+        return None
+
 # ---------------------------------------------------------------------------
 # Locate lw/00_source from the canonical top-level engine.
 # ---------------------------------------------------------------------------
@@ -503,9 +523,11 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
 
     resolved = []
     failed = []
+    deuterocanonical: List[Dict[str, Any]] = []  # SEPARATE layer (canon §: discern)
     rotation_offers: List[Dict[str, Any]] = []  # canonical §3: assume input error
     lsp_checks: List[Dict[str, Any]] = []  # populated only if LSP corpus is provisioned
     lsp_tampered: List[Dict[str, Any]] = []
+    canon_mod = _get_canon()
     for raw in anchors:
         ref_str = _anchor_to_ref(raw)
         if ref_str is None:
@@ -518,15 +540,34 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
         if result is not None and result.get("status") == "ok" and result.get("web_text"):
             resolved.append({"ref": raw, "text": result["web_text"][:120]})
         else:
-            failed.append(raw)
-            # Reference rotation: assume input error, suggest corrections.
-            suggestions = _rotation_suggestions(bare_ref)
-            if suggestions:
-                rotation_offers.append({
+            # The WEB Bible holds only the undisputed 66, so a ref can fail to
+            # resolve for two very different reasons: (a) it's a real
+            # deuterocanonical / tradition-held book the WEB simply doesn't
+            # carry, or (b) it's a fabrication / typo. We must NOT treat (a) as
+            # (b): rejecting "Tobit 1:1" as fabricated would falsely reject a
+            # Catholic/Ethiopian believer's Scripture. So consult the canon
+            # layer FIRST and, when the book is held by a tradition, report it
+            # on a SEPARATE layer (shown for discernment, never merged into the
+            # 66). Only genuinely unknown books fall through to `failed`.
+            book, _chap = _extract_book_chapter(ref_str)
+            status = canon_mod.canon_status(book) if (canon_mod and book) else None
+            if status is not None and status.get("held_by") and not status.get("in_undisputed_66"):
+                deuterocanonical.append({
                     "ref": raw,
-                    "bare_ref": bare_ref,
-                    "did_you_mean": suggestions,
+                    "book": status.get("canonical_name") or book,
+                    "held_by": status["held_by"],
+                    "historical_note": status["historical_note"],
                 })
+            else:
+                failed.append(raw)
+                # Reference rotation: assume input error, suggest corrections.
+                suggestions = _rotation_suggestions(bare_ref)
+                if suggestions:
+                    rotation_offers.append({
+                        "ref": raw,
+                        "bare_ref": bare_ref,
+                        "did_you_mean": suggestions,
+                    })
 
         # LSP integrity check (silent when no corpus provisioned).
         lsp_result = _verify_against_lsp(bare_ref)
@@ -541,11 +582,19 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
             "every cited reference must resolve to an actual verse in "
             "the public-domain WEB Bible (Prov 30:5-6 — every word of "
             "God proves true). When a ref doesn't resolve, the engine "
-            "assumes input error and offers rotations (canon §3)."
+            "assumes input error and offers rotations (canon §3). "
+            "References OUTSIDE the undisputed 66 that are held by a "
+            "Christian tradition (deuterocanon) are reported on a SEPARATE "
+            "layer — shown honestly and historically framed for the user to "
+            "discern, never merged into the validated 66, and never falsely "
+            "rejected as fabrications."
         ),
         "resolved": resolved, "failed": failed, "total": len(anchors),
         "rotation_offers": rotation_offers,
     }
+    # Separate canon layer: never merged into `resolved` (the validated 66).
+    if deuterocanonical:
+        data["deuterocanonical"] = deuterocanonical
     if lsp_checks:
         data["lsp_checks"] = lsp_checks
         data["lsp_tampered"] = lsp_tampered
@@ -564,29 +613,60 @@ def verify_scripture_anchors(anchors: List[Union[str, Dict[str, Any]]]) -> Verif
             ),
             data=data,
         )
+    # Honest, non-judging note about the separate deuterocanon layer. The
+    # engine does not crown a canon (conduit, not source): it reports who holds
+    # each disputed book and the history, and lets the user discern.
+    def _deutero_note() -> str:
+        traditions = sorted({t for d in deuterocanonical for t in d["held_by"]})
+        labels = [
+            (canon_mod.tradition_label(t) if canon_mod else t)
+            for t in traditions
+        ]
+        return (
+            f"{len(deuterocanonical)} reference(s) outside the undisputed 66 — "
+            f"held canonical by [{', '.join(labels)}]; shown for discernment, "
+            "not merged with the 66."
+        )
+
     if not failed:
+        # The undisputed 66 are intact and nothing is a fabrication. Any
+        # deuterocanonical refs are reported on their own layer — they do NOT
+        # turn this into a failure (that would falsely reject a Catholic /
+        # Ethiopian believer's Scripture). The validated core still verified.
+        resolved_count = len(resolved)
+        if deuterocanonical:
+            detail = (
+                f"{resolved_count} reference(s) resolved in the undisputed 66 "
+                f"(WEB). {_deutero_note()}"
+            )
+        else:
+            detail = f"All {len(anchors)} scripture anchor(s) resolved in WEB."
         return VerifierResult(
             name=name, status="CONFIRMED",
-            detail=f"All {len(anchors)} scripture anchor(s) resolved in WEB.",
+            detail=detail,
             data=data,
         )
-    # Build a detail message that includes rotation offers when we have
-    # suggestions — helps the human spot input errors without bending
-    # Scripture (canon §3).
+    # There ARE genuine failures (not in any known canon — likely typos or
+    # fabrications). Build a detail message that includes rotation offers when
+    # we have suggestions — helps the human spot input errors without bending
+    # Scripture (canon §3). If deuterocanon refs are also present, surface that
+    # SEPARATELY so the disputed books aren't lumped in with the fabrications.
     if rotation_offers:
         offer_strs = [
             f"{o['ref']} → did you mean: {', '.join(o['did_you_mean'][:3])}"
             for o in rotation_offers
         ]
         detail = (
-            f"{len(failed)} anchor(s) not found in WEB. "
-            f"Possible input errors (rotation offered): {'; '.join(offer_strs)}"
+            f"{len(failed)} anchor(s) not found in any known canon "
+            f"(likely input errors; rotation offered): {'; '.join(offer_strs)}"
         )
     else:
         detail = (
-            f"{len(failed)} anchor(s) not found in WEB: {failed}. "
+            f"{len(failed)} anchor(s) not found in any known canon: {failed}. "
             "Verify references are genuine before citing them."
         )
+    if deuterocanonical:
+        detail = f"{detail} Separately: {_deutero_note()}"
     return VerifierResult(
         name=name, status="MISMATCH",
         detail=detail,
@@ -717,28 +797,39 @@ _CANON_MEMBERSHIP_ANCHOR = {
     "ref": "2 Tim 3:16",
     "layer": "apostles",
     "derivation": (
-        "Canon-bounded scripture: 'All Scripture is breathed out by "
-        "God and profitable...' The 66-book canon (Protestant) is the "
-        "boundary of what counts as Scripture for this engine; "
-        "citations outside it are flagged so authority claims can't "
-        "smuggle in non-canonical texts."
+        "Canon as a layered witness: 'All Scripture is breathed out by "
+        "God and profitable...' The undisputed 66 are the validated core "
+        "shared by all major traditions and form this engine's verified "
+        "boundary. Books held only by some traditions (the deuterocanon) "
+        "are not merged into the 66 nor rejected as fabrications — they "
+        "are reported on a SEPARATE layer, historically framed, for the "
+        "user to discern. References in no known canon are flagged as "
+        "likely errors. The engine reports; it does not crown a canon."
     ),
 }
 
 
 def verify_canon_membership(refs):
-    """Every reference must point to a book in the 66-book canon.
+    """Classify references by canon LAYER, keeping the 66 separate.
 
-    Anchored in 2 Tim 3:16. The anchor is surfaced in the verifier's
-    `data` payload so the walkthrough renderer (and downstream
-    consumers) can display the doctrinal derivation alongside the rule.
+    Anchored in 2 Tim 3:16. The 66-book undisputed core is the validated
+    boundary; references outside it that are held by a Christian tradition
+    (deuterocanon) are reported on a SEPARATE layer — historically framed,
+    never merged into the 66, never falsely rejected. References in NO known
+    canon are flagged as likely errors. The engine does not judge which canon
+    is correct; it shows who holds what and lets the user discern.
+
+    The anchor is surfaced in the verifier's `data` payload so the walkthrough
+    renderer (and downstream consumers) can display the derivation.
     """
     name = "scripture.canon_membership"
     if not refs:
         return VerifierResult(name=name, status="CONFIRMED",
                               detail="no references to check")
-    inside = []
-    outside = []
+    canon_mod = _get_canon()
+    inside = []            # in the undisputed 66
+    deuterocanonical = []  # SEPARATE layer: held by a tradition, not the 66
+    outside = []           # in no known canon (likely typo / fabrication)
     unparseable = []
     for raw in refs:
         ref_str = _anchor_to_ref(raw)
@@ -751,21 +842,71 @@ def verify_canon_membership(refs):
         elif book in _CANON_BOOKS:
             inside.append(raw)
         else:
-            outside.append(raw)
+            # Not in the 66 — consult the canon layer before judging.
+            status = canon_mod.canon_status(book) if canon_mod else None
+            if status is not None and status.get("held_by") and not status.get("in_undisputed_66"):
+                deuterocanonical.append({
+                    "ref": raw,
+                    "book": status.get("canonical_name") or book,
+                    "held_by": status["held_by"],
+                    "historical_note": status["historical_note"],
+                })
+            else:
+                outside.append(raw)
     data = {
         "anchor": _CANON_MEMBERSHIP_ANCHOR,
-        "rule": "every cited reference must be in the 66-book canon (2 Tim 3:16)",
+        "rule": (
+            "the undisputed 66 are the validated core (2 Tim 3:16); "
+            "deuterocanonical books are reported on a SEPARATE layer, "
+            "historically framed, for discernment — not merged with the 66 "
+            "and not rejected as fabrications; references in no known canon "
+            "are flagged as likely errors"
+        ),
         "inside": inside, "outside": outside, "unparseable": unparseable,
         "total": len(refs),
     }
+    if deuterocanonical:
+        data["deuterocanonical"] = deuterocanonical
+
+    def _deutero_note() -> str:
+        traditions = sorted({t for d in deuterocanonical for t in d["held_by"]})
+        labels = [
+            (canon_mod.tradition_label(t) if canon_mod else t)
+            for t in traditions
+        ]
+        return (
+            f"{len(deuterocanonical)} reference(s) outside the undisputed 66 — "
+            f"held canonical by [{', '.join(labels)}]; shown for discernment, "
+            "not merged with the 66."
+        )
+
+    # Only references in NO known canon are a genuine MISMATCH. Deuterocanon
+    # refs are NOT a failure — that would falsely reject a Catholic / Ethiopian
+    # believer's Scripture. The undisputed 66 remain the validated layer.
     if outside:
+        detail = f"{len(outside)} reference(s) not in any known canon (likely errors): {outside}"
+        if deuterocanonical:
+            detail = f"{detail}. Separately: {_deutero_note()}"
         return VerifierResult(name=name, status="MISMATCH",
-                              detail=f"{len(outside)} reference(s) not in canonical 66 books: {outside}",
+                              detail=detail,
                               data=data)
-    if unparseable and not inside:
+    if unparseable and not inside and not deuterocanonical:
         return VerifierResult(name=name, status="ERROR",
                               detail=f"could not parse any reference: {unparseable}",
                               data=data)
+    # No genuine non-canon refs. The 66-book core is clean. If deuterocanon
+    # refs are present they are reported on the separate layer (CONFIRMED, not
+    # a failure — the validated core verified and the rest is shown to discern).
+    if deuterocanonical:
+        if inside:
+            detail = (
+                f"{len(inside)} reference(s) in the undisputed 66. "
+                f"Separately: {_deutero_note()}"
+            )
+        else:
+            detail = _deutero_note()
+        return VerifierResult(name=name, status="CONFIRMED",
+                              detail=detail, data=data)
     return VerifierResult(name=name, status="CONFIRMED",
                           detail=f"all {len(inside)} reference(s) in canonical 66 books",
                           data=data)

@@ -244,10 +244,30 @@ def test_canon_membership_all_in():
     assert r.status == "CONFIRMED"
 
 
-def test_canon_membership_apocrypha_rejected():
+def test_canon_membership_deuterocanon_reported_on_separate_layer():
+    """Tradition-aware canon (operator directive): disputed books are NOT
+    rejected as fabrications and NOT merged into the 66 — they are reported
+    on a SEPARATE 'deuterocanonical' layer, historically framed, for the user
+    to discern. The undisputed-66 core still verifies, so status is CONFIRMED.
+    """
     r = scr.verify_canon_membership(["Tobit 4:7", "John 3:16"])
+    assert r.status == "CONFIRMED"
+    # Tobit must NOT be in `outside` (that bucket is now reserved for refs in
+    # NO known canon — likely typos / fabrications).
+    assert "Tobit" not in str(r.data.get("outside", []))
+    # It must appear on the separate deuterocanon layer, with its holders.
+    deutero = r.data.get("deuterocanonical", [])
+    assert any("tobit" in str(d.get("book", "")).lower() for d in deutero)
+    holders = [t for d in deutero for t in d.get("held_by", [])]
+    assert "catholic" in holders
+
+
+def test_canon_membership_unknown_book_still_flagged():
+    """A reference in no known canon (typo / non-scriptural) is still a
+    MISMATCH so fabrications can't smuggle in."""
+    r = scr.verify_canon_membership(["Flibbertigibbet 9:99", "John 3:16"])
     assert r.status == "MISMATCH"
-    assert "Tobit" in str(r.data.get("outside", []))
+    assert "Flibbertigibbet" in str(r.data.get("outside", []))
 
 
 def test_canon_membership_abbreviations():
