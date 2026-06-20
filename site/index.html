@@ -64,7 +64,7 @@
     /* Palette tuned for WCAG 2.1 AA legibility (functional first): body/secondary
        text clears 4.5:1 on the bg, surfaces + borders clear ~3:1 so cards and
        edges are actually visible — no more dark-on-dark. */
-    :root{ --bg:#0a0810; --text:#f2ece1; --dim:#c5bfce; --muted:#9c95a9; --accent:#d6b68a; --accenthi:#eccd9f; --surface:#211c31; --border:#3b3449; --pass:#82d090; }
+    :root{ --bg:#0a0810; --text:#f2ece1; --dim:#c5bfce; --muted:#9c95a9; --accent:#d6b68a; --accenthi:#eccd9f; --surface:#2f2740; --border:#3b3449; --pass:#82d090; }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;}
     a{color:var(--accent);text-decoration:none;} a:hover{color:var(--accenthi);}
@@ -156,11 +156,11 @@
     .taskhead{max-width:780px;margin:28px auto 13px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);}
     .tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;max-width:780px;margin:0 auto;}
     .task{display:flex;flex-direction:column;gap:6px;padding:17px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;text-decoration:none;text-align:left;transition:border-color .15s,transform .1s,background .15s;}
-    .task:hover{border-color:var(--accent);transform:translateY(-2px);background:#1b1726;}
+    .task:hover{border-color:var(--accent);transform:translateY(-2px);background:#3a3150;}
     .task .ico{font-size:23px;line-height:1;}
     .task .tl{font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;color:#f4ecd5;}
     .task .ds{font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;color:var(--dim);line-height:1.42;}
-    .task.primary{border-color:rgba(201,168,124,.55);background:linear-gradient(180deg,#211a2c,#161320);}
+    .task.primary{border-color:rgba(201,168,124,.55);background:linear-gradient(180deg,#3a2f48,#2a2238);}
     .task.primary .ico{color:var(--pass);}
     .bring-wrap{max-width:660px;margin:36px auto 0;}
     .bring-label{text-align:center;font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:14px;margin-bottom:12px;}
