@@ -8,7 +8,7 @@
 /* ── Header ───────────────────────────────────────────────────── */
 .nh-shell-top {
   background: #0c0a16;
-  border-bottom: 1px solid #2a2438;
+  border-bottom: 1px solid #4a4262;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   position: relative;
   z-index: 10;
@@ -81,14 +81,14 @@
 
 @media (max-width: 760px) {
   .nh-shell-bar { gap: 10px; padding: 10px 14px; }
-  .nh-shell-nav { gap: 14px; margin-left: 0; width: 100%; order: 3; padding-top: 4px; border-top: 1px solid #2a2438; }
+  .nh-shell-nav { gap: 14px; margin-left: 0; width: 100%; order: 3; padding-top: 4px; border-top: 1px solid #4a4262; }
   .nh-shell-support { margin-left: auto; }
 }
 
 /* ── Footer ───────────────────────────────────────────────────── */
 .nh-shell-bot {
   background: #0c0a16;
-  border-top: 1px solid #2a2438;
+  border-top: 1px solid #4a4262;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin-top: 48px;
   padding: 38px 22px 26px;
@@ -132,13 +132,13 @@
 .nh-shell-col a small {
   display: block;
   font-size: 0.74rem;
-  color: #7b7488;
+  color: #8f8aa0;
   font-style: italic;
   margin-top: 1px;
 }
 
 .nh-shell-colophon {
-  border-top: 1px solid #2a2438;
+  border-top: 1px solid #4a4262;
   padding-top: 18px;
   text-align: center;
   font-family: 'Crimson Pro', Georgia, serif;
@@ -148,7 +148,7 @@
 }
 .nh-shell-colophon p { margin: 4px 0; }
 .nh-shell-colophon em { color: #c9a87c; font-style: italic; }
-.nh-shell-colophon a { color: #b8b0c2; text-decoration: none; border-bottom: 1px dashed #5a5266; }
+.nh-shell-colophon a { color: #b8b0c2; text-decoration: none; border-bottom: 1px dashed #726a86; }
 .nh-shell-colophon a:hover { color: #f4ecd5; }
 
 /* When the shell sits above a cream-content page (canon doorways, about,
