@@ -17494,6 +17494,31 @@ def grid_music():
     }
 
 
+@app.get("/music/nashville", tags=["agents"])
+def music_nashville(progression: str = "", numbers: str = "", key: str = "C", to_key: str = ""):
+    """The Nashville Number System — chords as scale degrees, so a chart plays in ANY key.
+
+    Two directions (comma/space/bar-separated input):
+      - `progression` (+ `key`): chords -> the key-independent number chart.
+        Add `to_key` to TRANSPOSE the same chart into another key.
+        e.g. /music/nashville?progression=C,G,Am,F&key=C        -> "1 5 6 4"
+             /music/nashville?progression=C,Am,F,G&key=C&to_key=E -> E, C#m, A, B
+      - `numbers` (+ `key` or `to_key`): a number chart rendered into a key.
+        e.g. /music/nashville?numbers=1,5,6,4&key=G              -> G, D, Em, C
+
+    Diatonic quality is implied (1,4,5 major; 2,3,6 minor; 7 dim); deviations are
+    marked (m / maj / ° / +); a parenthesised tail is the 7th/extension. Part of the
+    harmonics/music layer — the relative skeleton of a song, the same move the map
+    makes (structure independent of its instantiation).
+    """
+    try:
+        from api import harmonics as _h
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    return _h.nashville(progression=progression or None, numbers=numbers or None,
+                        key=key or "C", to_key=to_key or None)
+
+
 class _TeachingIn(BaseModel):
     directive: str
     principle: str = ""

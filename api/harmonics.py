@@ -22,6 +22,7 @@ Sovereign: stdlib only; does NOT touch the verifier moat.
 from __future__ import annotations
 
 import math
+import re
 from typing import Any, Dict, List, Tuple
 
 _A4 = 440.0
@@ -161,3 +162,171 @@ def spectrum_as_music(eigenvalues: List[float]) -> Dict[str, Any]:
                       "from correct. A guiding witness — confirmed by the engine's verification, "
                       "and only counted as 'close' when it beats chance (tune_test)."),
     }
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# The Nashville Number System (NNS) — chords as scale degrees, key-independent
+# ──────────────────────────────────────────────────────────────────────────
+# A chart written in degrees 1-7 of the key's MAJOR scale, so the same chart
+# plays in any key (change only the key header). Devised by Neal Matthews Jr.
+# (Jordanaires, late 1950s), refined by the Nashville A-Team. Diatonic triad
+# quality is IMPLIED by the major scale — 1,4,5 major; 2,3,6 minor; 7 diminished
+# — and only DEVIATIONS are marked. It is the relative skeleton of a song: the
+# same move the map makes — structure independent of its instantiation (the key).
+# Sovereign: stdlib only; deterministic; round-trips chord<->number exactly for
+# triads + common sevenths (exotic extensions are carried best-effort).
+
+_DEGREE_SEMI = {1: 0, 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 7: 11}  # major-scale degree -> semitones
+_SEMI_DEGREE = {0: 1, 2: 2, 4: 3, 5: 4, 7: 5, 9: 6, 11: 7}  # the diatonic inverse
+# non-diatonic roots -> (degree, accidental). Flats by convention; #4 for the tritone.
+_SEMI_CHROM = {1: (2, "b"), 3: (3, "b"), 6: (4, "#"), 8: (6, "b"), 10: (7, "b")}
+_DEGREE_QUALITY = {1: "maj", 2: "min", 3: "min", 4: "maj", 5: "maj", 6: "min", 7: "dim"}
+_TRIAD_SYM = {"maj": "maj", "min": "m", "dim": "°", "aug": "+"}
+
+_PC = {"C": 0, "B#": 0, "C#": 1, "DB": 1, "D": 2, "D#": 3, "EB": 3, "E": 4, "FB": 4,
+       "E#": 5, "F": 5, "F#": 6, "GB": 6, "G": 7, "G#": 8, "AB": 8, "A": 9, "A#": 10,
+       "BB": 10, "B": 11, "CB": 11}
+_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+_FLAT = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+_FLAT_KEYS = {"F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb"}
+
+_NNS_NOTE = ("Numbers are relative to the key (major-scale degrees): 1,4,5 major; 2,3,6 minor; "
+             "7 diminished by DEFAULT — only deviations are marked (m=minor, maj=major where "
+             "minor is default, °=dim, +=aug; a parenthesised tail is the 7th/extension). The "
+             "SAME chart plays in any key — change only the key. Neal Matthews Jr. / the "
+             "Nashville A-Team. A push (anticipation) and rhythmic diamonds are performance marks "
+             "a player adds; this models the harmonic skeleton.")
+
+
+def _norm_note(s: str) -> str:
+    s = (s or "").strip().replace("♭", "b").replace("♯", "#")
+    return s[:1].upper() + s[1:] if s else s
+
+
+def _note_pc(s: str):
+    return _PC.get(_norm_note(s).upper())
+
+
+def _key_pc(key: str) -> int:
+    pc = _note_pc(key)
+    if pc is None:
+        raise ValueError("unknown key: %r" % key)
+    return pc
+
+
+def _key_flats(key: str) -> bool:
+    return _norm_note(key) in _FLAT_KEYS
+
+
+def _split_chord(sym: str):
+    m = re.match(r"^([A-Ga-g][#b♯♭]?)(.*)$", (sym or "").strip())
+    if not m:
+        raise ValueError("unparseable chord: %r" % sym)
+    pc = _note_pc(m.group(1))
+    if pc is None:
+        raise ValueError("unknown chord root: %r" % sym)
+    return pc, m.group(2).strip()
+
+
+def _triad(suffix: str):
+    """(base_quality, extension) from a chord suffix. base in maj/min/dim/aug."""
+    s = (suffix or "").strip()
+    if s == "":
+        return "maj", ""
+    low = s.lower()
+    if low.startswith("dim") or s.startswith("°") or low == "o" or low.startswith("o7"):
+        return "dim", (s[3:] if low.startswith("dim") else s[1:])
+    if low.startswith("aug") or s.startswith("+"):
+        return "aug", (s[3:] if low.startswith("aug") else s[1:])
+    if low.startswith("maj") or s[0] in ("M", "Δ", "△"):
+        rest = s[3:] if low.startswith("maj") else s[1:]
+        return "maj", ("maj" + rest if rest[:1].isdigit() else rest)
+    if s[0] in ("m", "-"):
+        return "min", s[1:]
+    return "maj", s
+
+
+def chord_to_number(sym: str, key: str) -> Dict[str, Any]:
+    """One chord -> its Nashville number in `key` (structured + display string)."""
+    rootpc, suffix = _split_chord(sym)
+    rel = (rootpc - _key_pc(key)) % 12
+    if rel in _SEMI_DEGREE:
+        degree, acc = _SEMI_DEGREE[rel], ""
+    else:
+        degree, acc = _SEMI_CHROM[rel]
+    base, ext = _triad(suffix)
+    # Diatonic degrees take the major-scale default; a BORROWED (accidental) root is
+    # conventionally major (bVII, bVI, bIII), so don't redundantly mark it "maj".
+    default = "maj" if acc else _DEGREE_QUALITY[degree]
+    qsym = "" if base == default else _TRIAD_SYM[base]
+    nash = acc + str(degree) + qsym
+    display = nash + (("(" + ext + ")") if ext else "")
+    return {"chord": sym, "degree": degree, "accidental": acc, "quality": base,
+            "default_quality": default, "extension": ext, "nashville": nash,
+            "display": display, "relative_semitones": rel}
+
+
+def number_to_chord(num: str, key: str) -> Dict[str, Any]:
+    """One Nashville number -> the chord it names in `key`."""
+    s = (num or "").strip().replace(" ", "")
+    m = re.match(r"^([b#]?)([1-7])(maj|min|m|dim|°|aug|\+|-)?\(?([A-Za-z0-9#]+)?\)?$", s)
+    if not m:
+        raise ValueError("unparseable number: %r" % num)
+    acc, deg, qsym, ext = m.group(1), int(m.group(2)), (m.group(3) or ""), (m.group(4) or "")
+    semi = _DEGREE_SEMI[deg] + (1 if acc == "#" else -1 if acc == "b" else 0)
+    # a flatted degree spells flat, a sharped degree spells sharp; diatonic degrees
+    # follow the key's accidental preference.
+    names = _FLAT if acc == "b" else _SHARP if acc == "#" else (_FLAT if _key_flats(key) else _SHARP)
+    name = names[(_key_pc(key) + semi) % 12]
+    base = ({"m": "min", "min": "min", "maj": "maj", "dim": "dim", "°": "dim",
+             "aug": "aug", "+": "aug", "-": "min"}.get(qsym)
+            or ("maj" if acc else _DEGREE_QUALITY[deg]))
+    suf = {"maj": "", "min": "m", "dim": "dim", "aug": "aug"}[base]
+    if ext:
+        if ext.lower().startswith("maj"):
+            suf = "maj" + ext[3:]
+        elif base == "min" and ext[:1].isdigit():
+            suf = "m" + ext
+        else:
+            suf = suf + ext
+    return {"number": num, "chord": name + suf, "root": name, "quality": base, "extension": ext}
+
+
+def to_nashville(progression: List[str], key: str = "C") -> Dict[str, Any]:
+    """A chord progression in `key` -> its key-independent Nashville chart."""
+    nums = [chord_to_number(c, key) for c in progression]
+    return {"ok": True, "system": "Nashville Number System", "key": _norm_note(key),
+            "chords": list(progression), "numbers": nums,
+            "chart": " ".join(n["display"] for n in nums), "note": _NNS_NOTE}
+
+
+def from_nashville(numbers: List[str], key: str = "C") -> Dict[str, Any]:
+    """A Nashville chart rendered into `key`."""
+    out = [number_to_chord(n, key) for n in numbers]
+    return {"ok": True, "system": "Nashville Number System", "key": _norm_note(key),
+            "numbers": list(numbers), "chords": [o["chord"] for o in out],
+            "rendered": out, "note": _NNS_NOTE}
+
+
+def nashville(progression=None, numbers=None, key: str = "C", to_key=None) -> Dict[str, Any]:
+    """One entry for the music layer. Give a chord progression (+ key) to get its
+    number chart — and optionally `to_key` to TRANSPOSE it; or give numbers (+ the
+    key to render in). Strings may be comma/space/bar separated."""
+    key = key or "C"
+
+    def _split(x):
+        return [t for t in re.split(r"[,\s|]+", x) if t] if isinstance(x, str) else list(x or [])
+    try:
+        if progression:
+            res = to_nashville(_split(progression), key)
+            if to_key:
+                res["transposed"] = {
+                    "to_key": _norm_note(to_key),
+                    "chords": [number_to_chord(n["display"], to_key)["chord"] for n in res["numbers"]],
+                }
+            return res
+        if numbers:
+            return from_nashville(_split(numbers), to_key or key)
+        return {"ok": False, "error": "provide a chord `progression` (+ key) or `numbers` (+ key)"}
+    except Exception as e:  # noqa: BLE001 — never raise; the music layer degrades gracefully
+        return {"ok": False, "error": "%s: %s" % (type(e).__name__, e)}
