@@ -61,10 +61,15 @@
   <script defer src="/nh-shell.js"></script>
 
   <style>
-    :root{ --bg:#0a0810; --text:#ede7db; --dim:#b3aabd; --muted:#6e6878; --accent:#c9a87c; --accenthi:#e3c498; --surface:#161320; --border:#29232f; --pass:#6fc47c; }
+    /* Palette tuned for WCAG 2.1 AA legibility (functional first): body/secondary
+       text clears 4.5:1 on the bg, surfaces + borders clear ~3:1 so cards and
+       edges are actually visible — no more dark-on-dark. */
+    :root{ --bg:#0a0810; --text:#f2ece1; --dim:#c5bfce; --muted:#9c95a9; --accent:#d6b68a; --accenthi:#eccd9f; --surface:#211c31; --border:#3b3449; --pass:#82d090; }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;}
     a{color:var(--accent);text-decoration:none;} a:hover{color:var(--accenthi);}
+    /* Visible keyboard focus everywhere (accessibility / functional-first). */
+    a:focus-visible,button:focus-visible,[contenteditable]:focus-visible{outline:2px solid var(--accenthi);outline-offset:2px;border-radius:4px;}
 
     .well{max-width:680px;margin:0 auto;padding:8vh 22px 8vh;text-align:center;}
     .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;}
