@@ -243,11 +243,16 @@ def _holders_for_canonical(canonical: str) -> List[str]:
 
     if in_catholic:
         holders.append("catholic")
-        # Eastern Orthodox receive the full Catholic deuterocanon.
+        # Eastern Orthodox AND Ethiopian Tewahedo (the broadest canon) both
+        # receive the full Catholic deuterocanon.
         holders.append("eastern_orthodox")
+        holders.append("ethiopian_orthodox")
     if in_orthodox_only and "eastern_orthodox" not in holders:
         holders.append("eastern_orthodox")
-    if in_ethiopian:
+        # NOTE: some Orthodox-only Greek books (e.g. 3 Maccabees) are genuinely
+        # debated for the Ethiopian canon, so Ethiopian is NOT auto-asserted here
+        # — only for the Catholic deuterocanon (above) and its own distinctives.
+    if in_ethiopian and "ethiopian_orthodox" not in holders:
         holders.append("ethiopian_orthodox")
     return holders
 
