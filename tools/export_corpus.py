@@ -37,6 +37,7 @@ import json
 import logging
 import logging.handlers
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -48,6 +49,7 @@ REPO_ROOT = Path(os.environ.get(
 )).resolve()
 
 DISCERN_DIR = REPO_ROOT / "data" / "discernments"
+CARDS_DIR = REPO_ROOT / "data" / "cards"
 CORPUS_DIR = Path(os.environ.get(
     "NH_CORPUS_DIR",
     str(REPO_ROOT / "data" / "training_corpus"),
@@ -295,6 +297,76 @@ CONVERTERS_ORGAN = {
 CONVERTERS = CONVERTERS_V1  # default; may be replaced at runtime
 
 
+# ── Card → training pair (SOVEREIGN: our own attributed substrate) ──────
+# Unlike gated-generation pairs (drafted by a cloud LLM), card pairs are mined
+# from the engine's OWN verified, attributed, witnessed cards — zero external
+# dependency, zero cost, nothing fabricated. Each completion delivers the card's
+# real substance, CITES its source, and states its honest status — teaching the
+# Bumblebee voice (recombine attributed pieces; speak in citations), not free
+# generation. Map never launders: attribution + witness_status=passed required.
+_CARD_PROMPT_TEMPLATES = (
+    "From the record, give the substance and its source for: {t}",
+    "What is kept on: {t}? Ground it with attribution.",
+    "Explain {t}, citing where it comes from and how it is held.",
+    "{t} — give the verified substance and its source.",
+    "Show what the record holds, with its citation, on: {t}",
+)
+
+
+def card_to_pair(d: dict) -> dict | None:
+    """A verified, attributed, witnessed card becomes a sovereign training pair:
+    (prompt about the card's topic, completion = its substance + citation + honest
+    status). Returns None unless the card is genuine knowledge with attribution."""
+    title = (d.get("title") or "").strip()
+    body = d.get("body")
+    body = body.strip() if isinstance(body, str) else ""
+    if not title or len(body) < 140:
+        return None
+    if d.get("witness_status") != "passed":      # only kept/witnessed cards
+        return None
+    if "↔" in title or re.search(r"\bcites\b.*:", body):  # skip cross-ref stubs
+        return None
+    src = d.get("source") or {}
+    label = (src.get("label") or "").strip() if isinstance(src, dict) else ""
+    if not label:                                 # attribution is required
+        return None
+    ref = (src.get("ref") or "").strip() if isinstance(src, dict) else ""
+    tier = (src.get("authority_tier") or "").strip() if isinstance(src, dict) else ""
+
+    # honest provenance line (the Bumblebee citation) + honest status
+    cite = "— Grounded in: " + label + (f" ({ref})" if ref else "")
+    if tier:
+        cite += f". [{tier} tier]"
+    status = "Status: kept and witnessed (witness_status: passed)."
+    completion = f"{body}\n\n{cite}\n{status}"
+    if len(completion) < MIN_COMPLETION_CHARS:
+        return None
+
+    cid = d.get("id") or ""
+    tmpl = _CARD_PROMPT_TEMPLATES[hash(cid) % len(_CARD_PROMPT_TEMPLATES)]
+    prompt = tmpl.format(t=title)
+    if len(prompt) < MIN_PROMPT_CHARS:
+        return None
+
+    return {
+        "schema": "narrowhighway.training_pair/1",
+        "source_kind": "card",
+        "source_schema": "narrowhighway.card/1",
+        "source_slug": cid,
+        "created_at": d.get("created_at", ""),
+        "prompt": prompt,
+        "completion": completion,
+        "metadata": {
+            "card_id": cid,
+            "shelf": d.get("shelf", ""),
+            "bands": d.get("bands", []),
+            "authority_tier": tier,
+            "source_hash": d.get("source_hash", ""),
+            "witness_status": d.get("witness_status", ""),
+        },
+    }
+
+
 def pair_hash(pair: dict) -> str:
     """Stable hash over prompt + completion for dedupe."""
     key = (pair.get("prompt", "") + "\n---\n" + pair.get("completion", ""))
@@ -322,6 +394,12 @@ def main() -> int:
             "(prompt, completion) shape — faster, lossier, and risks "
             "collapsing distributed sophistication into one model."
         ),
+    )
+    parser.add_argument(
+        "--cards", action="store_true",
+        help=("Also mine the engine's OWN verified/attributed/witnessed cards "
+              "(data/cards) into sovereign training pairs — no cloud LLM, nothing "
+              "fabricated. Each pair cites its source and states its honest status."),
     )
     args = parser.parse_args()
 
@@ -409,6 +487,34 @@ def main() -> int:
                     log.info("opening %s", out_path.name)
                 _, fh = out_files[kind]
                 fh.write(json.dumps(pair, ensure_ascii=False) + "\n")
+
+        # ── Cards: mine the engine's own attributed substrate (sovereign) ──
+        if getattr(args, "cards", False) and CARDS_DIR.exists():
+            for cf in sorted(CARDS_DIR.glob("*.json")):
+                try:
+                    d = json.loads(cf.read_text(encoding="utf-8"))
+                except Exception:
+                    continue
+                stats["total_records"] += 1
+                stats["by_kind"]["card"] = stats["by_kind"].get("card", 0) + 1
+                pair = card_to_pair(d)
+                if not pair:
+                    stats["skipped_too_short"] += 1
+                    continue
+                h = pair_hash(pair)
+                seen = seen_hashes.setdefault("card", set())
+                if h in seen:
+                    stats["skipped_dedupe"] += 1
+                    continue
+                seen.add(h)
+                stats["written"]["card"] = stats["written"].get("card", 0) + 1
+                if not args.dry_run:
+                    if "card" not in out_files:
+                        out_path = CORPUS_DIR / f"corpus-card-{stamp}.jsonl"
+                        out_files["card"] = (out_path, out_path.open("w", encoding="utf-8"))
+                        log.info("opening %s", out_path.name)
+                    _, fh = out_files["card"]
+                    fh.write(json.dumps(pair, ensure_ascii=False) + "\n")
     finally:
         for _, (_, fh) in out_files.items():
             fh.close()
