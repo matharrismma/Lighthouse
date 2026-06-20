@@ -147,6 +147,18 @@
     .face:hover{border-color:var(--accent);}
     .face .fn{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accenthi);}
     .face .fd{display:block;font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;}
+    /* Canva-style task launcher: see everything you can do, start in one click */
+    .taskhead{max-width:780px;margin:28px auto 13px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);}
+    .tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;max-width:780px;margin:0 auto;}
+    .task{display:flex;flex-direction:column;gap:6px;padding:17px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;text-decoration:none;text-align:left;transition:border-color .15s,transform .1s,background .15s;}
+    .task:hover{border-color:var(--accent);transform:translateY(-2px);background:#1b1726;}
+    .task .ico{font-size:23px;line-height:1;}
+    .task .tl{font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;color:#f4ecd5;}
+    .task .ds{font-family:'Crimson Pro',Georgia,serif;font-size:12.5px;color:var(--dim);line-height:1.42;}
+    .task.primary{border-color:rgba(201,168,124,.55);background:linear-gradient(180deg,#211a2c,#161320);}
+    .task.primary .ico{color:var(--pass);}
+    .bring-wrap{max-width:660px;margin:36px auto 0;}
+    .bring-label{text-align:center;font-family:'Crimson Pro',Georgia,serif;font-style:italic;color:var(--dim);font-size:14px;margin-bottom:12px;}
     .consider{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);}
     .consider .ch{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
     .consider a{display:inline-block;margin:0 6px 7px 0;padding:6px 12px;border:1px solid rgba(201,168,124,.3);border-radius:16px;color:var(--accent);font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:13px;}
@@ -176,44 +188,51 @@
   <h1 data-i18n="work.title">Bring anything. Get a receipt — not a 'trust me.'</h1>
   <p class="tagline" data-i18n="work.tagline">A claim runs through the engine — a verdict, the worked trail, and a seal anyone can re-check — and you see where it lands on the map of everything that connects. It also turns a note into a list, a message into a draft. Free, no ads, nothing tracked.</p>
 
-  <div class="draw" id="drawForm">
-    <div class="fmtbar" id="fmtbar" aria-label="Formatting">
-      <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
-      <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
-      <button type="button" data-cmd="formatBlock" data-val="h2" title="Heading">H</button>
-      <button type="button" data-cmd="formatBlock" data-val="p" title="Normal text">¶</button>
-      <button type="button" data-cmd="insertUnorderedList" title="List">&bull;&nbsp;List</button>
-      <span class="sp"></span>
-      <button type="button" id="newDocBtn" class="docbtn" title="Start a new document">＋&nbsp;New</button>
-      <a href="/kept.html#docs" class="docbtn" title="Your saved documents">Documents</a>
-      <span class="saved" id="savedTag"></span>
-    </div>
-    <div id="uq" class="doc" contenteditable="true" role="textbox" aria-multiline="true"
-         data-ph="Start writing — a grocery note, a letter to send, a claim to check, or a whole chapter. It saves itself as you go, and finds the right home. Drop a file in too. ⌘/Ctrl+Enter when you want it acted on."></div>
-    <div class="draw-actions">
-      <button id="ubtn" type="button" onclick="nhBring()" data-i18n="work.bring_button">Do something with it &rarr;</button>
-      <span class="draw-hint">It saves itself · <b>⌘/Ctrl+Enter</b> to act · <b>drop a file</b> to bring it in · it determines the path — kept, sent, listed, or verified.</span>
-    </div>
+  <div class="taskhead">Pick what you want to do — or just bring it</div>
+  <div class="tasks" id="tasks" aria-label="What you can do here">
+    <a class="task primary" href="#bring" onclick="var e=document.getElementById('uq');if(e){setTimeout(function(){e.focus();},60);}"><span class="ico">✓</span><span class="tl">Verify a claim</span><span class="ds">Is it true? A verdict, the worked trail, and a receipt anyone can re-check.</span></a>
+    <a class="task" href="/read.html"><span class="ico">📚</span><span class="tl">Learn anything</span><span class="ds">A patient tutor, one step at a time.</span></a>
+    <a class="task" href="/codex.html"><span class="ico">📖</span><span class="tl">Study Scripture</span><span class="ds">Books, cross-references, every translation.</span></a>
+    <a class="task" href="/walk.html"><span class="ico">🧭</span><span class="tl">Walk a decision</span><span class="ds">Talk it through the four gates.</span></a>
+    <a class="task" href="/apothecary.html"><span class="ico">🌿</span><span class="tl">Find a remedy</span><span class="ds">Scripture + protocol for what you carry. Reference, not advice.</span></a>
+    <a class="task" href="/almanac.html"><span class="ico">📜</span><span class="tl">Tested wisdom</span><span class="ds">The almanac — practical knowledge checked against the record.</span></a>
+    <a class="task" href="/scribe.html"><span class="ico">✍️</span><span class="tl">Write &amp; keep</span><span class="ds">Compose, and keep what matters — on your device.</span></a>
+    <a class="task" href="/atlas.html"><span class="ico">🗺️</span><span class="tl">Explore the map</span><span class="ds">See how every field connects to every other.</span></a>
+    <a class="task" href="/media-center.html"><span class="ico">▶️</span><span class="tl">Watch · hear · read</span><span class="ds">The library and the channels.</span></a>
+    <a class="task" href="/missions.html"><span class="ico">🤝</span><span class="tl">Gather</span><span class="ds">A mission of people and agents — the church of Acts 2.</span></a>
   </div>
-  <div id="ures"></div>
 
-  <div class="chips" id="uchips">
-    <a class="chip" href="#" data-bring="91 is a prime number">91 is a prime number</a>
-    <a class="chip" href="#" data-bring="the derivative of x squared is 2x">the derivative of x&sup2; is 2x</a>
-    <a class="chip" href="#" data-bring="teach me how fractions work">teach me fractions</a>
-    <a class="chip" href="#" data-bring="tell Sarah I'll be 15 minutes late for dinner tonight">tell Sarah I'll be late</a>
-    <a class="chip" href="#" data-bring="milk, eggs, bread and a dozen apples">milk, eggs, bread&hellip;</a>
-    <a class="chip" href="#" data-bring="remember the wifi password is sunflower42">remember the wifi password</a>
+  <div class="bring-wrap" id="bring">
+    <div class="bring-label">Or just bring anything — a claim, a question, a note, a letter — and it finds the way:</div>
+    <div class="draw" id="drawForm">
+      <div class="fmtbar" id="fmtbar" aria-label="Formatting">
+        <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button type="button" data-cmd="formatBlock" data-val="h2" title="Heading">H</button>
+        <button type="button" data-cmd="formatBlock" data-val="p" title="Normal text">¶</button>
+        <button type="button" data-cmd="insertUnorderedList" title="List">&bull;&nbsp;List</button>
+        <span class="sp"></span>
+        <button type="button" id="newDocBtn" class="docbtn" title="Start a new document">＋&nbsp;New</button>
+        <a href="/kept.html#docs" class="docbtn" title="Your saved documents">Documents</a>
+        <span class="saved" id="savedTag"></span>
+      </div>
+      <div id="uq" class="doc" contenteditable="true" role="textbox" aria-multiline="true"
+           data-ph="A claim to check, a question, a note, a letter, or a whole chapter — bring it. It saves itself and finds the right home. Drop a file in too. ⌘/Ctrl+Enter to act."></div>
+      <div class="draw-actions">
+        <button id="ubtn" type="button" onclick="nhBring()" data-i18n="work.bring_button">Do something with it &rarr;</button>
+        <span class="draw-hint">It saves itself · <b>⌘/Ctrl+Enter</b> to act · <b>drop a file</b> to bring it in · it determines the path — kept, sent, listed, or verified.</span>
+      </div>
+    </div>
+    <div id="ures"></div>
+    <div class="chips" id="uchips">
+      <a class="chip" href="#" data-bring="91 is a prime number">91 is a prime number</a>
+      <a class="chip" href="#" data-bring="the derivative of x squared is 2x">the derivative of x&sup2; is 2x</a>
+      <a class="chip" href="#" data-bring="teach me how fractions work">teach me fractions</a>
+      <a class="chip" href="#" data-bring="tell Sarah I'll be 15 minutes late for dinner tonight">tell Sarah I'll be late</a>
+      <a class="chip" href="#" data-bring="milk, eggs, bread and a dozen apples">milk, eggs, bread&hellip;</a>
+    </div>
   </div>
   <div id="personal"></div>
-
-  <div class="faceslabel">One workspace · four ways in. Type above and it points you to the right one — or go straight there:</div>
-  <div class="faces" id="faces" aria-label="The workspace">
-    <a class="face" href="/atlas.html"><span class="fn">Atlas</span><span class="fd">The map — see how any topic connects to every other.</span></a>
-    <a class="face" href="/almanac.html"><span class="fn">Almanac</span><span class="fd">Practical wisdom, tested against the record.</span></a>
-    <a class="face" href="/walk.html"><span class="fn">Shepherd</span><span class="fd">Walk a hard decision through the four gates.</span></a>
-    <a class="face" href="/scribe.html"><span class="fn">Scribe</span><span class="fd">Write, compose, and keep what matters.</span></a>
-  </div>
 
   <div class="brainwrap">
     <div class="bh" id="breathbh">the brain &middot; the verified body — what you bring lands here, on ground already proven</div>
