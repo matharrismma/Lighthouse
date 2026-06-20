@@ -57,7 +57,7 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
     "mathematics":         frozenset({"reasoning"}),
     "statistics":          frozenset({"reasoning"}),
     "computer_science":    frozenset({"encoding", "reasoning", "time_sequence"}),
-    "biology":             frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence"}),
+    "biology":             frozenset({"encoding", "metabolism", "physical_substance", "conservation_balance", "time_sequence", "discreteness"}),
     "governance":          frozenset({"reasoning", "authority_trust", "time_sequence"}),
     "scripture":           frozenset({"encoding", "reasoning", "authority_trust", "time_sequence"}),
     "linguistics":         frozenset({"encoding", "reasoning"}),
@@ -813,6 +813,10 @@ def render_matrix() -> str:
         "authority_trust": "aut",
         "time_sequence": "tim",
         "conservation_balance": "csv",
+        "uncertainty": "unc",
+        "discreteness": "dsc",
+        "order": "ord",
+        "symmetry": "sym",
     }
     header = "| axis | " + " | ".join(short[d] for d in DIMENSIONS) + " | depth |"
     sep = "|------|" + "|".join(["----"] * len(DIMENSIONS)) + "|------:|"
