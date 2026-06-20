@@ -60,18 +60,18 @@
       <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent,#c9a87c);font-weight:600;margin-bottom:10px;">Quick start · 30 seconds</div>
       <p style="font-size:14px;color:var(--text-dim,#b3aabd);margin:0 0 12px;line-height:1.5;">Three calls, in order. Each is independent — verify each works before the next.</p>
       <div style="background:rgba(0,0,0,0.3);border-radius:6px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text,#ede7db);overflow-x:auto;white-space:pre;line-height:1.65;">
-<span style="color:var(--muted,#6e6878);"># 1. Read the engine's identity (always do this first)</span>
+<span style="color:var(--muted,#9c95a9);"># 1. Read the engine's identity (always do this first)</span>
 curl https://narrowhighway.com/identity
 
-<span style="color:var(--muted,#6e6878);"># 2. Verify a deterministic claim (chemistry domain)</span>
+<span style="color:var(--muted,#9c95a9);"># 2. Verify a deterministic claim (chemistry domain)</span>
 curl -X POST https://narrowhighway.com/verify \
   -H "Content-Type: application/json" \
   -d '{"tool":"verify_chemistry","spec":{"equation":"2 H2 + O2 -&gt; 2 H2O"}}'
 
-<span style="color:var(--muted,#6e6878);"># 3. Connect via MCP (Model Context Protocol)</span>
-<span style="color:var(--muted,#6e6878);"># Add this URL to your MCP client:</span>
+<span style="color:var(--muted,#9c95a9);"># 3. Connect via MCP (Model Context Protocol)</span>
+<span style="color:var(--muted,#9c95a9);"># Add this URL to your MCP client:</span>
 https://narrowhighway.com/mcp/sse</div>
-      <p style="font-size:12.5px;color:var(--muted,#6e6878);margin:10px 0 0;font-family:'Crimson Pro',Georgia,serif;font-style:italic;">No keys. No accounts. No rate limit on /verify. The engine eliminates what is not the answer.</p>
+      <p style="font-size:12.5px;color:var(--muted,#9c95a9);margin:10px 0 0;font-family:'Crimson Pro',Georgia,serif;font-style:italic;">No keys. No accounts. No rate limit on /verify. The engine eliminates what is not the answer.</p>
     </div>
 
     <!-- Robots crosslink — separate page for embodied/autonomous agents -->

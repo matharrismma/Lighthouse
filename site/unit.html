@@ -19,10 +19,10 @@
   <style>
     body { font-family: 'Inter', sans-serif; background:#0a0810; color:#ede7db; margin:0; }
     main { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
-    .crumb { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; color:#6e6878; margin-bottom:10px; }
+    .crumb { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; color:#9c95a9; margin-bottom:10px; }
     .crumb a { color:#c9a87c; text-decoration:none; }
     h1.title { font-family:'Crimson Pro', Georgia, serif; font-weight:600; font-size:32px; margin:4px 0 14px; line-height:1.2; }
-    .meta { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:24px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#6e6878; letter-spacing:0.06em; }
+    .meta { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:24px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#9c95a9; letter-spacing:0.06em; }
     .meta span b { color:#c9a87c; }
     .section { background:#0f0d11; border:1px solid #29232f; border-radius:10px; padding:22px 26px; margin-bottom:18px; }
     .section h2 { font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#c9a87c; margin:0 0 10px; font-weight:600; }
@@ -63,7 +63,7 @@
     .nav-row a { color:#c9a87c; text-decoration:none; border:1px solid #29232f; padding:8px 14px; border-radius:6px; transition:all 0.12s; }
     .nav-row a:hover { border-color:#c9a87c; }
     .nav-row .prereqs-warn { color:#c96c6c; font-family:'Crimson Pro', Georgia, serif; font-style:italic; font-size:13px; }
-    .empty { background:#161320; padding:40px; text-align:center; border-radius:10px; border:1px dashed #29232f; color:#6e6878; font-style:italic; font-family:'Crimson Pro', Georgia, serif; }
+    .empty { background:#161320; padding:40px; text-align:center; border-radius:10px; border:1px dashed #29232f; color:#9c95a9; font-style:italic; font-family:'Crimson Pro', Georgia, serif; }
   </style>
   <script src="/i18n.js"></script>
   <script src="/a11y.js"></script>
@@ -198,7 +198,7 @@
         <span>id: <b>${esc(uid)}</b></span>
         ${unit.next ? (nextExists
           ? `<span>next: <b><a href="/unit.html?id=${encodeURIComponent(unit.next)}" style="color:#c9a87c;text-decoration:none;">${esc(unit.next)}</a></b></span>`
-          : `<span>next (coming): <b style="color:#6e6878;">${esc(unit.next)}</b></span>`
+          : `<span>next (coming): <b style="color:#9c95a9;">${esc(unit.next)}</b></span>`
         ) : ''}
       </div>
 

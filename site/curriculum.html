@@ -28,12 +28,12 @@
     .summary-row { display:flex; gap:14px; flex-wrap:wrap; margin:24px 0 36px; }
     .summary-card { flex:1; min-width:150px; background:#161320; border:1px solid #29232f; border-radius:10px; padding:16px 20px; }
     .summary-num { font-family:'JetBrains Mono', monospace; font-size:28px; font-weight:600; color:#c9a87c; }
-    .summary-label { font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em; color:#6e6878; text-transform:uppercase; margin-top:4px; }
+    .summary-label { font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:0.14em; color:#9c95a9; text-transform:uppercase; margin-top:4px; }
     .track { background:#0f0d11; border:1px solid #29232f; border-radius:12px; padding:24px 26px; margin-bottom:24px; }
     .track-head { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
     .track-glyph { font-size:28px; }
     .track-name { font-family:'Crimson Pro', Georgia, serif; font-size:22px; font-weight:600; }
-    .track-count { font-family:'JetBrains Mono', monospace; font-size:11px; color:#6e6878; letter-spacing:0.1em; text-transform:uppercase; }
+    .track-count { font-family:'JetBrains Mono', monospace; font-size:11px; color:#9c95a9; letter-spacing:0.1em; text-transform:uppercase; }
     .track-blurb { color:#b3aabd; font-family:'Crimson Pro', Georgia, serif; font-style:italic; font-size:14.5px; line-height:1.5; margin:-6px 0 14px; max-width:70ch; }
     .units { display:flex; flex-wrap:wrap; gap:10px; }
     .unit { background:#161320; border:1px solid #29232f; border-left:3px solid #29232f; border-radius:8px; padding:12px 16px; min-width:240px; flex:1; max-width:340px; text-decoration:none; color:inherit; transition:all 0.12s; position:relative; cursor:pointer; }
@@ -41,13 +41,13 @@
     .unit.mastered { border-left-color:#6fc47c; }
     .unit.working  { border-left-color:#c4a030; }
     .unit.blocked  { opacity:0.55; }
-    .unit-seq { font-family:'JetBrains Mono', monospace; font-size:10px; color:#6e6878; letter-spacing:0.1em; }
+    .unit-seq { font-family:'JetBrains Mono', monospace; font-size:10px; color:#9c95a9; letter-spacing:0.1em; }
     .unit-title { color:#ede7db; font-size:14.5px; font-weight:500; margin:2px 0 4px; line-height:1.35; }
     .unit-state { font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-top:6px; display:inline-block; }
     .unit-state.mastered { color:#6fc47c; }
     .unit-state.working  { color:#c4a030; }
     .unit-state.blocked  { color:#c96c6c; }
-    .unit-prereq { font-family:'JetBrains Mono', monospace; font-size:10px; color:#6e6878; margin-top:6px; }
+    .unit-prereq { font-family:'JetBrains Mono', monospace; font-size:10px; color:#9c95a9; margin-top:6px; }
     .visitor-row { display:flex; align-items:center; gap:14px; margin-bottom:18px; padding:10px 14px; background:#161320; border:1px solid #29232f; border-radius:8px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#b3aabd; }
     .visitor-row .vid { color:#c9a87c; }
     .visitor-row button { background:transparent; border:1px solid #29232f; color:#b3aabd; padding:4px 10px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:11px; }
@@ -89,7 +89,7 @@
       <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px;">
         <span style="font-size:24px;">✨</span>
         <span style="font-family:'Crimson Pro',Georgia,serif;font-size:22px;font-weight:600;">Start here</span>
-        <span id="startHereCount" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6e6878;letter-spacing:0.1em;text-transform:uppercase;"></span>
+        <span id="startHereCount" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#9c95a9;letter-spacing:0.1em;text-transform:uppercase;"></span>
       </div>
       <p style="color:#b3aabd;font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.5;margin:-4px 0 14px;max-width:70ch;">
         Units that are ready right now — no prerequisites in the way. Pick one and click through.
@@ -102,8 +102,8 @@
       <h2 style="font-family:'Crimson Pro',Georgia,serif;font-weight:600;font-size:22px;margin:0;">All tracks</h2>
       <div style="display:flex;gap:10px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;">
         <button id="toggleAll" type="button" style="background:transparent;border:1px solid #29232f;color:#c9a87c;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;">expand all ▾</button>
-        <span class="vid-info" style="color:#6e6878;">visitor: <span class="vid" id="vid">…</span></span>
-        <button id="resetBtn" type="button" style="background:transparent;border:1px solid #29232f;color:#6e6878;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;" title="Clear all mastery marks on this device">reset progress</button>
+        <span class="vid-info" style="color:#9c95a9;">visitor: <span class="vid" id="vid">…</span></span>
+        <button id="resetBtn" type="button" style="background:transparent;border:1px solid #29232f;color:#9c95a9;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;" title="Clear all mastery marks on this device">reset progress</button>
       </div>
     </div>
 
@@ -211,7 +211,7 @@
       document.getElementById('startHereCount').textContent = `${startHereUnits.length} ready`;
       readyToStart = startHereUnits.length;
     } else {
-      startHereEl.innerHTML = '<p style="color:#6e6878;font-style:italic;font-family:\'Crimson Pro\',Georgia,serif;padding:14px 0;">Nothing new to start — you have working units in progress, or you have mastered the start of every track. Pick one from below to continue.</p>';
+      startHereEl.innerHTML = '<p style="color:#9c95a9;font-style:italic;font-family:\'Crimson Pro\',Georgia,serif;padding:14px 0;">Nothing new to start — you have working units in progress, or you have mastered the start of every track. Pick one from below to continue.</p>';
       document.getElementById('startHereCount').textContent = 'all in progress';
     }
 
@@ -234,10 +234,10 @@
           <span class="track-glyph">${meta.glyph}</span>
           <span class="track-name">${esc(meta.name)}</span>
           <span class="track-count">${units.length} unit${units.length===1?'':'s'} · ${masteredInTrack} mastered · ${readyInTrack} ready</span>
-          <span class="collapse-caret" style="margin-left:auto;color:#6e6878;font-family:'JetBrains Mono',monospace;font-size:11px;">▾</span>
+          <span class="collapse-caret" style="margin-left:auto;color:#9c95a9;font-family:'JetBrains Mono',monospace;font-size:11px;">▾</span>
         </div>
         <p class="track-blurb">${esc(meta.blurb)}</p>
-        <div class="units track-units">${cards.map(c => c.html).join('') || '<p style="color:#6e6878;font-style:italic;">No units yet in this track.</p>'}</div>
+        <div class="units track-units">${cards.map(c => c.html).join('') || '<p style="color:#9c95a9;font-style:italic;">No units yet in this track.</p>'}</div>
       `;
       tracksEl.appendChild(trackEl);
     }
