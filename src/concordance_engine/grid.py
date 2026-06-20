@@ -244,8 +244,10 @@ AXIS_DIMENSIONS: Dict[str, FrozenSet[str]] = {
 # the umbrella connects them.
 UMBRELLAS: Dict[str, Tuple[str, ...]] = {
     "biology":    ("genetics", "agriculture", "nutrition", "exercise_science"),
+    "chemistry":  ("periodic_table", "molecular_geometry"),
+    "geology":    ("soil_science",),
     "governance": ("governance_decision_packet",),
-    "physics":    ("physics_conservation", "physics_dimensional"),
+    "physics":    ("physics_conservation", "physics_dimensional", "physical_constants", "atomic"),
     "statistics": (
         "statistics_pvalue",
         "statistics_multiple_comparisons",
