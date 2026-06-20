@@ -301,6 +301,13 @@ MEASURE_AXES: Tuple[str, ...] = (
 # set in their own right (the ones physics seeks to unify).
 FORCES: Tuple[str, ...] = ("gravity", "electromagnetism", "strong_nuclear", "weak_nuclear")
 
+# ── META_AXES: placed on the map but verified by BEING the substrate ─────
+# A meta-axis is a real grid entry that has no domain verifier and is not a
+# subsystem — it is the grounding layer itself (Layer 0), checked by the
+# sources it carries, not by a per-domain verifier. Exempt from the
+# "every grid entry has a verifier or is a subsystem" rule by design.
+META_AXES: FrozenSet[str] = frozenset({"layer_zero_grounding"})
+
 
 # ── Alias map ──────────────────────────────────────────────────────────
 # Deliberate synonyms so natural-language dispatch ("ocean", "thermo",

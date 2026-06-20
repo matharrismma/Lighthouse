@@ -68,6 +68,9 @@ def test_every_grid_entry_has_a_verifier_or_is_a_subsystem():
     allowed_extra: set = set()
     for children in grid.UMBRELLAS.values():
         allowed_extra.update(children)
+    # Meta-axes (e.g. layer_zero_grounding) are placed on the map but verified
+    # by being the grounding substrate, not by a per-domain verifier.
+    allowed_extra.update(getattr(grid, "META_AXES", set()))
     truly_extra = extra - allowed_extra
     assert not truly_extra, f"grid entries without a verifier: {sorted(truly_extra)}"
 
