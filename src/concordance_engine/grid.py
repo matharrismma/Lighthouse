@@ -257,6 +257,51 @@ UMBRELLAS: Dict[str, Tuple[str, ...]] = {
 }
 
 
+# ── The two axis-systems (2026-06-20 reclassification) ──────────────────
+# The 11 conceptual DIMENSIONS were a conflation of two different KINDS of axis.
+# Held apart honestly they are the two trees applied to the axes themselves:
+#   MEASURE — physical/embodied axes (how science quantifies; the matrix tree)
+#   MEANING — conceptual axes (how meaning structures; the organic/Word tree)
+#   BRIDGE  — the math BOTH trees share. This is the harmony-of-science-and-math
+#             point itself: invariance, quantization, likelihood live in physics
+#             AND in abstract structure.
+# NOTE (honest): `order` and `encoding` are borderline (information theory is
+# math); their placement is a judgment call that shifts the per-kind counts.
+DIMENSION_KIND: Dict[str, str] = {
+    "physical_substance": "measure", "conservation_balance": "measure",
+    "metabolism": "measure", "time_sequence": "measure",
+    "reasoning": "meaning", "authority_trust": "meaning",
+    "order": "meaning", "encoding": "meaning",
+    "symmetry": "bridge", "discreteness": "bridge", "uncertainty": "bridge",
+}
+
+# ── MEASURES: the physical base quantities (dimensional-analysis basis) ──
+# Every physical quantity is a product of powers of these. Scale (length) and
+# time are two; the rest are listed. These are a DIFFERENT category from the
+# conceptual dimensions above — the substrate things are measured against.
+# HONEST CAVEAT: the COUNT is a unit convention, not a deep fact. `amount`
+# (a mole is a count) and `luminous_intensity` (weighted by the human eye) are
+# bookkeeping; the physically fundamental set reduces to ~5 (length, time, mass,
+# electric_charge, temperature), and in natural units fewer still. The deep
+# things are the QUANTITIES, not their number. Force, energy, momentum, pressure
+# are DERIVED from these (e.g. force = mass*length/time^2) — NOT base axes.
+MEASURE_AXES: Tuple[str, ...] = (
+    "length",            # scale / space
+    "time",
+    "mass",
+    "electric_charge",
+    "temperature",
+    "amount",            # conventional — a count of entities
+    "luminous_intensity",  # conventional — anthropocentric (human photopic response)
+)
+
+# ── FORCES: the fundamental interactions (a THIRD list — how things ACT) ──
+# Not measures and not meaning. Force is dimensionally DERIVED, so it is not a
+# base measure-axis; but the four fundamental interactions ARE a fundamental
+# set in their own right (the ones physics seeks to unify).
+FORCES: Tuple[str, ...] = ("gravity", "electromagnetism", "strong_nuclear", "weak_nuclear")
+
+
 # ── Alias map ──────────────────────────────────────────────────────────
 # Deliberate synonyms so natural-language dispatch ("ocean", "thermo",
 # "weather") routes to canonical verifiers without forcing the caller
