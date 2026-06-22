@@ -55,7 +55,7 @@
 <h1>Search the substrate</h1>
 
 <div class="intro">
-  Search across hymns, recipes, maker projects, almanac entries, devotionals, and curriculum. Powered by the same retrieval engine as the <a href="/walk.html">Shepherd's Room</a> — no external AI, no tracking, results scored locally.
+  Search the whole keeping — every verified card across Scripture, the classics, the fathers, the dictionary, the almanac, and more. Ranked locally; no external AI, no tracking. Don't see it? Bring it to <a href="/">the Walk</a> to verify or weigh it.
 </div>
 
 <div class="search-row">
@@ -79,53 +79,38 @@
   let currentSource = null;
   let lastQuery = '';
 
-  fetch('/shepherd/corpus.stats', { cache: 'no-store' })
+  if ($filterRow) $filterRow.style.display = 'none';
+  fetch('/cards/stats', { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (j) {
-      if (!j) { $stats.textContent = 'Engine offline — search unavailable.'; return; }
-      const parts = Object.entries(j.by_source || {}).map(function (e) { return e[0] + '=' + e[1]; });
-      $stats.textContent = 'Indexed: ' + j.total + ' docs (' + parts.join(', ') + ').';
-      $filterRow.innerHTML = '<strong style="color:#6a5a3a;font-size:0.85em;">Filter:</strong> ' +
-        '<button class="filter-btn active" data-src="">All</button>' +
-        Object.keys(j.by_source || {}).map(function (s) {
-          return '<button class="filter-btn" data-src="' + s + '">' + s + '</button>';
-        }).join('');
-      $filterRow.querySelectorAll('.filter-btn').forEach(function (b) {
-        b.addEventListener('click', function () {
-          $filterRow.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
-          b.classList.add('active');
-          currentSource = b.dataset.src || null;
-          if (lastQuery) doSearch(lastQuery);
-        });
-      });
+      var n = j && j.total;
+      $stats.textContent = n ? ('Searching the whole keeping — ' + Number(n).toLocaleString() + ' cards.') : 'Searching the keeping.';
     })
-    .catch(function () { $stats.textContent = 'Engine offline.'; });
+    .catch(function () { $stats.textContent = 'Searching the keeping.'; });
 
   function doSearch(q) {
     if (!q.trim()) { $results.innerHTML = ''; return; }
     lastQuery = q;
-    const url = '/shepherd/context?q=' + encodeURIComponent(q) + '&k=20' +
-      (currentSource ? '&source=' + encodeURIComponent(currentSource) : '');
-    fetch(url, { cache: 'no-store' })
+    $results.innerHTML = '<div class="empty">Searching the keeping…</div>';
+    fetch('/search?q=' + encodeURIComponent(q) + '&limit=30', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
-        const results = (j && j.results) || [];
+        var results = (j && j.results) || [];
         if (results.length === 0) {
-          $results.innerHTML = '<div class="empty">No matches for "' + esc(q) + '"' +
-            (currentSource ? ' in <strong>' + esc(currentSource) + '</strong>' : '') + '. Try different words.</div>';
+          $results.innerHTML = '<div class="empty">No card in the keeping matches "' + esc(q) + '". Try different words — or bring it to <a href="/">the Walk</a> to verify or weigh it.</div>';
           return;
         }
         $results.innerHTML = results.map(function (r) {
+          var src = (r.source && r.source.label) || '';
           return '<div class="result">' +
-            '<div class="score">score ' + (r.score || 0).toFixed(2) + '</div>' +
-            '<div class="src">' + esc(r.source) + '</div>' +
-            '<h3><a href="' + esc(r.url) + '">' + esc(r.title) + '</a></h3>' +
-            (r.ref ? '<div class="ref">' + esc(r.ref) + '</div>' : '') +
+            '<div class="src">' + esc(r.shelf || r.kind || 'card') + '</div>' +
+            '<h3><a href="' + esc(r.url || ('/c/' + r.id)) + '">' + esc(r.title || r.id) + '</a></h3>' +
+            (src ? '<div class="ref">' + esc(src) + '</div>' : '') +
             (r.snippet ? '<div class="snippet">' + esc(r.snippet) + '</div>' : '') +
             '</div>';
         }).join('');
       })
-      .catch(function () { $results.innerHTML = '<div class="empty">Engine offline.</div>'; });
+      .catch(function () { $results.innerHTML = '<div class="empty">Could not reach search just now — try again.</div>'; });
   }
 
   function esc(s) { return String(s || '').replace(/[<>&"]/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;' }[c]; }); }
