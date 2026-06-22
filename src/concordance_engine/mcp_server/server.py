@@ -2378,7 +2378,7 @@ def almanac(
             if score > 0:
                 scored.append((score, e))
         scored.sort(key=lambda se: -se[0])
-        return {
+        out = {
             "view": "query",
             "query": query,
             "predicted_axes": sorted(predicted),
@@ -2390,6 +2390,11 @@ def almanac(
             "total_matched": len(scored),
             "total_in_book": len(book),
         }
+        return _attach_corpus_also(
+            out, query,
+            "Cards from the whole keeping matching this query — beyond the "
+            "curated almanac entries above.",
+        )
 
     # ── default: full table of contents
     return {
@@ -2830,6 +2835,51 @@ def _engine_post(path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         return {"error": f"{type(e).__name__}: {e}", "url": url}
 
 
+def _corpus_also(query: str, limit: int = 5,
+                 exclude_ids: Optional[set] = None) -> List[Dict[str, Any]]:
+    """The whole ~11k-card keeping, surfaced ALONGSIDE a topical tool's
+    curated facet so an agent is never siloed to one lens. Ranked by the same
+    engine as GET /search. The caller labels these clearly (e.g.
+    'also_in_the_keeping') and NEVER lets them replace the curated result.
+
+    Returns lightweight card hits: id, title, shelf, snippet, /c/<id> url."""
+    q = (query or "").strip()
+    if not q:
+        return []
+    pad = len(exclude_ids) if exclude_ids else 0
+    res = _engine_get("/search", q=q, limit=max(1, min(limit + pad, 50)))
+    out: List[Dict[str, Any]] = []
+    if isinstance(res, dict):
+        for r in (res.get("results") or []):
+            cid = r.get("id")
+            if not cid or (exclude_ids and cid in exclude_ids):
+                continue
+            out.append({
+                "id": cid,
+                "title": r.get("title") or cid,
+                "shelf": r.get("shelf"),
+                "snippet": r.get("snippet") or "",
+                "url": "https://narrowhighway.com/c/" + cid,
+            })
+            if len(out) >= limit:
+                break
+    return out
+
+
+def _attach_corpus_also(result: Dict[str, Any], query: str, note: str,
+                        limit: int = 5) -> Dict[str, Any]:
+    """Additively attach an 'also_in_the_keeping' section to a topical tool's
+    result dict. No-op on errors or empty corpus hits — never disturbs the
+    curated payload."""
+    if not isinstance(result, dict) or result.get("error"):
+        return result
+    cards = _corpus_also(query, limit=limit)
+    if cards:
+        result["also_in_the_keeping"] = {"note": note, "count": len(cards),
+                                         "cards": cards}
+    return result
+
+
 @mcp.tool()
 def apothecary_compound(condition: str, lang: str = "en") -> Dict[str, Any]:
     """Compound a remedy for a stated condition from across the substrate.
@@ -2846,8 +2896,15 @@ def apothecary_compound(condition: str, lang: str = "en") -> Dict[str, Any]:
         lang: 2-letter language code for Scripture text (default 'en').
             Supports en/es/zh/fr/pt/de/ko/ja/ar/ru/fa/vi/it/my/uk/nl/ro/ht/he/la/hi/sw.
 
-    Returns the full compound card with all ingredients."""
-    return _engine_get("/apothecary", condition=condition, lang=lang)
+    Returns the full compound card with all ingredients, plus an
+    'also_in_the_keeping' section of broader corpus cards on the same
+    condition (reference, not part of the compounded remedy)."""
+    result = _engine_get("/apothecary", condition=condition, lang=lang)
+    return _attach_corpus_also(
+        result, condition,
+        "Broader cards from the whole keeping on this condition — reference, "
+        "NOT part of the compounded remedy; search wider from here.",
+    )
 
 
 @mcp.tool()
@@ -2918,8 +2975,15 @@ def packets_search(query: str, limit: int = 12, kinds: Optional[str] = None) -> 
         limit: Max packets to return (default 12, max 500).
         kinds: Optional comma-separated kinds filter (e.g. 'phonics_unit,herb_monograph').
 
-    Returns: {q, total, packets: [{kind, id, title, verdict, domains, axes, summary, permalink, score}]}"""
-    return _engine_get("/index/packets/search", q=query, limit=limit, kinds=kinds)
+    Returns: {q, total, packets: [{kind, id, title, verdict, domains, axes, summary, permalink, score}]}
+    plus an 'also_in_the_keeping' section of matching cards from the whole
+    ~11k-card keeping (additive — the packet index does not cover every card)."""
+    result = _engine_get("/index/packets/search", q=query, limit=limit, kinds=kinds)
+    return _attach_corpus_also(
+        result, query,
+        "Cards from the whole keeping matching this query — additive to the "
+        "packet results above.",
+    )
 
 
 @mcp.tool()
