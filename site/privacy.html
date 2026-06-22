@@ -43,11 +43,15 @@ no receipt is created.</p>
 It is a conduit that verifies and records; it does not generate answers or act as an authority.</p>
 
 <h2>Operational data</h2>
-<p>As is standard for web services, requests may be logged for reliability, security, and abuse
-prevention. The service does not require an account and does not request personal information.</p>
-<!-- OPERATOR TODO: if you want to be specific, state here exactly what is logged and for how long
-     (request metadata, IP addresses, rate-limit counters) and any third-party infrastructure
-     providers. The sentence above is deliberately generic but true; refine it to match practice. -->
+<p>Requests are logged for reliability, security, and abuse prevention, and the logging is
+privacy-preserving: the service records a <strong>truncated IP prefix</strong> (never your full IP
+address), a coarse user-agent class, the request path, and the referring page — used only in
+aggregate for traffic analysis and rate-limiting. It does not require an account, does not request
+personal information, and uses no third-party advertising trackers.</p>
+<!-- OPERATOR TODO: confirm the exact RETENTION WINDOW and name the hosting/infrastructure provider
+     before final publish. The claims above match the privacy-preserving visit tracker (truncated IP
+     prefixes, ua-class, path, referrer — verified against /visits/stats). Retention period not yet
+     stated because it is the operator's to set. -->
 
 <h2>Contact</h2>
 <p>Questions about this policy can be raised through <a href="https://narrowhighway.com">narrowhighway.com</a>.</p>
