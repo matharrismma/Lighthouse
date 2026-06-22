@@ -148,3 +148,19 @@
     margin-bottom: 22px;
   }
 }
+
+/* ── Accessibility: lens-bar pills meet the 44px minimum tap target ──
+ * The lens bar is defined per-page (.lens-bar a { padding: 4px 11px }),
+ * leaving the pills ~24px tall — under the WCAG 2.5.5 / mobile 44px target.
+ * This shared override raises every lens page at once (all 18 link this
+ * file) without editing them individually. The :link/:visited selectors
+ * carry higher specificity than the inline `.lens-bar a`, so the override
+ * wins regardless of stylesheet source order; horizontal padding is left
+ * to each page so the pill aesthetic is unchanged. */
+.lens-bar a:link,
+.lens-bar a:visited {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+}
