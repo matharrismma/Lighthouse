@@ -1,143 +1,16 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Concordance &mdash; where Scripture echoes Scripture</title>
-<style>
-:root{--bg:#0a0b0e;--tx:#e9eaee;--mut:#9aa0ad;--line:#23262d;--card:#14161b;
-      --grn:#3fb950;--amb:#d29922;--acc:#4493f8}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);line-height:1.5;
- font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
- padding:2rem 1rem}
-.wrap{max-width:760px;margin:0 auto}
-h1{font-weight:500;font-size:22px;margin:0 0 .2rem}
-.sub{color:var(--mut);font-size:14px;margin-bottom:1.4rem}
-.bar{display:flex;gap:8px;margin-bottom:.5rem}
-.bar input{flex:1;background:var(--card);border:1px solid var(--line);border-radius:8px;
- color:var(--tx);padding:.65rem .8rem;font-size:15px}
-.bar input:focus{outline:none;border-color:var(--acc)}
-.bar button{background:var(--acc);border:none;border-radius:8px;color:#06101f;font-weight:600;
- padding:0 1.1rem;font-size:14px;cursor:pointer}
-.bar button:disabled{opacity:.5;cursor:default}
-.egs{font-size:12px;color:var(--mut);margin-bottom:1.4rem}
-.egs a{color:var(--acc);text-decoration:none;margin-right:.7rem;cursor:pointer}
-.verse{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--acc);
- border-radius:8px;padding:.9rem 1rem;margin:1.2rem 0;font-size:16px}
-.verse .ref{color:var(--mut);font-size:13px;margin-bottom:.25rem}
-.sec{font-size:13px;color:var(--mut);margin:1.6rem 0 .6rem;text-transform:uppercase;
- letter-spacing:.04em}
-.thread{display:flex;flex-wrap:wrap;gap:7px}
-.chip{border:1px solid var(--line);border-radius:14px;padding:.25rem .7rem;font-size:13px;
- background:var(--card);color:var(--tx)}
-.chip.strong{border-color:var(--grn);color:#bff5cd}
-.chip .n{color:var(--mut);font-size:11px;margin-left:.35rem}
-.xref{border-bottom:1px solid var(--line);padding:.7rem 0}
-.xref:last-child{border-bottom:none}
-.xref .top{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
-.xref .r{color:var(--acc);font-weight:600;font-size:14px;text-decoration:none}
-.xref .v{color:var(--mut);font-size:11px;white-space:nowrap}
-.xref .t{color:#cfd3da;font-size:14px;margin-top:.2rem}
-.note{color:var(--mut);font-size:12.5px;font-style:italic;margin:1rem 0 0;
- border-left:2px solid var(--line);padding-left:.7rem}
-.foot{color:#6b7280;font-size:12px;margin-top:2.2rem;border-top:1px solid var(--line);
- padding-top:1rem}
-.foot a{color:var(--mut)}
-.err{color:var(--amb);font-size:14px;margin:1rem 0}
-.dim{color:var(--mut)}
-#out{min-height:40px}
-</style>
+<title>Concordance → The Codex · Narrow Highway</title>
+<link rel="canonical" href="https://narrowhighway.com/codex.html">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=/codex.html#concordance">
+<style>body{font-family:Georgia,serif;background:#fafaf6;color:#2a2a28;max-width:40em;margin:4em auto;padding:0 1.2em;line-height:1.6}a{color:#806010}</style>
 </head>
 <body>
-<div class="wrap">
-<h1>Concordance</h1>
-<div class="sub">Enter a verse. See the passages Scripture itself links to it &mdash; and the thread where those echoes converge.</div>
-
-<div class="bar">
-  <input id="ref" type="text" placeholder="John 3:16" autocomplete="off" spellcheck="false">
-  <button id="go">Find</button>
-</div>
-<div class="egs">Try:
-  <a data-ref="John 3:16">John 3:16</a>
-  <a data-ref="Romans 8:28">Romans 8:28</a>
-  <a data-ref="Genesis 1:1">Genesis 1:1</a>
-  <a data-ref="Psalm 23:1">Psalm 23:1</a>
-  <a data-ref="Isaiah 53:5">Isaiah 53:5</a>
-</div>
-
-<div id="out"></div>
-
-<div class="foot">
-The thread is a deterministic term-overlap across the linked passages &mdash; it surfaces
-<em>where</em> Scripture's echoes converge, not a verdict on what they mean. Cross-reference
-data courtesy of <a href="https://www.openbible.info/labs/cross-references/">openbible.info</a>
-(CC&nbsp;BY), based on the public-domain Treasury of Scripture Knowledge. Text: World English
-Bible (public domain). The engine surfaces an attributed index; it never authors or endorses a
-linkage. <span class="dim">&mdash; the concordance of reality</span>
-</div>
-</div>
-
-<script>
-const out = document.getElementById('out');
-const inp = document.getElementById('ref');
-const btn = document.getElementById('go');
-
-function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-
-async function find(ref){
-  ref = (ref||'').trim();
-  if(!ref) return;
-  inp.value = ref;
-  btn.disabled = true;
-  out.innerHTML = '<div class="dim">Gathering the witnesses&hellip;</div>';
-  try{
-    const [xrRes, coRes] = await Promise.all([
-      fetch('/scripture/cross-references?ref='+encodeURIComponent(ref)+'&limit=12').then(r=>r.json()),
-      fetch('/scripture/concord?across_xrefs=true&limit=12&ref='+encodeURIComponent(ref)).then(r=>r.json())
-    ]);
-    render(ref, xrRes, coRes);
-  }catch(e){
-    out.innerHTML = '<div class="err">Could not reach the concordance ('+esc(String(e))+').</div>';
-  }
-  btn.disabled = false;
-}
-
-function render(ref, xr, co){
-  let h = '';
-  if(xr.status !== 'ok'){
-    h = '<div class="err">'+esc(xr.detail || ('No cross references for "'+ref+'". Try a single verse like John 3:16.'))+'</div>';
-    out.innerHTML = h; return;
-  }
-  // the verse
-  h += '<div class="verse"><div class="ref">'+esc(xr.reference)+' &middot; WEB</div>'+esc(xr.verse_text||'')+'</div>';
-  // the convergence thread (from cross-passage concord)
-  if(co && co.status === 'ok' && (co.concord_terms||[]).length){
-    h += '<div class="sec">The thread &mdash; where its echoes converge</div><div class="thread">';
-    co.concord_terms.filter(t=>t.in_sources>=2).slice(0,16).forEach(t=>{
-      h += '<span class="chip'+(t.in_sources>=3?' strong':'')+'">'+esc(t.term)+'<span class="n">'+t.in_sources+'</span></span>';
-    });
-    h += '</div>';
-  }
-  // the cross references
-  h += '<div class="sec">Cross references &mdash; '+xr.count+' passages Scripture links here</div>';
-  (xr.cross_references||[]).forEach(x=>{
-    h += '<div class="xref"><div class="top">'
-      +'<span class="r">'+esc(x.ref)+'</span>'
-      +'<span class="v">vote '+x.votes+'</span></div>'
-      +'<div class="t">'+esc(x.text||'')+'</div></div>';
-  });
-  h += '<div class="note">Strong threads (green) appear in 3+ of the linked passages. '
-     + 'A deterministic overlap across attributed Scripture &mdash; not a verdict on meaning.</div>';
-  out.innerHTML = h;
-}
-
-btn.addEventListener('click', ()=>find(inp.value));
-inp.addEventListener('keydown', e=>{ if(e.key==='Enter') find(inp.value); });
-document.querySelectorAll('.egs a').forEach(a=>{
-  a.addEventListener('click', ()=>find(a.getAttribute('data-ref')));
-});
-find('John 3:16');
-</script>
+<p>The <b>Concordance</b> is now a tab inside <a href="/codex.html#concordance">The Codex</a>. Redirecting…</p>
+<p>If you are not redirected, <a href="/codex.html#concordance">open the Codex → Concordance</a>.</p>
 </body>
 </html>

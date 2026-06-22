@@ -4,47 +4,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Codex — Narrow Highway</title>
-<meta name="description" content="The Codex: 66 books of Scripture, the ecumenical creeds, the Westminster Shorter Catechism, the Lord's Prayer, the Shema. The doctrinal substrate of Narrow Highway, navigable in one place.">
+<meta name="description" content="The Codex: 66 books of Scripture, the ecumenical creeds, the Westminster Shorter Catechism, the concordance, and the witnessed cross-reference index — the doctrinal substrate of Narrow Highway, in one place.">
 <link rel="canonical" href="https://narrowhighway.com/codex.html">
   <link rel="stylesheet" href="/nh-shell.css">
   <script defer src="/nh-shell.js"></script>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Narrow Highway">
 <meta property="og:title" content="The Codex — Narrow Highway">
-<meta property="og:description" content="66 books of Scripture, the ecumenical creeds, the Westminster Shorter Catechism, the Lord's Prayer, the Shema — the doctrinal substrate in one place.">
+<meta property="og:description" content="Scripture, creeds, catechism, concordance, cross-references — the doctrinal substrate in one place.">
 <meta property="og:url" content="https://narrowhighway.com/codex.html">
 <meta property="og:image" content="https://narrowhighway.com/img/og_card.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Codex — Narrow Highway">
-<meta name="twitter:description" content="Scripture, creeds, catechism — the doctrinal substrate in one place.">
-<meta name="twitter:image" content="https://narrowhighway.com/img/og_card.png">
 <style>
   body { font-family: Georgia, serif; max-width: 980px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
   nav.top { font-size: 0.9em; padding: 0.8em 0; }
   nav.top a { color: #1a3a52; text-decoration: none; }
 
-  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.5em; }
+  .masthead { text-align: center; padding: 1.6em 1em 0.9em; border-bottom: 3px double #b8945a; margin-bottom: 1em; }
   .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #806328; margin-bottom: 0.4em; }
   .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
-  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
+  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.04em; margin-top: 0.3em; }
 
-  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.5em; }
-  h2 { color: #1a3a52; margin-top: 1.8em; font-size: 1.2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; font-family: Georgia, serif; font-weight: bold; letter-spacing: 0.02em; }
+  /* ── Tabs: the one Codex, many views ── */
+  .tabbar { display: flex; flex-wrap: wrap; gap: 0.4em; margin: 0 0 0.4em; position: sticky; top: 0; background: #fafaf6; padding: 0.6em 0; z-index: 5; border-bottom: 1px solid #e3d8bd; }
+  .tab { background: #f3eedb; color: #1a3a52; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.55em 1em; font-family: 'Courier New', monospace; font-size: 0.82em; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; min-height: 44px; }
+  .tab.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
+  .tab:hover { background: #e5dcb9; }
+  .tab.active:hover { background: #2a5570; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .more-views { margin: 1.6em 0 0.4em; display: flex; flex-wrap: wrap; gap: 0.5em; align-items: center; }
+  .more-views strong { font-size: 0.8em; color: #6a5a3a; text-transform: uppercase; letter-spacing: 0.06em; }
+  .more-views a { background: #fff; border: 1px solid #d4c8a5; border-radius: 14px; padding: 0.35em 0.85em; font-size: 0.86em; color: #1a3a52; text-decoration: none; }
+  .more-views a:hover { border-color: #806010; color: #806010; }
+
+  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1.2em; }
+  h2 { color: #1a3a52; margin-top: 1.6em; font-size: 1.2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; font-family: Georgia, serif; font-weight: bold; letter-spacing: 0.02em; }
   h3 { color: #1a3a52; margin-top: 1.2em; font-size: 1.05em; }
 
   .filters { margin: 0.6em 0; display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; }
   .filters strong { font-size: 0.85em; color: #6a5a3a; margin-right: 0.4em; }
-  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.25em 0.7em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
+  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.4em 0.7em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; min-height: 36px; }
   .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
   .filter-btn:hover { background: #e5dcb9; }
-  .filter-btn.active:hover { background: #2a5570; }
 
-  .book-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.4em; margin-top: 0.5em; }
-  .book-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 3px; padding: 0.5em 0.7em; text-decoration: none; color: #1a3a52; transition: all 0.1s; }
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.4em; margin-top: 0.5em; }
+  .book-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 3px; padding: 0.55em 0.7em; text-decoration: none; color: #1a3a52; transition: all 0.1s; cursor: pointer; text-align: left; font-family: inherit; min-height: 44px; }
   .book-tile.NT { border-left-color: #5c8a3a; }
   .book-tile.OT { border-left-color: #b8945a; }
-  .book-tile:hover { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; transform: translateY(-1px); }
-  .book-tile:hover .meta { color: #806328; }
+  .book-tile:hover, .book-tile.sel { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; transform: translateY(-1px); }
+  .book-tile:hover .meta, .book-tile.sel .meta { color: #c9b48a; }
   .book-tile strong { display: block; font-size: 1em; font-family: Georgia, serif; }
   .book-tile .meta { font-size: 0.78em; color: #806010; font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
   .book-tile .theme { font-size: 0.82em; color: #5a4a30; font-style: italic; margin-top: 0.15em; }
@@ -64,153 +72,268 @@
 
   .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
 
-  /* the Codex hub map — every part of the manuscript layer, one door, grouped */
-  .codex-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1em; margin: 0.8em 0 1.6em; }
-  .cluster { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 0.9em 1.1em; }
-  .cluster h3 { margin: 0 0 0.5em; font-size: 0.74em; letter-spacing: 0.16em; text-transform: uppercase; color: #806328; }
-  .cluster a { display: block; color: #1a3a52; text-decoration: none; padding: 0.45em 0; border-bottom: 1px solid #f2ecd8; font-weight: bold; }
-  .cluster a:last-child { border-bottom: none; }
-  .cluster a:hover { color: #806010; }
-  .cluster a .d { display: block; font-size: 0.8em; color: #6a5a3a; font-style: italic; font-weight: normal; margin-top: 0.1em; }
+  /* ── Concordance + Cross-ref panels (folded faces, cream-styled) ── */
+  .cx-bar { display: flex; gap: 0.5em; margin: 0.4em 0 0.5em; }
+  .cx-bar input { flex: 1; background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; color: #2a2a28; padding: 0.6em 0.8em; font-size: 16px; font-family: inherit; min-height: 44px; }
+  .cx-bar input:focus { outline: none; border-color: #806010; }
+  .cx-bar button { background: #1a3a52; border: none; border-radius: 6px; color: #f4ecd5; font-weight: 600; padding: 0 1.1em; font-size: 0.9em; cursor: pointer; min-height: 44px; }
+  .cx-egs { font-size: 0.85em; color: #6a5a3a; margin-bottom: 1em; }
+  .cx-egs a { color: #806010; text-decoration: none; margin-right: 0.7em; cursor: pointer; }
+  .cx-verse { background: #fff5d4; border: 1px solid #e3d3a0; border-left: 3px solid #b8945a; border-radius: 6px; padding: 0.8em 1em; margin: 0.9em 0; font-size: 1.05em; color: #3a3026; }
+  .cx-verse .ref { color: #806010; font-size: 0.82em; margin-bottom: 0.25em; font-family: 'Courier New', monospace; }
+  .cx-sec { font-size: 0.82em; color: #6a5a3a; margin: 1.3em 0 0.5em; text-transform: uppercase; letter-spacing: 0.05em; }
+  .cx-thread { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cx-chip { border: 1px solid #d4c8a5; border-radius: 14px; padding: 0.25em 0.7em; font-size: 0.85em; background: #fff; color: #2a2a28; }
+  .cx-chip.strong { border-color: #5c8a3a; background: #eef6e6; color: #2f5320; }
+  .cx-chip .n { color: #806010; font-size: 0.78em; margin-left: 0.35em; }
+  .cx-row { border-bottom: 1px solid #ece2c8; padding: 0.7em 0; }
+  .cx-row:last-child { border-bottom: none; }
+  .cx-row .top { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; }
+  .cx-row .r { color: #1a3a52; font-weight: 600; font-size: 0.95em; }
+  .cx-row .v { color: #806010; font-size: 0.78em; white-space: nowrap; font-family: 'Courier New', monospace; }
+  .cx-row .t { color: #3a3a38; font-size: 0.95em; margin-top: 0.2em; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.5em; margin: 0.4em 0 1.2em; }
+  .stat { background: #1a3a52; color: #f4ecd5; border-radius: 4px; padding: 0.4em 0.9em; font-family: 'Courier New', monospace; font-size: 0.82em; }
+  .stat b { color: #f0d68a; font-size: 1.1em; }
+  .badge { font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.15em 0.5em; border-radius: 3px; }
+  .badge.proof_text { background: #1a3a52; color: #f4ecd5; }
+  .badge.cites { background: #f3eedb; color: #806010; border: 1px solid #d4c8a5; }
+  .badge.illuminates, .badge.parallels, .badge.see_also { background: #5c8a3a; color: #fff; }
+  .vchip { font-family: 'Courier New', monospace; font-size: 0.84em; color: #1a3a52; background: #fff5d4; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.1em 0.45em; }
+  .witness { font-family: 'Courier New', monospace; font-size: 0.72em; color: #5c8a3a; }
+  .witness.no { color: #9a7a3a; }
+  .hint { color: #6a5a3a; font-style: italic; }
+  .dim { color: #6a5a3a; }
+  .err { color: #9a5a1a; font-size: 0.95em; margin: 1em 0; }
 </style>
 <link rel="stylesheet" href="/nh-sabbath.css">
 <link rel="stylesheet" href="/nh-print.css" media="print">
 </head>
 <body>
 
-<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/canon.html">The Canon spec</a> · <a href="/walk.html">Ask the Shepherd</a></nav>
+<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/library.html">The Library</a> · <a href="/walk.html">Ask the Shepherd</a></nav>
 
 <div class="masthead">
   <div class="eyebrow">THE DOCTRINAL SUBSTRATE</div>
   <h1>The Codex</h1>
-  <div class="tagline">66 books of Scripture · the ecumenical creeds · the Westminster Shorter Catechism · the Shema · the Lord's Prayer</div>
+  <div class="tagline">Scripture · the creeds · the catechism · the concordance · the witnessed cross-references — one manuscript, many views</div>
 </div>
 
-<div class="intro">
-  <p>The Codex is what holds the rest up. The Bible is the foundation; the creeds are the church's anchoring confessions through history; the catechism is the structured instruction. Every Shepherd answer cites these. Every curriculum lesson references these. Every reading plan walks through them.</p>
-  <p>This page is the navigable index. Click any book, creed, or Q&amp;A to drill in.</p>
+<div class="tabbar" id="tabbar">
+  <button class="tab active" data-tab="manuscript">Manuscript</button>
+  <button class="tab" data-tab="concordance">Concordance</button>
+  <button class="tab" data-tab="xref">Cross-refs</button>
 </div>
 
-<h2 style="margin-top:0.6em;">Explore the Codex — the manuscript layer, one door</h2>
-<div class="codex-map">
-  <div class="cluster">
-    <h3>Read</h3>
-    <a href="#books">The 66 books<span class="d">Scripture, by book and section</span></a>
-    <a href="/bibles.html">Bibles<span class="d">Every public-domain translation we stand on</span></a>
-    <a href="/codex-deep.html">Ask the manuscript<span class="d">Name a doctrine, a Father, a theme — it surfaces what's bound</span></a>
-    <a href="/canon.html">The Canon spec<span class="d">The rule underneath the engine</span></a>
+<!-- ── MANUSCRIPT ── -->
+<section class="panel active" id="panel-manuscript">
+  <div class="intro">
+    <p>The Codex is what holds the rest up. The Bible is the foundation; the creeds are the church's anchoring confessions through history; the catechism is the structured instruction. Every Shepherd answer cites these.</p>
   </div>
-  <div class="cluster">
-    <h3>The connections</h3>
-    <a href="/codex-xref.html">Cross-reference index<span class="d">2,921 witnessed links between Scripture and the body</span></a>
-    <a href="/concordance.html">Concordance<span class="d">Enter a verse — see the passages Scripture itself links to it</span></a>
-    <a href="/codex-connections.html">The connection graph<span class="d">Sources bound by a shared witnessed verse</span></a>
-    <a href="/codex-themes.html">Theme index<span class="d">Stand at a concept, see every site that carries it</span></a>
+
+  <h2 id="books">The 66 books</h2>
+  <div class="filters">
+    <strong>Filter:</strong>
+    <button class="filter-btn book-filter active" data-f="all">All</button>
+    <button class="filter-btn book-filter" data-f="OT">Old Testament (39)</button>
+    <button class="filter-btn book-filter" data-f="NT">New Testament (27)</button>
+    <button class="filter-btn book-filter" data-f="Pentateuch">Pentateuch</button>
+    <button class="filter-btn book-filter" data-f="Historical">Historical</button>
+    <button class="filter-btn book-filter" data-f="Wisdom">Wisdom</button>
+    <button class="filter-btn book-filter" data-f="Major Prophets">Major Prophets</button>
+    <button class="filter-btn book-filter" data-f="Minor Prophets">Minor Prophets</button>
+    <button class="filter-btn book-filter" data-f="Gospels">Gospels</button>
+    <button class="filter-btn book-filter" data-f="Pauline Epistles">Pauline Epistles</button>
+    <button class="filter-btn book-filter" data-f="General Epistles">General Epistles</button>
   </div>
-  <div class="cluster">
-    <h3>Over time &amp; proof</h3>
-    <a href="/chronicle.html">The Chronicle<span class="d">The Codex across time</span></a>
-    <a href="/codex-seal.html">The sealed manuscript<span class="d">Fingerprinted, signed, verifiable</span></a>
-    <a href="/atlas.html">The Atlas<span class="d">The visual map of verified connections</span></a>
+  <div id="bookGrid" class="book-grid"></div>
+
+  <h2>The ecumenical creeds</h2>
+  <div id="creedList"></div>
+
+  <h2>The Westminster Shorter Catechism (selected anchors)</h2>
+  <p style="font-size: 0.92em; color: #6a5a3a; margin-bottom: 0.6em;">24 of the 107 Q&amp;As are surfaced here — the most catechetically load-bearing. The full 107 are public domain and can be added by an operator pass.</p>
+  <div id="catechismList"></div>
+</section>
+
+<!-- ── CONCORDANCE (folded) ── -->
+<section class="panel" id="panel-concordance">
+  <p class="hint" style="margin:.6em 0 0;">Enter a verse. See the passages Scripture itself links to it — and the thread where those echoes converge.</p>
+  <div class="cx-bar">
+    <input id="cxRef" type="text" placeholder="John 3:16" autocomplete="off" spellcheck="false">
+    <button id="cxGo">Find</button>
   </div>
+  <div class="cx-egs">Try:
+    <a data-ref="John 3:16">John 3:16</a><a data-ref="Romans 8:28">Romans 8:28</a><a data-ref="Genesis 1:1">Genesis 1:1</a><a data-ref="Psalm 23:1">Psalm 23:1</a><a data-ref="Isaiah 53:5">Isaiah 53:5</a>
+  </div>
+  <div id="cxOut" style="min-height:40px;"></div>
+  <p class="hint" style="font-size:.85em;margin-top:1.4em;">The thread is a deterministic term-overlap across the linked passages — it surfaces <em>where</em> Scripture's echoes converge, not a verdict on meaning. Cross-references courtesy of openbible.info (CC BY, Treasury of Scripture Knowledge); text World English Bible (public domain). The engine surfaces an attributed index; it never authors a linkage.</p>
+</section>
+
+<!-- ── CROSS-REFERENCE INDEX (folded) ── -->
+<section class="panel" id="panel-xref">
+  <div class="intro">
+    <p>The engine does not <em>invent</em> connections — it surfaces the ones already drawn (Westminster, Heidelberg, Easton) and inverts them so you can stand at any book and see where the body of the faith reaches back to it. <strong>Every cross-reference passed the witness gate</strong> (Deut 19:15) before it was bound in.</p>
+  </div>
+  <div class="stats" id="xrefStats"></div>
+  <h2>The books</h2>
+  <div id="xrefGrid" class="book-grid"><div class="empty">Loading the index…</div></div>
+  <div id="xrefPanel"></div>
+</section>
+
+<div class="more-views">
+  <strong>More views:</strong>
+  <a href="/codex-themes.html">Theme index →</a>
+  <a href="/codex-seal.html">Sealed manuscript →</a>
+  <a href="/codex-connections.html">Connection graph (desktop) →</a>
+  <a href="/codex-deep.html">Ask the manuscript →</a>
+  <a href="/bibles.html">Bibles · 22 translations →</a>
 </div>
-
-<h2 id="books">The 66 books</h2>
-<div class="filters">
-  <strong>Filter:</strong>
-  <button class="filter-btn book-filter active" data-f="all">All</button>
-  <button class="filter-btn book-filter" data-f="OT">Old Testament (39)</button>
-  <button class="filter-btn book-filter" data-f="NT">New Testament (27)</button>
-  <button class="filter-btn book-filter" data-f="Pentateuch">Pentateuch</button>
-  <button class="filter-btn book-filter" data-f="Historical">Historical</button>
-  <button class="filter-btn book-filter" data-f="Wisdom">Wisdom</button>
-  <button class="filter-btn book-filter" data-f="Major Prophets">Major Prophets</button>
-  <button class="filter-btn book-filter" data-f="Minor Prophets">Minor Prophets</button>
-  <button class="filter-btn book-filter" data-f="Gospels">Gospels</button>
-  <button class="filter-btn book-filter" data-f="Pauline Epistles">Pauline Epistles</button>
-  <button class="filter-btn book-filter" data-f="General Epistles">General Epistles</button>
-</div>
-<div id="bookGrid" class="book-grid"></div>
-
-<h2>The ecumenical creeds</h2>
-<div id="creedList"></div>
-
-<h2>The Westminster Shorter Catechism (selected anchors)</h2>
-<p style="font-size: 0.92em; color: #6a5a3a; margin-bottom: 0.6em;">24 of the 107 Q&amp;As are surfaced here — the most catechetically load-bearing across God, sin, Christ, salvation, sanctification, the moral law, and the Lord's Prayer. The full 107 are public domain and can be added by an operator pass.</p>
-<div id="catechismList"></div>
 
 <script src="/nh-household.js"></script>
 <script src="/nh-sabbath.js"></script>
 <script src="/nh-voice.js"></script>
 <script src="/nh-scripture.js"></script>
 <script>
-(async function () {
-  // ----- Bible books -----
-  const booksData = await fetch('/content/codex/bible_books.json', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-  const $bookGrid = document.getElementById('bookGrid');
-  let books = (booksData && booksData.books) || [];
-  let filter = 'all';
+(function () {
+  function esc(s) { return String(s == null ? '' : s).replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
 
-  function renderBooks() {
-    let list = books.slice();
-    if (filter === 'OT' || filter === 'NT') list = list.filter(function (b) { return b.testament === filter; });
-    else if (filter !== 'all') list = list.filter(function (b) { return b.section === filter; });
-    if (list.length === 0) { $bookGrid.innerHTML = '<div class="empty">No books match.</div>'; return; }
-    $bookGrid.innerHTML = list.map(function (b) {
-      return '<a class="book-tile ' + b.testament + '" href="/canon.html?ref=' + encodeURIComponent(b.book + ' 1') + '">' +
-        '<strong>' + esc(b.book) + '</strong>' +
-        '<span class="meta">' + b.chapters + ' ch · ' + esc(b.section) + '</span>' +
-        '<div class="theme">' + esc(b.theme || '') + '</div>' +
-        '</a>';
-    }).join('');
+  // ── Tabs ──
+  var tabs = document.querySelectorAll('.tab');
+  var inited = {};
+  function show(name) {
+    document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t.dataset.tab === name); });
+    document.querySelectorAll('.panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + name); });
+    if (name === 'concordance' && !inited.concordance) { inited.concordance = true; initConcord(); }
+    if (name === 'xref' && !inited.xref) { inited.xref = true; initXref(); }
+    if (history.replaceState) history.replaceState(null, '', '#' + name);
   }
-  document.querySelectorAll('.book-filter').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('.book-filter').forEach(function (x) { x.classList.remove('active'); });
-      b.classList.add('active');
-      filter = b.dataset.f;
-      renderBooks();
+  tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.dataset.tab); }); });
+
+  // ── Manuscript (loads on first paint) ──
+  (async function () {
+    var booksData = await fetch('/content/codex/bible_books.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    var $bookGrid = document.getElementById('bookGrid');
+    var books = (booksData && booksData.books) || [];
+    var filter = 'all';
+    function renderBooks() {
+      var list = books.slice();
+      if (filter === 'OT' || filter === 'NT') list = list.filter(function (b) { return b.testament === filter; });
+      else if (filter !== 'all') list = list.filter(function (b) { return b.section === filter; });
+      if (!list.length) { $bookGrid.innerHTML = '<div class="empty">No books match.</div>'; return; }
+      $bookGrid.innerHTML = list.map(function (b) {
+        return '<a class="book-tile ' + b.testament + '" href="/bibles.html?ref=' + encodeURIComponent(b.book + ' 1') + '">' +
+          '<strong>' + esc(b.book) + '</strong><span class="meta">' + b.chapters + ' ch · ' + esc(b.section) + '</span>' +
+          '<div class="theme">' + esc(b.theme || '') + '</div></a>';
+      }).join('');
+    }
+    document.querySelectorAll('.book-filter').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.book-filter').forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active'); filter = b.dataset.f; renderBooks();
+      });
     });
-  });
-  renderBooks();
+    renderBooks();
 
-  // ----- Creeds -----
-  const creedsData = await fetch('/content/codex/creeds.json', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-  const $creedList = document.getElementById('creedList');
-  const creeds = (creedsData && creedsData.creeds) || [];
-  $creedList.innerHTML = creeds.map(function (c) {
-    const anchors = (c.anchored_to || []).map(esc).join(' · ');
-    return '<article class="creed-card" data-readable data-voice-label="' + esc(c.title) + '">' +
-      '<h3>' + esc(c.title) + '</h3>' +
-      '<div class="era">' + esc(c.era || '') + '</div>' +
-      '<div style="font-size:0.92em; color:#5a4a30; margin-bottom:0.4em;">' + esc(c.use || '') + '</div>' +
-      '<div class="text">' + esc(c.text) + '</div>' +
-      (anchors ? '<div class="anchors"><strong>Anchored to:</strong> ' + anchors + '</div>' : '') +
-      '</article>';
-  }).join('');
+    var creedsData = await fetch('/content/codex/creeds.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    document.getElementById('creedList').innerHTML = ((creedsData && creedsData.creeds) || []).map(function (c) {
+      var anchors = (c.anchored_to || []).map(esc).join(' · ');
+      return '<article class="creed-card" data-readable data-voice-label="' + esc(c.title) + '"><h3>' + esc(c.title) + '</h3>' +
+        '<div class="era">' + esc(c.era || '') + '</div>' +
+        '<div style="font-size:0.92em;color:#5a4a30;margin-bottom:0.4em;">' + esc(c.use || '') + '</div>' +
+        '<div class="text">' + esc(c.text) + '</div>' + (anchors ? '<div class="anchors"><strong>Anchored to:</strong> ' + anchors + '</div>' : '') + '</article>';
+    }).join('');
 
-  // ----- Catechism -----
-  const catData = await fetch('/content/codex/catechism_westminster_shorter.json', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
-  const $catList = document.getElementById('catechismList');
-  const qs = (catData && catData.questions) || [];
-  $catList.innerHTML = qs.map(function (q) {
-    const proofs = (q.proof_texts || []).map(esc).join(' · ');
-    return '<article class="qa-card" data-readable>' +
-      '<div class="qnum">Q' + q.q + '</div>' +
-      '<div class="q">' + esc(q.question) + '</div>' +
-      '<div class="a">' + esc(q.answer) + '</div>' +
-      (proofs ? '<div class="proofs">' + proofs + '</div>' : '') +
-      '</article>';
-  }).join('');
+    var catData = await fetch('/content/codex/catechism_westminster_shorter.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    document.getElementById('catechismList').innerHTML = ((catData && catData.questions) || []).map(function (q) {
+      var proofs = (q.proof_texts || []).map(esc).join(' · ');
+      return '<article class="qa-card" data-readable><div class="qnum">Q' + q.q + '</div><div class="q">' + esc(q.question) + '</div>' +
+        '<div class="a">' + esc(q.answer) + '</div>' + (proofs ? '<div class="proofs">' + proofs + '</div>' : '') + '</article>';
+    }).join('');
+    if (window.NHVoice && NHVoice.scan) NHVoice.scan();
+    if (window.NHScripture && NHScripture.run) NHScripture.run();
+  })();
 
-  // Re-scan for voice readers + scripture autolinker on the rendered content
-  if (window.NHVoice && NHVoice.scan) NHVoice.scan();
-  if (window.NHScripture && NHScripture.run) NHScripture.run();
+  // ── Concordance (folded from concordance.html) ──
+  function initConcord() {
+    var out = document.getElementById('cxOut'), inp = document.getElementById('cxRef'), btn = document.getElementById('cxGo');
+    async function find(ref) {
+      ref = (ref || '').trim(); if (!ref) return;
+      inp.value = ref; btn.disabled = true;
+      out.innerHTML = '<div class="dim">Gathering the witnesses…</div>';
+      try {
+        var res = await Promise.all([
+          fetch('/scripture/cross-references?ref=' + encodeURIComponent(ref) + '&limit=12').then(function (r) { return r.json(); }),
+          fetch('/scripture/concord?across_xrefs=true&limit=12&ref=' + encodeURIComponent(ref)).then(function (r) { return r.json(); })
+        ]);
+        render(ref, res[0], res[1]);
+      } catch (e) { out.innerHTML = '<div class="err">Could not reach the concordance (' + esc(String(e)) + ').</div>'; }
+      btn.disabled = false;
+    }
+    function render(ref, xr, co) {
+      if (xr.status !== 'ok') { out.innerHTML = '<div class="err">' + esc(xr.detail || ('No cross references for "' + ref + '".')) + '</div>'; return; }
+      var h = '<div class="cx-verse"><div class="ref">' + esc(xr.reference) + ' · WEB</div>' + esc(xr.verse_text || '') + '</div>';
+      if (co && co.status === 'ok' && (co.concord_terms || []).length) {
+        h += '<div class="cx-sec">The thread — where its echoes converge</div><div class="cx-thread">';
+        co.concord_terms.filter(function (t) { return t.in_sources >= 2; }).slice(0, 16).forEach(function (t) {
+          h += '<span class="cx-chip' + (t.in_sources >= 3 ? ' strong' : '') + '">' + esc(t.term) + '<span class="n">' + t.in_sources + '</span></span>';
+        });
+        h += '</div>';
+      }
+      h += '<div class="cx-sec">Cross references — ' + xr.count + ' passages Scripture links here</div>';
+      (xr.cross_references || []).forEach(function (x) {
+        h += '<div class="cx-row"><div class="top"><span class="r">' + esc(x.ref) + '</span><span class="v">vote ' + x.votes + '</span></div><div class="t">' + esc(x.text || '') + '</div></div>';
+      });
+      out.innerHTML = h;
+    }
+    btn.addEventListener('click', function () { find(inp.value); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') find(inp.value); });
+    document.querySelectorAll('#panel-concordance .cx-egs a').forEach(function (a) { a.addEventListener('click', function () { find(a.getAttribute('data-ref')); }); });
+    find('John 3:16');
+  }
 
-  function esc(s) { return String(s || '').replace(/[<>&"']/g, function (c) { return { '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  // ── Cross-reference index (folded from codex-xref.html) ──
+  function initXref() {
+    var OT = new Set(['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi']);
+    var $grid = document.getElementById('xrefGrid'), $panel = document.getElementById('xrefPanel'), $stats = document.getElementById('xrefStats');
+    function stat(n, label) { return (n == null) ? '' : '<span class="stat"><b>' + Number(n).toLocaleString() + '</b> ' + label + '</span>'; }
+    fetch('/codex/index/scripture', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || !j.books || !j.books.length) { $grid.innerHTML = '<div class="empty">The index has not been compiled yet.</div>'; return; }
+      var s = j.stats || {};
+      $stats.innerHTML = stat(s.cross_references, 'cross-references') + stat(s.verse_level, 'verse-level') + stat(s.witnessed, 'witnessed') + stat(s.books_indexed, 'books');
+      $grid.innerHTML = j.books.map(function (b) {
+        var t = OT.has(b.book) ? 'OT' : 'NT';
+        return '<button class="book-tile ' + t + '" data-book="' + esc(b.book) + '"><strong>' + esc(b.book) + '</strong><span class="meta">' + b.cross_references + ' link' + (b.cross_references === 1 ? '' : 's') + '</span></button>';
+      }).join('');
+      Array.prototype.forEach.call($grid.querySelectorAll('.book-tile'), function (btn) {
+        btn.addEventListener('click', function () {
+          Array.prototype.forEach.call($grid.querySelectorAll('.book-tile'), function (x) { x.classList.remove('sel'); });
+          btn.classList.add('sel'); loadBook(btn.dataset.book);
+        });
+      });
+      $panel.innerHTML = '<p class="hint">Pick a book above to see every witnessed cross-reference into it.</p>';
+    }).catch(function () { $grid.innerHTML = '<div class="empty">Could not load the index.</div>'; });
+    function loadBook(book) {
+      $panel.innerHTML = '<p class="hint">Loading ' + esc(book) + '…</p>';
+      fetch('/codex/index/scripture/' + encodeURIComponent(book), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        if (!j || !j.cross_references) { $panel.innerHTML = '<div class="empty">No cross-references for ' + esc(book) + '.</div>'; return; }
+        var rows = j.cross_references.map(function (e) {
+          var verses = (e.verse_refs || []).map(function (v) { return '<span class="vchip">' + esc(v) + '</span>'; }).join(' ');
+          var rel = (e.relationship || 'cites').replace(/[^a-z_]/g, '');
+          var wpass = e.witness_status === 'passed';
+          return '<div class="cx-row"><div class="top" style="flex-wrap:wrap;">' +
+            '<span class="badge ' + rel + '">' + esc(e.relationship || 'cites') + '</span> ' + verses +
+            ' <span class="witness' + (wpass ? '' : ' no') + '">' + (wpass ? '✓ witnessed' : '○ ' + esc(e.witness_status || 'unwitnessed')) + '</span></div>' +
+            '<div class="t">' + esc(e.explanation || e.by || '') + '</div></div>';
+        }).join('');
+        $panel.innerHTML = '<div style="border-bottom:2px solid #c9b48a;padding-bottom:.4em;margin:.8em 0;"><strong style="color:#1a3a52;font-size:1.3em;">' + esc(j.book) + '</strong> <span class="v" style="color:#806010;">' + j.count + ' cross-reference' + (j.count === 1 ? '' : 's') + '</span></div>' + rows;
+      }).catch(function () { $panel.innerHTML = '<div class="empty">Could not load ' + esc(book) + '.</div>'; });
+    }
+  }
+
+  // ── deep-link to a tab via #hash (so old face URLs can redirect here) ──
+  var h = (location.hash || '').replace('#', '');
+  if (h === 'concordance' || h === 'xref' || h === 'manuscript') show(h);
 })();
 </script>
 

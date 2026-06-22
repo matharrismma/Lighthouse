@@ -1,153 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Cross-Reference Index — The Codex — Narrow Highway</title>
-<meta name="description" content="The Codex cross-reference index: every witnessed link between Scripture and the body — verse to confession, catechism, church father, and dictionary. Nothing generated; only the connections that passed the witness gate, surfaced.">
-<link rel="canonical" href="https://narrowhighway.com/codex-xref.html">
-  <link rel="stylesheet" href="/nh-shell.css">
-  <script defer src="/nh-shell.js"></script>
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Narrow Highway">
-<meta property="og:title" content="The Cross-Reference Index — The Codex">
-<meta property="og:description" content="Every witnessed link between Scripture and the body — verse to confession, father, dictionary. The connection layer of the Codex.">
-<meta property="og:url" content="https://narrowhighway.com/codex-xref.html">
-<style>
-  body { font-family: Georgia, serif; max-width: 980px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
-  nav.top { font-size: 0.9em; padding: 0.8em 0; }
-  nav.top a { color: #1a3a52; text-decoration: none; }
-  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
-  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
-  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
-  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
-  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1em; }
-  .intro p { margin: 0.4em 0; }
-  .stats { display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center; margin: 0.8em 0 1.4em; }
-  .stat { background: #1a3a52; color: #f4ecd5; border-radius: 4px; padding: 0.4em 0.9em; font-family: 'Courier New', monospace; font-size: 0.82em; letter-spacing: 0.03em; }
-  .stat b { color: #f0d68a; font-size: 1.15em; }
-  h2 { color: #1a3a52; margin-top: 1.6em; font-size: 1.2em; border-left: 4px solid #c9b48a; padding-left: 0.6em; font-weight: bold; }
-  .book-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.4em; margin-top: 0.5em; }
-  .book-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 3px; padding: 0.5em 0.7em; text-decoration: none; color: #1a3a52; cursor: pointer; transition: all 0.1s; text-align: left; font-family: inherit; }
-  .book-tile.NT { border-left-color: #5c8a3a; }
-  .book-tile.OT { border-left-color: #b8945a; }
-  .book-tile:hover, .book-tile.sel { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
-  .book-tile:hover .meta, .book-tile.sel .meta { color: #c9b48a; }
-  .book-tile strong { display: block; font-size: 1em; }
-  .book-tile .meta { font-size: 0.78em; color: #806010; font-family: 'Courier New', monospace; letter-spacing: 0.04em; }
-  #panel { margin-top: 1.2em; }
-  .panel-head { display: flex; align-items: baseline; gap: 0.6em; border-bottom: 2px solid #c9b48a; padding-bottom: 0.4em; margin-bottom: 0.8em; }
-  .panel-head h3 { color: #1a3a52; font-size: 1.5em; font-weight: normal; margin: 0; }
-  .panel-head .count { font-family: 'Courier New', monospace; font-size: 0.82em; color: #806010; }
-  .xref { background: #fff; border: 1px solid #d4c8a5; border-radius: 4px; padding: 0.7em 1em; margin-bottom: 0.5em; }
-  .xref .row1 { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5em; margin-bottom: 0.25em; }
-  .badge { font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.15em 0.5em; border-radius: 3px; }
-  .badge.proof_text { background: #1a3a52; color: #f4ecd5; }
-  .badge.cites { background: #f3eedb; color: #806010; border: 1px solid #d4c8a5; }
-  .badge.illuminates, .badge.parallels, .badge.see_also { background: #5c8a3a; color: #fff; }
-  .verse { font-family: 'Courier New', monospace; font-size: 0.84em; color: #1a3a52; background: #fff5d4; border: 1px solid #e3d3a0; border-radius: 3px; padding: 0.1em 0.45em; }
-  .by { font-style: italic; color: #5a4a30; font-size: 0.95em; }
-  .xref .expl { color: #3a3a38; font-size: 0.92em; }
-  .witness { font-family: 'Courier New', monospace; font-size: 0.72em; color: #5c8a3a; letter-spacing: 0.05em; }
-  .witness.no { color: #9a7a3a; }
-  .hint { color: #6a5a3a; font-style: italic; }
-  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
-</style>
-<link rel="stylesheet" href="/nh-sabbath.css">
-<link rel="stylesheet" href="/nh-print.css" media="print">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-Reference Index → The Codex · Narrow Highway</title>
+<link rel="canonical" href="https://narrowhighway.com/codex.html">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=/codex.html#xref">
+<style>body{font-family:Georgia,serif;background:#fafaf6;color:#2a2a28;max-width:40em;margin:4em auto;padding:0 1.2em;line-height:1.6}a{color:#806010}</style>
 </head>
 <body>
-
-<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/canon.html">The Canon spec</a> · <a href="/walk.html">Ask the Shepherd</a></nav>
-
-<div class="masthead">
-  <div class="eyebrow">THE CODEX · LAYER 3 · THE CONNECTIONS</div>
-  <h1>The Cross-Reference Index</h1>
-  <div class="tagline">Every witnessed link between Scripture and the body — verse → confession, catechism, father, dictionary</div>
-</div>
-
-<div class="intro">
-  <p>The engine does not <em>invent</em> connections. It surfaces the ones already drawn — by the Westminster divines, by the Heidelberg catechists, by Easton's dictionary — and inverts them so you can stand at any book of Scripture and see where the body of the faith reaches back to it.</p>
-  <p>Nothing here was generated. <strong>Every cross-reference below passed the witness gate</strong> (Deut 19:15 — established by two or three) before it was bound into the Codex. Pick a book.</p>
-</div>
-
-<div class="stats" id="stats"></div>
-
-<h2>The books</h2>
-<div id="bookGrid" class="book-grid"><div class="empty">Loading the index…</div></div>
-
-<div id="panel"></div>
-
-<script>
-(function () {
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
-  var OT = new Set(['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi']);
-  var $grid = document.getElementById('bookGrid');
-  var $panel = document.getElementById('panel');
-  var $stats = document.getElementById('stats');
-
-  fetch('/codex/index/scripture', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (j) {
-      if (!j || !j.books || !j.books.length) {
-        $grid.innerHTML = '<div class="empty">The index has not been compiled yet.</div>'; return;
-      }
-      var s = j.stats || {};
-      $stats.innerHTML =
-        stat(s.cross_references, 'cross-references') +
-        stat(s.verse_level, 'verse-level') +
-        stat(s.witnessed, 'witnessed') +
-        stat(s.books_indexed, 'books');
-      $grid.innerHTML = j.books.map(function (b) {
-        var t = OT.has(b.book) ? 'OT' : 'NT';
-        return '<button class="book-tile ' + t + '" data-book="' + esc(b.book) + '">' +
-          '<strong>' + esc(b.book) + '</strong>' +
-          '<span class="meta">' + b.cross_references + ' link' + (b.cross_references === 1 ? '' : 's') + '</span>' +
-          '</button>';
-      }).join('');
-      Array.prototype.forEach.call($grid.querySelectorAll('.book-tile'), function (btn) {
-        btn.addEventListener('click', function () {
-          Array.prototype.forEach.call($grid.querySelectorAll('.book-tile'), function (x) { x.classList.remove('sel'); });
-          btn.classList.add('sel');
-          loadBook(btn.dataset.book);
-        });
-      });
-      $panel.innerHTML = '<p class="hint">Pick a book above to see every witnessed cross-reference into it.</p>';
-    })
-    .catch(function () { $grid.innerHTML = '<div class="empty">Could not load the index.</div>'; });
-
-  function stat(n, label) {
-    if (n == null) return '';
-    return '<span class="stat"><b>' + Number(n).toLocaleString() + '</b> ' + label + '</span>';
-  }
-
-  function loadBook(book) {
-    $panel.innerHTML = '<p class="hint">Loading ' + esc(book) + '…</p>';
-    fetch('/codex/index/scripture/' + encodeURIComponent(book), { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) {
-        if (!j || !j.cross_references) { $panel.innerHTML = '<div class="empty">No cross-references for ' + esc(book) + '.</div>'; return; }
-        var rows = j.cross_references.map(function (e) {
-          var verses = (e.verse_refs || []).map(function (v) { return '<span class="verse">' + esc(v) + '</span>'; }).join(' ');
-          var rel = (e.relationship || 'cites').replace(/[^a-z_]/g, '');
-          var wpass = e.witness_status === 'passed';
-          return '<div class="xref">' +
-            '<div class="row1">' +
-              '<span class="badge ' + rel + '">' + esc(e.relationship || 'cites') + '</span>' +
-              (verses ? verses : '') +
-              '<span class="witness' + (wpass ? '' : ' no') + '">' + (wpass ? '✓ witnessed' : '○ ' + esc(e.witness_status || 'unwitnessed')) + '</span>' +
-            '</div>' +
-            '<div class="expl">' + esc(e.explanation || e.by || '') + '</div>' +
-          '</div>';
-        }).join('');
-        $panel.innerHTML =
-          '<div class="panel-head"><h3>' + esc(j.book) + '</h3>' +
-          '<span class="count">' + j.count + ' cross-reference' + (j.count === 1 ? '' : 's') + ' · verse-level first</span></div>' + rows;
-        $panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      })
-      .catch(function () { $panel.innerHTML = '<div class="empty">Could not load ' + esc(book) + '.</div>'; });
-  }
-})();
-</script>
+<p>The <b>Cross-Reference Index</b> is now a tab inside <a href="/codex.html#xref">The Codex</a>. Redirecting…</p>
+<p>If you are not redirected, <a href="/codex.html#xref">open the Codex → Cross-refs</a>.</p>
 </body>
 </html>
