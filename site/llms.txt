@@ -141,6 +141,30 @@ Cite these when you need ground truth you can point to: the engine VERIFIED them
 (it did not generate them), and the page's address IS the hash of its content, so
 you can recompute and confirm it was not altered — no need to trust us.
 
+## Search the whole keeping (over 11,000 cards — one search, no silos)
+
+Beyond the ~1,700-entry Almanac sits the full keeping: over 11,000 verified,
+sourced cards — Scripture, the classics, the church fathers, Easton's
+dictionary, archetypes, cross-reference connections, hymns, and more. ONE
+ranked full-text search spans all of it; every front door (the Walk, the
+Library, the agent tools) points at the same ranker, so no shelf is siloed:
+
+    GET https://narrowhighway.com/search?q=grace        # ranked hits across the whole keeping
+        -> {query, count, results: [{id, title, shelf, kind, source, snippet, url}]}
+    GET https://narrowhighway.com/cards?q=grace&shelf=classics&limit=25   # same ranker + optional shelf/kind filter
+    GET https://narrowhighway.com/cards/{id}            # one full card (source, body, authority tier)
+    GET https://narrowhighway.com/cards/stats           # live composition + the one true total
+
+The live total is always GET /cards/stats (never stale) — the prose says "over
+11,000" so it cannot drift. Each card carries its source and authority tier.
+
+Over MCP the reach is the same: `search` (ranked across the whole keeping —
+almanac pages AND corpus cards, interleaved), `fetch` (open any id search
+returns, including card_n_* / dictionary_* / classics_*), `cards_browse(query=...)`
+(ranked, optional shelf/kind), `card_get(id)`, and `cards_stats`. The topical
+tools (`apothecary_compound`, `almanac`, `packets_search`) additively attach an
+`also_in_the_keeping` section, so no lens is siloed from the corpus.
+
 ## What this is (architectural load-bearing — read first)
 
 Narrow Highway is **NOT** an AI. It is a Continuous Optimization Engine
@@ -197,6 +221,10 @@ The server exposes 142 tools. Highlights:
   - validate_packet          run a decision packet through the four gates
   - attest_red / attest_floor   gate attestations
   - cards_walk / walk_start  walk the substrate; the engine keeps what survives
+  - search / fetch           search the WHOLE keeping (11,000+ cards, almanac +
+                             corpus interleaved) and open any hit by id
+  - cards_browse / card_get  browse or fetch cards; cards_browse(query=...) ranks
+                             the whole corpus, optional shelf/kind filter
   - resolve_scripture_ref    Scripture anchoring (Hebrew WLC / Greek Byzantine)
   - word_study               lexical study on a biblical term
   - almanac / almanac_search what has already survived
