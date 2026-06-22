@@ -897,6 +897,30 @@ def _query_idf(query_tokens: set) -> dict:
     return out
 
 
+def corpus_search(query: str, limit: int = 25) -> list[dict]:
+    """Ranked full-text search over the ENTIRE card corpus — the one search every
+    surface (human + agent) should use, so no tool is siloed to a slice. Same
+    IDF-weighted ranker as the walk (inverted index -> score), live cards only."""
+    query_tokens = set(_tokens(query or ""))
+    if not query_tokens:
+        return []
+    all_cards = _all_cards_unified()
+    idf = _query_idf(query_tokens)
+    candidate_ids = _candidates_via_index(query_tokens, max_candidates=600)
+    scored = []
+    for cid in candidate_ids:
+        c = all_cards.get(cid)
+        if not c or c.get("retracted"):
+            continue
+        if c.get("lifecycle_stage") in ("archived", "quarantine"):
+            continue
+        s = _score_card_for_query(c, query_tokens, idf)
+        if s > 0:
+            scored.append((s, c))
+    scored.sort(key=lambda x: -x[0])
+    return [c for _s, c in scored[:max(1, int(limit))]]
+
+
 # ---------- Router ----------
 
 def get_router():
@@ -964,11 +988,21 @@ def get_router():
         return c
 
     @router.get("/cards")
-    def list_cards(shelf: Optional[str] = Query(None),
+    def list_cards(q: Optional[str] = Query(None),
+                   shelf: Optional[str] = Query(None),
                    box: Optional[str] = Query(None),
                    kind: Optional[str] = Query(None),
                    lifecycle: Optional[str] = Query(None),
                    limit: int = Query(50, ge=1, le=500)):
+        # q -> ranked full-text over the WHOLE corpus (no longer silently ignored);
+        # shelf/kind become post-filters on the ranked hits.
+        if q and q.strip():
+            hits = corpus_search(q, limit)
+            if shelf:
+                hits = [c for c in hits if c.get("shelf") == shelf]
+            if kind:
+                hits = [c for c in hits if c.get("kind") == kind]
+            return {"count": len(hits), "total_matching": len(hits), "query": q, "cards": hits}
         all_cards = _all_cards_unified()
         out = []
         for c in all_cards.values():
@@ -983,6 +1017,19 @@ def get_router():
             out.append(c)
         out.sort(key=lambda x: (x.get("shelf") or "", x.get("box") or "", x.get("title") or ""))
         return {"count": len(out[:limit]), "total_matching": len(out), "cards": out[:limit]}
+
+    @router.get("/search", tags=["humans"])
+    def search_corpus(q: str = Query(..., min_length=1), limit: int = Query(25, ge=1, le=200)):
+        """The one corpus-wide search — ranked full-text over the whole keeping.
+        Every surface (the Walk, the Library, agents) points here, so nothing is
+        siloed. Returns lightweight hits with a /c/<id> link to the full card."""
+        hits = corpus_search(q, limit)
+        return {"query": q, "count": len(hits), "results": [
+            {"id": c.get("id"), "title": c.get("title"), "shelf": c.get("shelf"),
+             "kind": c.get("kind"), "source": c.get("source") or {},
+             "snippet": (c.get("body") or "")[:240], "url": "/c/" + (c.get("id") or "")}
+            for c in hits
+        ]}
 
     @router.post("/cards")
     def create_card(payload: CardIn):
