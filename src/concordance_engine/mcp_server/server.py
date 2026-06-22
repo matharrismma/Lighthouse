@@ -2032,21 +2032,26 @@ def _entry_text(e: Dict[str, Any]) -> str:
 
 @mcp.tool()
 def search(query: str, max_results: int = 10) -> Dict[str, Any]:
-    """Search the verified corpus and return ranked results.
+    """Search the WHOLE keeping and return ranked results.
 
-    This is the entry point ChatGPT connectors and Deep Research call.
-    It ranks the curated, engine-verified pages (cross-domain
-    connections, located results, and sayings) by keyword match against
-    the query, preferring pages that carry a sealed, citable proof.
+    This is the entry point ChatGPT connectors and Deep Research call. It
+    spans two layers and interleaves them: (1) the curated, engine-verified
+    pages (cross-domain connections, located results, sayings), preferring
+    those that carry a sealed, citable proof; and (2) the whole ~11k-card
+    corpus (Scripture, the classics, the fathers, the dictionary, …), ranked
+    by the same full-text engine that the Library and the Walk hit. Nothing
+    is siloed to the almanac any more.
 
     Returns {"results": [{"id", "title", "url", "snippet"}]}. Pass an id
-    to fetch() to read the whole page and its proof receipt.
+    to fetch() to read the whole page/card and (for proven pages) its receipt.
 
-    WHICH SEARCH TOOL? This one searches the verified CORPUS PAGES. For the
-    curated almanac (protocols + sayings, with category/kind/verdict filters)
-    use `almanac`; for decision-packet examples use `packets_search`; for the
-    Shepherd's cache-first card walk use `cards_walk`.
+    WHICH SEARCH TOOL? This one spans EVERYTHING. For the curated almanac
+    only (protocols + sayings, with category/kind/verdict filters) use
+    `almanac`; for decision-packet examples use `packets_search`; for the
+    Shepherd's cache-first curated walk use `cards_walk`.
     """
+    cap = max(1, min(max_results, 50))
+    # (1) the curated, verified pages (almanac protocols + sayings, often sealed)
     book = _ALMANAC_ENTRIES or []
     q = (query or "").lower().strip()
     tokens = [t for t in re.split(r"[^a-z0-9]+", q) if len(t) > 1]
@@ -2070,30 +2075,65 @@ def search(query: str, max_results: int = 10) -> Dict[str, Any]:
             score += 3  # prefer pages with a sealed proof
         scored.append((score, e))
     scored.sort(key=lambda se: (-se[0], se[1].get("id") or ""))
-    results = []
-    for _score, e in scored[: max(1, min(max_results, 50))]:
+    alm: List[Dict[str, Any]] = []
+    for _score, e in scored[:cap]:
         snippet = str(e.get("situation") or e.get("verification") or e.get("use") or "")[:300]
         proof = _entry_proof(e)
-        results.append({
+        alm.append({
             "id": e.get("id"),
             "title": e.get("title", ""),
             "url": proof or _entry_url(e),
             "snippet": snippet,
         })
-    return {"results": results}
+    # (2) the WHOLE keeping — the ~11k-card corpus, ranked by the SAME engine
+    #     the Library + the Walk hit at GET /search, so an agent is no longer
+    #     siloed to the ~1.7k almanac. Additive: cards surface ALONGSIDE the
+    #     proven pages; we never replace or launder them.
+    cards: List[Dict[str, Any]] = []
+    if tokens:
+        cr = _engine_get("/search", q=query, limit=cap)
+        if isinstance(cr, dict):
+            for r in (cr.get("results") or []):
+                cid = r.get("id")
+                if not cid:
+                    continue
+                cards.append({
+                    "id": cid,
+                    "title": r.get("title") or cid,
+                    "url": "https://narrowhighway.com" + (r.get("url") or ("/c/" + cid)),
+                    "snippet": r.get("snippet") or "",
+                })
+    # (3) interleave so both the proven pages AND the broad corpus surface
+    #     within max_results; dedupe by id (a card may also be an almanac page)
+    merged: List[Dict[str, Any]] = []
+    seen: set = set()
+    while len(merged) < cap and (alm or cards):
+        for src in (alm, cards):
+            if not src:
+                continue
+            item = src.pop(0)
+            if item["id"] in seen:
+                continue
+            seen.add(item["id"])
+            merged.append(item)
+            if len(merged) >= cap:
+                break
+    return {"results": merged}
 
 
 @mcp.tool()
 def fetch(id: str) -> Dict[str, Any]:
-    """Fetch one verified page by id (the second tool ChatGPT connectors
-    require). Returns {"id", "title", "text", "url", "metadata"} where
-    `text` is the full page (situation, use, the per-domain verification
-    results, the wisdom, and the tamper-evident proof receipt) and
-    `metadata` carries domains, category, verdict, and the proof URL.
+    """Fetch one page or card by id (the second tool ChatGPT connectors
+    require). Returns {"id", "title", "text", "url", "metadata"}.
 
-    Accepts an entry id (e.g. "connection_rsa_is_modular_inverse_of_primes")
-    or a seal ref / cite_url; for a seal it points the reader to GET
-    /seal/{ref}, the permanent record.
+    Resolves ids from search() across BOTH layers:
+      • a verified almanac page (e.g.
+        "connection_rsa_is_modular_inverse_of_primes") — `text` is the full
+        page (situation, use, per-domain verification, wisdom, proof receipt);
+      • a corpus card id (e.g. "card_n_…", "dictionary_…", "classics_…") —
+        `text` is the card's source label + body;
+      • a seal ref / cite_url — points the reader to GET /seal/{ref}, the
+        permanent record.
     """
     book = _ALMANAC_ENTRIES or []
     key = (id or "").strip()
@@ -2108,6 +2148,32 @@ def fetch(id: str) -> Dict[str, Any]:
             None,
         )
     if match is None:
+        # Not an almanac page — resolve against the broad corpus (card_n_*,
+        # dictionary_*, classics_*, …) so every id search() returns will fetch.
+        card = _engine_get("/cards/" + key) if key else None
+        if isinstance(card, dict) and card.get("id") and not card.get("error"):
+            src = card.get("source") or {}
+            src_label = src.get("label") if isinstance(src, dict) else src
+            body = card.get("body") or card.get("text") or ""
+            parts: List[str] = []
+            if src_label:
+                parts.append("Source: " + str(src_label))
+            if body:
+                parts.append(str(body))
+            cid = str(card.get("id"))
+            return {
+                "id": card.get("id"),
+                "title": card.get("title") or cid,
+                "text": "\n\n".join(parts) or "(card has no body text)",
+                "url": "https://narrowhighway.com/c/" + cid,
+                "metadata": {
+                    "shelf": card.get("shelf"),
+                    "kind": card.get("kind"),
+                    "source": src,
+                    "found": True,
+                    "via": "corpus",
+                },
+            }
         return {
             "id": key,
             "title": "(not found)",
@@ -3057,10 +3123,18 @@ def card_get(card_id: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
-def cards_browse(shelf: Optional[str] = None, box: Optional[str] = None,
-                 kind: Optional[str] = None, lifecycle: Optional[str] = None,
+def cards_browse(query: Optional[str] = None, shelf: Optional[str] = None,
+                 box: Optional[str] = None, kind: Optional[str] = None,
+                 lifecycle: Optional[str] = None,
                  limit: int = 50) -> Dict[str, Any]:
-    """List cards filtered by shelf, box, kind, lifecycle.
+    """Browse or SEARCH the whole ~11k-card keeping.
+
+    query="grace"  → ranked full-text across the ENTIRE corpus (the same
+                     engine the Library and the Walk hit at GET /search),
+                     so this is no longer siloed to one shelf. Combine with
+                     shelf= / kind= to narrow the ranked hits.
+
+    No query       → list cards filtered by shelf, box, kind, lifecycle.
 
     Common shelves: codex, classics, dictionary, patristics, hymns, recipes,
     maker, animation, atlas, connections.
@@ -3073,6 +3147,8 @@ def cards_browse(shelf: Optional[str] = None, box: Optional[str] = None,
     Returns {count, total_matching, cards: [...]} — cards in this list are
     summary objects; use card_get(id) for full content.
     """
+    if query and query.strip():
+        return _engine_get("/cards", q=query, shelf=shelf, kind=kind, limit=limit)
     return _engine_get("/cards", shelf=shelf, box=box, kind=kind,
                        lifecycle=lifecycle, limit=limit)
 
