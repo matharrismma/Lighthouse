@@ -1,153 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Theme Index — The Codex — Narrow Highway</title>
-<meta name="description" content="The Codex theme index: the engine's concept tags inverted across the whole body — every concept to the sites that carry it, cross-tradition reach first. A coarse first index; it surfaces existing tags, it does not synthesize.">
-<link rel="canonical" href="https://narrowhighway.com/codex-themes.html">
-  <link rel="stylesheet" href="/nh-shell.css">
-  <script defer src="/nh-shell.js"></script>
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Narrow Highway">
-<meta property="og:title" content="The Theme Index — The Codex">
-<meta property="og:description" content="The engine's concept tags inverted across the whole body — concept to sites, cross-tradition first. A coarse first index.">
-<meta property="og:url" content="https://narrowhighway.com/codex-themes.html">
-<style>
-  body { font-family: Georgia, serif; max-width: 980px; margin: 0 auto; padding: 0 1em 2em; background: #fafaf6; color: #2a2a28; line-height: 1.55; }
-  nav.top { font-size: 0.9em; padding: 0.8em 0; }
-  nav.top a { color: #1a3a52; text-decoration: none; }
-  .masthead { text-align: center; padding: 2em 1em 1em; border-bottom: 3px double #b8945a; margin-bottom: 1.2em; }
-  .masthead .eyebrow { font-family: 'Courier New', monospace; font-size: 0.75em; letter-spacing: 0.25em; text-transform: uppercase; color: #b8945a; margin-bottom: 0.4em; }
-  .masthead h1 { font-family: Georgia, serif; font-weight: normal; font-size: 2.6em; color: #1a3a52; letter-spacing: 0.04em; margin: 0; }
-  .masthead .tagline { font-style: italic; color: #806010; font-size: 1.08em; margin-top: 0.3em; }
-  .intro { background: #fff; border: 1px solid #d4c8a5; border-radius: 6px; padding: 1em 1.3em; margin-bottom: 1em; }
-  .intro p { margin: 0.4em 0; }
-  .intro .caveat { font-size: 0.92em; color: #6a5a3a; }
-  .stats { display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center; margin: 0.8em 0 1.2em; }
-  .stat { background: #1a3a52; color: #f4ecd5; border-radius: 4px; padding: 0.4em 0.9em; font-family: 'Courier New', monospace; font-size: 0.82em; letter-spacing: 0.03em; }
-  .stat b { color: #f0d68a; font-size: 1.15em; }
-  .filters { margin: 0.6em 0 0.4em; display: flex; flex-wrap: wrap; gap: 0.3em; align-items: center; }
-  .filters strong { font-size: 0.85em; color: #6a5a3a; margin-right: 0.4em; }
-  .filter-btn { background: #f3eedb; color: #1a3a52; padding: 0.25em 0.7em; border: 1px solid #d4c8a5; font-size: 0.85em; font-family: inherit; cursor: pointer; border-radius: 3px; }
-  .filter-btn.active { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
-  .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.4em; margin-top: 0.5em; }
-  .theme-tile { background: #fff; border: 1px solid #d4c8a5; border-left: 3px solid #c9b48a; border-radius: 3px; padding: 0.5em 0.7em; cursor: pointer; transition: all 0.1s; text-align: left; font-family: inherit; color: #1a3a52; }
-  .theme-tile.cross { border-left-color: #5c8a3a; }
-  .theme-tile:hover, .theme-tile.sel { background: #1a3a52; color: #f4ecd5; border-color: #1a3a52; }
-  .theme-tile:hover .meta, .theme-tile.sel .meta { color: #c9b48a; }
-  .theme-tile strong { display: block; font-size: 1em; text-transform: capitalize; }
-  .theme-tile .meta { font-size: 0.76em; color: #806010; font-family: 'Courier New', monospace; letter-spacing: 0.03em; }
-  #panel { margin-top: 1.2em; }
-  .panel-head { display: flex; align-items: baseline; gap: 0.6em; flex-wrap: wrap; border-bottom: 2px solid #c9b48a; padding-bottom: 0.4em; margin-bottom: 0.8em; }
-  .panel-head h3 { color: #1a3a52; font-size: 1.5em; font-weight: normal; margin: 0; text-transform: capitalize; }
-  .panel-head .count { font-family: 'Courier New', monospace; font-size: 0.82em; color: #806010; }
-  .tier { font-family: 'Courier New', monospace; font-size: 0.7em; letter-spacing: 0.05em; padding: 0.12em 0.45em; border-radius: 3px; background: #f3eedb; color: #806010; border: 1px solid #e3d3a0; }
-  .card-row { display: flex; align-items: baseline; gap: 0.6em; background: #fff; border: 1px solid #e3dcc4; border-radius: 3px; padding: 0.4em 0.7em; margin-bottom: 0.3em; }
-  .card-row a { color: #1a3a52; text-decoration: none; font-size: 0.97em; }
-  .card-row a:hover { text-decoration: underline; }
-  .card-row .src { margin-left: auto; font-family: 'Courier New', monospace; font-size: 0.72em; color: #8a7a4a; white-space: nowrap; }
-  .hint { color: #6a5a3a; font-style: italic; }
-  .empty { background: #fff; border: 1px dashed #c9b48a; border-radius: 6px; padding: 1.2em; text-align: center; color: #6a5a3a; }
-</style>
-<link rel="stylesheet" href="/nh-sabbath.css">
-<link rel="stylesheet" href="/nh-print.css" media="print">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theme Index → The Codex · Narrow Highway</title>
+<link rel="canonical" href="https://narrowhighway.com/codex.html">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=/codex.html#themes">
+<style>body{font-family:Georgia,serif;background:#fafaf6;color:#2a2a28;max-width:40em;margin:4em auto;padding:0 1.2em;line-height:1.6}a{color:#806010}</style>
 </head>
 <body>
-
-<nav class="top"><a href="/">← Narrow Highway</a> · <a href="/codex.html">The Codex</a> · <a href="/codex-xref.html">Cross-References</a> · <a href="/walk.html">Ask the Shepherd</a></nav>
-
-<div class="masthead">
-  <div class="eyebrow">THE CODEX · LAYER 3 · CONCEPTS</div>
-  <h1>The Theme Index</h1>
-  <div class="tagline">The engine's concept tags, inverted across the whole body — concept → every site that carries it</div>
-</div>
-
-<div class="intro">
-  <p>Stand at a concept and see everywhere the body touches it — across Scripture, the fathers, the classics, and the lens. Themes that cross authority traditions (Scripture <em>and</em> father <em>and</em> creed) are surfaced first; those are the most connective.</p>
-  <p class="caveat"><strong>An honest first index.</strong> This surfaces the tags the engine already placed — it does not invent themes or synthesize doctrine. It is coarse: a true theme web (e.g. "faith without a map" gathering Hebrews 11 + the fathers + the lens) is curated work still to come. What you see here is the raw concordance of concepts.</p>
-</div>
-
-<div class="stats" id="stats"></div>
-
-<div class="filters">
-  <strong>Show:</strong>
-  <button class="filter-btn active" data-k="concept">Concepts</button>
-  <button class="filter-btn" data-k="source">Traditions &amp; sources</button>
-  <button class="filter-btn" data-k="facet">Facets</button>
-  <button class="filter-btn" data-k="all">All</button>
-</div>
-<div id="grid" class="theme-grid"><div class="empty">Loading the index…</div></div>
-
-<div id="panel"></div>
-
-<script>
-(function () {
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
-  var $grid = document.getElementById('grid');
-  var $panel = document.getElementById('panel');
-  var $stats = document.getElementById('stats');
-  var ALL = [];
-  var kind = 'concept';
-
-  fetch('/codex/index/themes', { cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (j) {
-      if (!j || !j.themes || !j.themes.length) { $grid.innerHTML = '<div class="empty">The theme index has not been compiled yet.</div>'; return; }
-      ALL = j.themes;
-      var s = j.stats || {};
-      $stats.innerHTML = stat(s.concepts, 'concepts') + stat(s.themes, 'tags total') +
-        stat(s.cross_tradition, 'cross-tradition') + stat(s.tagged_sites, 'tagged sites');
-      render();
-    })
-    .catch(function () { $grid.innerHTML = '<div class="empty">Could not load the theme index.</div>'; });
-
-  function stat(n, label) { return n == null ? '' : '<span class="stat"><b>' + Number(n).toLocaleString() + '</b> ' + label + '</span>'; }
-
-  document.querySelectorAll('.filter-btn').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('.filter-btn').forEach(function (x) { x.classList.remove('active'); });
-      b.classList.add('active'); kind = b.dataset.k; render();
-    });
-  });
-
-  function render() {
-    var list = ALL.filter(function (t) { return kind === 'all' || t.kind === kind; });
-    if (!list.length) { $grid.innerHTML = '<div class="empty">No themes in this group.</div>'; return; }
-    $grid.innerHTML = list.map(function (t) {
-      var cross = (t.span || 0) >= 2;
-      return '<button class="theme-tile' + (cross ? ' cross' : '') + '" data-theme="' + esc(t.theme) + '">' +
-        '<strong>' + esc((t.label || t.theme).replace(/_/g, ' ')) + '</strong>' +
-        '<span class="meta">' + t.count + ' site' + (t.count === 1 ? '' : 's') +
-        (cross ? ' · ' + t.span + ' traditions' : '') + '</span></button>';
-    }).join('');
-    Array.prototype.forEach.call($grid.querySelectorAll('.theme-tile'), function (btn) {
-      btn.addEventListener('click', function () {
-        Array.prototype.forEach.call($grid.querySelectorAll('.theme-tile'), function (x) { x.classList.remove('sel'); });
-        btn.classList.add('sel'); loadTheme(btn.dataset.theme);
-      });
-    });
-  }
-
-  function loadTheme(theme) {
-    $panel.innerHTML = '<p class="hint">Loading ' + esc(theme.replace(/_/g, ' ')) + '…</p>';
-    fetch('/codex/index/themes/' + encodeURIComponent(theme), { cache: 'no-store' })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) {
-        if (!j || !j.cards) { $panel.innerHTML = '<div class="empty">No sites for this theme.</div>'; return; }
-        var tiers = (j.tiers || []).map(function (t) { return '<span class="tier">' + esc(t) + '</span>'; }).join(' ');
-        var rows = j.cards.map(function (cd) {
-          return '<div class="card-row"><a href="/c/' + esc(cd.id) + '">' + esc(cd.title || cd.id) + '</a>' +
-            '<span class="src">' + esc(cd.shelf || '') + (cd.tier ? ' · ' + esc(cd.tier) : '') + '</span></div>';
-        }).join('');
-        var more = j.count > j.cards.length ? '<p class="hint">Showing first ' + j.cards.length + ' of ' + j.count + '.</p>' : '';
-        $panel.innerHTML = '<div class="panel-head"><h3>' + esc((j.label || j.theme).replace(/_/g, ' ')) + '</h3>' +
-          '<span class="count">' + j.count + ' site' + (j.count === 1 ? '' : 's') + '</span>' + tiers + '</div>' + rows + more;
-        $panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      })
-      .catch(function () { $panel.innerHTML = '<div class="empty">Could not load this theme.</div>'; });
-  }
-})();
-</script>
+<p>The <b>Theme Index</b> is now a tab inside <a href="/codex.html#themes">The Codex</a>. Redirecting…</p>
+<p>If you are not redirected, <a href="/codex.html#themes">open the Codex → Themes</a>.</p>
 </body>
 </html>
