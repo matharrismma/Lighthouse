@@ -11865,11 +11865,31 @@ def _no_match_fallback(text: str, reason: str) -> Dict[str, Any]:
         )
     except Exception:
         verifiers = []
+    # Even when we can't classify the input into a verifier domain, surface the
+    # most relevant cards from the whole ~11k-card keeping so a cold agent gets
+    # real content (not just a menu). Additive — never blocks the menu.
+    corpus_hits: List[Dict[str, Any]] = []
+    try:
+        from api.cards import corpus_search as _corpus_search
+        for c in _corpus_search(text, limit=5):
+            cid = c.get("id")
+            corpus_hits.append({
+                "id": cid,
+                "title": c.get("title") or cid,
+                "shelf": c.get("shelf"),
+                "snippet": (c.get("body") or "")[:240],
+                "url": "https://narrowhighway.com/c/" + (cid or ""),
+            })
+    except Exception:
+        corpus_hits = []
     return {
         "matched": False,
         "text": text,
         "reason": reason,
+        "corpus_hits": corpus_hits,
         "next_steps": [
+            "These corpus_hits are the closest cards in the keeping — open any "
+            "with GET /cards/{id}, or search wider with GET /search?q=.",
             "Read https://narrowhighway.com/manifest for the full tool catalog "
             "(76 tools including the verifiers below).",
             "Read https://narrowhighway.com/llms.txt for end-to-end examples.",
