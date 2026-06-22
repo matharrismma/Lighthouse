@@ -183,32 +183,31 @@
     .links{margin-top:16px;text-align:center;}
     .links a{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:1px dashed var(--border);padding-bottom:2px;}
     .links .sep{color:var(--border);margin:0 10px;}
+    /* The Walk — workspace-first front door */
+    .walk-top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:680px;margin:0 auto;padding:14px 22px 0;}
+    .walk-top .wm{font-family:'Crimson Pro',Georgia,serif;font-size:1.12rem;font-weight:600;color:#f4ecd5;text-decoration:none;letter-spacing:.01em;}
+    .walk-top .things{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);text-decoration:none;border:1px solid rgba(214,182,138,.4);border-radius:9px;padding:9px 13px;min-height:40px;}
+    .walk-top .things:hover{border-color:var(--accent);color:var(--accenthi);}
+    .detect{min-height:17px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;color:var(--muted);margin:9px 4px 2px;display:flex;align-items:center;gap:7px;transition:opacity .2s;}
+    .detect .dt{color:var(--pass);}
+    .detect.empty{opacity:0;}
   </style>
 </head>
 
 <body>
+
+<div class="walk-top">
+  <a class="wm" href="/">Narrow Highway</a>
+  <a class="things" href="/kept.html">Your things</a>
+</div>
 
 <main class="well">
   <div class="eyebrow"><span class="ld"></span><span data-i18n="work.eyebrow">Serves Jesus Christ &middot; don't trust — verify</span></div>
   <h1 data-i18n="work.title">Bring anything. Get a receipt — not a 'trust me.'</h1>
   <p class="tagline" data-i18n="work.tagline">A claim runs through the engine — a verdict, the worked trail, and a seal anyone can re-check — and you see where it lands on the map of everything that connects. It also turns a note into a list, a message into a draft. Free, no ads, nothing tracked.</p>
 
-  <div class="taskhead">Pick what you want to do — or just bring it</div>
-  <div class="tasks" id="tasks" aria-label="What you can do here">
-    <a class="task primary" href="#bring" onclick="var e=document.getElementById('uq');if(e){setTimeout(function(){e.focus();},60);}"><span class="ico">✓</span><span class="tl">Verify a claim</span><span class="ds">Is it true? A verdict, the worked trail, and a receipt anyone can re-check.</span></a>
-    <a class="task" href="/read.html"><span class="ico">📚</span><span class="tl">Learn anything</span><span class="ds">A patient tutor, one step at a time.</span></a>
-    <a class="task" href="/codex.html"><span class="ico">📖</span><span class="tl">Study Scripture</span><span class="ds">Books, cross-references, every translation.</span></a>
-    <a class="task" href="/walk.html"><span class="ico">🧭</span><span class="tl">Walk a decision</span><span class="ds">Talk it through the four gates.</span></a>
-    <a class="task" href="/apothecary.html"><span class="ico">🌿</span><span class="tl">Find a remedy</span><span class="ds">Scripture + protocol for what you carry. Reference, not advice.</span></a>
-    <a class="task" href="/almanac.html"><span class="ico">📜</span><span class="tl">Tested wisdom</span><span class="ds">The almanac — practical knowledge checked against the record.</span></a>
-    <a class="task" href="/scribe.html"><span class="ico">✍️</span><span class="tl">Write &amp; keep</span><span class="ds">Compose, and keep what matters — on your device.</span></a>
-    <a class="task" href="/atlas.html"><span class="ico">🗺️</span><span class="tl">Explore the map</span><span class="ds">See how every field connects to every other.</span></a>
-    <a class="task" href="/media-center.html"><span class="ico">▶️</span><span class="tl">Watch · hear · read</span><span class="ds">The library and the channels.</span></a>
-    <a class="task" href="/missions.html"><span class="ico">🤝</span><span class="tl">Gather</span><span class="ds">A mission of people and agents — the church of Acts 2.</span></a>
-  </div>
-
   <div class="bring-wrap" id="bring">
-    <div class="bring-label">Or just bring anything — a claim, a question, a note, a letter — and it finds the way:</div>
+    <div class="bring-label">Bring anything — a claim, a question, a situation, a whole passage. The engine reads it and answers the right way. You don't pick a tool.</div>
     <div class="draw" id="drawForm">
       <div class="fmtbar" id="fmtbar" aria-label="Formatting">
         <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
@@ -223,9 +222,10 @@
       </div>
       <div id="uq" class="doc" contenteditable="true" role="textbox" aria-multiline="true"
            data-ph="A claim to check, a question, a note, a letter, or a whole chapter — bring it. It saves itself and finds the right home. Drop a file in too. ⌘/Ctrl+Enter to act."></div>
+      <div class="detect empty" id="detect"></div>
       <div class="draw-actions">
-        <button id="ubtn" type="button" onclick="nhBring()" data-i18n="work.bring_button">Do something with it &rarr;</button>
-        <span class="draw-hint">It saves itself · <b>⌘/Ctrl+Enter</b> to act · <b>drop a file</b> to bring it in · it determines the path — kept, sent, listed, or verified.</span>
+        <button id="ubtn" type="button" onclick="nhBring()">Walk it &rarr;</button>
+        <span class="draw-hint">It saves itself · <b>⌘/Ctrl+Enter</b> to act · <b>drop a file</b> to bring it in · the engine determines the path — verified, walked, kept, listed, or drafted.</span>
       </div>
     </div>
     <div id="ures"></div>
@@ -251,6 +251,14 @@
     <span class="sep">&middot;</span>
     <a href="/read.html" data-i18n="work.link_learn">Learn anything &rarr;</a>
     <span class="sep">&middot;</span>
+    <a href="/library.html">The Library &rarr;</a>
+    <span class="sep">&middot;</span>
+    <a href="/apothecary.html">Find a remedy &rarr;</a>
+    <span class="sep">&middot;</span>
+    <a href="/almanac.html">Tested wisdom &rarr;</a>
+    <span class="sep">&middot;</span>
+    <a href="/media-center.html">Watch &middot; hear &middot; read &rarr;</a>
+    <span class="sep">&middot;</span>
     <a href="/kept.html" data-i18n="work.link_kept">Your things &rarr;</a>
     <span class="sep">&middot;</span>
     <a href="/brain.html" data-i18n="work.link_brain">The engine as a brain &rarr;</a>
@@ -273,6 +281,18 @@
 // The work area: bring anything; the one brain routes it; the engine verifies what
 // is verifiable; the assistant only drafts the rest; everything is kept (on-device).
 var nhEsc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+// A light, on-device GUESS of what you brought — shown as "read as →" so the box
+// feels like it understands. It's only a hint; the engine decides for real on Walk it.
+function nhDetect(t){
+  t=(t||'').trim(); if(!t) return ''; var low=t.toLowerCase();
+  if(/[=<>]|\bprime\b|\bderivative\b|\bequals?\b|\d+\s*[+\-*/^]\s*\d+/.test(low) || /^(is|are|does|did|was|were)\b.+\b(true|correct|right|prime|equal|valid)/.test(low)) return 'verify a claim';
+  if(/^(tell|email|text|message|write to|draft|reply|ask)\b/.test(low) || /\b(dear |to whom)\b/.test(low)) return 'draft a message';
+  if(/\b(anxious|afraid|worried|grief|grieving|lonely|angry|forgive|marriage|divorce|tempt|despair|ashamed|guilt|overwhelm|struggl|hopeless)/.test(low)) return 'walk it through the gates';
+  if(/,/.test(t) && t.split(/[,\n]/).filter(function(x){return x.trim();}).length>=3 && t.length<200 && !/[.?!]\s/.test(t)) return 'keep a list';
+  if(/\?\s*$/.test(t) || /^(how|what|why|when|where|who|should|can|could)\b/.test(low)) return 'answer or walk it';
+  if(t.length>400 || /\n\n/.test(t)) return 'keep this passage';
+  return 'route it for you';
+}
 function nhWorking(msg){var r=document.getElementById('ures');r.innerHTML='<div class="weighing">'+(msg||'Working')+'<span class="pulse"></span></div>';}
 async function nhPost(url,b){var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return await r.json();}
 function nhKeep(kind,obj){try{var K='nh_kept_v1';var a=JSON.parse(localStorage.getItem(K)||'[]');a.unshift({ts:Date.now(),kind:kind,obj:obj});localStorage.setItem(K,JSON.stringify(a.slice(0,200)));if(window.NHSync)NHSync.push();}catch(e){}}
@@ -476,8 +496,11 @@ document.querySelectorAll('#uchips .chip').forEach(function(c){c.addEventListene
     else { var saved=localStorage.getItem('nh_draft'); if(saved && saved.replace(/<[^>]*>/g,'').trim()){ doc.innerHTML=saved; } }
   }catch(_){}
   function onInput(){
-    if(chips) chips.classList.toggle('faded', nhDocText().length>0);
+    var txt=nhDocText();
+    if(chips) chips.classList.toggle('faded', txt.length>0);
     var s=document.getElementById('savedTag'); if(s) s.textContent='editing…';
+    var dt=document.getElementById('detect');
+    if(dt){ if(txt){ dt.className='detect'; dt.innerHTML='read as &rarr; <span class="dt">'+nhEsc(nhDetect(txt))+'</span>'; } else { dt.className='detect empty'; dt.textContent=''; } }
     clearTimeout(_nhSaveT); _nhSaveT=setTimeout(nhDocSave, 600);
   }
   doc.addEventListener('input', onInput); onInput();
