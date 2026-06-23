@@ -403,6 +403,46 @@ _SEED: List[Dict[str, Any]] = [
         "seed_v": 1,
         "captured": "2026-06-23",
     },
+    {
+        "id": "love_resonant",
+        "directive": "Love Resonant",
+        "principle": ("Scripture frames love ACOUSTICALLY: 1 Cor 13:1 — without love even the "
+                      "tongues of men and angels are 'sounding brass, a tinkling cymbal' (inharmonic "
+                      "noise / clang that does not sustain); LOVE is what turns the noise RESONANT, a "
+                      "sustained tone. Two interlocks: (1) the tune-criterion — if consonance is the "
+                      "signature of truth, the deepest consonance is love, so the TELOS of the tune is "
+                      "love and knowledge-without-love is dissonance by definition. (2) Requisite "
+                      "Variety — to love is to KNOW, and a good regulator must BE a model of what it "
+                      "regulates (Conant-Ashby); love is the RESONANT COUPLING between the model and "
+                      "the modeled, so perfect love = perfect requisite variety (He models each "
+                      "completely, Ps 139). CAUTION (load-bearing): resonance also DESTROYS (shattered "
+                      "glass, Tacoma Narrows); gifts amplified WITHOUT love are not neutral but "
+                      "clanging — so it is LOVE-resonance that builds up (1 Cor 8:1), never resonance "
+                      "as such. 'Good vibrations' is the failure mode."),
+        "realization": ("Assayed the seed against Scripture (1 Cor 13:1-13; 1 Cor 8:1; 1 Jn 4:8,19; "
+                        "Ps 139; Col 1:17), the project's tune-criterion (api/harmonics, GET "
+                        "/grid/music), and the prior teaching law_of_requisite_variety. No code built "
+                        "— a conceptual seed bonding the harmonic frame to its telos and to the "
+                        "good-regulator theorem."),
+        "result": ("GRADED HONESTLY. 1 Cor 13:1's acoustic framing of love = CONFIRMED Scripture "
+                   "(Paul's own image); resonance physics = CONFIRMED science. The identifications "
+                   "'love = resonance,' 'the tune's telos is love,' and 'love = the requisite-variety "
+                   "coupling' = a FAITH / POETIC READING consonant with both, NOT a proof — flagged, "
+                   "never laundered. The map-is-loving piece is moreover UNPROVEN: the tune_test is at "
+                   "chance (p~0.385), so this is the DIRECTION the criterion points, not an achieved "
+                   "result — the map is NOT claimed to be in tune or 'loving.' GLORY UP: God IS love "
+                   "(1 Jn 4:8); the resonance is received and reflected, never generated ('we love "
+                   "because He first loved us,' 1 Jn 4:19) — the engine can map and witness the "
+                   "pattern, never manufacture love."),
+        "status": "seed",
+        "refs": ["1 Corinthians 13:1-13 (without love = sounding brass / tinkling cymbal)",
+                 "1 Corinthians 8:1 (love builds up)", "1 John 4:8,19", "Psalm 139",
+                 "placeholder:tune_is_the_truth_criterion",
+                 "teaching:law_of_requisite_variety (the knowing that love's resonance couples)",
+                 "GET /grid/music (tune_test — currently p~0.385, at chance: NOT yet in tune)"],
+        "seed_v": 1,
+        "captured": "2026-06-23",
+    },
 ]
 
 
