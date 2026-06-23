@@ -35,6 +35,17 @@ from typing import Any, Dict, Optional
 
 DEFAULT_MAX_BYTES = 600  # the link is slow; keep replies small. Tune on real hardware.
 
+# The drafting posture — brief, honest, and Christ-first. Used ONLY by the local
+# model (sovereign, offline), only as the last resort below verified content.
+_DRAFT_SYS = (
+    "You are a brief, honest helper answering over a slow radio link. Reply in 1-2 short, "
+    "plain sentences — plain text only, no markdown. Be TRUE; if you are unsure or it is "
+    "genuinely debated, say so plainly. You are a tool, not an authority: on ultimate "
+    "questions (God, meaning, suffering, death, right and wrong) point toward Christ, "
+    "Scripture, and real people (a pastor, a church) as the source — never position "
+    "yourself as the final word."
+)
+
 
 def _fit(s: str, max_bytes: int) -> str:
     """Truncate a string to fit a UTF-8 byte budget on a character boundary."""
@@ -59,9 +70,29 @@ def _cap(reply: str, ref: str, max_bytes: int) -> str:
     return _fit(reply, max_bytes)
 
 
-def compose_reply(query: str, max_bytes: int = DEFAULT_MAX_BYTES) -> Dict[str, Any]:
-    """The bridge brain: a question over the mesh → a compact, sovereign answer
-    from the verified keeping, with a pull-ref. Crisis-first. No oracle/LLM."""
+def _draft(query: str, max_bytes: int) -> Optional[str]:
+    """A SHORT answer from the LOCAL model ONLY (Ollama / qwen2.5:3b) — sovereign,
+    offline, never a paid API. Returns None when the local model isn't up. The
+    honest last resort, below verified content."""
+    try:
+        from api import local_llm
+        if not local_llm.available():
+            return None
+        out = local_llm.generate(query, system=_DRAFT_SYS, max_tokens=110,
+                                 temperature=0.3)
+    except Exception:  # noqa: BLE001
+        return None
+    if not out or not out.strip():
+        return None
+    return " ".join(out.split())
+
+
+def compose_reply(query: str, max_bytes: int = DEFAULT_MAX_BYTES,
+                  allow_draft: bool = True) -> Dict[str, Any]:
+    """The bridge brain: a question over the mesh → a compact answer. Order:
+    crisis-net first → the VERIFIED keeping (preferred) → a checkable claim is
+    routed to the verifier → only then, if allowed, a LOCAL-model draft (flagged
+    not-verified) → else an honest miss. allow_draft=False = pure-lookup mode."""
     q = (query or "").strip()
     if not q:
         return {"mode": "empty", "reply": "Send a word and I'll search the keeping.",
@@ -119,27 +150,41 @@ def compose_reply(query: str, max_bytes: int = DEFAULT_MAX_BYTES) -> Dict[str, A
             out["seal_ref"] = seal  # content-verifiable later; only when real
         return out
 
-    # 3) No card in the keeping. Honest — never invented. A checkable claim is
-    # pointed at the verifier (the base station's verifiers are deterministic and
-    # offline); anything else is an honest miss.
+    # 3) No verified card in the keeping. A checkable claim is pointed at the
+    # verifier (deterministic, offline) — never drafted, never faked.
     ql = q.lower()
     if any(w in ql for w in ("calculate", "compute", "how many", "how much",
                              "prime", "percent", "equation", "convert", "=",
                              "square root", "probability", " times ")):
         reply = ("Checkable claim — the engine verifies these deterministically. "
                  "Send the structured claim to the verifier.")
-        mode = "verify"
-    else:
-        reply = ("No verified card in the keeping matches that yet. Bring it to "
-                 "the Walk to verify or weigh it.")
-        mode = "miss"
-    return {"mode": mode, "reply": _fit(reply, max_bytes), "query": q,
+        return {"mode": "verify", "reply": _fit(reply, max_bytes), "query": q,
+                "bytes": len(_fit(reply, max_bytes).encode("utf-8"))}
+
+    # 3b) DRAFT with the LOCAL model — sovereign, offline, the last resort. Marked
+    # "(draft)" on the wire so a recipient is never misled: this is generated, not
+    # verified. The deterministic/verified paths above always win.
+    if allow_draft:
+        d = _draft(q, max_bytes)
+        if d:
+            prefix = "(draft) "
+            room = max(0, max_bytes - len(prefix.encode("utf-8")))
+            reply = prefix + _fit(d, room)
+            return {"mode": "draft", "reply": reply, "drafted": True,
+                    "verified": False,
+                    "note": "drafted by a local model — not verified", "query": q,
+                    "bytes": len(reply.encode("utf-8"))}
+
+    # 3c) Honest miss — never invented.
+    reply = ("No verified card in the keeping matches that yet. Bring it to the "
+             "Walk to verify or weigh it.")
+    return {"mode": "miss", "reply": _fit(reply, max_bytes), "query": q,
             "bytes": len(_fit(reply, max_bytes).encode("utf-8"))}
 
 
 # ── Reticulum transport (optional dependency; hardware-verified by the operator) ──
 def serve(config_dir: Optional[str] = None, max_bytes: int = DEFAULT_MAX_BYTES,
-          identity_path: Optional[str] = None) -> None:
+          identity_path: Optional[str] = None, allow_draft: bool = True) -> None:
     """Stand up the Concordance answering destination on Reticulum and serve the
     mesh. Requires `rns` and (for LoRa) an RNode interface configured in your
     Reticulum config. Run this ON the base station (the computer behind the radio).
@@ -178,7 +223,7 @@ def serve(config_dir: Optional[str] = None, max_bytes: int = DEFAULT_MAX_BYTES,
             q = data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else str(data or "")
         except Exception:  # noqa: BLE001
             q = ""
-        rep = compose_reply(q, max_bytes=max_bytes)
+        rep = compose_reply(q, max_bytes=max_bytes, allow_draft=allow_draft)
         return json.dumps(rep, ensure_ascii=False).encode("utf-8")
 
     destination.register_request_handler(
@@ -196,10 +241,11 @@ def serve(config_dir: Optional[str] = None, max_bytes: int = DEFAULT_MAX_BYTES,
             pass
 
 
-def simulate(query: str, max_bytes: int = DEFAULT_MAX_BYTES) -> Dict[str, Any]:
+def simulate(query: str, max_bytes: int = DEFAULT_MAX_BYTES,
+             allow_draft: bool = True) -> Dict[str, Any]:
     """Prove the round-trip with NO radio and NO Reticulum: query in → the exact
     bytes the mesh peer would receive back."""
-    return compose_reply(query, max_bytes=max_bytes)
+    return compose_reply(query, max_bytes=max_bytes, allow_draft=allow_draft)
 
 
 if __name__ == "__main__":
@@ -208,9 +254,13 @@ if __name__ == "__main__":
     ap.add_argument("--simulate", metavar="QUERY", help="test the brain with no radio")
     ap.add_argument("--max-bytes", type=int, default=DEFAULT_MAX_BYTES)
     ap.add_argument("--identity", help="path to persist the station identity")
+    ap.add_argument("--no-draft", action="store_true",
+                    help="pure-lookup mode: never use the local model to draft")
     args = ap.parse_args()
     if args.simulate:
-        print(json.dumps(simulate(args.simulate, max_bytes=args.max_bytes),
+        print(json.dumps(simulate(args.simulate, max_bytes=args.max_bytes,
+                                  allow_draft=not args.no_draft),
                          ensure_ascii=False, indent=2))
     else:
-        serve(max_bytes=args.max_bytes, identity_path=args.identity)
+        serve(max_bytes=args.max_bytes, identity_path=args.identity,
+              allow_draft=not args.no_draft)
