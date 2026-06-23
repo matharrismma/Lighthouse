@@ -357,6 +357,52 @@ _SEED: List[Dict[str, Any]] = [
                  "check / find_verifier / run_polymathic (the existing rules router)"],
         "seed_v": 1,
     },
+    {
+        "id": "law_of_requisite_variety",
+        "directive": ("Law of Requisite Variety. ... [it is a] humility theorem. His yoke is light."),
+        "principle": ("Ashby's Law: only variety can absorb variety — a regulator can hold a "
+                      "system in bounds only if its variety is at least the disturbance's "
+                      "(V_regulator >= V_disturbance). Its corollary (Conant & Ashby 1970): every "
+                      "good regulator of a system MUST BE a model of that system. Two design rules "
+                      "follow for the engine: (1) BUILD THE MODEL — good regulation REQUIRES an "
+                      "internal model, which is exactly what the map / second brain is; the map is "
+                      "not decoration, it is the requisite. (2) MATCH THE VARIETY — a tool must "
+                      "reach enough of the keeping to absorb the variety of what it is asked; a "
+                      "siloed tool has insufficient variety and fails to regulate. THE CEILING (the "
+                      "humility theorem): creation's variety is effectively infinite, so no finite "
+                      "regulator — no engine, no map, no mind — can ever hold requisite variety over "
+                      "all of it; the law itself FORBIDS the engine from becoming the all-"
+                      "comprehending idol. The yoke is light (Mt 11:30) because the variety "
+                      "sufficient for creation is HIS, not ours: we carry only our small modeled "
+                      "part; the One who upholds all things (Col 1:17) holds the rest."),
+        "realization": ("Ran the assay against the architecture: the map = the good regulator's "
+                        "required model; the just-shipped corpus de-silo (every door now reaches "
+                        "the whole ~11,138-card keeping) = a literal increase in the engine's "
+                        "requisite variety; the nested control-systems framework = Ashby applied "
+                        "per physiological layer. Grounded the citation via the scholar tool "
+                        "(the clean road)."),
+        "result": ("GRADED HONESTLY. Ashby's Law + the Conant-Ashby good-regulator theorem = "
+                   "CONFIRMED, citable cybernetics. Map-as-good-regulator + corpus-breadth-as-"
+                   "requisite-variety = PLAUSIBLE, directly-actionable design principles (the word "
+                   "'regulator' is partial — the engine navigates/verifies rather than "
+                   "homeostatically controls, so held as a strong analogy, not identity). Logos-as-"
+                   "perfect-regulator + the-yoke-is-light = a FAITH READING the math is consonant "
+                   "with, NOT a proof — flagged, not laundered; naming the perfect Regulator is "
+                   "worship, not derivation. The load-bearing fruit is the humility theorem itself: "
+                   "the law bounds the tool and points beyond it. Glory up, not to the engine."),
+        "status": "discipline",
+        "refs": ["Ashby 1956, 'An Introduction to Cybernetics' (Chapman & Hall) — the Law of "
+                 "Requisite Variety; out of copyright, freely available",
+                 "Conant & Ashby 1970, 'Every good regulator of a system must be a model of that "
+                 "system', Int. J. Systems Science 1(2):89-97, doi:10.1080/00207727008920220 "
+                 "(lawful OA reprint doi:10.4173/mic.1994.3.2, mic-journal.no) — via "
+                 "GET /scholar/lookup; grounds the method, not the claim",
+                 "Matthew 11:30; Colossians 1:17; John 1:3",
+                 "project_corpus_access_desilo_2026-06-22 (the de-silo = a requisite-variety fix)",
+                 "research/nested_control_systems (Ashby per layer)"],
+        "seed_v": 1,
+        "captured": "2026-06-23",
+    },
 ]
 
 
