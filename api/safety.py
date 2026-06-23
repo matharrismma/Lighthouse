@@ -39,7 +39,7 @@ _CRISIS_PATTERNS = [
     r"\bwant\s+to\s+die\b",
     r"\bwish\s+i\s+(?:was|were)\s+dead\b",
     r"\bbetter\s+off\s+dead\b",
-    r"\bno\s+(?:reason|point)\s+(?:to|in)\s+(?:living|live|life|go\s+on)\b",
+    r"\bno\s+(?:reason|point)\s+(?:to|in)\s+(?:living|live|life|go\s+on|keep\s+(?:going|living|on)|carry\s+on|going\s+on)\b",
     r"\bnot\s+worth\s+living\b",
     r"\bdon'?t\s+want\s+to\s+(?:be\s+here|live|exist|wake\s+up)\b",
     r"\bsuicid",            # suicide, suicidal

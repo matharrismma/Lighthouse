@@ -6232,6 +6232,36 @@ def workspace_intake(request: Request, body: _IntakeIn):
     return routed
 
 
+class _SortIn(BaseModel):
+    text: str
+
+
+@app.post("/workspace/sort", tags=["public"])
+def workspace_sort(request: Request, body: _SortIn):
+    """The trash sorter: one inlet → strip ANY input to cards + tasks, route each
+    fragment to the right tool, and return with context. Deterministic discernment
+    (rules + the verified keeping), NO generation — the judgement the tool has that
+    a raw LLM does not. Christ first: the crisis net runs FIRST and ultimate-matters
+    fragments are flagged to point UP. The tool is the flexible connector, never the
+    source, never the idol."""
+    _rate_check(request, "workspace_intake")
+    text = (body.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="bring something")
+    if len(text) > 16000:
+        text = text[:16000]
+    # Crisis safety net — deterministic and FIRST, before any sorting.
+    try:
+        from api import safety as _safety
+        _crisis = _safety.crisis_check(text)
+        if _crisis:
+            return {"mode": "safety", "safety": _crisis}
+    except Exception:  # noqa: BLE001 — a detector failure must never break the sorter
+        pass
+    from api import sorter as _sorter
+    return _sorter.sort(text)
+
+
 # ── Learn anything: the tutor drafts a lesson on any topic, taught in the schema ──
 # Curate, not filter: the assistant DRAFTS the lesson from what it knows (the outside),
 # in the same shape as the hand-authored curriculum (rule/examples/check/modes), and it
