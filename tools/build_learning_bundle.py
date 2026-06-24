@@ -96,6 +96,19 @@ LABELS = {
                    "Project Gutenberg. Read in the words of those who wrote them."),
         "source": "data/reading_en_founding/units.jsonl",
     },
+    "pilgrims": {
+        "brand": "Read", "dir": "ltr", "html_lang": "en",
+        "title": "Read — The Pilgrim's Progress",
+        "lesson": "Reading", "of": "of", "examples": "New words",
+        "read_aloud": "Read this aloud", "practice": "Practice together",
+        "check": "Check:", "show": "Show the answer", "back": "Back", "next": "Next",
+        "footer": ("Free, and yours — to keep, to copy, to give. Works with no internet, "
+                   "on any device. This school teaches reading; for the deeper questions "
+                   "it points beyond itself, to Christ."),
+        "review": ("An excerpt from The Pilgrim's Progress, John Bunyan (1678) — public "
+                   "domain, via Project Gutenberg. The opening of the journey."),
+        "source": "data/reading_en_pilgrims/units.jsonl",
+    },
 }
 
 
