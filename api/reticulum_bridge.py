@@ -31,7 +31,8 @@ OPTIONAL dependency, needed only to actually transmit.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 DEFAULT_MAX_BYTES = 600  # the link is slow; keep replies small. Tune on real hardware.
 
@@ -183,6 +184,116 @@ def compose_reply(query: str, max_bytes: int = DEFAULT_MAX_BYTES,
 
 
 # ── Reticulum transport (optional dependency; hardware-verified by the operator) ──
+# ── Verified bulletins over the mesh: publish → broadcast the seal-ref → serve
+#    the full bundle on request → recipient verifies OFFLINE (api/bulletin.py). ──
+_BULLETIN_DIR = Path(__file__).parent.parent / "data" / "bulletins"
+_BULLETIN_FILE = _BULLETIN_DIR / "published.jsonl"
+_BULLETINS: Dict[str, Dict[str, Any]] = {}  # ref -> {ref, bundle, issued_at}
+_BULLETINS_LOADED = False
+ANNOUNCE_MAX = 200  # the seal-ref (+short title) must fit a small broadcast
+
+
+def _load_bulletins() -> None:
+    global _BULLETINS_LOADED
+    if _BULLETINS_LOADED:
+        return
+    _BULLETINS_LOADED = True
+    try:
+        if _BULLETIN_FILE.exists():
+            for line in _BULLETIN_FILE.read_text("utf-8", "replace").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except Exception:  # noqa: BLE001
+                    continue
+                if rec.get("ref"):
+                    _BULLETINS[rec["ref"]] = rec
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def announce_app_data(ref: str, title: str = "") -> bytes:
+    """The bytes broadcast on the mesh: the one-packet seal-ref, plus a short
+    title after a tab, capped so it fits a small Reticulum announce."""
+    title = " ".join((title or "").split())
+    blob = ref if not title else (ref + "\t" + title)
+    return _fit(blob, ANNOUNCE_MAX).encode("utf-8")
+
+
+def parse_announce_app_data(data: Any) -> Dict[str, str]:
+    """Peer side: recover {ref, title} from a received announce's app_data."""
+    try:
+        s = data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else str(data or "")
+    except Exception:  # noqa: BLE001
+        return {"ref": "", "title": ""}
+    ref, _, title = s.partition("\t")
+    return {"ref": ref.strip(), "title": title.strip()}
+
+
+def publish_bulletin(text: str, kind: str = "bulletin") -> Dict[str, Any]:
+    """Publish a verified bulletin from this station: sign + content-address it
+    (api.bulletin), store it so peers can fetch it by ref, and return the seal-ref
+    + the app_data to broadcast. The actual over-the-air announce happens in
+    serve()'s loop (hardware-pending)."""
+    from api import bulletin as _b
+    out = _b.publish(text, kind=kind)
+    bundle = out["bundle"]
+    rec = {"ref": out["ref"], "bundle": bundle,
+           "issued_at": int(bundle.get("issued_at", 0) or 0)}
+    _load_bulletins()
+    _BULLETINS[rec["ref"]] = rec
+    try:
+        _BULLETIN_DIR.mkdir(parents=True, exist_ok=True)
+        with open(_BULLETIN_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:  # noqa: BLE001
+        pass
+    app = announce_app_data(out["ref"], bundle.get("text", ""))
+    return {"ref": out["ref"], "ref_short": out["ref_short"], "bytes": out["bytes"],
+            "app_data": app.decode("utf-8", "replace"),
+            "app_data_bytes": len(app), "stored": True}
+
+
+def get_bulletin(ref: str) -> Optional[Dict[str, Any]]:
+    """The full signed bundle for a seal-ref, or None — what serve() returns when
+    a peer requests /bulletin with a ref."""
+    _load_bulletins()
+    rec = _BULLETINS.get((ref or "").strip())
+    return rec["bundle"] if rec else None
+
+
+def list_bulletins(limit: int = 20) -> List[Dict[str, Any]]:
+    _load_bulletins()
+    items = sorted(_BULLETINS.values(), key=lambda r: r.get("issued_at", 0), reverse=True)
+    return [{"ref": r["ref"], "issued_at": r.get("issued_at", 0),
+             "text": (r["bundle"].get("text", "") or "")[:80]} for r in items[:limit]]
+
+
+def simulate_broadcast(text: str, kind: str = "bulletin") -> Dict[str, Any]:
+    """Prove the WHOLE distribution round-trip with NO radio: publish → the bytes
+    that would be broadcast → a peer recovers the ref → fetches the bundle by ref
+    → verifies it OFFLINE. The RNS transport in serve() is the only hardware-
+    pending part; this proves everything around it."""
+    pub = publish_bulletin(text, kind=kind)
+    parsed = parse_announce_app_data(pub["app_data"].encode("utf-8"))
+    ref = parsed["ref"]
+    bundle = get_bulletin(ref)
+    from api import bulletin as _b
+    own = bundle.get("_instance_pubkey") if bundle else None
+    v = (_b.verify(bundle, ref=ref, pubkey=own) if bundle
+         else {"unaltered": False, "authentic": False})
+    return {
+        "broadcast_app_data": pub["app_data"],
+        "app_data_bytes": pub["app_data_bytes"],
+        "peer_received_ref": ref,
+        "peer_received_title": parsed["title"],
+        "bundle_fetched_by_ref": bundle is not None,
+        "verify": {"unaltered": v.get("unaltered"), "authentic": v.get("authentic")},
+    }
+
+
 def serve(config_dir: Optional[str] = None, max_bytes: int = DEFAULT_MAX_BYTES,
           identity_path: Optional[str] = None, allow_draft: bool = True) -> None:
     """Stand up the Concordance answering destination on Reticulum and serve the
@@ -229,14 +340,50 @@ def serve(config_dir: Optional[str] = None, max_bytes: int = DEFAULT_MAX_BYTES,
     destination.register_request_handler(
         "/ask", response_generator=_handler, allow=RNS.Destination.ALLOW_ALL,
     )
+
+    # A second destination for verified bulletins: peers request /bulletin with a
+    # seal-ref and get the full signed bundle back (then verify it OFFLINE). The
+    # seal-ref itself is broadcast in the announce app_data below.
+    bulletin_dest = RNS.Destination(
+        identity, RNS.Destination.IN, RNS.Destination.SINGLE,
+        "concordance", "bulletin",
+    )
+    bulletin_dest.set_proof_strategy(RNS.Destination.PROVE_ALL)
+
+    def _bulletin_handler(path, data, request_id, *args):
+        try:
+            ref = (data.decode("utf-8") if isinstance(data, (bytes, bytearray))
+                   else str(data or "")).strip()
+        except Exception:  # noqa: BLE001
+            ref = ""
+        b = get_bulletin(ref)
+        if b is None:
+            latest = list_bulletins(limit=1)
+            b = get_bulletin(latest[0]["ref"]) if latest else None
+        return json.dumps(b or {"error": "no such bulletin"},
+                          ensure_ascii=False).encode("utf-8")
+
+    bulletin_dest.register_request_handler(
+        "/bulletin", response_generator=_bulletin_handler,
+        allow=RNS.Destination.ALLOW_ALL,
+    )
+
     destination.announce()
+    bulletin_dest.announce()
     RNS.log("Concordance is answering on Reticulum at " + RNS.prettyhexrep(destination.hash))
+    RNS.log("Bulletins announced from " + RNS.prettyhexrep(bulletin_dest.hash))
 
     import time
-    while True:  # keep the stack alive; re-announce periodically so peers find us
+    while True:  # keep the stack alive; re-announce so peers find us + the bulletins
         time.sleep(300)
         try:
             destination.announce()
+            latest = list_bulletins(limit=1)
+            if latest:
+                bulletin_dest.announce(
+                    app_data=announce_app_data(latest[0]["ref"], latest[0]["text"]))
+            else:
+                bulletin_dest.announce()
         except Exception:  # noqa: BLE001
             pass
 
@@ -256,10 +403,24 @@ if __name__ == "__main__":
     ap.add_argument("--identity", help="path to persist the station identity")
     ap.add_argument("--no-draft", action="store_true",
                     help="pure-lookup mode: never use the local model to draft")
+    ap.add_argument("--publish-bulletin", metavar="TEXT",
+                    help="publish a verified bulletin + show the seal-ref to broadcast")
+    ap.add_argument("--list-bulletins", action="store_true",
+                    help="list bulletins this station has published")
+    ap.add_argument("--simulate-broadcast", metavar="TEXT",
+                    help="prove publish→broadcast→fetch→verify-offline with no radio")
     args = ap.parse_args()
     if args.simulate:
         print(json.dumps(simulate(args.simulate, max_bytes=args.max_bytes,
                                   allow_draft=not args.no_draft),
+                         ensure_ascii=False, indent=2))
+    elif args.publish_bulletin:
+        print(json.dumps(publish_bulletin(args.publish_bulletin),
+                         ensure_ascii=False, indent=2))
+    elif args.list_bulletins:
+        print(json.dumps(list_bulletins(), ensure_ascii=False, indent=2))
+    elif args.simulate_broadcast:
+        print(json.dumps(simulate_broadcast(args.simulate_broadcast),
                          ensure_ascii=False, indent=2))
     else:
         serve(max_bytes=args.max_bytes, identity_path=args.identity,
