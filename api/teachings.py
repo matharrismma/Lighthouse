@@ -495,6 +495,67 @@ _SEED: List[Dict[str, Any]] = [
         "seed_v": 1,
         "captured": "2026-06-23",
     },
+    {
+        "id": "control_theory_for_autonomous_systems",
+        "directive": "Control theory for autonomous systems.",
+        "principle": ("Control theory = the math of CLOSED-LOOP feedback regulation: measure "
+                      "output, compare to a REFERENCE (error = reference - output), act to drive "
+                      "error to zero, repeat. Core results: PID (react to error, its accumulation, "
+                      "its rate); STABILITY (Lyapunov: a function V that only decreases converges "
+                      "to equilibrium; poles in the left-half plane = the Laplace real axis sigma — "
+                      "ties laplace_dynamics); CONTROLLABILITY & OBSERVABILITY (Kalman: you can only "
+                      "steer what is reachable and only act on what you can infer); STATE ESTIMATION "
+                      "(the Kalman filter: act on the estimated state, not raw noise); OPTIMAL "
+                      "CONTROL / Bellman (the optimal policy onward from any state); and "
+                      "HIERARCHICAL/NESTED loops (fast inner stabilizers under slow outer planners). "
+                      "It is the DYNAMIC extension of the Law of Requisite Variety: Conant-Ashby "
+                      "says you must BE a model to regulate (the static requirement); control theory "
+                      "says CLOSE THE LOOP around that model and stay stable (the dynamic law). For "
+                      "OUR autonomous systems (the /loop, the Reticulum base station, engine "
+                      "verification, the RED/FLOOR/BROTHERS/GOD gates, the Missions fractal) it is "
+                      "the design discipline: an explicit REFERENCE (the TRUE goal, never a proxy — "
+                      "Goodhart is the failure), OBSERVABILITY (seals/logs/receipts so you can see "
+                      "what it does), BOUNDED actuation (rate limits, saturation), FAIL-SAFE defaults "
+                      "(when uncertain, STOP/defer), nested loops, and a convergence/termination "
+                      "check (a Lyapunov-like 'am I converging or drifting?')."),
+        "realization": ("Recognized the ingestion /loop just run IS a control loop "
+                        "(goal -> sense what's done/blocked -> act one chunk -> verify "
+                        "self-contained + benchmark -> adjust -> stop when safe work runs out; "
+                        "DEFERRED Ray's on bad OCR input = don't-actuate-on-a-bad-signal; queued "
+                        "deploys on a Tailscale block + never self-authenticated = fail-safe). The "
+                        "gates = hierarchical safety control; engine verification = negative "
+                        "feedback against falsehood. Captured as a teaching (no code change this "
+                        "pass)."),
+        "result": ("GRADED. Control theory (feedback/PID/Lyapunov/controllability/observability/"
+                   "Kalman filter/Bellman/nested loops) = CONFIRMED engineering math (Wiener, "
+                   "Cybernetics 1948; Kalman 1960, controllability/observability + the filter; "
+                   "Lyapunov 1892; Bellman 1957 — foundational/citable; scholar surfaced adjacent "
+                   "control papers, not the pre-digital origins). Interlock with Requisite Variety "
+                   "(Conant-Ashby) + Laplace stability = CONFIRMED (one lineage). Applying it to our "
+                   "autonomous systems = PLAUSIBLE + actionable (the loop/base-station already do "
+                   "crude versions). LOAD-BEARING SAFETY FRUIT: an autonomous goal-seeker with no "
+                   "human in the loop is exactly where AI fails (Goodhart, reward-hacking, drift, "
+                   "runaway); control theory's discipline (bounded, observable, constrained, "
+                   "fail-safe-on-uncertainty, referenced to the TRUE good) is the antidote — the "
+                   "cybernetic form of the alignment problem. CEILING (faith reading, flagged, "
+                   "glory up): autonomy is NEVER absolute — the highest loop must close around the "
+                   "true good, with humans (BROTHERS gate) and God (GOD gate) in the loop; no finite "
+                   "autonomous regulator is sufficient unto itself (the requisite-variety humility "
+                   "theorem in dynamic form). The engine stays a servant under authority, never the "
+                   "autonomous idol."),
+        "status": "discipline",
+        "refs": ["Wiener 1948, 'Cybernetics'; Kalman 1960 (controllability/observability + "
+                 "'A new approach to linear filtering', doi:10.1115/1.3662552); Lyapunov 1892 "
+                 "(stability); Bellman 1957 ('Dynamic Programming') — foundational, citable",
+                 "scholar adjacent: 'Controllability, Observability and Stability of Linear "
+                 "Systems' (1968, doi:10.1137/0306010)",
+                 "teaching:law_of_requisite_variety (control theory = its dynamic extension)",
+                 "placeholder:laplace_dynamics (stability = left-half-plane poles)",
+                 "the /loop + the RED/FLOOR/BROTHERS/GOD gates = our crude control loops",
+                 "Colossians 1:17; the highest loop closes around God"],
+        "seed_v": 1,
+        "captured": "2026-06-24",
+    },
 ]
 
 
