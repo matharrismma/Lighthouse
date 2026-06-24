@@ -114,4 +114,24 @@ points beyond itself, to Christ.
 
 ---
 
+## Famous textbooks in other languages
+
+A reading program must fit each language's own writing system (see the discipline
+above) — these are the celebrated, historically load-bearing primers per language
+to anchor each track. Many are already public domain; each still needs a
+**native-literacy reviewer + a PD-edition check** before it ships, and several
+carry a period worldview to surface honestly.
+
+- **Russian** — **Tolstoy, *Azbuka* / *Novaya Azbuka*** (1872/1875): Tolstoy wrote his own ABC — reading, writing, counting, original short stories, teacher's notes; still Russia's most-reprinted primer. **Ushinsky, *Rodnoe Slovo* ("Native Word")** (1864): the first mass Russian reading textbook, phonemic method + teacher's guide. Both PD.
+- **Chinese** — the **"San Bai Qian"** triad: **Three Character Classic** (三字经, 13th c.), **Thousand Character Classic** (千字文), **Hundred Family Surnames** (百家姓). The universal literacy texts for centuries (~2,000 characters across the three). PD. *Note:* Chinese literacy is character-recognition, not phonics — a different paradigm, bridged today via pinyin/zhuyin; Confucian-morality worldview.
+- **French** — **G. Bruno (Mme Fouillée), *Le Tour de la France par deux enfants*** (1877): the iconic French reader — two orphans journey across France; reading + geography + civics + virtue. PD ([Gutenberg #27782](https://www.gutenberg.org/ebooks/27782)); carries post-1870 nationalist framing — flag. **Méthode Boscher** (1906): the celebrated syllabic method — *verify PD* (French term is life+70).
+- **Spanish** — the **cartilla / silabario** tradition (19th-c. eds PD; e.g. *Silabario de Idioma Mexicano*). The famous modern *Silabario Hispanoamericano* (Dufflocq, 1945) is likely still in copyright — **do not use**; build from PD cartillas + a reviewer. (Our hand-authored Spanish starter already follows this method.)
+- **German** — the **Fibel** primer tradition; Hoffmann's *Der Struwwelpeter* (1845, PD) — famous cautionary tales (period attitudes — flag; not a reader proper).
+- **Japanese** — the **Iroha** (いろは), the classic pangram poem that orders the kana — the traditional kana on-ramp. PD.
+- **Arabic** — the traditional **Qāʿida Nūrāniyya** approach (letter-forms → connected script → Quranic reading); RTL (the shell supports it); native reviewer essential.
+- **Hindi / Devanagari** — the **Barakhadi** (बारहखड़ी) syllabary-matrix (consonant × vowel) — the standard abugida on-ramp.
+- **Latin / Greek** — see *Classical languages* above (Allen & Greenough, D'Ooge; Smyth, White).
+
+---
+
 *Sources for this catalog:* [Project Gutenberg Top 100](https://www.gutenberg.org/browse/scores/top), [UMKC Public Domain Books guide](https://libguides.library.umkc.edu/OER/PublicDomainBooks), [Internet Archive — Euclid](https://archive.org/details/euclidselementso00euclrich), [Playfair's Euclid](https://archive.org/details/elementsofgeomet00john), [Resourceaholic — antique maths textbooks](https://www.resourceaholic.com/p/digitised-antique-maths-textbooks.html), [Allen & Greenough New Latin Grammar (LoC)](https://www.loc.gov/item/32016293/).
