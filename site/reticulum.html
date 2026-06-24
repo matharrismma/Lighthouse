@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concordance over Reticulum · Narrow Highway</title>
+  <meta name="description" content="Run a Concordance base station on LoRa via Reticulum — the verification engine behind the radio, fully off-grid. For the Meshtastic / LoRa / mesh community. Free, sovereign, Christ first.">
+  <link rel="canonical" href="https://narrowhighway.com/reticulum.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Concordance over Reticulum · Narrow Highway">
+  <meta property="og:description" content="The verification engine behind the radio, fully off-grid. Verified bulletins any node can confirm offline. For the mesh community.">
+  <meta property="og:url" content="https://narrowhighway.com/reticulum.html">
+  <link rel="stylesheet" href="/nh-shell.css">
+  <script defer src="/nh-shell.js"></script>
+  <style>
+    :root {
+      --bg: #14110c; --surface: #1d1812; --surface2: #251f17;
+      --text: #ece3d4; --dim: #b3a892; --muted: #8a7f6b;
+      --accent: #d8a657; --line: #3a3024; --ok: #7fb069; --warn: #d98c5f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Crimson Pro', Georgia, serif; background: var(--bg);
+      color: var(--text); line-height: 1.65; margin: 0;
+      padding: 0 18px 90px; max-width: 760px; margin: 0 auto;
+      -webkit-text-size-adjust: 100%;
+    }
+    a { color: var(--accent); }
+    .eyebrow {
+      font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+      margin-top: 34px;
+    }
+    h1 { font-size: clamp(28px, 7vw, 42px); line-height: 1.12; margin: 6px 0 10px; font-weight: 600; }
+    h2 {
+      font-size: 23px; margin: 40px 0 8px; font-weight: 600;
+      border-bottom: 1px solid var(--line); padding-bottom: 6px;
+    }
+    h3 { font-size: 17px; margin: 22px 0 4px; color: var(--dim); font-weight: 600; }
+    p, li { font-size: 17px; }
+    .lede { font-size: 19px; color: var(--dim); }
+    code, pre, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    pre {
+      background: #0f0c08; border: 1px solid var(--line); border-left: 3px solid var(--accent);
+      border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 13.5px;
+      line-height: 1.55; color: #e6dcc8;
+    }
+    p code { background: var(--surface2); padding: 1px 6px; border-radius: 4px; font-size: 14px; color: var(--accent); }
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px 18px; margin: 16px 0;
+    }
+    .step { display: flex; gap: 14px; margin: 18px 0; align-items: flex-start; }
+    .step .n {
+      flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent); color: #1a1206; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; font-size: 14px; margin-top: 3px;
+    }
+    .step .body { flex: 1; min-width: 0; }
+    .step .body > :first-child { margin-top: 0; }
+    .tag {
+      display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+      letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px;
+      border-radius: 20px; border: 1px solid var(--line);
+    }
+    .tag.ok { color: var(--ok); border-color: var(--ok); }
+    .tag.pending { color: var(--warn); border-color: var(--warn); }
+    .scene { font-style: italic; color: var(--dim); border-left: 2px solid var(--accent); padding-left: 16px; }
+    ul { padding-left: 22px; }
+    .foot { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+            font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+    .foot a { color: var(--dim); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="eyebrow">Off-grid · LoRa · for the mesh community</div>
+  <h1>Concordance over Reticulum</h1>
+  <p class="lede">The verification engine, behind the radio — fully off-grid. Verified answers and tamper-evident bulletins for a mesh you can't trust the relays of. Free, sovereign, Christ first.</p>
+
+  <h2>The honest architecture</h2>
+  <p>You <b>cannot</b> run an AI on a LoRa node — a Meshtastic/RNode board is a microcontroller, and the link carries bytes, not models. So we don't pretend to. Instead:</p>
+  <div class="card">
+    <p style="margin:0;"><b>The radio carries the mesh. A small computer behind it runs the engine.</b> A mesh peer sends a question; your station answers in a compact, verifiable reply. No internet. No provider. No cloud.</p>
+  </div>
+  <ul>
+    <li><b>The node</b> (ESP32 / nRF52 + LoRa) — relays the mesh, carries tiny signed artifacts.</li>
+    <li><b>+ a companion</b> (a Raspberry Pi, an old phone, a mini-PC; solar-capable) — runs the <b>deterministic engine</b> offline: verify, and answer from the keeping.</li>
+    <li><b>+ ~8&nbsp;GB RAM</b> — adds a <b>small local model</b> for drafting, still with no internet.</li>
+  </ul>
+  <p>We chose <b>Reticulum</b> (RNS) over plain Meshtastic text: it's a full encrypted networking stack over the same radios, with real request/response — and its identity layer cryptographically proves an answer came from <i>your</i> station.</p>
+
+  <h2>Stand up a station</h2>
+
+  <div class="step"><div class="n">1</div><div class="body">
+    <h3>Get the engine on your companion computer</h3>
+    <p>Clone the repository onto the Pi / phone / mini-PC that sits behind the radio. The engine is Python, standard-library at its core.</p>
+  </div></div>
+
+  <div class="step"><div class="n">2</div><div class="body">
+    <h3>Try the brain with no radio at all</h3>
+    <p>Prove the round-trip first — this needs no hardware:</p>
+    <pre>python -m api.reticulum_bridge --simulate "the love of God"
+python -m api.reticulum_bridge --simulate "is 17 a prime number"</pre>
+    <p>The first returns a verified card from the keeping with a pull-ref; the second is routed to the verifier rather than guessed at.</p>
+  </div></div>
+
+  <div class="step"><div class="n">3</div><div class="body">
+    <h3>Add Reticulum + your LoRa radio</h3>
+    <p>Install Reticulum and configure an <code>RNodeInterface</code> for your LoRa board in <code>~/.reticulum/config</code> (see the Reticulum manual for your radio + region).</p>
+    <pre>pip install rns
+# configure your RNode interface in ~/.reticulum/config, then:
+python -m api.reticulum_bridge --identity ~/.nh_station_id</pre>
+    <p>Your station announces itself on the mesh and answers <code>/ask</code> requests. <code>--no-draft</code> runs it in pure-lookup mode (verified content only). <span class="tag pending">radio transport: field-test pending</span></p>
+  </div></div>
+
+  <div class="step"><div class="n">4</div><div class="body">
+    <h3>Optional — offline drafting with a small local model</h3>
+    <p>For answers beyond the keeping, add a local model. No internet, no API key, no cost:</p>
+    <pre>curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5:3b</pre>
+    <p>The station prefers verified content; it only drafts when the keeping has nothing, and every draft is marked <code>(draft)</code> on the wire so no one mistakes it for verified truth.</p>
+  </div></div>
+
+  <h2>Verified bulletins — the part that matters in a crisis</h2>
+  <p class="scene">A relief volunteer's node receives: "Water point open at the school gym, north entrance." It came through three relays nobody vetted. Did one of them change "north" to "south"? She runs the verifier — offline, no signal — and sees: unaltered, authentic, signed by the relief net's key. She trusts it. Had a relay flipped a word, she'd see it was altered, and ignore it.</p>
+  <p>Publish a signed, content-addressed bulletin. The full bundle travels by Reticulum, SD card, or hand-to-hand; the <b>one-packet seal-ref</b> (~68 bytes) fits a single LoRa message.</p>
+  <pre>python -m api.bulletin --publish "Water point open at the school gym, north entrance. Boil 1 min."</pre>
+  <p>Any recipient confirms it <b>with no server and no internet</b> — supply the seal-ref to check it wasn't altered, and the issuer's pinned public key to confirm who signed it:</p>
+  <pre>python -m api.bulletin --verify bulletin.json --ref nh1:&lt;hash&gt; --pubkey &lt;issuer-key&gt;</pre>
+  <p>Two layers, and we never claim more than we provide: <b>unaltered</b> needs no key (recompute the hash); <b>authentic</b> needs the issuer's pinned key. A bundle carrying its own key only proves it's internally consistent — trust comes from a key you pinned out-of-band. <span class="tag ok">tested offline</span></p>
+
+  <h2>What this station promises</h2>
+  <ul>
+    <li><b>Sovereign</b> — runs with no internet and no provider. Yours to keep.</li>
+    <li><b>Verified first</b> — the deterministic engine and the kept record answer before anything is drafted; a checkable claim is verified, not guessed.</li>
+    <li><b>Honest</b> — drafts are flagged; bulletins are tamper-evident; it never launders a guess into a fact.</li>
+    <li><b>Safety first</b> — a message in crisis is met with real help before anything else.</li>
+    <li><b>Christ first</b> — on the ultimate questions it points past itself to Christ, Scripture, and real people. A connector, never an idol.</li>
+    <li><b>Free</b> — no login, no ads, no tracking. Give as you have received.</li>
+  </ul>
+
+  <h2>Status &amp; honesty</h2>
+  <p>The brain (answering from the keeping, routing, local drafting) and the offline bulletin verification are <b>tested</b> <span class="tag ok">working</span>. The Reticulum radio transport is <b>written to the RNS API and pending a field-test on real RNode hardware</b> <span class="tag pending">help us test</span>. If you run a node and want to help prove it on the air, that's a real way to serve — reach us.</p>
+
+  <div class="foot">
+    Narrow Highway · the engine behind the radio &nbsp;·&nbsp;
+    <a href="/">home →</a> &nbsp; <a href="/llms.txt">for agents →</a>
+  </div>
+
+</body>
+</html>
