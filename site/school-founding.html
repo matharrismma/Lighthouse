@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Read — Founding Documents</title>
+<style>
+  :root { --bg:#fbf7ee; --ink:#221c12; --soft:#5d5443; --line:#d9cdb3;
+          --accent:#9a6a1e; --card:#fffdf7; --ok:#3f7d3f; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); color:var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height:1.6; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:720px; margin:0 auto; padding:14px 16px 120px; }
+  header { display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    padding:10px 0 12px; border-bottom:2px solid var(--line); }
+  .brand { font-weight:800; letter-spacing:.02em; }
+  .brand .x { color:var(--accent); }
+  .prog { font-size:13px; color:var(--soft); font-variant-numeric:tabular-nums; }
+  .review { background:#fff4dd; border:1px solid #e3c98c; border-radius:8px;
+    padding:8px 12px; font-size:13px; color:#7a5a16; margin:12px 0 0; }
+  h1 { font-size:clamp(24px,6vw,34px); line-height:1.15; margin:18px 0 2px; }
+  .seq { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+  .rule { font-size:19px; background:var(--card); border:1px solid var(--line);
+    border-inline-start:4px solid var(--accent); border-radius:10px; padding:14px 16px; margin:14px 0; }
+  .h { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin:20px 0 6px; }
+  .ex { display:flex; flex-wrap:wrap; gap:8px; }
+  .ex span { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:6px 13px; font-size:17px; }
+  .say { font-size:clamp(20px,5.4vw,27px); font-weight:600; padding:14px 16px; background:#fff;
+    border:2px dashed var(--line); border-radius:10px; white-space:pre-wrap; }
+  .mode { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:10px 0; }
+  .mode .lab { font-weight:700; color:var(--accent); }
+  .mode .ins { font-size:14px; color:var(--soft); margin:2px 0 6px; }
+  .mode .scr { font-size:16px; }
+  .check { background:#f3efe2; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:16px 0; }
+  .check .q { font-weight:600; font-size:18px; }
+  button { font:inherit; cursor:pointer; }
+  .reveal { margin-top:10px; background:var(--accent); color:#fff; border:none; border-radius:8px;
+    padding:11px 16px; font-weight:700; min-height:44px; }
+  .ans { margin-top:10px; display:none; }
+  .ans.show { display:block; }
+  .ans .a { font-weight:700; color:var(--ok); font-size:18px; }
+  .ans .note { font-size:14px; color:var(--soft); margin-top:4px; }
+  nav.bar { position:fixed; left:0; right:0; bottom:0; background:var(--bg); border-top:2px solid var(--line);
+    display:flex; gap:8px; padding:10px 12px; max-width:720px; margin:0 auto; }
+  nav.bar button { flex:1; min-height:52px; border:1px solid var(--line); background:var(--card);
+    border-radius:10px; font-weight:700; font-size:16px; color:var(--ink); }
+  nav.bar button:disabled { opacity:.4; }
+  nav.bar .toc { flex:0 0 auto; min-width:52px; }
+  .toc-list { display:none; }
+  .toc-list.show { display:block; }
+  .toc-list a { display:block; padding:11px 10px; border-bottom:1px solid var(--line);
+    color:var(--ink); text-decoration:none; font-size:16px; }
+  footer { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:13px; color:var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Read<span class="x"> ·</span></div>
+    <div class="prog" id="prog"></div>
+  </header>
+  <div class="review">United States founding documents — public-domain primary sources, via Project Gutenberg. Read in the words of those who wrote them.</div>
+  <div id="toc" class="toc-list"></div>
+  <div id="view"></div>
+  <footer>Free, and yours — to keep, to copy, to give. Works with no internet, on any device. This school teaches reading; for the deeper questions it points beyond itself, to Christ.</footer>
+</div>
+
+<nav class="bar">
+  <button class="toc" id="tocBtn" aria-label="lessons">☰</button>
+  <button id="prev">◀ Back</button>
+  <button id="next">Next ▶</button>
+</nav>
+
+<script>window.NH_UNITS=[{"id": "founding_01", "title": "The Declaration of Independence — Opening (excerpt)", "unit_seq": 1, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "When in the Course of human events, it becomes necessary for one people to dissolve the political bands which have connected them with another, and to assume, among the Powers of the earth, the separate and equal station to which the Laws of Nature and of Nature's God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation. We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty, and the pursuit of Happiness. That to secure these rights, Governments are instituted among Men, deriving their just powers from the consent of the governed,"}, {"id": "founding_02", "title": "The Declaration of Independence — Conclusion", "unit_seq": 2, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "We, therefore, the Representatives of the United States of America, in General Congress, Assembled, appealing to the Supreme Judge of the world for the rectitude of our intentions, do, in the Name, and by the Authority of the good People of these Colonies, solemnly publish and declare, That these United Colonies are, and of Right ought to be Free and Independent States; that they are Absolved from all Allegiance to the British Crown, and that all political connection between them and the State of Great Britain, is and ought to be totally dissolved; and that as Free and Independent States, they have full Power to levy War, conclude Peace, contract Alliances, establish Commerce, and to do all other Acts and Things which Independent States may of right do. And for the support of this Declaration, with a firm reliance on the Protection of Divine Providence, we mutually pledge to each other our Lives, our Fortunes and our sacred Honor."}, {"id": "founding_03", "title": "The Constitution of the United States — Preamble", "unit_seq": 3, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "We the people of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America."}, {"id": "founding_04", "title": "The Bill of Rights — Amendment I", "unit_seq": 4, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "Congress shall make no law respecting an establishment of religion, or prohibiting the free exercise thereof; or abridging the freedom of speech, or of the press, or the right of the people peaceably to assemble, and to petition the Government for a redress of grievances."}, {"id": "founding_05", "title": "The Bill of Rights — Amendment II", "unit_seq": 5, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "A well-regulated militia, being necessary to the security of a free State, the right of the people to keep and bear arms, shall not be infringed."}, {"id": "founding_06", "title": "The Bill of Rights — Amendment III", "unit_seq": 6, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "No soldier shall, in time of peace be quartered in any house, without the consent of the owner, nor in time of war, but in a manner to be prescribed by law."}, {"id": "founding_07", "title": "The Bill of Rights — Amendment IV", "unit_seq": 7, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "The right of the people to be secure in their persons, houses, papers, and effects, against unreasonable searches and seizures, shall not be violated, and no Warrants shall issue, but upon probable cause, supported by oath or affirmation, and particularly describing the place to be searched, and the persons or things to be seized."}, {"id": "founding_08", "title": "The Bill of Rights — Amendment V", "unit_seq": 8, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "No person shall be held to answer for a capital, or otherwise infamous crime, unless on a presentment or indictment of a Grand Jury, except in cases arising in the land or naval forces, or in the Militia, when in actual service in time of War or public danger; nor shall any person be subject for the same offense to be twice put in jeopardy of life or limb; nor shall be compelled in any criminal case to be a witness against himself, nor be deprived of life, liberty, or property, without due process of law; nor shall private property be taken for public use without just compensation."}, {"id": "founding_09", "title": "The Bill of Rights — Amendment VI", "unit_seq": 9, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "In all criminal prosecutions, the accused shall enjoy the right to a speedy and public trial, by an impartial jury of the State and district wherein the crime shall have been committed, which district shall have been previously ascertained by law, and to be informed of the nature and cause of the accusation; to be confronted with the witnesses against him; to have compulsory process for obtaining witnesses in his favor, and to have the assistance of counsel for his defense."}, {"id": "founding_10", "title": "The Bill of Rights — Amendment VII", "unit_seq": 10, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "In suits at common law, where the value in controversy shall exceed twenty dollars, the right of trial by jury shall be preserved, and no fact tried by a jury shall be otherwise re-examined in any court of the United States, than according to the rules of the common law."}, {"id": "founding_11", "title": "The Bill of Rights — Amendment VIII", "unit_seq": 11, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "Excessive bail shall not be required nor excessive fines imposed, nor cruel and unusual punishments inflicted."}, {"id": "founding_12", "title": "The Bill of Rights — Amendment IX", "unit_seq": 12, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "The enumeration in the Constitution, of certain rights, shall not be construed to deny or disparage others retained by the people."}, {"id": "founding_13", "title": "The Bill of Rights — Amendment X", "unit_seq": 13, "track": "Founding Documents (United States, public domain)", "decodable_sentence": "The powers not delegated to the United States by the Constitution, nor prohibited by it to the States, are reserved to the States respectively, or to the people."}];window.NH_LABELS={"brand": "Read", "dir": "ltr", "html_lang": "en", "title": "Read — Founding Documents", "lesson": "Reading", "of": "of", "examples": "New words", "read_aloud": "Read this aloud", "practice": "Practice together", "check": "Check:", "show": "Show the answer", "back": "Back", "next": "Next", "footer": "Free, and yours — to keep, to copy, to give. Works with no internet, on any device. This school teaches reading; for the deeper questions it points beyond itself, to Christ.", "review": "United States founding documents — public-domain primary sources, via Project Gutenberg. Read in the words of those who wrote them.", "source": "data/reading_en_founding/units.jsonl", "lang": "founding"};</script>
+<script>
+var UNITS = window.NH_UNITS || [];
+var L = window.NH_LABELS || {};
+var i = 0;
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function render(){
+  var u = UNITS[i]; if(!u){return;}
+  document.getElementById("prog").textContent = L.lesson + " " + (i+1) + " " + L.of + " " + UNITS.length;
+  var h = "";
+  h += '<div class="seq">' + esc(u.track || "") + '</div>';
+  h += '<h1>' + esc(u.title || u.id) + '</h1>';
+  if(u.rule){ h += '<div class="rule">' + esc(u.rule) + '</div>'; }
+  if(u.examples && u.examples.length){
+    h += '<div class="h">' + esc(L.examples) + '</div><div class="ex">';
+    for(var e=0;e<u.examples.length;e++){ h += '<span>' + esc(u.examples[e]) + '</span>'; }
+    h += '</div>';
+  }
+  if(u.decodable_sentence){ h += '<div class="h">' + esc(L.read_aloud) + '</div><div class="say">' + esc(u.decodable_sentence) + '</div>'; }
+  if(u.modes && u.modes.length){
+    h += '<div class="h">' + esc(L.practice) + '</div>';
+    for(var m=0;m<u.modes.length;m++){ var mo=u.modes[m];
+      h += '<div class="mode"><div class="lab">' + esc(mo.label||"") + '</div>';
+      if(mo.instruction){ h += '<div class="ins">' + esc(mo.instruction) + '</div>'; }
+      if(mo.script){ h += '<div class="scr">' + esc(mo.script) + '</div>'; }
+      h += '</div>';
+    }
+  }
+  if(u.check && (u.check.prompt || u.check.question)){
+    var q = u.check.prompt || u.check.question;
+    h += '<div class="check"><div class="q">' + esc(L.check) + ' ' + esc(q) + '</div>';
+    h += '<button class="reveal" data-reveal="1">' + esc(L.show) + '</button>';
+    h += '<div class="ans"><div class="a">' + esc(u.check.answer||"") + '</div>';
+    if(u.check.teaching_note){ h += '<div class="note">' + esc(u.check.teaching_note) + '</div>'; }
+    h += '</div></div>';
+  }
+  document.getElementById("view").innerHTML = h;
+  document.getElementById("prev").disabled = (i<=0);
+  document.getElementById("next").disabled = (i>=UNITS.length-1);
+  document.getElementById("toc").classList.remove("show");
+  window.scrollTo(0,0);
+  try{ localStorage.setItem("nh_read_at_"+(L.lang||"x"), String(i)); }catch(e){}
+}
+function go(n){ i=Math.max(0,Math.min(UNITS.length-1,n)); render(); }
+document.getElementById("prev").onclick=function(){go(i-1);};
+document.getElementById("next").onclick=function(){go(i+1);};
+document.addEventListener("keydown",function(e){ if(e.key==="ArrowLeft")go(i-1); if(e.key==="ArrowRight")go(i+1); });
+var toc = document.getElementById("toc"); var th="";
+for(var t=0;t<UNITS.length;t++){ th += '<a href="#" data-i="'+t+'">'+(t+1)+'. '+esc(UNITS[t].title||UNITS[t].id)+'</a>'; }
+toc.innerHTML = th;
+toc.addEventListener("click",function(e){ var a=e.target.closest("a"); if(a){ e.preventDefault(); go(parseInt(a.getAttribute("data-i"),10)); } });
+document.getElementById("tocBtn").onclick=function(){ toc.classList.toggle("show"); };
+document.getElementById("view").addEventListener("click",function(e){ var b=e.target.closest("[data-reveal]"); if(b){ var a=b.nextElementSibling; if(a){a.classList.add("show");} b.style.display="none"; } });
+try{ var saved=parseInt(localStorage.getItem("nh_read_at_"+(L.lang||"x")),10); if(!isNaN(saved)) i=Math.max(0,Math.min(UNITS.length-1,saved)); }catch(e){}
+render();
+</script>
+</body>
+</html>

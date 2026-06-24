@@ -83,6 +83,19 @@ LABELS = {
                    "Gutenberg. Timeless fables; the moral is the last line of each."),
         "source": "data/reading_en_aesop/units.jsonl",
     },
+    "founding": {
+        "brand": "Read", "dir": "ltr", "html_lang": "en",
+        "title": "Read — Founding Documents",
+        "lesson": "Reading", "of": "of", "examples": "New words",
+        "read_aloud": "Read this aloud", "practice": "Practice together",
+        "check": "Check:", "show": "Show the answer", "back": "Back", "next": "Next",
+        "footer": ("Free, and yours — to keep, to copy, to give. Works with no internet, "
+                   "on any device. This school teaches reading; for the deeper questions "
+                   "it points beyond itself, to Christ."),
+        "review": ("United States founding documents — public-domain primary sources, via "
+                   "Project Gutenberg. Read in the words of those who wrote them."),
+        "source": "data/reading_en_founding/units.jsonl",
+    },
 }
 
 
