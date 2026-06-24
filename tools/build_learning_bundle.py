@@ -70,6 +70,19 @@ LABELS = {
                    "— public domain, via Project Gutenberg. A time-tested reader."),
         "source": "data/reading_en_mcguffey/units.jsonl",
     },
+    "aesop": {
+        "brand": "Read", "dir": "ltr", "html_lang": "en",
+        "title": "Read — Aesop's Fables",
+        "lesson": "Fable", "of": "of", "examples": "New words",
+        "read_aloud": "Read this aloud", "practice": "Practice together",
+        "check": "Check:", "show": "Show the answer", "back": "Back", "next": "Next",
+        "footer": ("Free, and yours — to keep, to copy, to give. Works with no internet, "
+                   "on any device. This school teaches reading; for the deeper questions "
+                   "it points beyond itself, to Christ."),
+        "review": ("From The Aesop for Children (1919) — public domain, via Project "
+                   "Gutenberg. Timeless fables; the moral is the last line of each."),
+        "source": "data/reading_en_aesop/units.jsonl",
+    },
 }
 
 
