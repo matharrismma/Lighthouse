@@ -13084,6 +13084,50 @@ def identity_pubkey():
         raise HTTPException(status_code=503, detail=f"instance key unavailable: {exc}")
 
 
+class _BulletinPublishIn(BaseModel):
+    text: str
+    kind: str = "bulletin"
+
+
+@app.post("/bulletin/publish", tags=["public"])
+def bulletin_publish(request: Request, body: _BulletinPublishIn):
+    """Mint a verified bulletin: a signed, content-addressed message any node can
+    confirm OFFLINE (LoRa / Reticulum / SD). Returns the self-contained `bundle`
+    (carry it on the mesh) and a one-packet `ref` (nh1:<sha256>, ~68 bytes) to
+    broadcast. Recipients verify with POST /bulletin/verify or, with no server,
+    the offline `python -m api.bulletin --verify` CLI. The pinned issuer key is
+    GET /identity/pubkey."""
+    _rate_check(request, "workspace_intake")
+    text = (body.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="a bulletin needs text")
+    from api import bulletin as _b
+    try:
+        return _b.publish(text[:4000], kind=(body.kind or "bulletin")[:40])
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=503, detail=f"could not publish: {exc}")
+
+
+class _BulletinVerifyIn(BaseModel):
+    bundle: Dict[str, Any]
+    ref: Optional[str] = None
+    pubkey: Optional[str] = None
+
+
+@app.post("/bulletin/verify", tags=["public"])
+def bulletin_verify(request: Request, body: _BulletinVerifyIn):
+    """Verify a bulletin: UNALTERED (recompute the hash vs `ref`, no key needed)
+    and AUTHENTIC (Ed25519 signature vs the pinned issuer `pubkey`). Honest: a
+    bundle's own embedded key only proves internal consistency — pass the issuer's
+    pinned key (GET /identity/pubkey) to prove WHO signed it. Works offline via the
+    CLI too."""
+    _rate_check(request, "workspace_intake")
+    if not isinstance(body.bundle, dict) or not body.bundle:
+        raise HTTPException(status_code=400, detail="bundle (the signed bulletin) is required")
+    from api import bulletin as _b
+    return _b.verify(body.bundle, ref=body.ref, pubkey=body.pubkey)
+
+
 @app.get("/identity/user_pubkey", include_in_schema=True)
 def identity_user_pubkey():
     """Return this user's personal Ed25519 public key (soul anchor).
