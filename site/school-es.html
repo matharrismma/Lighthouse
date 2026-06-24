@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leer — una escuela gratuita que funciona en cualquier lugar</title>
+<style>
+  :root { --bg:#fbf7ee; --ink:#221c12; --soft:#5d5443; --line:#d9cdb3;
+          --accent:#9a6a1e; --card:#fffdf7; --ok:#3f7d3f; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); color:var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height:1.6; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:720px; margin:0 auto; padding:14px 16px 120px; }
+  header { display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    padding:10px 0 12px; border-bottom:2px solid var(--line); }
+  .brand { font-weight:800; letter-spacing:.02em; }
+  .brand .x { color:var(--accent); }
+  .prog { font-size:13px; color:var(--soft); font-variant-numeric:tabular-nums; }
+  .review { background:#fff4dd; border:1px solid #e3c98c; border-radius:8px;
+    padding:8px 12px; font-size:13px; color:#7a5a16; margin:12px 0 0; }
+  h1 { font-size:clamp(24px,6vw,34px); line-height:1.15; margin:18px 0 2px; }
+  .seq { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+  .rule { font-size:19px; background:var(--card); border:1px solid var(--line);
+    border-inline-start:4px solid var(--accent); border-radius:10px; padding:14px 16px; margin:14px 0; }
+  .h { font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin:20px 0 6px; }
+  .ex { display:flex; flex-wrap:wrap; gap:8px; }
+  .ex span { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:6px 13px; font-size:17px; }
+  .say { font-size:clamp(20px,5.4vw,27px); font-weight:600; padding:14px 16px; background:#fff;
+    border:2px dashed var(--line); border-radius:10px; }
+  .mode { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:10px 0; }
+  .mode .lab { font-weight:700; color:var(--accent); }
+  .mode .ins { font-size:14px; color:var(--soft); margin:2px 0 6px; }
+  .mode .scr { font-size:16px; }
+  .check { background:#f3efe2; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:16px 0; }
+  .check .q { font-weight:600; font-size:18px; }
+  button { font:inherit; cursor:pointer; }
+  .reveal { margin-top:10px; background:var(--accent); color:#fff; border:none; border-radius:8px;
+    padding:11px 16px; font-weight:700; min-height:44px; }
+  .ans { margin-top:10px; display:none; }
+  .ans.show { display:block; }
+  .ans .a { font-weight:700; color:var(--ok); font-size:18px; }
+  .ans .note { font-size:14px; color:var(--soft); margin-top:4px; }
+  nav.bar { position:fixed; left:0; right:0; bottom:0; background:var(--bg); border-top:2px solid var(--line);
+    display:flex; gap:8px; padding:10px 12px; max-width:720px; margin:0 auto; }
+  nav.bar button { flex:1; min-height:52px; border:1px solid var(--line); background:var(--card);
+    border-radius:10px; font-weight:700; font-size:16px; color:var(--ink); }
+  nav.bar button:disabled { opacity:.4; }
+  nav.bar .toc { flex:0 0 auto; min-width:52px; }
+  .toc-list { display:none; }
+  .toc-list.show { display:block; }
+  .toc-list a { display:block; padding:11px 10px; border-bottom:1px solid var(--line);
+    color:var(--ink); text-decoration:none; font-size:16px; }
+  footer { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:13px; color:var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Leer<span class="x"> ·</span></div>
+    <div class="prog" id="prog"></div>
+  </header>
+  <div class="review">Inicio (borrador) — pendiente de revisión por un educador nativo en alfabetización.</div>
+  <div id="toc" class="toc-list"></div>
+  <div id="view"></div>
+  <footer>Gratis, y tuyo — para guardar, copiar y regalar. Funciona sin internet, en cualquier dispositivo. Esta escuela enseña a leer; para las preguntas más profundas, señala más allá de sí misma, a Cristo.</footer>
+</div>
+
+<nav class="bar">
+  <button class="toc" id="tocBtn" aria-label="lessons">☰</button>
+  <button id="prev">◀ Atrás</button>
+  <button id="next">Siguiente ▶</button>
+</nav>
+
+<script>window.NH_UNITS=[{"id": "es_vocales", "unit_seq": 1, "track": "lectura_es", "title": "Las vocales: a e i o u", "rule": "En español cada vocal tiene un solo sonido y siempre suena igual. Son cinco: a, e, i, o, u. Apréndelas de memoria; con ellas se forman todas las palabras.", "examples": ["a", "e", "i", "o", "u"], "decodable_sentence": "a e i o u", "modes": [{"id": "coach_models", "label": "La maestra muestra", "instruction": "Di cada vocal en voz alta, despacio, y que el niño la repita.", "script": "a... e... i... o... u. Otra vez, más rápido: a, e, i, o, u."}, {"id": "take_turns", "label": "Por turnos", "instruction": "Señala una vocal; el niño la dice. Luego cambien.", "script": "Señalo la o — el niño dice «o». Señalo la i — «i»."}], "check": {"prompt": "¿Cuántas vocales hay y cuáles son?", "answer": "Cinco: a, e, i, o, u.", "teaching_note": "Si duda, cántenlas juntos varias veces; las vocales son la base de todo."}}, {"id": "es_m", "unit_seq": 2, "track": "lectura_es", "title": "La m con las vocales", "rule": "La letra m suena «mmm». Júntala con cada vocal para formar sílabas: ma, me, mi, mo, mu. Una palabra se lee uniendo sus sílabas: ma + má = mamá.", "examples": ["ma", "me", "mi", "mo", "mu", "mamá"], "decodable_sentence": "Mi mamá me ama.", "modes": [{"id": "coach_models", "label": "La maestra une", "instruction": "Une la m con cada vocal, despacio, y luego forma «mamá».", "script": "m con a: ma. m con i: mi. ma-má: mamá. Lee: mi ma-má me a-ma."}, {"id": "take_turns", "label": "Por turnos", "instruction": "Di una sílaba (ma, me, mi, mo, mu); el niño la lee. Luego cambien.", "script": "Digo «mo» — el niño lee «mo». El niño dice «mu» — yo leo «mu»."}], "check": {"prompt": "Lee esta palabra: mamá", "answer": "ma-má → mamá", "teaching_note": "Que separe las sílabas con el dedo si hace falta: ma + má."}}, {"id": "es_p", "unit_seq": 3, "track": "lectura_es", "title": "La p con las vocales", "rule": "La letra p suena «p». Forma sílabas: pa, pe, pi, po, pu. Ahora puedes leer más palabras: papá, pipa, puma.", "examples": ["pa", "pe", "pi", "po", "pu", "papá"], "decodable_sentence": "Papá pela la papa.", "modes": [{"id": "coach_models", "label": "La maestra une", "instruction": "Une la p con las vocales y lee «papá».", "script": "p con a: pa. pa-pá: papá. Lee: pa-pá pe-la la pa-pa."}, {"id": "take_turns", "label": "Por turnos", "instruction": "Túrnense para leer sílabas con p.", "script": "«pi»... «po»... ahora una palabra: pi-pa → pipa."}], "check": {"prompt": "Lee: papá", "answer": "pa-pá → papá", "teaching_note": "Compara con «mamá»: solo cambia la primera letra."}}, {"id": "es_s", "unit_seq": 4, "track": "lectura_es", "title": "La s con las vocales", "rule": "La letra s suena «sss». Forma sílabas: sa, se, si, so, su. Lee palabras nuevas: oso, mesa, suma.", "examples": ["sa", "se", "si", "so", "su", "oso"], "decodable_sentence": "Ese oso es mío.", "modes": [{"id": "coach_models", "label": "La maestra une", "instruction": "Une la s con las vocales y lee «oso».", "script": "s con o: so. o-so: oso. Lee: e-se o-so es mí-o."}, {"id": "take_turns", "label": "Por turnos", "instruction": "Túrnense para formar y leer sílabas con s.", "script": "«sa»... «su»... palabra: me-sa → mesa."}], "check": {"prompt": "Lee: oso", "answer": "o-so → oso", "teaching_note": "La s entre vocales sigue sonando «sss»: o-s-o."}}, {"id": "es_l", "unit_seq": 5, "track": "lectura_es", "title": "La l con las vocales", "rule": "La letra l suena «l». Forma sílabas: la, le, li, lo, lu. Lee: Lola, lee, lupa, luna.", "examples": ["la", "le", "li", "lo", "lu", "luna"], "decodable_sentence": "Lola lee la lista.", "modes": [{"id": "coach_models", "label": "La maestra une", "instruction": "Une la l con las vocales y lee «Lola» y «luna».", "script": "l con a: la. Lo-la: Lola. Lee: Lo-la le-e la lis-ta."}, {"id": "take_turns", "label": "Por turnos", "instruction": "Túrnense para leer sílabas y palabras con l.", "script": "«li»... «lo»... palabra: lu-na → luna."}], "check": {"prompt": "Lee: luna", "answer": "lu-na → luna", "teaching_note": "Junta despacio: lu + na. Felicítalo cuando lo logre."}}, {"id": "es_repaso", "unit_seq": 6, "track": "lectura_es", "title": "Repaso: lee oraciones", "rule": "Ya conoces las vocales y las letras m, p, s, l. Une las sílabas para leer oraciones completas. Lee despacio y con cariño.", "examples": ["mi mamá", "papá", "ese oso", "la luna"], "decodable_sentence": "Mi mamá me ama. Papá pela la papa.", "modes": [{"id": "coach_models", "label": "La maestra lee", "instruction": "Lee cada oración señalando las sílabas; el niño repite.", "script": "Mi ma-má me a-ma. Pa-pá pe-la la pa-pa."}, {"id": "take_turns", "label": "Por turnos", "instruction": "El niño lee una oración; tú lees la siguiente.", "script": "El niño: «E-se o-so es mí-o.» Tú: «Lo-la le-e la lis-ta.»"}], "check": {"prompt": "Lee tú solo: Mi mamá me ama.", "answer": "Mi ma-má me a-ma → Mi mamá me ama.", "teaching_note": "Si lee toda la oración, ¡lo está logrando! Repasen lo que cueste."}}];window.NH_LABELS={"brand": "Leer", "dir": "ltr", "title": "Leer — una escuela gratuita que funciona en cualquier lugar", "lesson": "Lección", "of": "de", "examples": "Ejemplos", "read_aloud": "Lee en voz alta", "practice": "Practiquen juntos", "check": "Comprueba:", "show": "Mostrar la respuesta", "back": "Atrás", "next": "Siguiente", "footer": "Gratis, y tuyo — para guardar, copiar y regalar. Funciona sin internet, en cualquier dispositivo. Esta escuela enseña a leer; para las preguntas más profundas, señala más allá de sí misma, a Cristo.", "review": "Inicio (borrador) — pendiente de revisión por un educador nativo en alfabetización.", "source": "data/reading_es/units.jsonl", "lang": "es"};</script>
+<script>
+var UNITS = window.NH_UNITS || [];
+var L = window.NH_LABELS || {};
+var i = 0;
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function render(){
+  var u = UNITS[i]; if(!u){return;}
+  document.getElementById("prog").textContent = L.lesson + " " + (i+1) + " " + L.of + " " + UNITS.length;
+  var h = "";
+  h += '<div class="seq">' + esc(u.track || "") + '</div>';
+  h += '<h1>' + esc(u.title || u.id) + '</h1>';
+  if(u.rule){ h += '<div class="rule">' + esc(u.rule) + '</div>'; }
+  if(u.examples && u.examples.length){
+    h += '<div class="h">' + esc(L.examples) + '</div><div class="ex">';
+    for(var e=0;e<u.examples.length;e++){ h += '<span>' + esc(u.examples[e]) + '</span>'; }
+    h += '</div>';
+  }
+  if(u.decodable_sentence){ h += '<div class="h">' + esc(L.read_aloud) + '</div><div class="say">' + esc(u.decodable_sentence) + '</div>'; }
+  if(u.modes && u.modes.length){
+    h += '<div class="h">' + esc(L.practice) + '</div>';
+    for(var m=0;m<u.modes.length;m++){ var mo=u.modes[m];
+      h += '<div class="mode"><div class="lab">' + esc(mo.label||"") + '</div>';
+      if(mo.instruction){ h += '<div class="ins">' + esc(mo.instruction) + '</div>'; }
+      if(mo.script){ h += '<div class="scr">' + esc(mo.script) + '</div>'; }
+      h += '</div>';
+    }
+  }
+  if(u.check && (u.check.prompt || u.check.question)){
+    var q = u.check.prompt || u.check.question;
+    h += '<div class="check"><div class="q">' + esc(L.check) + ' ' + esc(q) + '</div>';
+    h += '<button class="reveal" data-reveal="1">' + esc(L.show) + '</button>';
+    h += '<div class="ans"><div class="a">' + esc(u.check.answer||"") + '</div>';
+    if(u.check.teaching_note){ h += '<div class="note">' + esc(u.check.teaching_note) + '</div>'; }
+    h += '</div></div>';
+  }
+  document.getElementById("view").innerHTML = h;
+  document.getElementById("prev").disabled = (i<=0);
+  document.getElementById("next").disabled = (i>=UNITS.length-1);
+  document.getElementById("toc").classList.remove("show");
+  window.scrollTo(0,0);
+  try{ localStorage.setItem("nh_read_at_"+(L.lang||"x"), String(i)); }catch(e){}
+}
+function go(n){ i=Math.max(0,Math.min(UNITS.length-1,n)); render(); }
+document.getElementById("prev").onclick=function(){go(i-1);};
+document.getElementById("next").onclick=function(){go(i+1);};
+document.addEventListener("keydown",function(e){ if(e.key==="ArrowLeft")go(i-1); if(e.key==="ArrowRight")go(i+1); });
+var toc = document.getElementById("toc"); var th="";
+for(var t=0;t<UNITS.length;t++){ th += '<a href="#" data-i="'+t+'">'+(t+1)+'. '+esc(UNITS[t].title||UNITS[t].id)+'</a>'; }
+toc.innerHTML = th;
+toc.addEventListener("click",function(e){ var a=e.target.closest("a"); if(a){ e.preventDefault(); go(parseInt(a.getAttribute("data-i"),10)); } });
+document.getElementById("tocBtn").onclick=function(){ toc.classList.toggle("show"); };
+document.getElementById("view").addEventListener("click",function(e){ var b=e.target.closest("[data-reveal]"); if(b){ var a=b.nextElementSibling; if(a){a.classList.add("show");} b.style.display="none"; } });
+try{ var saved=parseInt(localStorage.getItem("nh_read_at_"+(L.lang||"x")),10); if(!isNaN(saved)) i=Math.max(0,Math.min(UNITS.length-1,saved)); }catch(e){}
+render();
+</script>
+</body>
+</html>
