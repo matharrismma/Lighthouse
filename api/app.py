@@ -13128,6 +13128,73 @@ def bulletin_verify(request: Request, body: _BulletinVerifyIn):
     return _b.verify(body.bundle, ref=body.ref, pubkey=body.pubkey)
 
 
+@app.get("/autonomy", tags=["public"])
+def autonomy_doc():
+    """The control-loop discipline for autonomous agents (so any agent can adopt it).
+    Wrap your loop: state a true REFERENCE, drive an ERROR (distance-to-goal) down,
+    call /autonomy/govern each step to get continue/stop/hold, and /autonomy/authorize
+    before any outward action — the loop is a servant under authority, never the
+    final authority."""
+    return {
+        "what": "control theory for autonomous systems, as a discipline",
+        "principles": [
+            "REFERENCE: state the true goal explicitly (a proxy invites Goodhart drift)",
+            "STABILITY: stop when converged, when drifting (no progress), or at the runaway bound",
+            "BOUNDED actuation: never act harder than your per-step limit",
+            "FAIL-SAFE: on an uncertain signal, HOLD — never actuate on a guess",
+            "OBSERVABILITY: log every tick so the run is reviewable",
+            "AUTHORITY CEILING: outward/irreversible actions need the gates / a human; "
+            "the loop never self-authorizes them",
+        ],
+        "endpoints": {
+            "POST /autonomy/govern": "{reference, errors:[oldest..current], tolerance?, "
+                                     "max_ticks?, patience?, uncertain?} -> decision",
+            "POST /autonomy/authorize": "{action} -> {auto_ok, requires_authority}",
+        },
+        "teaching": "control_theory_for_autonomous_systems (GET /teachings)",
+    }
+
+
+class _AutonomyIn(BaseModel):
+    reference: str
+    errors: List[float]
+    tolerance: float = 0.0
+    max_ticks: int = 100
+    patience: int = 3
+    uncertain: bool = False
+
+
+@app.post("/autonomy/govern", tags=["public"])
+def autonomy_govern(body: _AutonomyIn):
+    """Replay an agent's error series through the governor and return the decision
+    for the latest step (continue / stop / hold) + the run summary. Stateless: the
+    agent passes its full error history (oldest..current) each call."""
+    from api.autonomy import Governor
+    if not body.errors:
+        raise HTTPException(status_code=400, detail="errors[] (oldest..current) is required")
+    g = Governor(reference=body.reference, tolerance=body.tolerance,
+                 max_ticks=max(1, body.max_ticks), patience=max(1, body.patience))
+    n = len(body.errors)
+    ticks = []
+    for idx, e in enumerate(body.errors):
+        t = g.tick(float(e), uncertain=(body.uncertain and idx == n - 1))
+        ticks.append(t.as_dict())
+    return {"decision": ticks[-1]["decision"], "reason": ticks[-1]["reason"],
+            "summary": g.summary(), "ticks": ticks}
+
+
+class _AuthorizeIn(BaseModel):
+    action: str
+
+
+@app.post("/autonomy/authorize", tags=["public"])
+def autonomy_authorize(body: _AuthorizeIn):
+    """The authority ceiling: auto-approve only reversible/internal actions; refuse
+    outward/irreversible ones and send them up to the gates / a human."""
+    from api.autonomy import Governor
+    return Governor(reference="authorization check").authorize(body.action)
+
+
 @app.get("/identity/user_pubkey", include_in_schema=True)
 def identity_user_pubkey():
     """Return this user's personal Ed25519 public key (soul anchor).

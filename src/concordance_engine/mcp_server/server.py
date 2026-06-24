@@ -3244,6 +3244,34 @@ def cards_stats() -> Dict[str, Any]:
 
 
 @mcp.tool()
+def autonomy(reference: str, errors: List[float], action: Optional[str] = None,
+             tolerance: float = 0.0, max_ticks: int = 100, patience: int = 3,
+             uncertain: bool = False) -> Dict[str, Any]:
+    """Control-loop governor for an autonomous agent — wrap your loop in it so you
+    converge, never run away, and never self-authorize irreversible actions.
+
+    Pass your goal (`reference`) and your `errors` series (distance-to-goal,
+    oldest..current). Returns a decision for the latest step:
+      continue — error is decreasing, keep going
+      stop     — converged (error <= tolerance), or drifting (no progress for
+                 `patience` steps), or hit the runaway bound (`max_ticks`)
+      hold     — set uncertain=true when your signal is bad; the governor HOLDS
+                 (do not actuate on a guess)
+
+    Pass an `action` to also get the AUTHORITY-CEILING verdict: outward/irreversible
+    actions (send/publish/pay/transfer/delete/deploy_public/...) are refused and
+    must go up to the gates (BROTHERS/GOD) or a human — the loop is a servant under
+    authority, never the final authority. The full discipline: GET /autonomy."""
+    out = _engine_post("/autonomy/govern", {
+        "reference": reference, "errors": errors, "tolerance": tolerance,
+        "max_ticks": max_ticks, "patience": patience, "uncertain": uncertain})
+    if action:
+        out = dict(out) if isinstance(out, dict) else {"govern": out}
+        out["authorization"] = _engine_post("/autonomy/authorize", {"action": action})
+    return out
+
+
+@mcp.tool()
 def shepherd_interview(query: str, interview_id: Optional[str] = None,
                        skip_to_walk: bool = False,
                        asked_by: str = "mcp_agent") -> Dict[str, Any]:
