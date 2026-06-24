@@ -57,6 +57,19 @@ LABELS = {
                    "alfabetización."),
         "source": "data/reading_es/units.jsonl",
     },
+    "mcguffey": {
+        "brand": "Read", "dir": "ltr", "html_lang": "en",
+        "title": "Read — McGuffey's Eclectic Primer (1879)",
+        "lesson": "Lesson", "of": "of", "examples": "New words",
+        "read_aloud": "Read this aloud", "practice": "Practice together",
+        "check": "Check:", "show": "Show the answer", "back": "Back", "next": "Next",
+        "footer": ("Free, and yours — to keep, to copy, to give. Works with no internet, "
+                   "on any device. This school teaches reading; for the deeper questions "
+                   "it points beyond itself, to Christ."),
+        "review": ("From McGuffey's Eclectic Primer, Revised Edition (W.H. McGuffey, 1879) "
+                   "— public domain, via Project Gutenberg. A time-tested reader."),
+        "source": "data/reading_en_mcguffey/units.jsonl",
+    },
 }
 
 
@@ -108,7 +121,7 @@ _TEMPLATE = """<!DOCTYPE html>
   .ex { display:flex; flex-wrap:wrap; gap:8px; }
   .ex span { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:6px 13px; font-size:17px; }
   .say { font-size:clamp(20px,5.4vw,27px); font-weight:600; padding:14px 16px; background:#fff;
-    border:2px dashed var(--line); border-radius:10px; }
+    border:2px dashed var(--line); border-radius:10px; white-space:pre-wrap; }
   .mode { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin:10px 0; }
   .mode .lab { font-weight:700; color:var(--accent); }
   .mode .ins { font-size:14px; color:var(--soft); margin:2px 0 6px; }
@@ -234,7 +247,7 @@ def build(lang: str = "en", source: str = "", out_dir: Path = None) -> dict:
     review_html = (f'<div class="review">{lab["review"]}</div>' if lab["review"] else "")
     html = _TEMPLATE
     for k, v in {
-        "__LANG__": lang, "__DIR__": lab["dir"], "__TITLE__": lab["title"],
+        "__LANG__": lab.get("html_lang", lang), "__DIR__": lab["dir"], "__TITLE__": lab["title"],
         "__BRAND__": lab["brand"], "__REVIEW_BANNER__": review_html,
         "__LBL_BACK__": lab["back"], "__LBL_NEXT__": lab["next"], "__FOOTER__": lab["footer"],
     }.items():
