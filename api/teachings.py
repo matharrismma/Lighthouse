@@ -556,6 +556,62 @@ _SEED: List[Dict[str, Any]] = [
         "seed_v": 1,
         "captured": "2026-06-24",
     },
+    {
+        "id": "faith_and_the_bounds_of_determinism",
+        "directive": ("How is faith integrated into a deterministic system? ... "
+                      "Or how is it integrated into THIS system? Are we even truly deterministic?"),
+        "principle": ("Faith and determinism integrate by HONEST LAYERING, not by making faith "
+                      "checkable or the machine devout. (1) Determinism handles the CHECKABLE, "
+                      "faith the UNCHECKABLE — the boundary IS the integration: the engine marks "
+                      "CONFIRMED apart from witnessed/concordant, shows the canon without crowning "
+                      "it, and forbids a placeholder from self-declaring 'confirmed'. (2) "
+                      "Determinism RESTS ON faith at the foundation — Godel: no consistent formal "
+                      "system rich enough for arithmetic proves its own axioms or consistency; every "
+                      "one stands on first principles HELD, not proven; this one is built explicitly "
+                      "on Christ. (3) Faith is the REFERENCE the control loop closes around "
+                      "(determinism = servo, faith = setpoint it cannot compute; requisite-variety "
+                      "humility — no finite regulator suffices for the infinite). (4) Determinism "
+                      "SERVES faith — clears falsehood and delivers the Word uncorrupted (Rom "
+                      "10:17), the lampstand not the light; it never manufactures belief (the "
+                      "Spirit's work, received). (5) The BRIDGE (two trees, one Author): the "
+                      "verified form is a WITNESS, the Word is first, elegance is witness not proof. "
+                      "(6) The REFUSAL: never let the machine counterfeit faith or become the idol; "
+                      "success inverts — the person leaves nearer Christ and needing the tool LESS "
+                      "(John 3:30)."),
+        "realization": ("Audited our own copy after 'are we even truly deterministic?' — found NO "
+                        "overclaim ('deterministic' is already scoped to verification everywhere; "
+                        "the oracle is separated; innovation.html publishes the oracle-dependence "
+                        "ratio openly), so did NOT fabricate a fix (the card-count discipline "
+                        "applied to our own marketing). Made the boundary EXPLICIT in /llms.txt "
+                        "('The honest bounds of our determinism', commit 35dc281)."),
+        "result": ("ARE WE TRULY DETERMINISTIC? Honest NO — not as a whole, and we never honestly "
+                   "claimed to be. A deterministic CORE (verifiers/seals/ranker/gates/eliminators — "
+                   "reproducible; benchmark 58/58, 0 false-positives) + a NON-deterministic "
+                   "generative EDGE (the LLM/oracle drafts — flagged 'drafted, not verified', NEVER "
+                   "sealed) + axioms held by faith beneath. The non-deterministic agent (the oracle, "
+                   "or Claude itself) is BOUND and CHECKED by the deterministic verification core — "
+                   "that is the whole architecture: keep the probabilistic mind honest by forcing "
+                   "its trust-bearing claims through the reproducible core. 'Deterministic' = a "
+                   "DISCIPLINE on the trust path, not a metaphysics — and nothing is truly "
+                   "deterministic anyway (quantum indeterminacy; freedom and the Spirit are not "
+                   "computable), which is RIGHT: a fully deterministic system could hold no freedom, "
+                   "faith, or grace. GRADING: Godel + quantum indeterminacy = CONFIRMED; the "
+                   "architecture (det core + flagged edge + faith axioms) = REAL (benchmark proves "
+                   "the core); the theology (faith as reference, Christ at foundation + ceiling, "
+                   "Col 1:17) = held by FAITH, flagged, NOT laundered — the engine points to it, "
+                   "never proves it."),
+        "status": "discipline",
+        "refs": ["Hebrews 11:1; Romans 10:17; John 8:32; John 3:30; Colossians 1:17",
+                 "Godel's incompleteness theorems (no formal system grounds itself)",
+                 "teaching:law_of_requisite_variety + control_theory_for_autonomous_systems "
+                 "(faith = the reference the loop closes around)",
+                 "teaching:love_resonant_in_quantum_theory (reality's indeterminacy)",
+                 "/llms.txt 'The honest bounds of our determinism' (commit 35dc281)",
+                 "canon layer + placeholders + the moat-bridge cards (CONFIRMED vs witnessed; "
+                 "Word first, verified form as witness)"],
+        "seed_v": 1,
+        "captured": "2026-06-24",
+    },
 ]
 
 
