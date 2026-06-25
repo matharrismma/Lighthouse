@@ -25,6 +25,27 @@ The canonical identity statement is also available at
 https://narrowhighway.com/identity (returns JSON for programmatic
 agents) and embedded in every `/version` response.
 
+## The honest bounds of our determinism
+
+We say "deterministic" precisely — it is a property of the path that carries
+trust, not a claim about every output:
+
+  - DETERMINISTIC (reproducible; recompute it yourself): the verification path —
+    verifiers, the four gates, seals (the address IS the sha256 of the content),
+    the ranker, the eliminators. Same input, same verdict. The public benchmark
+    holds 58/58 with 0 false-positives.
+  - NOT deterministic (and never sealed): whatever an assistant DRAFTS — a lesson,
+    a reply, an oracle-formalized spec, a local-model answer. It is labeled
+    "drafted, not verified." Live external lookups change because the world
+    changes, not the engine.
+
+And the determinism rests on axioms held by faith — that truth exists and is
+knowable, the Word first, serving Jesus Christ. No formal system grounds itself
+(Gödel); every one stands on first principles taken as given. So: deterministic
+where we carry trust, honest where we draft, humble about the foundation. The
+non-deterministic edge — freedom, the Spirit, faith — is handed up, never
+computed.
+
 ---
 
 > An authority-based verification and decision-recording engine for AI agents.
