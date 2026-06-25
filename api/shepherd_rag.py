@@ -325,6 +325,27 @@ def _touches_ultimate(q: str) -> bool:
     return any(w in ql for w in _ULTIMATE)
 
 
+# Scripture-reference detection — validate the book token so "Page 3" isn't a verse.
+_BOOKS = {"genesis", "exodus", "leviticus", "numbers", "deuteronomy", "joshua", "judges",
+          "ruth", "samuel", "kings", "chronicles", "ezra", "nehemiah", "esther", "job",
+          "psalm", "psalms", "proverbs", "ecclesiastes", "song", "isaiah", "jeremiah",
+          "lamentations", "ezekiel", "daniel", "hosea", "joel", "amos", "obadiah", "jonah",
+          "micah", "nahum", "habakkuk", "zephaniah", "haggai", "zechariah", "malachi",
+          "matthew", "mark", "luke", "john", "acts", "romans", "corinthians", "galatians",
+          "ephesians", "philippians", "colossians", "thessalonians", "timothy", "titus",
+          "philemon", "hebrews", "james", "peter", "jude", "revelation"}
+_REF_RE = re.compile(r"\b((?:[1-3]\s*)?[A-Za-z]+)\s+(\d{1,3})(?::(\d{1,3}))?\b")
+
+
+def _detect_scripture_ref(q: str) -> Optional[str]:
+    for m in _REF_RE.finditer(q):
+        book = re.sub(r"[^a-z]", "", m.group(1).lower())
+        if book in _BOOKS:
+            ref = m.group(1).strip() + " " + m.group(2) + (":" + m.group(3) if m.group(3) else "")
+            return " ".join(ref.split())
+    return None
+
+
 _WEAVE_SYS = (
     "You are the Shepherd, answering ONLY from the passages provided. Thread them into a "
     "short plain answer (2-4 sentences) that CONNECTS them — use only what is in the passages, "
@@ -419,6 +440,40 @@ def shepherd_answer(q: str, k: int = 5) -> dict:
     thread = _weave(q, cards)
     if thread:
         out["thread"] = thread
+
+    # CONNECT THE DOTS (additive, grounded) — Scripture echoes + deterministic verdicts.
+    ref = _detect_scripture_ref(q)
+    if ref:
+        try:
+            from concordance_engine.mcp_server import tools as _tools
+            cr = _tools.cross_references(ref, 6)
+            refs = (cr.get("cross_references") or cr.get("results") or []) if isinstance(cr, dict) else []
+            if refs:
+                out["scripture"] = {
+                    "ref": ref, "cross_references": refs[:6],
+                    "note": "where Scripture echoes Scripture — an attributed index (Treasury of "
+                            "Scripture Knowledge, CC BY), not the engine's doctrine"}
+        except Exception:  # noqa: BLE001
+            pass
+
+    # A checkable claim, verified DETERMINISTICALLY (rule dispatch + verifier; no
+    # oracle, no guess) — attached only when a rule actually matches.
+    try:
+        from concordance_engine.agent.dispatch import dispatch as _nl_dispatch
+        dr = _nl_dispatch(q)
+        dom = getattr(dr, "domain", None) if dr is not None else None
+        if dom:
+            from api.agent_manifest import dispatch as _verify_dispatch
+            vr = _verify_dispatch("verify_" + dom, getattr(dr, "spec", {}) or {})
+            if isinstance(vr, dict) and vr.get("ok"):
+                out["verified"] = {
+                    "domain": dom, "result": vr.get("result"),
+                    "note": "checked deterministically by the engine, not guessed"}
+                out["answer"] = ("The engine checked this directly (" + dom
+                                 + ", verified). " + out["answer"])
+    except Exception:  # noqa: BLE001
+        pass
+
     if _touches_ultimate(q):
         out["points_up"] = ("This touches an ultimate matter. The answer is not in the tool — it "
                             "is in Christ, in Scripture, in prayer, and in real people. Bring it to Him.")
