@@ -261,6 +261,170 @@ def _corpus():
     return _CORPUS_CACHE
 
 
+# ── The Shepherd's ANSWER: ground it, connect the dots, point to Christ ──────
+_OVERVIEW = None
+
+
+def _load_overview() -> dict:
+    global _OVERVIEW
+    if _OVERVIEW is None:
+        try:
+            _OVERVIEW = json.loads((DATA / "shepherd" / "site_overview.json").read_text("utf-8"))
+        except Exception:
+            _OVERVIEW = {}
+    return _OVERVIEW
+
+
+# Meta / self questions — answered from the site overview, not the corpus.
+_META_Q = ("what does this site", "what does the site", "what the site does",
+           "what this site does", "what is this site", "what is this website",
+           "what does this website", "what is narrow highway", "what does narrow highway",
+           "what is the concordance", "what does the concordance", "what does this engine",
+           "what is this engine", "what can you do", "what can i do here", "what's here",
+           "whats here", "what is here", "who are you", "what are you", "how do i use this",
+           "how does this site", "explain the site", "explain this site", "tell me about this site",
+           "tell me about narrow highway", "what is this place", "what's this site",
+           "purpose of this site", "what is this all about", "what does this place")
+
+
+def _is_meta(q: str) -> bool:
+    ql = " ".join(q.lower().split())
+    return any(p in ql for p in _META_Q)
+
+
+# Light, curated query expansion — boost recall so the right Scripture ranks (the
+# lexical ranker does not know anxiety~worry). Conservative; real synonyms only.
+_SYNONYMS = {
+    "anxiety": "worry anxious afraid fear peace", "anxious": "worry anxiety afraid fear peace",
+    "worry": "anxious anxiety afraid fear peace", "fear": "afraid anxious courage fearful",
+    "afraid": "fear anxious courage", "money": "wealth riches mammon possessions",
+    "marriage": "husband wife wedding spouse", "anger": "wrath angry rage patience",
+    "forgive": "forgiveness mercy pardon", "forgiveness": "forgive mercy pardon",
+    "suffering": "affliction trial sorrow pain tribulation", "death": "dying die grave resurrection",
+    "doubt": "unbelief faith believe", "lonely": "alone loneliness comfort",
+    "grief": "mourning sorrow comfort weep", "purpose": "meaning calling",
+    "salvation": "saved redeemed eternal life", "sin": "transgression iniquity repent",
+    "hope": "hopeful encouragement", "love": "charity beloved",
+}
+
+
+def _expand(q: str) -> str:
+    ql = q.lower()
+    extra = [v for k, v in _SYNONYMS.items() if k in ql]
+    return (q + " " + " ".join(extra)) if extra else q
+
+
+_ULTIMATE = ("god", "jesus", "christ", "sin", "salvation", "saved", "heaven", "hell", "soul",
+             "die", "death", "meaning of life", "purpose of life", "suffering", "forgive",
+             "pray", "prayer", "worship", "faith", "gospel", "eternal", "despair", "hopeless",
+             "worthless", "guilt")
+
+
+def _touches_ultimate(q: str) -> bool:
+    ql = q.lower()
+    return any(w in ql for w in _ULTIMATE)
+
+
+_WEAVE_SYS = (
+    "You are the Shepherd, answering ONLY from the passages provided. Thread them into a "
+    "short plain answer (2-4 sentences) that CONNECTS them — use only what is in the passages, "
+    "and name where each point comes from. If the passages do not actually answer the question, "
+    "say so plainly. You are a tool, not an authority: on ultimate questions (God, meaning, "
+    "suffering, death, sin, salvation) point to Christ, Scripture, prayer, and real people — "
+    "never pose as the final word. Plain text only."
+)
+
+
+def _weave(q: str, cards: list) -> Optional[dict]:
+    """Optional synthesis: a LOCAL-model thread over the retrieved cards (Bumblebee
+    — weave found pieces, never invent). Flagged drafted, never sealed. None if no
+    local model is available."""
+    if not cards:
+        return None
+    try:
+        from api import local_llm
+        if not local_llm.available():
+            return None
+        passages = "\n\n".join(
+            f"[{i + 1}] {c.get('title', '')} ({c.get('source', '')}): {c.get('snippet', '')}"
+            for i, c in enumerate(cards[:4]))
+        out = local_llm.generate(f"Question: {q}\n\nPassages:\n{passages}\n\nThread them:",
+                                 system=_WEAVE_SYS, max_tokens=180, temperature=0.2)
+    except Exception:
+        return None
+    if not out or not out.strip():
+        return None
+    return {"text": " ".join(out.split()), "drafted": True,
+            "note": "drafted from the cards above — not verified; the cards are the ground"}
+
+
+def shepherd_answer(q: str, k: int = 5) -> dict:
+    """The Shepherd ANSWERS: crisis first; meta/self questions from the site overview;
+    everything else grounded in the verified keeping (corpus_search) with the dots
+    connected; ultimate matters pointed to Christ. Never guesses — answers from what
+    is verified, or says it doesn't know."""
+    q = (q or "").strip()
+    if not q:
+        return {"question": q, "mode": "empty",
+                "answer": "Bring a question or a situation and I'll ground it in the keeping."}
+
+    try:
+        from api import safety
+        c = safety.crisis_check(q)
+        if c:
+            return {"question": q, "mode": "safety", "safety": c, "grounded_cards": [],
+                    "answer": "You matter, and you are not alone. Please reach a person now — "
+                              "real help is listed here."}
+    except Exception:
+        pass
+
+    if _is_meta(q):
+        ov = _load_overview()
+        if ov:
+            lines = [f"• {d['name']} ({d['url']}) — {d['does']}"
+                     for d in ov.get("doorways", [])]
+            answer = (ov.get("what", "") + "\n\nWhat's here:\n" + "\n".join(lines)
+                      + "\n\n" + ov.get("mission", "")).strip()
+            return {"question": q, "mode": "about", "answer": answer,
+                    "doorways": ov.get("doorways", []), "grounded_cards": [],
+                    "note": ov.get("honest_bounds", "")}
+
+    cards = []
+    try:
+        from api.cards import corpus_search
+        for c in corpus_search(_expand(q), limit=k):
+            cid = c.get("id") or ""
+            src = c.get("source") or {}
+            cards.append({
+                "source": c.get("shelf") or c.get("kind") or "card",
+                "title": c.get("title") or cid,
+                "ref": (src.get("label") if isinstance(src, dict) else "") or "",
+                "snippet": (c.get("body") or "")[:280],
+                "url": "/c/" + cid,
+            })
+    except Exception:
+        pass
+
+    if not cards:
+        return {"question": q, "mode": "miss", "grounded_cards": [],
+                "answer": "I don't have a grounded answer for that in the keeping yet. "
+                          "Bring it to the Walk to verify or weigh it.",
+                "note": "I won't guess — I answer from what is verified, or I say I don't know."}
+
+    lead = cards[0]
+    answer = ("From the keeping — " + lead["title"]
+              + (f" ({lead['ref']})" if lead.get("ref") else "") + ": " + lead["snippet"])
+    out = {"question": q, "mode": "answer", "answer": answer, "grounded_cards": cards,
+           "note": "Grounded in the verified keeping; open any card for its full text + source."}
+    thread = _weave(q, cards)
+    if thread:
+        out["thread"] = thread
+    if _touches_ultimate(q):
+        out["points_up"] = ("This touches an ultimate matter. The answer is not in the tool — it "
+                            "is in Christ, in Scripture, in prayer, and in real people. Bring it to Him.")
+    return out
+
+
 def get_router():
     if APIRouter is None:
         raise RuntimeError("FastAPI not available")
@@ -324,6 +488,15 @@ def get_router():
                 results.append(r)
                 seen.add(d.get("url"))
         return {"query": q, "results": results[:k], "via": "corpus_search+curated"}
+
+    @router.get("/shepherd/answer")
+    def answer(q: str = Query(...), k: int = Query(5, ge=1, le=12)):
+        """The Shepherd ANSWERS — grounded in the whole keeping, dots connected,
+        Christ-first. Meta questions ('what does this site do?') are answered from
+        the site overview; knowledge questions are grounded in corpus_search (with
+        light synonym recall) and optionally threaded by the local model (flagged);
+        crisis signals are met with help first. It never guesses."""
+        return shepherd_answer(q, k=k)
 
     @router.get("/shepherd/corpus.stats")
     def corpus_stats():
