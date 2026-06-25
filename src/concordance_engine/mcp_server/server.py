@@ -3272,6 +3272,22 @@ def autonomy(reference: str, errors: List[float], action: Optional[str] = None,
 
 
 @mcp.tool()
+def shepherd_answer(q: str, k: int = 5) -> Dict[str, Any]:
+    """The Shepherd answers a question — grounded in the WHOLE keeping, dots
+    connected, Christ-first. Meta/self questions ("what does this site do?") are
+    answered from the site overview; knowledge questions are grounded in the
+    verified keeping (corpus_search, with synonym recall) and returned as a lead
+    verified card + the converging cards + (when a local model is present) a
+    threaded synthesis flagged 'drafted, not verified'; crisis signals get help
+    first; ultimate matters point to Christ. It never guesses — it answers from
+    what is verified, or says it does not know.
+
+    Returns {question, mode (about|answer|safety|miss), answer, grounded_cards,
+    thread?, points_up?, doorways?}."""
+    return _engine_get("/shepherd/answer", q=q, k=k)
+
+
+@mcp.tool()
 def shepherd_interview(query: str, interview_id: Optional[str] = None,
                        skip_to_walk: bool = False,
                        asked_by: str = "mcp_agent") -> Dict[str, Any]:

@@ -19225,10 +19225,39 @@ async def shepherd_ask(request: Request):
     session_id = (body.get("session_id") or "").strip()[:80] or "anon"
     if not question:
         raise HTTPException(status_code=400, detail="question required")
+    # PRIMARY: the grounded Shepherd answer — the de-siloed keeping + synthesis
+    # (api/shepherd_rag.shepherd_answer). Falls back to the rule-based answer only
+    # when it has nothing grounded to say.
     mode = _detect_mode(question)
-    # TODO: when ANTHROPIC_API_KEY is set, route to Claude with SHEPHERD_SYSTEM_PROMPT.
-    # For v1, rule-based fallback.
-    result = _rule_based_answer(question, page, mode)
+    result = None
+    try:
+        from api.shepherd_rag import shepherd_answer
+        ans = shepherd_answer(question, k=6)
+        amode = ans.get("mode")
+        if amode and amode not in ("miss", "empty"):
+            answer = ans.get("answer", "")
+            thread = (ans.get("thread") or {}).get("text")
+            if thread:
+                answer += "\n\nThe thread (drafted from the cards above — not verified): " + thread
+            if ans.get("points_up"):
+                answer += "\n\n" + ans["points_up"]
+            if amode == "safety":
+                for r in ((ans.get("safety") or {}).get("resources") or [])[:3]:
+                    line = (r.get("action", "") + " — " + r.get("name", "")).strip(" -—")
+                    if line:
+                        answer += "\n• " + line
+                sources = []
+            elif amode == "about" and ans.get("doorways"):
+                sources = [{"label": d.get("name"), "url": d.get("url")} for d in ans["doorways"]]
+            else:
+                sources = [{"label": c.get("title"), "url": c.get("url")}
+                           for c in ans.get("grounded_cards", []) if c.get("url")][:6]
+            mode = amode
+            result = {"answer": answer, "sources": sources, "suggest": []}
+    except Exception:
+        result = None
+    if result is None:
+        result = _rule_based_answer(question, page, mode)
     # Append to session log (operator can review)
     from datetime import datetime as _dt, timezone as _tz
     log_path = _SHEPHERD_DIR / f"{session_id}.jsonl"
