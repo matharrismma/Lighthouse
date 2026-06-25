@@ -3915,17 +3915,31 @@ class _WalkRequest(BaseModel):
     situation: str
 
 
+def _looks_like_question(text: str) -> bool:
+    """A question (to be answered) vs a situation (to be walked). Questions get
+    grounded answers; felt struggles get the archetype/gates walk."""
+    t = " ".join((text or "").strip().lower().split())
+    if not t:
+        return False
+    if t.endswith("?"):
+        return True
+    starts = ("who ", "what ", "what's", "whats", "when ", "where ", "why ", "how ",
+              "which ", "is ", "are ", "do ", "does ", "did ", "can ", "could ",
+              "should i", "would ", "will ", "explain", "define", "tell me about",
+              "what is", "what does", "who is", "who was")
+    return t.startswith(starts)
+
+
 @app.post("/walk", tags=["walk"])
 def walk_situation(request: Request, req: _WalkRequest):
-    """Walk a situation through the Coach OS.
+    """Walk a situation through the Coach OS — OR answer a question.
 
-    Returns a composed view: patterns (archetypes), scripture (Layer 0
-    passages), protocols (Mt 18 conflict, discernment, confession,
-    witness, test-spirits, reproof — when they apply), closest
-    precedent, and the four gates as prompts to walk.
-
-    The engine does not answer. It surfaces the field and asks the
-    questions. The user walks.
+    A QUESTION ("what does the Bible say about…", "is 17 prime?", a verse ref)
+    is routed to the Shepherd's grounded answer (Scripture/keeping + cross-refs +
+    deterministic verdicts). A SITUATION (a felt struggle) gets the composed walk:
+    patterns (archetypes), Layer-0 Scripture, the protocols that apply, closest
+    precedent, and the four gates as prompts. For a situation the engine does not
+    answer — it surfaces the field and asks; the user walks.
     """
     _rate_check(request, "walk")
     situation = (req.situation or "").strip()
@@ -3933,6 +3947,15 @@ def walk_situation(request: Request, req: _WalkRequest):
         raise HTTPException(status_code=400, detail="situation is required")
     if len(situation) > 4000:
         raise HTTPException(status_code=400, detail="situation too long (max 4000 chars)")
+    if _looks_like_question(situation):
+        try:
+            from api.shepherd_rag import shepherd_answer
+            ans = shepherd_answer(situation, k=6)
+            if isinstance(ans, dict) and ans.get("mode") not in (None, "miss", "empty"):
+                ans["walk_mode"] = "answer"
+                return ans
+        except Exception:  # noqa: BLE001 — fall back to the walk on any answer failure
+            pass
     return _walk_mod.walk(situation)
 
 
