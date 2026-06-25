@@ -269,25 +269,61 @@ def get_router():
     @router.get("/shepherd/context")
     def context(q: str = Query(...), k: int = Query(5, ge=1, le=20),
                 source: Optional[str] = Query(None)):
-        query_tokens = set(_tokens(q))
-        if not query_tokens:
+        """Grounding for the Shepherd from the WHOLE keeping. PRIMARY: the de-siloed
+        corpus_search ranker (~11k verified cards — Scripture, classics, fathers,
+        dictionary, ...). SUPPLEMENT: the small curated index (hymns/recipes/maker)
+        to fill niche queries. Fixes the old silo that returned, e.g., the creeds
+        for 'anxiety' instead of the Scripture on anxiety."""
+        if not q.strip():
             return {"query": q, "results": []}
-        corpus = _corpus()
-        scored = []
-        for d in corpus:
-            if source and d.get("source") != source:
-                continue
-            sc = _score_keyword(query_tokens, d["tokens"])
-            if sc > 0:
-                scored.append((sc, d))
-        scored.sort(key=lambda x: -x[0])
-        out = []
-        for sc, d in scored[:k]:
-            r = dict(d)
-            r.pop("tokens", None)
-            r["score"] = round(sc, 3)
-            out.append(r)
-        return {"query": q, "results": out, "corpus_size": len(corpus)}
+        results: list[dict] = []
+        seen: set = set()
+        # PRIMARY — the whole keeping, real relevance ranking.
+        try:
+            from api.cards import corpus_search
+            for c in corpus_search(q, limit=k * 2):
+                cid = c.get("id") or ""
+                if source and c.get("shelf") != source and c.get("kind") != source:
+                    continue
+                url = "/c/" + cid
+                if url in seen:
+                    continue
+                seen.add(url)
+                src = c.get("source") or {}
+                results.append({
+                    "source": c.get("shelf") or c.get("kind") or "card",
+                    "title": c.get("title") or cid,
+                    "ref": (src.get("label") if isinstance(src, dict) else "") or "",
+                    "snippet": (c.get("body") or "")[:300],
+                    "url": url,
+                    "score": None,
+                })
+                if len(results) >= k:
+                    break
+        except Exception:
+            pass
+        # SUPPLEMENT — the curated niche index (hymns/recipes/maker/...) to fill out.
+        if len(results) < k:
+            query_tokens = set(_tokens(q))
+            scored = []
+            for d in _corpus():
+                if source and d.get("source") != source:
+                    continue
+                sc = _score_keyword(query_tokens, d["tokens"])
+                if sc > 0:
+                    scored.append((sc, d))
+            scored.sort(key=lambda x: -x[0])
+            for sc, d in scored:
+                if len(results) >= k:
+                    break
+                if d.get("url") in seen:
+                    continue
+                r = dict(d)
+                r.pop("tokens", None)
+                r["score"] = round(sc, 3)
+                results.append(r)
+                seen.add(d.get("url"))
+        return {"query": q, "results": results[:k], "via": "corpus_search+curated"}
 
     @router.get("/shepherd/corpus.stats")
     def corpus_stats():
