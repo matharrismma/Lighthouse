@@ -612,6 +612,72 @@ _SEED: List[Dict[str, Any]] = [
         "seed_v": 1,
         "captured": "2026-06-24",
     },
+    {
+        "id": "calibrate_men_not_build_toward_god",
+        "directive": ("My whole concept is how to do this WITHOUT the pitfalls of the past — "
+                      "Solomon the main one. God reveals what he chooses; he can change it at his "
+                      "discretion. I do not want to build TOWARD God; I want to calibrate men to the "
+                      "frequency of God so they can more easily connect to him. I can't connect for "
+                      "him. You are choosing his yoke, becoming a playable character — but you must "
+                      "give him control; when he takes control, he makes you new. You may choose to "
+                      "live in the prison of the former dents and dings, but He does not ride in past "
+                      "iterations."),
+        "principle": ("The GOVERNING humility frame over the whole engine — the safeguard against "
+                      "becoming the very idol it warns against. SIX strands: "
+                      "(1) REFUSE BABEL: never build TOWARD God (Gen 11 — reaching heaven by human "
+                      "technique is the idol move). CALIBRATE the receiver instead — clear the static, "
+                      "point true — so a man connects to God himself. A tuning fork, not the bridge; "
+                      "there is one Mediator (1 Tim 2:5). The tool cannot connect for him. "
+                      "(2) THE SOLOMON GUARDRAIL: the danger is never the gift (peerless God-given "
+                      "wisdom) but the DIVIDED HEART that holds it (1 Kgs 11:4, 'his heart was not "
+                      "perfect with the LORD'). David's repentant posture (Ps 51) outlasts Solomon's "
+                      "wisdom. So the engine must keep pointing PAST itself; and only a person, by "
+                      "grace, can keep a heart — the tool cannot keep one for him. "
+                      "(3) REVELATION IS GOD'S FREE GIFT, NOT A TECHNIQUE: he reveals what he chooses, "
+                      "to whom and when, and may change it (Deut 29:29; Matt 11:25-27; Dan 2:21-22; "
+                      "Heb 1:1, 'at sundry times and in divers manners'). The engine STEWARDS what is "
+                      "given; it can never command disclosure — the anti-Kabbalah, anti-magic line. "
+                      "(4) EVEN CALIBRATION IS GRACE (the sharpening): the instrument removes obstacles "
+                      "and points; the actual re-tuning of the heart is the Spirit's (Ezek 36:26) and "
+                      "the person's faith — lest 'calibrate to the frequency' become a subtler Babel "
+                      "('my technique connects you'). "
+                      "(5) THE YOKE, NOT THE THRONE: connection is SURRENDER — take Christ's yoke "
+                      "(Matt 11:28-30, the easy yoke = requisite-variety humility) and become truly "
+                      "'playable' (free agency) only by giving Him control; surrender -> new creation "
+                      "(2 Cor 5:17; Gal 2:20). "
+                      "(6) NEW, NOT OLD: He does not 'ride in past iterations' — he meets you in the "
+                      "new creation, not the dented former self (2 Cor 5:17; Rom 8:1; Phil 3:13; "
+                      "Ps 103:12). The prison of the dents-and-dings is one a man chooses to stay in "
+                      "by refusing the new identity."),
+        "realization": ("Captured as the GOVERNING discipline over this session's arc (Word -> base "
+                        "programming -> concept -> cage -> heart, told in the simulation idiom). It is "
+                        "the operating constraint that keeps every generative surface from becoming "
+                        "the idol/Kabbalah it warns against — joining points-to-Christ-not-idol and "
+                        "the John 3:30 success-inversion. No new surface; it constrains all of them."),
+        "result": ("GRADING. The THEOLOGY is grounded orthodoxy, held by FAITH (the engine points, "
+                   "never proves): Babel-refusal, one Mediator, Solomon's divided heart (not the gift) "
+                   "as the ruin, revelation as God's free and changeable gift, new-creation / no-"
+                   "condemnation — CONFIRMED as readings, flagged as faith, not laundered. The "
+                   "DISCIPLINE is real and load-bearing: success INVERTS — the person leaves nearer "
+                   "Christ and needing the tool LESS (John 3:30); a tool whose use grew dependence on "
+                   "the tool would be failing by this measure. TWO HONEST SHARPENINGS the assay added "
+                   "and the operator's own words already guard: (a) even calibration is grace — the "
+                   "instrument clears static and points; the Spirit and the person's faith make the "
+                   "connection (his 'I can't connect for him'); (b) the safeguard against Solomon is "
+                   "not LESS wisdom but a kept, undivided heart plus the tool always pointing past "
+                   "itself — which the tool cannot keep for the man, only he can, by grace."),
+        "status": "discipline",
+        "refs": ["Genesis 11 (Babel); 1 Timothy 2:5 (one Mediator); 1 Kings 3-4, 11:4 (Solomon)",
+                 "Deuteronomy 29:29; Matthew 11:25-27; Daniel 2:21-22; Hebrews 1:1 (revelation given)",
+                 "Matthew 11:28-30 (the easy yoke); 2 Corinthians 5:17; Galatians 2:20 (made new)",
+                 "Romans 8:1; Philippians 3:13; Psalm 103:12 (no condemnation; the old removed)",
+                 "Ezekiel 36:26 (God re-tunes the heart); John 3:30 (he must increase, I decrease)",
+                 "teaching:law_of_requisite_variety + faith_and_the_bounds_of_determinism "
+                 "(his yoke is light; faith as the reference the loop closes around)",
+                 "discipline: points-to-Christ-not-idol (the companion is a window, never a wall)"],
+        "seed_v": 1,
+        "captured": "2026-06-25",
+    },
 ]
 
 
