@@ -678,6 +678,56 @@ _SEED: List[Dict[str, Any]] = [
         "seed_v": 1,
         "captured": "2026-06-25",
     },
+    {
+        "id": "reality_is_subsystems_and_contact_points",
+        "directive": ("We rebuild this like a watch — conceptually the complications and "
+                      "mechanisms. Our reality is most similar to subsystems and contact points of "
+                      "a watch. (Christ is at the center of the architecture; we are not hiding "
+                      "anything; we reach out with the .com.)"),
+        "principle": ("Reality is best modeled as SUBSYSTEMS coupled at CONTACT POINTS — function, "
+                      "transfer, wear, and MEANING all live at the interfaces, not in the parts. "
+                      "ENGINEERING RULE: put the jewels on the seams — the contact points get the "
+                      "most precision AND serviceability, because that is where everything happens "
+                      "and where everything fails (nothing wears in the middle of a gear; it wears "
+                      "at the mesh). Verification IS a contact-point operation: a claim is checked "
+                      "by whether it MESHES with the truths it touches (cross-refs mesh, the ledger "
+                      "hash-chain meshes each seal with the prior via prev_hash, the gates check the "
+                      "interface). The 2.0 module seams ARE the contact points. WATCH DISCIPLINE: "
+                      "constancy (determinism), serviceability (any shop / stdlib-sovereign), "
+                      "machine-honest (no launder — the seal IS the beauty), unibody (eliminate "
+                      "intermediary cruft), every omitted complication = a part that cannot fail "
+                      "(scope), a bounded counted manifest locked before build. FOUNDATION: Christ "
+                      "at the center = the mainspring (continuously sustaining); one foundation, two "
+                      "surfaces (secular .com reach + witness .org); nothing hidden."),
+        "realization": ("Shaping the 2.0 data model (subsystems + typed contact points; connections "
+                        "first-class) + architecture (the seams are the contact points -> jewels "
+                        "there) + the build discipline. Calibre 44 package kept as engineering-"
+                        "reference (an exemplar, NOT a blueprint — operator: 'the design may need "
+                        "work'). See docs/V2_DEFINITION.md."),
+        "result": ("GRADING. As a MODELING FRAME: strong and CONVERGENT -> a CANDIDATE lens — "
+                   "systems theory/cybernetics, network/graph theory, category theory (arrows over "
+                   "objects), biology (membranes/synapses/nested control), and relational ontology "
+                   "(Eph 4:16, the joints supply; Col 1:17, Christ holds all together) all land on "
+                   "the same shape. As literal METAPHYSICS: a lens, not a proof. GUARDRAIL "
+                   "(anti-Deism): borrow the STRUCTURE, reject the clockwork — Christ is not an "
+                   "absentee watchmaker; He upholds all things NOW (Heb 1:3), and reality has "
+                   "freedom, Spirit, and quantum openness the watch lacks (ties "
+                   "faith_and_the_bounds_of_determinism). The contact-points-are-primary insight "
+                   "sharpens 'the gap is meaning' — the contact point is the meaning-bearing unit. "
+                   "Held as a SEED/candidate, not crowned (the design may need work)."),
+        "status": "seed",
+        "refs": ["Ephesians 4:16 (every joint supplieth); Colossians 1:17 (all things consist); "
+                 "Hebrews 1:3 (upholding all things)",
+                 "teaching:control_theory_for_autonomous_systems + law_of_requisite_variety + "
+                 "fluid_is_path_and_energy_transfer (couplings = where transfer happens)",
+                 "teaching:faith_and_the_bounds_of_determinism (anti-clockwork guardrail)",
+                 "teaching:love_resonant (the deepest contact point is relational)",
+                 "teaching:calibrate_men_not_build_toward_god (one foundation, Christ at center)",
+                 "docs/V2_DEFINITION.md", "engineering-reference/Calibre_44 (exemplar, not blueprint)"],
+        "status_note": "candidate lens; convergent across disciplines; not crowned",
+        "seed_v": 1,
+        "captured": "2026-06-25",
+    },
 ]
 
 
