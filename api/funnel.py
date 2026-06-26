@@ -218,6 +218,20 @@ def _list_private(owner: str) -> List[dict]:
     return out
 
 
+_Q_STARTS = ("who ", "what ", "what's", "whats", "when ", "where ", "why ", "how ",
+             "which ", "is ", "are ", "do ", "does ", "did ", "can ", "could ",
+             "should i", "would ", "will ", "explain", "define", "tell me about",
+             "what is", "what does", "who is", "who was")
+
+
+def _is_question(text: str) -> bool:
+    """A question (answer it) vs a felt situation/deposit (Socratic discern)."""
+    t = " ".join((text or "").strip().lower().split())
+    if not t:
+        return False
+    return t.endswith("?") or t.startswith(_Q_STARTS)
+
+
 def get_router():
     if APIRouter is None:
         raise RuntimeError("FastAPI not available")
@@ -286,6 +300,32 @@ def get_router():
                 return {"ok": True, "status": "safety", "safety": _crisis}
         except Exception:
             pass
+
+        # If the latest input is a QUESTION, the Shepherd ANSWERS it (grounded in
+        # the whole keeping + cross-refs + deterministic verdicts) rather than
+        # running the Socratic discern. A felt SITUATION / deposit still flows to
+        # discern below.
+        _latest = ""
+        for _m in reversed(history):
+            if isinstance(_m, dict) and _m.get("role") == "user" and str(_m.get("content", "")).strip():
+                _latest = str(_m.get("content", "")).strip()
+                break
+        if _is_question(_latest):
+            try:
+                from api.shepherd_rag import shepherd_answer
+                _a = shepherd_answer(_latest, k=6)
+                if isinstance(_a, dict) and _a.get("mode") not in (None, "miss", "empty"):
+                    return {"ok": True, "status": "answer",
+                            "answer": _a.get("answer", ""),
+                            "cards": _a.get("grounded_cards", []),
+                            "thread": (_a.get("thread") or {}).get("text"),
+                            "scripture": _a.get("scripture"),
+                            "verified": bool(_a.get("verified")),
+                            "points_up": _a.get("points_up"),
+                            "doorways": _a.get("doorways"),
+                            "answer_mode": _a.get("mode")}
+            except Exception:  # noqa: BLE001 — fall through to discern on any failure
+                pass
 
         # Oracle is ON here (Steward-gated): this is the one door, so it must be
         # able to ask. Tier 0 (keep) catches quick captures for free; the oracle
