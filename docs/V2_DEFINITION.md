@@ -21,11 +21,12 @@ Scripture in the substrate are foundational on BOTH surfaces. **We are not hidin
 
 From that one foundation the engine reaches the world two ways:
 
-- **`.com` — the reach.** A secular *surface*. It meets the world in the world's own language —
-  truth, verification, a re-checkable receipt — with no religious wording on the surface. This is
-  Paul at the Areopagus (Acts 17): reasoning from what they already accept, quoting their own
+- **`.com` — the reach.** The outward, accessible *surface*. It meets the world in the world's own
+  language — truth, verification, a re-checkable receipt — **openly Christian-rooted, not hiding the
+  faith** (the keeping is shared; the `.com` includes the religious cards too — operator, 2026-06-26).
+  This is Paul at the Areopagus (Acts 17): reasoning from what they already accept, quoting their own
   poets, never once moving the foundation. Speaking the hearer's tongue is not shame; it is love
-  (1 Cor 9:19–22, "all things to all men, that I might by all means save some").
+  (1 Cor 9:19–22). "Secular" here = *accessible / for the world*, not *faith-scrubbed*.
 - **`.org` — the witness.** The same engine with the foundation made *explicit* on the surface:
   canon, Scripture, theology, the Shepherd, the SourceLayers — the Rock named.
 
