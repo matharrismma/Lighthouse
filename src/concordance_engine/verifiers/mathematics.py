@@ -164,6 +164,62 @@ def _worked_equality(a, b, ea, eb):
         return f"{a} = {b}; the difference simplifies to 0"
 
 
+# Default floating-point tolerances for numeric equality. A claim like
+# "0.1 + 0.2 == 0.3" is TRUE, but IEEE-754 carries a residue (~5.55e-17), so
+# an exact `simplify(a - b) == 0` check reports a false MISMATCH. When the
+# difference between the two sides reduces to a pure number (no free symbols)
+# it is accepted as equal iff |diff| <= atol + rtol * scale, where scale is
+# the magnitude of the larger side. Symbolic identities are unaffected — they
+# still cancel to exactly zero. Callers may override via `rtol` / `atol` on
+# the MATH_VERIFY spec. Defaults are tight enough that genuinely different
+# numbers (e.g. 0.3 vs 0.30001, a 1e-5 gap) still MISMATCH.
+_DEFAULT_RTOL = 1e-9
+_DEFAULT_ATOL = 1e-12
+
+
+def _numeric_magnitude(expr):
+    """|expr| as a float when expr is a finite constant (no free symbols),
+    else None. Non-finite results (oo, nan, zoo) and un-evaluable expressions
+    also return None so the caller falls back to the symbolic path."""
+    if getattr(expr, "free_symbols", None):
+        return None
+    try:
+        mag = abs(complex(expr.evalf()))
+    except (TypeError, ValueError):
+        return None
+    import math as _math
+    return mag if _math.isfinite(mag) else None
+
+
+def _equal_within_tolerance(ea, eb, rtol=_DEFAULT_RTOL, atol=_DEFAULT_ATOL):
+    """Decide whether ea == eb, tolerant of floating-point residue.
+
+    Returns (equal, exact, residual):
+      equal    — do the two sides agree (symbolically or within tolerance)?
+      exact    — True only when they are symbolically identical (difference
+                 reduces to exactly 0); False when they agree only within
+                 floating-point tolerance. Callers surface this so an
+                 approximate match is never sealed as an exact identity.
+      residual — the simplified difference (for the mismatch detail).
+    """
+    residual = simplify(ea - eb)
+    if residual == 0:
+        return True, True, residual
+    # Non-zero difference. If it is a pure finite number, this is the
+    # floating-point case: compare against a scaled tolerance.
+    mag = _numeric_magnitude(residual)
+    if mag is not None:
+        scale = max(_numeric_magnitude(ea) or 0.0,
+                    _numeric_magnitude(eb) or 0.0, 1.0)
+        if mag <= atol + rtol * scale:
+            return True, False, residual
+        return False, False, residual
+    # Symbolic difference — second normalization pass before giving up.
+    if expand(ea - eb) == 0:
+        return True, True, residual
+    return False, False, residual
+
+
 def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
     _ensure_sympy()
     a = spec.get("expr_a")
@@ -171,26 +227,27 @@ def verify_equality(spec: Dict[str, Any]) -> VerifierResult:
     var_names = spec.get("variables", [])
     if a is None or b is None:
         return na("mathematics.equality")
+    rtol = spec.get("rtol", _DEFAULT_RTOL)
+    atol = spec.get("atol", _DEFAULT_ATOL)
     try:
         ea = _parse(a, var_names)
         eb = _parse(b, var_names)
-        diff_ = simplify(ea - eb)
+        equal, exact, residual = _equal_within_tolerance(ea, eb, rtol, atol)
         _dm = _domain_mismatch(a, b, var_names)
-        if diff_ == 0:
+        if equal:
             if _dm:
                 return mismatch("mathematics.equality",
                     f"{a} == {b} holds only off the singular set (denominator vanishes at: "
                     f"{_dm}); a removable singularity makes this NOT an unconditional "
                     f"identity (e.g. x/x is undefined at x=0)")
-            return confirm("mathematics.equality", _worked_equality(a, b, ea, eb))
-        # Try expand in case simplify didn't normalize
-        if expand(ea - eb) == 0:
-            if _dm:
-                return mismatch("mathematics.equality",
-                    f"{a} == {b} holds only off the singular set (denominator vanishes at: "
-                    f"{_dm}); not an unconditional identity")
-            return confirm("mathematics.equality", _worked_equality(a, b, ea, eb))
-        return mismatch("mathematics.equality", f"{a} - ({b}) simplifies to {diff_}")
+            if exact:
+                return confirm("mathematics.equality", _worked_equality(a, b, ea, eb))
+            return confirm("mathematics.equality",
+                f"{a} = {b}; equal within floating-point tolerance "
+                f"(|difference| = {abs(complex(residual.evalf())):.2e} "
+                f"<= atol {atol:g} + rtol {rtol:g}·scale)",
+                {"exact": False, "residual": str(residual)})
+        return mismatch("mathematics.equality", f"{a} - ({b}) simplifies to {residual}")
     except _PARSE_ERRORS as e:
         return na("mathematics.equality", f"cannot parse expression: {e}")
     except Exception as e:
@@ -204,14 +261,18 @@ def verify_derivative(spec: Dict[str, Any]) -> VerifierResult:
     claimed = spec.get("claimed_derivative")
     if f is None or claimed is None:
         return na("mathematics.derivative")
+    rtol = spec.get("rtol", _DEFAULT_RTOL)
+    atol = spec.get("atol", _DEFAULT_ATOL)
     try:
         x = Symbol(var)
         ef = _parse(f, [var])
         ec = _parse(claimed, [var])
         actual = diff(ef, x)
-        if simplify(actual - ec) == 0:
+        equal, exact, _ = _equal_within_tolerance(actual, ec, rtol, atol)
+        if equal:
+            note = "" if exact else " (within floating-point tolerance)"
             return confirm("mathematics.derivative",
-                           f"d/d{var} of {f} = {actual}, matches {claimed}")
+                           f"d/d{var} of {f} = {actual}, matches {claimed}{note}")
         return mismatch("mathematics.derivative",
                         f"d/d{var} of {f} = {actual}, but claimed {claimed}",
                         {"computed": str(actual), "claimed": str(ec)})
@@ -228,15 +289,19 @@ def verify_integral(spec: Dict[str, Any]) -> VerifierResult:
     claimed = spec.get("claimed_antiderivative")
     if f is None or claimed is None:
         return na("mathematics.integral")
+    rtol = spec.get("rtol", _DEFAULT_RTOL)
+    atol = spec.get("atol", _DEFAULT_ATOL)
     try:
         x = Symbol(var)
         ef = _parse(f, [var])
         ec = _parse(claimed, [var])
         # Differentiate the claimed antiderivative and check it equals the integrand
         derivative = diff(ec, x)
-        if simplify(derivative - ef) == 0:
+        equal, exact, _ = _equal_within_tolerance(derivative, ef, rtol, atol)
+        if equal:
+            note = "" if exact else " (within floating-point tolerance)"
             return confirm("mathematics.integral",
-                           f"d/d{var} of claimed antiderivative {claimed} = {ef} ✓")
+                           f"d/d{var} of claimed antiderivative {claimed} = {ef} ✓{note}")
         return mismatch("mathematics.integral",
                         f"d/d{var} of {claimed} = {derivative}, expected {ef}",
                         {"derivative_of_claim": str(derivative), "integrand": str(ef)})
@@ -254,15 +319,19 @@ def verify_limit(spec: Dict[str, Any]) -> VerifierResult:
     claimed = spec.get("claimed_limit")
     if f is None or point is None or claimed is None:
         return na("mathematics.limit")
+    rtol = spec.get("rtol", _DEFAULT_RTOL)
+    atol = spec.get("atol", _DEFAULT_ATOL)
     try:
         x = Symbol(var)
         ef = _parse(f, [var])
         ep = _parse(str(point), [var])
         ec = _parse(str(claimed), [var])
         actual = limit(ef, x, ep)
-        if simplify(actual - ec) == 0:
+        equal, exact, _ = _equal_within_tolerance(actual, ec, rtol, atol)
+        if equal:
+            note = "" if exact else " (within floating-point tolerance)"
             return confirm("mathematics.limit",
-                           f"lim_{{{var}->{point}}} {f} = {actual}, matches {claimed}")
+                           f"lim_{{{var}->{point}}} {f} = {actual}, matches {claimed}{note}")
         return mismatch("mathematics.limit",
                         f"lim_{{{var}->{point}}} {f} = {actual}, claimed {claimed}",
                         {"computed": str(actual), "claimed": str(ec)})
@@ -279,6 +348,8 @@ def verify_solve(spec: Dict[str, Any]) -> VerifierResult:
     claimed = spec.get("claimed_solutions")
     if eq is None or claimed is None:
         return na("mathematics.solve")
+    rtol = spec.get("rtol", _DEFAULT_RTOL)
+    atol = spec.get("atol", _DEFAULT_ATOL)
     try:
         x = Symbol(var)
         # Allow "lhs = rhs" syntax by converting to lhs - rhs
@@ -293,14 +364,18 @@ def verify_solve(spec: Dict[str, Any]) -> VerifierResult:
         if len(actual) != len(claimed_set):
             return mismatch("mathematics.solve",
                             f"solutions count mismatch: actual {actual} vs claimed {claimed_set}")
+        approx = False
         for a, c in zip(actual, claimed_set):
-            if simplify(a - c) != 0:
+            equal, exact, _ = _equal_within_tolerance(a, c, rtol, atol)
+            if not equal:
                 return mismatch("mathematics.solve",
                                 f"solution {a} != claimed {c}",
                                 {"computed": [str(s) for s in actual],
                                  "claimed": [str(s) for s in claimed_set]})
+            approx = approx or not exact
+        note = " (within floating-point tolerance)" if approx else ""
         return confirm("mathematics.solve",
-                       f"solutions {[str(s) for s in actual]} match claim")
+                       f"solutions {[str(s) for s in actual]} match claim{note}")
     except _PARSE_ERRORS as e:
         return na("mathematics.solve", f"cannot parse expression: {e}")
     except Exception as e:
