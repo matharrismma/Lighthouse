@@ -1,0 +1,52 @@
+#!/bin/sh
+# pre-push guard — refuse history-rewriting pushes to protected branches.
+#
+# This blocks the exact mistake that orphaned main's history: a force /
+# non-fast-forward push that replaces existing commits instead of building
+# on top of them. A normal fast-forward push (the everyday case) passes
+# through untouched.
+#
+# Install once (from the repo root):
+#     git config core.hooksPath scripts/hooks
+#
+# Git feeds us one line per ref being pushed on stdin:
+#     <local ref> <local sha> <remote ref> <remote sha>
+#
+# Windows note: Git for Windows runs hooks through its bundled sh, so this
+# POSIX script works there as-is.
+
+protected_re='^refs/heads/(main|master)$'
+zero='0000000000000000000000000000000000000000'
+status=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Only guard the protected branches.
+    echo "$remote_ref" | grep -Eq "$protected_re" || continue
+
+    if [ "$local_sha" = "$zero" ]; then
+        echo "pre-push: BLOCKED — refusing to DELETE $remote_ref." >&2
+        echo "          Deleting a protected branch is almost never intended." >&2
+        status=1
+        continue
+    fi
+
+    if [ "$remote_sha" = "$zero" ]; then
+        # Remote branch does not exist yet — creating it is fine.
+        continue
+    fi
+
+    # Fast-forward only: the remote tip must be an ancestor of what we push.
+    # If it is not, this push would rewrite/orphan existing history.
+    if ! git merge-base --is-ancestor "$remote_sha" "$local_sha"; then
+        echo "pre-push: BLOCKED — non-fast-forward push to $remote_ref." >&2
+        echo "          This would REWRITE remote history (the mistake that" >&2
+        echo "          orphaned main before). Reconcile first:" >&2
+        echo "              git fetch origin" >&2
+        echo "              git pull --rebase origin ${remote_ref#refs/heads/}" >&2
+        echo "          Only override if you are 100% certain:" >&2
+        echo "              git push --no-verify ..." >&2
+        status=1
+    fi
+done
+
+exit $status
