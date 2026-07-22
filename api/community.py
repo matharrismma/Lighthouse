@@ -442,6 +442,69 @@ def public_profile(record: Dict[str, Any]) -> Dict[str, Any]:
 
 
 # --------------------------------------------------------------------------
+# First Fruits — the founders view
+#
+# "Who is using it the most" done honestly. This reads ONLY the public plane:
+# contributor profiles are public pseudonyms (a handle + a public key, no
+# email, no password). It is a measure of who has RAISED THEIR HAND — entered
+# wisdom by witnessing, proposing, running, or confessing — never a measure of
+# who was watched. It never touches the private conversation. See
+# docs/SEALED_CONVERSATION.md §6.
+# --------------------------------------------------------------------------
+def _fruit_score(stats: Dict[str, Any]) -> int:
+    """A count of fruit borne on the public plane. Every term is a deliberate,
+    public act by the contributor — not a behavioral signal we harvested."""
+    return (
+        int(stats.get("witnesses_given", 0))
+        + int(stats.get("witnesses_received", 0))
+        + int(stats.get("proposals_accepted", 0)) * 2
+        + int(stats.get("proposals_submitted", 0))
+        + int(stats.get("polymathic_runs", 0))
+        + int(stats.get("confessions", 0))
+    )
+
+
+def first_fruits(limit: int = 3) -> Dict[str, Any]:
+    """The founders view: the handful who have ENTERED WISDOM, ranked by fruit
+    borne, honoring the earliest to testify on ties (the first of the harvest).
+
+    Public plane only. Bare registrations are excluded — a claimed name is not
+    a testimony (mirrors `has_entered_wisdom`). Default `limit` is 3: enough to
+    establish a matter and start a community (Mt 18:16; Dt 19:15).
+    """
+    entered: List[Dict[str, Any]] = []
+    if _CONTRIB_DIR.exists():
+        for f in _CONTRIB_DIR.glob("*.json"):
+            try:
+                r = json.loads(f.read_text("utf-8"))
+            except Exception:
+                continue
+            if not has_entered_wisdom(r.get("stats", {})):
+                continue
+            entered.append(public_profile(r))
+
+    # Most fruit first; earliest to testify wins ties (lower join_seq = earlier).
+    entered.sort(key=lambda p: (
+        -_fruit_score(p.get("stats", {})),
+        p.get("join_seq", 1_000_000),
+    ))
+
+    founders = entered[: max(0, int(limit))]
+    for i, p in enumerate(founders):
+        p["fruit"] = _fruit_score(p.get("stats", {}))
+        p["founder_rank"] = i + 1
+
+    return {
+        "founders": founders,
+        "count": len(founders),
+        "entered_wisdom_total": len(entered),
+        "note": ("The first fruits are those who entered wisdom — witnessed, "
+                 "proposed, ran, or confessed — not those most watched. "
+                 "Public plane only; the conversation is never read."),
+    }
+
+
+# --------------------------------------------------------------------------
 # Activity log
 # --------------------------------------------------------------------------
 def log_activity(event: Dict[str, Any]) -> None:

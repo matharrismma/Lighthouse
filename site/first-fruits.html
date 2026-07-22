@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>First Fruits — Narrow Highway</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The founders — the first to enter wisdom into the engine. Public plane only; the conversation is never read.">
+<style>
+  :root{
+    --desk:#5c4a38; --leaf:#e8d9ba; --leaf-2:#e0d0ac; --leaf-edge:#cdbc94;
+    --ink:#2b2013; --ink-soft:#5f4d36; --ink-faint:#8a765a;
+    --rubric:#8f2d20; --gold:#a9812f; --green:#465a3c; --rule:#c8b58c;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,'Times New Roman',serif;
+  }
+  @media (prefers-color-scheme:dark){ :root{ --desk:#120d08; --leaf:#e4d4b1; --leaf-2:#d9c8a2; --leaf-edge:#c3b088; } }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:radial-gradient(120% 90% at 50% -10%, #6b5744, var(--desk) 70%) fixed;
+       color:var(--ink); font-family:var(--serif); display:flex; justify-content:center; min-height:100vh;
+       -webkit-font-smoothing:antialiased;}
+  .leaf{position:relative; width:min(680px,100%); min-height:100vh; padding:48px 40px 60px;
+        background:linear-gradient(180deg,var(--leaf),var(--leaf-2));
+        border-left:1px solid var(--leaf-edge); border-right:1px solid var(--leaf-edge);
+        box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 0 120px rgba(120,86,40,.10);}
+  .leaf::after{content:""; position:absolute; inset:0; pointer-events:none;
+        box-shadow:inset 0 0 90px rgba(70,48,20,.20);}
+  .mast{display:flex; align-items:center; gap:9px; color:var(--rubric); margin-bottom:26px}
+  .mast .name{font-size:12px; letter-spacing:.32em; text-transform:uppercase; font-weight:600}
+  .mast .name b{color:var(--gold)}
+  h1{font-size:clamp(28px,5vw,40px); margin:0 0 6px; color:var(--rubric); letter-spacing:.01em; text-wrap:balance}
+  .sub{color:var(--ink-soft); font-size:16.5px; line-height:1.6; max-width:56ch; margin:0 0 6px}
+  .ref{font-variant:small-caps; letter-spacing:.06em; color:var(--gold); font-size:13px; margin-bottom:28px}
+  .founder{position:relative; margin:16px 0; padding:16px 18px 16px 20px; border-left:3px solid var(--gold);
+           background:linear-gradient(90deg, rgba(169,129,47,.06), transparent 92%);}
+  .founder .num{position:absolute; left:-2px; top:-14px; font-size:12px; color:var(--gold); font-variant:small-caps; letter-spacing:.12em}
+  .founder .who{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .founder .handle{font-size:21px; font-weight:700; color:var(--ink)}
+  .founder .tier{font-variant:small-caps; letter-spacing:.08em; font-size:13px; color:var(--rubric);
+                 border:1px solid var(--rubric); border-radius:2px; padding:1px 8px}
+  .founder .bio{color:var(--ink-soft); font-size:15px; margin:6px 0 0; line-height:1.55}
+  .founder .marks{display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--ink-faint); font-variant:small-caps; letter-spacing:.04em}
+  .founder .marks b{color:var(--green); font-weight:600; font-variant:normal; font-size:14px}
+  .founder .key{font-family:ui-monospace,'Courier New',monospace; font-size:11px; color:var(--ink-faint); margin-top:8px; letter-spacing:.02em}
+  .empty{padding:20px; color:var(--ink-soft); font-style:italic; line-height:1.6; border-left:3px solid var(--rule)}
+  .note{margin-top:30px; padding-top:18px; border-top:1px solid var(--rule); color:var(--ink-faint); font-size:13.5px; line-height:1.6; font-style:italic}
+  a.back{display:inline-block; margin-top:22px; color:var(--rubric); font-variant:small-caps; letter-spacing:.08em; text-decoration:none; border-bottom:1px dotted var(--rubric)}
+</style>
+</head>
+<body>
+<div class="leaf">
+  <div class="mast">
+    <svg width="16" height="16" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" aria-hidden="true">
+      <line x1="16" y1="18" x2="48" y2="50"/><line x1="48" y1="18" x2="16" y2="50"/>
+      <line x1="32" y1="10" x2="32" y2="56"/><path d="M 32 10 C 46 10, 46 28, 32 28"/>
+    </svg>
+    <span class="name">Narrow <b>Highway</b></span>
+  </div>
+
+  <h1>First Fruits</h1>
+  <p class="sub">The founders — those who first entered wisdom into the engine, not those most watched. To witness for a brother, to propose, to run, to confess: this is how a name becomes a testimony.</p>
+  <p class="ref">Two or three, and a matter is established · Mt 18:16</p>
+
+  <div id="founders"><div class="empty">Gathering the first fruits…</div></div>
+
+  <p class="note" id="note"></p>
+  <a class="back" href="/">← back to the page</a>
+</div>
+
+<script>
+(function(){
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function marks(st){
+    var out=[];
+    function add(n,label){ if(n>0) out.push('<span><b>'+n+'</b> '+label+'</span>'); }
+    add(st.witnesses_given||0,'witnessed');
+    add(st.witnesses_received||0,'vouched for');
+    add(st.proposals_accepted||0,'accepted');
+    add(st.polymathic_runs||0,'runs');
+    add(st.confessions||0,'confessed');
+    return out.join('');
+  }
+  fetch('/community/first-fruits?limit=3')
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){
+      var el=document.getElementById('founders');
+      document.getElementById('note').textContent=d.note||'';
+      if(!d.founders || !d.founders.length){
+        el.innerHTML='<div class="empty">No one has entered wisdom yet — the field is unbroken. Be the first: witness for a brother, propose an entry, or run the engine and let it seal your work. It takes only two or three to begin.</div>';
+        return;
+      }
+      el.innerHTML=d.founders.map(function(f){
+        var key=f.user_pubkey ? '<div class="key">'+esc((f.user_pubkey+'').slice(0,20))+'…</div>' : '';
+        var bio=f.bio ? '<p class="bio">'+esc(f.bio)+'</p>' : '';
+        var m=marks(f.stats||{});
+        return '<div class="founder">'
+          +'<span class="num">the '+(f.founder_rank===1?'first':f.founder_rank===2?'second':f.founder_rank===3?'third':(f.founder_rank+'th'))+' fruit</span>'
+          +'<div class="who"><span class="handle">'+esc(f.display_name||f.handle)+'</span>'
+          +'<span class="tier">'+esc(f.tier_label||f.tier||'')+'</span></div>'
+          + bio
+          + (m ? '<div class="marks">'+m+'</div>' : '')
+          + key
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(){
+      document.getElementById('founders').innerHTML='<div class="empty">The record could not be read just now. Try again in a moment.</div>';
+    });
+})();
+</script>
+</body>
+</html>

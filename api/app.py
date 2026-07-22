@@ -7874,6 +7874,20 @@ def community_contributors_leaderboard(
     }
 
 
+@app.get("/community/first-fruits", tags=["community"])
+def community_first_fruits(
+    limit: int = Query(3, ge=1, le=25,
+                       description="How many founders to return (default 3 — enough to start)"),
+):
+    """The founders view — the handful who have ENTERED WISDOM, ranked by
+    fruit borne. This is the honest form of "who is using it the most": it
+    reads only the public plane (handles are public pseudonyms, no email, no
+    password), and it counts deliberate public acts — witnessing, proposing,
+    running, confessing — never behavioral tracking of the conversation.
+    See docs/SEALED_CONVERSATION.md §6."""
+    return _community.first_fruits(limit=limit)
+
+
 @app.get("/community/badges", tags=["community"])
 def community_badge_catalog():
     """All badges and the tiers they unlock."""
