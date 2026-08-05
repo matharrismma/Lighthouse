@@ -77,6 +77,18 @@ while ($true) {
                     Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
                 }
             } catch {}
+            # Also kill DEAF zombies: when the accept loop dies (proactor WinError 64),
+            # the engine stops LISTENING but still holds the socket — the port query
+            # above misses it, every new instance fails to bind, and the restart loop
+            # spawns an elevated console per cycle (the window storm of 2026-08-05).
+            try {
+                Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+                    Where-Object { $_.CommandLine -match 'uvicorn api\.app|runserver\.py' } |
+                    ForEach-Object {
+                        Log-Line "  stopping deaf engine PID $($_.ProcessId)" 'Yellow'
+                        Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+                    }
+            } catch {}
             Start-Sleep -Seconds 2
 
             # Restart the engine. Primary path: the Concordance-API scheduled
