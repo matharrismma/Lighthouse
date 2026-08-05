@@ -3527,6 +3527,26 @@ def resource_manifest() -> str:
     return json.dumps(result, indent=2, ensure_ascii=False) if isinstance(result, dict) else str(result)
 
 
+# ── THE CONSOLIDATION (Matt 2026-07-30; lever 2, 2026-08-05) ────────────────────────────────
+# "We should be consolidating tools. Not making more." The 71 verify_* doors collapse behind
+# the TWO that were always the entry: `check` (routes any claim/mode to its verifier) and
+# `find_verifier` (names the door for a keyword). Every verifier REMAINS — as check's
+# internals, exactly as the instructions block has said all along. An agent that wants the
+# full wall of doors back sets CONCORDANCE_FULL_TOOLS=1.
+if os.environ.get("CONCORDANCE_FULL_TOOLS", "").strip().lower() not in ("1", "true", "yes"):
+    try:
+        _tools = mcp._tool_manager._tools
+        _dropped = [n for n in list(_tools) if n.startswith("verify_")]
+        for _n in _dropped:
+            del _tools[_n]
+        import sys as _sys
+        print(f"[MCP] consolidated surface: {len(_dropped)} verify_* tools folded behind "
+              f"check/find_verifier; {len(_tools)} tools listed", file=_sys.stderr)
+    except AttributeError as _e:  # FastMCP internals moved — fail LOUD, never prune silently
+        import sys as _sys
+        print(f"[MCP] CONSOLIDATION FAILED (surface stays full): {_e}", file=_sys.stderr)
+
+
 def main() -> None:
     """Entry point for the MCP server. Runs over stdio."""
     mcp.run()
