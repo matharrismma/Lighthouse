@@ -1,5 +1,29 @@
 # Exports
 
+> ## ⚠ THE ISSUER KEYPAIR IN THIS FOLDER IS VOID — NEVER REUSE IT
+>
+> `issuer_private.b64u` — a 32-byte Ed25519 private seed — was committed to this **public**
+> repository in `2e44fef` and pushed, along with a second copy of the same key inside `keys.json`.
+> It was therefore public from that moment, and it is permanently compromised.
+>
+> **Removed 2026-11-20:** `issuer_private.b64u` is deleted, and the `ed25519_private_key_b64u`
+> field is stripped from `keys.json`. The public key
+> (`F5Jtk0zTk7F7tVD49bUNFObexDGzeX4wpgXSrIYFG9Y`) is kept on purpose, so the signature on
+> `signed_packet_example.json` remains *identifiable* — it is no longer *trustworthy*, and never
+> was after publication.
+>
+> **Deleting these files does not unpublish them.** The key remains in this repository's git
+> history, and in any fork or cache of it. Treat it as known to everyone.
+>
+> **`SHA256SUMS.txt` and `manifest_sha256.json` were deliberately NOT rewritten.** They still list
+> `issuer_private.b64u` and the original `keys.json` hash, so verification of those two entries now
+> fails — correctly. They are the record of what this bundle originally contained, and editing them
+> to hide the removal would make the archive lie about its own history. This notice is the
+> explanation a verifier should find.
+>
+> Nothing in production ever trusted this key: zero records under `data/cas/` and zero files on the
+> live host reference it. It signed the example packet in this folder and nothing else.
+
 This folder contains generated artifacts.
 
 ## Included

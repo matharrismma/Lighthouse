@@ -9,6 +9,15 @@ build/
 # private / sensitive material — never push
 *passphrase*.txt
 *passphrase*.json
+# Ed25519 / signing key material. Added 2026-11-20 after `issuer_private.b64u` (43 bytes, a 32-byte
+# Ed25519 seed) was found TRACKED in this PUBLIC repo since commit 2e44fef, together with a second
+# copy inside `keys.json` — which no filename-pattern rule would ever have caught, only its contents.
+# So both shapes are covered: the name, and the obvious containers.
+# A NAME PATTERN CANNOT CATCH A SECRET INSIDE A JSON FIELD — `keys.json` proved that, and no rule
+# below would have stopped it. Only a CONTENT scan before push would. These cover the names:
+*_private.b64u
+*private_key*
+*secret_key*
 hutcheson_contract.docx
 *_contract.docx
 *_contract.pdf
